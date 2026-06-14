@@ -930,7 +930,6 @@ const ClientSwipeContainerComponent = ({
           className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
           {...pullDown.bind}
         >
-        <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto"
           style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
@@ -957,10 +956,6 @@ const ClientSwipeContainerComponent = ({
                     <motion.div
                       key={profile.user_id}
                       exit={{
-                        // Card stays fully solid (opacity 1) and slides off the
-                        // edge — no fade. The 1.2x over-travel guarantees it is
-                        // completely off-screen, so it reads as a real card
-                        // leaving, not a ghost dissolving.
                         x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
                         y: 0,
                         transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
@@ -981,6 +976,7 @@ const ClientSwipeContainerComponent = ({
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
                         onDragStart={isTopCard ? handleDragStart : undefined}
+                        onBack={isTopCard ? () => navigate(`/${activeMode}/dashboard`) : undefined}
                         canUndo={canUndo}
                         isTop={isTopCard}
                         fullScreen={false}

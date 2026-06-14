@@ -298,8 +298,9 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            justifyContent: 'flex-start',
+            justifyContent: isTablet ? 'center' : 'flex-start',
             scrollBehavior: 'smooth',
+            padding: '0 8px',
           }}
         >
           {navItems.map((item) => {

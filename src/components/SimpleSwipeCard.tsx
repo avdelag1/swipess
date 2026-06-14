@@ -28,7 +28,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -54,6 +54,7 @@ interface SimpleSwipeCardProps {
   onMessage?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
+  onExit?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
@@ -76,6 +77,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onMessage,
   onUndo,
   canUndo = false,
+  onExit,
   disableDrag,
   fullScreen = false,
 }, ref) => {
@@ -431,6 +433,36 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {isTop && (listing as any).category !== 'events' && (
           <>
             <GestureHints hidden={isZoomed} />
+            
+            <div className="absolute top-4 inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+              <button
+                data-no-cinematic
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onExit) onExit();
+                }}
+                className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
+              </button>
+
+              {canUndo ? (
+                <button
+                  data-no-cinematic
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onUndo) onUndo();
+                  }}
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  aria-label="Undo"
+                >
+                  <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                </button>
+              ) : <div className="w-12 h-12" />}
+            </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">

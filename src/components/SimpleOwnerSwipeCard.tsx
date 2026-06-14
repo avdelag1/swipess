@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -368,6 +368,36 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
                   style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
+              
+              <div className="absolute top-4 inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+                <button
+                  data-no-cinematic
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onBack) onBack();
+                  }}
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
+                </button>
+
+                {canUndo ? (
+                  <button
+                    data-no-cinematic
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onUndo) onUndo();
+                    }}
+                    className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    aria-label="Undo"
+                  >
+                    <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                  </button>
+                ) : <div className="w-12 h-12" />}
+              </div>
             </>
           )}
         </div>

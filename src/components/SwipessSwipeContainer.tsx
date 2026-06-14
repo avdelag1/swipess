@@ -872,86 +872,85 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </motion.div>
 
-      <div
-        className={cn(
-          "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
-        )}
-        {...pullDown.bind}
-      >
-        <SwipeDeckBackButton />
-        <motion.div
-          className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
+        <div
+          className={cn(
+            "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
+          )}
+          {...pullDown.bind}
         >
-          {/* Rounded backdrop matches card corners so deck blends into background */}
-          <div
-            aria-hidden
-            className={cn(
-              "absolute inset-0 -z-10 transition-colors duration-500",
-              "bg-swipe-frame"
-            )}
-            style={{ borderRadius: 48 }}
-          />
-          <AnimatePresence mode="sync" initial={false}>
-            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <motion.div
-                key="swipe-deck"
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
-              >
-                <AnimatePresence>
-                  {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
-                    const isTopCard = listing.id === topCard?.id;
-                    return (
-                      <motion.div
-                        key={listing.id}
-                        exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                        className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
-                      >
-                      {dataType === 'people' ? (
-                        <SimpleOwnerSwipeCard
-                          ref={isTopCard ? cardRef as any : undefined}
-                          profile={listing}
-                          onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onTap={isTopCard ? handleInsights : undefined}
-                          onInsights={isTopCard ? handleInsights : undefined}
-                          onShare={isTopCard ? handleShare : undefined}
-                          onSoon={isTopCard ? handleSoon : undefined}
-                          onMessage={isTopCard ? handleMessage : undefined}
-                          onReport={isTopCard ? () => {
-                            setSelectedListing(listing);
-                            setReportDialogOpen(true);
-                            triggerHaptic('medium');
-                          } : undefined}
+          <motion.div
+            className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
+            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
+          >
+            {/* Rounded backdrop matches card corners so deck blends into background */}
+            <div
+              aria-hidden
+              className={cn(
+                "absolute inset-0 -z-10 transition-colors duration-500",
+                "bg-swipe-frame"
+              )}
+              style={{ borderRadius: 48 }}
+            />
+            <AnimatePresence mode="sync" initial={false}>
+              {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+                <motion.div
+                  key="swipe-deck"
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
+                >
+                  <AnimatePresence>
+                    {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                      const isTopCard = listing.id === topCard?.id;
+                      return (
+                        <motion.div
+                          key={listing.id}
+                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                          className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                        >
+                        {dataType === 'people' ? (
+                          <SimpleOwnerSwipeCard
+                            ref={isTopCard ? cardRef as any : undefined}
+                            profile={listing}
+                            onSwipe={isTopCard ? handleSwipe : () => {}}
+                            onTap={isTopCard ? handleInsights : undefined}
+                            onInsights={isTopCard ? handleInsights : undefined}
+                            onShare={isTopCard ? handleShare : undefined}
+                            onSoon={isTopCard ? handleSoon : undefined}
+                            onMessage={isTopCard ? handleMessage : undefined}
+                            onReport={isTopCard ? () => {
+                              setSelectedListing(listing);
+                              setReportDialogOpen(true);
+                              triggerHaptic('medium');
+                            } : undefined}
+                            onDragStart={isTopCard ? handleDragStart : undefined}
+                            isTop={isTopCard}
+                            onUndo={isTopCard ? undoLastSwipe : undefined}
+                            canUndo={canUndo}
+                            onBack={handleBack}
+                          />
+                        ) : (
+                          <SimpleSwipeCard
+                            ref={isTopCard ? cardRef : undefined}
+                            listing={listing}
+                            isTop={isTopCard}
+                            fullScreen={false}
+                            onSwipe={isTopCard ? handleSwipe : () => {}}
+                            onCardTap={isTopCard ? handleInsights : undefined}
+                            onInsights={isTopCard ? handleInsights : undefined}
+                            onShare={isTopCard ? handleShare : undefined}
+                            onSoon={isTopCard ? handleSoon : undefined}
+                            onMessage={isTopCard ? handleMessage : undefined}
+                            onExit={isTopCard ? handleBack : undefined}
+                            onUndo={isTopCard ? undoLastSwipe : undefined}
+                            canUndo={canUndo}
+                            onReport={isTopCard ? () => {
+                              setSelectedListing(listing);
+                              setReportDialogOpen(true);
+                              triggerHaptic('medium');
+                            } : undefined}
                           onDragStart={isTopCard ? handleDragStart : undefined}
-                          isTop={isTopCard}
-                          onUndo={isTopCard ? undoLastSwipe : undefined}
-                          canUndo={canUndo}
-                          onBack={handleBack}
-                        />
-                      ) : (
-                        <SimpleSwipeCard
-                          ref={isTopCard ? cardRef : undefined}
-                          listing={listing}
-                          isTop={isTopCard}
-                          fullScreen={false}
-                          onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onCardTap={isTopCard ? handleInsights : undefined}
-                          onInsights={isTopCard ? handleInsights : undefined}
-                          onShare={isTopCard ? handleShare : undefined}
-                          onSoon={isTopCard ? handleSoon : undefined}
-                          onMessage={isTopCard ? handleMessage : undefined}
-                          onReport={isTopCard ? () => {
-                            setSelectedListing(listing);
-                            setReportDialogOpen(true);
-                            triggerHaptic('medium');
-                          } : undefined}
-                          onDragStart={isTopCard ? handleDragStart : undefined}
-                          onUndo={isTopCard ? undoLastSwipe : undefined}
-                          canUndo={canUndo}
-                          onBack={handleBack}
                         />
                       )}
                     </motion.div>

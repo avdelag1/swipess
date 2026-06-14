@@ -58,13 +58,8 @@ export function useSwipeUndo() {
     direction: 'left' | 'right',
     category?: string
   ) => {
-    // Only save left swipes for undo
-    if (direction === 'left') {
-      saveLastSwipe({ targetId, targetType, direction, timestamp: new Date(), category });
-    } else {
-      // Right swipes clear the undo state
-      saveLastSwipe(null);
-    }
+    // Save both left and right swipes for undo
+    saveLastSwipe({ targetId, targetType, direction, timestamp: new Date(), category });
   }, [saveLastSwipe]);
 
   // Undo mutation - removes the swipe from the likes table
