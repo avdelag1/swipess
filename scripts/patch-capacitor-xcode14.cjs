@@ -69,7 +69,7 @@ if (fs.existsSync(geoErrorPath)) {
     content = content.replace(/case \.permissionDenied: "Location permission request was denied\."/g, 'case .permissionDenied: return "Location permission request was denied."');
     content = content.replace(/case \.locationServicesDisabled: "Location services are not enabled\."/g, 'case .locationServicesDisabled: return "Location services are not enabled."');
     content = content.replace(/case \.permissionRestricted: "Application's use of location services was restricted\."/g, 'case .permissionRestricted: return "Application\'s use of location services was restricted."');
-    content = content.replace(/case \.inputArgumentsIssue\(let target\): "The '\\(target\.rawValue\)' input parameters aren't valid\."/g, 'case .inputArgumentsIssue(let target): return "The \'\\(target.rawValue)\' input parameters aren\'t valid."');
+    content = content.replace(/case \.inputArgumentsIssue\(let target\): "The '\\\\\\(target\\.rawValue\\\\\\)' input parameters aren't valid\\."/g, 'case .inputArgumentsIssue(let target): return "The \'\\\\(target.rawValue)\' input parameters aren\'t valid."');
     changed = true;
   }
   if (changed) {
