@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { STORAGE } from '@/constants/app';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
 
 /**
  * PaymentSuccess - Silent Payment Processing

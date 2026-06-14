@@ -1,5 +1,4 @@
 import { useAuth } from "@/hooks/useAuth";
-import { logger } from '@/utils/prodLogger';
 import { useActiveMode } from "@/hooks/useActiveMode";
 import { useState } from 'react';
 import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } from "lucide-react";
@@ -7,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { appToast } from '@/utils/appNotification';
-import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
-import { Browser } from '@capacitor/browser';
 import { NativeBridge } from "@/utils/nativeBridge";
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from "@/config/iapProducts";

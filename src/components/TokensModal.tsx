@@ -5,13 +5,12 @@ import { FaApple } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
-import { STORAGE } from '@/constants/app';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { useNavigate } from 'react-router-dom';
-import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage, getSafePaymentUrl } from '@/config/iapProducts';
+import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
 import { appToast } from '@/utils/appNotification';
 import { createPortal } from 'react-dom';
 
