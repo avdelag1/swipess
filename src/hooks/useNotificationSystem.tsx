@@ -250,8 +250,8 @@ export function useNotificationSystem() {
       // Payment related — go to profile/dashboard where benefits/tokens show
       navigate('/profile');
     } else if (!['success', 'info', 'warning', 'error'].includes((notification.type || '') as string)) {
-      // Legacy detail notifications only; payment feedback banners already show the info, no need for alert spam
-      // window.alert(`${notification.title}\n\n${notification.message}`);
+      // Show full details for social notifications if there is no URL
+      window.alert(`${notification.title}\n\n${notification.message}`);
     }
 
     // Auto-dismiss the banner on click

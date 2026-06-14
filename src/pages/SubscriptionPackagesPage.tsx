@@ -144,7 +144,8 @@ export default function SubscriptionPackagesPage() {
           return;
         }
         // Let the native purchase sheet provide the primary "Apple Pay" / App Store UI.
-        // Avoid extra banners that can cover the sheet or confuse screenshots.
+        // We restore the toast so the user knows it's loading.
+        appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
         const result = await NativeBridge.purchaseProduct(plan.appleProductId);
         if (result.success) {
           appToast.success('Subscription Activated', 'Welcome to the elite tier.');

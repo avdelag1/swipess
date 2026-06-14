@@ -15,7 +15,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
 const NotificationsPage = () => {
-  const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead } = useNotificationSystem();
+  const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const isLoading = false;
   const { isLight, isDark } = useAppTheme();
   const { _navigate } = useAppNavigate();
@@ -87,7 +87,11 @@ const NotificationsPage = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => { triggerHaptic('light'); markNotificationAsRead(notif.id); }}
+                onClick={() => { 
+                  triggerHaptic('light'); 
+                  markNotificationAsRead(notif.id); 
+                  handleNotificationClick(notif);
+                }}
                 className={cn(
                   "group relative py-4 px-1 transition-all cursor-pointer active:scale-[0.98]",
                   notif.read ? "opacity-50" : ""
