@@ -145,10 +145,10 @@ export default function SubscriptionPackagesPage() {
           return;
         } else {
           const cancelled = (result as any).error === 'CANCELLED';
-          if (!cancelled) {
-            appToast.error('Purchase could not be completed');
-          }
-          return;
+          if (cancelled) return; // User closed the sheet
+          // If Apple Pay fails (e.g., product not found in App Store Connect yet),
+          // show a warning and fallback to PayPal below.
+          appToast.warning('Apple Pay Unavailable', 'Falling back to secure checkout...');
         }
       }
 
@@ -200,7 +200,8 @@ export default function SubscriptionPackagesPage() {
 
   return (
     <PaymentErrorBoundary>
-      <div className="min-h-[100dvh] bg-black flex flex-col pb-safe-bottom overflow-x-hidden" style={{ contain: 'layout' }}>
+      {/* fixed inset-0 z-[100] forces it to cover the entire screen, ignoring any top/bottom nav spacing from layouts */}
+      <div className="fixed inset-0 z-[100] bg-black flex flex-col pb-safe-bottom overflow-x-hidden overflow-y-auto" style={{ contain: 'layout' }}>
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />

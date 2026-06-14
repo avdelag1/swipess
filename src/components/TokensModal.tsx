@@ -81,13 +81,13 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       if (result.success) {
         appToast.info('Payment Confirmed', `${pkg.tokens} tokens activated.`);
         close();
+        return;
       } else {
         const cancelled = (result as any).error === 'CANCELLED';
-        if (!cancelled) {
-          appToast.error('Purchase could not be completed', 'Please try again.');
-        }
+        if (cancelled) return;
+        
+        appToast.warning('Apple Pay Unavailable', 'Falling back to secure checkout...');
       }
-      return;
     }
 
     const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
