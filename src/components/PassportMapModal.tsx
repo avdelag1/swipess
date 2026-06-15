@@ -28,7 +28,7 @@ import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const RADIUS_PRESETS = [5, 10, 25, 50] as const;
+const RADIUS_PRESETS = [5, 20, 40, 80] as const;
 
 function zoomForRadiusKm(km: number): number {
   return Math.min(16, Math.max(10, 13.8 - Math.log2(km)));
@@ -559,11 +559,10 @@ export const PassportMapModal = memo(() => {
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-2xl text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-            style={{ background: PASSPORT_GRADIENTS.premium }}
+            className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] bg-black/40 backdrop-blur-md"
             aria-label="Close map"
           >
-            <X className="w-5 h-5" strokeWidth={2.5} />
+            <X className="w-4 h-4" strokeWidth={2.5} />
           </motion.button>
 
           <div className="pointer-events-none flex-1 min-w-0 flex justify-center px-2">
@@ -592,11 +591,10 @@ export const PassportMapModal = memo(() => {
             whileTap={{ scale: 0.9 }}
             onClick={handleGPS}
             disabled={gpsLoading}
-            className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-2xl text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
-            style={{ background: PASSPORT_GRADIENTS.tokens }}
+            className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] bg-black/40 backdrop-blur-md disabled:opacity-60"
             title="My location"
           >
-            {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" strokeWidth={2.2} />}
+            {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" strokeWidth={2.2} />}
           </motion.button>
         </div>
 
@@ -692,14 +690,14 @@ export const PassportMapModal = memo(() => {
                   <div className="relative flex-1">
                     <div
                       className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
-                      style={{ width: `${((radiusKm - 5) / 45) * 100}%` }}
+                      style={{ width: `${((radiusKm - 5) / 75) * 100}%` }}
                     >
                       <div className="h-2 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
                     </div>
                     <input
                       type="range"
                       min={5}
-                      max={50}
+                      max={80}
                       step={1}
                       value={radiusKm}
                       onChange={(e) => setRadiusKm(Number(e.target.value))}
