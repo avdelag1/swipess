@@ -235,6 +235,18 @@ export const useFilterStore = create<FilterState>()(
         
         // Service mapping
         if (filters.service_categories) mapped.serviceTypes = filters.service_categories;
+        if (filters.moto_types) mapped.motoTypes = filters.moto_types;
+        if (filters.bicycle_types) mapped.bicycleTypes = filters.bicycle_types;
+        if (filters.radius_km !== undefined) mapped.radiusKm = filters.radius_km;
+        if (filters.budget_min !== undefined || filters.budget_max !== undefined) {
+          mapped.priceRange = [filters.budget_min || 0, filters.budget_max || 1000000];
+        }
+        if (filters.bedrooms_min !== undefined) {
+          mapped.bedrooms = [filters.bedrooms_min, filters.bedrooms_min];
+        }
+        if (filters.interest_type && filters.interest_type !== 'both') {
+          mapped.listingType = filters.interest_type;
+        }
 
         return {
           ...mapped,
@@ -409,6 +421,8 @@ export const useFilterStore = create<FilterState>()(
         ...(filters.serviceTypes !== undefined && { serviceTypes: filters.serviceTypes as string[] }),
         ...(filters.furnished !== undefined && { furnished: filters.furnished as boolean }),
         ...(filters.petFriendly !== undefined && { petFriendly: filters.petFriendly as boolean }),
+        ...(filters.motoTypes !== undefined && { motoTypes: filters.motoTypes as string[] }),
+        ...(filters.bicycleTypes !== undefined && { bicycleTypes: filters.bicycleTypes as string[] }),
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -485,6 +499,8 @@ export const useFilterStore = create<FilterState>()(
         ageRange: state.clientAgeRange ?? undefined,
         budgetRange: state.clientBudgetRange ?? undefined,
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
+        ageRange: state.clientAgeRange ?? undefined,
+        budgetRange: state.clientBudgetRange ?? undefined,
         radiusKm: state.radiusKm,
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
@@ -534,8 +550,19 @@ export const useFilterStore = create<FilterState>()(
         passportMode: state.passportMode,
         passportLabel: state.passportLabel,
         radiusKm: state.radiusKm,
+        priceRange: state.priceRange,
+        bedrooms: state.bedrooms,
+        bathrooms: state.bathrooms,
+        amenities: state.amenities,
+        propertyTypes: state.propertyTypes,
+        serviceTypes: state.serviceTypes,
+        motoTypes: state.motoTypes,
+        bicycleTypes: state.bicycleTypes,
         furnished: state.furnished,
         petFriendly: state.petFriendly,
+        clientAgeRange: state.clientAgeRange,
+        clientBudgetRange: state.clientBudgetRange,
+        clientNationalities: state.clientNationalities,
         pokerCardOrder: state.pokerCardOrder,
         ownerPokerCardOrder: state.ownerPokerCardOrder,
       }), // only persist these fields

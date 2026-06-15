@@ -10,7 +10,11 @@ import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
-import { filterByDistance, hasActiveLocationFilter } from '@/utils/matchingFilters';
+import {
+  filterByDistance,
+  filterListingsByAdvancedFilters,
+  hasActiveLocationFilter,
+} from '@/utils/matchingFilters';
 import { isDemoFeedEnabled } from '@/utils/demoFeed';
 
 // Demo listings — appended AFTER real listings so the deck is never empty
@@ -428,8 +432,11 @@ export function useSmartListingMatching(
                                 filters!.userLatitude!,
                                 filters!.userLongitude!,
                                 filters?.radiusKm ?? 50,
+                                false,
                             );
                         }
+
+                        results = filterListingsByAdvancedFilters(results, filters);
 
                         const withDemos = appendDemos(results);
 
@@ -509,9 +516,10 @@ export function useSmartListingMatching(
                 const userLat = filters?.userLatitude;
                 const userLon = filters?.userLongitude;
                 const radiusKm = filters?.radiusKm ?? 50;
-                const filteredListings = (userLat != null && userLon != null)
-                    ? filterByDistance(adminFiltered, userLat, userLon, radiusKm)
+                const distanceFiltered = (userLat != null && userLon != null)
+                    ? filterByDistance(adminFiltered, userLat, userLon, radiusKm, false)
                     : adminFiltered;
+                const filteredListings = filterListingsByAdvancedFilters(distanceFiltered, filters);
 
                 // 5. Scoring, Sorting, and Update Recovery
                 const matchedResults = filteredListings.map(listing => {

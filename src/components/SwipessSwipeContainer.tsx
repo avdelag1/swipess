@@ -7,6 +7,7 @@ import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { SwipessLoader } from './swipe/SwipessLoader';
 import { normalizeCategoryName } from '@/types/filters';
 
@@ -128,6 +129,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
+  const passportLabel = useFilterStore((s) => s.passportLabel);
+  const kmHudExpanded = useFilterStore((s) => s.kmHudExpanded);
+  const setKmHudExpanded = useFilterStore((s) => s.setKmHudExpanded);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const { setCategories, setListingType } = useFilterActions();
   const listingType = useFilterStore((state) => state.listingType);
@@ -149,6 +153,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setLocationDetecting(false);
       });
   }, [setUserLocation, setRadiusKm]);
+
+  useEffect(() => {
+    if (userLatitude != null && userLongitude != null) {
+      setLocationDetected(true);
+    }
+  }, [userLatitude, userLongitude]);
 
   // 📍 Location requested only on explicit user gesture (filter / slider).
 
@@ -320,6 +330,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       stableFilters.showHireServices ? '1' : '0',
       stableFilters.clientGender || '',
       stableFilters.clientType || '',
+      stableFilters.motoTypes?.join(',') || '',
+      stableFilters.bicycleTypes?.join(',') || '',
+      stableFilters.serviceCategory?.join(',') || '',
+      stableFilters.ageRange?.join('-') || '',
+      stableFilters.budgetRange?.join('-') || '',
       stableFilters.radiusKm?.toString() || '50',
       stableFilters.userLatitude?.toString() || '0',
       stableFilters.userLongitude?.toString() || '0',
@@ -856,6 +871,28 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       )} />
 
       {/* Single back button is handled by TopBar now */}
+
+      {deckQueue.length > 0 && (
+        <div
+          className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,64px)+8px)] left-0 right-0 z-[10007] flex justify-center pointer-events-none px-4"
+        >
+          <LocationRadiusSelector
+            radiusKm={radiusKm}
+            onRadiusChange={(km) => {
+              setRadiusKm(km);
+              if (userLatitude == null || userLongitude == null) detectLocation();
+            }}
+            onDetectLocation={detectLocation}
+            detecting={locationDetecting}
+            detected={locationDetected}
+            lat={userLatitude}
+            lng={userLongitude}
+            title={passportLabel || undefined}
+            expanded={kmHudExpanded}
+            onExpandedChange={setKmHudExpanded}
+          />
+        </div>
+      )}
 
       {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div

@@ -6,7 +6,11 @@ import { ClientFilters, MatchedClientProfile } from './types';
 import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
-import { filterByDistance, hasActiveLocationFilter } from '@/utils/matchingFilters';
+import {
+  filterByDistance,
+  filterClientsByOwnerFilters,
+  hasActiveLocationFilter,
+} from '@/utils/matchingFilters';
 import { isDemoFeedEnabled } from '@/utils/demoFeed';
 
 const CLIENT_FIELDS = `
@@ -369,6 +373,7 @@ export function useSmartClientMatching(
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
                         let finalClients = (rpcClients as any[])
                             .filter(c => c.user_id !== userId)
+                            .filter(c => !swipedProfileIds.has(c.user_id))
                             .filter(c => !adminIds?.has(c.user_id))
                             .filter(c => c.role === 'client')
                             .filter(c => (c.client_type || '') !== 'business');
@@ -402,9 +407,14 @@ export function useSmartClientMatching(
                                 filters!.userLatitude!,
                                 filters!.userLongitude!,
                                 filters?.radiusKm ?? 50,
-                                true,
+                                false,
                             );
                         }
+
+                        locationFiltered = filterClientsByOwnerFilters(
+                            locationFiltered as MatchedClientProfile[],
+                            filters as any,
+                        );
 
                         const withDemos = appendDemoClients(locationFiltered as MatchedClientProfile[]);
                         if (withDemos.length > 0) {
@@ -526,8 +536,10 @@ export function useSmartClientMatching(
 
                 // Distance filter — same passport/GPS logic as listings
                 if (userLat != null && userLon != null) {
-                    results = filterByDistance(results as any[], userLat, userLon, radiusKm, true) as typeof results;
+                    results = filterByDistance(results as any[], userLat, userLon, radiusKm, false) as typeof results;
                 }
+
+                results = filterClientsByOwnerFilters(results, filters as any);
 
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);

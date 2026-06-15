@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bike, Briefcase, Building2, Camera,
-  AudioLines, Search, Sparkles, Wand2, X, Zap
+  AudioLines, Search, Sparkles, Wand2, X, Zap, Mic
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
@@ -440,7 +440,7 @@ export function AIListingWizard() {
                   <Sparkles className="w-6 h-6 text-rose-400" />
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>AI Uploading. Listing.</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-500", textPrimary)}>AI Uploading. Listing.</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
                     <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
@@ -585,9 +585,9 @@ export function AIListingWizard() {
                                     <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                   )}
                                   {isRecording ? (
-                                    <AudioLines className="w-5 h-5 relative z-10 text-white animate-pulse" />
+                                    <Mic className="w-5 h-5 relative z-10 text-white animate-pulse" />
                                   ) : (
-                                    <Sparkles className="w-5 h-5 relative z-10 text-white" />
+                                    <Mic className="w-5 h-5 relative z-10 text-white" />
                                   )}
                                 </button>
                               </div>
@@ -612,11 +612,37 @@ export function AIListingWizard() {
                           <div className="relative">
                             <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
                             <textarea
-                              value={isRecording && interimTranscript ? (prompt ? prompt + ' ' + interimTranscript : interimTranscript) : prompt}
+                              value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
-                              placeholder={isRecording ? "Listening..." : "Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
+                              placeholder="Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."
                               className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
                             />
+                            {isRecording && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
+                                <motion.div 
+                                  className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
+                                  animate={{ opacity: [0.5, 1, 0.5] }}
+                                  transition={{ repeat: Infinity, duration: 1.5 }}
+                                />
+                                <div className="flex items-center gap-2 mb-3 relative z-10">
+                                  <Mic className="w-6 h-6 text-white animate-pulse" />
+                                  <span className="text-sm font-black uppercase tracking-widest text-white">Listening...</span>
+                                </div>
+                                <div className="flex gap-1 items-end h-8 relative z-10">
+                                  {[...Array(12)].map((_, i) => (
+                                    <motion.div
+                                      key={i}
+                                      className="w-1.5 bg-gradient-to-t from-rose-500 to-orange-500 rounded-full"
+                                      animate={{ 
+                                        height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4 
+                                      }}
+                                      transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak your details aloud</p>
+                              </div>
+                            )}
                             {isTranscribing && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
                                 <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">

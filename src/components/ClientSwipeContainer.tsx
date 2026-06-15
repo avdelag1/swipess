@@ -31,6 +31,7 @@ import { useConversations, useStartConversation } from '@/hooks/useConversations
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { SwipessLoader } from './swipe/SwipessLoader';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
@@ -149,6 +150,9 @@ const ClientSwipeContainerComponent = ({
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const userLatitude = useFilterStore(s => s.userLatitude);
   const userLongitude = useFilterStore(s => s.userLongitude);
+  const passportLabel = useFilterStore(s => s.passportLabel);
+  const kmHudExpanded = useFilterStore(s => s.kmHudExpanded);
+  const setKmHudExpanded = useFilterStore(s => s.setKmHudExpanded);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   
   const [locationDetecting, setLocationDetecting] = useState(false);
@@ -173,6 +177,12 @@ const ClientSwipeContainerComponent = ({
         setLocationDetecting(false);
       });
   }, [setUserLocation, setRadiusKm]);
+
+  useEffect(() => {
+    if (userLatitude != null && userLongitude != null) {
+      setLocationDetected(true);
+    }
+  }, [userLatitude, userLongitude]);
 
   // 📍 Location is requested ONLY on explicit user action (filter button or
   // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
@@ -924,7 +934,25 @@ const ClientSwipeContainerComponent = ({
 
         {/* Single back button is handled by TopBar now */}
 
-        {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
+        {topCard && (
+          <div className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,64px)+8px)] left-0 right-0 z-[10007] flex justify-center pointer-events-none px-4">
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={(km) => {
+                setRadiusKm(km);
+                if (userLatitude == null || userLongitude == null) detectLocation();
+              }}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+              lat={userLatitude}
+              lng={userLongitude}
+              title={passportLabel || undefined}
+              expanded={kmHudExpanded}
+              onExpandedChange={setKmHudExpanded}
+            />
+          </div>
+        )}
 
         <div
           className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"

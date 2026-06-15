@@ -11,6 +11,8 @@ import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
 import { useFilterStore } from '@/state/filterStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { applyAdvancedFiltersToStore } from '@/utils/applyAdvancedFilters';
 import { DeferredDialog } from './DeferredDialog';
 import { cn } from '@/lib/utils';
 
@@ -106,6 +108,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   const { user: _user } = useAuth();
   const { navigate } = useAppNavigate();
   const store = useModalStore();
+  const queryClient = useQueryClient();
 
   const [isWarmedUp, setIsWarmedUp] = useState(false);
   const [reportState, setReportState] = useState<{
@@ -152,8 +155,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
           onApplyFilters={(filters) => {
-            const { setFilters } = useFilterStore.getState();
-            setFilters(filters);
+            applyAdvancedFiltersToStore(filters, userRole);
+            queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
+            queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
           }}
           userRole={userRole}
           currentFilters={{}}

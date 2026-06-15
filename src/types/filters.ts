@@ -366,6 +366,13 @@ export interface ListingFilters {
   // Owner client filters
   clientGender?: ClientGender;
   clientType?: ClientType;
+  ageRange?: [number, number];
+  budgetRange?: [number, number];
+  nationalities?: string[];
+
+  // Vehicle / service extras
+  motoTypes?: string[];
+  bicycleTypes?: string[];
 }
 
 
