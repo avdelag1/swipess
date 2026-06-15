@@ -1,5 +1,6 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Globe2, Loader2, MapPin, Navigation, Search, User, X } from 'lucide-react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { Building2, Globe2, Loader2, MapPin, Navigation, Search, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -7,39 +8,33 @@ import { useFilterStore } from '@/state/filterStore';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
-import { usePassportMapData, type MapListingPin, type MapProfilePin } from '@/hooks/usePassportMapData';
+import { usePassportMapData } from '@/hooks/usePassportMapData';
 import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { warmMapboxModules } from '@/utils/mapWarmPool';
-
-type SelectedPin =
-  | { type: 'listing'; data: MapListingPin }
-  | { type: 'profile'; data: MapProfilePin };
+import { PassportMapPinPreview } from '@/components/passport/PassportMapPinPreview';
+import { PassportMapResultsRail } from '@/components/passport/PassportMapResultsRail';
+import {
+  createListingMarkerEl,
+  createProfileMarkerEl,
+  type MapLayerFilter,
+  type SelectedPin,
+} from '@/components/passport/passportMapMarkers';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-function createMarkerEl(color: string, imageUrl?: string): HTMLDivElement {
-  const el = document.createElement('div');
-  el.className = 'passport-map-marker';
-  el.style.cssText = `
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid ${color}; background: #111;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
-    overflow: hidden; cursor: pointer;
-    background-size: cover; background-position: center;
-  `;
-  if (imageUrl) {
-    el.style.backgroundImage = `url(${imageUrl})`;
-  } else {
-    el.style.background = color;
-  }
-  return el;
-}
+const RADIUS_PRESETS = [25, 50, 100] as const;
+const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2 }[] = [
+  { id: 'all', label: 'All', icon: Globe2 },
+  { id: 'listings', label: 'Listings', icon: Building2 },
+  { id: 'people', label: 'People', icon: Users },
+];
 
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
+  const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
   const openClientInsights = useModalStore(s => s.openClientInsights);
   const lat = useFilterStore(s => s.userLatitude);
   const lng = useFilterStore(s => s.userLongitude);
@@ -60,7 +55,9 @@ export const PassportMapModal = memo(() => {
   const initStartedRef = useRef(false);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
+
   const [selected, setSelected] = useState<SelectedPin | null>(null);
+  const [layerFilter, setLayerFilter] = useState<MapLayerFilter>('all');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
@@ -69,22 +66,65 @@ export const PassportMapModal = memo(() => {
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm);
 
+  const visibleListings = useMemo(() => {
+    if (!data || layerFilter === 'people') return [];
+    return data.listings;
+  }, [data, layerFilter]);
+
+  const visibleProfiles = useMemo(() => {
+    if (!data || layerFilter === 'listings') return [];
+    return data.profiles;
+  }, [data, layerFilter]);
+
+  const nearbyCount = (visibleListings.length + visibleProfiles.length);
+
+  const selectedId = selected
+    ? (selected.type === 'listing' ? selected.data.id : selected.data.id)
+    : null;
+
   const onClose = useCallback(() => {
     triggerHaptic('light');
     setSelected(null);
     setModal('showPassportMapModal', false);
   }, [setModal]);
 
-  const flyTo = useCallback((newLat: number, newLng: number, label?: string) => {
+  const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setPassportLocation(newLat, newLng, label);
     setRadiusKm(50);
-    mapRef.current?.flyTo({ center: [newLng, newLat], zoom: 11, duration: 900 });
+    mapRef.current?.flyTo({ center: [newLng, newLat], zoom, duration: 900 });
     triggerHaptic('heavy');
-    appToast.success(label ? `Exploring ${label}` : 'Location updated');
+    if (label) appToast.success(`Exploring ${label}`);
   }, [setPassportLocation, setRadiusKm]);
 
   const flyToRef = useRef(flyTo);
   flyToRef.current = flyTo;
+
+  const focusPin = useCallback((pin: SelectedPin) => {
+    setSelected(pin);
+    mapRef.current?.flyTo({
+      center: [pin.data.lng, pin.data.lat],
+      zoom: 13,
+      duration: 700,
+    });
+  }, []);
+
+  const openInsightsFor = useCallback((pin: SelectedPin) => {
+    triggerHaptic('medium');
+    setModal('showPassportMapModal', false);
+    setSelected(null);
+    if (pin.type === 'listing') {
+      openPropertyInsights(pin.data.id);
+    } else {
+      openClientInsights(pin.data.id);
+    }
+  }, [setModal, openPropertyInsights, openClientInsights]);
+
+  const openDetailsFor = useCallback((listingId: string) => {
+    triggerHaptic('medium');
+    setModal('showPassportMapModal', false);
+    setSelected(null);
+    openPropertyDetails(listingId);
+  }, [setModal, openPropertyDetails]);
 
   const handleGPS = useCallback(async () => {
     if (!canGeolocate()) {
@@ -108,7 +148,6 @@ export const PassportMapModal = memo(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
   }, []);
 
-  // Resolve token when map opens (sync bundle + meta + /api/mapbox-token fallback)
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
@@ -118,7 +157,6 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen]);
 
-  // Init map on first open — keep instance alive between opens
   useEffect(() => {
     if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
 
@@ -189,6 +227,7 @@ export const PassportMapModal = memo(() => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const features = map.queryRenderedFeatures(e.point, { layers: ['search-radius-circle'] });
           if (features.length) return;
+          setSelected(null);
           flyToRef.current(e.lngLat.lat, e.lngLat.lng, 'Custom location');
         });
 
@@ -198,10 +237,11 @@ export const PassportMapModal = memo(() => {
           accessToken: token,
           mapboxgl: mapboxgl as any,
           marker: false,
-          placeholder: 'Search any city worldwide...',
+          placeholder: 'Search cities worldwide...',
         });
         geocoder.on('result', (ev: any) => {
           const [newLng, newLat] = ev.result.center;
+          setSelected(null);
           flyToRef.current(newLat, newLng, ev.result.place_name);
         });
         geocoderRef.current = geocoder;
@@ -236,7 +276,6 @@ export const PassportMapModal = memo(() => {
     initStartedRef.current = false;
   }, []);
 
-  // Resize when opened
   useEffect(() => {
     if (!isOpen || !mapRef.current) return;
     resizeMap();
@@ -245,7 +284,6 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, lat, lng, resizeMap]);
 
-  // Radius circle layer
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady || lat == null || lng == null) return;
@@ -287,32 +325,43 @@ export const PassportMapModal = memo(() => {
   }, [mapReady, lat, lng, radiusKm]);
 
   useEffect(() => {
-    if (!mapRef.current || !mapReady || !data || !mapboxRef.current || !isOpen) return;
+    if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
 
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
 
     const mapboxgl = mapboxRef.current;
-    const addMarker = (lngV: number, latV: number, color: string, imageUrl: string | undefined, pin: SelectedPin) => {
-      const el = createMarkerEl(color, imageUrl);
+
+    visibleListings.forEach((l) => {
+      const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
+      const el = createListingMarkerEl(l, isSelected);
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         triggerHaptic('medium');
-        setSelected(pin);
+        focusPin({ type: 'listing', data: l });
       });
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([lngV, latV])
-        .addTo(mapRef.current!);
-      markersRef.current.push(marker);
-    };
+      markersRef.current.push(
+        new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([l.lng, l.lat])
+          .addTo(mapRef.current!),
+      );
+    });
 
-    data.listings.forEach((l) => {
-      addMarker(l.lng, l.lat, '#EC4899', l.imageUrl, { type: 'listing', data: l });
+    visibleProfiles.forEach((p) => {
+      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
+      const el = createProfileMarkerEl(p, isSelected);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerHaptic('medium');
+        focusPin({ type: 'profile', data: p });
+      });
+      markersRef.current.push(
+        new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([p.lng, p.lat])
+          .addTo(mapRef.current!),
+      );
     });
-    data.profiles.forEach((p) => {
-      addMarker(p.lng, p.lat, '#6366F1', p.imageUrl, { type: 'profile', data: p });
-    });
-  }, [data, mapReady, isOpen]);
+  }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
 
   const mapboxReady = tokenReady;
 
@@ -338,7 +387,7 @@ export const PassportMapModal = memo(() => {
         )}
       >
         <div className={cn(
-          'shrink-0 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3 flex items-center justify-between gap-3 border-b z-20 glass-dark',
+          'shrink-0 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2 flex items-center justify-between gap-3 border-b z-20 glass-dark',
           isLight ? 'border-black/8' : 'border-white/10',
         )}>
           <div className="flex items-center gap-2.5 min-w-0">
@@ -347,10 +396,11 @@ export const PassportMapModal = memo(() => {
             </div>
             <div className="min-w-0">
               <h2 className={cn('text-sm font-black uppercase tracking-widest truncate', isLight ? 'text-slate-900' : 'text-white')}>
-                Live Map
+                Explore Map
               </h2>
               <p className={cn('text-[10px] font-bold uppercase tracking-wider truncate', isLight ? 'text-slate-500' : 'text-white/40')}>
-                {passportMode && passportLabel ? passportLabel : lat != null ? `${radiusKm}km radius` : 'Tap map or search a city'}
+                {nearbyCount > 0 ? `${nearbyCount} nearby` : 'Searching…'}
+                {passportMode && passportLabel ? ` · ${passportLabel}` : lat != null ? ` · ${radiusKm}km` : ''}
               </p>
             </div>
           </div>
@@ -369,6 +419,49 @@ export const PassportMapModal = memo(() => {
           </div>
         </div>
 
+        {/* Filter tabs + radius presets */}
+        <div className={cn(
+          'shrink-0 px-3 py-2 flex flex-col gap-2 border-b z-20',
+          isLight ? 'border-black/6 bg-white/80' : 'border-white/8 bg-black/40',
+        )}>
+          <div className="flex gap-1.5">
+            {FILTER_TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => { triggerHaptic('light'); setLayerFilter(id); setSelected(null); }}
+                className={cn(
+                  'flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider transition-all',
+                  layerFilter === id
+                    ? (isLight ? 'bg-slate-900 text-white' : 'bg-white text-black')
+                    : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/50'),
+                )}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={cn('text-[9px] font-black uppercase tracking-widest shrink-0', isLight ? 'text-slate-400' : 'text-white/35')}>Radius</span>
+            {RADIUS_PRESETS.map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
+                className={cn(
+                  'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
+                  radiusKm === r
+                    ? 'bg-indigo-500 text-white'
+                    : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/45'),
+                )}
+              >
+                {r}km
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="relative flex-1 min-h-0 w-full bg-[#1a1a2e]">
           <div
             ref={geocoderContainerRef}
@@ -383,7 +476,7 @@ export const PassportMapModal = memo(() => {
               <Search className="w-10 h-10 text-indigo-400 mb-4" />
               <p className="text-white font-bold mb-2">Map not configured</p>
               <p className="text-white/50 text-sm max-w-xs">
-                In Vercel set <span className="text-white/70">VITE_MAPBOX_ACCESS_TOKEN</span> to your public token (starts with pk.), then redeploy. Also try a hard refresh to clear cached app files.
+                Set <span className="text-white/70">VITE_MAPBOX_ACCESS_TOKEN</span> in Vercel and redeploy.
               </p>
             </div>
           )}
@@ -400,61 +493,47 @@ export const PassportMapModal = memo(() => {
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
               <MapPin className="w-10 h-10 text-red-400 mb-4" />
               <p className="text-white font-bold">{mapError}</p>
-              <p className="text-white/40 text-xs mt-3 max-w-xs">If you just updated Vercel env vars, redeploy and hard-refresh (or clear site data).</p>
             </div>
           )}
 
-          <div className="absolute bottom-24 left-3 z-10 glass-pill px-3 py-2 text-[10px] font-bold uppercase tracking-wider flex gap-3">
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Listings</span>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> People</span>
-            {isLoading && <Loader2 className="w-3 h-3 animate-spin ml-1" />}
-          </div>
+          {isLoading && (
+            <div className="absolute top-14 right-3 z-10 glass-pill px-2.5 py-1.5 flex items-center gap-1.5">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">Updating</span>
+            </div>
+          )}
+
+          {!selected && data && (
+            <PassportMapResultsRail
+              listings={visibleListings}
+              profiles={visibleProfiles}
+              filter={layerFilter}
+              selectedId={selectedId}
+              isLight={isLight}
+              onSelect={focusPin}
+            />
+          )}
         </div>
 
-        {selected && (
-          <div
-            onClick={() => {
-              if (selected.type === 'listing') openPropertyDetails(selected.data.id);
-              else openClientInsights(selected.data.id);
-            }}
-            className={cn(
-              'shrink-0 mx-4 mb-[calc(env(safe-area-inset-bottom,0px)+16px)] p-4 rounded-2xl flex gap-3 items-center z-20 cursor-pointer glass-surface glass-dark',
-            )}
-          >
-            <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 shrink-0 flex items-center justify-center">
-              {selected.data.imageUrl ? (
-                <img src={selected.data.imageUrl} alt="" className="w-full h-full object-cover" />
-              ) : selected.type === 'listing' ? (
-                <MapPin className="w-6 h-6 text-pink-400" />
-              ) : (
-                <User className="w-6 h-6 text-indigo-400" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={cn('font-black text-sm truncate', isLight ? 'text-slate-900' : 'text-white')}>
-                {selected.type === 'listing' ? selected.data.title : selected.data.name}
-              </p>
-              <p className={cn('text-xs truncate', isLight ? 'text-slate-500' : 'text-white/50')}>
-                {selected.type === 'listing'
-                  ? [selected.data.city, selected.data.price ? `$${selected.data.price}` : null].filter(Boolean).join(' · ')
-                  : selected.data.city}
-              </p>
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); setSelected(null); }}
-              className="glass-pill p-2"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        <AnimatePresence>
+          {selected && (
+            <PassportMapPinPreview
+              key={`${selected.type}-${selected.data.id}`}
+              selected={selected}
+              isLight={isLight}
+              onClose={() => setSelected(null)}
+              onInsights={() => openInsightsFor(selected)}
+              onDetails={selected.type === 'listing' ? () => openDetailsFor(selected.data.id) : undefined}
+            />
+          )}
+        </AnimatePresence>
 
         {!selected && (
           <p className={cn(
-            'shrink-0 text-center text-[10px] font-bold uppercase tracking-[0.2em] pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2',
+            'shrink-0 text-center text-[10px] font-bold uppercase tracking-[0.2em] pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-1',
             isLight ? 'text-slate-400' : 'text-white/30',
           )}>
-            Tap anywhere on the map to teleport your feed
+            Tap a pin for insights · tap empty map to move your feed
           </p>
         )}
       </div>
