@@ -56,7 +56,7 @@ const ReportDialog = lazyWithRetry(() => import('./ReportDialog').then(m => ({ d
 // Eager-load the card action modals. These were previously lazy-loaded, but a
 // dynamic-import failure (stale service-worker cache / CDN chunk not yet
 // propagated after a deploy) made the Share and Insights buttons silently
-// open nothing — the tap registered but Suspense fell back to null. Bundling
+// open nothing ÔÇö the tap registered but Suspense fell back to null. Bundling
 // them in the main chunk guarantees they always open.
 const SwipeInsightsModal = lazyWithRetry(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 const ShareDialog = lazyWithRetry(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -124,7 +124,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
 
-  // ── Distance filter state ─────────────────────────────────────────────────
+  // ÔöÇÔöÇ Distance filter state ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
@@ -143,10 +143,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const detectLocation = useCallback(() => {
     if (!canGeolocate()) return;
     setLocationDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setRadiusKm(5000); // Auto-set to large radius so users see all real data
+    getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
+      .then(({ latitude, longitude }) => {
+        setUserLocation(latitude, longitude);
+        setRadiusKm(5000); // Wide radius so real listings always appear
         setLocationDetected(true);
         setLocationDetecting(false);
       })
@@ -165,7 +165,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, [userLatitude, userLongitude]);
 
-  // 📍 Location requested only on explicit user gesture (filter / slider).
+  // ­ƒôì Location requested only on explicit user gesture (filter / slider).
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
@@ -266,7 +266,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
   const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
 
-  // The under-card stays fully sized and opaque at all times — it acts as a
+  // The under-card stays fully sized and opaque at all times ÔÇö it acts as a
   // static backdrop so the top card reveals it cleanly on commit. No reactive
   // transforms, no willChange churn: the layer is stable across promotions.
 
@@ -465,7 +465,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const error = dataType === 'people' ? smartClientsError : smartListingsError;
 
   // Release the transition guard once the new category's query has settled
-  // (or errored). Until then the loader stays up — no exhausted-state flash.
+  // (or errored). Until then the loader stays up ÔÇö no exhausted-state flash.
   useEffect(() => {
     if (isCategoryTransitioning && !isLoading && !isFetching) {
       setIsCategoryTransitioning(false);
@@ -1056,7 +1056,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </motion.div>
     </div>
 
-          {/* Bottom action bar removed — the same actions (Share / Message /
+          {/* Bottom action bar removed ÔÇö the same actions (Share / Message /
         Insights / Report) live on the right-side rail in SimpleSwipeCard,
         keeping the card photo unobstructed. */}
     </div>

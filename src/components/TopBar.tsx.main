@@ -1,7 +1,7 @@
-import { useLocation } from 'react-router-dom';
+﻿import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { ChevronLeft, Crown, Sparkles, UserRound, Map } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,9 +50,9 @@ function TopBarComponent({
   const setModal = useModalStore(s => s.setModal);
   const { tokens } = useTokens();
 
-  // Always visible on every page — no chrome-reveal hiding
+  // Always visible on every page ÔÇö no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Dashboard forces dark bg — icons must contrast. Light theme uses dark icons.
+  // Dashboard forces dark bg ÔÇö icons must contrast. Light theme uses dark icons.
   const isDashboard = location.pathname.includes('/dashboard');
   const useLightIcons = isDashboard || !isLight;
   const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
@@ -63,7 +63,7 @@ function TopBarComponent({
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
 
   // Hierarchical "up" navigation: a sub-page goes to its section home, a
-  // section home goes to the dashboard — so the user never has to tap back
+  // section home goes to the dashboard ÔÇö so the user never has to tap back
   // several times to escape a deep flow.
   const onBack = propOnBack || (
     isSwipeDeck
@@ -73,7 +73,7 @@ function TopBarComponent({
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
-  // Frameless inner buttons — the cluster pill provides the visible frame.
+  // Frameless inner buttons ÔÇö the cluster pill provides the visible frame.
   // Light mode: stronger bg on dashboard so dark icons stand out against forced-dark bg.
   const glassPillStyle: React.CSSProperties = {
     background: isLight ? (isDashboard ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') : 'transparent',
@@ -138,7 +138,7 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-2 flex items-center justify-between relative">
 
-        {/* LEFT: avatar (no name) + Sparkles */}
+        {/* LEFT: avatar + name only */}
         <div
           className="flex min-w-0 items-center pointer-events-auto glass-pill chrome-solid px-1.5 h-[38px]"
           style={clusterPillStyle}
@@ -170,7 +170,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="tap-css-only flex shrink-0 items-center rounded-full pl-0.5 h-[32px] group"
+                className="tap-css-only flex shrink-0 items-center gap-2 rounded-full pl-0.5 pr-2.5 h-[32px] group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
@@ -197,34 +197,23 @@ function TopBarComponent({
                     )
                   )}
                 </div>
+                <span
+                  className="truncate max-w-[64px] text-[11px] font-black uppercase tracking-wider"
+                  style={{
+                    fontVariantNumeric: 'tabular-nums',
+                    color: iconColor,
+                  }}
+                >
+                  {(profile?.full_name?.split(' ')[0]) || (user?.email?.split('@')[0]) || 'USER'}
+                </span>
               </button>
             )
-          )}
-
-          {/* AI Listing (Sparkles) on the left next to avatar */}
-          {!minimal && (
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
-              className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px] ml-1"
-              style={glassPillStyle}
-              aria-label="AI Listing"
-            >
-              <Sparkles
-                className="w-[17px] h-[17px]"
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
-            </button>
           )}
         </div>
 
         <div className="flex-grow flex-1" />
 
-        {/* RIGHT: tokens + map + theme + notifications — tight cluster */}
+        {/* RIGHT: tokens + theme + notifications ÔÇö tight cluster */}
         {!minimal && (
           <div
             className="flex items-center pointer-events-auto glass-pill chrome-solid px-1 h-[38px] shrink-0"
@@ -248,19 +237,18 @@ function TopBarComponent({
               <span className="text-[11px] font-black" style={{ color: iconColor }}>{tokens}</span>
             </button>
 
-            {/* Map icon — replaces old right-side Sparkles */}
             <button
               type="button"
-              onClick={() => { haptics.tap(); setModal('showPassportModal', true); }}
+              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
               className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
               style={glassPillStyle}
-              aria-label="Global Passport"
+              aria-label="AI Listing"
             >
-              <Map
+              <Sparkles
                 className="w-[17px] h-[17px]"
                 style={{
                   color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(59,130,246,0.65))' : 'none',
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
                 }}
                 strokeWidth={1.9}
               />
@@ -272,7 +260,7 @@ function TopBarComponent({
           </div>
         )}
 
-        {/* Center tap zone — a premium completely invisible tap target to go home */}
+        {/* Center tap zone ÔÇö a premium completely invisible tap target to go home */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center pointer-events-auto z-50 cursor-pointer"
           style={{ background: 'transparent', WebkitTapHighlightColor: 'transparent' }}

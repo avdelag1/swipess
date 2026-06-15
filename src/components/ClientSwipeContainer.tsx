@@ -140,7 +140,7 @@ const ClientSwipeContainerComponent = ({
   // appending to deckQueueRef alone doesn't trigger a React re-render
   const [_deckLength, setDeckLength] = useState(0);
   // True from the moment the category/filter changes until the new query
-  // settles — keeps the clean loader up so the exhausted card never flashes.
+  // settles ÔÇö keeps the clean loader up so the exhausted card never flashes.
   const [isCategoryTransitioning, setIsCategoryTransitioning] = useState(false);
 
   // PERF: Get initial state ONCE using getState() - no subscription
@@ -165,10 +165,10 @@ const ClientSwipeContainerComponent = ({
   const detectLocation = useCallback(() => {
     if (!canGeolocate()) return;
     setLocationDetecting(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setRadiusKm(5000); // Auto-set to large radius so users see all real data
+    getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
+      .then(({ latitude, longitude }) => {
+        setUserLocation(latitude, longitude);
+        setRadiusKm(5000); // Wide radius so real listings always appear
         setLocationDetected(true);
         setLocationDetecting(false);
       })
@@ -183,11 +183,11 @@ const ClientSwipeContainerComponent = ({
     }
   }, [userLatitude, userLongitude]);
 
-  // 📍 Location is requested ONLY on explicit user action (filter button or
+  // ­ƒôì Location is requested ONLY on explicit user action (filter button or
   // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
   // an invasive permission dialog.
 
-  // FIX: Don't restore from cache — always start empty and let DB query populate
+  // FIX: Don't restore from cache ÔÇö always start empty and let DB query populate
   // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
   // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
@@ -340,16 +340,16 @@ const ClientSwipeContainerComponent = ({
   const isFetchingMore = useRef(false);
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
 
-  // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
+  // ÔöÇÔöÇÔöÇ PREDICTIVE CARD TRANSITIONS ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
 
-  // The under-card stays fully sized and opaque as a static backdrop — no
+  // The under-card stays fully sized and opaque as a static backdrop ÔÇö no
   // reactive transforms or willChange churn, so it never pops or flashes when
   // the top card exits and becomes the new top.
-  // ─────────────────────────────────────────────────────────────────────────
+  // ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 
-  // FIX: Hydration sync disabled — DB query is the single source of truth
+  // FIX: Hydration sync disabled ÔÇö DB query is the single source of truth
   // The query with refetchOnMount:'always' ensures fresh data on every mount
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
@@ -358,7 +358,7 @@ const ClientSwipeContainerComponent = ({
   }, [category]);
 
   // ========================================
-  // 🔥 CRITICAL: ALL HOOKS MUST BE AT TOP
+  // ­ƒöÑ CRITICAL: ALL HOOKS MUST BE AT TOP
   // ========================================
   // React requires hooks to be called in the SAME ORDER on EVERY render.
   // NO early returns before all hooks execute!
@@ -388,10 +388,10 @@ const ClientSwipeContainerComponent = ({
   const error = externalError !== undefined ? externalError : internalError;
 
   // SYNC SEED: when the deck is empty and fresh profile data arrives, populate
-  // the deck during render — same pattern as SwipessSwipeContainer (lines
+  // the deck during render ÔÇö same pattern as SwipessSwipeContainer (lines
   // 473-492). Without this, after a quick-filter wipe there's an extra frame
   // where deckQueueRef is empty but data has already arrived, causing
-  // AnimatePresence to flip exhausted → deck across two frames. That gap is
+  // AnimatePresence to flip exhausted ÔåÆ deck across two frames. That gap is
   // the flicker: the new card mounts cold instead of appearing in the same
   // frame as the data.
   const profileIdsSignature = clientProfiles.length > 0
@@ -869,7 +869,7 @@ const ClientSwipeContainerComponent = ({
   }, [isCreatingConversation, selectedClientId, startConversation, navigate]);
 
   // ========================================
-  // 🔥 ALL HOOKS ABOVE - DERIVED STATE BELOW
+  // ­ƒöÑ ALL HOOKS ABOVE - DERIVED STATE BELOW
   // ========================================
   // Derived UI flags (NO hooks here - just calculations)
 
@@ -888,7 +888,7 @@ const ClientSwipeContainerComponent = ({
   const showLoadingSkeleton = !hasHydratedData && (isLoading || !isMountSettledRef.current);
 
   // ========================================
-  // 🔥 SINGLE RETURN BLOCK - SAFE ORDER
+  // ­ƒöÑ SINGLE RETURN BLOCK - SAFE ORDER
   // ========================================
   // All conditions use derived flags - NO hooks called after this point
 
@@ -1040,7 +1040,7 @@ const ClientSwipeContainerComponent = ({
         </div>
 
 
-        {/* Bottom action bar removed — Share / Message / Insights /
+        {/* Bottom action bar removed ÔÇö Share / Message / Insights /
             Report now live on the right-side rail inside the card. */}
       </div>
 

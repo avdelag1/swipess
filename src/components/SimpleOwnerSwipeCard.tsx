@@ -1,5 +1,5 @@
-/**
- * TINDER-STYLE OWNER SWIPE CARD â€” Swipes Edition
+﻿/**
+ * TINDER-STYLE OWNER SWIPE CARD ├óÔé¼ÔÇØ Swipes Edition
  *
  * Axis-locked owner swipe card with strict story-feed movement.
  * Card only travels straight up/down for browsing or straight left/right for like/pass.
@@ -411,34 +411,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
         </div>
 
-        {/* Always-visible back button — top-right corner, returns to dashboard */}
-        <AnimatePresence>
-          {!isRailVisible && (
-            <motion.button
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              data-no-cinematic
-              data-no-pull-dismiss
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
-              aria-label="Return to dashboard"
-              className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-colors duration-150"
-              style={{
-                right: 12,
-                top: 'calc(var(--safe-top, 0px) + 24px)',
-                background: 'rgba(0,0,0,0.42)',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              {canUndo ? (
-                <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-              ) : (
-                <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-              )}
-            </motion.button>
-          )}
-        </AnimatePresence>
+
 
         {isTop && (
           <>

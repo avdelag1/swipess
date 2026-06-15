@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 
@@ -44,7 +44,9 @@ interface ModalState {
   aiProfileDraft: any | null;
   showVapId: boolean;
   showTokensModal: boolean;
-  showGlobalMap: boolean;
+  showPassportModal: boolean;
+  showPassportMapModal: boolean;
+  showInviteFriends: boolean;
 
   // Actions
   setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft'>, value: boolean) => void;
@@ -88,7 +90,9 @@ export const useModalStore = create<ModalState>((set) => ({
   aiProfileDraft: null,
   showVapId: false,
   showTokensModal: false,
-  showGlobalMap: false,
+  showPassportModal: false,
+  showPassportMapModal: false,
+  showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
@@ -145,7 +149,9 @@ export const useModalStore = create<ModalState>((set) => ({
     aiProfileDraft: null,
     showVapId: false,
     showTokensModal: false,
-    showGlobalMap: false,
+  showInviteFriends: false,
+    showPassportModal: false,
+    showPassportMapModal: false,
   }),
 }));
 

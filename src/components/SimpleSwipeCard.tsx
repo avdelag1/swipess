@@ -1,5 +1,5 @@
-/**
- * TINDER-STYLE SWIPE CARD â€” Swipes Edition
+﻿/**
+ * TINDER-STYLE SWIPE CARD ├óÔé¼ÔÇØ Swipes Edition
  *
  * Axis-locked swipe card with strict story-feed movement.
  * Card only travels straight up/down for browsing or straight left/right for like/pass.
@@ -99,7 +99,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean
-  // page-turn â€” the underlying card only pops in once we commit. Horizontal
+  // page-turn ├óÔé¼ÔÇØ the underlying card only pops in once we commit. Horizontal
   // swipes get a subtle late fade so like/pass still feels weighted.
   const cardOpacity = useTransform(
     [x, y] as any,
@@ -325,7 +325,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     hasExited.current = true;
     isExitingRef.current = true;
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
-    // 'right' = like â†’ fly RIGHT, 'left' = pass â†’ fly LEFT (Tinder-style)
+    // 'right' = like ├óÔÇáÔÇÖ fly RIGHT, 'left' = pass ├óÔÇáÔÇÖ fly LEFT (Tinder-style)
     const exitDist = typeof window !== 'undefined' ? window.innerWidth * 1.2 : 900;
     const exitX = direction === 'right' ? exitDist : -exitDist;
     let swipeFired = false;
@@ -437,34 +437,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
         </div>
 
-        {/* Always-visible back button — top-right corner, returns to dashboard */}
-        <AnimatePresence>
-          {!isRailVisible && (
-            <motion.button
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              data-no-cinematic
-              data-no-pull-dismiss
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
-              aria-label="Return to dashboard"
-              className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-colors duration-150"
-              style={{
-                right: 12,
-                top: 'calc(var(--safe-top, 0px) + 24px)',
-                background: 'rgba(0,0,0,0.42)',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              {canUndo ? (
-                <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-              ) : (
-                <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-              )}
-            </motion.button>
-          )}
-        </AnimatePresence>
 
 
         {isTop && (listing as any).category !== 'events' && (
