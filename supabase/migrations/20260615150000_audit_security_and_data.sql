@@ -73,6 +73,7 @@ GRANT EXECUTE ON FUNCTION public.create_notification_for_user(uuid, text, text, 
   TO authenticated;
 
 -- 3. check_email_exists: minimal payload for anon (no PII leak)
+DROP FUNCTION IF EXISTS public.check_email_exists(text);
 CREATE OR REPLACE FUNCTION public.check_email_exists(p_email text)
 RETURNS jsonb
 LANGUAGE plpgsql

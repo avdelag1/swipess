@@ -68,6 +68,8 @@ $$;
 GRANT EXECUTE ON FUNCTION public.create_notification_for_user(uuid, text, text, text, uuid, jsonb)
   TO authenticated;
 
+DROP FUNCTION IF EXISTS public.check_email_exists(text);
+
 CREATE OR REPLACE FUNCTION public.check_email_exists(p_email text)
 RETURNS jsonb
 LANGUAGE plpgsql
