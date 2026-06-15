@@ -1,5 +1,6 @@
 ﻿import { create } from 'zustand';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
+import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 
 /**
@@ -46,6 +47,10 @@ interface ModalState {
   showTokensModal: boolean;
   showPassportModal: boolean;
   showPassportMapModal: boolean;
+  /** Instant fullscreen map when switching from passport sheet (no profile flash). */
+  passportMapHandoff: boolean;
+  /** Open map with city quick-filter drawer expanded. */
+  passportMapShowCities: boolean;
   showInviteFriends: boolean;
 
   // Actions
@@ -57,7 +62,8 @@ interface ModalState {
   openClientInsights: (id: string) => void;
   openSubscription: (reason: string) => void;
   openPassport: () => void;
-  openPassportMap: () => void;
+  openPassportMap: (opts?: { handoff?: boolean; showCities?: boolean }) => void;
+  clearPassportMapFlags: () => void;
   closeAll: () => void;
 }
 
@@ -92,6 +98,8 @@ export const useModalStore = create<ModalState>((set) => ({
   showTokensModal: false,
   showPassportModal: false,
   showPassportMapModal: false,
+  passportMapHandoff: false,
+  passportMapShowCities: false,
   showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),
@@ -109,21 +117,36 @@ export const useModalStore = create<ModalState>((set) => ({
 
   openPassport: () => {
     prefetchPassportMapImmediate();
+    prefetchCityPhotosImmediate();
     void resolveMapboxAccessToken();
     set({
       showPassportModal: true,
       showPassportMapModal: false,
+      passportMapHandoff: false,
+      passportMapShowCities: false,
     });
   },
 
-  openPassportMap: () => {
+  openPassportMap: (opts) => {
+    const handoff = opts?.handoff ?? false;
     prefetchPassportMapImmediate();
+    prefetchCityPhotosImmediate();
     void resolveMapboxAccessToken();
     set({
-      showPassportModal: false,
       showPassportMapModal: true,
+      passportMapHandoff: handoff,
+      passportMapShowCities: opts?.showCities ?? false,
+      ...(handoff ? {} : { showPassportModal: false }),
     });
+    if (handoff) {
+      requestAnimationFrame(() => set({ showPassportModal: false }));
+    }
   },
+
+  clearPassportMapFlags: () => set({
+    passportMapHandoff: false,
+    passportMapShowCities: false,
+  }),
 
   closeAll: () => set({
     showProfile: false,
@@ -152,6 +175,8 @@ export const useModalStore = create<ModalState>((set) => ({
   showInviteFriends: false,
     showPassportModal: false,
     showPassportMapModal: false,
+    passportMapHandoff: false,
+    passportMapShowCities: false,
   }),
 }));
 

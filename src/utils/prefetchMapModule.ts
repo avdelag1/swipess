@@ -1,5 +1,6 @@
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { warmMapboxModules } from '@/utils/mapWarmPool';
+import { prefetchCityPhotos } from '@/utils/prefetchCityPhotos';
 
 let started = false;
 
@@ -9,6 +10,7 @@ export function prefetchPassportMapModule(): void {
   started = true;
   warmMapboxModules().catch(() => {});
   void resolveMapboxAccessToken();
+  prefetchCityPhotos();
   import('@/components/PassportMapModal').catch(() => {});
 }
 

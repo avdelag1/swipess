@@ -45,6 +45,7 @@ import {
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
+import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
@@ -63,7 +64,10 @@ export const PassportMapModal = memo(() => {
   const { t } = useTranslation();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportSheetOpen = useModalStore(s => s.showPassportModal);
-  const shouldWarmMap = isOpen;
+  const passportMapHandoff = useModalStore(s => s.passportMapHandoff);
+  const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
+  const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
+  const shouldWarmMap = isOpen || passportSheetOpen;
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
@@ -102,6 +106,18 @@ export const PassportMapModal = memo(() => {
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
+
+  useEffect(() => {
+    if (isOpen) prefetchCityPhotosImmediate();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (passportMapShowCities) {
+      setActiveDrawer('cities');
+      clearPassportMapFlags();
+    }
+  }, [isOpen, passportMapShowCities, clearPassportMapFlags]);
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
   const activePeopleCount = data?.activePeopleCount ?? 0;
@@ -591,6 +607,7 @@ export const PassportMapModal = memo(() => {
       : 'Scanning area…';
 
   const mapHostVisible = isOpen;
+  const instantOpen = isOpen && passportMapHandoff;
 
   return (
     <motion.div
@@ -601,15 +618,24 @@ export const PassportMapModal = memo(() => {
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
-      initial={GENIE_FULLSCREEN_OPEN}
+      initial={instantOpen ? GENIE_FULLSCREEN_VISIBLE : GENIE_FULLSCREEN_OPEN}
       animate={
         isOpen
           ? GENIE_FULLSCREEN_VISIBLE
           : passportSheetOpen
-            ? { ...GENIE_FULLSCREEN_OPEN, opacity: 0 }
+            ? { ...GENIE_FULLSCREEN_OPEN, opacity: 0, pointerEvents: 'none' as const }
             : { ...GENIE_FULLSCREEN_EXIT, transition: GENIE_SPRING_CLOSE }
       }
-      transition={isOpen ? { type: 'tween', duration: 0.1, ease: 'easeOut' } : { type: 'tween', duration: 0.1 }}
+      transition={
+        instantOpen
+          ? { duration: 0 }
+          : isOpen
+            ? { type: 'tween', duration: 0.1, ease: 'easeOut' }
+            : { type: 'tween', duration: 0.1 }
+      }
+      onAnimationComplete={() => {
+        if (isOpen && passportMapHandoff) clearPassportMapFlags();
+      }}
       style={{
         ...GENIE_ORIGIN_BOTTOM,
         visibility: mapHostVisible ? 'visible' : 'hidden',
@@ -748,8 +774,9 @@ export const PassportMapModal = memo(() => {
                             <img
                               src={city.img}
                               alt=""
-                              loading="lazy"
+                              loading="eager"
                               decoding="async"
+                              fetchPriority="high"
                               className="w-full h-full object-cover"
                               onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
                             />

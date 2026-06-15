@@ -9,6 +9,7 @@ import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { DEFAULT_CITY_PHOTO, getCityPhoto, PREMIUM_DESTINATIONS } from '@/data/cityPhotos';
+import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import { searchCities } from '@/data/worldLocations';
 import { isMapboxPlacesReady, searchMapboxPlaces, type GeocodeResult } from '@/utils/mapboxPlaces';
 import {
@@ -27,6 +28,7 @@ function coordsNear(a: number | null, b: number, tolerance = 0.05): boolean {
 export const PassportModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportModal);
+  const passportMapHandoff = useModalStore(s => s.passportMapHandoff);
   const setModal = useModalStore(s => s.setModal);
   const openPassportMap = useModalStore(s => s.openPassportMap);
   const setPassportLocation = useFilterStore(s => s.setPassportLocation);
@@ -63,6 +65,10 @@ export const PassportModal = memo(() => {
 
   const hasSearchResults = localResults.length > 0 || mapboxResults.length > 0;
 
+  useEffect(() => {
+    if (isOpen) prefetchCityPhotosImmediate();
+  }, [isOpen]);
+
   const onClose = () => {
     triggerHaptic('light');
     setSearchQuery('');
@@ -74,13 +80,13 @@ export const PassportModal = memo(() => {
     setPassportLocation(lat, lng, label);
     setRadiusKm(20);
     setSearchQuery('');
-    openPassportMap();
+    openPassportMap({ handoff: true });
     appToast.success(`Exploring ${label}`);
   };
 
   const openLiveMap = () => {
     triggerHaptic('medium');
-    openPassportMap();
+    openPassportMap({ handoff: true });
   };
 
   const handleUseGPS = () => {
@@ -90,7 +96,7 @@ export const PassportModal = memo(() => {
     }
     triggerHaptic('medium');
     setGpsLoading(true);
-    openPassportMap();
+    openPassportMap({ handoff: true });
     void (async () => {
       try {
         const { latitude, longitude } = await getCurrentPosition({ timeout: 8000, maximumAge: 30000 });
@@ -125,8 +131,8 @@ export const PassportModal = memo(() => {
           <motion.div
             initial={GENIE_SHEET_OPEN}
             animate={GENIE_SHEET_VISIBLE}
-            exit={{ ...GENIE_SHEET_EXIT, transition: GENIE_SPRING_CLOSE }}
-            transition={GENIE_SPRING_OPEN}
+            exit={passportMapHandoff ? { opacity: 0, transition: { duration: 0 } } : { ...GENIE_SHEET_EXIT, transition: GENIE_SPRING_CLOSE }}
+            transition={passportMapHandoff ? { duration: 0 } : GENIE_SPRING_OPEN}
             style={GENIE_ORIGIN_BOTTOM}
             className={cn(
               'w-full h-[96vh] rounded-t-3xl flex flex-col pointer-events-auto overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.35)] will-change-transform gpu-ultra',
@@ -206,7 +212,8 @@ export const PassportModal = memo(() => {
                           <img
                             src={getCityPhoto(city.name, city.coordinates)}
                             alt=""
-                            loading="lazy"
+                            loading="eager"
+                            decoding="async"
                             className="w-full h-full object-cover"
                             onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
                           />
@@ -281,8 +288,9 @@ export const PassportModal = memo(() => {
                           <img
                             src={dest.img}
                             alt={dest.name}
-                            loading="lazy"
+                            loading="eager"
                             decoding="async"
+                            fetchPriority="high"
                             className="absolute inset-0 w-full h-full object-cover"
                             onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
                           />

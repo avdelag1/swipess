@@ -326,7 +326,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {(modalStore.showPassportModal || modalStore.showPassportMapModal) && (
         <Suspense fallback={null}>
           {modalStore.showPassportModal && <PassportModal />}
-          {modalStore.showPassportMapModal && <PassportMapModal />}
+          <PassportMapModal />
         </Suspense>
       )}
     </div>

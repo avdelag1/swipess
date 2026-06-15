@@ -29,7 +29,8 @@ export function CityQuickChip({ name, lat, lng, selected, onClick, className }: 
         <img
           src={photo}
           alt=""
-          loading="lazy"
+          loading="eager"
+          decoding="async"
           className="w-full h-full object-cover"
           onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
         />

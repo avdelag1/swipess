@@ -53,6 +53,7 @@ function TopBarComponent({
   const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const openPassportMap = useModalStore(s => s.openPassportMap);
   const { tokens } = useTokens();
 
   const isActuallyVisible = true;
@@ -246,7 +247,7 @@ function TopBarComponent({
 
             <button
               type="button"
-              onClick={() => { haptics.tap(); setModal('showPassportMapModal', true); }}
+              onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
               aria-label="Live Map"
