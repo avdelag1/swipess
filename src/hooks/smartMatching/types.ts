@@ -38,6 +38,9 @@ export interface MatchedClientProfile {
     languages?: string[];
     neighborhood?: string;
     roommate_available?: boolean;
+    occupation?: string;
+    client_type?: 'buyer' | 'renter' | 'hire' | null;
+    intentions?: string[];
 
     // Category-specific preferences
     moto_types?: string[];

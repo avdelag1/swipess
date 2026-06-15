@@ -19,6 +19,11 @@ import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { logger } from '@/utils/prodLogger';
+import {
+  CLIENT_TYPE_OPTIONS,
+  intentionsForClientType,
+  type SeekerClientType,
+} from '@/utils/clientType';
 
 type Step = 'compose' | 'processing';
 type Mode = 'client' | 'owner';
@@ -35,6 +40,7 @@ export function AIProfileWizard() {
 
   const [step, setStep] = useState<Step>('compose');
   const [narrative, setNarrative] = useState('');
+  const [selectedClientType, setSelectedClientType] = useState<SeekerClientType | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
@@ -71,9 +77,28 @@ export function AIProfileWizard() {
       setStep('compose');
       setNarrative('');
       setImageFiles([]);
+      setSelectedClientType(null);
     }
     initialOpen.current = showAIProfile;
   }, [showAIProfile]);
+
+  useEffect(() => {
+    if (!showAIProfile || mode !== 'client' || !user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('client_profiles')
+        .select('client_type')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      const existing = data?.client_type as SeekerClientType | null;
+      if (existing === 'buyer' || existing === 'renter' || existing === 'hire') {
+        setSelectedClientType(existing);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [showAIProfile, mode, user?.id]);
 
   // One stable preview URL per selected file — recreating it every render
   // leaks a blob URL per keystroke while the user types their narrative.
@@ -140,6 +165,10 @@ export function AIProfileWizard() {
 
   const handleProcess = async () => {
     if (!user) { appToast.error('Not signed in'); return; }
+    if (mode === 'client' && !selectedClientType) {
+      appToast.error('Pick what you are looking for first.');
+      return;
+    }
     if (imageFiles.length === 0) {
       appToast.error('Add one photo to continue.');
       return;
@@ -186,6 +215,13 @@ export function AIProfileWizard() {
       setProgressPct(70);
 
       // 3. Save profile as draft to modal store
+      const clientIntentions = mode === 'client' && selectedClientType
+        ? Array.from(new Set([
+            ...intentionsForClientType(selectedClientType),
+            ...((draft.intentions as string[] | undefined) || []),
+          ]))
+        : [];
+
       const payload: any = mode === 'client' ? {
         user_id: user.id,
         name: draft.name || null,
@@ -196,13 +232,14 @@ export function AIProfileWizard() {
         neighborhood: draft.neighborhood || null,
         country: draft.country || null,
         nationality: draft.nationality || null,
-        occupation: draft.occupation || null,
+        occupation: draft.occupation || selectedClientType || null,
+        client_type: selectedClientType,
         relationship_status: draft.relationship_status || null,
         smoking_habit: draft.smoking_habit || null,
         drinking_habit: draft.drinking_habit || null,
         languages: draft.languages || [],
         interests: draft.interests || [],
-        intentions: draft.intentions || [],
+        intentions: clientIntentions,
         profile_images: urls,
       } : {
         user_id: user.id,
@@ -349,10 +386,49 @@ export function AIProfileWizard() {
                         </p>
                       </div>
                     )}
+
+                    {mode === 'client' && (
+                      <div className="space-y-4">
+                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>
+                          1. What are you looking for?
+                        </label>
+                        <div className="grid grid-cols-1 gap-3">
+                          {CLIENT_TYPE_OPTIONS.map((option) => {
+                            const active = selectedClientType === option.id;
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => {
+                                  triggerHaptic('light');
+                                  setSelectedClientType(option.id);
+                                }}
+                                className={cn(
+                                  'flex items-center gap-4 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+                                  active
+                                    ? 'border-rose-500/50 bg-rose-500/10 shadow-[0_0_24px_rgba(244,63,94,0.15)]'
+                                    : isLight
+                                      ? 'border-black/10 bg-black/[0.02] hover:border-black/20'
+                                      : 'border-white/10 bg-white/[0.03] hover:border-white/20',
+                                )}
+                              >
+                                <span className="text-2xl">{option.emoji}</span>
+                                <div className="min-w-0">
+                                  <p className={cn('text-sm font-bold', textPrimary)}>{option.label}</p>
+                                  <p className={cn('text-[11px] mt-0.5', textMuted)}>{option.description}</p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Photos */}
                     <div className="space-y-4">
-                      <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>1. Photo</label>
+                      <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>
+                        {mode === 'client' ? '2. Photo' : '1. Photo'}
+                      </label>
                       <div className="grid grid-cols-2 gap-4">
                         {imageFiles[0] && imagePreview ? (
                           <div className={cn("aspect-square rounded-3xl overflow-hidden border relative shadow-2xl", isLight ? "border-black/10" : "border-white/10")}>
@@ -379,7 +455,9 @@ export function AIProfileWizard() {
                     {/* Description */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between ml-2">
-                        <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>2. Description</span>
+                        <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>
+                          {mode === 'client' ? '3. Description' : '2. Description'}
+                        </span>
                         <button
                           type="button"
                           onClick={handleEnhanceNarrative}

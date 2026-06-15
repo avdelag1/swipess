@@ -3,6 +3,7 @@ import type { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences
 import type { ListingFilters } from '@/types/filters';
 import { calculateListingMatch, calculateClientMatch } from '@/hooks/smartMatching/matchCalculators';
 import type { MatchedClientProfile } from '@/hooks/smartMatching/types';
+import { filterClientTypeToDb, resolveClientType } from '@/utils/clientType';
 
 export interface GeoItem {
   latitude?: number | null;
@@ -174,9 +175,15 @@ export function filterClientsByOwnerFilters<T extends MatchedClientProfile>(
       if (g && g !== filters.clientGender.toLowerCase()) return false;
     }
     if (filters?.clientType && filters.clientType !== 'all') {
-      const typeMap: Record<string, string> = { buyer: 'buyer', renter: 'renter', hire: 'hire' };
-      const expected = typeMap[filters.clientType] || filters.clientType;
-      if ((client as Record<string, unknown>).client_type !== expected) return false;
+      const expected = filterClientTypeToDb(filters.clientType);
+      if (expected) {
+        const actual = resolveClientType({
+          client_type: (client as Record<string, unknown>).client_type as string | null,
+          intentions: (client as Record<string, unknown>).intentions,
+          occupation: client.occupation,
+        });
+        if (actual !== expected) return false;
+      }
     }
     if (filters?.ageRange && client.age) {
       if (client.age < filters.ageRange[0] || client.age > filters.ageRange[1]) return false;

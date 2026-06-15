@@ -45,6 +45,7 @@ import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
+import { categoryToClientType, resolveClientType } from '@/utils/clientType';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
@@ -454,8 +455,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     if (dataType === 'people' && storeActiveCategory && ['buyers', 'renters', 'hire', 'leads'].includes(storeActiveCategory)) {
-      const clientTypeMap: Record<string, string> = { buyers: 'buyer', renters: 'renter', hire: 'hire', leads: 'hire' };
-      return rawData.filter((item: any) => (item?.client_type || item?.occupation) === clientTypeMap[storeActiveCategory]);
+      const expected = categoryToClientType(storeActiveCategory);
+      if (!expected) return rawData;
+      return rawData.filter((item: any) =>
+        resolveClientType({
+          client_type: item?.client_type,
+          intentions: item?.intentions,
+          occupation: item?.occupation,
+        }) === expected
+      );
     }
 
     return rawData;

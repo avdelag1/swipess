@@ -12,11 +12,13 @@ import {
   hasActiveLocationFilter,
 } from '@/utils/matchingFilters';
 import { isDemoFeedEnabled } from '@/utils/demoFeed';
+import { categoryToClientType, resolveClientType } from '@/utils/clientType';
 
 const CLIENT_FIELDS = `
     user_id, name, age, gender, city, country, latitude, longitude, profile_images,
     interests, personality_traits, smoking_habit, work_schedule, nationality,
-    languages, neighborhood, bio, occupation, preferred_activities, roommate_available
+    languages, neighborhood, bio, occupation, preferred_activities, roommate_available,
+    client_type, intentions
 `;
 
 // Seed/demo user IDs that should always appear AFTER real users.
@@ -466,15 +468,10 @@ export function useSmartClientMatching(
                 if (_category && _category !== 'all' && _category !== 'all-clients') {
                     const isClientType = ['buyers', 'renters', 'hire'].includes(_category);
                     if (isClientType) {
-                        // Owner side: filter by client_type field
-                        const clientTypeMap: Record<string, string> = {
-                            'buyers': 'buyer',
-                            'renters': 'renter',
-                            'hire': 'hire'
-                        };
-                        const _mappedType = clientTypeMap[_category];
-                        // Note: client_type is stored in client_profiles table, not profiles
-                        // We'll filter it after the join below
+                        const mappedType = categoryToClientType(_category);
+                        if (mappedType) {
+                            query = query.eq('client_type', mappedType);
+                        }
                     } else {
                         // Client side: filter by preferred_listing_types
                         const mappedCategory = _category === 'worker' ? 'services' : _category;
@@ -533,7 +530,13 @@ export function useSmartClientMatching(
                         matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: true,
                         roommate_available: !!p.roommate_available, city: p.city, country: p.country, work_schedule: p.work_schedule,
-                        occupation: p.occupation || ''
+                        occupation: p.occupation || '',
+                        client_type: resolveClientType({
+                            client_type: (p as any).client_type,
+                            intentions: (p as any).intentions,
+                            occupation: p.occupation,
+                        }),
+                        intentions: (p as any).intentions || [],
                     } as MatchedClientProfile;
                 });
 
@@ -560,18 +563,17 @@ export function useSmartClientMatching(
                 });
 
                 // Filter by client_type if owner selected a category (buyers/renters/hire)
-                if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
-                    const clientTypeMap: Record<string, string> = {
-                        'buyers': 'buyer',
-                        'renters': 'renter',
-                        'hire': 'hire'
-                    };
-                    const targetType = clientTypeMap[_category];
-                    results = results.filter(r => {
-                        // Demo clients have client_type set, real profiles may not
-                        const rType = (r as any).client_type || 'unknown';
-                        return rType === targetType;
-                    });
+                if (_category && ['buyers', 'renters', 'hire', 'leads'].includes(_category)) {
+                    const targetType = categoryToClientType(_category);
+                    if (targetType) {
+                        results = results.filter((r) =>
+                            resolveClientType({
+                                client_type: (r as any).client_type,
+                                intentions: (r as any).intentions,
+                                occupation: r.occupation,
+                            }) === targetType
+                        );
+                    }
                 }
 
                 // 🚀 DEMO FALLBACK REMOVED: Show the "Adjust Radius" page instead of fake demo data

@@ -47,6 +47,9 @@ export type ClientProfileLite = {
   dietary_preferences?: string[] | null;
   personality_traits?: string[] | null;
   interest_categories?: string[] | null;
+  // Seeker intent
+  client_type?: 'buyer' | 'renter' | 'hire' | null;
+
   // Verification fields
   occupation?: string | null;
   years_in_city?: number | null;

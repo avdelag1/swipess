@@ -321,6 +321,7 @@ export type Database = {
           age: number | null
           bio: string | null
           city: string | null
+          client_type: string | null
           cleanliness_level: string | null
           country: string | null
           created_at: string
@@ -359,6 +360,7 @@ export type Database = {
           age?: number | null
           bio?: string | null
           city?: string | null
+          client_type?: string | null
           cleanliness_level?: string | null
           country?: string | null
           created_at?: string
@@ -397,6 +399,7 @@ export type Database = {
           age?: number | null
           bio?: string | null
           city?: string | null
+          client_type?: string | null
           cleanliness_level?: string | null
           country?: string | null
           created_at?: string
