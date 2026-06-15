@@ -101,6 +101,7 @@ interface FilterState {
   setRadiusKm: (radius: number) => void;
   setUserLocation: (lat: number, lon: number) => void;
   setPassportLocation: (lat: number, lon: number, label?: string) => void;
+  clearPassportLocation: () => void;
   clearUserLocation: () => void;
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -207,6 +208,14 @@ export const useFilterStore = create<FilterState>()(
         userLongitude: lon,
         passportMode: true,
         passportLabel: label ?? null,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    clearPassportLocation: () => {
+      set((state) => ({
+        passportMode: false,
+        passportLabel: null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));

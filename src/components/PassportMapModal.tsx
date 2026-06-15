@@ -81,6 +81,7 @@ export const PassportMapModal = memo(() => {
   const passportLabel = useFilterStore(s => s.passportLabel);
   const passportMode = useFilterStore(s => s.passportMode);
   const setPassportLocation = useFilterStore(s => s.setPassportLocation);
+  const clearPassportLocation = useFilterStore(s => s.clearPassportLocation);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
 
@@ -250,8 +251,9 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
+    clearPassportLocation();
     centerOnDeviceGps({ zoom: zoomForRadiusKm(radiusKm), refresh: true, announce: true });
-  }, [centerOnDeviceGps, radiusKm]);
+  }, [centerOnDeviceGps, radiusKm, clearPassportLocation]);
 
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
@@ -713,11 +715,11 @@ export const PassportMapModal = memo(() => {
             whileTap={{ scale: 0.9 }}
             onClick={handleGPS}
             disabled={gpsLoading}
-            className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-2xl text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
+            className="pointer-events-auto flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
             style={{ background: PASSPORT_GRADIENTS.tokens }}
-            title="My location"
           >
-            {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" strokeWidth={2.2} />}
+            {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" strokeWidth={2.5} />}
+            <span className="text-[10px] font-black uppercase tracking-wider">My Location</span>
           </motion.button>
         </div>
 
