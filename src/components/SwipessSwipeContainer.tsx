@@ -49,7 +49,7 @@ const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmat
 const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import { useQueryClient } from '@tanstack/react-query';
 import { BentoCategoryDashboard } from './swipe/BentoCategoryDashboard';
-import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
+
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 const ReportDialog = lazyWithRetry(() => import('./ReportDialog').then(m => ({ default: m.ReportDialog })));

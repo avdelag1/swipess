@@ -33,7 +33,7 @@ import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
+
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { cn } from '@/lib/utils';

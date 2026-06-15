@@ -155,12 +155,13 @@ export const EventCard = memo(({
           <span className={cn("text-[10px] font-bold", liked ? "text-red-400" : "text-white/60")}>Like</span>
         </button>
 
-        {/* Chat / WhatsApp */}
+        {/* WhatsApp host contact */}
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-          title="Chat with host"
+          title="Message host on WhatsApp"
+          aria-label="WhatsApp host"
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
@@ -168,7 +169,7 @@ export const EventCard = memo(({
           >
             <MessageCircle className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold text-white/60")}>Chat</span>
+          <span className={cn("text-[10px] font-bold text-white/60")}>WhatsApp</span>
         </button>
 
         {/* Share */}

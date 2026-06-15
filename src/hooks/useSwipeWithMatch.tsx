@@ -98,6 +98,11 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         throw new Error('User not authenticated. Please refresh the page.');
       }
 
+      // Demo/sample cards stay in the deck for testing — skip DB writes silently
+      if (targetId.startsWith('demo-')) {
+        return { demo: true, direction, targetId, targetType };
+      }
+
       // CRITICAL: Prevent self-likes (should never happen due to query filtering, but defense in depth)
       if (targetType === 'profile' && targetId === user.id) {
         logger.error('[useSwipeWithMatch] CRITICAL: Attempted self-like - profile filter failed!');

@@ -61,7 +61,7 @@ export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportSheetOpen = useModalStore(s => s.showPassportModal);
-  const shouldWarmMap = isOpen || passportSheetOpen;
+  const shouldWarmMap = isOpen;
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
@@ -588,7 +588,7 @@ export const PassportMapModal = memo(() => {
       ? `${nearbyCount} in ${radiusKm}km`
       : 'Scanning area…';
 
-  const mapHostVisible = isOpen || passportSheetOpen;
+  const mapHostVisible = isOpen;
 
   return (
     <motion.div
@@ -639,7 +639,7 @@ export const PassportMapModal = memo(() => {
           <button
             type="button"
             onClick={onClose}
-            className="map-hud-btn map-hud-panel pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+            className="map-hud-btn map-hud-panel pointer-events-auto flex items-center justify-center w-11 h-11 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             aria-label="Close map"
           >
             <X className="w-4 h-4" strokeWidth={2.5} />

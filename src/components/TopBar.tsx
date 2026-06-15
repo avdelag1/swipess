@@ -140,7 +140,7 @@ function TopBarComponent({
 
         {/* LEFT: profile/back and AI — separate pills with breathing room */}
         <div className="flex items-center gap-2.5 min-w-0 pointer-events-auto">
-          {onBack ? (
+          {onBack && !isSwipeDeck ? (
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}

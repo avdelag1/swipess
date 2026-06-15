@@ -443,15 +443,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <>
             <GestureHints hidden={isZoomed} />
             
-            <AnimatePresence>
-              {!isRailVisible && (
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: isZoomed ? 0 : 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
-                >
+            <div
+              className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
+              style={{ opacity: isZoomed ? 0 : 1 }}
+            >
               <button
                 data-no-cinematic
                 onClick={(e) => {
@@ -465,23 +460,30 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
               </button>
 
-              {canUndo ? (
-                <button
-                  data-no-cinematic
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (onUndo) onUndo();
-                  }}
-                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
-                  aria-label="Undo"
-                >
-                  <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
-                </button>
-              ) : <div className="w-12 h-12" />}
-                </motion.div>
-              )}
-            </AnimatePresence>
+              <AnimatePresence>
+                {!isRailVisible && canUndo ? (
+                  <motion.button
+                    key="undo"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.2 }}
+                    data-no-cinematic
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onUndo) onUndo();
+                    }}
+                    className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    aria-label="Undo"
+                  >
+                    <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                  </motion.button>
+                ) : (
+                  <div className="w-12 h-12" />
+                )}
+              </AnimatePresence>
+            </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">

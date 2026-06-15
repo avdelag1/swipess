@@ -111,7 +111,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="fixed inset-x-0 z-[10002] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none"
             style={{
-              top: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
+              top: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px) + 8px)',
               bottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 8px)',
             }}
           >
@@ -129,7 +129,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                 </div>
                 <button
                   onClick={close}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                  className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                  aria-label="Close"
                 >
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>

@@ -106,15 +106,18 @@ export default function EventosLikes() {
       />
 
       {/* 📱 Flagship Header */}
-      <div className={cn(
-        "sticky top-[var(--top-bar-height)] z-40 backdrop-blur-xl border-b transition-all duration-300",
-        isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/5"
-      )}>
+      <div
+        className={cn(
+          "sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300",
+          isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/5"
+        )}
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <div className="flex items-center gap-4 py-4 px-2">
           <button
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg border",
+              "shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg border",
               isLight ? "bg-white/90 border-black/5 text-black" : "bg-black/60 border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}

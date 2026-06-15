@@ -35,7 +35,7 @@ export const SwipessPrewarmer = () => {
       prefetchRoute('/messages');
       // Hot follow-up routes users hit right after dashboard
       prefetchRoute('/client/filters');
-      prefetchRoute('/explore');
+      prefetchRoute('/explore/events');
       prefetchRoute('/notifications');
       prefetchPassportMapModule();
 

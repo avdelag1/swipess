@@ -132,7 +132,7 @@ export default function EventosFeed() {
   });
 
   // 3. Fetch Events (Swipess Optimized)
-  const { data: rawEvents } = useQuery({
+  const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending } = useQuery({
     queryKey: ['eventos', 'v4'],
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
@@ -291,7 +291,7 @@ export default function EventosFeed() {
           <button
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "shrink-0 w-10 h-10 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent",
+              "shrink-0 w-11 h-11 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent",
               isLight ? "bg-white/90 border border-black/5 text-black" : "bg-black/60 border border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px) saturate(1.6)', WebkitBackdropFilter: 'blur(20px) saturate(1.6)' }}
@@ -369,7 +369,19 @@ export default function EventosFeed() {
       </div>
 
       {/* Main Feed */}
-      {filteredEvents.length === 0 ? (
+      {(eventsLoading || eventsPending) && !rawEvents ? (
+        <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
+          <div className="w-full max-w-sm space-y-4">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="h-[72vh] max-h-[640px] rounded-[28px] border border-white/10 bg-white/5 animate-pulse"
+                style={{ opacity: 1 - (n - 1) * 0.2 }}
+              />
+            ))}
+          </div>
+        </div>
+      ) : filteredEvents.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
             <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 

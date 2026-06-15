@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   _ChevronLeft, _CircleDot,
-  _Layers, _Navigation, Archive, ArrowLeft, Ban, Check,
+  _Layers, _Navigation, Archive, Ban, Check,
   Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -236,15 +236,6 @@ export function MessagingDashboard() {
       >
         
          <div className="flex items-center gap-4 sm:gap-6">
-           <button
-             onClick={() => navigate(`/${activeMode}/dashboard`)}
-             className={cn(
-               "w-12 h-12 flex items-center justify-center rounded-full transition-all active:scale-95 shrink-0 glass-pill",
-               isLight ? "text-black" : "text-white"
-             )}
-           >
-             <ArrowLeft className="w-5 h-5" />
-           </button>
            <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl shrink-0">
               <MessageCircle className="w-7 h-7 sm:w-8 sm:h-8" />
            </div>

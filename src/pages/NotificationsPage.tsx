@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { 
   _X, AlertTriangle, Bell, Heart, Info, 
@@ -14,10 +17,57 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { PageHeader } from '@/components/PageHeader';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
+const TYPE_MAP: Record<string, string> = {
+  new_like: 'like',
+  new_match: 'match',
+  new_message: 'message',
+  new_review: 'like',
+  property_inquiry: 'message',
+  contract_signed: 'like',
+  contract_pending: 'like',
+  payment_received: 'premium_purchase',
+  profile_viewed: 'like',
+  system_announcement: 'like',
+  verification_approved: 'like',
+  subscription_expiring: 'premium_purchase',
+};
+
 const NotificationsPage = () => {
-  const { notifications, markNotificationAsRead, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
-  const isLoading = false;
+  const { user } = useAuth();
+  const { markNotificationAsRead, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const { isLight, isDark } = useAppTheme();
+
+  const { data: pageRows, isLoading } = useQuery({
+    queryKey: ['notifications-page', user?.id],
+    enabled: !!user?.id,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('id, notification_type, message, is_read, created_at, title, link_url, related_user_id, metadata')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const notifications = useMemo(
+    () =>
+      (pageRows ?? []).map((row) => ({
+        id: row.id,
+        type: TYPE_MAP[row.notification_type] || 'like',
+        title: row.title || 'Notification',
+        message: row.message || '',
+        timestamp: new Date(row.created_at),
+        read: row.is_read || false,
+        actionUrl: row.link_url,
+        relatedUserId: row.related_user_id,
+        metadata: row.metadata || {},
+      })),
+    [pageRows],
+  );
   const { _navigate } = useAppNavigate();
   const { getText } = useSiteContent('notifications');
 
@@ -51,8 +101,8 @@ const NotificationsPage = () => {
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <PageHeader 
           title={getText('page_title', 'Pulse Feed')} 
-          subtitle={getText('empty_state', 'System Intelligence Updates')} 
-          showBack={true}
+          subtitle={getText('page_subtitle', 'System Intelligence Updates')} 
+          showBack={false}
           actions={notifications.length > 0 ? (
             <Button 
               variant="ghost" 

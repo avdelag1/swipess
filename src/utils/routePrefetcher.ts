@@ -76,7 +76,6 @@ const routeImports: Record<string, RouteImport> = {
   '/owner/filters': () => import('@/pages/OwnerFilters'),
   '/client/liked-properties': () => import('@/pages/ClientLikedProperties'),
   '/client/who-liked-you': () => import('@/pages/ClientWhoLikedYou'),
-  '/owner/liked-clients': () => import('@/pages/OwnerLikedClients'),
   '/explore/radio': () => import('@/pages/WorldRadioDirectory'),
 };
 

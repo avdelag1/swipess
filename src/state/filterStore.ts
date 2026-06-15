@@ -508,8 +508,6 @@ export const useFilterStore = create<FilterState>()(
         ageRange: state.clientAgeRange ?? undefined,
         budgetRange: state.clientBudgetRange ?? undefined,
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
-        ageRange: state.clientAgeRange ?? undefined,
-        budgetRange: state.clientBudgetRange ?? undefined,
         radiusKm: state.radiusKm,
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
