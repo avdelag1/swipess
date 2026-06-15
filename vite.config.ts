@@ -1,9 +1,20 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 
-export default defineConfig(async ({ mode }) => ({
+export default defineConfig(async ({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const mapboxToken = (
+    env.VITE_MAPBOX_ACCESS_TOKEN
+    || env.VITE_MAPBOX_TOKEN
+    || env.MAPBOX_ACCESS_TOKEN
+    || env.MAPBOX_TOKEN
+    || env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+    || ''
+  ).trim().replace(/^['"]|['"]$/g, '');
+
+  return {
   server: {
     host: "::",
     port: 8080,
@@ -49,12 +60,7 @@ export default defineConfig(async ({ mode }) => ({
     {
       name: 'mapbox-token-meta',
       transformIndexHtml(html: string) {
-        const token = (
-          process.env.VITE_MAPBOX_ACCESS_TOKEN
-          || process.env.MAPBOX_ACCESS_TOKEN
-          || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-          || ''
-        ).trim().replace(/^['"]|['"]$/g, '');
+        const token = mapboxToken;
         if (!token || !token.startsWith('pk.')) return html;
         const tag = `<meta name="swipess-mapbox-token" content="${token.replace(/"/g, '&quot;')}" />`;
         return html.replace('</head>', `${tag}</head>`);
@@ -77,12 +83,7 @@ export default defineConfig(async ({ mode }) => ({
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),
     // Accept MAPBOX_ACCESS_TOKEN on Vercel if user skipped the VITE_ prefix
-    'import.meta.env.VITE_MAPBOX_ACCESS_TOKEN': JSON.stringify(
-      (process.env.VITE_MAPBOX_ACCESS_TOKEN
-        || process.env.MAPBOX_ACCESS_TOKEN
-        || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-        || '').trim().replace(/^['"]|['"]$/g, ''),
-    ),
+    'import.meta.env.VITE_MAPBOX_ACCESS_TOKEN': JSON.stringify(mapboxToken),
   },
   build: {
     target: 'esnext',
@@ -162,4 +163,5 @@ export default defineConfig(async ({ mode }) => ({
       }
     }
   }
-}));
+};
+});

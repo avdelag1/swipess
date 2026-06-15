@@ -58,14 +58,87 @@ export const LocationRadiusSelector = memo(({
     }
   }, [expanded, isControlled, onExpandedChange]);
 
+  if (orientation === 'vertical') {
+    return (
+      <div className="flex flex-col items-center gap-3 w-12" style={{ pointerEvents: 'auto' }}>
+        <motion.button
+          whileTap={{ scale: 0.88 }}
+          onClick={onDetectLocation}
+          disabled={detecting}
+          className={cn(
+            "w-12 h-12 flex items-center justify-center rounded-full transition-all border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+            detected
+              ? cn("bg-primary border-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]", isLight ? "text-black" : "text-white")
+              : "bg-black/20 backdrop-blur-md border-white/20 text-white"
+          )}
+          title="Detect GPS location"
+        >
+          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} strokeWidth={2.5} />
+        </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.93 }}
+          onClick={toggleExpand}
+          className={cn(
+            "w-12 h-12 flex flex-col items-center justify-center rounded-full transition-all border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+            "bg-black/20 backdrop-blur-md border-white/20 text-white gap-0.5"
+          )}
+        >
+          <MapPin className="w-4 h-4 opacity-80" strokeWidth={2.5} />
+          <span className="text-[9px] font-black uppercase tracking-widest">{radiusKm}km</span>
+        </motion.button>
+        
+        {/* Expanded Slider Panel */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
+              className={cn(
+                "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
+                isLight ? "bg-white/95 border-black/10" : "bg-[#0d0d0d]/95 border-white/10"
+              )}
+            >
+              <div className="mb-5">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Search Radius</h4>
+                <p className="text-sm font-black italic opacity-90">{title ? `Searching ${title}` : 'Adjust search distance'}</p>
+              </div>
+              <DistanceSlider
+                radiusKm={radiusKm}
+                onRadiusChange={onRadiusChange}
+                onDetectLocation={onDetectLocation}
+                detecting={detecting}
+                detected={detected}
+              />
+              <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
+                  className={cn(
+                    "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
+                    isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/8 hover:bg-white/15"
+                  )}
+                >
+                  Done
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex items-center justify-center gap-2 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
       <motion.div
         layout
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          "flex items-center gap-2 p-2 glass-pill transition-all",
-          orientation === 'vertical' ? "flex-col" : "flex-row",
+          "flex items-center gap-2 p-2 glass-pill transition-all flex-row",
           isLight ? "glass-light-surface" : "glass-dark",
         )}
       >

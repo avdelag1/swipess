@@ -8,7 +8,7 @@ import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { usePassportMapData, type MapListingPin, type MapProfilePin } from '@/hooks/usePassportMapData';
-import { isMapboxConfigured, getMapboxAccessToken } from '@/utils/mapboxConfig';
+import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { warmMapboxModules } from '@/utils/mapWarmPool';
 
 type SelectedPin =
@@ -63,8 +63,9 @@ export const PassportMapModal = memo(() => {
   const [selected, setSelected] = useState<SelectedPin | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
-  const [mapLoading, setMapLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm);
 
@@ -107,26 +108,41 @@ export const PassportMapModal = memo(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
   }, []);
 
-  // Init map once on mount — container stays in DOM (hidden when closed) so reopen is instant
+  // Resolve token when map opens (sync bundle + meta + /api/mapbox-token fallback)
   useEffect(() => {
-    if (initStartedRef.current || !mapContainerRef.current) return;
+    if (!isOpen) return;
+    let cancelled = false;
+    resolveMapboxAccessToken().then((token) => {
+      if (!cancelled) setTokenReady(token.length > 0);
+    });
+    return () => { cancelled = true; };
+  }, [isOpen]);
 
-    const token = getMapboxAccessToken();
-    if (!token) {
-      setMapError('Mapbox token not configured');
-      setMapLoading(false);
-      return;
-    }
+  // Init map on first open — keep instance alive between opens
+  useEffect(() => {
+    if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
 
-    initStartedRef.current = true;
+    let cancelled = false;
     setMapLoading(true);
     setMapError(null);
-    let cancelled = false;
-    const initialLng = useFilterStore.getState().userLongitude ?? -80.1918;
-    const initialLat = useFilterStore.getState().userLatitude ?? 25.7617;
-    const initialZoom = useFilterStore.getState().userLatitude != null ? 10 : 3;
 
     (async () => {
+      const token = await resolveMapboxAccessToken();
+      if (cancelled || !mapContainerRef.current) return;
+
+      if (!token) {
+        setMapLoading(false);
+        setTokenReady(false);
+        return;
+      }
+
+      setTokenReady(true);
+      initStartedRef.current = true;
+
+      const initialLng = useFilterStore.getState().userLongitude ?? -80.1918;
+      const initialLat = useFilterStore.getState().userLatitude ?? 25.7617;
+      const initialZoom = useFilterStore.getState().userLatitude != null ? 10 : 3;
+
       try {
         const { mapboxgl, MapboxGeocoder } = await warmMapboxModules();
         if (cancelled || !mapContainerRef.current) return;
@@ -141,21 +157,31 @@ export const PassportMapModal = memo(() => {
           zoom: initialZoom,
           attributionControl: false,
           fadeDuration: 0,
+          antialias: true,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
 
         map.on('load', () => {
           if (cancelled) return;
-          resizeMap();
-          setMapReady(true);
-          setMapLoading(false);
+          requestAnimationFrame(() => {
+            resizeMap();
+            requestAnimationFrame(() => {
+              resizeMap();
+              setMapReady(true);
+              setMapLoading(false);
+            });
+          });
         });
 
-        map.on('error', () => {
-          if (!cancelled) {
-            setMapError('Could not load map tiles');
-            setMapLoading(false);
+        map.on('error', (e: { error?: { status?: number; message?: string } }) => {
+          const status = e?.error?.status;
+          const message = e?.error?.message ?? '';
+          if (status === 401 || status === 403 || /unauthorized|forbidden/i.test(message)) {
+            if (!cancelled) {
+              setMapError('Mapbox token rejected — check URL restrictions in your Mapbox dashboard');
+              setMapLoading(false);
+            }
           }
         });
 
@@ -190,23 +216,24 @@ export const PassportMapModal = memo(() => {
         }
       } catch {
         if (!cancelled) {
-          setMapError('Failed to initialize map');
+          setMapError('Failed to initialize map — try refreshing the page');
           setMapLoading(false);
+          initStartedRef.current = false;
         }
       }
     })();
 
-    return () => {
-      cancelled = true;
-      resizeObserverRef.current?.disconnect();
-      markersRef.current.forEach(m => m.remove());
-      geocoderRef.current?.onRemove();
-      mapRef.current?.remove();
-      mapRef.current = null;
-      mapboxRef.current = null;
-      initStartedRef.current = false;
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- single init; flyTo via ref
+    return () => { cancelled = true; };
+  }, [isOpen, resizeMap]);
+
+  useEffect(() => () => {
+    resizeObserverRef.current?.disconnect();
+    markersRef.current.forEach(m => m.remove());
+    geocoderRef.current?.onRemove();
+    mapRef.current?.remove();
+    mapRef.current = null;
+    mapboxRef.current = null;
+    initStartedRef.current = false;
   }, []);
 
   // Resize when opened
@@ -287,7 +314,7 @@ export const PassportMapModal = memo(() => {
     });
   }, [data, mapReady, isOpen]);
 
-  const mapboxReady = isMapboxConfigured();
+  const mapboxReady = tokenReady;
 
   return (
     <div
@@ -351,12 +378,12 @@ export const PassportMapModal = memo(() => {
             )}
           />
 
-          {isOpen && !mapboxReady && (
+          {isOpen && !mapboxReady && !mapLoading && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
               <Search className="w-10 h-10 text-indigo-400 mb-4" />
               <p className="text-white font-bold mb-2">Map not configured</p>
               <p className="text-white/50 text-sm max-w-xs">
-                Add VITE_MAPBOX_ACCESS_TOKEN (pk.…) in Vercel → Environment Variables, then trigger a new Production deploy.
+                In Vercel set <span className="text-white/70">VITE_MAPBOX_ACCESS_TOKEN</span> to your public token (starts with pk.), then redeploy. Also try a hard refresh to clear cached app files.
               </p>
             </div>
           )}
@@ -369,10 +396,11 @@ export const PassportMapModal = memo(() => {
             </div>
           )}
 
-          {mapError && (
+          {isOpen && mapError && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
               <MapPin className="w-10 h-10 text-red-400 mb-4" />
               <p className="text-white font-bold">{mapError}</p>
+              <p className="text-white/40 text-xs mt-3 max-w-xs">If you just updated Vercel env vars, redeploy and hard-refresh (or clear site data).</p>
             </div>
           )}
 

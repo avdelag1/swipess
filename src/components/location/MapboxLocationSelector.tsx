@@ -25,6 +25,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import { getMapboxAccessToken } from '@/utils/mapboxConfig';
 
 interface MapboxLocationSelectorProps {
   latitude?: number;
@@ -97,7 +98,8 @@ export function MapboxLocationSelector({
   useEffect(() => {
     if (!mapRef.current || !showMap) return;
 
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiYXZkZWxhZyIsImEiOiJjbW81OWZvbmkxb284MnNwdmUxcjBwdzZzIn0.g6nNTESXekEIpz2GSwOMLg';
+    mapboxgl.accessToken = getMapboxAccessToken();
+    mapboxgl.workerUrl = `https://api.mapbox.com/mapbox-gl-js/v${mapboxgl.version}/mapbox-gl-csp-worker.js`;
     if (!mapboxgl.accessToken) {
       return;
     }
