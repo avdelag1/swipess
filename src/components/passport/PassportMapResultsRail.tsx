@@ -41,7 +41,10 @@ export const PassportMapResultsRail = memo(({
   if (items.length === 0) return null;
 
   return (
-    <div className="absolute bottom-3 left-0 right-0 z-20 pointer-events-none">
+    <div
+      className="absolute left-0 right-0 z-20 pointer-events-none"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 28px)' }}
+    >
       <p className="px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md flex items-center gap-2">
         <span>{items.length} in your radius</span>
         {activePeopleCount > 0 && (
