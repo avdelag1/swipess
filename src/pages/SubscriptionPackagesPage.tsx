@@ -335,37 +335,14 @@ export default function SubscriptionPackagesPage() {
             Restore Subscriptions
           </button>
 
-          {/*  App Store Subscription Policy Disclosure (Guideline 3.1.2) */}
-          <div className="max-w-2xl text-center px-6 space-y-6">
+          {/*  App Store Subscription Policy Disclosure */}
+          <div className="max-w-2xl text-center px-6 space-y-4">
             <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
-              Payment will be charged to your Apple ID account at the confirmation of purchase. Subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
+              Auto-renewing subscription. Cancel anytime in App Store settings.
             </p>
-            <div className="flex items-center justify-center gap-8">
+            <div className="flex items-center justify-center gap-8 pt-2">
               <button onClick={() => navigate('/privacy-policy')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Privacy Policy</button>
-              <button onClick={() => navigate('/terms-of-service')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Terms of Service</button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-12 w-full px-6">
-            <div className="space-y-3 text-center group">
-              <Shield className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Secure Gateway</h5>
-              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Protected by Enterprise <br />Payment Protocols</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Clock className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Instant Hydration</h5>
-              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Digital assets unlock <br />immediately</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Zap className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Priority Support</h5>
-              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Sparkles className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-white tracking-[0.2em]">Concierge Elite</h5>
-              <p className="text-[10px] font-bold text-white/60/40 leading-relaxed uppercase tracking-widest">24/7 Human-AI <br />Hybrid Assistance</p>
+              <button onClick={() => navigate('/terms-of-service')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Terms</button>
             </div>
           </div>
         </div>

@@ -4,12 +4,10 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { cn } from '@/lib/utils';
+import { DashboardLayout } from '@/components/DashboardLayout';
+import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 
-// 🚀 SPEED OF LIGHT: CORE COMPONENTS DECOUPLED
-// We lazy-load these to break any potential circular dependency chains
-// between the dashboard shell and the various hooks/contexts it consumes.
-const DashboardLayout = lazyWithRetry(() => import('@/components/DashboardLayout').then(m => ({ default: m.DashboardLayout })));
-const AnimatedOutlet = lazyWithRetry(() => import('@/components/AnimatedOutlet').then(m => ({ default: m.AnimatedOutlet })));
+// Scene + subscriptions stay lazy — they are heavy and not needed for tab switches.
 const PersistentDashboardScene = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardScene').then(m => ({ default: m.PersistentDashboardScene })));
 
 // Global match celebration and realtime subscriptions
@@ -72,8 +70,7 @@ export function PersistentDashboardLayout() {
 
   return (
     <ChunkErrorBoundary>
-      <Suspense fallback={null}>
-        <DashboardLayout userRole={userRole}>
+      <DashboardLayout userRole={userRole}>
           <div
             id="swipess-dashboard-root"
             className={cn(
@@ -96,9 +93,7 @@ export function PersistentDashboardLayout() {
                 zIndex: 10,
               }}
             >
-              <Suspense fallback={null}>
-                <AnimatedOutlet />
-              </Suspense>
+              <AnimatedOutlet />
             </div>
           </div>
 
@@ -107,7 +102,6 @@ export function PersistentDashboardLayout() {
             <PersistentDashboardSubscriptions />
           </Suspense>
         </DashboardLayout>
-      </Suspense>
     </ChunkErrorBoundary>
   );
 }

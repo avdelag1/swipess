@@ -168,7 +168,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <PassportModal />
       </DeferredDialog>
 
-      <DeferredDialog when={store.showPassportMapModal}>
+      <DeferredDialog when={store.showPassportMapModal} keepMounted>
         <PassportMapModal />
       </DeferredDialog>
 

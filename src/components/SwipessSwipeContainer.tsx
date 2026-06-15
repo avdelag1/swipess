@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import { prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
@@ -1045,6 +1046,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {deckQueue.length > 0 && (
         <button
           type="button"
+          onPointerDown={() => prefetchPassportMapModule()}
           onClick={() => {
             triggerHaptic('medium');
             useModalStore.getState().setModal('showPassportMapModal', true);

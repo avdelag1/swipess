@@ -1,10 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Globe2, Loader2, MapPin, Navigation, Search, User, X } from 'lucide-react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -18,6 +14,8 @@ import { isMapboxPlacesReady } from '@/utils/mapboxPlaces';
 type SelectedPin =
   | { type: 'listing'; data: MapListingPin }
   | { type: 'profile'; data: MapProfilePin };
+
+type MapboxGL = typeof import('mapbox-gl').default;
 
 function createMarkerEl(color: string, imageUrl?: string): HTMLDivElement {
   const el = document.createElement('div');
@@ -54,12 +52,16 @@ export const PassportMapModal = memo(() => {
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const geocoderContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const geocoderRef = useRef<MapboxGeocoder | null>(null);
+  const mapRef = useRef<import('mapbox-gl').Map | null>(null);
+  const mapboxRef = useRef<MapboxGL | null>(null);
+  const markersRef = useRef<import('mapbox-gl').Marker[]>([]);
+  const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const [selected, setSelected] = useState<SelectedPin | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const centerLat = lat ?? 25.7617;
   const centerLng = lng ?? -80.1918;
@@ -98,105 +100,157 @@ export const PassportMapModal = memo(() => {
     }
   }, [setUserLocation]);
 
-  // Init map
+  const resizeMap = useCallback(() => {
+    mapRef.current?.resize();
+  }, []);
+
   useEffect(() => {
     if (!isOpen || !mapContainerRef.current) return;
 
     const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-    if (!token) return;
-
-    mapboxgl.accessToken = token;
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: isLight ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
-      center: [centerLng, centerLat],
-      zoom: lat != null ? 10 : 3,
-      attributionControl: false,
-    });
-
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-
-    map.on('load', () => {
-      setMapReady(true);
-      if (lat != null && lng != null) {
-        map.addSource('search-radius', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'Point',
-              coordinates: [lng, lat],
-            },
-          },
-        });
-        map.addLayer({
-          id: 'search-radius-circle',
-          type: 'circle',
-          source: 'search-radius',
-          paint: {
-            'circle-radius': {
-              stops: [[0, 0], [20, radiusKm * 1000 * 0.075]],
-              base: 2,
-            },
-            'circle-color': '#8B5CF6',
-            'circle-opacity': 0.12,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#8B5CF6',
-            'circle-stroke-opacity': 0.5,
-          },
-        });
-      }
-    });
-
-    map.on('click', (e) => {
-      const features = map.queryRenderedFeatures(e.point, { layers: ['search-radius-circle'] });
-      if (features.length) return;
-      flyTo(e.lngLat.lat, e.lngLat.lng, 'Custom location');
-    });
-
-    mapRef.current = map;
-
-    // Geocoder
-    const geocoder = new MapboxGeocoder({
-      accessToken: token,
-      mapboxgl: mapboxgl as any,
-      marker: false,
-      placeholder: 'Search any city worldwide...',
-    });
-    geocoder.on('result', (ev: any) => {
-      const [newLng, newLat] = ev.result.center;
-      flyTo(newLat, newLng, ev.result.place_name);
-    });
-    geocoderRef.current = geocoder;
-    if (geocoderContainerRef.current) {
-      geocoderContainerRef.current.innerHTML = '';
-      geocoderContainerRef.current.appendChild(geocoder.onAdd(map));
+    if (!token) {
+      setMapError('Mapbox token missing');
+      return;
     }
 
+    let cancelled = false;
+    setMapLoading(true);
+    setMapError(null);
+
+    const initTimer = window.setTimeout(() => {
+      (async () => {
+        try {
+          const [mapboxModule, geocoderModule] = await Promise.all([
+            import('mapbox-gl'),
+            import('@mapbox/mapbox-gl-geocoder'),
+            import('mapbox-gl/dist/mapbox-gl.css'),
+            import('@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'),
+          ]);
+
+          if (cancelled || !mapContainerRef.current) return;
+
+          const mapboxgl = mapboxModule.default;
+          mapboxRef.current = mapboxgl;
+          const MapboxGeocoder = geocoderModule.default;
+
+          mapboxgl.accessToken = token;
+          const map = new mapboxgl.Map({
+            container: mapContainerRef.current,
+            style: isLight ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
+            center: [centerLng, centerLat],
+            zoom: lat != null ? 10 : 3,
+            attributionControl: false,
+          });
+
+          map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+
+          map.on('load', () => {
+            if (cancelled) return;
+            resizeMap();
+            setMapReady(true);
+            setMapLoading(false);
+
+            if (lat != null && lng != null && !map.getSource('search-radius')) {
+              map.addSource('search-radius', {
+                type: 'geojson',
+                data: {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: { type: 'Point', coordinates: [lng, lat] },
+                },
+              });
+              map.addLayer({
+                id: 'search-radius-circle',
+                type: 'circle',
+                source: 'search-radius',
+                paint: {
+                  'circle-radius': {
+                    stops: [[0, 0], [20, radiusKm * 1000 * 0.075]],
+                    base: 2,
+                  },
+                  'circle-color': '#8B5CF6',
+                  'circle-opacity': 0.12,
+                  'circle-stroke-width': 2,
+                  'circle-stroke-color': '#8B5CF6',
+                  'circle-stroke-opacity': 0.5,
+                },
+              });
+            }
+          });
+
+          map.on('error', () => {
+            if (!cancelled) {
+              setMapError('Could not load map tiles');
+              setMapLoading(false);
+            }
+          });
+
+          map.on('click', (e) => {
+            const features = map.queryRenderedFeatures(e.point, { layers: ['search-radius-circle'] });
+            if (features.length) return;
+            flyTo(e.lngLat.lat, e.lngLat.lng, 'Custom location');
+          });
+
+          mapRef.current = map;
+
+          const geocoder = new MapboxGeocoder({
+            accessToken: token,
+            mapboxgl: mapboxgl as any,
+            marker: false,
+            placeholder: 'Search any city worldwide...',
+          });
+          geocoder.on('result', (ev: any) => {
+            const [newLng, newLat] = ev.result.center;
+            flyTo(newLat, newLng, ev.result.place_name);
+          });
+          geocoderRef.current = geocoder;
+          if (geocoderContainerRef.current) {
+            geocoderContainerRef.current.innerHTML = '';
+            geocoderContainerRef.current.appendChild(geocoder.onAdd(map));
+          }
+
+          if (mapContainerRef.current && typeof ResizeObserver !== 'undefined') {
+            resizeObserverRef.current = new ResizeObserver(() => resizeMap());
+            resizeObserverRef.current.observe(mapContainerRef.current);
+          }
+        } catch {
+          if (!cancelled) {
+            setMapError('Failed to initialize map');
+            setMapLoading(false);
+          }
+        }
+      })();
+    }, 280);
+
     return () => {
+      cancelled = true;
+      clearTimeout(initTimer);
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
       geocoderRef.current?.onRemove();
       geocoderRef.current = null;
-      map.remove();
+      mapRef.current?.remove();
       mapRef.current = null;
+      mapboxRef.current = null;
       setMapReady(false);
+      setMapLoading(false);
     };
   }, [isOpen, isLight]);
 
-  // Update center when store changes
   useEffect(() => {
     if (!mapRef.current || lat == null || lng == null) return;
     mapRef.current.flyTo({ center: [lng, lat], zoom: 10, duration: 800 });
   }, [lat, lng]);
 
-  // Render pins
   useEffect(() => {
-    if (!mapRef.current || !mapReady || !data) return;
+    if (!mapRef.current || !mapReady || !data || !mapboxRef.current) return;
 
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
+
+    const mapboxgl = mapboxRef.current;
 
     const addMarker = (lngV: number, latV: number, color: string, imageUrl: string | undefined, pin: SelectedPin) => {
       const el = createMarkerEl(color, imageUrl);
@@ -229,7 +283,7 @@ export const PassportMapModal = memo(() => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("absolute inset-0", isLight ? "bg-black/30" : "bg-black/70")}
+        className={cn('absolute inset-0', isLight ? 'bg-black/30' : 'bg-black/70')}
         onClick={onClose}
       />
 
@@ -238,15 +292,15 @@ export const PassportMapModal = memo(() => {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+        onAnimationComplete={resizeMap}
         className={cn(
           'relative flex flex-col w-full h-full pointer-events-auto overflow-hidden',
-          isLight ? 'bg-white' : 'bg-[#0A0A0A]'
+          isLight ? 'bg-white' : 'bg-[#0A0A0A]',
         )}
       >
-        {/* Header */}
         <div className={cn(
           'shrink-0 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3 flex items-center justify-between gap-3 border-b z-20',
-          isLight ? 'border-slate-200 bg-white/95' : 'border-white/10 bg-[#0A0A0A]/95'
+          isLight ? 'border-slate-200 bg-white/95' : 'border-white/10 bg-[#0A0A0A]/95',
         )}>
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
@@ -276,13 +330,12 @@ export const PassportMapModal = memo(() => {
           </div>
         </div>
 
-        {/* Geocoder mount + map */}
-        <div className="relative flex-1 min-h-0">
+        <div className="relative flex-1 min-h-0 w-full">
           <div
             ref={geocoderContainerRef}
             className={cn(
               'absolute top-3 left-3 right-3 z-10 [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-xl [&_.mapboxgl-ctrl-geocoder]:rounded-2xl [&_.mapboxgl-ctrl-geocoder]:border-0',
-              isLight ? '[&_.mapboxgl-ctrl-geocoder]:bg-white' : '[&_.mapboxgl-ctrl-geocoder]:bg-[#1a1a1a] [&_input]:text-white'
+              isLight ? '[&_.mapboxgl-ctrl-geocoder]:bg-white' : '[&_.mapboxgl-ctrl-geocoder]:bg-[#1a1a1a] [&_input]:text-white',
             )}
           />
 
@@ -294,12 +347,27 @@ export const PassportMapModal = memo(() => {
             </div>
           )}
 
-          <div ref={mapContainerRef} className="absolute inset-0" />
+          {mapboxReady && (mapLoading || mapError) && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-black/60 pointer-events-none">
+              {mapError ? (
+                <>
+                  <MapPin className="w-10 h-10 text-red-400 mb-4" />
+                  <p className="text-white font-bold mb-2">{mapError}</p>
+                </>
+              ) : (
+                <>
+                  <Loader2 className="w-10 h-10 text-indigo-400 mb-4 animate-spin" />
+                  <p className="text-white/70 text-sm font-bold uppercase tracking-widest">Loading map...</p>
+                </>
+              )}
+            </div>
+          )}
 
-          {/* Legend */}
+          <div ref={mapContainerRef} className="absolute inset-0 w-full h-full min-h-[320px]" />
+
           <div className={cn(
             'absolute bottom-24 left-3 z-10 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider flex gap-3 border backdrop-blur-md',
-            isLight ? 'bg-white/90 border-slate-200 text-slate-600' : 'bg-black/70 border-white/10 text-white/70'
+            isLight ? 'bg-white/90 border-slate-200 text-slate-600' : 'bg-black/70 border-white/10 text-white/70',
           )}>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Listings</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> People</span>
@@ -307,7 +375,6 @@ export const PassportMapModal = memo(() => {
           </div>
         </div>
 
-        {/* Selected pin preview */}
         {selected && (
           <motion.div
             initial={{ y: 80, opacity: 0 }}
@@ -321,7 +388,7 @@ export const PassportMapModal = memo(() => {
             }}
             className={cn(
               'shrink-0 mx-4 mb-[calc(env(safe-area-inset-bottom,0px)+16px)] p-4 rounded-2xl border flex gap-3 items-center z-20 cursor-pointer',
-              isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-[#141414] border-white/10 shadow-2xl'
+              isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-[#141414] border-white/10 shadow-2xl',
             )}
           >
             <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-800 shrink-0 flex items-center justify-center">
@@ -360,7 +427,7 @@ export const PassportMapModal = memo(() => {
         {!selected && (
           <p className={cn(
             'shrink-0 text-center text-[10px] font-bold uppercase tracking-[0.2em] pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2',
-            isLight ? 'text-slate-400' : 'text-white/30'
+            isLight ? 'text-slate-400' : 'text-white/30',
           )}>
             Tap anywhere on the map to teleport your feed
           </p>
