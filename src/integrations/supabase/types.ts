@@ -2895,7 +2895,7 @@ export type Database = {
           city: string | null
           distance_km: number
           id: string
-          images: Json | null
+          images: string[] | null
           latitude: number
           longitude: number
           price: number | null

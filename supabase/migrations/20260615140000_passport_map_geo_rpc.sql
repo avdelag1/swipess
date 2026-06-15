@@ -37,7 +37,7 @@ RETURNS TABLE (
   id uuid,
   title text,
   price numeric,
-  images jsonb,
+  images text[],
   category text,
   city text,
   latitude double precision,
