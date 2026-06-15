@@ -42,6 +42,38 @@ export function hasActiveLocationFilter(filters?: LocationFilterInput | null): b
   return filters?.userLatitude != null && filters?.userLongitude != null;
 }
 
+/**
+ * Location filter for listings: never drop real rows missing lat/lng (common in DB).
+ * Passport mode prioritizes in-radius; device GPS shows nearby first, then the rest.
+ */
+export function applyListingLocationFilter<T extends GeoItem>(
+  items: T[],
+  filters?: (LocationFilterInput & { passportMode?: boolean }) | null,
+): T[] {
+  if (!hasActiveLocationFilter(filters)) return items;
+
+  const userLat = filters!.userLatitude!;
+  const userLon = filters!.userLongitude!;
+  const radiusKm = filters?.radiusKm ?? 50;
+
+  const withCoords: T[] = [];
+  const withoutCoords: T[] = [];
+  for (const item of items) {
+    if (item.latitude != null && item.longitude != null) withCoords.push(item);
+    else withoutCoords.push(item);
+  }
+
+  const inRadius = filterByDistance(withCoords, userLat, userLon, radiusKm, false);
+  const inRadiusSet = new Set(inRadius);
+  const outRadius = withCoords.filter((item) => !inRadiusSet.has(item));
+
+  if (filters?.passportMode) {
+    return [...inRadius, ...withoutCoords];
+  }
+
+  return [...inRadius, ...withoutCoords, ...outRadius];
+}
+
 export function hasActiveAdvancedListingFilters(filters?: ListingFilters | null): boolean {
   if (!filters) return false;
   return !!(

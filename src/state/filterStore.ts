@@ -511,6 +511,7 @@ export const useFilterStore = create<FilterState>()(
         radiusKm: state.radiusKm,
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
+        passportMode: state.passportMode,
         serviceCategory: state.serviceTypes.length > 0 ? state.serviceTypes : undefined,
         motoTypes: state.motoTypes.length > 0 ? state.motoTypes : undefined,
         bicycleTypes: state.bicycleTypes.length > 0 ? state.bicycleTypes : undefined,

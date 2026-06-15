@@ -11,11 +11,11 @@ import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
 import {
-  filterByDistance,
+  applyListingLocationFilter,
   filterListingsByAdvancedFilters,
   hasActiveLocationFilter,
 } from '@/utils/matchingFilters';
-import { isDemoFeedEnabled } from '@/utils/demoFeed';
+import { isDemoListingFeedEnabled } from '@/utils/demoFeed';
 
 // Demo listings — appended AFTER real listings so the deck is never empty
 // during testing. Each category (property / motorcycle / bicycle / worker)
@@ -385,7 +385,7 @@ export function useSmartListingMatching(
                 // Helper: append demo listings AFTER real ones so testing data is never lost.
                 // Demos bypass swipe exclusion — they always reappear so user can practice repeatedly.
                 const appendDemos = (real: any[]): any[] => {
-                    if (!isDemoFeedEnabled() || page !== 0) return real;
+                    if (!isDemoListingFeedEnabled() || page !== 0) return real;
                     const existingIds = new Set(real.map(r => r.id));
                     const filteredDemos = DEMO_LISTINGS.filter(l => {
                         if (existingIds.has(l.id)) return false;
@@ -415,8 +415,6 @@ export function useSmartListingMatching(
                     });
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-                        // Keep the deterministic order returned by the backend RPC so
-                        // every account sees the same listings in the same sequence.
                         let results = (rpcListings as any[])
                             .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
                             .filter(l => !swipedListingIds.has(l.id))
@@ -427,27 +425,28 @@ export function useSmartListingMatching(
                             }));
 
                         if (hasActiveLocationFilter(filters)) {
-                            results = filterByDistance(
-                                results,
-                                filters!.userLatitude!,
-                                filters!.userLongitude!,
-                                filters?.radiusKm ?? 50,
-                                false,
-                            );
+                            results = applyListingLocationFilter(results, filters);
                         }
 
                         results = filterListingsByAdvancedFilters(results, filters);
 
-                        const withDemos = appendDemos(results);
+                        if (results.length > 0) {
+                          results = results.sort((a, b) => {
+                            const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+                            const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+                            return tb - ta;
+                          });
 
-                        // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
-                        runIdleTask(() => {
-                          const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
-                          const imagesToPrewarm = withDemos.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
-                          pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
-                        });
+                          const withDemos = appendDemos(results);
 
-                        return withDemos;
+                          runIdleTask(() => {
+                            const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
+                            const imagesToPrewarm = withDemos.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
+                            pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
+                          });
+
+                          return withDemos;
+                        }
                     }
                 } catch (_e) {
                     logger.warn('[SmartMatching] RPC Fallback to PostgREST');
@@ -512,12 +511,9 @@ export function useSmartListingMatching(
                         owner_id: (listing as any).owner_id || (listing as any).user_id,
                     }));
 
-                // 4.6 Distance filter — only applied when user has a GPS fix
-                const userLat = filters?.userLatitude;
-                const userLon = filters?.userLongitude;
-                const radiusKm = filters?.radiusKm ?? 50;
-                const distanceFiltered = (userLat != null && userLon != null)
-                    ? filterByDistance(adminFiltered, userLat, userLon, radiusKm, false)
+                // 4.6 Location filter — keeps listings missing lat/lng visible
+                const distanceFiltered = hasActiveLocationFilter(filters)
+                    ? applyListingLocationFilter(adminFiltered, filters)
                     : adminFiltered;
                 const filteredListings = filterListingsByAdvancedFilters(distanceFiltered, filters);
 

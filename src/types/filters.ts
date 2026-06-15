@@ -335,6 +335,7 @@ export interface ListingFilters {
   radiusKm?: number;
   userLatitude?: number;
   userLongitude?: number;
+  passportMode?: boolean;
   premiumOnly?: boolean;
   verified?: boolean;
   petFriendly?: boolean;
