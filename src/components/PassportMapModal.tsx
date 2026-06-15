@@ -7,7 +7,10 @@ import { useModalStore } from '@/state/modalStore';
 import { useFilterStore } from '@/state/filterStore';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
 import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { warmMapboxModules } from '@/utils/mapWarmPool';
@@ -21,11 +24,15 @@ import {
 } from '@/components/passport/passportMapMarkers';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { gradientForRadius, PASSPORT_GRADIENTS, RADIUS_GRADIENTS } from '@/components/passport/passportMapTheme';
-import { RADIUS_LAYER_IDS, syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
+import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [10, 25, 50, 100, 200] as const;
+
+function zoomForRadiusKm(km: number): number {
+  return Math.min(16, Math.max(10, 13.8 - Math.log2(km)));
+}
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
   { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
@@ -57,9 +64,12 @@ export const PassportMapModal = memo(() => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
   const autoGpsAttemptedRef = useRef(false);
+  const openedOnceRef = useRef(false);
+  const lastTouchTapRef = useRef(0);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
+  const [deviceGps, setDeviceGps] = useState<{ lat: number; lng: number } | null>(null);
   const [selected, setSelected] = useState<SelectedPin | null>(null);
   const [layerFilter, setLayerFilter] = useState<MapLayerFilter>('all');
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -142,34 +152,73 @@ export const PassportMapModal = memo(() => {
     openPropertyDetails(listingId);
   }, [setModal, openPropertyDetails]);
 
-  const handleGPS = useCallback(async () => {
-    if (!canGeolocate()) {
-      appToast.error('Location not available');
-      return;
-    }
-    setGpsLoading(true);
-    try {
-      const { latitude, longitude } = await getCurrentPosition({ timeout: 10000 });
-      setUserLocation(latitude, longitude);
-      setRadiusKm(5); // Default to 5km when hitting GPS
-      mapRef.current?.flyTo({ 
-        center: [longitude, latitude], 
-        zoom: 11.5, // Perfect zoom for 5km
-        duration: 2500,
-        pitch: 50,
-        essential: true 
-      });
-      appToast.success('Using your current location');
-    } catch {
-      appToast.error('Could not detect location');
-    } finally {
-      setGpsLoading(false);
-    }
-  }, [setUserLocation, setRadiusKm]);
+  const centerOnDeviceGps = useCallback((opts?: { zoom?: number; refresh?: boolean; announce?: boolean }) => {
+    const run = async () => {
+      if (!canGeolocate()) {
+        appToast.error('Location not available');
+        return;
+      }
+      setGpsLoading(true);
+      try {
+        let fix = deviceGps;
+        if (opts?.refresh !== false) {
+          const { latitude, longitude } = await getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+          });
+          fix = { lat: latitude, lng: longitude };
+          setDeviceGps(fix);
+          setUserLocation(latitude, longitude);
+        } else if (!fix) {
+          const { latitude, longitude } = await getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+          });
+          fix = { lat: latitude, lng: longitude };
+          setDeviceGps(fix);
+          setUserLocation(latitude, longitude);
+        }
+
+        if (!fix || !mapRef.current) return;
+
+        mapRef.current.flyTo({
+          center: [fix.lng, fix.lat],
+          zoom: opts?.zoom ?? zoomForRadiusKm(radiusKm),
+          duration: 900,
+          pitch: 50,
+          essential: true,
+        });
+        if (opts?.announce) appToast.success('Centered on your location');
+      } catch {
+        appToast.error('Could not detect location');
+      } finally {
+        setGpsLoading(false);
+      }
+    };
+    void run();
+  }, [deviceGps, radiusKm, setUserLocation]);
+
+  const centerOnDeviceGpsRef = useRef(centerOnDeviceGps);
+  centerOnDeviceGpsRef.current = centerOnDeviceGps;
+
+  const handleGPS = useCallback(() => {
+    triggerHaptic('medium');
+    centerOnDeviceGps({ zoom: 16, refresh: true, announce: true });
+  }, [centerOnDeviceGps]);
 
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
   }, []);
+
+  // Seed GPS dot from store while watchPosition warms up
+  useEffect(() => {
+    if (!isOpen || deviceGps) return;
+    if (lat != null && lng != null && !passportMode) {
+      setDeviceGps({ lat, lng });
+    }
+  }, [isOpen, lat, lng, passportMode, deviceGps]);
 
   // Auto-detect GPS when opening map (unless exploring via passport teleport)
   useEffect(() => {
@@ -181,26 +230,8 @@ export const PassportMapModal = memo(() => {
     if (!canGeolocate()) return;
 
     autoGpsAttemptedRef.current = true;
-    (async () => {
-      setGpsLoading(true);
-      try {
-        const { latitude, longitude } = await getCurrentPosition({ timeout: 12000, maximumAge: 30000 });
-        setUserLocation(latitude, longitude);
-        setRadiusKm(5); // Start with 5km
-        mapRef.current?.flyTo({
-          center: [longitude, latitude],
-          zoom: 11.5, // Zoom for 5km
-          duration: 2000,
-          pitch: 45,
-          essential: true,
-        });
-      } catch {
-        /* user can tap GPS button manually */
-      } finally {
-        setGpsLoading(false);
-      }
-    })();
-  }, [isOpen, mapReady, passportMode, setUserLocation, setRadiusKm]);
+    centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
+  }, [isOpen, mapReady, passportMode, radiusKm]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -251,6 +282,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
+          doubleClickZoom: false,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -326,15 +358,28 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        map.on('click', (e) => {
+        map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
-          const layers = RADIUS_LAYER_IDS.filter(id => map.getLayer(id));
-          const features = layers.length
-            ? map.queryRenderedFeatures(e.point, { layers: layers as string[] })
-            : [];
-          if (features.length) return;
           setSelected(null);
-          flyToRef.current(e.lngLat.lat, e.lngLat.lng, 'Custom location');
+        });
+
+        map.on('dblclick', (e) => {
+          e.preventDefault();
+          if (!useModalStore.getState().showPassportMapModal) return;
+          triggerHaptic('medium');
+          centerOnDeviceGpsRef.current({ zoom: 16, refresh: true });
+        });
+
+        map.on('touchend', () => {
+          if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          if (now - lastTouchTapRef.current < 320) {
+            triggerHaptic('medium');
+            centerOnDeviceGpsRef.current({ zoom: 16, refresh: true });
+            lastTouchTapRef.current = 0;
+            return;
+          }
+          lastTouchTapRef.current = now;
         });
 
         mapRef.current = map;
@@ -376,6 +421,7 @@ export const PassportMapModal = memo(() => {
     resizeObserverRef.current?.disconnect();
     markersRef.current.forEach(m => m.remove());
     geocoderRef.current?.onRemove();
+    if (mapRef.current) removeUserGpsDotFromMap(mapRef.current);
     mapRef.current?.remove();
     mapRef.current = null;
     mapboxRef.current = null;
@@ -383,38 +429,73 @@ export const PassportMapModal = memo(() => {
   }, []);
 
   useEffect(() => {
-    if (!isOpen || !mapRef.current) return;
-    resizeMap();
-    if (lat != null && lng != null) {
-      mapRef.current.flyTo({ center: [lng, lat], zoom: 10, duration: 0 });
+    if (!isOpen) {
+      openedOnceRef.current = false;
+      return;
     }
-  }, [isOpen, lat, lng, resizeMap]);
+    if (!mapRef.current) return;
+    resizeMap();
+    if (!openedOnceRef.current) openedOnceRef.current = true;
+  }, [isOpen, resizeMap]);
+
+  // Live GPS dot — tracks your real device position
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady || !deviceGps) return;
+
+    const apply = () => syncUserGpsDotOnMap(map, deviceGps.lng, deviceGps.lat);
+    if (map.isStyleLoaded()) apply();
+    else map.once('load', apply);
+  }, [mapReady, deviceGps]);
+
+  // Keep GPS fresh while the map is open
+  useEffect(() => {
+    if (!isOpen || !canGeolocate()) return;
+
+    let cleared = false;
+    let webWatchId: number | null = null;
+    let nativeWatchId: string | null = null;
+
+    const applyFix = (latitude: number, longitude: number) => {
+      if (cleared) return;
+      setDeviceGps({ lat: latitude, lng: longitude });
+      if (!passportMode) setUserLocation(latitude, longitude);
+    };
+
+    if (Capacitor.isNativePlatform()) {
+      void Geolocation.watchPosition(
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 },
+        (pos, err) => {
+          if (err || !pos) return;
+          applyFix(pos.coords.latitude, pos.coords.longitude);
+        },
+      ).then((id) => { nativeWatchId = id; });
+    } else if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      webWatchId = navigator.geolocation.watchPosition(
+        (pos) => applyFix(pos.coords.latitude, pos.coords.longitude),
+        () => undefined,
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 },
+      );
+    }
+
+    return () => {
+      cleared = true;
+      if (webWatchId != null) navigator.geolocation.clearWatch(webWatchId);
+      if (nativeWatchId != null) void Geolocation.clearWatch({ id: nativeWatchId });
+    };
+  }, [isOpen, passportMode, setUserLocation]);
 
   // Live FB-style radius circle — updates instantly when radius or center changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady || lat == null || lng == null) return;
 
-    const apply = () => syncRadiusCircleOnMap(map, lng, lat, radiusKm);
+    const apply = () => syncRadiusCircleOnMap(map, lng, lat, radiusKm, {
+      showCenterDot: passportMode,
+    });
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [mapReady, lat, lng, radiusKm]);
-
-  // Dynamically zoom map to fit the expanding/contracting radius
-  useEffect(() => {
-    if (!isOpen || !mapReady || !mapRef.current || lat == null || lng == null) return;
-    
-    // Calculate perfect zoom level based on radius in km
-    // 5km -> ~11.5, 50km -> ~8.2, 200km -> ~6.2
-    const targetZoom = 13.8 - Math.log2(radiusKm);
-    
-    mapRef.current.easeTo({
-      center: [lng, lat],
-      zoom: targetZoom,
-      duration: 150, // very fast, instant feeling
-      essential: true
-    });
-  }, [radiusKm, lat, lng, mapReady, isOpen]);
+  }, [mapReady, lat, lng, radiusKm, passportMode]);
 
   useEffect(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
@@ -756,9 +837,10 @@ export const PassportMapModal = memo(() => {
               <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">People</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: PASSPORT_GRADIENTS.tokens }} />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">Active</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] ring-2 ring-white/60" />
+              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">You</span>
             </div>
+            <span className="text-[8px] font-bold uppercase tracking-wider text-white/25">Double-tap to zoom to you</span>
           </div>
         )}
       </div>

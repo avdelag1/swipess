@@ -44,7 +44,9 @@ export function syncRadiusCircleOnMap(
   lng: number,
   lat: number,
   radiusKm: number,
+  options?: { showCenterDot?: boolean },
 ): void {
+  const showCenterDot = options?.showCenterDot ?? true;
   const polygon = buildCirclePolygon(lng, lat, radiusKm);
   const center: GeoJSON.Feature<GeoJSON.Point> = {
     type: 'Feature',
@@ -113,23 +115,43 @@ export function syncRadiusCircleOnMap(
     upsert(SOURCE_ID, polygon);
   }
 
-  if (!map.getSource(CENTER_ID)) {
-    map.addSource(CENTER_ID, { type: 'geojson', data: center });
-    map.addLayer({
-      id: CENTER_ID,
-      type: 'circle',
-      source: CENTER_ID,
-      paint: {
-        'circle-radius': 8,
-        'circle-color': '#3B82F6',
-        'circle-stroke-width': 3,
-        'circle-stroke-color': '#ffffff',
-        'circle-opacity': 1,
-        'circle-blur': 0.1,
-      },
-    });
-  } else {
-    upsert(CENTER_ID, center);
+  if (showCenterDot) {
+    if (!map.getSource(CENTER_ID)) {
+      map.addSource(CENTER_ID, { type: 'geojson', data: center });
+      map.addLayer({
+        id: CENTER_ID,
+        type: 'circle',
+        source: CENTER_ID,
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#3B82F6',
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': 1,
+          'circle-blur': 0.1,
+        },
+      });
+    } else {
+      upsert(CENTER_ID, center);
+      if (!map.getLayer(CENTER_ID)) {
+        map.addLayer({
+          id: CENTER_ID,
+          type: 'circle',
+          source: CENTER_ID,
+          paint: {
+            'circle-radius': 8,
+            'circle-color': '#3B82F6',
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff',
+            'circle-opacity': 1,
+            'circle-blur': 0.1,
+          },
+        });
+      }
+    }
+  } else if (map.getLayer(CENTER_ID)) {
+    map.removeLayer(CENTER_ID);
+    if (map.getSource(CENTER_ID)) map.removeSource(CENTER_ID);
   }
 
   // Live radius label feel — pulse stroke on change (supports up to 200km)
