@@ -18,6 +18,7 @@ interface LocationRadiusSelectorProps {
   title?: string;
   expanded?: boolean;
   onExpandedChange?: (v: boolean) => void;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 /**
@@ -40,6 +41,7 @@ export const LocationRadiusSelector = memo(({
   title,
   expanded: expandedProp,
   onExpandedChange,
+  orientation = 'horizontal',
 }: LocationRadiusSelectorProps) => {
   const { isLight } = useAppTheme();
   const [internalExpanded, setInternalExpanded] = useState(false);
@@ -63,6 +65,7 @@ export const LocationRadiusSelector = memo(({
         style={{ pointerEvents: 'auto' }}
         className={cn(
           "flex items-center gap-2 p-2 glass-pill transition-all",
+          orientation === 'vertical' ? "flex-col" : "flex-row",
           isLight ? "glass-light-surface" : "glass-dark",
         )}
       >

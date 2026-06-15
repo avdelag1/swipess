@@ -984,6 +984,18 @@ const ClientSwipeContainerComponent = ({
                         fullScreen={false}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
+                        renderTopRail={isTopCard ? (
+                          <LocationRadiusSelector
+                            radiusKm={radiusKm}
+                            onRadiusChange={setRadiusKm}
+                            onDetectLocation={detectLocation}
+                            detecting={locationDetecting}
+                            detected={locationDetected}
+                            lat={userLatitude}
+                            lng={userLongitude}
+                            orientation="vertical"
+                          />
+                        ) : undefined}
                       />
                     </motion.div>
                   );

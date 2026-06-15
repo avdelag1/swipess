@@ -949,6 +949,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             onUndo={isTopCard ? undoLastSwipe : undefined}
                             canUndo={canUndo}
                             onBack={handleBack}
+                            renderTopRail={isTopCard ? (
+                              <LocationRadiusSelector
+                                radiusKm={radiusKm}
+                                onRadiusChange={setRadiusKm}
+                                onDetectLocation={detectLocation}
+                                detecting={locationDetecting}
+                                detected={locationDetected}
+                                lat={userLatitude}
+                                lng={userLongitude}
+                                orientation="vertical"
+                              />
+                            ) : undefined}
                           />
                         ) : (
                           <SimpleSwipeCard
@@ -970,8 +982,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                               setReportDialogOpen(true);
                               triggerHaptic('medium');
                             } : undefined}
-                          onDragStart={isTopCard ? handleDragStart : undefined}
-                        />
+                            onDragStart={isTopCard ? handleDragStart : undefined}
+                            renderTopRail={isTopCard ? (
+                              <LocationRadiusSelector
+                                radiusKm={radiusKm}
+                                onRadiusChange={setRadiusKm}
+                                onDetectLocation={detectLocation}
+                                detecting={locationDetecting}
+                                detected={locationDetected}
+                                lat={userLatitude}
+                                lng={userLongitude}
+                                orientation="vertical"
+                              />
+                            ) : undefined}
+                          />
                       )}
                     </motion.div>
                   );

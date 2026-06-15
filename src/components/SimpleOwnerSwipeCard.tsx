@@ -85,6 +85,7 @@ interface SimpleOwnerSwipeCardProps {
   onBack?: () => void;
   fullScreen?: boolean;
   disableDrag?: boolean;
+  renderTopRail?: React.ReactNode;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -96,7 +97,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onSwipe,
   onTap: onTap,
   onInsights,
-  isTop = true,
+  isTop = false,
   onDragStart,
   onReport,
   onShare,
@@ -107,6 +108,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onBack,
   disableDrag,
   fullScreen = false,
+  renderTopRail,
 }, ref) => {
   const { isRailVisible } = useChromeReveal();
   const isDragging = useRef(false);
@@ -262,7 +264,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     if (isMagnifierActive() || wasMagnifierActive()) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
     const width = rect.width;
+    const height = rect.height;
 
     if (imageCount > 1 && clickX < width * 0.33) {
       setPhotoDirection('left');
@@ -274,7 +278,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       triggerHaptic('light');
     } else {
       revealChrome();
-      onTap?.();
+      if (clickY > height * 0.33 && clickY < height * 0.67) {
+        onTap?.();
+      }
       triggerHaptic('light');
     }
   }, [imageCount, onTap, isMagnifierActive, wasMagnifierActive]);
@@ -505,7 +511,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             className="absolute right-3 z-50 pointer-events-auto"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div className="flex flex-col gap-3 p-1 rounded-full">
+            <div className="flex flex-col gap-3 p-1 rounded-full items-center">
+              {renderTopRail}
               {actionButtons.map((btn, idx) => (
                 <GlassIconButton
                   key={idx}

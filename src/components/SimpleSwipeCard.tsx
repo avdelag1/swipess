@@ -60,6 +60,7 @@ interface SimpleSwipeCardProps {
   onDragStart?: () => void;
   disableDrag?: boolean;
   fullScreen?: boolean;
+  renderTopRail?: React.ReactNode;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -81,6 +82,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onExit,
   disableDrag,
   fullScreen = false,
+  renderTopRail,
 }, ref) => {
   const { isLight } = useAppTheme();
    
@@ -297,7 +299,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (isMagnifierActive() || wasMagnifierActive()) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
     const width = rect.width;
+    const height = rect.height;
 
     if (imageCount > 1 && clickX < width * 0.33) {
       setPhotoDirection('left');
@@ -309,7 +313,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       triggerHaptic('light');
     } else {
       revealChrome();
-      onCardTap?.();
+      if (clickY > height * 0.33 && clickY < height * 0.67) {
+        onCardTap?.();
+      }
       triggerHaptic('light');
     }
   }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
@@ -615,7 +621,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="absolute right-3 z-50 pointer-events-auto"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div className="flex flex-col gap-3 p-1 rounded-full">
+            <div className="flex flex-col gap-3 p-1 rounded-full items-center">
+              {renderTopRail}
               {actionButtons.map((btn, idx) => (
                 <GlassIconButton
                   key={idx}
