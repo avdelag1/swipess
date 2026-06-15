@@ -139,7 +139,7 @@ export const EventCard = memo(({
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
-          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
           title={liked ? "Unlike" : "Like"}
         >
           <motion.div
@@ -159,7 +159,7 @@ export const EventCard = memo(({
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
-          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
           title="Chat with host"
         >
           <motion.div
@@ -175,7 +175,7 @@ export const EventCard = memo(({
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
-          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
           title="Share event"
         >
           <motion.div
@@ -191,7 +191,7 @@ export const EventCard = memo(({
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => { e.stopPropagation(); handleReport(); }}
-          className="flex flex-col items-center gap-1 outline-none focus:outline-none focus-visible:outline-none"
+          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
           title="Report event"
         >
           <motion.div
