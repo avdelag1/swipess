@@ -34,6 +34,14 @@ import {
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { gradientForRadius, PASSPORT_GRADIENTS, RADIUS_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
+import {
+  GENIE_FULLSCREEN_EXIT,
+  GENIE_FULLSCREEN_OPEN,
+  GENIE_FULLSCREEN_VISIBLE,
+  GENIE_ORIGIN_BOTTOM,
+  GENIE_SPRING_CLOSE,
+  GENIE_SPRING_OPEN,
+} from '@/utils/genieMotion';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
@@ -48,6 +56,8 @@ const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; 
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportMapModal);
+  const passportSheetOpen = useModalStore(s => s.showPassportModal);
+  const shouldWarmMap = isOpen || passportSheetOpen;
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
@@ -83,7 +93,7 @@ export const PassportMapModal = memo(() => {
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
-  const [radiusPanelOpen, setRadiusPanelOpen] = useState(true);
+  const [radiusPanelOpen, setRadiusPanelOpen] = useState(false);
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
   const activePeopleCount = data?.activePeopleCount ?? 0;
@@ -268,24 +278,17 @@ export const PassportMapModal = memo(() => {
     centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
   }, [isOpen, mapReady, passportMode, radiusKm, lat, lng]);
 
-  // Dynamically update Mapbox Standard light preset on theme change
   useEffect(() => {
-    if (mapReady && mapRef.current) {
-      mapRef.current.setConfigProperty('basemap', 'lightPreset', isLight ? 'day' : 'night');
-    }
-  }, [isLight, mapReady]);
-
-  useEffect(() => {
-    if (!isOpen) return;
+    if (!shouldWarmMap) return;
     let cancelled = false;
     resolveMapboxAccessToken().then((token) => {
       if (!cancelled) setTokenReady(token.length > 0);
     });
     return () => { cancelled = true; };
-  }, [isOpen]);
+  }, [shouldWarmMap]);
 
   useEffect(() => {
-    if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
+    if (!shouldWarmMap || initStartedRef.current || !mapContainerRef.current) return;
 
     let cancelled = false;
     setMapLoading(true);
@@ -317,7 +320,7 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/standard',
+          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           pitch: CINEMATIC_PITCH,
@@ -326,7 +329,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
-          doubleClickZoom: true,
+          doubleClickZoom: false,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -336,19 +339,13 @@ export const PassportMapModal = memo(() => {
         map.on('load', () => {
           if (cancelled) return;
 
-          // Mapbox Standard Configuration
-          map.setConfigProperty('basemap', 'lightPreset', isLightRef.current ? 'day' : 'night');
-          // Hide POI labels to keep map clean for Swipess
-          map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
-          map.setConfigProperty('basemap', 'showTransitLabels', false);
+          applyCinematicFog(map, isLightRef.current);
+          addCinematic3DBuildings(map, isLightRef.current);
 
           requestAnimationFrame(() => {
             resizeMap();
-            requestAnimationFrame(() => {
-              resizeMap();
-              setMapReady(true);
-              setMapLoading(false);
-            });
+            setMapReady(true);
+            setMapLoading(false);
           });
         });
 
@@ -389,23 +386,6 @@ export const PassportMapModal = memo(() => {
 
         mapRef.current = map;
 
-        const geocoder = new MapboxGeocoder({
-          accessToken: token,
-          mapboxgl: mapboxgl as any,
-          marker: false,
-          placeholder: 'Search cities worldwide...',
-        });
-        geocoder.on('result', (ev: any) => {
-          const [newLng, newLat] = ev.result.center;
-          setSelected(null);
-          flyToRef.current(newLat, newLng, ev.result.place_name);
-        });
-        geocoderRef.current = geocoder;
-        if (geocoderContainerRef.current) {
-          geocoderContainerRef.current.innerHTML = '';
-          geocoderContainerRef.current.appendChild(geocoder.onAdd(map));
-        }
-
         if (mapContainerRef.current && typeof ResizeObserver !== 'undefined') {
           resizeObserverRef.current = new ResizeObserver(() => resizeMap());
           resizeObserverRef.current.observe(mapContainerRef.current);
@@ -420,7 +400,39 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
-  }, [isOpen, resizeMap]);
+  }, [shouldWarmMap, resizeMap]);
+
+  // Geocoder mounts after map is ready — keeps first paint fast
+  useEffect(() => {
+    if (!isOpen || !mapReady || !mapRef.current || !mapboxRef.current) return;
+    if (geocoderRef.current) return;
+
+    let cancelled = false;
+    (async () => {
+      const token = await resolveMapboxAccessToken();
+      if (cancelled || !mapRef.current || !mapboxRef.current || !geocoderContainerRef.current) return;
+
+      const { MapboxGeocoder } = await warmMapboxModules();
+      if (cancelled || !mapRef.current) return;
+
+      const geocoder = new MapboxGeocoder({
+        accessToken: token,
+        mapboxgl: mapboxRef.current as any,
+        marker: false,
+        placeholder: 'Search cities worldwide...',
+      });
+      geocoder.on('result', (ev: any) => {
+        const [newLng, newLat] = ev.result.center;
+        setSelected(null);
+        flyToRef.current(newLat, newLng, ev.result.place_name);
+      });
+      geocoderRef.current = geocoder;
+      geocoderContainerRef.current.innerHTML = '';
+      geocoderContainerRef.current.appendChild(geocoder.onAdd(mapRef.current));
+    })();
+
+    return () => { cancelled = true; };
+  }, [isOpen, mapReady]);
 
   useEffect(() => () => {
     resizeObserverRef.current?.disconnect();
@@ -553,19 +565,36 @@ export const PassportMapModal = memo(() => {
       ? `${nearbyCount} in ${radiusKm}km`
       : 'Scanning area…';
 
+  const mapHostVisible = isOpen || passportSheetOpen;
+
   return (
-    <div
+    <motion.div
       className={cn(
-        'fixed inset-0 z-[10025]',
-        !isOpen && 'pointer-events-none invisible',
+        'fixed inset-0 z-[10025] overflow-hidden will-change-transform gpu-ultra',
+        !isOpen && 'pointer-events-none',
       )}
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
+      initial={GENIE_FULLSCREEN_OPEN}
+      animate={
+        isOpen
+          ? GENIE_FULLSCREEN_VISIBLE
+          : passportSheetOpen
+            ? { ...GENIE_FULLSCREEN_OPEN, opacity: 0 }
+            : { ...GENIE_FULLSCREEN_EXIT, transition: GENIE_SPRING_CLOSE }
+      }
+      transition={isOpen ? GENIE_SPRING_OPEN : GENIE_SPRING_CLOSE}
+      style={{
+        ...GENIE_ORIGIN_BOTTOM,
+        visibility: mapHostVisible ? 'visible' : 'hidden',
+      }}
     >
       <div className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden">
         <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
 
+        {isOpen && (
+        <>
         <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
@@ -802,10 +831,11 @@ export const PassportMapModal = memo(() => {
             </div>
           )}
         </AnimatePresence>
-
+        </>
+        )}
 
       </div>
-    </div>
+    </motion.div>
   );
 });
 PassportMapModal.displayName = 'PassportMapModal';
