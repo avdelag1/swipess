@@ -101,7 +101,7 @@ export const PassportMapModal = memo(() => {
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
-  const [radiusPanelOpen, setRadiusPanelOpen] = useState(false);
+  const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
   const activePeopleCount = data?.activePeopleCount ?? 0;
@@ -133,7 +133,7 @@ export const PassportMapModal = memo(() => {
   const onClose = useCallback(() => {
     triggerHaptic('light');
     setSelected(null);
-    setRadiusPanelOpen(false);
+    setActiveDrawer(null);
     setModal('showPassportMapModal', false);
   }, [setModal]);
 
@@ -700,126 +700,179 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
-        {/* Inline radius quick-select — floating bottom bar, always visible */}
-        <AnimatePresence>
-          {isOpen && !selected && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute left-4 right-4 z-40 pointer-events-auto"
-              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)' }}
-            >
-              {/* City quick-filter strip */}
-              <div className="w-[100vw] -ml-4 mb-4 pointer-events-auto overflow-x-auto no-scrollbar scroll-smooth">
-                <div className="flex items-center gap-2.5 px-4 py-1.5">
-                  {PASSPORT_QUICK_CITIES.map((city) => {
-                    const isActive = passportMode && passportLabel?.includes(city.name);
-                    return (
-                      <button
-                        key={city.name}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic('medium');
-                          setPassportLocation(city.lat, city.lng, `${city.name}`);
-                          setRadiusKm(20);
-                          if (mapRef.current) {
-                            cinematicFlyTo(
-                              mapRef.current,
-                              [city.lng, city.lat],
-                              zoomForRadiusKm(20),
-                              { duration: 520, pitch: CINEMATIC_PITCH },
-                            );
-                          }
-                          appToast.success(`Flying to ${city.name}`);
-                        }}
-                        className={cn(
-                          'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
-                          isActive
-                            ? 'bg-white/22 border-white/40 text-white shadow-lg ring-1 ring-white/20'
-                            : 'map-hud-panel border-white/10 text-white/80 hover:bg-black/60',
-                        )}
-                      >
-                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
-                          <img
-                            src={city.img}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
-                          />
-                        </div>
-                        {city.name}
-                      </button>
-                    );
-                  })}
+        {/* Bottom HUD - Collapsible Drawers & Dock */}
+        <div className="absolute inset-x-0 bottom-0 z-40 pointer-events-none flex flex-col justify-end" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
+          
+          {/* Active Drawer Area */}
+          <AnimatePresence mode="wait">
+            {isOpen && !selected && activeDrawer === 'cities' && (
+              <motion.div
+                key="cities-drawer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full pointer-events-auto mb-4"
+              >
+                {/* City quick-filter strip */}
+                <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
+                  <div className="flex items-center gap-2.5 px-4 py-1.5">
+                    {PASSPORT_QUICK_CITIES.map((city) => {
+                      const isActive = passportMode && passportLabel?.includes(city.name);
+                      return (
+                        <button
+                          key={city.name}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('medium');
+                            setPassportLocation(city.lat, city.lng, `${city.name}`);
+                            setRadiusKm(20);
+                            if (mapRef.current) {
+                              cinematicFlyTo(
+                                mapRef.current,
+                                [city.lng, city.lat],
+                                zoomForRadiusKm(20),
+                                { duration: 520, pitch: CINEMATIC_PITCH },
+                              );
+                            }
+                            appToast.success(`Flying to ${city.name}`);
+                          }}
+                          className={cn(
+                            'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
+                            isActive
+                              ? 'bg-white/22 border-white/40 text-white shadow-lg ring-1 ring-white/20'
+                              : 'map-hud-panel border-white/10 text-white/80 hover:bg-black/60',
+                          )}
+                        >
+                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
+                            <img
+                              src={city.img}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover"
+                              onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
+                            />
+                          </div>
+                          {city.name}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            )}
 
-              <div className="bg-[#1A202C]/80 backdrop-blur-xl border border-white/10 shadow-2xl mx-auto w-full max-w-[320px] rounded-full px-5 py-3 mb-2 flex flex-col gap-3">
-                {/* Preset labels row */}
-                <div className="flex items-center justify-between px-1">
-                  {RADIUS_PRESETS.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
-                      className={cn(
-                        'transition-all duration-200 text-[10px] font-black uppercase tracking-wider',
-                        radiusKm === r
-                          ? 'text-[#00E5FF]'
-                          : 'text-white/40 hover:text-white/80',
-                      )}
-                    >
-                      {r}km
-                    </button>
-                  ))}
+            {isOpen && !selected && activeDrawer === 'results' && data && (
+              <motion.div
+                key="results-drawer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full pointer-events-auto mb-4"
+              >
+                <PassportMapResultsRail
+                  listings={visibleListings}
+                  profiles={visibleProfiles}
+                  filter={layerFilter}
+                  selectedId={selectedId}
+                  activePeopleCount={activePeopleCount}
+                  onSelect={focusPin}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Bottom Dock Control Bar */}
+          <AnimatePresence>
+            {isOpen && !selected && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+                transition={{ duration: 0.2 }}
+                className="px-4 w-full flex items-center justify-between gap-3 pointer-events-auto"
+              >
+                {/* Left FAB: Quick Cities */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 rounded-full backdrop-blur-xl border transition-all shadow-lg shrink-0",
+                    activeDrawer === 'cities' 
+                      ? "bg-white/20 border-white/40 text-white" 
+                      : "bg-[#1A202C]/80 border-white/10 text-white/80 hover:bg-black/60"
+                  )}
+                >
+                  <Globe2 className="w-4 h-4" />
+                  <span className="text-[11px] font-black uppercase tracking-wider hidden sm:inline">Cities</span>
+                </button>
+
+                {/* Center Sleek Radius Slider */}
+                <div className="flex-1 max-w-[200px] bg-[#1A202C]/80 backdrop-blur-xl border border-white/10 shadow-lg rounded-full px-4 py-2 flex flex-col gap-1.5 justify-center relative">
+                  <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-white/50 px-1">
+                    <span>5km</span>
+                    <span className="text-[#00E5FF]">{radiusKm}km</span>
+                    <span>80km</span>
+                  </div>
+                  <div className="relative w-full flex items-center h-[14px]">
+                    <div className="absolute inset-x-0 h-1 rounded-full bg-white/10" />
+                    <div
+                      className="absolute left-0 h-1 rounded-full transition-all duration-100 ease-out"
+                      style={{ 
+                        width: `${((radiusKm - 5) / 75) * 100}%`,
+                        background: PASSPORT_GRADIENTS.passport 
+                      }}
+                    />
+                    <input
+                      type="range"
+                      min={5}
+                      max={80}
+                      step={1}
+                      value={radiusKm}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        if (val % 5 === 0) triggerHaptic('light');
+                        setRadiusKm(val);
+                      }}
+                      className="absolute inset-0 w-full opacity-0 cursor-grab active:cursor-grabbing z-20"
+                    />
+                    <div 
+                      className="absolute w-3.5 h-3.5 rounded-full bg-[#00E5FF] border border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
+                      style={{
+                        left: `calc(${((radiusKm - 5) / 75) * 100}% - 7px)`
+                      }}
+                    />
+                  </div>
                 </div>
 
-                {/* Slider row */}
-                <div className="relative w-full flex items-center h-[20px]">
-                  {/* Background Track */}
-                  <div className="absolute inset-x-0 h-1 rounded-full bg-white/10" />
-                  
-                  {/* Active Track */}
-                  <div
-                    className="absolute left-0 h-1 rounded-full transition-all duration-100 ease-out"
-                    style={{ 
-                      width: `${((radiusKm - 5) / 75) * 100}%`,
-                      background: PASSPORT_GRADIENTS.passport 
-                    }}
-                  />
-                  
-                  {/* Input Thumb */}
-                  <input
-                    type="range"
-                    min={5}
-                    max={80}
-                    step={1}
-                    value={radiusKm}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      if (val % 5 === 0) triggerHaptic('light'); // Snappy feedback
-                      setRadiusKm(val);
-                    }}
-                    className="absolute inset-0 w-full opacity-0 cursor-grab active:cursor-grabbing z-20"
-                    aria-label="Search Radius"
-                  />
-                  
-                  {/* Custom Thumb Visual (follows slider position) */}
-                  <div 
-                    className="absolute w-5 h-5 rounded-full bg-[#00E5FF] border-2 border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
-                    style={{
-                      left: `calc(${((radiusKm - 5) / 75) * 100}% - 10px)`
-                    }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                {/* Right FAB: Nearby Results */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveDrawer(prev => prev === 'results' ? null : 'results');
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 rounded-full backdrop-blur-xl border transition-all shadow-lg shrink-0",
+                    activeDrawer === 'results' 
+                      ? "bg-white/20 border-white/40 text-white" 
+                      : "bg-[#1A202C]/80 border-white/10 text-white/80 hover:bg-black/60"
+                  )}
+                >
+                  <span className="text-[11px] font-black uppercase tracking-wider hidden sm:inline">Results</span>
+                  <div className="bg-gradient-to-br from-[#00E5FF] to-[#0070F3] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md min-w-[20px] text-center shadow-sm">
+                    {nearbyCount}
+                  </div>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {isOpen && !mapboxReady && !mapLoading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
@@ -854,16 +907,7 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        {!selected && data && (
-          <PassportMapResultsRail
-            listings={visibleListings}
-            profiles={visibleProfiles}
-            filter={layerFilter}
-            selectedId={selectedId}
-            activePeopleCount={activePeopleCount}
-            onSelect={focusPin}
-          />
-        )}
+
 
         <AnimatePresence>
           {selected && (
