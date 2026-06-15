@@ -69,6 +69,7 @@ export function syncRadiusCircleOnMap(
       id: FILL_OUTER_ID,
       type: 'fill',
       source: SOURCE_ID,
+      slot: 'top',
       paint: {
         'fill-color': '#C4B5FD',
         'fill-opacity': 0.12,
@@ -80,6 +81,7 @@ export function syncRadiusCircleOnMap(
       id: FILL_ID,
       type: 'fill',
       source: SOURCE_ID,
+      slot: 'top',
       paint: {
         'fill-color': '#8B5CF6',
         'fill-opacity': 0.22,
@@ -91,6 +93,7 @@ export function syncRadiusCircleOnMap(
       id: GLOW_ID,
       type: 'line',
       source: SOURCE_ID,
+      slot: 'top',
       paint: {
         'line-color': '#EC4899',
         'line-width': 6,
@@ -104,6 +107,7 @@ export function syncRadiusCircleOnMap(
       id: LINE_ID,
       type: 'line',
       source: SOURCE_ID,
+      slot: 'top',
       paint: {
         'line-color': '#A855F7',
         'line-width': 2.5,
@@ -122,6 +126,7 @@ export function syncRadiusCircleOnMap(
         id: CENTER_ID,
         type: 'circle',
         source: CENTER_ID,
+        slot: 'top',
         paint: {
           'circle-radius': 8,
           'circle-color': '#3B82F6',

@@ -83,7 +83,7 @@ export const PassportMapModal = memo(() => {
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
-  const [radiusPanelOpen, setRadiusPanelOpen] = useState(false);
+  const [radiusPanelOpen, setRadiusPanelOpen] = useState(true);
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
   const activePeopleCount = data?.activePeopleCount ?? 0;
@@ -255,6 +255,13 @@ export const PassportMapModal = memo(() => {
     centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
   }, [isOpen, mapReady, passportMode, radiusKm]);
 
+  // Dynamically update Mapbox Standard light preset on theme change
+  useEffect(() => {
+    if (mapReady && mapRef.current) {
+      mapRef.current.setConfigProperty('basemap', 'lightPreset', isLight ? 'day' : 'night');
+    }
+  }, [isLight, mapReady]);
+
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
@@ -297,7 +304,7 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
+          style: 'mapbox://styles/mapbox/standard',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           pitch: CINEMATIC_PITCH,
@@ -306,7 +313,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
-          doubleClickZoom: false,
+          doubleClickZoom: true,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -316,8 +323,11 @@ export const PassportMapModal = memo(() => {
         map.on('load', () => {
           if (cancelled) return;
 
-          applyCinematicFog(map, isLightRef.current);
-          addCinematic3DBuildings(map, isLightRef.current);
+          // Mapbox Standard Configuration
+          map.setConfigProperty('basemap', 'lightPreset', isLightRef.current ? 'day' : 'night');
+          // Hide POI labels to keep map clean for Swipess
+          map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+          map.setConfigProperty('basemap', 'showTransitLabels', false);
 
           requestAnimationFrame(() => {
             resizeMap();

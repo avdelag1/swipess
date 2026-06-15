@@ -31,8 +31,9 @@ export function syncUserGpsDotOnMap(
       id: GPS_PULSE_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
+      slot: 'top',
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 18, 14, 28, 16, 36],
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 24],
         'circle-color': '#10B981',
         'circle-opacity': 0.28,
         'circle-blur': 0.35,
@@ -43,8 +44,9 @@ export function syncUserGpsDotOnMap(
       id: GPS_RING_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
+      slot: 'top',
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 22],
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 8, 14, 12, 16, 16],
         'circle-color': '#10B981',
         'circle-opacity': 0.45,
         'circle-stroke-width': 2.5,
@@ -57,8 +59,9 @@ export function syncUserGpsDotOnMap(
       id: GPS_DOT_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
+      slot: 'top',
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 6, 14, 9, 16, 11],
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 6, 16, 8],
         'circle-color': '#10B981',
         'circle-stroke-width': 3,
         'circle-stroke-color': '#ffffff',
