@@ -16,6 +16,7 @@ import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
 import { PassportMapModal } from '@/components/PassportMapModal';
+import { PassportModal } from '@/components/PassportModal';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
@@ -328,7 +329,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <GlobalDialogs userRole={userRole} />
       </Suspense>
 
-      {/* Always mounted — map warms in background for instant open */}
+      {/* Eager-mounted — no lazy chunk delay on first tap */}
+      <PassportModal />
       <PassportMapModal />
     </div>
   );

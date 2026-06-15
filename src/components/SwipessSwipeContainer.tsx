@@ -1035,7 +1035,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   onOpenMap={() => {
                     triggerHaptic('heavy');
                     prefetchPassportMapImmediate();
-                    useModalStore.getState().setModal('showPassportMapModal', true);
+                    useModalStore.getState().openPassportMap();
                   }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
@@ -1054,7 +1054,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           onClick={() => {
             triggerHaptic('medium');
             prefetchPassportMapImmediate();
-            useModalStore.getState().setModal('showPassportMapModal', true);
+            useModalStore.getState().openPassportMap();
           }}
           className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] left-4 z-[10008] w-12 h-12 rounded-2xl flex items-center justify-center glass-pill glass-dark text-white active:scale-95 transition-transform shadow-[0_8px_32px_rgba(99,102,241,0.45)] bg-indigo-500/80"
           aria-label="Open live map"

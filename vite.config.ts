@@ -45,6 +45,20 @@ export default defineConfig(async ({ mode }) => ({
         }
         return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
       }
+    },
+    {
+      name: 'mapbox-token-meta',
+      transformIndexHtml(html: string) {
+        const token = (
+          process.env.VITE_MAPBOX_ACCESS_TOKEN
+          || process.env.MAPBOX_ACCESS_TOKEN
+          || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+          || ''
+        ).trim().replace(/^['"]|['"]$/g, '');
+        if (!token || !token.startsWith('pk.')) return html;
+        const tag = `<meta name="swipess-mapbox-token" content="${token.replace(/"/g, '&quot;')}" />`;
+        return html.replace('</head>', `${tag}</head>`);
+      },
     }
   ] as any),
   optimizeDeps: {
@@ -62,6 +76,13 @@ export default defineConfig(async ({ mode }) => ({
   },
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),
+    // Accept MAPBOX_ACCESS_TOKEN on Vercel if user skipped the VITE_ prefix
+    'import.meta.env.VITE_MAPBOX_ACCESS_TOKEN': JSON.stringify(
+      (process.env.VITE_MAPBOX_ACCESS_TOKEN
+        || process.env.MAPBOX_ACCESS_TOKEN
+        || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+        || '').trim().replace(/^['"]|['"]$/g, ''),
+    ),
   },
   build: {
     target: 'esnext',

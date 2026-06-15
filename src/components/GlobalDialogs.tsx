@@ -2,12 +2,6 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { memo, Suspense, useEffect, useState } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
 const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
-// Eager (not lazy): a stale/missing PassportModal chunk sent users into the
-// lazyRetry hard-reload → error-page loop (tap passport → map flickers →
-// bounce to profile → reopen → fail page). It's small and folds into the
-// already-deferred GlobalDialogs chunk, so there's no separate chunk to fail.
-import { PassportModal } from '@/components/PassportModal';
-
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -166,10 +160,6 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           userRole={userRole}
           currentFilters={{}}
         />
-      </DeferredDialog>
-
-      <DeferredDialog when={store.showPassportModal}>
-        <PassportModal />
       </DeferredDialog>
 
       <DeferredDialog when={store.showSubscriptionPackages}>

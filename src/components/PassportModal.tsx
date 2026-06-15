@@ -32,6 +32,7 @@ export const PassportModal = memo(() => {
   const { isLight } = useAppTheme();
   const isOpen = useModalStore(s => s.showPassportModal);
   const setModal = useModalStore(s => s.setModal);
+  const openPassportMap = useModalStore(s => s.openPassportMap);
   const setPassportLocation = useFilterStore(s => s.setPassportLocation);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
@@ -82,8 +83,7 @@ export const PassportModal = memo(() => {
 
   const openLiveMap = () => {
     triggerHaptic('medium');
-    setModal('showPassportModal', false);
-    setModal('showPassportMapModal', true);
+    openPassportMap();
   };
 
   const handleUseGPS = async () => {

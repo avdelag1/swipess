@@ -8,7 +8,7 @@ import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { usePassportMapData, type MapListingPin, type MapProfilePin } from '@/hooks/usePassportMapData';
-import { isMapboxPlacesReady } from '@/utils/mapboxPlaces';
+import { isMapboxConfigured, getMapboxAccessToken } from '@/utils/mapboxConfig';
 import { warmMapboxModules } from '@/utils/mapWarmPool';
 
 type SelectedPin =
@@ -58,14 +58,13 @@ export const PassportMapModal = memo(() => {
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
+  const isLightRef = useRef(isLight);
+  isLightRef.current = isLight;
   const [selected, setSelected] = useState<SelectedPin | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapLoading, setMapLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
-
-  const centerLat = lat ?? 25.7617;
-  const centerLng = lng ?? -80.1918;
 
   const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm);
 
@@ -82,6 +81,9 @@ export const PassportMapModal = memo(() => {
     triggerHaptic('heavy');
     appToast.success(label ? `Exploring ${label}` : 'Location updated');
   }, [setPassportLocation, setRadiusKm]);
+
+  const flyToRef = useRef(flyTo);
+  flyToRef.current = flyTo;
 
   const handleGPS = useCallback(async () => {
     if (!canGeolocate()) {
@@ -105,19 +107,24 @@ export const PassportMapModal = memo(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
   }, []);
 
-  // Init map once — stays alive between opens
+  // Init map once on mount — container stays in DOM (hidden when closed) so reopen is instant
   useEffect(() => {
     if (initStartedRef.current || !mapContainerRef.current) return;
 
-    const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+    const token = getMapboxAccessToken();
     if (!token) {
-      setMapError('Mapbox token missing');
+      setMapError('Mapbox token not configured');
       setMapLoading(false);
       return;
     }
 
     initStartedRef.current = true;
+    setMapLoading(true);
+    setMapError(null);
     let cancelled = false;
+    const initialLng = useFilterStore.getState().userLongitude ?? -80.1918;
+    const initialLat = useFilterStore.getState().userLatitude ?? 25.7617;
+    const initialZoom = useFilterStore.getState().userLatitude != null ? 10 : 3;
 
     (async () => {
       try {
@@ -129,9 +136,9 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: isLight ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
-          center: [centerLng, centerLat],
-          zoom: lat != null ? 10 : 3,
+          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
+          center: [initialLng, initialLat],
+          zoom: initialZoom,
           attributionControl: false,
           fadeDuration: 0,
         });
@@ -156,7 +163,7 @@ export const PassportMapModal = memo(() => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const features = map.queryRenderedFeatures(e.point, { layers: ['search-radius-circle'] });
           if (features.length) return;
-          flyTo(e.lngLat.lat, e.lngLat.lng, 'Custom location');
+          flyToRef.current(e.lngLat.lat, e.lngLat.lng, 'Custom location');
         });
 
         mapRef.current = map;
@@ -169,7 +176,7 @@ export const PassportMapModal = memo(() => {
         });
         geocoder.on('result', (ev: any) => {
           const [newLng, newLat] = ev.result.center;
-          flyTo(newLat, newLng, ev.result.place_name);
+          flyToRef.current(newLat, newLng, ev.result.place_name);
         });
         geocoderRef.current = geocoder;
         if (geocoderContainerRef.current) {
@@ -199,9 +206,10 @@ export const PassportMapModal = memo(() => {
       mapboxRef.current = null;
       initStartedRef.current = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- single init; flyTo via ref
   }, []);
 
-  // Resize + restyle when opened
+  // Resize when opened
   useEffect(() => {
     if (!isOpen || !mapRef.current) return;
     resizeMap();
@@ -279,26 +287,27 @@ export const PassportMapModal = memo(() => {
     });
   }, [data, mapReady, isOpen]);
 
-  const mapboxReady = isMapboxPlacesReady();
+  const mapboxReady = isMapboxConfigured();
 
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[10025] flex flex-col transition-opacity duration-150',
-        isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none invisible',
+        'fixed inset-0 z-[10025] flex flex-col',
+        !isOpen && 'pointer-events-none invisible',
       )}
+      role="dialog"
+      aria-modal={isOpen}
       aria-hidden={!isOpen}
     >
       <div
         className={cn('absolute inset-0', isLight ? 'bg-black/40' : 'bg-black/75')}
-        onClick={onClose}
+        onClick={isOpen ? onClose : undefined}
       />
 
       <div
         className={cn(
-          'relative flex flex-col w-full h-full pointer-events-auto overflow-hidden transition-transform duration-200 ease-out',
+          'relative flex flex-col w-full h-full pointer-events-auto overflow-hidden',
           isLight ? 'bg-[#F5F5F7]' : 'bg-[#0A0A0A]',
-          isOpen ? 'translate-y-0' : 'translate-y-full',
         )}
       >
         <div className={cn(
@@ -342,11 +351,13 @@ export const PassportMapModal = memo(() => {
             )}
           />
 
-          {!mapboxReady && (
+          {isOpen && !mapboxReady && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
               <Search className="w-10 h-10 text-indigo-400 mb-4" />
-              <p className="text-white font-bold mb-2">Mapbox token required</p>
-              <p className="text-white/50 text-sm">Add VITE_MAPBOX_ACCESS_TOKEN to your .env file</p>
+              <p className="text-white font-bold mb-2">Map not configured</p>
+              <p className="text-white/50 text-sm max-w-xs">
+                Add VITE_MAPBOX_ACCESS_TOKEN (pk.…) in Vercel → Environment Variables, then trigger a new Production deploy.
+              </p>
             </div>
           )}
 

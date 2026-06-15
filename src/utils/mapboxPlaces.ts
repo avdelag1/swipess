@@ -1,3 +1,5 @@
+import { getMapboxAccessToken, isMapboxConfigured } from '@/utils/mapboxConfig';
+
 export interface GeocodeResult {
   lat: number;
   lng: number;
@@ -6,7 +8,7 @@ export interface GeocodeResult {
 
 /** Geocode any address/city string via Mapbox Geocoder REST API. */
 export async function geocodeWithMapbox(query: string): Promise<GeocodeResult | null> {
-  const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+  const token = getMapboxAccessToken();
   if (!token || !query.trim()) return null;
 
   try {
@@ -31,7 +33,7 @@ export async function geocodeWithMapbox(query: string): Promise<GeocodeResult | 
 
 /** Search cities/places worldwide via Mapbox forward geocoding. */
 export async function searchMapboxPlaces(query: string, limit = 8): Promise<GeocodeResult[]> {
-  const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+  const token = getMapboxAccessToken();
   if (!token || query.trim().length < 2) return [];
 
   try {
@@ -51,5 +53,5 @@ export async function searchMapboxPlaces(query: string, limit = 8): Promise<Geoc
 
 /** True when the Mapbox token is available. */
 export function isMapboxPlacesReady(): boolean {
-  return !!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+  return isMapboxConfigured();
 }
