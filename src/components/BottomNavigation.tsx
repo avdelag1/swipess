@@ -282,9 +282,10 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto floating-dock-nav",
           // Phone: full-width-minus-gutters dock (items scroll). Desktop/tablet
-          // (md+): shrink the dock to its content and center it so every button
-          // is visible in the middle instead of overflowing off the left.
-          "mx-auto w-[calc(100%-24px)] max-w-lg md:w-fit md:max-w-[calc(100%-24px)]",
+          // (md+): a wide dock (up to 64rem) centered via mx-auto, with the row
+          // centering the buttons inside it — so they sit in the middle instead
+          // of overflowing off the left.
+          "mx-auto w-[calc(100%-24px)] max-w-lg md:max-w-5xl",
           "px-1 py-1.5 border",
           isLight
             ? "glass-light-surface border-black/8"
@@ -298,7 +299,10 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
+            // justify-start on phone (items scroll from the left); justify-center
+            // on md+ so the buttons sit in the middle. CSS-media-query driven so
+            // it never depends on JS resize timing.
+            'relative flex items-center justify-start md:justify-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -312,7 +316,6 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            justifyContent: isTablet ? 'center' : 'flex-start',
             scrollBehavior: 'smooth',
             padding: '0 8px',
           }}
