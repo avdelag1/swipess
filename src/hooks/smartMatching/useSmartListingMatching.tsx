@@ -238,7 +238,9 @@ export function useSmartListingMatching(
                 .from('likes')
                 .select('target_id, direction, created_at')
                 .eq('user_id', userId)
-                .eq('target_type', 'listing');
+                .eq('target_type', 'listing')
+                .order('created_at', { ascending: false })
+                .limit(500);
             
             if (likesError) throw likesError;
 

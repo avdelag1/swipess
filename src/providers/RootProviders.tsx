@@ -23,6 +23,7 @@ import { type Theme, ThemeContext, type ThemeContextType, ThemeProvider, type Th
 export type { Theme, ThemeToggleCoords, ThemeContextType };
 export { ThemeContext, ThemeProvider, useAppTheme };
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
+import { GlobalThemeProvider } from "./GlobalThemeProvider";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProfileAutoSync";
@@ -222,8 +223,9 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
         >
           <LazyMotion features={domAnimation}>
             <WarpPrefetcher />
-            <VisualThemeProvider>
-              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <GlobalThemeProvider>
+              <VisualThemeProvider>
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <AuthProvider authPromise={authPromise}>
                   <AuthReadySignal />
                   <Suspense fallback={null}>
@@ -246,7 +248,8 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
                   </ActiveModeProvider>
                 </AuthProvider>
               </BrowserRouter>
-            </VisualThemeProvider>
+              </VisualThemeProvider>
+            </GlobalThemeProvider>
           </LazyMotion>
         </PersistQueryClientProvider>
       </HelmetProvider>

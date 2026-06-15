@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -71,7 +71,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     enabled: !!listingId && isOpen,
   });
 
-  const handleSwipe = (direction: 'left' | 'right') => {
+  const handleSwipe = useCallback((direction: 'left' | 'right') => {
     if (!listingId) return;
     
     swipeMutation.mutate({
@@ -81,13 +81,13 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     });
     
     onClose();
-  };
+  }, [listingId, swipeMutation, onClose]);
 
-  const handleLikeToggle = (e: React.MouseEvent) => {
+  const handleLikeToggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic('medium');
-    setIsLiked(!isLiked);
-  };
+    setIsLiked(prev => !prev);
+  }, []);
 
   if (!isOpen) return null;
 
