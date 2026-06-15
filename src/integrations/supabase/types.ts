@@ -2880,6 +2880,50 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_passport_map_listings: {
+        Args: {
+          p_exclude_owner_id?: string
+          p_limit?: number
+          p_radius_km?: number
+          p_user_lat: number
+          p_user_lon: number
+        }
+        Returns: {
+          bathrooms: number | null
+          bedrooms: number | null
+          category: string | null
+          city: string | null
+          distance_km: number
+          id: string
+          images: Json | null
+          latitude: number
+          longitude: number
+          price: number | null
+          title: string | null
+        }[]
+      }
+      get_passport_map_profiles: {
+        Args: {
+          p_exclude_user_id?: string
+          p_limit?: number
+          p_radius_km?: number
+          p_user_lat: number
+          p_user_lon: number
+        }
+        Returns: {
+          age: number | null
+          bio: string | null
+          city: string | null
+          distance_km: number
+          latitude: number
+          longitude: number
+          name: string | null
+          occupation: string | null
+          profile_images: Json | null
+          updated_at: string | null
+          user_id: string
+        }[]
+      }
       get_smart_clients: {
         Args: { p_limit?: number; p_offset?: number; p_user_id: string }
         Returns: {

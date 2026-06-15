@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { filterByDistance, haversineKm } from '@/utils/matchingFilters';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -50,64 +49,61 @@ export function usePassportMapData(
     refetchInterval: enabled ? 30_000 : false,
     queryFn: async () => {
       const [listingsRes, profilesRes] = await Promise.all([
-        supabase
-          .from('listings')
-          .select('id, title, price, images, category, city, latitude, longitude, bedrooms, bathrooms')
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null)
-          .or('is_active.eq.true,is_active.is.null')
-          .limit(300),
-        supabase
-          .from('client_profiles')
-          .select('user_id, name, city, latitude, longitude, profile_images, bio, age, occupation, updated_at')
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null)
-          .limit(300),
+        supabase.rpc('get_passport_map_listings', {
+          p_user_lat: lat!,
+          p_user_lon: lng!,
+          p_radius_km: radiusKm,
+          p_limit: 300,
+        }),
+        supabase.rpc('get_passport_map_profiles', {
+          p_user_lat: lat!,
+          p_user_lon: lng!,
+          p_radius_km: radiusKm,
+          p_limit: 300,
+          p_exclude_user_id: user?.id ?? undefined,
+        }),
       ]);
 
+      if (listingsRes.error) throw listingsRes.error;
+      if (profilesRes.error) throw profilesRes.error;
+
       const listingsRaw = listingsRes.data || [];
-      const profilesRaw = (profilesRes.data || []).filter(
-        (p: { user_id: string }) => p.user_id !== user?.id,
-      );
-
-      const listingsNearby = filterByDistance(listingsRaw, lat!, lng!, radiusKm, false);
-      const profilesNearby = filterByDistance(profilesRaw, lat!, lng!, radiusKm, false);
-
+      const profilesRaw = profilesRes.data || [];
       const now = Date.now();
 
-      const listings: MapListingPin[] = listingsNearby.map((l: any) => {
+      const listings: MapListingPin[] = listingsRaw.map((l) => {
         const imgs = Array.isArray(l.images) ? l.images : [];
         const first = imgs[0];
         return {
           id: l.id,
           title: l.title || 'Listing',
-          price: l.price,
-          category: l.category,
-          city: l.city,
+          price: l.price != null ? Number(l.price) : undefined,
+          category: l.category ?? undefined,
+          city: l.city ?? undefined,
           bedrooms: l.bedrooms ?? undefined,
           bathrooms: l.bathrooms ?? undefined,
           lat: l.latitude,
           lng: l.longitude,
           imageUrl: first ? getCardImageUrl(first) : undefined,
-          distanceKm: haversineKm(lat!, lng!, l.latitude, l.longitude),
+          distanceKm: l.distance_km,
         };
       });
 
-      const profiles: MapProfilePin[] = profilesNearby.map((p: any) => {
+      const profiles: MapProfilePin[] = profilesRaw.map((p) => {
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
         const updatedAt = p.updated_at ? new Date(p.updated_at).getTime() : 0;
         return {
           id: p.user_id,
           name: p.name || 'User',
-          city: p.city,
+          city: p.city ?? undefined,
           bio: p.bio ?? undefined,
           age: p.age ?? undefined,
           occupation: p.occupation ?? undefined,
           lat: p.latitude,
           lng: p.longitude,
           imageUrl: first ? getCardImageUrl(first) : undefined,
-          distanceKm: haversineKm(lat!, lng!, p.latitude, p.longitude),
+          distanceKm: p.distance_km,
           recentlyActive: updatedAt > 0 && now - updatedAt < ACTIVE_WINDOW_MS,
         };
       });
