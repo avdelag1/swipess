@@ -34,6 +34,21 @@ export interface MapProfilePin {
 
 const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+// Deterministic micro-scatter to prevent perfect overlaps
+function applyScatter(lat: number, lng: number, id: string, index: number) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = Math.imul(31, hash) + id.charCodeAt(i) | 0;
+  }
+  // ~15 to 25 meters scatter
+  const radius = 0.0001 + (Math.abs(hash % 100) / 100) * 0.00015;
+  const angle = (Math.abs(hash) + index) * 2.39996;
+  return {
+    lat: lat + Math.sin(angle) * radius,
+    lng: lng + Math.cos(angle) * radius,
+  };
+}
+
 export function usePassportMapData(
   lat: number | null,
   lng: number | null,
@@ -71,9 +86,10 @@ export function usePassportMapData(
       const profilesRaw = profilesRes.data || [];
       const now = Date.now();
 
-      const listings: MapListingPin[] = listingsRaw.map((l) => {
+      const listings: MapListingPin[] = listingsRaw.map((l, index) => {
         const imgs = Array.isArray(l.images) ? l.images : [];
         const first = imgs[0];
+        const scattered = applyScatter(l.latitude, l.longitude, l.id, index);
         return {
           id: l.id,
           title: l.title || 'Listing',
@@ -82,17 +98,18 @@ export function usePassportMapData(
           city: l.city ?? undefined,
           bedrooms: l.bedrooms ?? undefined,
           bathrooms: l.bathrooms ?? undefined,
-          lat: l.latitude,
-          lng: l.longitude,
+          lat: scattered.lat,
+          lng: scattered.lng,
           imageUrl: first ? getCardImageUrl(first) : undefined,
           distanceKm: l.distance_km,
         };
       });
 
-      const profiles: MapProfilePin[] = profilesRaw.map((p) => {
+      const profiles: MapProfilePin[] = profilesRaw.map((p, index) => {
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
         const updatedAt = p.updated_at ? new Date(p.updated_at).getTime() : 0;
+        const scattered = applyScatter(p.latitude, p.longitude, p.user_id, index);
         return {
           id: p.user_id,
           name: p.name || 'User',
@@ -100,8 +117,8 @@ export function usePassportMapData(
           bio: p.bio ?? undefined,
           age: p.age ?? undefined,
           occupation: p.occupation ?? undefined,
-          lat: p.latitude,
-          lng: p.longitude,
+          lat: scattered.lat,
+          lng: scattered.lng,
           imageUrl: first ? getCardImageUrl(first) : undefined,
           distanceKm: p.distance_km,
           recentlyActive: updatedAt > 0 && now - updatedAt < ACTIVE_WINDOW_MS,

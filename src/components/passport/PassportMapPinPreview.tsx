@@ -69,7 +69,7 @@ export const PassportMapPinPreview = memo(({
         ) : (
           <div className={cn(
             'absolute inset-0 flex items-center justify-center',
-            isListing ? 'bg-gradient-to-br from-pink-600/40 to-purple-900' : 'bg-gradient-to-br from-indigo-600/50 to-purple-900',
+            isListing ? 'bg-gradient-to-br from-[#00C6FF]/40 to-[#0072FF]/90' : 'bg-gradient-to-br from-indigo-600/50 to-purple-900',
           )}>
             {isListing ? <MapPin className="w-10 h-10 text-white/60" /> : <User className="w-10 h-10 text-white/60" />}
           </div>
@@ -148,8 +148,8 @@ export const PassportMapPinPreview = memo(({
             onClick={onInsights}
             className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-[0.98] shadow-lg"
             style={{
-              background: isListing ? PASSPORT_GRADIENTS.seekers : PASSPORT_GRADIENTS.passport,
-              boxShadow: isListing ? '0 8px 24px rgba(236,72,153,0.4)' : '0 8px 24px rgba(99,102,241,0.4)',
+              background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.passport,
+              boxShadow: isListing ? '0 8px 24px rgba(0,114,255,0.4)' : '0 8px 24px rgba(99,102,241,0.4)',
             }}
           >
             <Sparkles className="w-4 h-4" />
