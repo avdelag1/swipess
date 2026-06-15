@@ -106,6 +106,7 @@ export const PassportMapModal = memo(() => {
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -649,38 +650,65 @@ export const PassportMapModal = memo(() => {
         <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
-        <div
-          ref={geocoderContainerRef}
-          className={cn(
-            'pointer-events-auto absolute left-4 right-[5.5rem] z-20 [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-xl [&_.mapboxgl-ctrl-geocoder]:rounded-2xl [&_.mapboxgl-ctrl-geocoder]:border-0',
-            '[&_.mapboxgl-ctrl-geocoder]:map-hud-panel [&_.mapboxgl-ctrl-geocoder]:border [&_.mapboxgl-ctrl-geocoder]:border-white/15',
-            '[&_input]:text-white [&_input]:placeholder:text-white/45',
-          )}
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
-        />
-
-
         {/* SLEEK MAP CONTROLS (Top Left & Top Right) */}
         <AnimatePresence>
           {isOpen && !selected && (
             <>
-              {/* Close Button (Top Left) */}
-              <motion.button
+              {/* Top Left: Close & Search */}
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                type="button"
-                onClick={onClose}
-                className="absolute z-40 pointer-events-auto flex items-center justify-center w-[44px] h-[44px] rounded-full text-white/80 border border-white/10 shadow-lg overflow-hidden hover:bg-white/10 transition-all"
+                className="absolute z-40 pointer-events-none flex items-center gap-2"
                 style={{ 
                   top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
                   left: '16px' 
                 }}
-                aria-label="Close map"
               >
-                <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px]" />
-                <X className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-              </motion.button>
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="pointer-events-auto flex shrink-0 items-center justify-center w-[44px] h-[44px] rounded-full text-white/80 border border-white/10 shadow-lg overflow-hidden hover:bg-white/10 transition-all"
+                  aria-label="Close map"
+                >
+                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px] pointer-events-none" />
+                  <X className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                </button>
+
+                {/* Expandable Search */}
+                <motion.div
+                  animate={{ 
+                    width: isSearchOpen ? 240 : 44,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  className="pointer-events-auto relative flex items-center h-[44px] rounded-full border border-white/10 shadow-lg overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px] pointer-events-none" />
+                  {/* The Search Icon that toggles the input */}
+                  <button 
+                    type="button"
+                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                    className="absolute left-0 top-0 bottom-0 w-[44px] flex items-center justify-center text-white/80 z-20 hover:text-white"
+                  >
+                    <Search className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                  </button>
+
+                  {/* Geocoder Container Container */}
+                  <div className={cn("absolute left-0 right-0 top-0 bottom-0 transition-opacity duration-200 z-10", isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                    <div
+                      ref={geocoderContainerRef}
+                      className={cn(
+                        'w-full h-full [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:h-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-none [&_.mapboxgl-ctrl-geocoder]:rounded-full [&_.mapboxgl-ctrl-geocoder]:bg-transparent',
+                        '[&_.mapboxgl-ctrl-geocoder]:border-0',
+                        '[&_input]:text-white [&_input]:placeholder:text-white/60 [&_input]:text-[13px] [&_input]:font-medium [&_input]:h-full [&_input]:pl-[42px] [&_input]:bg-transparent [&_input]:outline-none',
+                        '[&_.mapboxgl-ctrl-geocoder--icon-search]:hidden', // hide default search icon
+                        '[&_.mapboxgl-ctrl-geocoder--button]:bg-transparent [&_.mapboxgl-ctrl-geocoder--button]:text-white' // make clear button transparent
+                      )}
+                    />
+                  </div>
+                </motion.div>
+              </motion.div>
 
               {/* Stacked Controls (Top Right) */}
               <motion.div
@@ -721,6 +749,47 @@ export const PassportMapModal = memo(() => {
                     }}
                   />
                 ))}
+
+                {/* Cities vertical button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
+                  }}
+                  className={cn(
+                    "relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg overflow-hidden",
+                    activeDrawer === 'cities' 
+                      ? "border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
+                      : "border-white/10 text-white/80 hover:bg-white/10"
+                  )}
+                  title="Cities"
+                >
+                  <div className={cn("absolute inset-0 backdrop-blur-[10px]", activeDrawer === 'cities' ? "bg-white/20" : "bg-[#1A202C]/90")} />
+                  <Globe2 className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                </button>
+
+                {/* Results vertical button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveDrawer(prev => prev === 'results' ? null : 'results');
+                  }}
+                  className={cn(
+                    "relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg overflow-hidden",
+                    activeDrawer === 'results' 
+                      ? "border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
+                      : "border-white/10 text-white/80 hover:bg-white/10"
+                  )}
+                  title="Results"
+                >
+                  <div className={cn("absolute inset-0 backdrop-blur-[10px]", activeDrawer === 'results' ? "bg-white/20" : "bg-[#1A202C]/90")} />
+                  <LayoutList className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                  <div className="absolute -top-1 -right-1 bg-[#00C6FF] text-black text-[9px] font-black px-1.5 py-0.5 rounded-full z-20 shadow-md min-w-[18px] text-center border border-black/20">
+                    {nearbyCount}
+                  </div>
+                </button>
               </motion.div>
             </>
           )}
@@ -819,40 +888,22 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.2 }}
-                className="px-4 w-full flex items-center justify-between gap-3 pointer-events-auto"
+                className="px-4 w-full flex items-center justify-center pointer-events-auto"
               >
-                {/* Left FAB: Quick Cities */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-3 rounded-full backdrop-blur-xl border transition-all shadow-lg shrink-0",
-                    activeDrawer === 'cities' 
-                      ? "bg-white/20 border-white/40 text-white" 
-                      : "bg-[#1A202C]/80 border-white/10 text-white/80 hover:bg-black/60"
-                  )}
-                >
-                  <Globe2 className="w-4 h-4" />
-                  <span className="text-[11px] font-black uppercase tracking-wider hidden sm:inline">Cities</span>
-                </button>
-
                 {/* Center Sleek Radius Slider */}
-                <div className="flex-1 max-w-[200px] bg-[#1A202C]/80 backdrop-blur-xl border border-white/10 shadow-lg rounded-full px-4 py-2 flex flex-col gap-1.5 justify-center relative">
-                  <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-white/50 px-1">
+                <div className="w-full max-w-[280px] bg-[#1A202C]/90 backdrop-blur-[10px] border border-white/10 shadow-2xl rounded-full px-5 py-2.5 flex flex-col gap-2 relative">
+                  <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-white/50 px-1">
                     <span>5km</span>
-                    <span className="text-[#00E5FF]">{radiusKm}km</span>
+                    <span className="text-[#00C6FF]">{radiusKm}km Radius</span>
                     <span>80km</span>
                   </div>
                   <div className="relative w-full flex items-center h-[14px]">
-                    <div className="absolute inset-x-0 h-1 rounded-full bg-white/10" />
+                    <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/10" />
                     <div
-                      className="absolute left-0 h-1 rounded-full transition-all duration-100 ease-out"
+                      className="absolute left-0 h-1.5 rounded-full transition-all duration-100 ease-out"
                       style={{ 
                         width: `${((radiusKm - 5) / 75) * 100}%`,
-                        background: PASSPORT_GRADIENTS.passport 
+                        background: 'linear-gradient(135deg, #00C6FF, #0072FF)' 
                       }}
                     />
                     <input
@@ -869,33 +920,13 @@ export const PassportMapModal = memo(() => {
                       className="absolute inset-0 w-full opacity-0 cursor-grab active:cursor-grabbing z-20"
                     />
                     <div 
-                      className="absolute w-3.5 h-3.5 rounded-full bg-[#00E5FF] border border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
+                      className="absolute w-4 h-4 rounded-full bg-[#00C6FF] border-2 border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
                       style={{
-                        left: `calc(${((radiusKm - 5) / 75) * 100}% - 7px)`
+                        left: `calc(${((radiusKm - 5) / 75) * 100}% - 8px)`
                       }}
                     />
                   </div>
                 </div>
-
-                {/* Right FAB: Nearby Results */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setActiveDrawer(prev => prev === 'results' ? null : 'results');
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-3 rounded-full backdrop-blur-xl border transition-all shadow-lg shrink-0",
-                    activeDrawer === 'results' 
-                      ? "bg-white/20 border-white/40 text-white" 
-                      : "bg-[#1A202C]/80 border-white/10 text-white/80 hover:bg-black/60"
-                  )}
-                >
-                  <span className="text-[11px] font-black uppercase tracking-wider hidden sm:inline">Results</span>
-                  <div className="bg-gradient-to-br from-[#00E5FF] to-[#0070F3] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md min-w-[20px] text-center shadow-sm">
-                    {nearbyCount}
-                  </div>
-                </button>
               </motion.div>
             )}
           </AnimatePresence>

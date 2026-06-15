@@ -5,7 +5,7 @@ export const PASSPORT_GRADIENTS = {
   seekers: 'linear-gradient(135deg, #9D4EDD, #EC4899)',
   tokens: 'linear-gradient(135deg, #00E5FF, #10B981)',
   premium: 'linear-gradient(135deg, #F59E0B, #D97706)',
-  listings: 'linear-gradient(135deg, #EC4899, #F43F5E)',
+  listings: 'linear-gradient(135deg, #00C6FF, #0072FF)',
   people: 'linear-gradient(135deg, #3B82F6, #9D4EDD)',
   all: 'linear-gradient(135deg, #00E5FF, #9D4EDD)',
 } as const;

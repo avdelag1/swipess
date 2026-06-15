@@ -22,9 +22,9 @@ const injectMarkerStyles = () => {
   style.id = 'passport-marker-styles';
   style.innerHTML = `
     @keyframes listing-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.65); }
-      70% { box-shadow: 0 0 0 16px rgba(236, 72, 153, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(0, 198, 255, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 198, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 198, 255, 0); }
     }
     @keyframes profile-pulse {
       0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.65); }
@@ -66,10 +66,10 @@ export function createListingMarkerEl(
     min-width: ${isSelected ? '56px' : '46px'}; height: ${isSelected ? '36px' : '32px'};
     padding: 0 12px; border-radius: 999px;
     background: ${isSelected ? PASSPORT_GRADIENTS.listings : '#ffffff'};
-    color: ${isSelected ? '#ffffff' : '#831843'};
+    color: ${isSelected ? '#ffffff' : '#0F172A'};
     font-size: 11px; font-weight: 900; letter-spacing: 0.03em;
-    border: 2px solid ${isSelected ? '#FDA4AF' : '#FBCFE8'};
-    box-shadow: 0 ${isSelected ? '10' : '5'}px ${isSelected ? '28' : '16'}px rgba(236,72,153,${isSelected ? '0.55' : '0.35'});
+    border: 2px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
+    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,114,255,${isSelected ? '0.3' : '0.15'});
     cursor: pointer;
     transform: scale(${isSelected ? '1.1' : '1'});
     white-space: nowrap;
