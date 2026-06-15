@@ -281,7 +281,10 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto floating-dock-nav",
-          "mx-auto w-[calc(100%-24px)] max-w-lg",
+          // Phone: full-width-minus-gutters dock (items scroll). Desktop/tablet
+          // (md+): shrink the dock to its content and center it so every button
+          // is visible in the middle instead of overflowing off the left.
+          "mx-auto w-[calc(100%-24px)] max-w-lg md:w-fit md:max-w-[calc(100%-24px)]",
           "px-1 py-1.5 border",
           isLight
             ? "glass-light-surface border-black/8"
