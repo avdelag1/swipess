@@ -928,27 +928,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Single back button is handled by TopBar now */}
 
-        {topCard && (
-          <div className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,64px)+8px)] left-0 right-0 z-[10007] flex justify-center pointer-events-none px-4">
-            <LocationRadiusSelector
-              radiusKm={radiusKm}
-              onRadiusChange={(km) => {
-                setRadiusKm(km);
-                if (userLatitude == null || userLongitude == null) detectLocation();
-              }}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-              lat={userLatitude}
-              lng={userLongitude}
-              title={passportLabel || undefined}
-              expanded={kmHudExpanded}
-              onExpandedChange={setKmHudExpanded}
-            />
-          </div>
-        )}
-
-        <div
+            <div
           className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
           {...pullDown.bind}
         >

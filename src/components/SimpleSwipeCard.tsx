@@ -23,12 +23,13 @@ import { ClientCardInfo, PropertyCardInfo, ServiceCardInfo, VehicleCardInfo } fr
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
+import { useModalStore } from '@/state/modalStore';
 import CardImage from '@/components/CardImage';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -341,6 +342,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
+    { icon: Map, onClick: () => useModalStore.getState().openPassportMap(), label: 'Map' },
+    { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
@@ -612,17 +615,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             className="absolute right-3 z-50 pointer-events-auto"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div
-              className="flex flex-col gap-1.5 p-1.5 rounded-full"
-              style={{
-                // Solid rail — sits over the moving card, so no backdrop-filter
-                // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.20)',
-                boxShadow:
-                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
+            <div className="flex flex-col gap-3 p-1 rounded-full">
               {actionButtons.map((btn, idx) => (
                 <GlassIconButton
                   key={idx}

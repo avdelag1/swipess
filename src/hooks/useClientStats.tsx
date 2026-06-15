@@ -26,39 +26,29 @@ export function useClientStats() {
         return { likesReceived: 0, matchesCount: 0, activeChats: 0 };
       }
 
-      // Count likes received from owners (using unified likes table)
-      // Must filter by direction='like' to exclude dismissals
-      const { count: likesReceived } = await supabase
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('target_id', user.id)
-        .eq('target_type', 'profile')
-        .eq('direction', 'right');
-
-      // Count mutual matches
-      let matchesCount = 0;
-      try {
-        const { count } = await supabase
+      // Fetch all stats concurrently to reduce network waterfall delay
+      const [likesRes, matchesRes, chatsRes] = await Promise.all([
+        supabase
+          .from('likes')
+          .select('*', { count: 'exact', head: true })
+          .eq('target_id', user.id)
+          .eq('target_type', 'profile')
+          .eq('direction', 'right'),
+        supabase
           .from('matches')
           .select('*', { count: 'exact', head: true })
-          .eq('client_id', user.id);
-        matchesCount = count || 0;
-      } catch {
-        // Graceful fallback if matches query fails
-        matchesCount = 0;
-      }
-
-      // Count active conversations
-      const { count: activeChats } = await supabase
-        .from('conversations')
-        .select('*', { count: 'exact', head: true })
-        .eq('client_id', user.id)
-        .eq('status', 'active');
+          .eq('client_id', user.id),
+        supabase
+          .from('conversations')
+          .select('*', { count: 'exact', head: true })
+          .eq('client_id', user.id)
+          .eq('status', 'active')
+      ]);
 
       return {
-        likesReceived: likesReceived || 0,
-        matchesCount: matchesCount || 0,
-        activeChats: activeChats || 0,
+        likesReceived: likesRes.count || 0,
+        matchesCount: matchesRes.count || 0,
+        activeChats: chatsRes.count || 0,
       };
     },
   });

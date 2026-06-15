@@ -68,22 +68,23 @@ export function useOwnerStats() {
       const ownerListingIds = (listingsResult.data as any[] || []).map(l => l.id);
 
       if (ownerListingIds.length > 0) {
-        // Count unique clients who liked any of the owner's listings
-        const { count: interestedCount } = await supabase
-          .from('likes')
-          .select('*', { count: 'exact', head: true })
-          .in('target_id', ownerListingIds)
-          .eq('target_type', 'listing')
-          .eq('direction', 'right');
-        interestedClientsCount = interestedCount || 0;
-
-        // Count total likes on owner's listings
-        const { count: likesCount } = await supabase
-          .from('likes')
-          .select('*', { count: 'exact', head: true })
-          .in('target_id', ownerListingIds)
-          .eq('direction', 'right');
-        totalLikes = likesCount || 0;
+        // Run dependent queries concurrently
+        const [interestedRes, likesRes] = await Promise.all([
+          supabase
+            .from('likes')
+            .select('*', { count: 'exact', head: true })
+            .in('target_id', ownerListingIds)
+            .eq('target_type', 'listing')
+            .eq('direction', 'right'),
+          supabase
+            .from('likes')
+            .select('*', { count: 'exact', head: true })
+            .in('target_id', ownerListingIds)
+            .eq('direction', 'right')
+        ]);
+        
+        interestedClientsCount = interestedRes.count || 0;
+        totalLikes = likesRes.count || 0;
       }
 
       // No view tracking table exists — default to 0

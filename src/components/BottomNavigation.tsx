@@ -264,7 +264,7 @@ export const BottomNavigation = memo(({
       role="navigation"
       aria-label="Main navigation"
       className={cn(
-        'app-bottom-bar transition-all duration-150',
+        'app-bottom-bar transition-all duration-150 w-full flex justify-center',
         isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
@@ -281,11 +281,7 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto floating-dock-nav",
-          // Phone: full-width-minus-gutters dock (items scroll). Desktop/tablet
-          // (md+): a wide dock (up to 64rem) centered via mx-auto, with the row
-          // centering the buttons inside it — so they sit in the middle instead
-          // of overflowing off the left.
-          "mx-auto w-[calc(100%-24px)] max-w-lg md:max-w-5xl",
+          "w-max max-w-[calc(100vw-24px)]",
           "px-1 py-1.5 border",
           isLight
             ? "glass-light-surface border-black/8"

@@ -876,29 +876,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Single back button is handled by TopBar now */}
 
-      {deckQueue.length > 0 && (
-        <div
-          className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,64px)+8px)] left-0 right-0 z-[10007] flex justify-center pointer-events-none px-4"
-        >
-          <LocationRadiusSelector
-            radiusKm={radiusKm}
-            onRadiusChange={(km) => {
-              setRadiusKm(km);
-              if (userLatitude == null || userLongitude == null) detectLocation();
-            }}
-            onDetectLocation={detectLocation}
-            detecting={locationDetecting}
-            detected={locationDetected}
-            lat={userLatitude}
-            lng={userLongitude}
-            title={passportLabel || undefined}
-            expanded={kmHudExpanded}
-            onExpandedChange={setKmHudExpanded}
-          />
-        </div>
-      )}
-
-      {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
+          {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div
         aria-hidden
         className="absolute inset-0 pointer-events-none z-[1]"
@@ -1046,25 +1024,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </motion.div>
     </div>
 
-      {/* Global Passport live map — explore listings & people nearby */}
-      {deckQueue.length > 0 && (
-        <button
-          type="button"
-          onPointerDown={() => { prefetchPassportMapImmediate(); prefetchPassportMapModule(); }}
-          onClick={() => {
-            triggerHaptic('medium');
-            prefetchPassportMapImmediate();
-            useModalStore.getState().openPassportMap();
-          }}
-          className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] left-4 z-[10008] w-12 h-12 rounded-2xl flex items-center justify-center glass-pill glass-dark text-white active:scale-95 transition-transform shadow-[0_8px_32px_rgba(99,102,241,0.45)] bg-indigo-500/80"
-          aria-label="Open live map"
-          title="Explore on map"
-        >
-          <Map className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Bottom action bar removed — the same actions (Share / Message /
+          {/* Bottom action bar removed — the same actions (Share / Message /
         Insights / Report) live on the right-side rail in SimpleSwipeCard,
         keeping the card photo unobstructed. */}
     </div>

@@ -421,11 +421,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  /* auto (not a fixed 12px) so the dock CENTERS on wide screens instead of
-     pinning to the left. On phones the calc(100%-24px) width makes auto margins
-     resolve to the same ~12px gutters as before. */
-  margin-left: auto;
-  margin-right: auto;
+
   margin-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   border-radius: 28px;
   -webkit-backdrop-filter: blur(40px) saturate(180%);

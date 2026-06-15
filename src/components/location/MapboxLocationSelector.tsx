@@ -97,7 +97,7 @@ export function MapboxLocationSelector({
   useEffect(() => {
     if (!mapRef.current || !showMap) return;
 
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiYXZkZWxhZyIsImEiOiJjbW81OWZvbmkxb284MnNwdmUxcjBwdzZzIn0.g6nNTESXekEIpz2GSwOMLg';
     if (!mapboxgl.accessToken) {
       return;
     }
@@ -459,7 +459,7 @@ export function MapboxLocationSelector({
 
         {showMap && (
           <div ref={mapRef} className="w-full h-64 rounded-lg border border-border bg-muted overflow-hidden relative">
-            {!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN && (
+            {!mapboxgl.accessToken && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10 text-muted-foreground">
                 <div className="text-center">
                   <Globe className="w-8 h-8 mx-auto mb-2 opacity-50" />
