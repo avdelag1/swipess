@@ -119,7 +119,7 @@ AS $$
     ur.role::text,
     p.created_at
   FROM public.profiles p
-  JOIN public.user_roles ur ON ur.user_id = p.user_id AND ur.role = 'client'::public.app_role
+  JOIN public.user_roles ur ON ur.user_id = p.user_id AND ur.role::text = 'client'
   LEFT JOIN public.client_profiles cp ON cp.user_id = p.user_id
   WHERE (p_user_id IS NULL OR p.user_id IS DISTINCT FROM p_user_id)
     AND COALESCE(p.is_active, true) = true
