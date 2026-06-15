@@ -60,32 +60,17 @@ export const LocationRadiusSelector = memo(({
 
   if (orientation === 'vertical') {
     return (
-      <div className="flex flex-col items-center gap-3 w-12" style={{ pointerEvents: 'auto' }}>
-        <motion.button
-          whileTap={{ scale: 0.88 }}
-          onClick={onDetectLocation}
-          disabled={detecting}
-          className={cn(
-            "w-12 h-12 flex items-center justify-center rounded-full transition-all border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
-            detected
-              ? cn("bg-primary border-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]", isLight ? "text-black" : "text-white")
-              : "bg-black/20 backdrop-blur-md border-white/20 text-white"
-          )}
-          title="Detect GPS location"
-        >
-          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} strokeWidth={2.5} />
-        </motion.button>
-
+      <div className="flex flex-col items-center gap-2 w-[52px]" style={{ pointerEvents: 'auto' }}>
         <motion.button
           whileTap={{ scale: 0.93 }}
           onClick={toggleExpand}
           className={cn(
-            "w-12 h-12 flex flex-col items-center justify-center rounded-full transition-all border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+            "w-[52px] h-[52px] flex flex-col items-center justify-center rounded-full transition-all border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
             "bg-black/20 backdrop-blur-md border-white/20 text-white gap-0.5"
           )}
         >
-          <MapPin className="w-4 h-4 opacity-80" strokeWidth={2.5} />
-          <span className="text-[9px] font-black uppercase tracking-widest">{radiusKm}km</span>
+          <MapPin className="w-5 h-5 opacity-90" strokeWidth={2.2} />
+          <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">{radiusKm}km</span>
         </motion.button>
         
         {/* Expanded Slider Panel */}

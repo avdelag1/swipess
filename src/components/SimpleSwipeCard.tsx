@@ -618,20 +618,38 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-3 z-50 pointer-events-auto"
+            className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div className="flex flex-col gap-3 p-1 rounded-full items-center">
-              {renderTopRail}
-              {actionButtons.map((btn, idx) => (
+            {renderTopRail}
+
+            <GlassIconButton
+              icon={Map}
+              onClick={() => useModalStore.getState().openPassportMap()}
+              label="Map"
+              tone="onPhoto"
+              size="lg"
+              guardSwipe
+              className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+            />
+
+            <div className="flex flex-col gap-2 p-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              {[
+                { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
+              ].map((btn, idx) => (
                 <GlassIconButton
                   key={idx}
                   icon={btn.icon}
                   onClick={btn.onClick}
                   label={btn.label}
-                  tone="onPhoto"
+                  tone="surface"
                   size="md"
                   guardSwipe
+                  className="w-[44px] h-[44px] bg-transparent border-none shadow-none text-white hover:bg-white/10"
                 />
               ))}
             </div>
