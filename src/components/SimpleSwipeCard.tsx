@@ -1,4 +1,4 @@
-﻿/**
+/**
  * TINDER-STYLE SWIPE CARD ├óÔé¼ÔÇØ Swipes Edition
  *
  * Axis-locked swipe card with strict story-feed movement.
@@ -443,7 +443,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <>
             <GestureHints hidden={isZoomed} />
             
-            <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+            <AnimatePresence>
+              {!isRailVisible && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: isZoomed ? 0 : 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
+                >
               <button
                 data-no-cinematic
                 onClick={(e) => {
@@ -471,7 +479,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
                 </button>
               ) : <div className="w-12 h-12" />}
-            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">

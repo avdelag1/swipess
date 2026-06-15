@@ -162,6 +162,7 @@ export function getCityPhoto(
 /** Horizontal quick-filter strip on the live map — explicit unique cover per city. */
 export const PASSPORT_QUICK_CITIES: readonly PassportQuickCity[] = [
   { name: 'Miami', country: 'United States', lat: 25.7617, lng: -80.1918, img: CITY_PHOTO_URLS.miami },
+  { name: 'Medellín', country: 'Colombia', lat: 6.2442, lng: -75.5812, img: CITY_PHOTO_URLS['medellín'] || getCityPhoto('Medellín') },
   { name: 'Tulum', country: 'Mexico', lat: 20.2114, lng: -87.4654, img: CITY_PHOTO_URLS.tulum },
   { name: 'Cancún', country: 'Mexico', lat: 21.1619, lng: -86.8515, img: CITY_PHOTO_URLS['cancún'] },
   { name: 'Cabo', country: 'Mexico', lat: 22.8905, lng: -109.9167, img: CITY_PHOTO_URLS['cabo san lucas'] },
@@ -170,6 +171,7 @@ export const PASSPORT_QUICK_CITIES: readonly PassportQuickCity[] = [
   { name: 'Marrakech', country: 'Morocco', lat: 31.6295, lng: -7.9811, img: CITY_PHOTO_URLS.marrakech },
   { name: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522, img: CITY_PHOTO_URLS.paris },
   { name: 'London', country: 'United Kingdom', lat: 51.5074, lng: -0.1278, img: CITY_PHOTO_URLS.london },
+  { name: 'Rome', country: 'Italy', lat: 41.9028, lng: 12.4964, img: CITY_PHOTO_URLS.rome || getCityPhoto('Rome') },
   { name: 'Barcelona', country: 'Spain', lat: 41.3851, lng: 2.1734, img: CITY_PHOTO_URLS.barcelona },
   { name: 'Ibiza', country: 'Spain', lat: 38.9067, lng: 1.4206, img: CITY_PHOTO_URLS.ibiza },
   { name: 'Mykonos', country: 'Greece', lat: 37.4467, lng: 25.3289, img: CITY_PHOTO_URLS.mykonos },
@@ -189,4 +191,4 @@ export const PASSPORT_QUICK_CITIES: readonly PassportQuickCity[] = [
 ];
 
 /** Grid cards in the Global Passport sheet. */
-export const PREMIUM_DESTINATIONS: readonly PassportQuickCity[] = PASSPORT_QUICK_CITIES.slice(0, 12);
+export const PREMIUM_DESTINATIONS: readonly PassportQuickCity[] = PASSPORT_QUICK_CITIES;
