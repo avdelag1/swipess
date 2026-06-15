@@ -9,7 +9,6 @@ import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import { SwipessLoader } from './swipe/SwipessLoader';
 import { normalizeCategoryName } from '@/types/filters';
 
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
@@ -1010,7 +1009,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
-                  <SwipessLoader />
+                  null
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

@@ -32,14 +32,12 @@ import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import { SwipessLoader } from './swipe/SwipessLoader';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
-import { SwipessLogo } from '@/components/SwipessLogo';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -894,13 +892,9 @@ const ClientSwipeContainerComponent = ({
   // All conditions use derived flags - NO hooks called after this point
 
   if (showLoadingSkeleton || !deckReady) {
-    return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
-        <div className="animate-pulse">
-          <SwipessLogo size="lg" variant="transparent" />
-        </div>
-      </div>
-    );
+    // No logo loader — it lingered/"stuck" on quick loads. The deck background
+    // is black, so a bare frame reads as instant.
+    return <div className="relative w-full h-full flex-1 bg-black" />;
   }
 
   return (
@@ -1025,7 +1019,7 @@ const ClientSwipeContainerComponent = ({
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
-                  <SwipessLoader />
+                  null
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}
