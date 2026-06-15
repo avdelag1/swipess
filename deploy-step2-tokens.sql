@@ -85,6 +85,11 @@ BEGIN
 END;
 $$;
 
+DROP FUNCTION IF EXISTS public.rpc_deduct_token(integer, text);
+DROP FUNCTION IF EXISTS public.rpc_get_user_tokens();
+DROP FUNCTION IF EXISTS public.rpc_grant_welcome_tokens(boolean);
+DROP FUNCTION IF EXISTS public.rpc_grant_referral_bonus(uuid);
+
 CREATE OR REPLACE FUNCTION public.rpc_deduct_token(
   p_amount integer DEFAULT 1,
   p_token_type text DEFAULT 'message'
