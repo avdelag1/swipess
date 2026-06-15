@@ -3040,6 +3040,35 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      rpc_deduct_token: {
+        Args: { p_amount?: number; p_token_type?: string }
+        Returns: {
+          remaining_balance: number
+          success: boolean
+        }[]
+      }
+      rpc_get_user_tokens: {
+        Args: Record<string, never>
+        Returns: {
+          total_credits: number
+          total_messages: number
+          user_id: string
+        }[]
+      }
+      rpc_grant_referral_bonus: {
+        Args: { p_referrer_id: string }
+        Returns: {
+          success: boolean
+          tokens_granted: number
+        }[]
+      }
+      rpc_grant_welcome_tokens: {
+        Args: { p_has_referral?: boolean }
+        Returns: {
+          success: boolean
+          tokens_granted: number
+        }[]
+      }
       start_conversation_with_message: {
         Args: {
           p_initial_message: string

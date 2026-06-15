@@ -68,44 +68,18 @@ export function useProfileSetup() {
         return;
       }
 
-      // Check if reward already granted (prevent abuse)
-      const { data: existingReward } = await supabase
-        .from('tokens')
-        .select('id')
-        .eq('user_id', referrerId)
-        .eq('activation_type', 'referral_bonus')
-        .like('notes', `%referred_user:${newUserId}%`)
-        .maybeSingle();
+      const { data: grantRows, error: activError } = await (supabase as any).rpc(
+        'rpc_grant_referral_bonus',
+        { p_referrer_id: referrerId },
+      );
+      const grant = Array.isArray(grantRows) ? grantRows[0] : grantRows;
 
-      if (existingReward) {
-        localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
-        return;
-      }
-
-      // Grant referral bonus activation
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 60);
-
-      const { data: activationData, error: activError } = await supabase
-        .from('tokens')
-        .insert({
-          user_id: referrerId,
-          activation_type: 'referral_bonus',
-          total_activations: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
-          remaining_activations: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
-          used_activations: 0,
-          expires_at: expiresAt.toISOString(),
-          notes: `Referral reward - referred_user:${newUserId}`,
-        })
-        .select()
-        .single();
-
-      if (!activError && activationData) {
+      if (!activError && grant?.success) {
         // Referral tracking - just log since user_referrals table doesn't exist
         logger.info('[ProfileSetup] Referral reward granted:', {
           referrerId,
           newUserId,
-          activationId: activationData.id,
+          tokensGranted: grant.tokens_granted,
         });
 
         // Create notification for referrer (silent, non-blocking)
@@ -449,33 +423,15 @@ export function useProfileSetup() {
             }
           }
 
-          // Grant free tokens (expires in 90 days)
-          // - 2 tokens if signed up via referral
-          // - 1 token if normal signup
-          const expiresAt = new Date();
-          expiresAt.setDate(expiresAt.getDate() + 90);
+          const { data: welcomeRows, error: activError } = await (supabase as any).rpc(
+            'rpc_grant_welcome_tokens',
+            { p_has_referral: hasReferralCode },
+          );
+          const welcome = Array.isArray(welcomeRows) ? welcomeRows[0] : welcomeRows;
 
-          const activationCount = hasReferralCode ? 2 : 1;
-          const notesText = hasReferralCode
-            ? 'Welcome bonus - referral signup (2 free tokens)'
-            : 'Welcome bonus - first token free';
-
-          const insertData = {
-            user_id: userId,
-            activation_type: 'welcome' as const,
-            total_activations: activationCount,
-            remaining_activations: activationCount,
-            used_activations: 0,
-            expires_at: expiresAt.toISOString(),
-            notes: notesText,
-          };
-          const { error: activError } = await supabase
-            .from('tokens')
-            .insert(insertData);
-
-          if (!activError) {
+          if (!activError && welcome?.success) {
             if (import.meta.env.DEV) {
-              logger.log(`[ProfileSetup] Welcome activation granted to ${userId}: ${activationCount} message(s)`);
+              logger.log(`[ProfileSetup] Welcome activation granted to ${userId}: ${welcome.tokens_granted} message(s)`);
             }
             // Invalidate activations cache
             queryClient.invalidateQueries({ queryKey: ['tokens', userId] });

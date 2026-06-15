@@ -33,7 +33,7 @@ export const NO_TOKENS_ERROR =
 export async function fetchTokenBalance(userId: string): Promise<number> {
   const { data, error } = await supabase
     .from('tokens')
-    .select('remaining_activations, activations_remaining')
+    .select('remaining_activations, expires_at')
     .eq('user_id', userId);
 
   if (error) {
@@ -43,10 +43,12 @@ export async function fetchTokenBalance(userId: string): Promise<number> {
     return 0;
   }
 
-  return (data || []).reduce(
-    (sum, row) => sum + (row.remaining_activations || row.activations_remaining || 0),
-    0,
-  );
+  const now = Date.now();
+  return (data || []).reduce((sum, row) => {
+    const expiresAt = (row as { expires_at?: string | null }).expires_at;
+    if (expiresAt && new Date(expiresAt).getTime() <= now) return sum;
+    return sum + (row.remaining_activations || 0);
+  }, 0);
 }
 
 export async function fetchActivePlanName(userId: string): Promise<string> {
