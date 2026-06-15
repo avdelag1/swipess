@@ -233,6 +233,13 @@ export const PassportMapModal = memo(() => {
     centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
   }, [isOpen, mapReady, passportMode, radiusKm]);
 
+  // Dynamically update Mapbox Standard light preset on theme change
+  useEffect(() => {
+    if (mapReady && mapRef.current) {
+      mapRef.current.setConfigProperty('basemap', 'lightPreset', isLight ? 'day' : 'night');
+    }
+  }, [isLight, mapReady]);
+
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
@@ -275,7 +282,7 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
+          style: 'mapbox://styles/mapbox/standard',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           attributionControl: false,
@@ -290,52 +297,11 @@ export const PassportMapModal = memo(() => {
         map.on('load', () => {
           if (cancelled) return;
 
-          // Add Atmosphere (Fog)
-          map.setFog({
-            color: isLightRef.current ? 'rgb(186, 210, 235)' : 'rgb(20, 20, 30)', // Lower atmosphere
-            'high-color': isLightRef.current ? 'rgb(36, 92, 223)' : 'rgb(10, 10, 15)', // Upper atmosphere
-            'horizon-blend': 0.02,
-            'space-color': isLightRef.current ? 'rgb(240, 245, 250)' : 'rgb(5, 5, 10)', // Background color
-            'star-intensity': isLightRef.current ? 0 : 0.6 // Background star brightness
-          });
-
-          // Add 3D buildings
-          const layers = map.getStyle().layers;
-          let labelLayerId;
-          if (layers) {
-            for (let i = 0; i < layers.length; i++) {
-              if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
-                labelLayerId = layers[i].id;
-                break;
-              }
-            }
-          }
-
-          map.addLayer(
-            {
-              id: 'add-3d-buildings',
-              source: 'composite',
-              'source-layer': 'building',
-              filter: ['==', 'extrude', 'true'],
-              type: 'fill-extrusion',
-              minzoom: 14,
-              paint: {
-                'fill-extrusion-color': isLightRef.current ? '#e5e7eb' : '#262626',
-                'fill-extrusion-height': [
-                  'interpolate', ['linear'], ['zoom'],
-                  14, 0,
-                  14.05, ['get', 'height']
-                ],
-                'fill-extrusion-base': [
-                  'interpolate', ['linear'], ['zoom'],
-                  14, 0,
-                  14.05, ['get', 'min_height']
-                ],
-                'fill-extrusion-opacity': 0.6
-              }
-            },
-            labelLayerId
-          );
+          // Mapbox Standard Configuration
+          map.setConfigProperty('basemap', 'lightPreset', isLightRef.current ? 'day' : 'night');
+          // Hide POI labels to keep map clean for Swipess
+          map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+          map.setConfigProperty('basemap', 'showTransitLabels', false);
 
           requestAnimationFrame(() => {
             resizeMap();

@@ -1,12 +1,14 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Bed, Briefcase, Eye, MapPin, Sparkles, User, X,
+  Bed, Briefcase, Eye, MapPin, Sparkles, User, X, Car, Footprints
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SelectedPin } from './passportMapMarkers';
 import { categoryLabel, formatDistanceKm } from './passportMapMarkers';
 import { PASSPORT_GRADIENTS } from './passportMapTheme';
+import { useFilterStore } from '@/state/filterStore';
+import { getTravelTime, type TravelTimeResult } from '@/utils/mapboxDirections';
 
 interface PassportMapPinPreviewProps {
   selected: SelectedPin;
@@ -25,6 +27,26 @@ export const PassportMapPinPreview = memo(({
 }: PassportMapPinPreviewProps) => {
   const isListing = selected.type === 'listing';
   const data = selected.data;
+  const userLat = useFilterStore(s => s.userLatitude);
+  const userLng = useFilterStore(s => s.userLongitude);
+
+  const [travelTime, setTravelTime] = useState<TravelTimeResult | null>(null);
+
+  useEffect(() => {
+    if (userLat == null || userLng == null) return;
+    let cancelled = false;
+    
+    // Choose profile based on distance (if < 2km, check walking, otherwise drive)
+    const profile = data.distanceKm && data.distanceKm < 2 ? 'walking' : 'driving';
+    
+    getTravelTime(userLng, userLat, data.lng, data.lat, profile).then(result => {
+      if (!cancelled && result) {
+        setTravelTime({ ...result, profile } as any);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [userLat, userLng, data.lat, data.lng, data.distanceKm]);
 
   const title = isListing ? data.title : data.name;
   const subtitle = [data.city, formatDistanceKm(data.distanceKm)].filter(Boolean).join(' · ');
@@ -73,6 +95,12 @@ export const PassportMapPinPreview = memo(({
           {isListing && data.price != null && (
             <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-white/95 text-slate-900">
               ${data.price.toLocaleString()}
+            </span>
+          )}
+          {travelTime && (
+            <span className="px-2 py-1 rounded-full text-[10px] font-black bg-black/40 backdrop-blur-md text-white flex items-center gap-1 border border-white/20">
+              {(travelTime as any).profile === 'walking' ? <Footprints className="w-3 h-3" /> : <Car className="w-3 h-3" />}
+              {travelTime.formattedDuration}
             </span>
           )}
         </div>
