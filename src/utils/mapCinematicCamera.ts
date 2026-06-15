@@ -13,13 +13,13 @@ export function zoomForRadiusKm(km: number): number {
   return Math.min(15, Math.max(8.5, z));
 }
 
-export function applyCinematicFog(map: MapboxMap, isLight: boolean): void {
+export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {
   map.setFog({
-    color: isLight ? 'rgb(186, 210, 235)' : 'rgb(20, 20, 30)',
-    'high-color': isLight ? 'rgb(36, 92, 223)' : 'rgb(10, 10, 15)',
-    'horizon-blend': 0.02,
-    'space-color': isLight ? 'rgb(240, 245, 250)' : 'rgb(5, 5, 10)',
-    'star-intensity': isLight ? 0 : 0.6,
+    color: 'rgb(200, 220, 240)',
+    'high-color': 'rgb(50, 120, 220)',
+    'horizon-blend': 0.03,
+    'space-color': 'rgb(220, 235, 250)',
+    'star-intensity': 0.15,
   });
 }
 
@@ -47,7 +47,7 @@ export function addCinematic3DBuildings(map: MapboxMap, isLight: boolean): void 
       type: 'fill-extrusion',
       minzoom: 13,
       paint: {
-        'fill-extrusion-color': isLight ? '#e5e7eb' : '#262626',
+        'fill-extrusion-color': '#d4d4d8',
         'fill-extrusion-height': [
           'interpolate', ['linear'], ['zoom'],
           13, 0,

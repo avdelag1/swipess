@@ -333,7 +333,7 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
+          style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           pitch: CINEMATIC_PITCH,
