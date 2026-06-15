@@ -30,6 +30,8 @@ interface PropertyFormData {
   city?: string;
   neighborhood?: string;
   address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   property_type?: string;
   beds?: number;
   baths?: number;
@@ -143,6 +145,8 @@ function normalizeInitialData(raw: any): Partial<PropertyFormData> {
     city: raw.city ?? undefined,
     neighborhood: raw.neighborhood ?? undefined,
     address: raw.address ?? undefined,
+    latitude: num(raw.latitude) ?? undefined,
+    longitude: num(raw.longitude) ?? undefined,
     property_type: raw.property_type ?? undefined,
     beds: num(raw.beds),
     baths: num(raw.baths),
@@ -201,6 +205,8 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const _country = watch('country') || '';
   const state = watch('state') || '';
   const neighborhood = watch('neighborhood') || '';
+  const latitude = watch('latitude');
+  const longitude = watch('longitude');
   const vibe = watch('vibe') || [];
   const amenities = watch('amenities') || [];
   const servicesIncluded = watch('services_included') || [];
@@ -267,9 +273,15 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
               country={field.value}
               onCountryChange={field.onChange}
               city={city}
-              onCityChange={(city) => setValue('city', city)}
+              onCityChange={(nextCity) => setValue('city', nextCity)}
               neighborhood={neighborhood}
-              onNeighborhoodChange={(neighborhood) => setValue('neighborhood', neighborhood)}
+              onNeighborhoodChange={(nextNeighborhood) => setValue('neighborhood', nextNeighborhood)}
+              latitude={latitude ?? undefined}
+              longitude={longitude ?? undefined}
+              onCoordinatesChange={(lat, lng) => {
+                setValue('latitude', lat);
+                setValue('longitude', lng);
+              }}
             />
           )}
         />

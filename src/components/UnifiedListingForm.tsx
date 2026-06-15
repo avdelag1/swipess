@@ -31,6 +31,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { uiSounds } from '@/utils/uiSounds';
 import { saveListingWithSchemaRetry } from '@/utils/listingSave';
+import {
+  LISTING_LOCATION_REQUIRED_MSG,
+  resolveListingCoordinates,
+} from '@/utils/listingLocation';
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { PremiumSortableGrid } from './PremiumSortableGrid';
 import { WaterDropLoader } from './ui/WaterDropLoader';
@@ -212,6 +216,23 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         throw new Error('At least 1 photo required');
       }
 
+      const cityName = (formData.city as string)?.trim();
+      if (!cityName) {
+        throw new Error('Select a country and city for your listing location.');
+      }
+
+      const resolvedCoords = await resolveListingCoordinates({
+        latitude: (formData.latitude as number | null | undefined) ?? location.lat,
+        longitude: (formData.longitude as number | null | undefined) ?? location.lng,
+        city: cityName,
+        country: formData.country as string,
+        neighborhood: formData.neighborhood as string,
+      });
+
+      if (!resolvedCoords) {
+        throw new Error(LISTING_LOCATION_REQUIRED_MSG);
+      }
+
       // Content moderation: check title, description, house_rules
       const fieldsToCheck = [
         { text: formData.title as string, label: 'Title' },
@@ -320,8 +341,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         location: listingLocation,
         neighborhood: (formData.neighborhood as string) || null,
         address: (formData.address as string) || null,
-        latitude: location.lat || null,
-        longitude: location.lng || null,
+        latitude: resolvedCoords.latitude,
+        longitude: resolvedCoords.longitude,
         video_url: videoUrl,
         // JSONB arrays
         images: allImages,
@@ -532,6 +553,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
     const currentFormData = formDataRef.current;
 
+    if (!(currentFormData.city as string)?.trim()) {
+      appToast.error('Location required', 'Pick a country and city so your listing shows on the map.');
+      return;
+    }
+
     if (!user) {
       // Map all current URLs (remote or local blob) for anonymous drafts
       const allDraftImages = photoList.map(p => p.url);
@@ -539,8 +565,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         ...currentFormData,
         images: allDraftImages,
         mode: selectedMode,
-        latitude: location.lat,
-        longitude: location.lng,
+        latitude: (currentFormData.latitude as number | undefined) ?? location.lat,
+        longitude: (currentFormData.longitude as number | undefined) ?? location.lng,
       });
 
       sessionStorage.setItem('pending_auth_action', JSON.stringify({

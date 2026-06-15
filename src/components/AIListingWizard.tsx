@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { saveListingWithSchemaRetry } from '@/utils/listingSave';
+import { resolveListingCoordinates, LISTING_LOCATION_REQUIRED_MSG } from '@/utils/listingLocation';
 import { logger } from '@/utils/prodLogger';
 
 type WizardStep = 'compose' | 'processing';
@@ -294,13 +295,26 @@ export function AIListingWizard() {
       setProgressPct(72);
 
       setProgressPhase('publish');
+
+      const finalCity = (parsed.city as string) || cityLocation?.trim();
+      if (!finalCity) {
+        throw new Error('Add a city so your listing can appear on the map.');
+      }
+
+      const mapCoords = await resolveListingCoordinates({
+        city: finalCity,
+        country: (parsed.country as string) || 'Mexico',
+      });
+      if (!mapCoords) {
+        throw new Error(LISTING_LOCATION_REQUIRED_MSG);
+      }
+
       // Trust the AI-detected category when valid — the user may describe a
       // motorcycle while the default "property" chip is still selected.
       const validCats = ['property', 'motorcycle', 'bicycle', 'worker'] as const;
       const detected = parsed.category as typeof CATEGORIES[number]['id'];
       const cat = validCats.includes(detected) ? detected : category;
       const numericPrice = (parsed.price as number) || Number(price) || 0;
-      const finalCity = (parsed.city as string) || cityLocation || 'Unknown';
       const listingPayload: Record<string, unknown> = {
         user_id: user.id,
         owner_id: user.id,
@@ -318,6 +332,8 @@ export function AIListingWizard() {
         state: finalCity,
         city: finalCity,
         location: finalCity,
+        latitude: mapCoords.latitude,
+        longitude: mapCoords.longitude,
         images: uploadedUrls,
         image_url: uploadedUrls[0] || null,
       };

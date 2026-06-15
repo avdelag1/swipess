@@ -146,9 +146,13 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
         <OwnerLocationSelector
           country={watch('country')}
           city={watch('city')}
+          neighborhood={watch('neighborhood')}
+          latitude={(watch('latitude') as number | undefined) ?? undefined}
+          longitude={(watch('longitude') as number | undefined) ?? undefined}
           onCountryChange={(c) => onDataChange({ country: c })}
           onCityChange={(c) => onDataChange({ city: c })}
           onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
+          onCoordinatesChange={(lat, lng) => onDataChange({ latitude: lat, longitude: lng })}
         />
       </div>
 

@@ -27,7 +27,7 @@ interface OwnerLocationSelectorProps {
   onStateChange?: (state: string) => void;
   onCityChange: (city: string) => void;
   onNeighborhoodChange: (neighborhood: string) => void;
-  onCoordinatesChange?: (lat: number, lng: number) => void;
+  onCoordinatesChange?: (lat: number | null, lng: number | null) => void;
 }
 
 export function OwnerLocationSelector({
@@ -38,6 +38,8 @@ export function OwnerLocationSelector({
   onCityChange,
   onNeighborhoodChange,
   onCoordinatesChange,
+  latitude,
+  longitude,
 }: OwnerLocationSelectorProps) {
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [countrySearch, setCountrySearch] = useState('');
@@ -128,6 +130,7 @@ export function OwnerLocationSelector({
     onNeighborhoodChange('');
     setCitySearch('');
     setNeighborhoodSearch('');
+    onCoordinatesChange?.(null, null);
 
     // Find the region for this country
     const regions = getRegions();
@@ -171,10 +174,25 @@ export function OwnerLocationSelector({
             <MapPin className="w-5 h-5" />
             Property Location
           </CardTitle>
-          <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-xs">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            General location only - no exact address shown
-          </Badge>
+          <div className="flex flex-col items-end gap-1">
+            {latitude != null && longitude != null ? (
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs">
+                <MapPin className="w-3 h-3 mr-1" />
+                Map pin set
+              </Badge>
+            ) : city ? (
+              <Badge variant="outline" className="bg-amber-500/10 text-amber-300 border-amber-500/30 text-xs">
+                <AlertCircle className="w-3 h-3 mr-1" />
+                Confirm city for map pin
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-rose-500/10 text-rose-300 border-rose-500/30 text-xs">
+                <AlertCircle className="w-3 h-3 mr-1" />
+                Required for map
+              </Badge>
+            )}
+            <span className="text-[10px] text-muted-foreground">General area only — no exact address</span>
+          </div>
         </div>
       </CardHeader>
 
