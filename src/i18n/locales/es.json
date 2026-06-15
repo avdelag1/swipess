@@ -511,6 +511,32 @@
     "viewReceipt": "Ver Recibo",
     "tryAgain": "Intentar de Nuevo"
   },
+  "deck": {
+    "exhausted": {
+      "scanning": "Escaneando…",
+      "noNearby": "No hay {{category}} cerca",
+      "initializing": "Inicializando escaneo del sector",
+      "adjustRadius": "Ajusta el radio o prueba otra categoría",
+      "searchRadius": "Radio de búsqueda",
+      "moveSlider": "Mueve el control para buscar más lejos",
+      "exploreMap": "Explorar en mapa en vivo",
+      "orTry": "O prueba otra",
+      "categories": {
+        "property": "Propiedades",
+        "motorcycle": "Motos",
+        "bicycle": "Bicicletas",
+        "services": "Trabajadores",
+        "buyers": "Compradores",
+        "renters": "Inquilinos",
+        "hire": "Trabajadores"
+      }
+    }
+  },
+  "map": {
+    "filterAll": "Todo",
+    "filterListings": "Anuncios",
+    "filterPeople": "Personas"
+  },
   "errors": {
     "generic": "Algo salió mal",
     "network": "Error de red. Verifica tu conexión.",

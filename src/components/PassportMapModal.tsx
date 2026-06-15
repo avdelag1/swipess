@@ -7,6 +7,7 @@ import { useModalStore } from '@/state/modalStore';
 import { useFilterStore } from '@/state/filterStore';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
@@ -51,14 +52,15 @@ const RADIUS_PRESETS = [5, 20, 40, 80] as const;
 const DOUBLE_TAP_WINDOW_MS = 300;
 const DOUBLE_TAP_SLOP_PX = 40;
 
-const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
-  { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
-  { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
-  { id: 'people', label: 'People', icon: Users, gradient: PASSPORT_GRADIENTS.people },
+const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
+  { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
+  { id: 'listings', labelKey: 'map.filterListings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
+  { id: 'people', labelKey: 'map.filterPeople', icon: Users, gradient: PASSPORT_GRADIENTS.people },
 ];
 
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
+  const { t } = useTranslation();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportSheetOpen = useModalStore(s => s.showPassportModal);
   const shouldWarmMap = isOpen;
@@ -674,11 +676,11 @@ export const PassportMapModal = memo(() => {
                   {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin relative z-10" /> : <Navigation className="w-5 h-5 relative z-10" strokeWidth={2.0} />}
                 </button>
 
-                {FILTER_TABS.map(({ id, label, icon, gradient }) => (
+                {FILTER_TABS.map(({ id, labelKey, icon, gradient }) => (
                   <PassportMapChunkyButton
                     key={id}
                     icon={icon}
-                    label={label}
+                    label={t(labelKey)}
                     gradient={gradient}
                     active={layerFilter === id}
                     badge={

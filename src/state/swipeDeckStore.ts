@@ -76,7 +76,7 @@ const createEmptyDeckState = (): DeckState => ({
 
 // CACHE INVALIDATION: Clear stale localStorage on app load to prevent FK errors
 // This runs once on module load and clears any stale mock data
-const CACHE_VERSION = 'v15'; // v15: real listings feed — no demo listing cards
+const CACHE_VERSION = 'v16'; // v16: slim deck persist — hero image only
 const CACHE_KEY = 'swipe-deck-store';
 const CACHE_VERSION_KEY = 'swipe-deck-version';
 if (typeof window !== 'undefined') {
@@ -513,25 +513,18 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
               swipedIds: deck.swipedIds,
               lastSwipedId: deck.lastSwipedId,
               // CRITICAL: Persist minimal deck items for instant render (no dark cards)
-              deckItems: deck.deckItems.slice(0, 20).map(item => ({
-                id: item.id,
-                title: item.title,
-                price: item.price,
-                city: item.city,
-                neighborhood: item.neighborhood,
-                images: item.images, // Keep ALL images for carousel
-                beds: item.beds,
-                baths: item.baths,
-                square_footage: item.square_footage,
-                category: item.category,
-                listing_type: item.listing_type,
-                owner_id: item.owner_id,
-                brand: item.brand,
-                model: item.model,
-                year: item.year,
-                mileage: item.mileage,
-                amenities: item.amenities?.slice(0, 5), // First 5 amenities
-              })),
+              deckItems: deck.deckItems.slice(0, 20).map(item => {
+                const imgs = Array.isArray(item.images) ? item.images : [];
+                return {
+                  id: item.id,
+                  title: item.title,
+                  price: item.price,
+                  city: item.city,
+                  category: item.category,
+                  owner_id: item.owner_id,
+                  images: imgs.length > 0 ? [imgs[0]] : [],
+                };
+              }),
               lastFetchAt: deck.lastFetchAt,
             }
           ])
@@ -547,22 +540,25 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
               swipedIds: deck.swipedIds,
               lastSwipedId: deck.lastSwipedId,
               // CRITICAL: Persist minimal deck items for instant render (no dark cards)
-              deckItems: deck.deckItems.slice(0, 20).map(item => ({
-                id: item.id || item.user_id,
-                user_id: item.user_id,
-                name: item.name,
-                full_name: item.full_name,
-                age: item.age,
-                city: item.city,
-                images: item.images, // Keep ALL images for carousel
-                profile_images: item.profile_images,
-                avatar_url: item.avatar_url,
-                verified: item.verified,
-                budget_max: item.budget_max,
-                budget_min: item.budget_min,
-                interests: item.interests?.slice(0, 5),
-                lifestyle_tags: item.lifestyle_tags?.slice(0, 5),
-              })),
+              deckItems: deck.deckItems.slice(0, 20).map(item => {
+                const imgs = Array.isArray(item.profile_images)
+                  ? item.profile_images
+                  : Array.isArray(item.images)
+                    ? item.images
+                    : [];
+                const hero = imgs[0] ?? item.avatar_url;
+                return {
+                  id: item.id || item.user_id,
+                  user_id: item.user_id,
+                  name: item.name,
+                  full_name: item.full_name,
+                  age: item.age,
+                  city: item.city,
+                  avatar_url: item.avatar_url,
+                  profile_images: hero ? [hero] : [],
+                  images: hero ? [hero] : [],
+                };
+              }),
               lastFetchAt: deck.lastFetchAt,
             }
           ])

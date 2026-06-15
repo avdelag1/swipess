@@ -31,6 +31,18 @@ export const NO_TOKENS_ERROR =
   'You need message tokens or a premium plan to start a new conversation.';
 
 export async function fetchTokenBalance(userId: string): Promise<number> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id === userId) {
+      const { data: rpcRows, error: rpcError } = await supabase.rpc('rpc_get_user_tokens');
+      if (!rpcError && rpcRows?.length) {
+        return rpcRows[0].total_messages ?? 0;
+      }
+    }
+  } catch {
+    /* fall through to table read */
+  }
+
   const { data, error } = await supabase
     .from('tokens')
     .select('remaining_activations, expires_at')

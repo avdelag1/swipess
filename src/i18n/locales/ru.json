@@ -250,6 +250,32 @@
     "processing": "Обработка Оплаты", "returnToDashboard": "Вернуться на Панель",
     "viewReceipt": "Просмотреть Чек", "tryAgain": "Попробовать Снова"
   },
+  "deck": {
+    "exhausted": {
+      "scanning": "Сканирование…",
+      "noNearby": "Рядом нет: {{category}}",
+      "initializing": "Запуск сканирования сектора",
+      "adjustRadius": "Измените радиус или попробуйте другую категорию",
+      "searchRadius": "Радиус поиска",
+      "moveSlider": "Сдвиньте ползунок, чтобы искать дальше",
+      "exploreMap": "Открыть на живой карте",
+      "orTry": "Или попробуйте другую",
+      "categories": {
+        "property": "Недвижимость",
+        "motorcycle": "Мотоциклы",
+        "bicycle": "Велосипеды",
+        "services": "Специалисты",
+        "buyers": "Покупатели",
+        "renters": "Арендаторы",
+        "hire": "Специалисты"
+      }
+    }
+  },
+  "map": {
+    "filterAll": "Все",
+    "filterListings": "Объявления",
+    "filterPeople": "Люди"
+  },
   "errors": {
     "generic": "Что-то пошло не так", "network": "Ошибка сети. Проверьте подключение.",
     "notFound": "Страница не найдена", "unauthorized": "Войдите для доступа",

@@ -559,6 +559,32 @@
     "viewReceipt": "View Receipt",
     "tryAgain": "Try Again"
   },
+  "deck": {
+    "exhausted": {
+      "scanning": "Scanning…",
+      "noNearby": "No {{category}} found nearby",
+      "initializing": "Initializing sector scan",
+      "adjustRadius": "Adjust radius or try another category",
+      "searchRadius": "Search radius",
+      "moveSlider": "Move the slider to search further",
+      "exploreMap": "Explore on Live Map",
+      "orTry": "Or try another",
+      "categories": {
+        "property": "Properties",
+        "motorcycle": "Motorcycles",
+        "bicycle": "Bicycles",
+        "services": "Workers",
+        "buyers": "Buyers",
+        "renters": "Renters",
+        "hire": "Workers"
+      }
+    }
+  },
+  "map": {
+    "filterAll": "All",
+    "filterListings": "Listings",
+    "filterPeople": "People"
+  },
   "errors": {
     "generic": "Something went wrong",
     "network": "Network error. Please check your connection.",

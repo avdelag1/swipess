@@ -12,7 +12,7 @@ import {
   hasActiveLocationFilter,
 } from '@/utils/matchingFilters';
 import { isDemoFeedEnabled } from '@/utils/demoFeed';
-import { categoryToClientType, resolveClientType } from '@/utils/clientType';
+import { categoryToClientType, clientMatchesSeekerType, resolveClientType } from '@/utils/clientType';
 
 const CLIENT_FIELDS = `
     user_id, name, age, gender, city, country, latitude, longitude, profile_images,
@@ -467,12 +467,7 @@ export function useSmartClientMatching(
                 // AND client type filters (buyers/renters/hire) for owner side
                 if (_category && _category !== 'all' && _category !== 'all-clients') {
                     const isClientType = ['buyers', 'renters', 'hire'].includes(_category);
-                    if (isClientType) {
-                        const mappedType = categoryToClientType(_category);
-                        if (mappedType) {
-                            query = query.eq('client_type', mappedType);
-                        }
-                    } else {
+                    if (!isClientType) {
                         // Client side: filter by preferred_listing_types
                         const mappedCategory = _category === 'worker' ? 'services' : _category;
                         query = query.contains('preferred_listing_types', [mappedCategory]);
@@ -549,6 +544,13 @@ export function useSmartClientMatching(
                 }
 
                 results = filterClientsByOwnerFilters(results, filters as any);
+
+                if (_category && ['buyers', 'renters', 'hire'].includes(_category)) {
+                    const expected = categoryToClientType(_category);
+                    if (expected) {
+                        results = results.filter(p => clientMatchesSeekerType(p, expected));
+                    }
+                }
 
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);

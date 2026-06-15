@@ -1,7 +1,8 @@
 import { logger } from '@/utils/prodLogger';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { shouldPrefetch } from '@/lib/prefetchCoordinator';
 
 /**
  * Prefetch Manager Hook
@@ -13,7 +14,6 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export function usePrefetchManager() {
   const queryClient = useQueryClient();
-  const prefetchedKeys = useRef<Set<string>>(new Set());
 
   /**
    * Prefetch next batch of listings for swipe deck
@@ -35,8 +35,7 @@ export function usePrefetchManager() {
     const nextPage = currentPage + 1;
     const key = `smart-listings-${userId}-${filtersKey}-${nextPage}`;
 
-    if (prefetchedKeys.current.has(key)) return;
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     await queryClient.prefetchQuery({
       queryKey: ['smart-listings', userId, filtersKey, nextPage, pageSize, false],
@@ -71,9 +70,7 @@ export function usePrefetchManager() {
     conversationId: string
   ) => {
     const key = `messages-${conversationId}`;
-    if (prefetchedKeys.current.has(key)) return;
-    
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     await queryClient.prefetchQuery({
       queryKey: ['conversation-messages', conversationId],
@@ -106,9 +103,7 @@ export function usePrefetchManager() {
     offset: number
   ) => {
     const key = `notifications-${offset}`;
-    if (prefetchedKeys.current.has(key)) return;
-    
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     await queryClient.prefetchQuery({
       queryKey: ['notifications', userId, offset],
@@ -134,9 +129,7 @@ export function usePrefetchManager() {
     topN: number = 3
   ) => {
     const key = `top-conversations-${userId}`;
-    if (prefetchedKeys.current.has(key)) return;
-
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     // Prefetch conversation list
     await queryClient.prefetchQuery({
@@ -168,9 +161,7 @@ export function usePrefetchManager() {
     listingId: string
   ) => {
     const key = `listing-detail-${listingId}`;
-    if (prefetchedKeys.current.has(key)) return;
-
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     await queryClient.prefetchQuery({
       queryKey: ['listing-detail', listingId],
@@ -194,9 +185,7 @@ export function usePrefetchManager() {
     userId: string
   ) => {
     const key = `client-profile-detail-${userId}`;
-    if (prefetchedKeys.current.has(key)) return;
-
-    prefetchedKeys.current.add(key);
+    if (!shouldPrefetch(key)) return;
 
     await queryClient.prefetchQuery({
       queryKey: ['client-profile-detail', userId],
@@ -215,8 +204,9 @@ export function usePrefetchManager() {
   /**
    * Clear prefetch cache when navigating away
    */
-  const clearPrefetchCache = useCallback(() => {
-    prefetchedKeys.current.clear();
+  const clearPrefetchCache = useCallback(async () => {
+    const { clearPrefetchCoordinator } = await import('@/lib/prefetchCoordinator');
+    clearPrefetchCoordinator();
   }, []);
 
   return {

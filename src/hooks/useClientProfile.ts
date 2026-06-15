@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
+import { resolveClientType } from '@/utils/clientType';
 
 export type ClientProfileLite = {
   id?: number;
@@ -142,6 +143,15 @@ export function useSaveClientProfile() {
         if (value !== undefined) {
           cleanUpdates[key] = value;
         }
+      }
+
+      const derivedType = resolveClientType({
+        client_type: cleanUpdates.client_type,
+        intentions: cleanUpdates.intentions,
+        occupation: cleanUpdates.occupation,
+      });
+      if (derivedType) {
+        cleanUpdates.client_type = derivedType;
       }
 
       let profileData: ClientProfileLite;

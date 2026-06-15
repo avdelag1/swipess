@@ -3,6 +3,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
 import { Map, MapPin, SlidersHorizontal } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useTranslation } from 'react-i18next';
 
 interface SwipeExhaustedStateProps {
   radiusKm?: number;
@@ -35,18 +36,19 @@ export const SwipeExhaustedState = ({
   role = 'client',
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
+  const { t } = useTranslation();
 
   const clientCategories = [
-    { id: 'property', label: 'Properties' },
-    { id: 'motorcycle', label: 'Motorcycles' },
-    { id: 'bicycle', label: 'Bicycles' },
-    { id: 'services', label: 'Workers' },
+    { id: 'property', label: t('deck.exhausted.categories.property') },
+    { id: 'motorcycle', label: t('deck.exhausted.categories.motorcycle') },
+    { id: 'bicycle', label: t('deck.exhausted.categories.bicycle') },
+    { id: 'services', label: t('deck.exhausted.categories.services') },
   ];
 
   const ownerCategories = [
-    { id: 'buyers', label: 'Buyers' },
-    { id: 'renters', label: 'Renters' },
-    { id: 'hire', label: 'Workers' },
+    { id: 'buyers', label: t('deck.exhausted.categories.buyers') },
+    { id: 'renters', label: t('deck.exhausted.categories.renters') },
+    { id: 'hire', label: t('deck.exhausted.categories.hire') },
   ];
 
   const allCategories = role === 'owner' ? ownerCategories : clientCategories;
@@ -73,10 +75,10 @@ export const SwipeExhaustedState = ({
         {/* Headline */}
         <div className="space-y-2">
           <h2 className={cn('text-[26px] sm:text-[30px] font-black tracking-tight leading-tight', headingColor)}>
-            {isLoading ? 'Scanning…' : `No ${categoryName} found nearby`}
+            {isLoading ? t('deck.exhausted.scanning') : t('deck.exhausted.noNearby', { category: categoryName })}
           </h2>
           <p className={cn('text-[11px] font-bold uppercase tracking-[0.22em]', subColor)}>
-            {isLoading ? 'Initializing sector scan' : 'Adjust radius or try another category'}
+            {isLoading ? t('deck.exhausted.initializing') : t('deck.exhausted.adjustRadius')}
           </p>
         </div>
 
@@ -110,7 +112,7 @@ export const SwipeExhaustedState = ({
 
             <div className={cn('flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] mb-3', sectionLabelColor)}>
               <MapPin className="w-3.5 h-3.5" />
-              <span>Search radius</span>
+              <span>{t('deck.exhausted.searchRadius')}</span>
             </div>
 
             <DistanceSlider
@@ -122,7 +124,7 @@ export const SwipeExhaustedState = ({
             />
 
             <p className={cn('text-[11px] font-semibold mt-4', subColor)}>
-              Move the slider to search further
+              {t('deck.exhausted.moveSlider')}
             </p>
           </div>
         )}
@@ -141,7 +143,7 @@ export const SwipeExhaustedState = ({
             )}
           >
             <Map className="w-4 h-4" />
-            Explore on Live Map
+            {t('deck.exhausted.exploreMap')}
           </button>
         )}
 
@@ -149,7 +151,7 @@ export const SwipeExhaustedState = ({
         {onCategoryChange && categories.length > 0 && (
           <div className="w-full space-y-3">
             <p className={cn('text-[10px] font-black uppercase tracking-[0.22em]', sectionLabelColor)}>
-              Or try another
+              {t('deck.exhausted.orTry')}
             </p>
             <div className={cn('grid gap-2', categories.length >= 3 ? 'grid-cols-3' : categories.length === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
               {categories.map((cat) => (

@@ -511,6 +511,32 @@
     "viewReceipt": "Visualizza Ricevuta",
     "tryAgain": "Riprova"
   },
+  "deck": {
+    "exhausted": {
+      "scanning": "Scansione…",
+      "noNearby": "Nessun {{category}} nelle vicinanze",
+      "initializing": "Avvio scansione settore",
+      "adjustRadius": "Regola il raggio o prova un'altra categoria",
+      "searchRadius": "Raggio di ricerca",
+      "moveSlider": "Sposta il cursore per cercare più lontano",
+      "exploreMap": "Esplora sulla mappa live",
+      "orTry": "O prova un'altra",
+      "categories": {
+        "property": "Immobili",
+        "motorcycle": "Moto",
+        "bicycle": "Biciclette",
+        "services": "Lavoratori",
+        "buyers": "Acquirenti",
+        "renters": "Affittuari",
+        "hire": "Lavoratori"
+      }
+    }
+  },
+  "map": {
+    "filterAll": "Tutto",
+    "filterListings": "Annunci",
+    "filterPeople": "Persone"
+  },
   "errors": {
     "generic": "Qualcosa è andato storto",
     "network": "Errore di rete. Controlla la tua connessione.",

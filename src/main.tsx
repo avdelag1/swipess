@@ -310,6 +310,12 @@ deferredInit(async () => {
     try {
       const { initOfflineSync } = await import('@/utils/offlineSwipeQueue');
       initOfflineSync();
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'BACKGROUND_SYNC_COMPLETE' && event.data?.tag === 'sync-swipes') {
+          initOfflineSync();
+        }
+      });
     } catch { /* offline queue optional */ }
   } catch { /* intentional */ }
 }, 5000);

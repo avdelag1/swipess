@@ -19,9 +19,9 @@ import { applyConciergeFilters, applyPassportAction } from '@/utils/conciergeAct
 import type { PassportAction } from '@/utils/passportLocation';
 import { ConciergePrivacyPortal } from '@/components/concierge/ConciergePrivacyPortal';
 import { WelcomeState } from '@/components/concierge/WelcomeState';
-import { MessageBubble } from '@/components/concierge/MessageBubble';
-import { TypingIndicator } from '@/components/concierge/TypingIndicator';
+
 import { ConversationSidebar } from '@/components/concierge/ConversationSidebar';
+import { VirtualizedConciergeMessageList } from '@/components/concierge/VirtualizedConciergeMessageList';
 
 function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { theme, isLight } = useAppTheme();
@@ -385,7 +385,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </div>
                 </header>
 
-                <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-8 scroll-smooth custom-scrollbar">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar">
                   {messages.length === 0 ? (
                     <WelcomeState
                       isSwipess={isSwipess}
@@ -396,28 +396,25 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         }}
                     />
                   ) : (
-                    messages.map((m) => (
-                      <MessageBubble
-                        key={m.id}
-                        message={m}
-                        isUser={m.role === 'user'}
-                        isSwipess={isSwipess}
-                        isLight={isLight}
-                        onCopy={() => handleCopy(m.content)}
-                        onDelete={() => deleteMessage(m.id)}
-                        onTranslate={handleTranslate}
-                        onResend={() => resendMessage(m.id)}
-                        onNavigate={handleNavigate}
-                        onDraft={handleDraft}
-                        onFilter={handleFilter}
-                        onPassport={handlePassport}
-                        onSpeak={handleSpeak}
-                        speakingMsgId={speakingMsgId}
-                        isSpeaking={isSpeaking}
-                      />
-                    ))
+                    <VirtualizedConciergeMessageList
+                      scrollElementRef={scrollRef}
+                      messages={messages}
+                      isLoading={isLoading}
+                      isSwipess={isSwipess}
+                      isLight={isLight}
+                      speakingMsgId={speakingMsgId}
+                      isSpeaking={isSpeaking}
+                      onCopy={handleCopy}
+                      onDelete={deleteMessage}
+                      onTranslate={handleTranslate}
+                      onResend={resendMessage}
+                      onNavigate={handleNavigate}
+                      onDraft={handleDraft}
+                      onFilter={handleFilter}
+                      onPassport={handlePassport}
+                      onSpeak={handleSpeak}
+                    />
                   )}
-                  {isLoading && <TypingIndicator isSwipess={isSwipess} />}
                 </div>
 
                 <footer className="p-4 sm:p-6 transition-all duration-500 relative z-20">

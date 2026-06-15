@@ -82,16 +82,14 @@ export function useProfileSetup() {
           tokensGranted: grant.tokens_granted,
         });
 
-        // Create notification for referrer (silent, non-blocking)
         supabase
-          .from('notifications')
-          .insert([{
-            user_id: referrerId,
-            notification_type: 'system_announcement',
-            title: 'Referral Reward',
-            message: 'You earned 1 free message for inviting a new user!',
-            is_read: false,
-          }])
+          .rpc('create_notification_for_user', {
+            p_user_id: referrerId,
+            p_notification_type: 'system_announcement',
+            p_title: 'Referral Reward',
+            p_message: 'You earned 1 free message for inviting a new user!',
+            p_related_user_id: newUserId,
+          })
           .then(() => { })
           .catch((e) => logger.warn('[ProfileSetup] referral notification error:', e));
 
