@@ -139,7 +139,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLocation(pos.coords.latitude, pos.coords.longitude);
-        setRadiusKm(5); // Auto-set to 5km when location is detected
+        setRadiusKm(5000); // Auto-set to large radius so users see all real data
         setLocationDetected(true);
         setLocationDetecting(false);
       },

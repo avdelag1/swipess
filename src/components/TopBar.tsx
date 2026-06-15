@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, Crown, Sparkles, UserRound } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound, Map } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import { haptics } from '@/utils/microPolish';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
+import { useTokens } from '@/hooks/useTokens';
 import { TAP_SPRING } from './BottomNavigation';
 
 interface TopBarProps {
@@ -47,6 +48,7 @@ function TopBarComponent({
   const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const { tokens } = useTokens();
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
@@ -186,17 +188,29 @@ function TopBarComponent({
                     )
                   )}
                 </div>
-                <span
-                  className="truncate max-w-[64px] text-[11px] font-black uppercase tracking-wider"
-                  style={{
-                    fontVariantNumeric: 'tabular-nums',
-                    color: iconColor,
-                  }}
-                >
-                  {(profile?.full_name?.split(' ')[0]) || (user?.email?.split('@')[0]) || 'USER'}
-                </span>
               </motion.button>
             )
+          )}
+
+          {/* AI Listing moved to left side next to profile */}
+          {!minimal && (
+            <motion.button
+              transition={TAP_SPRING}
+              whileTap={{ scale: 0.92 }}
+              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
+              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px] ml-1"
+              style={glassPillStyle}
+              aria-label="AI Listing"
+            >
+              <Sparkles
+                className="w-[17px] h-[17px]"
+                style={{
+                  color: iconColor,
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
+                }}
+                strokeWidth={1.9}
+              />
+            </motion.button>
           )}
         </div>
 
@@ -216,29 +230,45 @@ function TopBarComponent({
               style={glassPillStyle}
               aria-label="Tokens"
             >
-              <Crown
-                className="w-[18px] h-[18px]"
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
+              <div className="relative">
+                <Crown
+                  className="w-[18px] h-[18px]"
+                  style={{
+                    color: iconColor,
+                    filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
+                  }}
+                  strokeWidth={1.9}
+                />
+                <AnimatePresence>
+                  {tokens > 0 && (
+                    <motion.span
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white px-1 shadow-sm"
+                    >
+                      {tokens > 99 ? '99+' : tokens}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.button>
 
+            {/* Map icon replacing the old AI listing spot */}
             <motion.button
               transition={TAP_SPRING}
               whileTap={{ scale: 0.92 }}
-              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
+              onClick={() => { haptics.tap(); setModal('showGlobalMap', true); }}
               className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
               style={glassPillStyle}
-              aria-label="AI Listing"
+              aria-label="Global Map"
             >
-              <Sparkles
+              <Map
                 className="w-[17px] h-[17px]"
                 style={{
                   color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(59,130,246,0.65))' : 'none',
                 }}
                 strokeWidth={1.9}
               />

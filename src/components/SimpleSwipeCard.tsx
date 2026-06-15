@@ -420,28 +420,33 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </div>
 
         {/* Always-visible back button — top-right corner, returns to dashboard */}
-        <button
-          data-no-cinematic
-          data-no-pull-dismiss
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
-          aria-label="Return to dashboard"
-          className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-all duration-150"
-          style={{
-            right: 12,
-            top: 'calc(var(--safe-top, 0px) + 50px)',
-            // Solid fill, no backdrop-filter: this button rides the moving card,
-            // and re-blurring the card pixels each frame causes GPU tiling.
-            background: 'rgba(0,0,0,0.42)',
-            border: '1px solid rgba(255,255,255,0.22)',
-          }}
-        >
-          {canUndo ? (
-            <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
-          ) : (
-            <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+        <AnimatePresence>
+          {!isRailVisible && (
+            <motion.button
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              data-no-cinematic
+              data-no-pull-dismiss
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); if (canUndo && onUndo) { onUndo(); } else { onBack?.(); } }}
+              aria-label="Return to dashboard"
+              className="absolute z-[60] flex items-center justify-center w-10 h-10 rounded-full pointer-events-auto active:scale-90 transition-colors duration-150"
+              style={{
+                right: 12,
+                top: 'calc(var(--safe-top, 0px) + 24px)',
+                background: 'rgba(0,0,0,0.42)',
+                border: '1px solid rgba(255,255,255,0.22)',
+              }}
+            >
+              {canUndo ? (
+                <RotateCcw className="w-[18px] h-[18px] text-amber-400" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+              ) : (
+                <Undo2 className="w-[18px] h-[18px] text-white" strokeWidth={2.2} style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }} />
+              )}
+            </motion.button>
           )}
-        </button>
+        </AnimatePresence>
 
         {isTop && (
           <>
