@@ -1,8 +1,12 @@
-﻿{
+{
   "name": "swipess",
   "private": true,
   "version": "1.2.5",
   "type": "module",
+  "engines": {
+    "node": "22.x",
+    "npm": ">=10"
+  },
   "description": "Elite multi-vertical marketplace for properties, vehicles, and services",
   "author": "Swipess Team",
   "scripts": {
