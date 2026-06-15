@@ -1005,9 +1005,10 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
       /* Remove the hard disable. Modern iPhones handle this easily. */
     }
 
-    /* Faster transitions on mobile - no !important to avoid janky framer-motion */
-    * {
-      transition-duration: 200ms;
+    /* Scope transitions — avoid slowing transform/button feedback globally */
+    button, a, [role="button"], input, select, textarea {
+      transition-property: color, background-color, border-color, opacity, box-shadow;
+      transition-duration: 120ms;
       transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
     }
 

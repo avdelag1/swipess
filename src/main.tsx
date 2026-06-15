@@ -8,13 +8,12 @@ import App from "./App.tsx";
 import "./styles/tokens.css";
 import "./styles/matte-themes.css";
 import "./index.css";
-// PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~84 KiB saved total)
-// responsive.css = desktop grids, print styles, sidebar nav
-// PremiumShine.css = subscription card glow effects
-// premium-polish.css = heavy animations
-// matte-themes.css = alternate color themes
-// pwa-performance.css = hardware overrides
+import "./styles/pwa-performance.css";
+// PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";
+import { applyHardwareTierClasses } from "@/utils/hardwareTier";
+
+applyHardwareTierClasses();
 
 // 🚀 EMERGENCY RECOVERY: Handle Vite preload and script load failures
 // This prevents the infinite reload loop when chunks are missing after a deployment.
@@ -80,7 +79,6 @@ if (typeof window !== 'undefined') {
   requestAnimationFrame(() => {
     import("./styles/PremiumShine.css");
     import("./styles/premium-polish.css");
-    import("./styles/pwa-performance.css");
   });
 }
 import { supabase } from "@/integrations/supabase/client";
@@ -272,8 +270,6 @@ const deferredInit = (callback: () => void, timeout = 5000) => {
 // Secondary Tools: Pushed to idle to avoid main-thread noise during boot
 deferredInit(async () => {
   try {
-    const body = document.body;
-    body.classList.add('hw-high', 'perf-ultra');
     initHaptics();
 
     // Register service worker with AGGRESSIVE update detection.

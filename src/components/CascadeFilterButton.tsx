@@ -141,7 +141,10 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
       {/* Filter Button - instant feedback */}
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          setIsOpen(!isOpen);
+        }}
         aria-label="Filter"
         className={cn(
           buttonClass,

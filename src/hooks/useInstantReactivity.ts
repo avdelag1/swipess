@@ -29,6 +29,9 @@ export function useInstantReactivity() {
 
       // Find the closest interactive element
       const interactiveEl = target.closest('button, a, [role="button"], .interactive, .touchable') as HTMLElement;
+
+      // Map HUD uses its own press feedback — skip duplicate transform + haptic
+      if (interactiveEl?.closest('[data-skip-press-engine]')) return;
       
       // Ignore if it's disabled, or if it's part of a native input (we don't want to shrink text inputs)
       if (

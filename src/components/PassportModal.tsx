@@ -83,24 +83,26 @@ export const PassportModal = memo(() => {
     openPassportMap();
   };
 
-  const handleUseGPS = async () => {
+  const handleUseGPS = () => {
     if (!canGeolocate()) {
       appToast.error('Location not available on this device');
       return;
     }
     triggerHaptic('medium');
     setGpsLoading(true);
-    try {
-      const { latitude, longitude } = await getCurrentPosition({ timeout: 8000, maximumAge: 30000 });
-      setUserLocation(latitude, longitude);
-      setRadiusKm(20);
-      openPassportMap();
-      appToast.success('Using your current location');
-    } catch {
-      appToast.error('Could not detect your location. Check permissions.');
-    } finally {
-      setGpsLoading(false);
-    }
+    openPassportMap();
+    void (async () => {
+      try {
+        const { latitude, longitude } = await getCurrentPosition({ timeout: 8000, maximumAge: 30000 });
+        setUserLocation(latitude, longitude);
+        setRadiusKm(20);
+        appToast.success('Using your current location');
+      } catch {
+        appToast.error('Could not detect your location. Check permissions.');
+      } finally {
+        setGpsLoading(false);
+      }
+    })();
   };
 
   const isGpsActive = !passportMode && currentLat != null && currentLng != null;
@@ -112,7 +114,7 @@ export const PassportModal = memo(() => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.18 } }}
+            exit={{ opacity: 0, transition: { duration: 0.12 } }}
             onClick={onClose}
             className={cn(
               'absolute inset-0 pointer-events-auto',

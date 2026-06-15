@@ -1,16 +1,23 @@
 /** Aladdin / genie sheet motion — transform-only (no filter:blur for GPU perf). */
 export const GENIE_SPRING_OPEN = {
   type: 'spring' as const,
-  damping: 26,
-  stiffness: 320,
-  mass: 0.72,
+  damping: 30,
+  stiffness: 480,
+  mass: 0.52,
 };
 
 export const GENIE_SPRING_CLOSE = {
   type: 'spring' as const,
-  damping: 22,
-  stiffness: 280,
-  mass: 0.65,
+  damping: 28,
+  stiffness: 420,
+  mass: 0.48,
+};
+
+/** Snappy tween fallback for reduced-motion / Safari low tier */
+export const GENIE_TWEEN_FAST = {
+  type: 'tween' as const,
+  duration: 0.16,
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
 };
 
 export const GENIE_SHEET_OPEN = {

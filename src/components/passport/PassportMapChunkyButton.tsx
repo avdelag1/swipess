@@ -1,5 +1,4 @@
 import { memo } from 'react';
-import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,15 +21,14 @@ export const PassportMapChunkyButton = memo(({
   badge,
   className,
 }: PassportMapChunkyButtonProps) => (
-  <motion.button
+  <button
     type="button"
-    whileTap={{ scale: 0.92 }}
     onClick={onClick}
     className={cn(
-      'relative w-[58px] flex flex-col items-center justify-center gap-1 rounded-2xl border shadow-[0_4px_16px_rgba(0,0,0,0.4)] transition-all',
+      'map-hud-btn relative w-[58px] flex flex-col items-center justify-center gap-1 rounded-2xl border shadow-[0_4px_16px_rgba(0,0,0,0.4)]',
       active
         ? 'text-white border-white/30 py-2.5'
-        : 'bg-black/30 backdrop-blur-md border-white/15 text-white/75 py-2 hover:bg-black/40',
+        : 'map-hud-panel border-white/15 text-white/75 py-2 hover:bg-black/55',
       className,
     )}
     style={active ? { background: gradient } : undefined}
@@ -44,6 +42,6 @@ export const PassportMapChunkyButton = memo(({
         {badge > 99 ? '99+' : badge}
       </span>
     )}
-  </motion.button>
+  </button>
 ));
 PassportMapChunkyButton.displayName = 'PassportMapChunkyButton';

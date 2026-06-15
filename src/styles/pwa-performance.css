@@ -440,6 +440,37 @@ body.hw-mid .backdrop-blur-xl {
     backdrop-filter: blur(8px) saturate(110%) !important;
 }
 
+/* Live map HUD — never blur over WebGL (Safari GPU killer) */
+[data-map-hud] .map-hud-panel,
+[data-map-hud] .map-hud-btn,
+[data-map-hud] [class*="backdrop-blur"],
+body.hw-mid [data-map-hud] .glass-pill,
+body.hw-high [data-map-hud] .glass-pill {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+.map-hud-panel {
+    background: rgba(10, 10, 14, 0.82) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.map-hud-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 50ms cubic-bezier(0, 0, 0.2, 1), opacity 50ms ease-out !important;
+}
+
+.map-hud-btn:active:not(:disabled) {
+    transform: scale(0.94) !important;
+    opacity: 0.92;
+}
+
+[data-map-hud] .map-hud-btn:active:not(:disabled) {
+    transform: scale(0.94) !important;
+}
+
 body.hw-mid .animate-pulse {
     animation-duration: 3s !important;
 }

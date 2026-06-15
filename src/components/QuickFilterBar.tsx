@@ -351,7 +351,8 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
       <div className="flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide pb-4" style={{ willChange: 'scroll-position' }}>
         {/* ALL card */}
         <button
-          onClick={(e) => {
+          onPointerDown={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             haptics.tap();
             saveQuickFilter([]);
@@ -359,16 +360,16 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
           }}
           className={cn(
             smoothButtonClass,
-            'relative flex-shrink-0 w-28 h-44 rounded-[3rem] overflow-hidden border transition-all duration-200',
+            'relative flex-shrink-0 w-28 h-44 rounded-[3rem] overflow-hidden border transition-transform duration-100',
             clientIsAllSelected
               ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_40px_rgba(255,77,0,0.5)] brightness-110'
               : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
           )}
-          style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
+          style={{ contain: 'paint' }}
         >
           {clientIsAllSelected && (
             <div className="absolute inset-0 z-15 pointer-events-none">
-              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-[#FF4D00]/15 via-transparent to-transparent animate-pulse" />
+              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-[#FF4D00]/15 via-transparent to-transparent" />
             </div>
           )}
 
@@ -404,23 +405,24 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
           return (
             <button
               key={category.id}
-              onClick={(e) => {
+              onPointerDown={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 haptics.tap();
                 handleCategorySelect(category.id);
               }}
               className={cn(
                 smoothButtonClass,
-                'relative flex-shrink-0 w-24 h-36 rounded-[2rem] overflow-hidden border transition-all duration-200',
+                'relative flex-shrink-0 w-24 h-36 rounded-[2rem] overflow-hidden border transition-transform duration-100',
                 isActive
                   ? 'border-primary/80 ring-2 ring-primary/60 ring-offset-1 ring-offset-transparent scale-[1.08] shadow-[0_8px_32px_rgba(235,72,152,0.4)] brightness-110'
                   : (isLight ? 'border-black/15 shadow-md' : 'border-white/15 shadow-md')
               )}
-              style={{ contain: 'paint', willChange: 'transform, opacity, filter' }}
+              style={{ contain: 'paint' }}
             >
               {isActive && (
                 <div className="absolute inset-0 z-15 pointer-events-none">
-                  <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-400/15 via-transparent to-transparent animate-pulse" />
+                  <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-400/15 via-transparent to-transparent" />
                 </div>
               )}
 

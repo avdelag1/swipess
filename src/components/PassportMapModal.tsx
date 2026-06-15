@@ -157,7 +157,7 @@ export const PassportMapModal = memo(() => {
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setPassportLocation(newLat, newLng, label);
     if (mapRef.current) {
-      cinematicFlyTo(mapRef.current, [newLng, newLat], zoom, { duration: 3200, pitch: 62, bearing: 28 });
+      cinematicFlyTo(mapRef.current, [newLng, newLat], zoom, { duration: 900, pitch: 62, bearing: 28 });
     }
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
@@ -169,7 +169,7 @@ export const PassportMapModal = memo(() => {
   const focusPin = useCallback((pin: SelectedPin) => {
     setSelected(pin);
     if (mapRef.current) {
-      cinematicFlyTo(mapRef.current, [pin.data.lng, pin.data.lat], 14.5, { duration: 1500, pitch: 52 });
+      cinematicFlyTo(mapRef.current, [pin.data.lng, pin.data.lat], 14.5, { duration: 550, pitch: 52 });
     }
   }, []);
 
@@ -617,15 +617,15 @@ export const PassportMapModal = memo(() => {
         <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
 
         {isOpen && (
-        <>
+        <div data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
         <div
           ref={geocoderContainerRef}
           className={cn(
-            'absolute left-4 right-[5.5rem] z-20 [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-xl [&_.mapboxgl-ctrl-geocoder]:rounded-2xl [&_.mapboxgl-ctrl-geocoder]:border-0',
-            '[&_.mapboxgl-ctrl-geocoder]:bg-black/35 [&_.mapboxgl-ctrl-geocoder]:backdrop-blur-md [&_.mapboxgl-ctrl-geocoder]:border [&_.mapboxgl-ctrl-geocoder]:border-white/15',
+            'pointer-events-auto absolute left-4 right-[5.5rem] z-20 [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-xl [&_.mapboxgl-ctrl-geocoder]:rounded-2xl [&_.mapboxgl-ctrl-geocoder]:border-0',
+            '[&_.mapboxgl-ctrl-geocoder]:map-hud-panel [&_.mapboxgl-ctrl-geocoder]:border [&_.mapboxgl-ctrl-geocoder]:border-white/15',
             '[&_input]:text-white [&_input]:placeholder:text-white/45',
           )}
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
@@ -640,10 +640,9 @@ export const PassportMapModal = memo(() => {
             {PASSPORT_QUICK_CITIES.map((city) => {
               const isActive = passportMode && passportLabel?.includes(city.name);
               return (
-                <motion.button
+                <button
                   key={city.name}
                   type="button"
-                  whileTap={{ scale: 0.92 }}
                   onClick={() => {
                     triggerHaptic('medium');
                     setPassportLocation(city.lat, city.lng, `${city.name}`);
@@ -653,16 +652,16 @@ export const PassportMapModal = memo(() => {
                         mapRef.current,
                         [city.lng, city.lat],
                         zoomForRadiusKm(20),
-                        { duration: 1400, pitch: CINEMATIC_PITCH },
+                        { duration: 520, pitch: CINEMATIC_PITCH },
                       );
                     }
                     appToast.success(`Flying to ${city.name}`);
                   }}
                   className={cn(
-                    'shrink-0 flex items-center gap-2 pl-1 pr-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border whitespace-nowrap overflow-hidden',
+                    'map-hud-btn pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden',
                     isActive
-                      ? 'bg-white/25 border-white/40 text-white backdrop-blur-md shadow-lg ring-1 ring-white/20'
-                      : 'bg-black/45 border-white/10 text-white/75 backdrop-blur-sm hover:bg-black/55 hover:text-white',
+                      ? 'bg-white/22 border-white/40 text-white shadow-lg ring-1 ring-white/20'
+                      : 'map-hud-panel border-white/10 text-white/80 hover:bg-black/60',
                   )}
                 >
                   <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
@@ -676,7 +675,7 @@ export const PassportMapModal = memo(() => {
                     />
                   </div>
                   {city.name}
-                </motion.button>
+                </button>
               );
             })}
           </div>
@@ -685,18 +684,17 @@ export const PassportMapModal = memo(() => {
           className="absolute inset-x-4 z-30 flex items-center justify-between gap-2 pointer-events-none"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
         >
-          <motion.button
+          <button
             type="button"
-            whileTap={{ scale: 0.9 }}
             onClick={onClose}
-            className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] bg-black/40 backdrop-blur-md"
+            className="map-hud-btn map-hud-panel pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             aria-label="Close map"
           >
             <X className="w-4 h-4" strokeWidth={2.5} />
-          </motion.button>
+          </button>
 
           <div className="pointer-events-none flex-1 min-w-0 flex justify-center px-2">
-            <div className="glass-pill px-3 py-2 flex items-center gap-2 max-w-full">
+            <div className="map-hud-panel rounded-full px-3 py-2 flex items-center gap-2 max-w-full">
               <div
                 className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
                 style={{ background: PASSPORT_GRADIENTS.passport }}
@@ -716,26 +714,25 @@ export const PassportMapModal = memo(() => {
             </div>
           </div>
 
-          <motion.button
+          <button
             type="button"
-            whileTap={{ scale: 0.9 }}
             onClick={handleGPS}
             disabled={gpsLoading}
-            className="pointer-events-auto flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
+            className="map-hud-btn pointer-events-auto flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
             style={{ background: PASSPORT_GRADIENTS.tokens }}
           >
             {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" strokeWidth={2.5} />}
             <span className="text-[10px] font-black uppercase tracking-wider">My Location</span>
-          </motion.button>
+          </button>
         </div>
 
         <AnimatePresence>
           {isOpen && !selected && (
             <motion.div
-              initial={{ opacity: 0, x: 18, scale: 0.96 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 12, scale: 0.94 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 8 }}
+              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
               className="absolute right-3 z-40 flex flex-col gap-2.5 items-center pointer-events-auto"
               style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
             >
@@ -768,32 +765,31 @@ export const PassportMapModal = memo(() => {
         <AnimatePresence>
           {isOpen && !selected && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
               className="absolute left-4 right-4 z-40 pointer-events-auto"
               style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)' }}
             >
-              <div className="mx-auto max-w-md rounded-2xl border border-white/12 bg-black/60 backdrop-blur-xl p-3 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+              <div className="map-hud-panel mx-auto max-w-md rounded-2xl p-3">
                 {/* Preset buttons row */}
                 <div className="flex items-center gap-1.5 mb-2.5">
                   {RADIUS_PRESETS.map((r) => (
-                    <motion.button
+                    <button
                       key={r}
                       type="button"
-                      whileTap={{ scale: 0.92 }}
                       onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
                       className={cn(
-                        'flex-1 h-8 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-150',
+                        'map-hud-btn flex-1 h-8 rounded-xl text-[10px] font-black uppercase tracking-wider',
                         radiusKm === r
                           ? 'text-white shadow-lg'
-                          : 'text-white/50 bg-white/6 hover:bg-white/10 active:bg-white/14',
+                          : 'text-white/50 bg-white/6 hover:bg-white/10',
                       )}
                       style={radiusKm === r ? { background: gradientForRadius(r) } : undefined}
                     >
                       {r}km
-                    </motion.button>
+                    </button>
                   ))}
                 </div>
 
@@ -871,7 +867,7 @@ export const PassportMapModal = memo(() => {
 
         {isLoading && (
           <div
-            className="absolute left-4 z-20 glass-pill px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
+            className="map-hud-panel absolute left-4 z-20 rounded-full px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
           >
             <Loader2 className="w-3 h-3 animate-spin" />
@@ -904,7 +900,7 @@ export const PassportMapModal = memo(() => {
             </div>
           )}
         </AnimatePresence>
-        </>
+        </div>
         )}
 
       </div>
