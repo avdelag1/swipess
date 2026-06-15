@@ -1,4 +1,4 @@
-/** Demo/seed cards only in dev or when explicitly enabled. */
+/** Demo/seed cards are currently enabled everywhere for testing. */
 export function isDemoFeedEnabled(): boolean {
-  return import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_FEED === 'true';
+  return true;
 }
