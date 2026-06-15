@@ -636,7 +636,7 @@ export const PassportMapModal = memo(() => {
           className="absolute left-0 right-0 z-20 pointer-events-auto overflow-x-auto no-scrollbar scroll-smooth"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 110px)' }}
         >
-          <div className="flex items-center gap-1.5 px-4 py-1">
+          <div className="flex items-center gap-2.5 px-4 py-1.5">
             {PASSPORT_QUICK_CITIES.map((city) => {
               const isActive = passportMode && passportLabel?.includes(city.name);
               return (
@@ -658,13 +658,13 @@ export const PassportMapModal = memo(() => {
                     appToast.success(`Flying to ${city.name}`);
                   }}
                   className={cn(
-                    'map-hud-btn pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden',
+                    'map-hud-btn pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden',
                     isActive
                       ? 'bg-white/22 border-white/40 text-white shadow-lg ring-1 ring-white/20'
                       : 'map-hud-panel border-white/10 text-white/80 hover:bg-black/60',
                   )}
                 >
-                  <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
                     <img
                       src={city.img}
                       alt=""

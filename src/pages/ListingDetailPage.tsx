@@ -23,7 +23,11 @@ export default function ListingDetailPage() {
     queryKey: ['listing-detail', id],
     queryFn: async () => {
       if (!id) return null;
-      const query = supabase.from('listings').select('*').eq('id', id).maybeSingle();
+      const query = supabase
+        .from('listings')
+        .select('id, title, description, price, location, images, amenities, owner_id, property_type, bedrooms, bathrooms, square_feet, latitude, longitude, created_at, updated_at, status, is_active')
+        .eq('id', id)
+        .maybeSingle();
       const { data, error } = await query;
       if (error) throw error;
       return data;
@@ -38,7 +42,21 @@ export default function ListingDetailPage() {
     }
   }, [listing, user, navigate]);
 
-  if (isLoading) return <div className="w-full h-screen flex items-center justify-center bg-background"><div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>;
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen bg-black overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-muted/20 to-black animate-pulse" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
+          <div className="h-7 w-2/3 rounded-lg bg-white/10 animate-pulse" />
+          <div className="h-4 w-1/2 rounded-md bg-white/8 animate-pulse" />
+          <div className="flex gap-2 pt-2">
+            <div className="h-9 w-20 rounded-full bg-white/10 animate-pulse" />
+            <div className="h-9 w-20 rounded-full bg-white/10 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!listing) return <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6"><p className="text-muted-foreground">Listing not found</p><button onClick={() => navigate(-1)} className="text-sm text-primary underline">Go back</button></div>;
 

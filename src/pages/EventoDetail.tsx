@@ -121,10 +121,11 @@ export default function EventoDetail() {
   const { data: event, isLoading } = useQuery({
     queryKey: ['evento', id],
     queryFn: async () => {
-      // Demo events live in the bundle, not the DB — check them first
-      const { MOCK_EVENTS } = await import('@/data/eventsData');
-      const mock = MOCK_EVENTS?.find((e) => e.id === id);
-      if (mock) return mock as EventDetail;
+      if (import.meta.env.DEV) {
+        const { MOCK_EVENTS } = await import('@/data/eventsData');
+        const mock = MOCK_EVENTS?.find((e) => e.id === id);
+        if (mock) return mock as EventDetail;
+      }
 
       const { data, error } = await supabase
         .from('events')

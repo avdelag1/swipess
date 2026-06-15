@@ -32,6 +32,11 @@ interface TopBarProps {
   minimal?: boolean;
 }
 
+const HEADER_PILL =
+  'tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill chrome-solid pointer-events-auto';
+const HEADER_BTN_SIZE = 'h-[44px] w-[44px]';
+const HEADER_ICON = 'w-[20px] h-[20px]';
+
 function TopBarComponent({
   _onFilterClick,
   onBack: propOnBack,
@@ -50,31 +55,20 @@ function TopBarComponent({
   const setModal = useModalStore(s => s.setModal);
   const { tokens } = useTokens();
 
-  // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Dashboard forces dark bg — icons must contrast. Light theme uses dark icons.
   const isDashboard = location.pathname.includes('/dashboard');
   const useLightIcons = isDashboard || !isLight;
   const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
 
-  // Note: when an activeCategory is set on the dashboard, we are in the Swipe Deck.
-  // We need to show the back arrow instead of the Avatar pill to let the user exit the deck.
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
 
-  // Hierarchical "up" navigation: a sub-page goes to its section home, a
-  // section home goes to the dashboard — so the user never has to tap back
-  // several times to escape a deep flow.
   const onBack = propOnBack || (
     isSwipeDeck
       ? () => { useFilterStore.getState().setActiveCategory(null as any); navigate('/client/dashboard'); }
       : (showBack ? () => navigate(getParentRoute(location.pathname) ?? '/client/dashboard') : undefined)
   );
 
-  const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
-
-  // Frameless inner buttons — the cluster pill provides the visible frame.
-  // Light mode: stronger bg on dashboard so dark icons stand out against forced-dark bg.
   const glassPillStyle: React.CSSProperties = {
     background: isLight ? (isDashboard ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') : 'transparent',
     border: 'none',
@@ -88,8 +82,12 @@ function TopBarComponent({
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1)',
+    overflow: 'visible',
   };
 
+  const iconShadow = useLightIcons
+    ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))'
+    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))';
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -100,10 +98,10 @@ function TopBarComponent({
         supabase.from('client_profiles').select('name, profile_images').eq('user_id', user?.id).maybeSingle(),
         supabase.from('owner_profiles').select('business_name, profile_images').eq('user_id', user?.id).maybeSingle()
       ]);
-      
+
       const isClient = !!clientResult.data;
       const data = isClient ? clientResult.data : ownerResult.data;
-      
+
       return data ? {
         full_name: isClient ? (data as any).name : (data as any).business_name,
         avatar_url: (data as any).profile_images?.[0]
@@ -118,6 +116,8 @@ function TopBarComponent({
     .slice(0, 2)
     .join('')
     .toUpperCase();
+
+  const tokensLow = tokens > 0 && tokens < 10;
 
   return (
     <header
@@ -136,30 +136,22 @@ function TopBarComponent({
         viewTransitionName: 'swipess-header',
       }}
     >
-      <div className="h-full w-full px-2 flex items-center justify-between relative">
+      <div className="h-full w-full px-3 flex items-center justify-between relative">
 
-        {/* LEFT: avatar (no name) + Sparkles */}
-        <div
-          className="flex min-w-0 items-center pointer-events-auto glass-pill chrome-solid px-1.5 h-[38px]"
-          style={clusterPillStyle}
-        >
+        {/* LEFT: profile/back and AI — separate pills with breathing room */}
+        <div className="flex items-center gap-2.5 min-w-0 pointer-events-auto">
           {onBack ? (
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="tap-css-only flex shrink-0 items-center justify-center rounded-full h-[32px] w-[32px]"
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE)}
               style={glassPillStyle}
               aria-label="Back"
             >
               <ChevronLeft
-                className="w-[20px] h-[20px]"
+                className={HEADER_ICON}
                 strokeWidth={2.2}
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons
-                    ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))'
-                    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))',
-                }}
+                style={{ color: iconColor, filter: iconShadow }}
               />
             </button>
           ) : (
@@ -170,12 +162,12 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="tap-css-only flex shrink-0 items-center rounded-full pl-0.5 h-[32px] group"
+                className={cn(HEADER_PILL, HEADER_BTN_SIZE)}
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
                 <div
-                  className="w-[28px] h-[28px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
@@ -190,8 +182,8 @@ function TopBarComponent({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[11px] font-black text-primary-foreground drop-shadow-sm">
+                    initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
+                      <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
                         {initials}
                       </span>
                     )
@@ -201,17 +193,16 @@ function TopBarComponent({
             )
           )}
 
-          {/* AI Listing (Sparkles) on the left next to avatar */}
           {!minimal && (
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
-              className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px] ml-1"
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
               aria-label="AI Listing"
             >
               <Sparkles
-                className="w-[17px] h-[17px]"
+                className={HEADER_ICON}
                 style={{
                   color: iconColor,
                   filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
@@ -224,40 +215,44 @@ function TopBarComponent({
 
         <div className="flex-grow flex-1" />
 
-        {/* RIGHT: tokens + map + theme + notifications — tight cluster */}
+        {/* RIGHT: each action in its own pill — 44px targets, gap between */}
         {!minimal && (
-          <div
-            className="flex items-center pointer-events-auto glass-pill chrome-solid px-1 h-[38px] shrink-0"
-            style={clusterPillStyle}
-          >
+          <div className="flex items-center gap-2.5 shrink-0 pointer-events-auto">
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] px-2 gap-1"
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
-              aria-label="Tokens"
+              aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
               <Crown
-                className="w-[18px] h-[18px]"
+                className={HEADER_ICON}
                 style={{
                   color: iconColor,
                   filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
                 }}
                 strokeWidth={1.9}
               />
-              <span className="text-[11px] font-black" style={{ color: iconColor }}>{tokens}</span>
+              <span
+                className={cn(
+                  'absolute top-2 right-2 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
+                  tokensLow
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-brand-primary',
+                )}
+                aria-hidden
+              />
             </button>
 
-            {/* Map icon — replaces old right-side Sparkles */}
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showPassportModal', true); }}
-              className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
               aria-label="Global Passport"
             >
               <Map
-                className="w-[17px] h-[17px]"
+                className={HEADER_ICON}
                 style={{
                   color: iconColor,
                   filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(59,130,246,0.65))' : 'none',
@@ -266,13 +261,16 @@ function TopBarComponent({
               />
             </button>
 
-            <ThemeToggle glassPillStyle={glassPillStyle} />
+            <div className={cn(HEADER_PILL, HEADER_BTN_SIZE)}>
+              <ThemeToggle glassPillStyle={glassPillStyle} />
+            </div>
 
-            <NotificationPopover glassPillStyle={glassPillStyle} />
+            <div className={cn(HEADER_PILL, HEADER_BTN_SIZE)}>
+              <NotificationPopover glassPillStyle={glassPillStyle} />
+            </div>
           </div>
         )}
 
-        {/* Center tap zone — a premium completely invisible tap target to go home */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center pointer-events-auto z-50 cursor-pointer"
           style={{ background: 'transparent', WebkitTapHighlightColor: 'transparent' }}

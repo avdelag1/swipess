@@ -18,14 +18,14 @@ export function CityQuickChip({ name, lat, lng, selected, onClick, className }: 
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex items-center gap-1.5 h-8 pl-1 pr-2.5 rounded-full text-xs font-semibold border transition-colors',
+        'inline-flex items-center gap-2 h-9 pl-1 pr-3 rounded-full text-xs font-semibold border transition-colors',
         selected
           ? 'bg-primary text-primary-foreground border-primary'
           : 'bg-background border-border text-foreground hover:bg-accent',
         className,
       )}
     >
-      <span className="w-6 h-6 rounded-full overflow-hidden shrink-0 ring-1 ring-black/10">
+      <span className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-black/10">
         <img
           src={photo}
           alt=""

@@ -293,7 +293,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-[28px] w-[28px] shrink-0 transition-all duration-300",
+        "relative h-[44px] w-[44px] shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
         "touch-manipulation"
       )}
@@ -308,7 +308,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
         <Bell
           strokeWidth={1.9}
           className={cn(
-            "h-[16px] w-[16px] transition-colors duration-150",
+            "h-[20px] w-[20px] transition-colors duration-150",
             "opacity-90 group-hover:opacity-100"
           )}
           style={{ color: _bellColor }}
@@ -321,10 +321,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white px-1 shadow-sm"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </motion.span>
+              className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
+            />
           )}
         </AnimatePresence>
       </div>

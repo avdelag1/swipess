@@ -171,11 +171,11 @@ export default function EventosFeed() {
   });
 
   const allEvents = useMemo(() => {
-    // 🚀 SWIPESS SYNC: Always merge MOCK_EVENTS to ensure a full, rich feed
-    // even if the database is sparse. Unique by ID to prevent duplicates.
     const dbEvents = rawEvents || [];
     const seen = new Set(dbEvents.map(e => e.id));
-    const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
+    const validMocks = import.meta.env.DEV
+      ? (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id))
+      : [];
     
     const combined = [...dbEvents, ...validMocks];
     
