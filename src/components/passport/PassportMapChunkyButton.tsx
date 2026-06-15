@@ -25,20 +25,27 @@ export const PassportMapChunkyButton = memo(({
     type="button"
     onClick={onClick}
     className={cn(
-      'map-hud-btn relative w-[58px] flex flex-col items-center justify-center gap-1 rounded-2xl border shadow-[0_4px_16px_rgba(0,0,0,0.4)]',
+      'relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border shadow-lg overflow-hidden transition-all duration-200',
       active
-        ? 'text-white border-white/30 py-2.5'
-        : 'map-hud-panel border-white/15 text-white/75 py-2 hover:bg-black/55',
+        ? 'border-white/40 text-white'
+        : 'border-white/10 text-white/80 hover:bg-white/10',
       className,
     )}
-    style={active ? { background: gradient } : undefined}
+    title={label}
   >
-    <Icon className="w-5 h-5 shrink-0" strokeWidth={2.2} />
-    <span className="text-[7px] font-black uppercase italic tracking-wider leading-none text-center px-0.5">
-      {label}
-    </span>
+    {/* Glass background */}
+    <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px]" />
+    {active && (
+      <div
+        className="absolute inset-0 opacity-80"
+        style={{ background: gradient }}
+      />
+    )}
+    
+    <Icon className="w-5 h-5 shrink-0 relative z-10" strokeWidth={active ? 2.5 : 2.0} />
+    
     {badge != null && badge > 0 && (
-      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-white text-[8px] font-black text-slate-900 flex items-center justify-center shadow-md">
+      <span className="absolute top-0 right-0 min-w-[16px] h-[16px] px-1 rounded-full bg-[#00E5FF] text-[9px] font-black text-[#0B0E14] flex items-center justify-center shadow-md z-20 transform translate-x-1/4 -translate-y-1/4">
         {badge > 99 ? '99+' : badge}
       </span>
     )}

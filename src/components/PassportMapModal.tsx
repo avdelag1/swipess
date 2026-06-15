@@ -632,84 +632,69 @@ export const PassportMapModal = memo(() => {
         />
 
 
-        <div
-          className="absolute inset-x-4 z-30 flex items-center justify-between gap-2 pointer-events-none"
-          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
-        >
-          <button
-            type="button"
-            onClick={onClose}
-            className="map-hud-btn map-hud-panel pointer-events-auto flex items-center justify-center w-11 h-11 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
-            aria-label="Close map"
-          >
-            <X className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-
-          <div className="pointer-events-none flex-1 min-w-0 flex justify-center px-2">
-            <div className="map-hud-panel rounded-full px-3 py-2 flex items-center gap-2 max-w-full">
-              <div
-                className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: PASSPORT_GRADIENTS.passport }}
-              >
-                <Radar className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div className="min-w-0 text-left">
-                <p className="text-[10px] font-black uppercase italic tracking-widest text-white truncate">
-                  Live Radar
-                </p>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-white/50 truncate">
-                  {statusLine}
-                  {activePeopleCount > 0 ? ` · ${activePeopleCount} active` : ''}
-                  {passportMode && passportLabel ? ` · ${passportLabel}` : ''}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGPS}
-            disabled={gpsLoading}
-            className="map-hud-btn pointer-events-auto flex items-center justify-center gap-2 h-10 px-4 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
-            style={{ background: PASSPORT_GRADIENTS.tokens }}
-          >
-            {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" strokeWidth={2.5} />}
-            <span className="text-[10px] font-black uppercase tracking-wider">My Location</span>
-          </button>
-        </div>
-
+        {/* SLEEK MAP CONTROLS (Top Left & Top Right) */}
         <AnimatePresence>
           {isOpen && !selected && (
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-3 z-40 flex flex-col gap-2.5 items-center pointer-events-auto"
-              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
-            >
-              {FILTER_TABS.map(({ id, label, icon, gradient }) => (
-                <PassportMapChunkyButton
-                  key={id}
-                  icon={icon}
-                  label={label}
-                  gradient={gradient}
-                  active={layerFilter === id}
-                  badge={
-                    id === 'listings' ? visibleListings.length
-                      : id === 'people' ? visibleProfiles.length
-                        : nearbyCount
-                  }
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setLayerFilter(id);
-                    setSelected(null);
-                  }}
-                />
-              ))}
+            <>
+              {/* Close Button (Top Left) */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                type="button"
+                onClick={onClose}
+                className="absolute z-40 pointer-events-auto flex items-center justify-center w-[44px] h-[44px] rounded-full text-white/80 border border-white/10 shadow-lg overflow-hidden hover:bg-white/10 transition-all"
+                style={{ 
+                  top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+                  left: '16px' 
+                }}
+                aria-label="Close map"
+              >
+                <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px]" />
+                <X className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+              </motion.button>
 
+              {/* Stacked Controls (Top Right) */}
+              <motion.div
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute right-[16px] z-40 flex flex-col gap-[12px] items-center pointer-events-auto"
+                style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+              >
+                <button
+                  type="button"
+                  onClick={handleGPS}
+                  disabled={gpsLoading}
+                  className="relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-lg overflow-hidden transition-all duration-200 text-white/80 hover:bg-white/10 disabled:opacity-60"
+                  title="My Location"
+                >
+                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px]" />
+                  {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin relative z-10" /> : <Navigation className="w-5 h-5 relative z-10" strokeWidth={2.0} />}
+                </button>
 
-            </motion.div>
+                {FILTER_TABS.map(({ id, label, icon, gradient }) => (
+                  <PassportMapChunkyButton
+                    key={id}
+                    icon={icon}
+                    label={label}
+                    gradient={gradient}
+                    active={layerFilter === id}
+                    badge={
+                      id === 'listings' ? visibleListings.length
+                        : id === 'people' ? visibleProfiles.length
+                          : nearbyCount
+                    }
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setLayerFilter(id);
+                      setSelected(null);
+                    }}
+                  />
+                ))}
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
@@ -771,21 +756,20 @@ export const PassportMapModal = memo(() => {
                 </div>
               </div>
 
-              <div className="map-hud-panel mx-auto max-w-md rounded-2xl p-3">
-                {/* Preset buttons row */}
-                <div className="flex items-center gap-1.5 mb-2.5">
+              <div className="bg-[#1A202C]/80 backdrop-blur-xl border border-white/10 shadow-2xl mx-auto w-full max-w-[320px] rounded-full px-5 py-3 mb-2 flex flex-col gap-3">
+                {/* Preset labels row */}
+                <div className="flex items-center justify-between px-1">
                   {RADIUS_PRESETS.map((r) => (
                     <button
                       key={r}
                       type="button"
                       onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
                       className={cn(
-                        'map-hud-btn flex-1 h-8 rounded-xl text-[10px] font-black uppercase tracking-wider',
+                        'transition-all duration-200 text-[10px] font-black uppercase tracking-wider',
                         radiusKm === r
-                          ? 'text-white shadow-lg'
-                          : 'text-white/50 bg-white/6 hover:bg-white/10',
+                          ? 'text-[#00E5FF]'
+                          : 'text-white/40 hover:text-white/80',
                       )}
-                      style={radiusKm === r ? { background: gradientForRadius(r) } : undefined}
                     >
                       {r}km
                     </button>
@@ -793,48 +777,42 @@ export const PassportMapModal = memo(() => {
                 </div>
 
                 {/* Slider row */}
-                <div className="flex items-center gap-2.5">
-                  <div className="relative flex-1">
-                    <div
-                      className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
-                      style={{ width: `${((radiusKm - 5) / 75) * 100}%` }}
-                    >
-                      <div className="h-1.5 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
-                    </div>
-                    <input
-                      type="range"
-                      min={5}
-                      max={80}
-                      step={1}
-                      value={radiusKm}
-                      onChange={(e) => setRadiusKm(Number(e.target.value))}
-                      className="relative w-full h-1.5 rounded-full appearance-none cursor-pointer z-10
-                        [&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:rounded-full
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
-                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[2px] [&::-webkit-slider-thumb]:border-white
-                        [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.4)] [&::-webkit-slider-thumb]:cursor-grab
-                        [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:-mt-[7px]
-                        [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
-                        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[2px] [&::-moz-range-thumb]:border-white
-                        [&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
-                      style={{ background: 'rgba(255,255,255,0.08)' }}
-                      aria-label="Search radius in kilometers"
-                    />
-                    <style>{`
-                      input[type="range"]::-webkit-slider-thumb {
-                        background: ${radiusKm <= 12 ? '#10B981' : radiusKm <= 30 ? '#6366F1' : radiusKm <= 55 ? '#8B5CF6' : '#F59E0B'};
-                      }
-                      input[type="range"]::-moz-range-thumb {
-                        background: ${radiusKm <= 12 ? '#10B981' : radiusKm <= 30 ? '#6366F1' : radiusKm <= 55 ? '#8B5CF6' : '#F59E0B'};
-                      }
-                    `}</style>
-                  </div>
-                  <span
-                    className="text-[10px] font-black text-white px-2 py-1 rounded-lg min-w-[2.8rem] text-center"
-                    style={{ background: gradientForRadius(radiusKm) }}
-                  >
-                    {radiusKm}km
-                  </span>
+                <div className="relative w-full flex items-center h-[20px]">
+                  {/* Background Track */}
+                  <div className="absolute inset-x-0 h-1 rounded-full bg-white/10" />
+                  
+                  {/* Active Track */}
+                  <div
+                    className="absolute left-0 h-1 rounded-full transition-all duration-100 ease-out"
+                    style={{ 
+                      width: `${((radiusKm - 5) / 75) * 100}%`,
+                      background: PASSPORT_GRADIENTS.passport 
+                    }}
+                  />
+                  
+                  {/* Input Thumb */}
+                  <input
+                    type="range"
+                    min={5}
+                    max={80}
+                    step={1}
+                    value={radiusKm}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val % 5 === 0) triggerHaptic('light'); // Snappy feedback
+                      setRadiusKm(val);
+                    }}
+                    className="absolute inset-0 w-full opacity-0 cursor-grab active:cursor-grabbing z-20"
+                    aria-label="Search Radius"
+                  />
+                  
+                  {/* Custom Thumb Visual (follows slider position) */}
+                  <div 
+                    className="absolute w-5 h-5 rounded-full bg-[#00E5FF] border-2 border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
+                    style={{
+                      left: `calc(${((radiusKm - 5) / 75) * 100}% - 10px)`
+                    }}
+                  />
                 </div>
               </div>
             </motion.div>

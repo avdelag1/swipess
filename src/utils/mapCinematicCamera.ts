@@ -97,10 +97,10 @@ export function cinematicEaseTo(
   });
 }
 
-/** Zoom step per double-tap — small increments feel fast but stay controllable. */
-export const DOUBLE_TAP_ZOOM_STEP = 0.45;
+/** Zoom step per double-tap — calculate the target zoom level (current zoom + 1.5x). */
+export const DOUBLE_TAP_ZOOM_STEP = 1.5;
 export const DOUBLE_TAP_MAX_ZOOM = 17.5;
-const DOUBLE_TAP_ZOOM_MS = 190;
+const DOUBLE_TAP_ZOOM_MS = 400;
 
 /** Quick ease-in at the tap point; repeat double-taps stack for gradual zoom. */
 export function incrementalDoubleTapZoom(
