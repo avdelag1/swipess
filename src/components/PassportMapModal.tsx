@@ -349,6 +349,17 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
 
+        // Custom gentle double-tap zoom — +0.5 level per tap instead of Mapbox's aggressive +1
+        map.on('dblclick', (e: mapboxgl.MapMouseEvent) => {
+          e.preventDefault();
+          map.easeTo({
+            center: e.lngLat,
+            zoom: map.getZoom() + 0.5,
+            duration: 250,
+            easing: (t: number) => t * (2 - t), // ease-out quad
+          });
+        });
+
         map.on('load', () => {
           if (cancelled) return;
 
