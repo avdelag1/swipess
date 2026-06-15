@@ -47,6 +47,19 @@ type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
 
+const QUICK_CITIES = [
+  { name: 'Miami', lat: 25.7617, lng: -80.1918, emoji: '🌴' },
+  { name: 'Dubai', lat: 25.2048, lng: 55.2708, emoji: '🏙️' },
+  { name: 'Paris', lat: 48.8566, lng: 2.3522, emoji: '🗼' },
+  { name: 'London', lat: 51.5074, lng: -0.1278, emoji: '🇬🇧' },
+  { name: 'New York', lat: 40.7128, lng: -74.0060, emoji: '🗽' },
+  { name: 'Tokyo', lat: 35.6762, lng: 139.6503, emoji: '🗾' },
+  { name: 'Monaco', lat: 43.7384, lng: 7.4246, emoji: '🎰' },
+  { name: 'Ibiza', lat: 38.9067, lng: 1.4206, emoji: '🎶' },
+  { name: 'LA', lat: 34.0522, lng: -118.2437, emoji: '🌇' },
+  { name: 'Sydney', lat: -33.8688, lng: 151.2093, emoji: '🦘' },
+] as const;
+
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
   { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
@@ -608,6 +621,47 @@ export const PassportMapModal = memo(() => {
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
         />
 
+        {/* City quick-filter strip */}
+        <div
+          className="absolute left-0 right-0 z-20 pointer-events-auto overflow-x-auto no-scrollbar scroll-smooth"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 110px)' }}
+        >
+          <div className="flex items-center gap-1.5 px-4 py-1">
+            {QUICK_CITIES.map((city) => {
+              const isActive = passportMode && passportLabel?.includes(city.name);
+              return (
+                <motion.button
+                  key={city.name}
+                  type="button"
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => {
+                    triggerHaptic('medium');
+                    setPassportLocation(city.lat, city.lng, `${city.name}`);
+                    setRadiusKm(20);
+                    if (mapRef.current) {
+                      cinematicFlyTo(
+                        mapRef.current,
+                        [city.lng, city.lat],
+                        zoomForRadiusKm(20),
+                        { duration: 1400, pitch: CINEMATIC_PITCH },
+                      );
+                    }
+                    appToast.success(`Flying to ${city.name}`);
+                  }}
+                  className={cn(
+                    'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border whitespace-nowrap',
+                    isActive
+                      ? 'bg-white/20 border-white/30 text-white backdrop-blur-md shadow-lg'
+                      : 'bg-black/40 border-white/10 text-white/60 backdrop-blur-sm hover:bg-black/50 hover:text-white/80',
+                  )}
+                >
+                  <span className="text-xs">{city.emoji}</span>
+                  {city.name}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
         <div
           className="absolute inset-x-4 z-30 flex items-center justify-between gap-2 pointer-events-none"
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
