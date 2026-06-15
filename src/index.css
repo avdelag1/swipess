@@ -382,6 +382,57 @@ html[data-theme-transition] ::view-transition-new(root) {
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
+.glass-light-surface {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    var(--shadow-soft-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Ambient page backgrounds — depth behind floating surfaces */
+.ambient-page-bg--dark {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 77, 0, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 0%) 100%);
+}
+
+.ambient-page-bg--light {
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(255, 77, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 35% at 85% 5%, rgba(236, 72, 153, 0.06) 0%, transparent 45%),
+    linear-gradient(180deg, #F8F8FA 0%, #F0F0F4 100%);
+}
+
+/* Floating dock nav */
+.ambient-page-shell:not(:has(.pointer-events-none-force)) {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 77, 0, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+    hsl(var(--background));
+}
+
+.light .ambient-page-shell:not(:has(.pointer-events-none-force)) {
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(255, 77, 0, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 35% at 85% 5%, rgba(236, 72, 153, 0.05) 0%, transparent 45%),
+    #F5F5F7;
+}
+
+.floating-dock-nav {
+  margin-left: 12px;
+  margin-right: 12px;
+  margin-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  border-radius: 28px;
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  box-shadow:
+    0 -4px 24px rgba(0, 0, 0, 0.12),
+    0 16px 48px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
 .glass-pill[data-active="true"],
 .glass-pill.is-active {
   border-color: rgba(255, 255, 255, 0.45);

@@ -3,7 +3,7 @@ import { memo, Suspense, useEffect, useState } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
 const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 const PassportModal = lazyWithRetry(() => import('@/components/PassportModal').then(m => ({ default: m.PassportModal })));
-const PassportMapModal = lazyWithRetry(() => import('@/components/PassportMapModal').then(m => ({ default: m.PassportMapModal })));
+
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -166,10 +166,6 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
       <DeferredDialog when={store.showPassportModal}>
         <PassportModal />
-      </DeferredDialog>
-
-      <DeferredDialog when={store.showPassportMapModal} keepMounted>
-        <PassportMapModal />
       </DeferredDialog>
 
       <DeferredDialog when={store.showSubscriptionPackages}>

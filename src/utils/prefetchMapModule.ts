@@ -1,18 +1,18 @@
-/** Preload Mapbox + PassportMapModal chunks so the live map opens instantly. */
-let mapPrefetchStarted = false;
+import { warmMapboxModules } from '@/utils/mapWarmPool';
 
+let started = false;
+
+/** Preload Mapbox + PassportMapModal so the live map opens on first tap. */
 export function prefetchPassportMapModule(): void {
-  if (mapPrefetchStarted || typeof window === 'undefined') return;
-  mapPrefetchStarted = true;
+  if (started || typeof window === 'undefined') return;
+  started = true;
+  warmMapboxModules().catch(() => {});
+  import('@/components/PassportMapModal').catch(() => {});
+}
 
-  const run = () => {
-    import('mapbox-gl').catch(() => {});
-    import('@/components/PassportMapModal').catch(() => {});
-  };
-
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(run, { timeout: 2500 });
-  } else {
-    setTimeout(run, 400);
-  }
+/** Aggressive warm — call on swipe deck mount. */
+export function prefetchPassportMapImmediate(): void {
+  if (typeof window === 'undefined') return;
+  started = true;
+  warmMapboxModules().catch(() => {});
 }

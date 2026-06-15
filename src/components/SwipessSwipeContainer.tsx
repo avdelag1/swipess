@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
-import { prefetchPassportMapModule } from '@/utils/prefetchMapModule';
+import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
@@ -154,6 +154,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setLocationDetecting(false);
       });
   }, [setUserLocation, setRadiusKm]);
+
+  useEffect(() => {
+    prefetchPassportMapImmediate();
+  }, []);
 
   useEffect(() => {
     if (userLatitude != null && userLongitude != null) {
@@ -1031,6 +1035,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   }}
                   onOpenMap={() => {
                     triggerHaptic('heavy');
+                    prefetchPassportMapImmediate();
                     useModalStore.getState().setModal('showPassportMapModal', true);
                   }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
@@ -1046,12 +1051,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {deckQueue.length > 0 && (
         <button
           type="button"
-          onPointerDown={() => prefetchPassportMapModule()}
+          onPointerDown={() => { prefetchPassportMapImmediate(); prefetchPassportMapModule(); }}
           onClick={() => {
             triggerHaptic('medium');
+            prefetchPassportMapImmediate();
             useModalStore.getState().setModal('showPassportMapModal', true);
           }}
-          className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] left-4 z-[10008] w-12 h-12 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-2xl bg-indigo-500/90 border-indigo-400/50 text-white active:scale-95 transition-transform"
+          className="absolute bottom-[calc(env(safe-area-inset-bottom,0px)+88px)] left-4 z-[10008] w-12 h-12 rounded-2xl flex items-center justify-center glass-pill glass-dark text-white active:scale-95 transition-transform shadow-[0_8px_32px_rgba(99,102,241,0.45)] bg-indigo-500/80"
           aria-label="Open live map"
           title="Explore on map"
         >

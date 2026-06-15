@@ -60,7 +60,7 @@ export function AnimatedOutlet() {
 
   return (
     <div
-      className="min-h-full w-full flex flex-col flex-1"
+      className="min-h-full w-full flex flex-col flex-1 ambient-page-shell"
       style={{
         position: 'relative',
         pointerEvents: isDashboardRoute ? 'none' : 'auto',

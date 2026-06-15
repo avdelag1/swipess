@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
+import { FloatingSurface } from '@/components/ui/FloatingSurface';
 
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -83,8 +85,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   ];
 
   return (
-    <div
-      className="w-full flex flex-col p-4 relative min-h-[100dvh] bg-background text-foreground"
+    <AmbientPageBackground
+      className="w-full flex flex-col p-4 relative min-h-[100dvh] text-foreground"
       style={{ paddingTop: 'calc(var(--safe-top, 0px) + 16px)', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       {!isEmbedded && (
@@ -117,10 +119,13 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               </button>
 
               {CATEGORIES.map((cat) => (
-                <button
+                <FloatingSurface
                   key={cat.id}
+                  as="button"
+                  interactive
+                  elevation="floating"
                   onClick={() => setActiveCategory(cat.id)}
-                  className="group relative h-28 w-full rounded-[2.5rem] overflow-hidden border border-border bg-card text-card-foreground shadow-xl transition-all duration-300 active:scale-[0.97]"
+                  className="group relative h-28 w-full text-card-foreground transition-all duration-300"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative h-full px-8 flex items-center justify-between">
@@ -135,7 +140,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                     </div>
                     <ChevronRight className="w-6 h-6 transition-transform group-hover:translate-x-2 text-muted-foreground" />
                   </div>
-                </button>
+                </FloatingSurface>
               ))}
             </motion.div>
           ) : (
@@ -247,6 +252,6 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 }

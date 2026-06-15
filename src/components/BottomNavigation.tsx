@@ -280,13 +280,12 @@ export const BottomNavigation = memo(({
           The bar sits lower and uses a strong, rich background to feel more premium. */}
       <div
         className={cn(
-          "pointer-events-auto",
-          "mx-auto w-full",
-          "px-1 py-1",
-          "rounded-t-[32px] border-t",
-          isLight 
-            ? "bg-white border-black/5 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]" 
-            : "bg-black border-white/10 shadow-[0_-12px_40px_rgba(0,0,0,0.6)]"
+          "pointer-events-auto floating-dock-nav",
+          "mx-auto w-[calc(100%-24px)] max-w-lg",
+          "px-1 py-1.5 border",
+          isLight
+            ? "glass-light-surface border-black/8"
+            : "glass-dark border-white/12",
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}

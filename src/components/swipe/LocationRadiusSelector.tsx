@@ -62,10 +62,8 @@ export const LocationRadiusSelector = memo(({
         layout
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          "flex items-center gap-2 p-2 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
-          isLight
-            ? "bg-white/85 border-black/10 shadow-black/10"
-            : "bg-black/70 border-white/15 shadow-black/30"
+          "flex items-center gap-2 p-2 glass-pill transition-all",
+          isLight ? "glass-light-surface" : "glass-dark",
         )}
       >
         {/* GPS QUICK-DETECT */}

@@ -15,6 +15,8 @@ import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
+import { PassportMapModal } from '@/components/PassportMapModal';
+import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
@@ -120,7 +122,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   // Filters removed from here since they are unused
 
-
+  useEffect(() => {
+    prefetchPassportMapImmediate();
+  }, []);
 
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
@@ -323,6 +327,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
         <GlobalDialogs userRole={userRole} />
       </Suspense>
+
+      {/* Always mounted — map warms in background for instant open */}
+      <PassportMapModal />
     </div>
   );
 }

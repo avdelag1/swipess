@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { ClientType } from '@/types/filters';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
@@ -62,10 +63,10 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   ];
 
   const content = (
-    <div
+    <AmbientPageBackground
       className={cn(
         "flex flex-col transition-colors duration-150 min-h-[100dvh]",
-        isEmbedded ? "bg-transparent" : "bg-background",
+        isEmbedded ? "bg-transparent" : "",
         "text-foreground"
       )}
       style={!isEmbedded ? { paddingTop: 'calc(var(--safe-top, 0px) + 8px)', paddingBottom: 'calc(var(--bottom-nav-height, 72px) + var(--safe-bottom, 0px) + 24px)' } : undefined}
@@ -287,7 +288,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </AmbientPageBackground>
   );
 
   return isEmbedded ? content : <div className="min-h-screen">{content}</div>;
