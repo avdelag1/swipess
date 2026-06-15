@@ -76,9 +76,11 @@ export const PassportModal = memo(() => {
   const handleTeleport = (label: string, lat: number, lng: number) => {
     triggerHaptic('heavy');
     setPassportLocation(lat, lng, label);
-    setRadiusKm(50);
+    setRadiusKm(20);
     appToast.success(`Exploring ${label}`);
     onClose();
+    // Open the live map immediately so the user sees the city
+    setTimeout(() => openPassportMap(), 150);
   };
 
   const openLiveMap = () => {

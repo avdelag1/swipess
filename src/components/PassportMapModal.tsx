@@ -248,12 +248,25 @@ export const PassportMapModal = memo(() => {
       autoGpsAttemptedRef.current = false;
       return;
     }
-    if (!mapReady || autoGpsAttemptedRef.current || passportMode) return;
-    if (!canGeolocate()) return;
+    if (!mapReady || autoGpsAttemptedRef.current) return;
 
     autoGpsAttemptedRef.current = true;
+
+    // Passport mode — fly to the teleported city
+    if (passportMode && lat != null && lng != null) {
+      cinematicFlyTo(
+        mapRef.current!,
+        [lng, lat],
+        zoomForRadiusKm(radiusKm),
+        { duration: 1400, pitch: CINEMATIC_PITCH },
+      );
+      return;
+    }
+
+    // Normal mode — center on device GPS
+    if (!canGeolocate()) return;
     centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
-  }, [isOpen, mapReady, passportMode, radiusKm]);
+  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng]);
 
   // Dynamically update Mapbox Standard light preset on theme change
   useEffect(() => {
