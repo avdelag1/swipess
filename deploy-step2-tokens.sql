@@ -35,7 +35,7 @@ AS $$
     JOIN public.subscription_packages sp ON sp.id = us.package_id
     WHERE us.user_id = p_user_id
       AND us.is_active = true
-      AND (us.expires_at IS NULL OR us.expires_at > now())
+      AND (us.end_date IS NULL OR us.end_date > now())
       AND sp.package_category NOT IN ('client_pay_per_use', 'owner_pay_per_use')
       AND COALESCE(sp.tier, '') <> 'pay_per_use'
   );

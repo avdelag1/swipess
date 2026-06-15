@@ -66,7 +66,7 @@ export async function fetchTokenBalance(userId: string): Promise<number> {
 export async function fetchActivePlanName(userId: string): Promise<string> {
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .select('subscription_packages(name), is_active, expires_at')
+    .select('subscription_packages(name), is_active, end_date')
     .eq('user_id', userId)
     .eq('is_active', true)
     .order('created_at', { ascending: false })
