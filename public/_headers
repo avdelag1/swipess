@@ -49,9 +49,10 @@
 /*.css
   Cache-Control: public, max-age=31536000, immutable
 
-# Service worker - never cache
+# Service worker - never cache; allow full-site scope from root
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
 
 # HTML - no cache to ensure fresh content on deploy
 /*.html

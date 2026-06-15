@@ -1,9 +1,8 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-05 - Force Update v13 (Added no-store Cache-Control for SPA
- *   routes in vercel.json so browsers never HTTP-cache a stale index.html between
- *   deployments. Bumped version to force SW reinstall and old-cache purge on all
- *   devices.)
+ * UPDATED: 2026-06-15 - Force Update v14 (Scoped precache: build-time manifest
+ *   of critical boot chunks only — no HTML crawl of every /assets/* bundle.
+ *   Keeps vendor-maps/heic2any/lazy routes out of install precache.)
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -21,58 +20,53 @@ const STATIC_CACHE = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE = `${CACHE_NAME}-dynamic`;
 const IMAGE_CACHE = `${CACHE_NAME}-images`;
 
-// Critical assets to precache immediately for offline-first experience
-const urlsToCache = [
+// App shell — always safe to precache (small, version-stamped by deploy)
+const SHELL_URLS = [
   '/',
+  '/index.html',
   '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.ico',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
 ];
 
+// Replaced at build time by vite sw-build-time-plugin (critical boot chunks only)
+const PRECACHE_MANIFEST = __PRECACHE_MANIFEST__;
+
+const MAX_PRECACHE_CONCURRENCY = 4;
+
+async function cacheUrl(cache, url) {
+  try {
+    const existing = await cache.match(url);
+    if (existing) return;
+    await cache.add(new Request(url, { cache: 'reload' }));
+  } catch (_e) {
+    // Individual asset failure is fine — skip and continue
+  }
+}
+
+async function runWithConcurrency(items, limit, worker) {
+  const queue = [...items];
+  const runners = Array.from({ length: Math.min(limit, queue.length) }, async () => {
+    while (queue.length > 0) {
+      const item = queue.shift();
+      if (item !== undefined) await worker(item);
+    }
+  });
+  await Promise.all(runners);
+}
+
 /**
- * TINDER-SPEED: Precache all JS/CSS chunks after install
- * Native apps have all code pre-downloaded. We simulate this by
- * crawling /assets/ and caching every chunk in the background.
- * This means second+ navigations load INSTANTLY from cache.
+ * Scoped precache: only SHELL_URLS + build-time PRECACHE_MANIFEST.
+ * Lazy/heavy chunks (maps, heic, legal hub, etc.) load on demand via fetch handler.
  */
 async function precacheAppShell() {
   try {
-    // Fetch the HTML page to discover all <script> and <link> tags
-    const htmlResponse = await fetch('/', { cache: 'no-store' });
-    const html = await htmlResponse.text();
-
-    // Extract all /assets/*.js and /assets/*.css URLs from the HTML
-    const assetUrls = [];
-    const regex = /\/assets\/[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+\.(js|css)/g;
-    let match;
-    while ((match = regex.exec(html)) !== null) {
-      assetUrls.push(match[0]);
-    }
-
-    // Also extract modulepreload links
-    const modulePreloadRegex = /href="(\/assets\/[^"]+)"/g;
-    while ((match = modulePreloadRegex.exec(html)) !== null) {
-      if (!assetUrls.includes(match[1])) {
-        assetUrls.push(match[1]);
-      }
-    }
-
-    if (assetUrls.length > 0) {
-      const cache = await caches.open(STATIC_CACHE);
-      // Cache them one at a time to avoid saturating the network
-      for (const url of assetUrls) {
-        try {
-          const existing = await cache.match(url);
-          if (!existing) {
-            await cache.add(url);
-          }
-        } catch (_e) {
-          // Individual asset failure is fine — skip and continue
-        }
-      }
-    }
+    const cache = await caches.open(STATIC_CACHE);
+    const assetUrls = Array.isArray(PRECACHE_MANIFEST) ? PRECACHE_MANIFEST : [];
+    const uniqueUrls = [...new Set([...SHELL_URLS, ...assetUrls])];
+    await runWithConcurrency(uniqueUrls, MAX_PRECACHE_CONCURRENCY, (url) => cacheUrl(cache, url));
   } catch (_e) {
     // Non-critical — app works fine without precache
   }
@@ -223,15 +217,7 @@ self.addEventListener('install', (event) => {
   // Skip waiting immediately to activate new SW right away
   self.skipWaiting();
   
-  event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        return cache.addAll(urlsToCache.map(url =>
-          new Request(url, { cache: 'reload' })
-        ));
-      })
-      .catch(() => {})
-  );
+  event.waitUntil(precacheAppShell());
 });
 
 // Fetch event - improved strategy for different resource types
@@ -521,7 +507,7 @@ self.addEventListener('activate', (event) => {
     ])
   );
 
-  // Trigger app shell precaching in the background
+  // Refresh scoped precache after version bump
   event.waitUntil(precacheAppShell());
 
   // Notify ALL clients about the update with version info
@@ -534,10 +520,6 @@ self.addEventListener('activate', (event) => {
       });
     });
   });
-
-  // TINDER-SPEED: Precache all JS/CSS chunks in background after activation
-  // This makes ALL lazy-loaded routes instant on subsequent navigations
-  precacheAppShell();
 });
 
 

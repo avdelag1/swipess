@@ -35,13 +35,64 @@ export default defineConfig(async ({ mode }) => {
     })] : []),
     {
       name: 'sw-build-time-plugin',
-      writeBundle() {
+      writeBundle(_options, bundle) {
         const swPath = path.resolve(__dirname, 'dist/sw.js');
-        if (existsSync(swPath)) {
-          const buildTime = new Date().toISOString();
-          const content = readFileSync(swPath, 'utf-8').replace(/__BUILD_TIME__/g, buildTime);
-          writeFileSync(swPath, content);
+        if (!existsSync(swPath)) return;
+
+        const buildTime = new Date().toISOString();
+
+        // Only precache boot-critical chunks — never maps/heic/lazy route bundles.
+        const CRITICAL_VENDOR_PREFIXES = [
+          'vendor-react-',
+          'vendor-router-',
+          'vendor-query-',
+          'vendor-supabase-',
+          'vendor-css-utils-',
+          'vendor-i18n-',
+        ];
+
+        const precacheUrls = new Set<string>();
+
+        const indexPath = path.resolve(__dirname, 'dist/index.html');
+        if (existsSync(indexPath)) {
+          const html = readFileSync(indexPath, 'utf-8');
+          const entryScript = html.match(/<script[^>]+src="(\/assets\/[^"]+)"/);
+          const entryCss = html.match(/<link[^>]+rel="stylesheet"[^>]+href="(\/assets\/[^"]+)"/);
+          if (entryScript?.[1]) precacheUrls.add(entryScript[1]);
+          if (entryCss?.[1]) precacheUrls.add(entryCss[1]);
+
+          const assetRef = /(?:href|src)="(\/assets\/[^"?#]+)"/g;
+          let match: RegExpExecArray | null;
+          while ((match = assetRef.exec(html)) !== null) {
+            const url = match[1];
+            const fileName = url.split('/').pop() || '';
+            if (CRITICAL_VENDOR_PREFIXES.some((prefix) => fileName.startsWith(prefix))) {
+              precacheUrls.add(url);
+            }
+          }
         }
+
+        for (const item of Object.values(bundle)) {
+          if ((item as { type?: string }).type !== 'chunk') continue;
+          const chunk = item as { fileName?: string; isEntry?: boolean };
+          const fileName = chunk.fileName;
+          if (!fileName?.startsWith('assets/')) continue;
+          const base = fileName.split('/').pop() || '';
+          if (chunk.isEntry) {
+            precacheUrls.add(`/${fileName}`);
+            continue;
+          }
+          if (CRITICAL_VENDOR_PREFIXES.some((prefix) => base.startsWith(prefix))) {
+            precacheUrls.add(`/${fileName}`);
+          }
+        }
+
+        const manifestJson = JSON.stringify([...precacheUrls].sort());
+        let content = readFileSync(swPath, 'utf-8')
+          .replace(/__BUILD_TIME__/g, buildTime)
+          .replace(/__PRECACHE_MANIFEST__/g, manifestJson);
+
+        writeFileSync(swPath, content);
       }
     },
     {
