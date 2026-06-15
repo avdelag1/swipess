@@ -129,7 +129,7 @@ export const PassportModal = memo(() => {
             transition={GENIE_SPRING_OPEN}
             style={GENIE_ORIGIN_BOTTOM}
             className={cn(
-              'w-full max-h-[85vh] rounded-t-3xl flex flex-col pointer-events-auto overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.35)] will-change-transform gpu-ultra',
+              'w-full h-[96vh] rounded-t-3xl flex flex-col pointer-events-auto overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.35)] will-change-transform gpu-ultra',
               isLight ? 'bg-white' : 'bg-[#0A0A0A] border-t border-white/10',
             )}
           >
@@ -269,14 +269,14 @@ export const PassportModal = memo(() => {
               {searchQuery.length < 2 && (
                 <>
                   <p className={cn('text-[10px] font-black uppercase tracking-[0.2em] mb-3', isLight ? 'text-slate-400' : 'text-white/30')}>Popular Destinations</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {PREMIUM_DESTINATIONS.map((dest) => {
                       const isActive = passportMode && coordsNear(currentLat, dest.lat) && coordsNear(currentLng, dest.lng);
                       return (
                         <button
                           key={dest.name}
                           onClick={() => handleTeleport(`${dest.name}, ${dest.country}`, dest.lat, dest.lng)}
-                          className="relative group rounded-2xl overflow-hidden aspect-[4/5] shadow-lg active:scale-95 transition-transform"
+                          className="relative group rounded-xl overflow-hidden aspect-[3/4] shadow-md active:scale-95 transition-transform"
                         >
                           <img
                             src={dest.img}
@@ -295,11 +295,11 @@ export const PassportModal = memo(() => {
                             </div>
                           )}
 
-                          <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
-                            <h3 className="text-lg font-black text-white leading-none shadow-sm">{dest.name}</h3>
-                            <div className="flex items-center gap-1 mt-1.5">
-                              <MapPin className="w-3 h-3 text-white/70" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">{dest.country}</span>
+                          <div className="absolute bottom-0 left-0 right-0 p-2 text-left">
+                            <h3 className="text-sm font-black text-white leading-tight shadow-sm">{dest.name}</h3>
+                            <div className="flex items-center gap-0.5 mt-0.5">
+                              <MapPin className="w-2.5 h-2.5 text-white/70" />
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-white/80">{dest.country}</span>
                             </div>
                           </div>
                         </button>
