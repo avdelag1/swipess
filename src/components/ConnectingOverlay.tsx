@@ -23,7 +23,7 @@ export function ConnectingOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-xl"
+          className="fixed inset-0 z-[10002] flex items-center justify-center modal-scrim"
         >
           {/* ðŸ›¸ Swipes ATMOSPHERE */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -35,7 +35,7 @@ export function ConnectingOverlay({
                 y: [-100, 100, -100]
               }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute top-1/4 left-1/4 w-[150%] h-[150%] bg-rose-500/20 rounded-full blur-[120px]" 
+              className="absolute top-1/4 left-1/4 w-[150%] h-[150%] bg-rose-500/15 rounded-full opacity-60"
             />
             <motion.div 
               animate={{ 
@@ -45,7 +45,7 @@ export function ConnectingOverlay({
                 y: [100, -100, 100]
               }}
               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-              className="absolute bottom-1/4 right-1/4 w-[150%] h-[150%] bg-violet-600/20 rounded-full blur-[120px]" 
+              className="absolute bottom-1/4 right-1/4 w-[150%] h-[150%] bg-violet-600/15 rounded-full opacity-60"
             />
           </div>
 

@@ -31,6 +31,7 @@ import { useConversations, useStartConversation } from '@/hooks/useConversations
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
@@ -892,9 +893,7 @@ const ClientSwipeContainerComponent = ({
   // All conditions use derived flags - NO hooks called after this point
 
   if (showLoadingSkeleton || !deckReady) {
-    // No logo loader — it lingered/"stuck" on quick loads. The deck background
-    // is black, so a bare frame reads as instant.
-    return <div className="relative w-full h-full flex-1 bg-black" />;
+    return <SwipeLoadingSkeleton />;
   }
 
   return (
@@ -1011,7 +1010,7 @@ const ClientSwipeContainerComponent = ({
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
-                  null
+                  <SwipeLoadingSkeleton />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

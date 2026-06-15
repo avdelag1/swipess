@@ -23,7 +23,7 @@ export function AnimatedOutlet() {
 
   const SuspenseFallback = () => (
     <div
-      className="w-full min-h-[50vh] flex items-center justify-center"
+      className="route-skeleton"
       style={{
         viewTransitionName: isSupported ? 'swipess-page-skeleton' : undefined,
         contain: 'layout style paint',
@@ -31,7 +31,9 @@ export function AnimatedOutlet() {
       aria-busy="true"
       aria-label="Loading content"
     >
-      <div className="w-7 h-7 rounded-full border-2 border-primary/25 border-t-primary animate-spin" />
+      <div className="route-skeleton-bar w-48 max-w-[70%]" />
+      <div className="route-skeleton-bar w-32 max-w-[50%] opacity-70" />
+      <div className="route-skeleton-bar w-64 max-w-[85%] h-24 rounded-2xl opacity-50" />
     </div>
   );
 

@@ -8,6 +8,7 @@ import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { normalizeCategoryName } from '@/types/filters';
 
@@ -863,6 +864,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
 
+  if (
+    deckQueue.length === 0
+    && (isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current)
+  ) {
+    return <SwipeLoadingSkeleton />;
+  }
+
   return (
     <>
     <div className={cn(
@@ -1011,7 +1019,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
-                  null
+                  <SwipeLoadingSkeleton />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

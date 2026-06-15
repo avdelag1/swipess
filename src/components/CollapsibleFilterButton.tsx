@@ -111,13 +111,13 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
   return (
     <div className={cn('relative', className)}>
       {/* Filter Button */}
-      <motion.button
+      <button
         ref={buttonRef}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        type="button"
+        data-skip-press-engine
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200',
+          'tap-css-only relative flex items-center justify-center w-9 h-9 rounded-xl',
           activeFilterCount > 0
             ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25'
             : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
@@ -137,7 +137,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
             </motion.span>
           )}
         </AnimatePresence>
-      </motion.button>
+      </button>
 
       {/* Slide-out Panel */}
       <AnimatePresence>
@@ -167,24 +167,24 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                 <h2 className="text-lg font-semibold">Quick Filter</h2>
                 <div className="flex items-center gap-2">
                   {activeFilterCount > 0 && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
+                      type="button"
+                      data-skip-press-engine
                       onClick={handleReset}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                      className="tap-css-only flex items-center gap-1 px-2 py-1 text-xs text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                     >
                       <RotateCcw className="w-3 h-3" />
                       Reset
-                    </motion.button>
+                    </button>
                   )}
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  <button
+                    type="button"
+                    data-skip-press-engine
                     onClick={() => setIsOpen(false)}
-                    className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                    className="tap-css-only p-1.5 rounded-lg hover:bg-muted transition-colors"
                   >
                     <X className="w-5 h-5" />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
@@ -205,13 +205,13 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                             services: 'bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/25',
                           };
                           return (
-                            <motion.button
+                            <button
                               key={category.id}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              type="button"
+                              data-skip-press-engine
                               onClick={() => handleCategoryToggle(category.id)}
                               className={cn(
-                                'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                                'tap-css-only flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
                                 isActive
                                   ? (catColors[category.id] || catColors.property)
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
@@ -219,7 +219,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                             >
                               {category.icon}
                               <span>{category.label}</span>
-                            </motion.button>
+                            </button>
                           );
                         })}
                       </div>
@@ -232,20 +232,20 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                         {listingTypes.map((type) => {
                           const isActive = filters.listingType === type.id;
                           return (
-                            <motion.button
+                            <button
                               key={type.id}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              type="button"
+                              data-skip-press-engine
                               onClick={() => handleListingTypeChange(type.id)}
                               className={cn(
-                                'flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                                'tap-css-only flex-1 px-3 py-2 rounded-xl text-sm font-medium',
                                 isActive
                                   ? 'bg-primary text-primary-foreground shadow-md'
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                               )}
                             >
                               {type.label}
-                            </motion.button>
+                            </button>
                           );
                         })}
                       </div>
@@ -260,13 +260,13 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                         {genderOptions.map((option) => {
                           const isActive = filters.clientGender === option.id;
                           return (
-                            <motion.button
+                            <button
                               key={option.id}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              type="button"
+                              data-skip-press-engine
                               onClick={() => handleGenderChange(option.id)}
                               className={cn(
-                                'flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                                'tap-css-only flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
                                 isActive
                                   ? 'bg-primary text-primary-foreground shadow-md'
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
@@ -274,7 +274,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                             >
                               {option.icon}
                               <span>{option.label}</span>
-                            </motion.button>
+                            </button>
                           );
                         })}
                       </div>
@@ -287,20 +287,20 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                         {clientTypeOptions.map((option) => {
                           const isActive = filters.clientType === option.id;
                           return (
-                            <motion.button
+                            <button
                               key={option.id}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              type="button"
+                              data-skip-press-engine
                               onClick={() => handleClientTypeChange(option.id)}
                               className={cn(
-                                'flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                                'tap-css-only flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
                                 isActive
                                   ? 'bg-primary text-primary-foreground shadow-md'
                                   : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                               )}
                             >
                               <span>{option.label}</span>
-                            </motion.button>
+                            </button>
                           );
                         })}
                       </div>
@@ -311,14 +311,14 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
 
               {/* Footer */}
               <div className="p-4 border-t border-border">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <button
+                  type="button"
+                  data-skip-press-engine
                   onClick={() => setIsOpen(false)}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold shadow-lg shadow-orange-500/25 transition-all duration-200"
+                  className="tap-css-only w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold shadow-lg shadow-orange-500/25"
                 >
                   Apply Filters
-                </motion.button>
+                </button>
               </div>
             </motion.div>
           </>

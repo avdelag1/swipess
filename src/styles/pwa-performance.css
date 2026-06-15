@@ -435,9 +435,19 @@ body.hw-low .swipe-card {
 }
 
 /* TIER 2: Mid-Range Hardware Balanced Mode (RAM < 8GB) */
-body.hw-mid .backdrop-blur-xl {
-    -webkit-backdrop-filter: blur(8px) saturate(110%) !important;
-    backdrop-filter: blur(8px) saturate(110%) !important;
+body.hw-mid .backdrop-blur-xl,
+body.hw-mid .backdrop-blur-2xl,
+body.hw-mid .backdrop-blur-3xl,
+body.hw-mid .backdrop-blur-md {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body.hw-mid .glass-pill,
+body.hw-mid .glass-surface,
+body.hw-mid .floating-dock-nav {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
 /* Live map HUD — never blur over WebGL (Safari GPU killer) */
@@ -469,6 +479,74 @@ body.hw-high [data-map-hud] .glass-pill {
 
 [data-map-hud] .map-hud-btn:active:not(:disabled) {
     transform: scale(0.94) !important;
+}
+
+/* Solid chrome — no Safari blur tax */
+.chrome-solid {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(14, 14, 18, 0.92) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.light .chrome-solid,
+.white-matte .chrome-solid {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.deck-hud-solid {
+    background: rgba(0, 0, 0, 0.48) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+.modal-scrim {
+    background: rgba(0, 0, 0, 0.72) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body.hw-high .modal-scrim--lux {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.tap-css-only {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 50ms cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.tap-css-only:active:not(:disabled) {
+    transform: scale(0.94) translateZ(0);
+}
+
+.route-skeleton {
+    width: 100%;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+}
+
+.route-skeleton-bar {
+    height: 0.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(90deg,
+        hsl(var(--muted) / 0.35) 0%,
+        hsl(var(--muted) / 0.65) 50%,
+        hsl(var(--muted) / 0.35) 100%);
+    background-size: 200% 100%;
+    animation: route-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes route-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 body.hw-mid .animate-pulse {

@@ -98,7 +98,7 @@ export const PassportMapPinPreview = memo(({
             </span>
           )}
           {travelTime && (
-            <span className="px-2 py-1 rounded-full text-[10px] font-black bg-black/40 backdrop-blur-md text-white flex items-center gap-1 border border-white/20">
+            <span className="px-2 py-1 rounded-full text-[10px] font-black deck-hud-solid text-white flex items-center gap-1 border border-white/20">
               {(travelTime as any).profile === 'walking' ? <Footprints className="w-3 h-3" /> : <Car className="w-3 h-3" />}
               {travelTime.formattedDuration}
             </span>

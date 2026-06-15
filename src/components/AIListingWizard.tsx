@@ -99,14 +99,14 @@ export function AIListingWizard() {
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
   const modalBg = isLight 
-    ? 'bg-white/90 backdrop-blur-3xl saturate-150 border-black/10' 
-    : 'bg-[#050505]/70 backdrop-blur-[40px] saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
+    ? 'bg-white chrome-solid saturate-150 border-black/10' 
+    : 'bg-[#050505]/95 chrome-solid saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
   const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white/80 backdrop-blur-md border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-black/40 backdrop-blur-md border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
+    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-black/60 border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
     : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
@@ -414,8 +414,8 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-white/40" : "bg-black/50"
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-0 sm:p-6",
+            isLight && "modal-scrim--lux"
           )}
         >
           <motion.div
@@ -515,7 +515,7 @@ export function AIListingWizard() {
                                 <img src={previewUrls[i]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                 <button 
                                   onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all border border-white/10"
+                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-white/10"
                                 >
                                   <X className="w-4 h-4 text-white" />
                                 </button>
@@ -595,7 +595,7 @@ export function AIListingWizard() {
                             <PopoverContent
                               side="top"
                               sideOffset={12}
-                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl chrome-solid"
                             >
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -618,7 +618,7 @@ export function AIListingWizard() {
                               className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
                             />
                             {isRecording && (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
                                 <motion.div 
                                   className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
                                   animate={{ opacity: [0.5, 1, 0.5] }}
@@ -644,7 +644,7 @@ export function AIListingWizard() {
                               </div>
                             )}
                             {isTranscribing && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/35 rounded-[2rem]">
                                 <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
                                   <PremiumSpinner className="w-4 h-4" />
                                   <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>

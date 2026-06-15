@@ -263,6 +263,7 @@ export const BottomNavigation = memo(({
     <nav
       role="navigation"
       aria-label="Main navigation"
+      data-skip-press-engine
       className={cn(
         'app-bottom-bar transition-all duration-150 w-full flex justify-center',
         isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
@@ -326,6 +327,7 @@ export const BottomNavigation = memo(({
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
                 data-instant-feedback
+                data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);

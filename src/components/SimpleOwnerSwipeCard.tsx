@@ -386,7 +386,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     e.stopPropagation();
                     if (onBack) onBack();
                   }}
-                  className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                   aria-label="Back"
                 >
                   <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
@@ -400,7 +400,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                       e.stopPropagation();
                       if (onUndo) onUndo();
                     }}
-                    className="pointer-events-auto flex items-center justify-center w-12 h-12 bg-black/20 backdrop-blur-md rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                     aria-label="Undo"
                   >
                     <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
@@ -523,7 +523,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
             />
 
-            <div className="flex flex-col gap-2 p-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
                 { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
                 { icon: Share2, onClick: onShare, label: 'Share' },

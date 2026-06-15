@@ -263,23 +263,21 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.6 } }}
-          className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20" : "bg-black/60")}
-          style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
+          className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 modal-scrim", isLight && !isSwipess && "modal-scrim--lux")}
         >
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={triggerGenieClose} className="absolute inset-0" />
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0 }}
             animate={{ 
-              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
-              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1,
+              transition: { type: 'spring', damping: 22, stiffness: 280, mass: 0.7 }
             }}
             exit={{ 
               scale: 0.04,
               y: 520,
               opacity: 0,
-              filter: "blur(20px)",
               borderRadius: "999px",
               transition: { 
                 type: "spring", 
@@ -301,8 +299,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
           >
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/8 rounded-full opacity-70" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full opacity-50" />
               </div>
             )}
 
@@ -322,7 +320,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
-                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
+                  isLight && !isSwipess ? "border-slate-200 bg-white chrome-solid" : "border-white/5 bg-black/90 chrome-solid"
                 )}>
                   <div className="flex items-center gap-4">
                     <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
@@ -356,7 +354,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             })()}
                          </button>
                        </PopoverTrigger>
-                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
+                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70] chrome-solid", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10")}>
                         <div className="p-3 mb-2">
                           <h4 className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight && !isSwipess ? "text-foreground/50" : "text-white/40")}>Select Logic Profile</h4>
                         </div>
@@ -431,7 +429,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         initial={{ opacity: 0, y: 12, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.94 }}
-                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
+                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
                       >
                          <Timer className="w-4 h-4 text-[#FF3D00]" />
                          <span className={cn("text-[11px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
@@ -444,7 +442,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
-                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
+                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-colors duration-200 border border-border/50 bg-secondary/40 shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
                        <div className="pl-2 flex items-center gap-0.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
@@ -452,7 +450,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
-                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
+                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
                                <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
                                   <span className={cn("flex items-center gap-3 text-[11px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
                                     <Timer className="w-4 h-4 text-[#FF3D00]" />

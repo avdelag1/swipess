@@ -421,15 +421,19 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-
   margin-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   border-radius: 28px;
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   box-shadow:
     0 -4px 24px rgba(0, 0, 0, 0.12),
     0 16px 48px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+body.hw-high .floating-dock-nav {
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
 }
 
 .glass-pill[data-active="true"],
@@ -3017,10 +3021,16 @@ input:focus, textarea:focus, .glass-input:focus-within {
   --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
-/* Softer Glass Backdrop */
+/* Chrome pills — solid by default; blur only on hw-high */
 .glass-surface, .glass-pill {
-  backdrop-filter: blur(40px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.hw-high .glass-surface,
+body.hw-high .glass-pill {
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
 }
 
 /* Smooth micro-interaction on all cards */
