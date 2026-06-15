@@ -2,7 +2,9 @@ import type { GeoJSONSource, Map as MapboxMap } from 'mapbox-gl';
 
 const SOURCE_ID = 'search-radius-area';
 const FILL_ID = 'search-radius-fill';
+const FILL_OUTER_ID = 'search-radius-fill-outer';
 const LINE_ID = 'search-radius-line';
+const GLOW_ID = 'search-radius-glow';
 const CENTER_ID = 'search-radius-center';
 
 /** Build a geodesic circle polygon (accurate km radius, FB-style). */
@@ -59,23 +61,52 @@ export function syncRadiusCircleOnMap(
 
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: 'geojson', data: polygon });
+
+    // Outer fill — lighter, very low opacity for gradient-like effect
+    map.addLayer({
+      id: FILL_OUTER_ID,
+      type: 'fill',
+      source: SOURCE_ID,
+      paint: {
+        'fill-color': '#C4B5FD',
+        'fill-opacity': 0.08,
+      },
+    });
+
+    // Inner fill — purple core
     map.addLayer({
       id: FILL_ID,
       type: 'fill',
       source: SOURCE_ID,
       paint: {
-        'fill-color': '#6366F1',
-        'fill-opacity': 0.18,
+        'fill-color': '#8B5CF6',
+        'fill-opacity': 0.15,
       },
     });
+
+    // Glowing pulse ring — pink, blurred
+    map.addLayer({
+      id: GLOW_ID,
+      type: 'line',
+      source: SOURCE_ID,
+      paint: {
+        'line-color': '#EC4899',
+        'line-width': 6,
+        'line-opacity': 0.3,
+        'line-blur': 8,
+      },
+    });
+
+    // Dashed animated border
     map.addLayer({
       id: LINE_ID,
       type: 'line',
       source: SOURCE_ID,
       paint: {
         'line-color': '#A855F7',
-        'line-width': 3,
+        'line-width': 2.5,
         'line-opacity': 0.9,
+        'line-dasharray': [2, 4],
       },
     });
   } else {
@@ -89,22 +120,25 @@ export function syncRadiusCircleOnMap(
       type: 'circle',
       source: CENTER_ID,
       paint: {
-        'circle-radius': 7,
+        'circle-radius': 8,
         'circle-color': '#3B82F6',
         'circle-stroke-width': 3,
         'circle-stroke-color': '#ffffff',
         'circle-opacity': 1,
+        'circle-blur': 0.1,
       },
     });
   } else {
     upsert(CENTER_ID, center);
   }
 
-  // Live radius label feel — pulse stroke on change
+  // Live radius label feel — pulse stroke on change (supports up to 200km)
   if (map.getLayer(LINE_ID)) {
-    map.setPaintProperty(LINE_ID, 'line-width', 3 + Math.min(radiusKm / 50, 2));
-    map.setPaintProperty(FILL_ID, 'fill-opacity', 0.12 + Math.min(radiusKm / 200, 0.1));
+    map.setPaintProperty(LINE_ID, 'line-width', 2.5 + Math.min(radiusKm / 50, 2));
+    map.setPaintProperty(FILL_ID, 'fill-opacity', 0.10 + Math.min(radiusKm / 200, 0.08));
+    map.setPaintProperty(FILL_OUTER_ID, 'fill-opacity', 0.05 + Math.min(radiusKm / 200, 0.06));
+    map.setPaintProperty(GLOW_ID, 'line-opacity', 0.25 + Math.min(radiusKm / 200, 0.15));
   }
 }
 
-export const RADIUS_LAYER_IDS = [FILL_ID, LINE_ID, CENTER_ID] as const;
+export const RADIUS_LAYER_IDS = [FILL_OUTER_ID, FILL_ID, GLOW_ID, LINE_ID, CENTER_ID] as const;

@@ -24,7 +24,7 @@ import { RADIUS_LAYER_IDS, syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const RADIUS_PRESETS = [10, 25, 50, 100] as const;
+const RADIUS_PRESETS = [10, 25, 50, 100, 200] as const;
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
   { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
@@ -458,24 +458,24 @@ export const PassportMapModal = memo(() => {
         )}
       >
         <div className={cn(
-          'shrink-0 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2 flex items-center justify-between gap-3 border-b z-20 glass-dark',
-          isLight ? 'border-black/8' : 'border-white/10',
+          'shrink-0 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2.5 flex items-center justify-between gap-3 border-b z-20',
+          isLight ? 'border-black/8 bg-white/95 backdrop-blur-xl' : 'border-white/10 bg-[#0A0A0A]/95 backdrop-blur-xl',
         )}>
           <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
+              className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"
               style={{ background: PASSPORT_GRADIENTS.passport }}
             >
-              <Globe2 className="w-4 h-4 text-white" />
+              <Globe2 className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0">
               <h2 className={cn('text-sm font-black uppercase tracking-widest truncate italic', isLight ? 'text-slate-900' : 'text-white')}>
-                Live Radar
+                Explore Map
               </h2>
               <p className={cn('text-[10px] font-bold uppercase tracking-wider truncate', isLight ? 'text-slate-500' : 'text-white/40')}>
-                {gpsLoading ? 'Finding you…' : nearbyCount > 0 ? `${nearbyCount} in ${radiusKm}km` : 'Scanning area…'}
-                {activePeopleCount > 0 ? ` · ${activePeopleCount} active` : ''}
-                {passportMode && passportLabel ? ` · ${passportLabel}` : ''}
+                {gpsLoading ? '📡 Finding you…' : nearbyCount > 0 ? `🔍 ${nearbyCount} nearby · ${radiusKm}km` : '📡 Scanning area…'}
+                {activePeopleCount > 0 ? ` · 🟢 ${activePeopleCount} active` : ''}
+                {passportMode && passportLabel ? ` · ✈️ ${passportLabel}` : ''}
               </p>
             </div>
           </div>
@@ -487,9 +487,9 @@ export const PassportMapModal = memo(() => {
               style={{ background: PASSPORT_GRADIENTS.tokens }}
               title="My location"
             >
-              {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
+              {gpsLoading ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <Navigation className="w-4.5 h-4.5" />}
             </button>
-            <button onClick={onClose} className="glass-pill p-2.5">
+            <button onClick={onClose} className={cn("p-2.5 rounded-2xl transition-colors", isLight ? "bg-slate-100 hover:bg-slate-200" : "bg-white/10 hover:bg-white/15")}>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -497,10 +497,11 @@ export const PassportMapModal = memo(() => {
 
         {/* Filter tabs + live radius */}
         <div className={cn(
-          'shrink-0 px-3 py-2.5 flex flex-col gap-2.5 border-b z-20',
+          'shrink-0 px-3 py-2.5 flex flex-col gap-3 border-b z-20',
           isLight ? 'border-black/6 bg-white/90' : 'border-white/8 bg-black/50',
         )}>
-          <div className="flex gap-2">
+          {/* Filter Tabs */}
+          <div className="flex gap-1.5">
             {FILTER_TABS.map(({ id, label, icon: Icon, gradient }) => (
               <button
                 key={id}
@@ -514,41 +515,81 @@ export const PassportMapModal = memo(() => {
               >
                 <Icon className="w-3.5 h-3.5" />
                 {label}
+                {id === 'listings' && visibleListings.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-white/25">{visibleListings.length}</span>
+                )}
+                {id === 'people' && visibleProfiles.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-white/25">{visibleProfiles.length}</span>
+                )}
+                {id === 'all' && nearbyCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[8px] font-black bg-white/25">{nearbyCount}</span>
+                )}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+
+          {/* Radius Preset Chips */}
+          <div className="flex items-center gap-1.5">
+            <span className={cn('text-[9px] font-black uppercase tracking-widest shrink-0 mr-1', isLight ? 'text-slate-400' : 'text-white/35')}>
+              Radius
+            </span>
             {RADIUS_PRESETS.map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
                 className={cn(
-                  'px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95',
-                  radiusKm === r ? 'text-white shadow-md' : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/45'),
+                  'px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95',
+                  radiusKm === r ? 'text-white shadow-md scale-105' : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/45'),
                 )}
                 style={radiusKm === r ? { background: gradientForRadius(r) } : undefined}
               >
-                {r} km
+                {r}km
               </button>
             ))}
           </div>
+
+          {/* Premium Touch Slider */}
           <div className="flex items-center gap-3">
-            <span className={cn('text-[9px] font-black uppercase tracking-widest shrink-0', isLight ? 'text-slate-400' : 'text-white/35')}>
-              Range
-            </span>
-            <input
-              type="range"
-              min={5}
-              max={150}
-              step={5}
-              value={radiusKm}
-              onChange={(e) => setRadiusKm(Number(e.target.value))}
-              className="flex-1 h-1.5 accent-indigo-500 cursor-pointer"
-              aria-label="Search radius in kilometers"
-            />
+            <div className="relative flex-1">
+              <div className={cn("absolute inset-y-0 left-0 flex items-center", isLight ? 'opacity-100' : 'opacity-100')} style={{ width: `${((radiusKm - 5) / 195) * 100}%` }}>
+                <div className="h-2 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={200}
+                step={1}
+                value={radiusKm}
+                onChange={(e) => setRadiusKm(Number(e.target.value))}
+                className="relative w-full h-2 rounded-full appearance-none cursor-pointer z-10
+                  [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
+                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-7 [&::-webkit-slider-thumb]:h-7
+                  [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-white
+                  [&::-webkit-slider-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.4)] [&::-webkit-slider-thumb]:cursor-grab
+                  [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:active:scale-110
+                  [&::-webkit-slider-thumb]:transition-transform
+                  [&::-moz-range-thumb]:w-7 [&::-moz-range-thumb]:h-7
+                  [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-white
+                  [&::-moz-range-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.4)] [&::-moz-range-thumb]:cursor-grab"
+                style={{
+                  background: isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)',
+                  // @ts-ignore
+                  '--webkit-slider-thumb-bg': gradientForRadius(radiusKm),
+                } as React.CSSProperties}
+                aria-label="Search radius in kilometers"
+              />
+              <style>{`
+                input[type="range"]::-webkit-slider-thumb {
+                  background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : radiusKm <= 75 ? '#8B5CF6' : radiusKm <= 150 ? '#F59E0B' : '#EF4444'};
+                }
+                input[type="range"]::-moz-range-thumb {
+                  background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : radiusKm <= 75 ? '#8B5CF6' : radiusKm <= 150 ? '#F59E0B' : '#EF4444'};
+                }
+              `}</style>
+            </div>
             <span
-              className="text-[10px] font-black text-white px-2 py-1 rounded-lg min-w-[3rem] text-center"
+              className="text-[11px] font-black text-white px-2.5 py-1.5 rounded-xl min-w-[3.5rem] text-center shadow-lg transition-all"
               style={{ background: gradientForRadius(radiusKm) }}
             >
               {radiusKm}km
@@ -623,12 +664,26 @@ export const PassportMapModal = memo(() => {
         </AnimatePresence>
 
         {!selected && (
-          <p className={cn(
-            'shrink-0 text-center text-[10px] font-bold uppercase tracking-[0.2em] pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-1',
-            isLight ? 'text-slate-400' : 'text-white/30',
+          <div className={cn(
+            'shrink-0 flex items-center justify-center gap-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2',
+            isLight ? 'bg-white/90' : 'bg-[#0A0A0A]/90',
           )}>
-            Purple circle = your search zone · green dot = active members nearby
-          </p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full" style={{ background: PASSPORT_GRADIENTS.listings }} />
+              <span className={cn('text-[9px] font-bold uppercase tracking-wider', isLight ? 'text-slate-500' : 'text-white/40')}>Listings</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full" style={{ background: PASSPORT_GRADIENTS.people }} />
+              <span className={cn('text-[9px] font-bold uppercase tracking-wider', isLight ? 'text-slate-500' : 'text-white/40')}>People</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full" style={{ background: PASSPORT_GRADIENTS.tokens }} />
+              <span className={cn('text-[9px] font-bold uppercase tracking-wider', isLight ? 'text-slate-500' : 'text-white/40')}>Active</span>
+            </div>
+            <span className={cn('text-[9px] font-bold uppercase tracking-wider', isLight ? 'text-slate-400' : 'text-white/25')}>
+              Tap pin for details
+            </span>
+          </div>
         )}
       </div>
     </div>
