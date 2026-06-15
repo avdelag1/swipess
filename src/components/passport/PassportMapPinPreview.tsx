@@ -6,6 +6,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { SelectedPin } from './passportMapMarkers';
 import { categoryLabel, formatDistanceKm } from './passportMapMarkers';
+import { PASSPORT_GRADIENTS } from './passportMapTheme';
 
 interface PassportMapPinPreviewProps {
   selected: SelectedPin;
@@ -63,10 +64,10 @@ export const PassportMapPinPreview = memo(({
         </button>
 
         <div className="absolute top-3 left-3 flex gap-2">
-          <span className={cn(
-            'px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider',
-            isListing ? 'bg-pink-500/90 text-white' : 'bg-indigo-500/90 text-white',
-          )}>
+          <span
+            className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white"
+            style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
+          >
             {isListing ? categoryLabel(data.category) : 'Person'}
           </span>
           {isListing && data.price != null && (
@@ -117,12 +118,11 @@ export const PassportMapPinPreview = memo(({
           <button
             type="button"
             onClick={onInsights}
-            className={cn(
-              'flex-1 py-3 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest transition-all active:scale-[0.98]',
-              isListing
-                ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/25'
-                : 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/25',
-            )}
+            className="flex-1 py-3.5 rounded-2xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-[0.98] shadow-lg"
+            style={{
+              background: isListing ? PASSPORT_GRADIENTS.seekers : PASSPORT_GRADIENTS.passport,
+              boxShadow: isListing ? '0 8px 24px rgba(236,72,153,0.4)' : '0 8px 24px rgba(99,102,241,0.4)',
+            }}
           >
             <Sparkles className="w-4 h-4" />
             Full Insights
@@ -131,10 +131,8 @@ export const PassportMapPinPreview = memo(({
             <button
               type="button"
               onClick={onDetails}
-              className={cn(
-                'px-4 py-3 rounded-2xl flex items-center justify-center gap-1.5 text-[11px] font-black uppercase tracking-widest border transition-all active:scale-[0.98]',
-                isLight ? 'border-slate-200 text-slate-700 hover:bg-slate-50' : 'border-white/15 text-white/80 hover:bg-white/5',
-              )}
+              className="px-4 py-3.5 rounded-2xl flex items-center justify-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-[0.98]"
+              style={{ background: PASSPORT_GRADIENTS.tokens }}
             >
               <Eye className="w-4 h-4" />
               Details

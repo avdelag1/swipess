@@ -1,9 +1,10 @@
 import { memo, useMemo } from 'react';
-import { Home, User } from 'lucide-react';
+import { Home, User, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MapListingPin, MapProfilePin } from '@/hooks/usePassportMapData';
 import type { MapLayerFilter, SelectedPin } from './passportMapMarkers';
 import { categoryLabel, formatDistanceKm } from './passportMapMarkers';
+import { PASSPORT_GRADIENTS } from './passportMapTheme';
 
 type RailItem =
   | { kind: 'listing'; data: MapListingPin }
@@ -14,7 +15,7 @@ interface PassportMapResultsRailProps {
   profiles: MapProfilePin[];
   filter: MapLayerFilter;
   selectedId: string | null;
-  isLight: boolean;
+  activePeopleCount?: number;
   onSelect: (pin: SelectedPin) => void;
 }
 
@@ -23,7 +24,7 @@ export const PassportMapResultsRail = memo(({
   profiles,
   filter,
   selectedId,
-  isLight,
+  activePeopleCount = 0,
   onSelect,
 }: PassportMapResultsRailProps) => {
   const items = useMemo(() => {
@@ -41,11 +42,14 @@ export const PassportMapResultsRail = memo(({
 
   return (
     <div className="absolute bottom-3 left-0 right-0 z-20 pointer-events-none">
-      <p className={cn(
-        'px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em]',
-        isLight ? 'text-slate-600' : 'text-white/50',
-      )}>
-        {items.length} nearby — tap to preview
+      <p className="px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md flex items-center gap-2">
+        <span>{items.length} in your radius</span>
+        {activePeopleCount > 0 && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] text-white" style={{ background: PASSPORT_GRADIENTS.tokens }}>
+            <Zap className="w-3 h-3" />
+            {activePeopleCount} active
+          </span>
+        )}
       </p>
       <div className="flex gap-3 overflow-x-auto px-4 pb-1 pointer-events-auto custom-scrollbar snap-x snap-mandatory">
         {items.map((item) => {
@@ -67,34 +71,44 @@ export const PassportMapResultsRail = memo(({
                   : { type: 'profile', data: item.data },
               )}
               className={cn(
-                'snap-start shrink-0 w-[148px] rounded-2xl overflow-hidden text-left transition-all active:scale-[0.97]',
-                isSelected
-                  ? 'ring-2 ring-indigo-400 shadow-xl shadow-indigo-500/20'
-                  : 'ring-1 ring-black/10 shadow-lg',
-                isLight ? 'bg-white' : 'bg-[#161616] ring-white/10',
+                'snap-start shrink-0 w-[152px] rounded-2xl overflow-hidden text-left transition-all active:scale-[0.96]',
+                isSelected ? 'ring-2 ring-white shadow-2xl scale-[1.02]' : 'ring-1 ring-white/20 shadow-xl',
               )}
+              style={{
+                boxShadow: isSelected
+                  ? '0 12px 32px rgba(99,102,241,0.45)'
+                  : '0 8px 24px rgba(0,0,0,0.35)',
+              }}
             >
-              <div className="relative h-24 bg-slate-800">
+              <div className="relative h-24">
                 {item.data.imageUrl ? (
                   <img src={item.data.imageUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className={cn(
-                    'w-full h-full flex items-center justify-center',
-                    isListing ? 'bg-pink-900/30' : 'bg-indigo-900/40',
-                  )}>
-                    {isListing ? <Home className="w-6 h-6 text-white/50" /> : <User className="w-6 h-6 text-white/50" />}
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
+                  >
+                    {isListing ? <Home className="w-6 h-6 text-white/80" /> : <User className="w-6 h-6 text-white/80" />}
                   </div>
                 )}
-                <span className={cn(
-                  'absolute top-2 left-2 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase',
-                  isListing ? 'bg-pink-500 text-white' : 'bg-indigo-500 text-white',
-                )}>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <span
+                  className="absolute top-2 left-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase text-white"
+                  style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
+                >
                   {isListing ? 'Listing' : 'Person'}
                 </span>
+                {!isListing && item.data.recentlyActive && (
+                  <span
+                    className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full border-2 border-white"
+                    style={{ background: 'linear-gradient(135deg, #10B981, #06B6D4)' }}
+                    title="Recently active"
+                  />
+                )}
               </div>
-              <div className="p-2.5">
-                <p className={cn('text-xs font-black truncate', isLight ? 'text-slate-900' : 'text-white')}>{title}</p>
-                <p className={cn('text-[10px] font-medium truncate mt-0.5', isLight ? 'text-slate-500' : 'text-white/45')}>{meta}</p>
+              <div className="p-2.5 bg-[#111]/95 backdrop-blur-md">
+                <p className="text-xs font-black truncate text-white">{title}</p>
+                <p className="text-[10px] font-medium truncate mt-0.5 text-white/55">{meta}</p>
               </div>
             </button>
           );

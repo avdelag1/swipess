@@ -19,14 +19,16 @@ import {
   type MapLayerFilter,
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
+import { gradientForRadius, PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
+import { RADIUS_LAYER_IDS, syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const RADIUS_PRESETS = [25, 50, 100] as const;
-const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2 }[] = [
-  { id: 'all', label: 'All', icon: Globe2 },
-  { id: 'listings', label: 'Listings', icon: Building2 },
-  { id: 'people', label: 'People', icon: Users },
+const RADIUS_PRESETS = [10, 25, 50, 100] as const;
+const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
+  { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
+  { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
+  { id: 'people', label: 'People', icon: Users, gradient: PASSPORT_GRADIENTS.people },
 ];
 
 export const PassportMapModal = memo(() => {
@@ -53,6 +55,7 @@ export const PassportMapModal = memo(() => {
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
+  const autoGpsAttemptedRef = useRef(false);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
@@ -64,7 +67,8 @@ export const PassportMapModal = memo(() => {
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
 
-  const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm);
+  const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
+  const activePeopleCount = data?.activePeopleCount ?? 0;
 
   const visibleListings = useMemo(() => {
     if (!data || layerFilter === 'people') return [];
@@ -162,6 +166,36 @@ export const PassportMapModal = memo(() => {
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
   }, []);
+
+  // Auto-detect GPS when opening map (unless exploring via passport teleport)
+  useEffect(() => {
+    if (!isOpen) {
+      autoGpsAttemptedRef.current = false;
+      return;
+    }
+    if (!mapReady || autoGpsAttemptedRef.current || passportMode) return;
+    if (!canGeolocate()) return;
+
+    autoGpsAttemptedRef.current = true;
+    (async () => {
+      setGpsLoading(true);
+      try {
+        const { latitude, longitude } = await getCurrentPosition({ timeout: 12000, maximumAge: 30000 });
+        setUserLocation(latitude, longitude);
+        mapRef.current?.flyTo({
+          center: [longitude, latitude],
+          zoom: 12,
+          duration: 2000,
+          pitch: 45,
+          essential: true,
+        });
+      } catch {
+        /* user can tap GPS button manually */
+      } finally {
+        setGpsLoading(false);
+      }
+    })();
+  }, [isOpen, mapReady, passportMode, setUserLocation]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -289,7 +323,10 @@ export const PassportMapModal = memo(() => {
 
         map.on('click', (e) => {
           if (!useModalStore.getState().showPassportMapModal) return;
-          const features = map.queryRenderedFeatures(e.point, { layers: ['search-radius-circle'] });
+          const layers = RADIUS_LAYER_IDS.filter(id => map.getLayer(id));
+          const features = layers.length
+            ? map.queryRenderedFeatures(e.point, { layers: layers as string[] })
+            : [];
           if (features.length) return;
           setSelected(null);
           flyToRef.current(e.lngLat.lat, e.lngLat.lng, 'Custom location');
@@ -348,44 +385,14 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, lat, lng, resizeMap]);
 
+  // Live FB-style radius circle — updates instantly when radius or center changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady || lat == null || lng == null) return;
 
-    const addRadius = () => {
-      if (map.getSource('search-radius')) {
-        (map.getSource('search-radius') as any).setData({
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'Point', coordinates: [lng, lat] },
-        });
-        return;
-      }
-      map.addSource('search-radius', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'Point', coordinates: [lng, lat] },
-        },
-      });
-      map.addLayer({
-        id: 'search-radius-circle',
-        type: 'circle',
-        source: 'search-radius',
-        paint: {
-          'circle-radius': { stops: [[0, 0], [20, radiusKm * 1000 * 0.075]], base: 2 },
-          'circle-color': '#8B5CF6',
-          'circle-opacity': 0.12,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#8B5CF6',
-          'circle-stroke-opacity': 0.5,
-        },
-      });
-    };
-
-    if (map.isStyleLoaded()) addRadius();
-    else map.once('load', addRadius);
+    const apply = () => syncRadiusCircleOnMap(map, lng, lat, radiusKm);
+    if (map.isStyleLoaded()) apply();
+    else map.once('load', apply);
   }, [mapReady, lat, lng, radiusKm]);
 
   useEffect(() => {
@@ -455,16 +462,20 @@ export const PassportMapModal = memo(() => {
           isLight ? 'border-black/8' : 'border-white/10',
         )}>
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
+              style={{ background: PASSPORT_GRADIENTS.passport }}
+            >
               <Globe2 className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <h2 className={cn('text-sm font-black uppercase tracking-widest truncate', isLight ? 'text-slate-900' : 'text-white')}>
-                Explore Map
+              <h2 className={cn('text-sm font-black uppercase tracking-widest truncate italic', isLight ? 'text-slate-900' : 'text-white')}>
+                Live Radar
               </h2>
               <p className={cn('text-[10px] font-bold uppercase tracking-wider truncate', isLight ? 'text-slate-500' : 'text-white/40')}>
-                {nearbyCount > 0 ? `${nearbyCount} nearby` : 'Searching…'}
-                {passportMode && passportLabel ? ` · ${passportLabel}` : lat != null ? ` · ${radiusKm}km` : ''}
+                {gpsLoading ? 'Finding you…' : nearbyCount > 0 ? `${nearbyCount} in ${radiusKm}km` : 'Scanning area…'}
+                {activePeopleCount > 0 ? ` · ${activePeopleCount} active` : ''}
+                {passportMode && passportLabel ? ` · ${passportLabel}` : ''}
               </p>
             </div>
           </div>
@@ -472,7 +483,8 @@ export const PassportMapModal = memo(() => {
             <button
               onClick={handleGPS}
               disabled={gpsLoading}
-              className="glass-pill p-2.5"
+              className="p-2.5 rounded-2xl text-white shadow-lg active:scale-95 transition-transform"
+              style={{ background: PASSPORT_GRADIENTS.tokens }}
               title="My location"
             >
               {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
@@ -483,46 +495,64 @@ export const PassportMapModal = memo(() => {
           </div>
         </div>
 
-        {/* Filter tabs + radius presets */}
+        {/* Filter tabs + live radius */}
         <div className={cn(
-          'shrink-0 px-3 py-2 flex flex-col gap-2 border-b z-20',
-          isLight ? 'border-black/6 bg-white/80' : 'border-white/8 bg-black/40',
+          'shrink-0 px-3 py-2.5 flex flex-col gap-2.5 border-b z-20',
+          isLight ? 'border-black/6 bg-white/90' : 'border-white/8 bg-black/50',
         )}>
-          <div className="flex gap-1.5">
-            {FILTER_TABS.map(({ id, label, icon: Icon }) => (
+          <div className="flex gap-2">
+            {FILTER_TABS.map(({ id, label, icon: Icon, gradient }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => { triggerHaptic('light'); setLayerFilter(id); setSelected(null); }}
                 className={cn(
-                  'flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider transition-all',
-                  layerFilter === id
-                    ? (isLight ? 'bg-slate-900 text-white' : 'bg-white text-black')
-                    : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/50'),
+                  'flex-1 py-2.5 rounded-2xl flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-wider italic transition-all active:scale-[0.97]',
+                  layerFilter === id ? 'text-white shadow-lg' : (isLight ? 'text-slate-500 bg-slate-100' : 'text-white/45 bg-white/8'),
                 )}
+                style={layerFilter === id ? { background: gradient } : undefined}
               >
                 <Icon className="w-3.5 h-3.5" />
                 {label}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
-            <span className={cn('text-[9px] font-black uppercase tracking-widest shrink-0', isLight ? 'text-slate-400' : 'text-white/35')}>Radius</span>
+          <div className="flex items-center gap-2 flex-wrap">
             {RADIUS_PRESETS.map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
                 className={cn(
-                  'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
-                  radiusKm === r
-                    ? 'bg-indigo-500 text-white'
-                    : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/45'),
+                  'px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95',
+                  radiusKm === r ? 'text-white shadow-md' : (isLight ? 'bg-slate-100 text-slate-500' : 'bg-white/8 text-white/45'),
                 )}
+                style={radiusKm === r ? { background: gradientForRadius(r) } : undefined}
               >
-                {r}km
+                {r} km
               </button>
             ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={cn('text-[9px] font-black uppercase tracking-widest shrink-0', isLight ? 'text-slate-400' : 'text-white/35')}>
+              Range
+            </span>
+            <input
+              type="range"
+              min={5}
+              max={150}
+              step={5}
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(Number(e.target.value))}
+              className="flex-1 h-1.5 accent-indigo-500 cursor-pointer"
+              aria-label="Search radius in kilometers"
+            />
+            <span
+              className="text-[10px] font-black text-white px-2 py-1 rounded-lg min-w-[3rem] text-center"
+              style={{ background: gradientForRadius(radiusKm) }}
+            >
+              {radiusKm}km
+            </span>
           </div>
         </div>
 
@@ -573,7 +603,7 @@ export const PassportMapModal = memo(() => {
               profiles={visibleProfiles}
               filter={layerFilter}
               selectedId={selectedId}
-              isLight={isLight}
+              activePeopleCount={activePeopleCount}
               onSelect={focusPin}
             />
           )}
@@ -597,7 +627,7 @@ export const PassportMapModal = memo(() => {
             'shrink-0 text-center text-[10px] font-bold uppercase tracking-[0.2em] pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-1',
             isLight ? 'text-slate-400' : 'text-white/30',
           )}>
-            Tap a pin for insights · tap empty map to move your feed
+            Purple circle = your search zone · green dot = active members nearby
           </p>
         )}
       </div>
