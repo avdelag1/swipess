@@ -583,7 +583,25 @@
   "map": {
     "filterAll": "All",
     "filterListings": "Listings",
-    "filterPeople": "People"
+    "filterPeople": "People",
+    "liveMap": "Live Map",
+    "globalPassport": "Global Passport",
+    "exploreCities": "Explore cities worldwide"
+  },
+  "tokens": {
+    "outOfTokens": "Out of message tokens",
+    "noTokensError": "You need message tokens or a premium plan to start a new conversation."
+  },
+  "listings": {
+    "locationRequired": "Select a city from the location picker so your listing appears on the map.",
+    "cityRequiredTitle": "Location required",
+    "cityRequired": "Pick a country and city so your listing shows on the map.",
+    "cityRequiredAi": "Add a city so your listing can appear on the map.",
+    "gpsMissingTitle": "Map pin missing",
+    "gpsMissingBanner": "This listing has no map pin yet. Update the location below so clients can find it on the map.",
+    "quickCitySearch": "Quick search: type any city…",
+    "locationStep": "Location",
+    "locationHint": "General area only — no exact address"
   },
   "errors": {
     "generic": "Something went wrong",

@@ -1,7 +1,8 @@
 import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { ChevronLeft, Crown, Sparkles, UserRound, Map } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound, Map, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,8 +54,10 @@ function TopBarComponent({
   const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const openPassport = useModalStore(s => s.openPassport);
   const openPassportMap = useModalStore(s => s.openPassportMap);
   const { tokens } = useTokens();
+  const { t } = useTranslation();
 
   const isActuallyVisible = true;
   const isDashboard = location.pathname.includes('/dashboard');
@@ -247,10 +250,27 @@ function TopBarComponent({
 
             <button
               type="button"
+              onClick={() => { haptics.tap(); openPassport(); }}
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
+              style={glassPillStyle}
+              aria-label={t('map.globalPassport')}
+            >
+              <Globe
+                className={HEADER_ICON}
+                style={{
+                  color: iconColor,
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(99,102,241,0.65))' : 'none',
+                }}
+                strokeWidth={1.9}
+              />
+            </button>
+
+            <button
+              type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
-              aria-label="Live Map"
+              aria-label={t('map.liveMap')}
             >
               <Map
                 className={HEADER_ICON}
