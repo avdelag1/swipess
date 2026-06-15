@@ -17,6 +17,7 @@ import {
   CINEMATIC_PITCH,
   cinematicEaseTo,
   cinematicFlyTo,
+  incrementalDoubleTapZoom,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -47,6 +48,8 @@ import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
+const DOUBLE_TAP_WINDOW_MS = 300;
+const DOUBLE_TAP_SLOP_PX = 40;
 
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -83,7 +86,8 @@ export const PassportMapModal = memo(() => {
   const initStartedRef = useRef(false);
   const autoGpsAttemptedRef = useRef(false);
   const openedOnceRef = useRef(false);
-  const lastTouchTapRef = useRef(0);
+  const lastTouchTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
+  const lastDoubleTapZoomAtRef = useRef(0);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
@@ -339,16 +343,13 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
 
-        // Custom gentle double-tap zoom — +0.5 level per tap instead of Mapbox's aggressive +1
-        map.on('dblclick', (e: mapboxgl.MapMouseEvent) => {
-          e.preventDefault();
-          map.easeTo({
-            center: e.lngLat,
-            zoom: map.getZoom() + 0.5,
-            duration: 250,
-            easing: (t: number) => t * (2 - t), // ease-out quad
-          });
-        });
+        const handleDoubleTapZoom = (lngLat: { lng: number; lat: number }) => {
+          const now = Date.now();
+          if (now - lastDoubleTapZoomAtRef.current < 120) return;
+          if (!incrementalDoubleTapZoom(map, [lngLat.lng, lngLat.lat])) return;
+          lastDoubleTapZoomAtRef.current = now;
+          triggerHaptic('light');
+        };
 
         map.on('load', () => {
           if (cancelled) return;
@@ -379,23 +380,31 @@ export const PassportMapModal = memo(() => {
           setSelected(null);
         });
 
-        map.on('dblclick', (e) => {
+        map.on('dblclick', (e: mapboxgl.MapMouseEvent) => {
           e.preventDefault();
           if (!useModalStore.getState().showPassportMapModal) return;
-          triggerHaptic('medium');
-          centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
+          handleDoubleTapZoom(e.lngLat);
         });
 
-        map.on('touchend', () => {
+        map.on('touchend', (e: mapboxgl.MapTouchEvent) => {
           if (!useModalStore.getState().showPassportMapModal) return;
+          if (e.originalEvent.touches.length > 0) return;
+
           const now = Date.now();
-          if (now - lastTouchTapRef.current < 320) {
-            triggerHaptic('medium');
-            centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
-            lastTouchTapRef.current = 0;
+          const point = e.point;
+          const last = lastTouchTapRef.current;
+
+          if (
+            last
+            && now - last.time < DOUBLE_TAP_WINDOW_MS
+            && Math.hypot(point.x - last.x, point.y - last.y) < DOUBLE_TAP_SLOP_PX
+          ) {
+            lastTouchTapRef.current = null;
+            handleDoubleTapZoom(e.lngLat);
             return;
           }
-          lastTouchTapRef.current = now;
+
+          lastTouchTapRef.current = { time: now, x: point.x, y: point.y };
         });
 
         mapRef.current = map;

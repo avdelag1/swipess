@@ -96,3 +96,29 @@ export function cinematicEaseTo(
     essential: true,
   });
 }
+
+/** Zoom step per double-tap — small increments feel fast but stay controllable. */
+export const DOUBLE_TAP_ZOOM_STEP = 0.45;
+export const DOUBLE_TAP_MAX_ZOOM = 17.5;
+const DOUBLE_TAP_ZOOM_MS = 190;
+
+/** Quick ease-in at the tap point; repeat double-taps stack for gradual zoom. */
+export function incrementalDoubleTapZoom(
+  map: MapboxMap,
+  center: [number, number],
+): boolean {
+  const current = map.getZoom();
+  const next = Math.min(DOUBLE_TAP_MAX_ZOOM, current + DOUBLE_TAP_ZOOM_STEP);
+  if (next <= current + 0.01) return false;
+
+  map.easeTo({
+    center,
+    zoom: next,
+    pitch: CINEMATIC_PITCH,
+    bearing: map.getBearing(),
+    duration: DOUBLE_TAP_ZOOM_MS,
+    easing: (t: number) => 1 - (1 - t) ** 3,
+    essential: true,
+  });
+  return true;
+}
