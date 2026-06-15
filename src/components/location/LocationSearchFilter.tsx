@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { ChevronDown, ChevronUp, Filter, Globe, MapPin, Search, Star, X } from 'lucide-react';
+import { CityQuickChip } from '@/components/ui/CityQuickChip';
 import {
   CityLocation,
   getCitiesInCountry,
@@ -217,51 +218,47 @@ export function LocationSearchFilter({
               <div className="flex flex-wrap gap-1.5">
                 {/* Top Mexico destinations */}
                 {featuredDestinations.mexico.slice(0, 6).map(city => (
-                  <Button
+                  <CityQuickChip
                     key={city.name}
-                    variant={selectedCity === city.name ? 'default' : 'outline'}
-                    size="sm"
+                    name={city.name}
+                    lat={city.coordinates.lat}
+                    lng={city.coordinates.lng}
+                    selected={selectedCity === city.name}
                     onClick={() => handleQuickCitySelect(city, 'Mexico', 'North America')}
-                    className="text-xs h-7"
-                  >
-                    {city.name}
-                  </Button>
+                  />
                 ))}
                 {/* Top USA destinations */}
                 {featuredDestinations.usa.slice(0, 4).map(city => (
-                  <Button
+                  <CityQuickChip
                     key={city.name}
-                    variant={selectedCity === city.name ? 'default' : 'outline'}
-                    size="sm"
+                    name={city.name}
+                    lat={city.coordinates.lat}
+                    lng={city.coordinates.lng}
+                    selected={selectedCity === city.name}
                     onClick={() => handleQuickCitySelect(city, 'United States', 'North America')}
-                    className="text-xs h-7"
-                  >
-                    {city.name}
-                  </Button>
+                  />
                 ))}
                 {/* Top Europe destinations */}
                 {featuredDestinations.europe.slice(0, 4).map(city => (
-                  <Button
+                  <CityQuickChip
                     key={city.name}
-                    variant={selectedCity === city.name ? 'default' : 'outline'}
-                    size="sm"
+                    name={city.name}
+                    lat={city.coordinates.lat}
+                    lng={city.coordinates.lng}
+                    selected={selectedCity === city.name}
                     onClick={() => handleQuickCitySelect(city, city.name, 'Europe')}
-                    className="text-xs h-7"
-                  >
-                    {city.name}
-                  </Button>
+                  />
                 ))}
                 {/* Top Asia Pacific */}
                 {featuredDestinations.asiaPacific.slice(0, 3).map(city => (
-                  <Button
+                  <CityQuickChip
                     key={city.name}
-                    variant={selectedCity === city.name ? 'default' : 'outline'}
-                    size="sm"
+                    name={city.name}
+                    lat={city.coordinates.lat}
+                    lng={city.coordinates.lng}
+                    selected={selectedCity === city.name}
                     onClick={() => handleQuickCitySelect(city, city.name, 'Asia Pacific')}
-                    className="text-xs h-7"
-                  >
-                    {city.name}
-                  </Button>
+                  />
                 ))}
               </div>
             </ScrollArea>

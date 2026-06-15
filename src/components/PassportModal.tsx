@@ -8,6 +8,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import { DEFAULT_CITY_PHOTO, getCityPhoto, PREMIUM_DESTINATIONS } from '@/data/cityPhotos';
 import { searchCities } from '@/data/worldLocations';
 import { isMapboxPlacesReady, searchMapboxPlaces, type GeocodeResult } from '@/utils/mapboxPlaces';
 import {
@@ -18,19 +19,6 @@ import {
   GENIE_SPRING_CLOSE,
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
-
-const PREMIUM_DESTINATIONS = [
-  { name: 'Miami', country: 'United States', lat: 25.7617, lng: -80.1918, img: 'https://images.unsplash.com/photo-1506966953602-c20cc11cb75b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Dubai', country: 'UAE', lat: 25.2048, lng: 55.2708, img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522, img: 'https://images.unsplash.com/photo-1502602898657-3e907a5ea82c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'London', country: 'United Kingdom', lat: 51.5074, lng: -0.1278, img: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'New York', country: 'United States', lat: 40.7128, lng: -74.0060, img: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Tokyo', country: 'Japan', lat: 35.6762, lng: 139.6503, img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Monaco', country: 'Monaco', lat: 43.7384, lng: 7.4246, img: 'https://images.unsplash.com/photo-1536349788264-1b816af4e27e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Ibiza', country: 'Spain', lat: 38.9067, lng: 1.4206, img: 'https://images.unsplash.com/photo-1559523165-2b4742a78a6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Los Angeles', country: 'United States', lat: 34.0522, lng: -118.2437, img: 'https://images.unsplash.com/photo-1515896769750-31548ea180ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-  { name: 'Sydney', country: 'Australia', lat: -33.8688, lng: 151.2093, img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-];
 
 function coordsNear(a: number | null, b: number, tolerance = 0.05): boolean {
   return a != null && Math.abs(a - b) < tolerance;
@@ -212,7 +200,15 @@ export const PassportModal = memo(() => {
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <MapPin className={cn('w-3.5 h-3.5 shrink-0', isLight ? 'text-indigo-500' : 'text-indigo-400')} />
+                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 ring-1 ring-black/10">
+                          <img
+                            src={getCityPhoto(city.name, city.coordinates)}
+                            alt=""
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
+                          />
+                        </div>
                         <span className={cn('text-sm font-bold truncate', isLight ? 'text-slate-900' : 'text-white')}>{city.name}</span>
                       </div>
                       <span className={cn('text-[10px] font-bold uppercase tracking-wider shrink-0 ml-2', isLight ? 'text-slate-400' : 'text-white/40')}>{country}</span>
@@ -286,6 +282,7 @@ export const PassportModal = memo(() => {
                             loading="lazy"
                             decoding="async"
                             className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/90" />
 

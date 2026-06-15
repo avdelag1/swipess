@@ -42,23 +42,11 @@ import {
   GENIE_SPRING_CLOSE,
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
+import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
-
-const QUICK_CITIES = [
-  { name: 'Miami', lat: 25.7617, lng: -80.1918, emoji: '🌴' },
-  { name: 'Dubai', lat: 25.2048, lng: 55.2708, emoji: '🏙️' },
-  { name: 'Paris', lat: 48.8566, lng: 2.3522, emoji: '🗼' },
-  { name: 'London', lat: 51.5074, lng: -0.1278, emoji: '🇬🇧' },
-  { name: 'New York', lat: 40.7128, lng: -74.0060, emoji: '🗽' },
-  { name: 'Tokyo', lat: 35.6762, lng: 139.6503, emoji: '🗾' },
-  { name: 'Monaco', lat: 43.7384, lng: 7.4246, emoji: '🎰' },
-  { name: 'Ibiza', lat: 38.9067, lng: 1.4206, emoji: '🎶' },
-  { name: 'LA', lat: 34.0522, lng: -118.2437, emoji: '🌇' },
-  { name: 'Sydney', lat: -33.8688, lng: 151.2093, emoji: '🦘' },
-] as const;
 
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -640,7 +628,7 @@ export const PassportMapModal = memo(() => {
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 110px)' }}
         >
           <div className="flex items-center gap-1.5 px-4 py-1">
-            {QUICK_CITIES.map((city) => {
+            {PASSPORT_QUICK_CITIES.map((city) => {
               const isActive = passportMode && passportLabel?.includes(city.name);
               return (
                 <motion.button
@@ -662,13 +650,22 @@ export const PassportMapModal = memo(() => {
                     appToast.success(`Flying to ${city.name}`);
                   }}
                   className={cn(
-                    'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border whitespace-nowrap',
+                    'shrink-0 flex items-center gap-2 pl-1 pr-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border whitespace-nowrap overflow-hidden',
                     isActive
-                      ? 'bg-white/20 border-white/30 text-white backdrop-blur-md shadow-lg'
-                      : 'bg-black/40 border-white/10 text-white/60 backdrop-blur-sm hover:bg-black/50 hover:text-white/80',
+                      ? 'bg-white/25 border-white/40 text-white backdrop-blur-md shadow-lg ring-1 ring-white/20'
+                      : 'bg-black/45 border-white/10 text-white/75 backdrop-blur-sm hover:bg-black/55 hover:text-white',
                   )}
                 >
-                  <span className="text-xs">{city.emoji}</span>
+                  <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
+                    <img
+                      src={city.img}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
+                    />
+                  </div>
                   {city.name}
                 </motion.button>
               );
