@@ -266,7 +266,7 @@ export const PassportMapModal = memo(() => {
     };
 
     data.listings.forEach((l) => {
-      addMarker(l.lng, l.lat, '#EC4899', l.imageUrl, { type: 'listing', data: l });
+      addMarker(l.lng, l.lat, '#10B981', l.imageUrl, { type: 'listing', data: l });
     });
     data.profiles.forEach((p) => {
       addMarker(p.lng, p.lat, '#6366F1', p.imageUrl, { type: 'profile', data: p });
@@ -369,7 +369,7 @@ export const PassportMapModal = memo(() => {
             'absolute bottom-24 left-3 z-10 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider flex gap-3 border backdrop-blur-md',
             isLight ? 'bg-white/90 border-slate-200 text-slate-600' : 'bg-black/70 border-white/10 text-white/70',
           )}>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-pink-500" /> Listings</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Listings</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> People</span>
             {isLoading && <Loader2 className="w-3 h-3 animate-spin ml-1" />}
           </div>
@@ -397,7 +397,7 @@ export const PassportMapModal = memo(() => {
               ) : selected.type === 'profile' && selected.data.imageUrl ? (
                 <img src={selected.data.imageUrl} alt="" className="w-full h-full object-cover" />
               ) : selected.type === 'listing' ? (
-                <MapPin className="w-6 h-6 text-pink-400" />
+                <MapPin className="w-6 h-6 text-emerald-400" />
               ) : (
                 <User className="w-6 h-6 text-indigo-400" />
               )}

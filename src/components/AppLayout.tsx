@@ -208,10 +208,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
-    const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
     const isDirectChatInner = path.startsWith('/messages') && hasActiveChat;
-    return isSubscriptionRoute || isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
+    return isSubscriptionRoute || isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isDirectChatInner || isEvents;
   }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard, isSubscriptionRoute]);
 
   const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
