@@ -13,6 +13,8 @@ import { appToast } from '@/utils/appNotification';
 import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
+import { useMessagingQuota } from "@/hooks/useMessagingQuota";
+import { guardNewConversation, handleStartConversationError } from "@/utils/messagingQuotaUX";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
@@ -63,6 +65,7 @@ export function LikedClients() {
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
 
   const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],
@@ -134,12 +137,13 @@ export function LikedClients() {
         appToast.error("Cannot message", "User information missing.");
         return;
       }
+      if (!guardNewConversation(canStartNewConversation)) return;
       appToast.info("Starting chat", "Opening conversation...");
       try {
         const result = await startConversation.mutateAsync({
           otherUserId: client.user_id,
           initialMessage: `Hi ${client.full_name || "there"}! I'm interested in working with you.`,
-          canStartNewConversation: true,
+          canStartNewConversation,
         });
         if (result?.conversationId) {
           setConnectingRecipient(client.full_name || "Talent");
@@ -151,8 +155,8 @@ export function LikedClients() {
         } else {
           appToast.error("Could not open chat", "Please try again.");
         }
-      } catch (e: any) {
-        appToast.error("Unable to start conversation", e?.message || "Please try again.");
+      } catch (e) {
+        handleStartConversationError(e, "Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

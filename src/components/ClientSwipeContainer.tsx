@@ -28,6 +28,8 @@ import { Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useConversations, useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
@@ -435,6 +437,7 @@ const ClientSwipeContainerComponent = ({
   const { recordSwipe, undoLastSwipe, canUndo, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();
   const { data: conversations = [] } = useConversations();
+  const { canStartNewConversation } = useMessagingQuota();
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
@@ -823,11 +826,13 @@ const ClientSwipeContainerComponent = ({
     const existing = conversations?.find(c => c.other_user?.id === clientId);
     if (existing) {
       navigate(`/messages?conversationId=${existing.id}`);
+    } else if (!guardNewConversation(canStartNewConversation)) {
+      return;
     } else {
       navigate(`/messages?startConversation=${clientId}`);
     }
     triggerHaptic('light');
-  }, [navigate, conversations]);
+  }, [navigate, conversations, canStartNewConversation]);
 
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;
@@ -840,6 +845,8 @@ const ClientSwipeContainerComponent = ({
       return;
     }
 
+    if (!guardNewConversation(canStartNewConversation)) return;
+
     setIsCreatingConversation(true);
 
     try {
@@ -848,7 +855,7 @@ const ClientSwipeContainerComponent = ({
       const result = await startConversation.mutateAsync({
         otherUserId: selectedClientId,
         initialMessage: message,
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
 
       if (result?.conversationId) {
@@ -862,12 +869,12 @@ const ClientSwipeContainerComponent = ({
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
-      appToast.error('Could not start conversation', error instanceof Error ? error.message : 'Try again');
+      handleStartConversationError(error);
     } finally {
       setIsCreatingConversation(false);
       setIsConnecting(false);
     }
-  }, [isCreatingConversation, selectedClientId, startConversation, navigate]);
+  }, [isCreatingConversation, selectedClientId, startConversation, navigate, canStartNewConversation]);
 
   // ========================================
   // ­ƒöÑ ALL HOOKS ABOVE - DERIVED STATE BELOW

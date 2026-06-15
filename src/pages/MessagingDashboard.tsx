@@ -30,6 +30,7 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 // import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useBlockUser } from '@/hooks/useBlocking';
 import {
@@ -159,6 +160,10 @@ export function MessagingDashboard() {
         setIsStartingConversation(false);
         return;
       }
+      if (!guardNewConversation(canSendMessage)) {
+        setSearchParams({}, { replace: true });
+        return;
+      }
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in connecting.",
@@ -169,8 +174,8 @@ export function MessagingDashboard() {
         setSelectedConversationId(result.conversationId);
         setSearchParams({}, { replace: true });
       }
-    } catch (_e) {
-      appToast.error('Could not start conversation', _e instanceof Error ? _e.message : 'Please try again.');
+    } catch (e) {
+      handleStartConversationError(e);
       setSearchParams({}, { replace: true });
     } finally {
       setIsStartingConversation(false);

@@ -3,34 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
-
-type PlanLimits = {
-  messages_per_month: number;
-  unlimited_messages: boolean;
-};
-
-// Paid plans have unlimited messaging; free plan requires tokens
-const PLAN_LIMITS: Record<string, PlanLimits> = {
-  'free': { messages_per_month: 0, unlimited_messages: false },
-  '1 Month Access': { messages_per_month: 0, unlimited_messages: true },
-  '6 Months Access': { messages_per_month: 0, unlimited_messages: true },
-  '1 Year Access': { messages_per_month: 0, unlimited_messages: true },
-  'PREMIUM CLIENT': { messages_per_month: 0, unlimited_messages: true },
-  'PREMIUM ++ CLIENT': { messages_per_month: 0, unlimited_messages: true },
-  'UNLIMITED CLIENT': { messages_per_month: 0, unlimited_messages: true },
-  'PREMIUM + OWNER': { messages_per_month: 0, unlimited_messages: true },
-  'PREMIUM ++ OWNER': { messages_per_month: 0, unlimited_messages: true },
-  'PREMIUM MAX OWNER': { messages_per_month: 0, unlimited_messages: true },
-  'UNLIMITED OWNER': { messages_per_month: 0, unlimited_messages: true },
-  // Legacy plan names
-  'Ultimate Seeker': { messages_per_month: 0, unlimited_messages: true },
-  'Multi-Matcher': { messages_per_month: 0, unlimited_messages: true },
-  'Basic Explorer': { messages_per_month: 0, unlimited_messages: true },
-  'Empire Builder': { messages_per_month: 0, unlimited_messages: true },
-  'Multi-Asset Manager': { messages_per_month: 0, unlimited_messages: true },
-  'Category Pro': { messages_per_month: 0, unlimited_messages: true },
-  'Starter Lister': { messages_per_month: 0, unlimited_messages: true },
-};
+import {
+  PLAN_LIMITS,
+  computeCanStartNewConversation,
+  fetchTokenBalance,
+} from '@/utils/messagingEntitlements';
 
 export function useMessagingQuota() {
   const { user } = useAuth();
@@ -38,31 +15,17 @@ export function useMessagingQuota() {
   const queryClient = useQueryClient();
   
   // Get token balance from tokens table
-  const { data: tokenData } = useQuery({
+  const { data: tokenBalance = 0 } = useQuery({
     queryKey: ['user-tokens', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
-
-      const { data, error } = await supabase
-        .from('tokens')
-        .select('remaining_activations, activation_type')
-        .eq('user_id', user.id)
-        .gt('remaining_activations', 0);
-
-      if (error) {
-        if (error.code !== '42703') {
-          logger.error('[useMessagingQuota] Error fetching tokens:', error);
-        }
-        return [];
-      }
-
-      return data || [];
+      if (!user?.id) return 0;
+      return fetchTokenBalance(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 60_000,
   });
 
-  const tokenBalance = (tokenData || []).reduce((sum: number, t: any) => sum + (t.remaining_activations || 0), 0);
-  const tokenType = (tokenData || []).length > 0 ? (tokenData as any[])[0]?.activation_type : null;
+  const tokenType = tokenBalance > 0 ? 'message' : null;
   
   // Check free messaging matches - query conversations directly
   const { data: freeMessagingCount = 0, isLoading: _loadingMatches } = useQuery({
@@ -152,9 +115,11 @@ export function useMessagingQuota() {
   const isUnlimited = limits.unlimited_messages;
   const totalAllowed = limits.messages_per_month;
   const remainingConversations = isUnlimited ? 999999 : Math.max(0, totalAllowed - conversationsStarted);
-  // Users need an active subscription OR tokens to start conversations
-  const hasSubscription = planName !== 'free';
-  const canStartNewConversation = isUnlimited || (hasSubscription && remainingConversations > 0) || tokenBalance > 0;
+  const canStartNewConversation = computeCanStartNewConversation({
+    planName,
+    tokenBalance,
+    conversationsStartedThisMonth: conversationsStarted,
+  });
   
   const decrementConversationCount = () => {
     queryClient.invalidateQueries({ queryKey: ['conversations-started-count', user?.id] });
@@ -169,7 +134,7 @@ export function useMessagingQuota() {
     conversationsStartedThisMonth: conversationsStarted,
     totalAllowed,
     canStartNewConversation,
-    canSendMessage: true,
+    canSendMessage: canStartNewConversation,
     isUnlimited,
     currentPlan: planName,
     hasFreeMessagingMatches: freeMessagingCount > 0,

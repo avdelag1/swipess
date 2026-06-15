@@ -1,42 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { fetchTokenBalance } from '@/utils/messagingEntitlements';
 
 export function useTokens() {
   const { user } = useAuth();
 
-  const { data: tokens, isLoading } = useQuery({
-    queryKey: ['tokens', user?.id],
+  const { data: totalRemaining = 0, isLoading } = useQuery({
+    queryKey: ['user-tokens', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { totalRemaining: 999 };
-
-      try {
-        const { data, error } = await supabase
-          .from('tokens')
-          .select('*')
-          .eq('user_id', user.id);
-
-        if (error || !data || data.length === 0) {
-          return { totalRemaining: 999 };
-        }
-
-        const totalRemaining = data.reduce(
-          (sum: number, row: any) => sum + (row.remaining_activations || row.activations_remaining || 0),
-          0
-        );
-
-        return { totalRemaining: totalRemaining > 0 ? totalRemaining : 999 };
-      } catch {
-        return { totalRemaining: 999 };
-      }
+      if (!user?.id) return 0;
+      return fetchTokenBalance(user.id);
     },
     enabled: !!user?.id,
+    staleTime: 60_000,
   });
 
   return {
-    tokens: tokens?.totalRemaining ?? 999,
+    tokens: totalRemaining,
     isLoading,
   };
 }
-
-

@@ -31,6 +31,8 @@ import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useConversations, useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
@@ -286,6 +288,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   });
   const startConversation = useStartConversation();
   const { data: conversations = [] } = useConversations();
+  const { canStartNewConversation } = useMessagingQuota();
 
   const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('listing');
 
@@ -762,6 +765,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       return;
     }
 
+    if (!guardNewConversation(canStartNewConversation)) return;
+
     setSelectedListing(listing);
     setMessageDialogOpen(true);
     triggerHaptic('light');
@@ -783,6 +788,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       appToast.error('Content blocked', result.message || undefined);
       return;
     }
+    if (!guardNewConversation(canStartNewConversation)) return;
+
     setIsCreatingConversation(true);
     startNavigation();
     try {
@@ -790,7 +797,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         otherUserId: targetUserId,
         listingId: activeMode === 'owner' ? undefined : selectedListing.id,
         initialMessage: message,
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
       if (result?.conversationId) {
         setMessageDialogOpen(false);
@@ -798,7 +805,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
-      appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
+      handleStartConversationError(err, 'Error');
     } finally {
       setIsCreatingConversation(false);
       endNavigation();

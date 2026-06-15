@@ -117,7 +117,7 @@ function TopBarComponent({
     .join('')
     .toUpperCase();
 
-  const tokensLow = tokens > 0 && tokens < 10;
+  const tokensLow = tokens < 10;
 
   return (
     <header

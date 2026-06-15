@@ -459,7 +459,7 @@ export function useStartConversation() {
       otherUserId,
       listingId,
       initialMessage,
-      _canStartNewConversation
+      canStartNewConversation: _explicitAllow,
     }: {
       otherUserId: string;
       listingId?: string;
@@ -471,6 +471,9 @@ export function useStartConversation() {
       if (!otherUserId || otherUserId.length < 30 || otherUserId.startsWith('demo-')) {
         throw new Error('This profile is a sample and cannot receive messages yet.');
       }
+
+      const { assertCanStartNewConversation } = await import('@/utils/messagingEntitlements');
+      await assertCanStartNewConversation(user.id, otherUserId);
 
       const { data, error } = await (supabase as any).rpc('start_conversation_with_message', {
         p_other_user_id: otherUserId,
@@ -491,6 +494,7 @@ export function useStartConversation() {
     onSuccess: () => {
       queryClient.refetchQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
+      queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
     }
   });
 }
@@ -683,8 +687,25 @@ export function useConversationStats() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ['conversation-stats', user?.id],
-    queryFn: async () => ({ conversationsUsed: 0, conversationsLeft: 999, isPremium: true }),
-    enabled: !!user?.id
+    queryFn: async () => {
+      if (!user?.id) {
+        return { conversationsUsed: 0, conversationsLeft: 0, isPremium: false };
+      }
+      const { fetchTokenBalance, fetchActivePlanName, computeCanStartNewConversation, PLAN_LIMITS } =
+        await import('@/utils/messagingEntitlements');
+      const [tokenBalance, planName] = await Promise.all([
+        fetchTokenBalance(user.id),
+        fetchActivePlanName(user.id),
+      ]);
+      const limits = PLAN_LIMITS[planName] || PLAN_LIMITS.free;
+      return {
+        conversationsUsed: 0,
+        conversationsLeft: limits.unlimited_messages ? 999999 : tokenBalance,
+        isPremium: planName !== 'free' || limits.unlimited_messages,
+        canStartNewConversation: computeCanStartNewConversation({ planName, tokenBalance }),
+      };
+    },
+    enabled: !!user?.id,
   });
 }
 

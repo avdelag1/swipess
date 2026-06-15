@@ -25,6 +25,8 @@ import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 
 export default function PublicListingPreview() {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +40,7 @@ export default function PublicListingPreview() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
 
   // Capture referral code
   useEffect(() => {
@@ -127,6 +130,7 @@ export default function PublicListingPreview() {
   
   const handleSendMessage = async (text: string) => {
     if (!listing?.owner_id || isCreatingConversation) return;
+    if (!guardNewConversation(canStartNewConversation)) return;
     
     setIsCreatingConversation(true);
     triggerHaptic('medium');
@@ -136,7 +140,7 @@ export default function PublicListingPreview() {
         otherUserId: listing.owner_id,
         listingId: listing.id,
         initialMessage: text,
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
       
       setShowDirectMessageDialog(false);
@@ -150,6 +154,7 @@ export default function PublicListingPreview() {
     } catch (err) {
       logger.error('[PublicListingPreview] Failed to send message:', err);
       triggerHaptic('error');
+      handleStartConversationError(err);
     } finally {
       setIsCreatingConversation(false);
       setIsConnecting(false);
@@ -268,7 +273,11 @@ export default function PublicListingPreview() {
         >
           {user ? (
             <Button
-              onClick={() => { triggerHaptic('success'); setShowDirectMessageDialog(true); }}
+              onClick={() => {
+                triggerHaptic('success');
+                if (!guardNewConversation(canStartNewConversation)) return;
+                setShowDirectMessageDialog(true);
+              }}
               className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
             >
               <MessageCircle className="w-5 h-5 mr-2.5" />

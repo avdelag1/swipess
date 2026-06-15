@@ -4,6 +4,8 @@ const SwipeInsightsModal = lazy(() => import("@/components/SwipeInsightsModal").
 import { useMemo, useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
+import { useMessagingQuota } from "@/hooks/useMessagingQuota";
+import { guardNewConversation, handleStartConversationError } from "@/utils/messagingQuotaUX";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowUpDown, Bike, Briefcase, Car, Flame, Home, RefreshCw, Search, Users } from "lucide-react";
 import { appToast } from '@/utils/appNotification';
@@ -68,6 +70,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -135,6 +138,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
       return;
     }
     if (action === "message") {
+      if (!guardNewConversation(canStartNewConversation)) return;
       try {
         triggerHaptic('medium');
         const initialMessage = property.target_type === 'profile'
@@ -145,7 +149,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
           otherUserId: property.owner_id,
           listingId: property.id,
           initialMessage,
-          canStartNewConversation: true,
+          canStartNewConversation,
         });
         
         if (result?.conversationId) {
@@ -158,8 +162,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         } else {
           navigate("/messages");
         }
-      } catch {
-        appToast.error("Unable to start conversation");
+      } catch (err) {
+        handleStartConversationError(err, "Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

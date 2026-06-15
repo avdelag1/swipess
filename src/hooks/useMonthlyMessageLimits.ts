@@ -1,29 +1,31 @@
-import { useAuth } from './useAuth';
+import { useMessagingQuota } from './useMessagingQuota';
 
-/**
- * Hook to enforce monthly message limits
- * Currently disabled - all messaging is free for testing
- */
 export function useMonthlyMessageLimits() {
-  const { user: _user } = useAuth();
+  const {
+    conversationsStartedThisMonth,
+    remainingConversations,
+    totalAllowed,
+    canStartNewConversation,
+    isUnlimited,
+    currentPlan,
+    tokenBalance,
+  } = useMessagingQuota();
+
+  const messageLimit = isUnlimited ? 999999 : Math.max(totalAllowed, tokenBalance);
+  const messagesRemaining = isUnlimited ? 999999 : Math.max(remainingConversations, tokenBalance);
 
   return {
-    // Usage info
-    messagesUsed: 0,
-    messagesRemaining: 999,
-    messageLimit: 999,
-
-    // Permissions - always allow for testing
-    canSendMessage: true,
-    isAtLimit: false,
-    limitPercentage: 0,
-
-    // Status - no monthly limit enforced
-    hasMonthlyLimit: false,
+    messagesUsed: conversationsStartedThisMonth,
+    messagesRemaining,
+    messageLimit,
+    canSendMessage: canStartNewConversation,
+    isAtLimit: !canStartNewConversation,
+    limitPercentage: messageLimit > 0
+      ? Math.min(100, (conversationsStartedThisMonth / messageLimit) * 100)
+      : 0,
+    hasMonthlyLimit: !isUnlimited && currentPlan === 'free' && tokenBalance === 0,
     isLoading: false,
     isActive: true,
-    tier: 'free',
+    tier: currentPlan,
   };
 }
-
-

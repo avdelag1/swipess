@@ -12,6 +12,8 @@ import {
 import { appToast } from '@/utils/appNotification';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { useMemo, useState } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 // import { } from '@/utils/prodLogger';
@@ -30,6 +32,7 @@ export default function OwnerViewClientProfile() {
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
   const { isLight } = useAppTheme();
 
@@ -99,6 +102,7 @@ export default function OwnerViewClientProfile() {
 
   const handleConnect = async () => {
     if (!clientId || isCreatingConversation) return;
+    if (!guardNewConversation(canStartNewConversation)) return;
     triggerHaptic('medium');
     setIsCreatingConversation(true);
     
@@ -107,7 +111,7 @@ export default function OwnerViewClientProfile() {
       const result = await startConversation.mutateAsync({
         otherUserId: clientId,
         initialMessage: "Hi! I saw your profile and would like to connect.",
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
 
       if (result?.conversationId) {
@@ -117,8 +121,8 @@ export default function OwnerViewClientProfile() {
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch (_error) {
-      appToast.error('Could not start conversation');
+    } catch (error) {
+      handleStartConversationError(error);
     } finally {
       setIsCreatingConversation(false);
       setIsConnecting(false);

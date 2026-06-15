@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { useNavigate } from 'react-router-dom';
 import { 
   _MapPin, _MessageCircle, ArrowLeft, CalendarDays, Clock, RefreshCw, 
@@ -108,6 +110,7 @@ export default function ClientWorkerDiscovery() {
   const parentRef = useRef<HTMLDivElement>(null);
   const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
 
   const filteredWorkers = workers || [];
 
@@ -121,6 +124,7 @@ export default function ClientWorkerDiscovery() {
   // 🚀 SWIPESS: Optimized contact handler with stable reference
   const handleContact = useCallback(async (userId: string) => {
     if (contactingId) return;
+    if (!guardNewConversation(canStartNewConversation)) return;
     setContactingId(userId);
 
     try {
@@ -129,7 +133,7 @@ export default function ClientWorkerDiscovery() {
       const result = await startConversation.mutateAsync({
         otherUserId: userId,
         initialMessage: "Hi! I'm interested in your services.",
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
 
       if (result?.conversationId) {
@@ -142,13 +146,13 @@ export default function ClientWorkerDiscovery() {
         
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch {
-      appToast.error('Could not start conversation');
+    } catch (err) {
+      handleStartConversationError(err);
     } finally {
       setContactingId(null);
       setIsConnecting(false);
     }
-  }, [contactingId, startConversation, navigate, workers]);
+  }, [contactingId, startConversation, navigate, workers, canStartNewConversation]);
 
   const clearFilters = () => setSelectedDuration('all');
   const hasActiveFilters = selectedDuration !== 'all';

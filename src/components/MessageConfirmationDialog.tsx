@@ -9,6 +9,8 @@ import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useModalStore } from '@/state/modalStore';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation } from '@/utils/messagingQuotaUX';
 
 interface MessageConfirmationDialogProps {
   open: boolean;
@@ -27,12 +29,20 @@ export function MessageConfirmationDialog({
 }: MessageConfirmationDialogProps) {
   const { isLight } = useAppTheme();
   const [message, setMessage] = useState("Hi! I'd like to connect with you.");
+  const { canStartNewConversation, tokenBalance, isUnlimited, currentPlan } = useMessagingQuota();
+
+  const quotaLabel = isUnlimited
+    ? 'Unlimited messaging'
+    : tokenBalance > 0
+      ? `${tokenBalance} token${tokenBalance === 1 ? '' : 's'} left`
+      : 'No tokens — upgrade to message';
 
   const handleConfirm = () => {
     if (!message.trim()) {
       logger.warn('[MessageConfirmationDialog] Empty message, not sending');
       return;
     }
+    if (!guardNewConversation(canStartNewConversation)) return;
     triggerHaptic('medium');
     logger.info('[MessageConfirmationDialog] User confirmed message send');
     onConfirm(message);
@@ -86,8 +96,12 @@ export function MessageConfirmationDialog({
                 <Sparkles className="z-[10000] w-3.5 h-3.5 text-rose-400" />
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 block">Unlimited Access</span>
-                <span className={cn("text-[9px] font-medium", isLight ? "text-slate-400" : "text-white/35")}>Premium Messaging Active</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 block">
+                  {isUnlimited ? 'Unlimited Access' : 'Message Tokens'}
+                </span>
+                <span className={cn("text-[9px] font-medium", isLight ? "text-slate-400" : "text-white/35")}>
+                  {isUnlimited ? `${currentPlan} plan` : quotaLabel}
+                </span>
               </div>
             </div>
             <button
@@ -122,7 +136,7 @@ export function MessageConfirmationDialog({
         <div className="shrink-0 flex flex-col gap-2 p-5 pt-3 border-t border-white/[0.06]">
           <Button
             onClick={handleConfirm}
-            disabled={isLoading || !message.trim()}
+            disabled={isLoading || !message.trim() || !canStartNewConversation}
             className={cn("w-full h-12 rounded-xl font-bold text-sm active:scale-[0.98] transition-all border-0 shadow-lg", isLight ? "text-slate-900" : "text-white")}
             style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)' }}
           >

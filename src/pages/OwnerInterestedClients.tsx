@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 // import { } from "@/components/PremiumSortableGrid";
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from "@/hooks/useConversations";
+import { useMessagingQuota } from "@/hooks/useMessagingQuota";
+import { guardNewConversation, handleStartConversationError } from "@/utils/messagingQuotaUX";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { getCardImageUrl, pwaImagePreloader } from "@/utils/imageOptimization";
 import { cn } from "@/lib/utils";
@@ -49,6 +51,7 @@ const OwnerInterestedClients = () => {
   const [connectingRecipient, setConnectingRecipient] = useState("");
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
 
   const storageKey = user?.id ? `interested-clients-order-${user.id}` : "";
 
@@ -171,12 +174,13 @@ const OwnerInterestedClients = () => {
       return;
     }
     if (action === "message") {
+      if (!guardNewConversation(canStartNewConversation)) return;
       try {
         triggerHaptic('medium');
         const result = await startConversation.mutateAsync({
           otherUserId: client.user_id,
           initialMessage: `Hi ${client.full_name}! Thanks for liking my listing. Let's talk!`,
-          canStartNewConversation: true,
+          canStartNewConversation,
         });
         
         if (result?.conversationId) {
@@ -187,8 +191,8 @@ const OwnerInterestedClients = () => {
           
           navigate(`/messages?conversationId=${result.conversationId}`);
         }
-      } catch {
-        appToast.error("Unable to start conversation");
+      } catch (err) {
+        handleStartConversationError(err, "Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

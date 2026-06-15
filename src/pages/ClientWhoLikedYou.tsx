@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 // import { } from "@/components/PremiumSortableGrid";
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from "@/hooks/useConversations";
+import { useMessagingQuota } from "@/hooks/useMessagingQuota";
+import { guardNewConversation, handleStartConversationError } from "@/utils/messagingQuotaUX";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/PageHeader";
@@ -64,6 +66,7 @@ const ClientWhoLikedYou = () => {
   const [connectingRecipient, setConnectingRecipient] = useState("");
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
 
   const storageKey = user?.id ? `who-liked-me-order-${user.id}` : "";
 
@@ -143,12 +146,13 @@ const ClientWhoLikedYou = () => {
       return;
     }
     if (action === "message") {
+      if (!guardNewConversation(canStartNewConversation)) return;
       try {
         triggerHaptic('medium');
         const result = await startConversation.mutateAsync({
           otherUserId: owner.owner_id,
           initialMessage: `Hi! I saw you were interested in my profile. Let's connect!`,
-          canStartNewConversation: true,
+          canStartNewConversation,
         });
         
         if (result?.conversationId) {
@@ -159,8 +163,8 @@ const ClientWhoLikedYou = () => {
           
           navigate(`/messages?conversationId=${result.conversationId}`);
         }
-      } catch {
-        appToast.error("Unable to start conversation");
+      } catch (err) {
+        handleStartConversationError(err, "Unable to start conversation");
       } finally {
         setIsConnecting(false);
       }

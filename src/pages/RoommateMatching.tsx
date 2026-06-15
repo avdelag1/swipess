@@ -24,6 +24,8 @@ import { MatchOverlay } from '@/components/native/MatchOverlay';
 import { triggerMatchConfetti } from '@/utils/celebration';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useStartConversation } from '@/hooks/useConversations';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
+import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { useNavigate } from 'react-router-dom';
 import { appToast } from '@/utils/appNotification';
 import { useChromeReveal } from '@/hooks/useChromeReveal';
@@ -66,6 +68,7 @@ export default function RoommateMatching() {
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const navigate = useNavigate();
   const startConversation = useStartConversation();
+  const { canStartNewConversation } = useMessagingQuota();
   
   // ðŸ¥‚ CELEBRATION STATE
   const [showMatch, setShowMatch] = useState(false);
@@ -148,19 +151,21 @@ export default function RoommateMatching() {
       navigate('/');
       return;
     }
+    if (!guardNewConversation(canStartNewConversation)) return;
+
     setIsStartingConversation(true);
     try {
       const result = await startConversation.mutateAsync({
         otherUserId: topCard.user_id,
         initialMessage: message,
-        canStartNewConversation: true,
+        canStartNewConversation,
       });
       if (result?.conversationId) {
         setMessageDialogOpen(false);
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (err) {
-      appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
+      handleStartConversationError(err, 'Error');
     } finally {
       setIsStartingConversation(false);
     }
