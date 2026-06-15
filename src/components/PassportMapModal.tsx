@@ -151,9 +151,10 @@ export const PassportMapModal = memo(() => {
     try {
       const { latitude, longitude } = await getCurrentPosition({ timeout: 10000 });
       setUserLocation(latitude, longitude);
+      setRadiusKm(5); // Default to 5km when hitting GPS
       mapRef.current?.flyTo({ 
         center: [longitude, latitude], 
-        zoom: 12, 
+        zoom: 11.5, // Perfect zoom for 5km
         duration: 2500,
         pitch: 50,
         essential: true 
@@ -164,7 +165,7 @@ export const PassportMapModal = memo(() => {
     } finally {
       setGpsLoading(false);
     }
-  }, [setUserLocation]);
+  }, [setUserLocation, setRadiusKm]);
 
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
@@ -185,9 +186,10 @@ export const PassportMapModal = memo(() => {
       try {
         const { latitude, longitude } = await getCurrentPosition({ timeout: 12000, maximumAge: 30000 });
         setUserLocation(latitude, longitude);
+        setRadiusKm(5); // Start with 5km
         mapRef.current?.flyTo({
           center: [longitude, latitude],
-          zoom: 12,
+          zoom: 11.5, // Zoom for 5km
           duration: 2000,
           pitch: 45,
           essential: true,
@@ -198,7 +200,7 @@ export const PassportMapModal = memo(() => {
         setGpsLoading(false);
       }
     })();
-  }, [isOpen, mapReady, passportMode, setUserLocation]);
+  }, [isOpen, mapReady, passportMode, setUserLocation, setRadiusKm]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -397,6 +399,22 @@ export const PassportMapModal = memo(() => {
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
   }, [mapReady, lat, lng, radiusKm]);
+
+  // Dynamically zoom map to fit the expanding/contracting radius
+  useEffect(() => {
+    if (!isOpen || !mapReady || !mapRef.current || lat == null || lng == null) return;
+    
+    // Calculate perfect zoom level based on radius in km
+    // 5km -> ~11.5, 50km -> ~8.2, 200km -> ~6.2
+    const targetZoom = 13.8 - Math.log2(radiusKm);
+    
+    mapRef.current.easeTo({
+      center: [lng, lat],
+      zoom: targetZoom,
+      duration: 150, // very fast, instant feeling
+      essential: true
+    });
+  }, [radiusKm, lat, lng, mapReady, isOpen]);
 
   useEffect(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
