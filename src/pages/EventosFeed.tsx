@@ -291,7 +291,7 @@ export default function EventosFeed() {
           <button
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "shrink-0 w-10 h-10 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg",
+              "shrink-0 w-10 h-10 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent",
               isLight ? "bg-white/90 border border-black/5 text-black" : "bg-black/60 border border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px) saturate(1.6)', WebkitBackdropFilter: 'blur(20px) saturate(1.6)' }}
@@ -316,7 +316,7 @@ export default function EventosFeed() {
                     setActiveCategory(cat.key);
                     if (cat.key === 'likes') navigate('/explore/events/likes');
                   }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-95 group"
+                  className="flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-95 group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
                 >
                   <div 
                     className={cn(

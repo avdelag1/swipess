@@ -96,9 +96,9 @@ export const PassportModal = memo(() => {
     try {
       const { latitude, longitude } = await getCurrentPosition({ timeout: 10000, maximumAge: 60000 });
       setUserLocation(latitude, longitude);
-      setRadiusKm(50);
+      setRadiusKm(5);
       appToast.success('Using your current location');
-      onClose();
+      openLiveMap();
     } catch {
       appToast.error('Could not detect your location. Check permissions.');
     } finally {

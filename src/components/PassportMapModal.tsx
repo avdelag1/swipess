@@ -28,7 +28,7 @@ import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const RADIUS_PRESETS = [10, 25, 50, 100, 200] as const;
+const RADIUS_PRESETS = [5, 10, 25, 50] as const;
 
 function zoomForRadiusKm(km: number): number {
   return Math.min(16, Math.max(10, 13.8 - Math.log2(km)));
@@ -104,6 +104,21 @@ export const PassportMapModal = memo(() => {
     setRadiusPanelOpen(false);
     setModal('showPassportMapModal', false);
   }, [setModal]);
+
+  // Dynamically zoom map to fit the expanding/contracting radius
+  useEffect(() => {
+    if (!isOpen || !mapReady || !mapRef.current || lat == null || lng == null) return;
+    
+    // Zoom out slightly more than before to show margin around the circle
+    const targetZoom = 12.8 - Math.log2(radiusKm);
+    
+    mapRef.current.easeTo({
+      center: [lng, lat],
+      zoom: targetZoom,
+      duration: 150, // very fast, instant feeling
+      essential: true
+    });
+  }, [radiusKm, lat, lng, mapReady, isOpen]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 12) => {
     setPassportLocation(newLat, newLng, label);
@@ -289,7 +304,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
-          doubleClickZoom: false,
+          doubleClickZoom: true,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -677,14 +692,14 @@ export const PassportMapModal = memo(() => {
                   <div className="relative flex-1">
                     <div
                       className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
-                      style={{ width: `${((radiusKm - 5) / 195) * 100}%` }}
+                      style={{ width: `${((radiusKm - 5) / 45) * 100}%` }}
                     >
                       <div className="h-2 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
                     </div>
                     <input
                       type="range"
                       min={5}
-                      max={200}
+                      max={50}
                       step={1}
                       value={radiusKm}
                       onChange={(e) => setRadiusKm(Number(e.target.value))}
@@ -702,7 +717,7 @@ export const PassportMapModal = memo(() => {
                     />
                     <style>{`
                       input[type="range"]::-webkit-slider-thumb {
-                        background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : radiusKm <= 75 ? '#8B5CF6' : radiusKm <= 150 ? '#F59E0B' : '#EF4444'};
+                        background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : '#8B5CF6'};
                       }
                       input[type="range"]::-moz-range-thumb {
                         background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : radiusKm <= 75 ? '#8B5CF6' : radiusKm <= 150 ? '#F59E0B' : '#EF4444'};
