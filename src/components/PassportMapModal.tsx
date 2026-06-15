@@ -134,7 +134,7 @@ export const PassportMapModal = memo(() => {
       mapRef.current,
       [center.lng, center.lat],
       zoomForRadiusKm(radiusKm),
-      { duration: 400 },
+      { duration: 200 },
     );
   }, [radiusKm, isOpen, mapReady]);
 
@@ -644,71 +644,52 @@ export const PassportMapModal = memo(() => {
                 />
               ))}
 
-              <div className="w-8 h-px bg-white/15 my-0.5" />
 
-              <PassportMapChunkyButton
-                icon={MapPin}
-                label={`${radiusKm}km`}
-                gradient={gradientForRadius(radiusKm)}
-                active={radiusPanelOpen}
-                onClick={() => {
-                  triggerHaptic('light');
-                  setRadiusPanelOpen((v) => !v);
-                }}
-              />
             </motion.div>
           )}
         </AnimatePresence>
 
+        {/* Inline radius quick-select — floating bottom bar, always visible */}
         <AnimatePresence>
-          {radiusPanelOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-[35] bg-black/40 backdrop-blur-[2px]"
-                onClick={() => setRadiusPanelOpen(false)}
-              />
-              <motion.div
-                initial={{ opacity: 0, y: 16, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 12, scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                className="absolute left-4 right-4 z-[45] mx-auto max-w-sm rounded-[2rem] border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-3xl p-5 shadow-[0_30px_80px_rgba(0,0,0,0.65)] pointer-events-auto"
-                style={{ top: 'calc(env(safe-area-inset-top, 0px) + 108px)' }}
-              >
-                <div className="mb-4">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-1">Search Radius</h4>
-                  <p className="text-sm font-black italic text-white/90">Live zone around you</p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 mb-4">
+          {isOpen && !selected && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="absolute left-4 right-4 z-40 pointer-events-auto"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)' }}
+            >
+              <div className="mx-auto max-w-md rounded-2xl border border-white/12 bg-black/60 backdrop-blur-xl p-3 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+                {/* Preset buttons row */}
+                <div className="flex items-center gap-1.5 mb-2.5">
                   {RADIUS_PRESETS.map((r) => (
                     <motion.button
                       key={r}
                       type="button"
-                      whileTap={{ scale: 0.95 }}
+                      whileTap={{ scale: 0.92 }}
                       onClick={() => { triggerHaptic('light'); setRadiusKm(r); }}
                       className={cn(
-                        'h-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 border text-white font-black uppercase italic tracking-wider text-[10px] shadow-lg transition-all',
-                        radiusKm === r ? 'border-white/30' : 'border-white/10 bg-white/5 text-white/55',
+                        'flex-1 h-8 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-150',
+                        radiusKm === r
+                          ? 'text-white shadow-lg'
+                          : 'text-white/50 bg-white/6 hover:bg-white/10 active:bg-white/14',
                       )}
-                      style={radiusKm === r ? { background: RADIUS_GRADIENTS[r] } : undefined}
+                      style={radiusKm === r ? { background: gradientForRadius(r) } : undefined}
                     >
-                      <Zap className="w-4 h-4" />
                       {r}km
                     </motion.button>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Slider row */}
+                <div className="flex items-center gap-2.5">
                   <div className="relative flex-1">
                     <div
                       className="absolute inset-y-0 left-0 flex items-center pointer-events-none"
                       style={{ width: `${((radiusKm - 5) / 75) * 100}%` }}
                     >
-                      <div className="h-2 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
+                      <div className="h-1.5 w-full rounded-full" style={{ background: gradientForRadius(radiusKm) }} />
                     </div>
                     <input
                       type="range"
@@ -717,16 +698,16 @@ export const PassportMapModal = memo(() => {
                       step={1}
                       value={radiusKm}
                       onChange={(e) => setRadiusKm(Number(e.target.value))}
-                      className="relative w-full h-2 rounded-full appearance-none cursor-pointer z-10
-                        [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-7 [&::-webkit-slider-thumb]:h-7
-                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-white
-                        [&::-webkit-slider-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.4)] [&::-webkit-slider-thumb]:cursor-grab
-                        [&::-webkit-slider-thumb]:active:cursor-grabbing
-                        [&::-moz-range-thumb]:w-7 [&::-moz-range-thumb]:h-7
-                        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-white
-                        [&::-moz-range-thumb]:shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
-                      style={{ background: 'rgba(255,255,255,0.12)' }}
+                      className="relative w-full h-1.5 rounded-full appearance-none cursor-pointer z-10
+                        [&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:rounded-full
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[2px] [&::-webkit-slider-thumb]:border-white
+                        [&::-webkit-slider-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.4)] [&::-webkit-slider-thumb]:cursor-grab
+                        [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:-mt-[7px]
+                        [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
+                        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[2px] [&::-moz-range-thumb]:border-white
+                        [&::-moz-range-thumb]:shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                      style={{ background: 'rgba(255,255,255,0.08)' }}
                       aria-label="Search radius in kilometers"
                     />
                     <style>{`
@@ -739,23 +720,14 @@ export const PassportMapModal = memo(() => {
                     `}</style>
                   </div>
                   <span
-                    className="text-[11px] font-black text-white px-2.5 py-1.5 rounded-xl min-w-[3.5rem] text-center shadow-lg"
+                    className="text-[10px] font-black text-white px-2 py-1 rounded-lg min-w-[2.8rem] text-center"
                     style={{ background: gradientForRadius(radiusKm) }}
                   >
                     {radiusKm}km
                   </span>
                 </div>
-
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setRadiusPanelOpen(false)}
-                  className="w-full mt-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white bg-white/10 hover:bg-white/15 transition-colors"
-                >
-                  Done
-                </motion.button>
-              </motion.div>
-            </>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -818,30 +790,7 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
-        {!selected && !radiusPanelOpen && (
-          <div
-            className="absolute inset-x-0 z-20 flex items-center justify-center gap-3 pointer-events-none px-4"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 6px)' }}
-          >
-            <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: PASSPORT_GRADIENTS.listings }} />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">Listings</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: PASSPORT_GRADIENTS.people }} />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">People</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] ring-2 ring-white/60" />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">You</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full border-2 border-[#A855F7] bg-[#8B5CF6]/40" />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">Radius</span>
-            </div>
-            <span className="text-[8px] font-bold uppercase tracking-wider text-white/25">Double-tap · fly to you</span>
-          </div>
-        )}
+
       </div>
     </div>
   );

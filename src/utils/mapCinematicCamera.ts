@@ -5,7 +5,12 @@ export const CINEMATIC_PITCH = 58;
 export const CINEMATIC_BEARING = 22;
 
 export function zoomForRadiusKm(km: number): number {
-  return Math.min(15.5, Math.max(10.5, 12.8 - Math.log2(Math.max(km, 5))));
+  // Mapbox zoom ≈ log2(circumference / radius_px). At equator,
+  // zoom 14 ≈ 1km across screen. This tuned formula keeps the circle
+  // visible but NOT covering the entire viewport.
+  // 5km → ~13.3, 20km → ~11.3, 40km → ~10.3, 80km → ~9.3
+  const z = 14.6 - Math.log2(Math.max(km, 3));
+  return Math.min(15, Math.max(8.5, z));
 }
 
 export function applyCinematicFog(map: MapboxMap, isLight: boolean): void {
