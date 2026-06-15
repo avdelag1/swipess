@@ -15,10 +15,46 @@ function formatPinPrice(price?: number): string | null {
   return `$${Math.round(price)}`;
 }
 
+const injectMarkerStyles = () => {
+  if (typeof document === 'undefined' || document.getElementById('passport-marker-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'passport-marker-styles';
+  style.innerHTML = `
+    @keyframes listing-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6); }
+      70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+    }
+    @keyframes profile-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.6); }
+      70% { box-shadow: 0 0 0 18px rgba(129, 140, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0); }
+    }
+    .passport-map-marker {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+      will-change: transform, box-shadow;
+    }
+    .passport-map-marker:hover {
+      transform: scale(1.15) translateY(-4px) !important;
+      z-index: 1000 !important;
+    }
+    .passport-map-marker--listing[data-selected="true"] {
+      animation: listing-pulse 2s infinite !important;
+      z-index: 1001 !important;
+    }
+    .passport-map-marker--profile[data-selected="true"] {
+      animation: profile-pulse 2s infinite !important;
+      z-index: 1001 !important;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
 export function createListingMarkerEl(
   listing: MapListingPin,
   isSelected: boolean,
 ): HTMLDivElement {
+  injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--listing';
   const price = formatPinPrice(listing.price);
@@ -33,13 +69,14 @@ export function createListingMarkerEl(
     font-size: 11px; font-weight: 800; letter-spacing: 0.02em;
     border: 2px solid ${isSelected ? '#EC4899' : '#ffffff'};
     box-shadow: 0 ${isSelected ? '8' : '4'}px ${isSelected ? '24' : '14'}px rgba(0,0,0,${isSelected ? '0.45' : '0.28'});
-    cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
     transform: scale(${isSelected ? '1.08' : '1'});
     white-space: nowrap;
   `;
   el.textContent = label;
   el.dataset.pinId = listing.id;
   el.dataset.pinType = 'listing';
+  el.dataset.selected = isSelected.toString();
   return el;
 }
 
@@ -47,6 +84,7 @@ export function createProfileMarkerEl(
   profile: MapProfilePin,
   isSelected: boolean,
 ): HTMLDivElement {
+  injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--profile';
   const size = isSelected ? 46 : 40;
@@ -58,7 +96,6 @@ export function createProfileMarkerEl(
     overflow: hidden; cursor: pointer;
     background-size: cover; background-position: center;
     transform: scale(${isSelected ? '1.1' : '1'});
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
   `;
 
   if (profile.imageUrl) {
@@ -76,6 +113,7 @@ export function createProfileMarkerEl(
 
   el.dataset.pinId = profile.id;
   el.dataset.pinType = 'profile';
+  el.dataset.selected = isSelected.toString();
   return el;
 }
 

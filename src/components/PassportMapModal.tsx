@@ -88,10 +88,17 @@ export const PassportMapModal = memo(() => {
     setModal('showPassportMapModal', false);
   }, [setModal]);
 
-  const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
+  const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 12) => {
     setPassportLocation(newLat, newLng, label);
     setRadiusKm(50);
-    mapRef.current?.flyTo({ center: [newLng, newLat], zoom, duration: 900 });
+    mapRef.current?.flyTo({ 
+      center: [newLng, newLat], 
+      zoom, 
+      duration: 3500,
+      pitch: 60,
+      bearing: 20,
+      essential: true 
+    });
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
   }, [setPassportLocation, setRadiusKm]);
@@ -103,8 +110,10 @@ export const PassportMapModal = memo(() => {
     setSelected(pin);
     mapRef.current?.flyTo({
       center: [pin.data.lng, pin.data.lat],
-      zoom: 13,
-      duration: 700,
+      zoom: 14,
+      duration: 1500,
+      pitch: 45,
+      essential: true
     });
   }, []);
 
@@ -135,7 +144,13 @@ export const PassportMapModal = memo(() => {
     try {
       const { latitude, longitude } = await getCurrentPosition({ timeout: 10000 });
       setUserLocation(latitude, longitude);
-      mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 12, duration: 900 });
+      mapRef.current?.flyTo({ 
+        center: [longitude, latitude], 
+        zoom: 12, 
+        duration: 2500,
+        pitch: 50,
+        essential: true 
+      });
       appToast.success('Using your current location');
     } catch {
       appToast.error('Could not detect location');
@@ -196,12 +211,61 @@ export const PassportMapModal = memo(() => {
           attributionControl: false,
           fadeDuration: 0,
           antialias: true,
+          projection: 'globe' as any,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
 
         map.on('load', () => {
           if (cancelled) return;
+
+          // Add Atmosphere (Fog)
+          map.setFog({
+            color: isLightRef.current ? 'rgb(186, 210, 235)' : 'rgb(20, 20, 30)', // Lower atmosphere
+            'high-color': isLightRef.current ? 'rgb(36, 92, 223)' : 'rgb(10, 10, 15)', // Upper atmosphere
+            'horizon-blend': 0.02,
+            'space-color': isLightRef.current ? 'rgb(240, 245, 250)' : 'rgb(5, 5, 10)', // Background color
+            'star-intensity': isLightRef.current ? 0 : 0.6 // Background star brightness
+          });
+
+          // Add 3D buildings
+          const layers = map.getStyle().layers;
+          let labelLayerId;
+          if (layers) {
+            for (let i = 0; i < layers.length; i++) {
+              if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
+                labelLayerId = layers[i].id;
+                break;
+              }
+            }
+          }
+
+          map.addLayer(
+            {
+              id: 'add-3d-buildings',
+              source: 'composite',
+              'source-layer': 'building',
+              filter: ['==', 'extrude', 'true'],
+              type: 'fill-extrusion',
+              minzoom: 14,
+              paint: {
+                'fill-extrusion-color': isLightRef.current ? '#e5e7eb' : '#262626',
+                'fill-extrusion-height': [
+                  'interpolate', ['linear'], ['zoom'],
+                  14, 0,
+                  14.05, ['get', 'height']
+                ],
+                'fill-extrusion-base': [
+                  'interpolate', ['linear'], ['zoom'],
+                  14, 0,
+                  14.05, ['get', 'min_height']
+                ],
+                'fill-extrusion-opacity': 0.6
+              }
+            },
+            labelLayerId
+          );
+
           requestAnimationFrame(() => {
             resizeMap();
             requestAnimationFrame(() => {
