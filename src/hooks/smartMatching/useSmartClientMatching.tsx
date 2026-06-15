@@ -402,13 +402,16 @@ export function useSmartClientMatching(
 
                         let locationFiltered = normalizedClients as any[];
                         if (hasActiveLocationFilter(filters)) {
-                            locationFiltered = filterByDistance(
+                            const distanced = filterByDistance(
                                 locationFiltered,
                                 filters!.userLatitude!,
                                 filters!.userLongitude!,
                                 filters?.radiusKm ?? 50,
-                                false,
+                                false
                             );
+                            if (distanced.length > 0 || !isDemoFeedEnabled()) {
+                                locationFiltered = distanced;
+                            }
                         }
 
                         locationFiltered = filterClientsByOwnerFilters(
@@ -536,7 +539,10 @@ export function useSmartClientMatching(
 
                 // Distance filter — same passport/GPS logic as listings
                 if (userLat != null && userLon != null) {
-                    results = filterByDistance(results as any[], userLat, userLon, radiusKm, false) as typeof results;
+                    const distanced = filterByDistance(results as any[], userLat, userLon, radiusKm, false) as typeof results;
+                    if (distanced.length > 0 || !isDemoFeedEnabled()) {
+                        results = distanced;
+                    }
                 }
 
                 results = filterClientsByOwnerFilters(results, filters as any);

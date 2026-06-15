@@ -511,10 +511,24 @@ export function useSmartListingMatching(
                         owner_id: (listing as any).owner_id || (listing as any).user_id,
                     }));
 
+<<<<<<< HEAD
                 // 4.6 Location filter — keeps listings missing lat/lng visible
                 const distanceFiltered = hasActiveLocationFilter(filters)
                     ? applyListingLocationFilter(adminFiltered, filters)
                     : adminFiltered;
+=======
+                // 4.6 Distance filter — only applied when user has a GPS fix
+                const userLat = filters?.userLatitude;
+                const userLon = filters?.userLongitude;
+                const radiusKm = filters?.radiusKm ?? 50;
+                let distanceFiltered = adminFiltered;
+                if (userLat != null && userLon != null) {
+                    const distanced = filterByDistance(adminFiltered, userLat, userLon, radiusKm, false);
+                    if (distanced.length > 0 || !isDemoFeedEnabled()) {
+                        distanceFiltered = distanced;
+                    }
+                }
+>>>>>>> b60d31a0 (fix(UI+matching): reduce TopBar button gap, add location fallback for empty results to always show real data)
                 const filteredListings = filterListingsByAdvancedFilters(distanceFiltered, filters);
 
                 // 5. Scoring, Sorting, and Update Recovery

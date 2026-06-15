@@ -139,7 +139,7 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         {/* LEFT: profile/back and AI — separate pills with breathing room */}
-        <div className="flex items-center gap-2.5 min-w-0 pointer-events-auto">
+        <div className="flex items-center gap-1.5 min-w-0 pointer-events-auto">
           {onBack && !isSwipeDeck ? (
             <button
               type="button"
@@ -217,7 +217,7 @@ function TopBarComponent({
 
         {/* RIGHT: each action in its own pill — 44px targets, gap between */}
         {!minimal && (
-          <div className="flex items-center gap-2.5 shrink-0 pointer-events-auto">
+          <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
