@@ -31,7 +31,9 @@
     "cap:sync": "npm run build && cross-env LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx cap sync",
     "cap:update": "npx cap update",
     "generate:icons": "bash scripts/generate-ios-assets.sh",
-    "deploy:ai": "npx supabase functions deploy ai-concierge voice-transcribe ai-profile-extract ai-enhance-text ai-listing-extract"
+    "deploy:ai": "npx supabase functions deploy ai-concierge voice-transcribe ai-profile-extract ai-enhance-text ai-listing-extract",
+    "types:prod": "npx supabase gen types typescript --project-id vplgtcguxujxwrgguxqq > src/integrations/supabase/types.generated.ts",
+    "smoke:prod": "node scripts/smoke-prod.mjs"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^9.1.2",
