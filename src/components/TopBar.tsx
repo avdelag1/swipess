@@ -246,10 +246,10 @@ function TopBarComponent({
 
             <button
               type="button"
-              onClick={() => { haptics.tap(); setModal('showPassportModal', true); }}
+              onClick={() => { haptics.tap(); setModal('showPassportMapModal', true); }}
               className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
-              aria-label="Global Passport"
+              aria-label="Live Map"
             >
               <Map
                 className={HEADER_ICON}

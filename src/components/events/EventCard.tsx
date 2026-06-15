@@ -114,7 +114,7 @@ export const EventCard = memo(({
       {/* Tap anywhere on card body to open detail */}
       <button
         onClick={handleCardTap}
-        className="absolute inset-0 z-[5] w-full h-full cursor-pointer"
+        className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
         aria-label="Open event details"
       />
 
