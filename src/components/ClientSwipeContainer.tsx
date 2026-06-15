@@ -31,6 +31,7 @@ import { useConversations, useStartConversation } from '@/hooks/useConversations
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeErrorState } from './swipe/SwipeErrorState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 
@@ -168,7 +169,7 @@ const ClientSwipeContainerComponent = ({
     getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
       .then(({ latitude, longitude }) => {
         setUserLocation(latitude, longitude);
-        setRadiusKm(5000); // Wide radius so real listings always appear
+        setRadiusKm(100);
         setLocationDetected(true);
         setLocationDetecting(false);
       })
@@ -1011,6 +1012,14 @@ const ClientSwipeContainerComponent = ({
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
                   <SwipeLoadingSkeleton />
+                ) : error && deckQueue.length === 0 ? (
+                  <SwipeErrorState
+                    isRetrying={isLoading || isFetching}
+                    message="Could not load profiles. Check your connection and try again."
+                    onRetry={() => {
+                      queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
+                    }}
+                  />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

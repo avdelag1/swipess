@@ -37,7 +37,7 @@ const NotificationsPage = () => {
   const { markNotificationAsRead, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const { isLight, isDark } = useAppTheme();
 
-  const { data: pageRows, isLoading } = useQuery({
+  const { data: pageRows, isLoading, isError, refetch } = useQuery({
     queryKey: ['notifications-page', user?.id],
     enabled: !!user?.id,
     staleTime: 60_000,
@@ -88,7 +88,16 @@ const NotificationsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium animate-pulse">Synchronizing Reality...</p>
+        <p className="text-sm font-medium animate-pulse">Loading notifications…</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-6">
+        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load notifications.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
       </div>
     );
   }
@@ -128,7 +137,7 @@ const NotificationsPage = () => {
                 <Bell className={cn("w-10 h-10", isDark ? "text-slate-600" : "text-slate-400")} />
               </div>
               <h2 className="text-lg font-black uppercase italic tracking-wider opacity-60">{getText('empty_state', 'Silence is Golden')}</h2>
-              <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state', 'Check back later for system updates')}</p>
+              <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state_subtitle', 'Check back later for system updates')}</p>
             </motion.div>
           ) : (
             notifications.map((notif, i) => (
@@ -172,7 +181,8 @@ const NotificationsPage = () => {
 
                   <button
                     onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); dismissNotification(notif.id); }}
-                    className="p-2 rounded-xl hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 transition-colors shrink-0 self-start"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 transition-colors shrink-0 self-start"
+                    aria-label="Dismiss notification"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

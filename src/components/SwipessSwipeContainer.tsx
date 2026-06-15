@@ -8,6 +8,7 @@ import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeErrorState } from './swipe/SwipeErrorState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { normalizeCategoryName } from '@/types/filters';
@@ -146,7 +147,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     getCurrentPosition({ timeout: 8000, maximumAge: 60000 })
       .then(({ latitude, longitude }) => {
         setUserLocation(latitude, longitude);
-        setRadiusKm(5000); // Wide radius so real listings always appear
+        setRadiusKm(100);
         setLocationDetected(true);
         setLocationDetecting(false);
       })
@@ -154,10 +155,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setLocationDetecting(false);
       });
   }, [setUserLocation, setRadiusKm]);
-
-  useEffect(() => {
-    prefetchPassportMapImmediate();
-  }, []);
 
   useEffect(() => {
     if (userLatitude != null && userLongitude != null) {
@@ -1020,6 +1017,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
                   <SwipeLoadingSkeleton />
+                ) : error && deckQueue.length === 0 ? (
+                  <SwipeErrorState
+                    isRetrying={isLoading || isFetching}
+                    onRetry={() => {
+                      const key = dataType === 'people' ? 'smart-clients' : 'smart-listings';
+                      queryClient.invalidateQueries({ queryKey: [key] });
+                    }}
+                  />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

@@ -4,7 +4,8 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getParentRoute } from '@/utils/sectionNavigation';
 // import { } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,8 +21,6 @@ import { useTranslation } from 'react-i18next';
 import { EventCard } from '@/components/events/EventCard';
 import { PromoteCTACard } from '@/components/events/PromoteCTACard';
 const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
-import { ConnectingOverlay } from '@/components/ConnectingOverlay';
-
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
@@ -60,9 +59,6 @@ export default function EventosFeed() {
   }, [activeCategory, setAmbientColor]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
-
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectingTarget, setConnectingTarget] = useState('');
 
   const hudGlassStyle: React.CSSProperties = {
     background: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(10,10,11,0.72)',
@@ -132,7 +128,8 @@ export default function EventosFeed() {
   });
 
   // 3. Fetch Events (Swipess Optimized)
-  const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending } = useQuery({
+  const location = useLocation();
+  const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: ['eventos', 'v4'],
     queryFn: async (): Promise<EventItem[]> => {
       const { data, error } = await supabase
@@ -143,7 +140,7 @@ export default function EventosFeed() {
       
       if (error) {
         logger.warn('Supabase events fetch error:', error);
-        return [];
+        throw error;
       }
       
       const formatted: EventItem[] = (data || []).map((ev: any) => ({
@@ -251,15 +248,13 @@ export default function EventosFeed() {
 
   const handleOpenChat = useCallback(async (event: EventItem) => {
     triggerHaptic('heavy');
-    setConnectingTarget(event.organizer_name || 'Event Organizer');
-    setIsConnecting(true);
-
-    // Premium pause for the connection animation to resonate
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
+    if (!clean) {
+      appToast.error('No WhatsApp number for this event');
+      return;
+    }
     const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
     window.open(`https://wa.me/${clean}?text=${msg}`, '_system');
-    
-    setIsConnecting(false);
   }, []);
 
   const handleShare = useCallback((event: EventItem) => {
@@ -289,7 +284,10 @@ export default function EventosFeed() {
         <div className="flex items-start gap-4">
           {/* Back button */}
           <button
-            onClick={() => { triggerHaptic('light'); navigate(-1); }}
+            onClick={() => {
+              triggerHaptic('light');
+              navigate(getParentRoute(location.pathname) ?? '/client/dashboard');
+            }}
             className={cn(
               "shrink-0 w-11 h-11 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent",
               isLight ? "bg-white/90 border border-black/5 text-black" : "bg-black/60 border border-white/10 text-white"
@@ -369,7 +367,31 @@ export default function EventosFeed() {
       </div>
 
       {/* Main Feed */}
-      {(eventsLoading || eventsPending) && !rawEvents ? (
+      {eventsError ? (
+        <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
+          <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
+            <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}>
+              Could not load events
+            </p>
+            <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
+              Check your connection and try again.
+            </p>
+            <button
+              onClick={() => { triggerHaptic('medium'); refetchEvents(); }}
+              className={cn(
+                "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
+                isLight ? "text-black" : "text-white"
+              )}
+              style={{
+                ...hudGlassStyle,
+                background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
+              }}
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      ) : (eventsLoading || eventsPending) && !rawEvents ? (
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm space-y-4">
             {[1, 2, 3].map((n) => (
@@ -461,11 +483,6 @@ export default function EventosFeed() {
         /></Suspense>
       )}
 
-      <ConnectingOverlay 
-        isOpen={isConnecting}
-        recipientName={connectingTarget}
-        statusText="Establishing premium connection..."
-      />
     </div>
   );
 }

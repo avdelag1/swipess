@@ -46,8 +46,13 @@ export function AccessCodeGate({ onGranted }: Props) {
       return;
     }
     
-    // Check against CMS code if configured
-    if (expectedCode && code.trim() !== expectedCode) {
+    if (!expectedCode?.trim()) {
+      setError('Access gate is not configured');
+      triggerHaptic('error');
+      return;
+    }
+
+    if (code.trim() !== expectedCode.trim()) {
       setError('Invalid access code');
       triggerHaptic('error');
       return;

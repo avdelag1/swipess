@@ -15,14 +15,12 @@ import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
-import { PassportMapModal } from '@/components/PassportMapModal';
-import { PassportModal } from '@/components/PassportModal';
-import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
-
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
 const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
+const PassportModal = lazyWithRetry(() => import('./PassportModal').then(m => ({ default: m.PassportModal })));
+const PassportMapModal = lazyWithRetry(() => import('./PassportMapModal').then(m => ({ default: m.PassportMapModal })));
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
@@ -122,10 +120,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   // landing-page cosmos background only (LandingBackgroundEffects.tsx).
 
   // Filters removed from here since they are unused
-
-  useEffect(() => {
-    prefetchPassportMapImmediate();
-  }, []);
 
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
@@ -329,9 +323,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <GlobalDialogs userRole={userRole} />
       </Suspense>
 
-      {/* Eager-mounted — no lazy chunk delay on first tap */}
-      <PassportModal />
-      <PassportMapModal />
+      {(modalStore.showPassportModal || modalStore.showPassportMapModal) && (
+        <Suspense fallback={null}>
+          {modalStore.showPassportModal && <PassportModal />}
+          {modalStore.showPassportMapModal && <PassportMapModal />}
+        </Suspense>
+      )}
     </div>
   );
 }
