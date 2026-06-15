@@ -18,7 +18,6 @@ AS $$
     AND COALESCE(l.is_active, true) = true
     AND COALESCE(l.status, 'active') = 'active'
     AND (p_category IS NULL OR l.category = p_category)
-    AND l.user_id IS DISTINCT FROM COALESCE(p_user_id, auth.uid())
     AND l.owner_id IS DISTINCT FROM COALESCE(p_user_id, auth.uid())
   ORDER BY l.created_at ASC NULLS LAST, l.id ASC
   LIMIT GREATEST(1, LEAST(COALESCE(p_limit, 30), 200))
