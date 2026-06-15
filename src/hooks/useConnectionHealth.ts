@@ -18,7 +18,7 @@ interface ConnectionHealth {
   retry: () => void;
 }
 
-const CHECK_TIMEOUT_MS = 5000; // Reduced to 5s for faster 'Speed of Light' detection
+const CHECK_TIMEOUT_MS = 8000; // Generous enough for slow mobile (LTE) first-byte; only a truly hung connection should trip the offline screen
 const MAX_RETRIES = 3;
 const SUPABASE_HEALTH_URL = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/health`;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
@@ -46,7 +46,11 @@ async function pingSupabase(): Promise<boolean> {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-    return res.ok;
+    // ANY HTTP response — even 401/403/404 — proves the network path to
+    // Supabase is alive. Only network errors / timeouts (the catch below) mean
+    // we're genuinely offline. Gating on res.ok caused false "Can't connect"
+    // screens whenever the health endpoint returned a non-2xx status.
+    return res.status > 0;
   } catch (err: unknown) {
     if (isErrorWithMessage(err) && (err.name === 'AbortError' || err.message.includes('abort'))) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');

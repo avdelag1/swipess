@@ -18,6 +18,7 @@ interface LocationRadiusSelectorProps {
   title?: string;
   expanded?: boolean;
   onExpandedChange?: (v: boolean) => void;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 /**
@@ -40,6 +41,7 @@ export const LocationRadiusSelector = memo(({
   title,
   expanded: expandedProp,
   onExpandedChange,
+  orientation = 'horizontal',
 }: LocationRadiusSelectorProps) => {
   const { isLight } = useAppTheme();
   const [internalExpanded, setInternalExpanded] = useState(false);
@@ -56,26 +58,85 @@ export const LocationRadiusSelector = memo(({
     }
   }, [expanded, isControlled, onExpandedChange]);
 
+  if (orientation === 'vertical') {
+    return (
+      <div className="flex flex-col items-center gap-2 w-[52px]" style={{ pointerEvents: 'auto' }}>
+        <button
+          type="button"
+          data-skip-press-engine
+          onClick={toggleExpand}
+          className={cn(
+            "w-[52px] h-[52px] flex flex-col items-center justify-center rounded-full border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
+            "deck-hud-solid border-white/20 text-white gap-0.5 tap-css-only"
+          )}
+        >
+          <MapPin className="w-5 h-5 opacity-90" strokeWidth={2.2} />
+          <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">{radiusKm}km</span>
+        </button>
+        
+        {/* Expanded Slider Panel */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
+              className={cn(
+                "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border chrome-solid p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
+                isLight ? "bg-white/95 border-black/10" : "bg-[#0d0d0d]/95 border-white/10"
+              )}
+            >
+              <div className="mb-5">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Search Radius</h4>
+                <p className="text-sm font-black italic opacity-90">{title ? `Searching ${title}` : 'Adjust search distance'}</p>
+              </div>
+              <DistanceSlider
+                radiusKm={radiusKm}
+                onRadiusChange={onRadiusChange}
+                onDetectLocation={onDetectLocation}
+                detecting={detecting}
+                detected={detected}
+              />
+              <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
+                <button
+                  type="button"
+                  data-skip-press-engine
+                  onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
+                  className={cn(
+                    "tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
+                    isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/8 hover:bg-white/15"
+                  )}
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex items-center justify-center gap-2 pointer-events-auto" style={{ pointerEvents: 'auto' }}>
-      <motion.div
-        layout
+      <div
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          "flex items-center gap-2 p-2 rounded-full backdrop-blur-3xl border transition-all shadow-2xl",
-          isLight
-            ? "bg-white/85 border-black/10 shadow-black/10"
-            : "bg-black/70 border-white/15 shadow-black/30"
+          "flex items-center gap-2 p-2 glass-pill chrome-solid transition-transform flex-row",
+          isLight ? "glass-light-surface" : "glass-dark",
         )}
       >
         {/* GPS QUICK-DETECT */}
-        <motion.button
-          whileTap={{ scale: 0.88 }}
+        <button
+          type="button"
+          data-skip-press-engine
           onClick={onDetectLocation}
           disabled={detecting}
           style={{ pointerEvents: 'auto' }}
           className={cn(
-            "w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0",
+            "tap-css-only w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0",
             detected
               ? cn("bg-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]", isLight ? "text-black" : "text-white")
               : isLight
@@ -85,15 +146,16 @@ export const LocationRadiusSelector = memo(({
           title="Detect GPS location"
         >
           <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
-        </motion.button>
+        </button>
 
         {/* RADIUS TOGGLE */}
-        <motion.button
-          whileTap={{ scale: 0.93 }}
+        <button
+          type="button"
+          data-skip-press-engine
           onClick={toggleExpand}
           style={{ pointerEvents: 'auto' }}
           className={cn(
-            "flex items-center gap-2 h-10 px-4 rounded-full transition-all flex-shrink-0",
+            "tap-css-only flex items-center gap-2 h-10 px-4 rounded-full flex-shrink-0",
             isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
           )}
         >
@@ -110,8 +172,8 @@ export const LocationRadiusSelector = memo(({
           >
             <ChevronDown className="w-3 h-3 opacity-30" />
           </motion.div>
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
 
       {/* Expanded Slider Panel — fixed to viewport, full-width below top bar */}
       <AnimatePresence>
@@ -123,7 +185,7 @@ export const LocationRadiusSelector = memo(({
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
             style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
             className={cn(
-              "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border backdrop-blur-3xl p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
+              "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border chrome-solid p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
               isLight
                 ? "bg-white/95 border-black/10"
                 : "bg-[#0d0d0d]/95 border-white/10"
@@ -141,18 +203,19 @@ export const LocationRadiusSelector = memo(({
               detected={detected}
             />
             <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
+              <button
+                type="button"
+                data-skip-press-engine
                 onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
                 className={cn(
-                  "w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
+                  "tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
                   isLight
                     ? "bg-black/5 hover:bg-black/10"
                     : "bg-white/8 hover:bg-white/15"
                 )}
               >
                 Done
-              </motion.button>
+              </button>
             </div>
           </motion.div>
         )}

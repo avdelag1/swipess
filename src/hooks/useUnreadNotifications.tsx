@@ -8,6 +8,9 @@ export function useUnreadNotifications() {
   const { user } = useAuth();
   const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef(true);
+  // Unique per hook instance so multiple consumers (e.g. the notification
+  // popover AND the app-icon badge) don't collide on the same channel name.
+  const channelIdRef = useRef(Math.random().toString(36).slice(2));
 
   // Fetch unread count from notifications table
   const fetchUnreadCount = useCallback(async () => {
@@ -60,7 +63,7 @@ export function useUnreadNotifications() {
 
     // Subscribe to real-time changes
     const channel = supabase
-      .channel('unread-notifications-count')
+      .channel(`unread-notifications-count-${channelIdRef.current}`)
       .on(
         'postgres_changes',
         {

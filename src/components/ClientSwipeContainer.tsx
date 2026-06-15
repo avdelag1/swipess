@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
+import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { isClientImageDecodedInCache, preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -30,14 +31,14 @@ import { useConversations, useStartConversation } from '@/hooks/useConversations
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { SwipessLoader } from './swipe/SwipessLoader';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { SwipeDeckBackButton } from './swipe/SwipeDeckBackButton';
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
 
 import { cn } from '@/lib/utils';
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
-import { SwipessLogo } from '@/components/SwipessLogo';
 
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -148,6 +149,9 @@ const ClientSwipeContainerComponent = ({
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const userLatitude = useFilterStore(s => s.userLatitude);
   const userLongitude = useFilterStore(s => s.userLongitude);
+  const passportLabel = useFilterStore(s => s.passportLabel);
+  const kmHudExpanded = useFilterStore(s => s.kmHudExpanded);
+  const setKmHudExpanded = useFilterStore(s => s.setKmHudExpanded);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   
   const [locationDetecting, setLocationDetecting] = useState(false);
@@ -159,7 +163,7 @@ const ClientSwipeContainerComponent = ({
 
 
   const detectLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!canGeolocate()) return;
     setLocationDetecting(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -167,13 +171,17 @@ const ClientSwipeContainerComponent = ({
         setRadiusKm(5000); // Auto-set to large radius so users see all real data
         setLocationDetected(true);
         setLocationDetecting(false);
-      },
-      () => {
+      })
+      .catch(() => {
         setLocationDetecting(false);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
+      });
   }, [setUserLocation, setRadiusKm]);
+
+  useEffect(() => {
+    if (userLatitude != null && userLongitude != null) {
+      setLocationDetected(true);
+    }
+  }, [userLatitude, userLongitude]);
 
   // 📍 Location is requested ONLY on explicit user action (filter button or
   // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
@@ -885,13 +893,7 @@ const ClientSwipeContainerComponent = ({
   // All conditions use derived flags - NO hooks called after this point
 
   if (showLoadingSkeleton || !deckReady) {
-    return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
-        <div className="animate-pulse">
-          <SwipessLogo size="lg" variant="transparent" />
-        </div>
-      </div>
-    );
+    return <SwipeLoadingSkeleton />;
   }
 
   return (
@@ -923,15 +925,12 @@ const ClientSwipeContainerComponent = ({
           </div>
         </motion.div>
 
-        {/* Single back button is owned by SwipeDeckBackButton (rendered below) — no duplicate header here */}
+        {/* Single back button is handled by TopBar now */}
 
-        {/* 📡 Radar HUD removed from here — now managed at the Dashboard level for persistence */}
-
-        <div
+            <div
           className="flex-1 relative flex w-full h-full items-center justify-center px-0 z-10 pointer-events-auto min-h-0 overflow-hidden"
           {...pullDown.bind}
         >
-        <SwipeDeckBackButton />
         <motion.div
           className="relative w-full h-full mx-auto flex items-center justify-center pointer-events-auto"
           style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
@@ -958,10 +957,6 @@ const ClientSwipeContainerComponent = ({
                     <motion.div
                       key={profile.user_id}
                       exit={{
-                        // Card stays fully solid (opacity 1) and slides off the
-                        // edge — no fade. The 1.2x over-travel guarantees it is
-                        // completely off-screen, so it reads as a real card
-                        // leaving, not a ghost dissolving.
                         x: swipeDirectionRef.current === 'right' ? (typeof window !== 'undefined' ? window.innerWidth : 600) * 1.2 : (typeof window !== 'undefined' ? -window.innerWidth : -600) * 1.2,
                         y: 0,
                         transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
@@ -982,11 +977,24 @@ const ClientSwipeContainerComponent = ({
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
                         onDragStart={isTopCard ? handleDragStart : undefined}
+                        onBack={isTopCard ? () => navigate(`/${activeMode}/dashboard`) : undefined}
                         canUndo={canUndo}
                         isTop={isTopCard}
                         fullScreen={false}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
+                        renderTopRail={isTopCard ? (
+                          <LocationRadiusSelector
+                            radiusKm={radiusKm}
+                            onRadiusChange={setRadiusKm}
+                            onDetectLocation={detectLocation}
+                            detecting={locationDetecting}
+                            detected={locationDetected}
+                            lat={userLatitude}
+                            lng={userLongitude}
+                            orientation="vertical"
+                          />
+                        ) : undefined}
                       />
                     </motion.div>
                   );
@@ -1002,7 +1010,7 @@ const ClientSwipeContainerComponent = ({
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
-                  <SwipessLoader />
+                  <SwipeLoadingSkeleton />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}

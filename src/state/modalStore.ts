@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
+import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 
 /**
  * SWIPESS GLOBAL MODAL STORE
@@ -52,6 +54,8 @@ interface ModalState {
   openPropertyInsights: (id: string) => void;
   openClientInsights: (id: string) => void;
   openSubscription: (reason: string) => void;
+  openPassport: () => void;
+  openPassportMap: () => void;
   closeAll: () => void;
 }
 
@@ -98,7 +102,25 @@ export const useModalStore = create<ModalState>((set) => ({
   openPropertyInsights: (id) => set({ selectedListingId: id, showPropertyInsights: true }),
   openClientInsights: (id) => set({ selectedProfileId: id, showClientInsights: true }),
   openSubscription: (reason) => set({ subscriptionReason: reason, showSubscriptionPackages: true }),
-  
+
+  openPassport: () => {
+    prefetchPassportMapImmediate();
+    void resolveMapboxAccessToken();
+    set({
+      showPassportModal: true,
+      showPassportMapModal: false,
+    });
+  },
+
+  openPassportMap: () => {
+    prefetchPassportMapImmediate();
+    void resolveMapboxAccessToken();
+    set({
+      showPassportModal: false,
+      showPassportMapModal: true,
+    });
+  },
+
   closeAll: () => set({
     showProfile: false,
     showPropertyDetails: false,

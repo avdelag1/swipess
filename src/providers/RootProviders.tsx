@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { keepPreviousData, QueryCache, QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ThemeSyncManager } from "@/components/ThemeSyncManager";
 import { logger } from '@/utils/prodLogger';
+import { markAppRendered } from '@/utils/bootSplash';
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
@@ -22,11 +23,18 @@ import { type Theme, ThemeContext, type ThemeContextType, ThemeProvider, type Th
 export type { Theme, ThemeToggleCoords, ThemeContextType };
 export { ThemeContext, ThemeProvider, useAppTheme };
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
+import { GlobalThemeProvider } from "./GlobalThemeProvider";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProfileAutoSync";
+import { useReengagementNotifications } from "@/hooks/useReengagementNotifications";
+import { useNativeKeyboard } from "@/hooks/useNativeKeyboard";
+import { useAppBadge } from "@/hooks/useAppBadge";
+import { Capacitor } from "@capacitor/core";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
+import { registerAppShortcuts } from "@/hooks/useAppShortcuts";
+import { PaymentOrchestrator } from "@/lib/iap/PaymentOrchestrator";
 // PERF: Lazy-load SwipessPrewarmer — its deps (routePrefetcher, performance) are heavy
 // It only activates after auth resolves, so no need in critical boot path
 const SwipessPrewarmer = lazy(() => import("@/components/SwipessPrewarmer").then(m => ({ default: m.SwipessPrewarmer })));
@@ -47,9 +55,14 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: true,
-      staleTime: 5 * 60 * 1000, 
-      gcTime: 1000 * 60 * 60 * 24, 
+      staleTime: 5 * 60 * 1000,
+      gcTime: 1000 * 60 * 60 * 24,
       networkMode: 'offlineFirst',
+      // Keep showing the last results while a query with a CHANGED key refetches
+      // (filters, search, pagination) instead of flashing a loading state — the
+      // list stays put and updates in place, which feels instant. Only affects
+      // a mounted query whose key changes; navigating to a new page is unchanged.
+      placeholderData: keepPreviousData,
     },
     mutations: {
       retry: 1,
@@ -60,12 +73,31 @@ const queryClient = new QueryClient({
 
 const persister = createIDBPersister();
 
+// Native-only: drives the home-screen icon badge. Gated behind a component so
+// its two unread-count queries + realtime subscriptions never run on web/PWA,
+// where the badge does nothing.
+function NativeAppBadge() {
+  useAppBadge();
+  return null;
+}
+
 function LifecycleHooks({ children }: { children: React.ReactNode }) {
   usePushNotifications();
   useForceUpdateOnVersionChange();
   useProfileAutoSync();
   useEnsureSpecializedProfile();
-  return <>{children}</>;
+  useReengagementNotifications();
+  useNativeKeyboard();
+
+  useEffect(() => {
+    void PaymentOrchestrator.init();
+  }, []);
+  return (
+    <>
+      {Capacitor.isNativePlatform() && <NativeAppBadge />}
+      {children}
+    </>
+  );
 }
 
 function AuthReadySignal() {
@@ -77,12 +109,8 @@ function AuthReadySignal() {
     
     const handleReady = () => {
       if ((window as any).__APP_READY_FIRED__) return;
-      (window as any).__APP_READY_FIRED__ = true;
-      
       logger.log('[BOOT] Received swipess-ready signal from layout shell.');
-      (window as any).__APP_INITIALIZED__ = true;
-      (window as any).__APP_MOUNTED__ = true;
-      window.dispatchEvent(new CustomEvent('app-rendered'));
+      markAppRendered();
     };
 
     // Safety net: force signal after 1 second if layout shell fails to mount
@@ -128,6 +156,39 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Splash failsafe — mounted ABOVE <ConnectionGuard> so it always renders, even
+ * when the guard short-circuits to the offline screen (which would otherwise
+ * leave the boot splash covering the screen until the 6s "Something went wrong"
+ * watchdog). Guarantees the splash fades once React has committed, in every
+ * render branch. <AppLayout> still fires the real `swipess-ready` first on a
+ * healthy boot — this only catches the cases where it can't.
+ */
+function BootSplashFailsafe() {
+  useEffect(() => {
+    // Fade as soon as the layout shell signals it painted...
+    window.addEventListener('swipess-ready', markAppRendered);
+    // ...otherwise force it well before the splash watchdog (6s) fires, so the
+    // user sees real UI (e.g. the connection error screen) instead of the
+    // generic "Something went wrong" recovery prompt.
+    const timer = setTimeout(markAppRendered, 2500);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('swipess-ready', markAppRendered);
+    };
+  }, []);
+  return null;
+}
+
+// One-time native app icon shortcuts registration (long-press home icon actions)
+function AppShortcutsRegistrar() {
+  useEffect(() => {
+    // Fire and forget; errors are logged inside the util
+    void registerAppShortcuts();
+  }, []);
+  return null;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Unified Root Providers
 // ──────────────────────────────────────────────────────────────────────────────
@@ -152,7 +213,9 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
   const content = React.useMemo(() => children, [children]);
 
   return (
-    <ConnectionGuard>
+    <>
+      <BootSplashFailsafe />
+      <ConnectionGuard>
       <HelmetProvider>
         <PersistQueryClientProvider
           client={queryClient}
@@ -160,13 +223,15 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
         >
           <LazyMotion features={domAnimation}>
             <WarpPrefetcher />
-            <VisualThemeProvider>
-              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <GlobalThemeProvider>
+              <VisualThemeProvider>
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <AuthProvider authPromise={authPromise}>
                   <AuthReadySignal />
                   <Suspense fallback={null}>
                     <SwipessPrewarmer />
                   </Suspense>
+                  <AppShortcutsRegistrar />
                   <ActiveModeProvider>
                     <ThemeProvider>
                       <ThemeSyncManager />
@@ -183,11 +248,13 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
                   </ActiveModeProvider>
                 </AuthProvider>
               </BrowserRouter>
-            </VisualThemeProvider>
+              </VisualThemeProvider>
+            </GlobalThemeProvider>
           </LazyMotion>
         </PersistQueryClientProvider>
       </HelmetProvider>
-    </ConnectionGuard>
+      </ConnectionGuard>
+    </>
   );
 }
 

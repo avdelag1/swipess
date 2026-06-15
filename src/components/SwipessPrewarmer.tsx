@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { runIdleTask } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
 import { prefetchRoute } from '@/utils/routePrefetcher';
+import { prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { warmDiscoveryCache } from '@/utils/performance';
 
 /**
@@ -36,6 +37,7 @@ export const SwipessPrewarmer = () => {
       prefetchRoute('/client/filters');
       prefetchRoute('/explore');
       prefetchRoute('/notifications');
+      prefetchPassportMapModule();
 
       // Pre-decode poker filter card photos so the quick-filter deck snaps in
       try {
@@ -66,7 +68,9 @@ export const SwipessPrewarmer = () => {
         'https://supabase.co',
         'https://images.unsplash.com',
         'https://v5.airtableavatars.com',
-        'https://api.dicebear.com'
+        'https://api.dicebear.com',
+        'https://api.mapbox.com',
+        'https://events.mapbox.com',
       ];
       domains.forEach(domain => {
         const preconnect = document.createElement('link');

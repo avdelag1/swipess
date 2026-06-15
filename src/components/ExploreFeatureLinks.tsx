@@ -14,7 +14,7 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
   return (
     <div className="mb-8 flex flex-col gap-3">
       <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 px-1">
-        Explore Tulum
+        Explore Miami
       </h3>
 
       {/* Promote Your Event */}

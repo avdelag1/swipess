@@ -12,24 +12,24 @@ import { Capacitor } from '@capacitor/core';
  */
 
 export const APPLE_SUBSCRIPTION_PRODUCTS = [
-  'Swipess.plus.monthly.v2',
-  'Swipess.plus.semestral.v2',
-  'Swipess.plus.annual.v2',
+  'Swipess.plus.monthly.v3',
+  'Swipess.plus.semestral.v3',
+  'Swipess.plus.annual.v3',
 ] as const;
 
 /** Token (consumable) packs. The number suffix is the token amount. */
 export const APPLE_TOKEN_PRODUCTS = [
-  'Swipess.tokens.20.v1',
-  'Swipess.tokens.50.v1',
-  'Swipess.tokens.100.v1',
-  'Swipess.tokens.150.v1',
+  'Swipess.tokens.20.v2',
+  'Swipess.tokens.50.v2',
+  'Swipess.tokens.100.v2',
+  'Swipess.tokens.150.v2',
 ] as const;
 
 /** Event promotion (consumable, non-renewing) packs. */
 export const APPLE_EVENT_PROMO_PRODUCTS = [
-  'Swipess.promo.event.week.v2',
-  'Swipess.promo.event.month.v2',
-  'Swipess.promo.event.quarter.v2',
+  'Swipess.promo.event.week.v3',
+  'Swipess.promo.event.month.v3',
+  'Swipess.promo.event.quarter.v3',
 ] as const;
 
 export type AppleProductId =
@@ -48,7 +48,10 @@ export const ALL_APPLE_PRODUCTS: AppleProductId[] = [
  * @param url The PayPal/Web checkout URL
  */
 export const getSafePaymentUrl = (url?: string): string | undefined => {
-  if (Capacitor.getPlatform() === 'ios') return undefined;
+  // IMPORTANT: We must block alternative payment URLs in production iOS to comply 
+  // with Apple App Store Guideline 3.1.1. If Apple sees PayPal, they ban the app.
+  // However, during local development, we allow it so you can test the fallback!
+  if (Capacitor.getPlatform() === 'ios' && !import.meta.env.DEV) return undefined;
   return url;
 };
 
@@ -56,7 +59,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'starter',
     name: 'Starter',
-    productId: 'Swipess.tokens.20.v1',
+    productId: 'Swipess.tokens.20.v2',
     tokens: 20,
     priceUsd: 9.99,
     priceMxn: 199,
@@ -67,7 +70,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'plus',
     name: 'Plus',
-    productId: 'Swipess.tokens.50.v1',
+    productId: 'Swipess.tokens.50.v2',
     tokens: 50,
     priceUsd: 19.99,
     priceMxn: 399,
@@ -78,7 +81,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'power',
     name: 'Power',
-    productId: 'Swipess.tokens.100.v1',
+    productId: 'Swipess.tokens.100.v2',
     tokens: 100,
     priceUsd: 39.99,
     priceMxn: 799,
@@ -89,7 +92,7 @@ export const APPLE_TOKEN_PACKAGES = [
   {
     id: 'mega',
     name: 'Mega',
-    productId: 'Swipess.tokens.150.v1',
+    productId: 'Swipess.tokens.150.v2',
     tokens: 150,
     priceUsd: 49.99,
     priceMxn: 999,

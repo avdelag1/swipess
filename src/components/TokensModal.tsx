@@ -1,17 +1,18 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react';
+import { FaApple } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
-import { STORAGE } from '@/constants/app';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
 import { NativeBridge } from '@/utils/nativeBridge';
+import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { useNavigate } from 'react-router-dom';
-import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage, getSafePaymentUrl } from '@/config/iapProducts';
+import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
 import { appToast } from '@/utils/appNotification';
-
+import { createPortal } from 'react-dom';
 
 const formatUSD = (price: number) =>
   new Intl.NumberFormat('en-US', {
@@ -23,27 +24,27 @@ const formatUSD = (price: number) =>
 const tokenTierConfig = {
   starter: {
     icon: MessageCircle,
-    iconBg: 'token-pack-icon token-pack-icon-starter',
-    border: 'border-border/50',
-    accent: 'from-muted/70 to-background',
+    iconBg: 'bg-indigo-500/10 text-indigo-500 rounded-xl p-2 shadow-inner',
+    border: 'border-indigo-500/20 shadow-lg shadow-indigo-500/5',
+    accent: 'bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent backdrop-blur-md',
   },
   plus: {
     icon: Zap,
-    iconBg: 'token-pack-icon token-pack-icon-plus',
-    border: 'border-primary/60 shadow-card',
-    accent: 'from-primary/12 to-background',
+    iconBg: 'bg-purple-500/10 text-purple-500 rounded-xl p-2 shadow-inner',
+    border: 'border-purple-500/30 shadow-xl shadow-purple-500/10',
+    accent: 'bg-gradient-to-br from-purple-500/15 via-purple-500/5 to-transparent backdrop-blur-md',
   },
   power: {
     icon: Crown,
-    iconBg: 'token-pack-icon token-pack-icon-power',
-    border: 'border-accent/50',
-    accent: 'from-accent/12 to-background',
+    iconBg: 'bg-amber-500/10 text-amber-500 rounded-xl p-2 shadow-inner',
+    border: 'border-amber-500/40 shadow-2xl shadow-amber-500/15',
+    accent: 'bg-gradient-to-br from-amber-500/20 via-amber-500/5 to-transparent backdrop-blur-md',
   },
   mega: {
     icon: Sparkles,
-    iconBg: 'token-pack-icon token-pack-icon-mega',
-    border: 'border-primary/50',
-    accent: 'from-primary/10 to-background',
+    iconBg: 'bg-rose-500/10 text-rose-500 rounded-xl p-2 shadow-inner',
+    border: 'border-rose-500/50 shadow-2xl shadow-rose-500/20',
+    accent: 'bg-gradient-to-br from-rose-500/25 via-rose-500/10 to-transparent backdrop-blur-md',
   },
 } as const;
 
@@ -62,61 +63,37 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const isOpen = useModalStore((s) => s.showTokensModal);
   const close = () => useModalStore.getState().setModal('showTokensModal', false);
 
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   const handlePurchase = async (pkg: AppleTokenPackage) => {
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
-      productId: pkg.productId,
-      packageId: pkg.productId,
-      tokens: pkg.tokens,
-      price: pkg.priceUsd,
-      currency: 'USD',
-      package_category: packageCategory,
-    }));
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    setIsPurchasing(true);
 
-    if (NativeBridge.isNative()) {
-      appToast.info('Connecting to App Store');
-      const result = await NativeBridge.purchaseProduct(pkg.productId);
-      if (result.success) {
-        appToast.info('Payment Confirmed', `${pkg.tokens} tokens activated.`);
+    await PaymentOrchestrator.purchase({
+      appleProductId: pkg.productId,
+      paypalUrl: pkg.paypalUrl,
+      returnPath: `/${userRole}/dashboard`,
+      onSuccess: () => {
+        appToast.success('Tokens Purchased', `${pkg.tokens} tokens activated via App Store.`);
+        setIsPurchasing(false);
         close();
-      } else {
-        const cancelled = (result as any).error === 'CANCELLED';
-        if (!cancelled) {
-          appToast.error('Purchase could not be completed', 'Please try again.');
+      },
+      onError: (err) => {
+        setIsPurchasing(false);
+        if (err !== 'CANCELLED') {
+          appToast.error('Purchase Failed', err);
         }
       }
-      return;
-    }
-
-    const safePaypalUrl = getSafePaymentUrl(pkg.paypalUrl);
-    if (!safePaypalUrl) {
-      appToast.error('Payment link unavailable', 'Please use the App Store to purchase.');
-      return;
-    }
-
-    appToast.info('Redirecting to PayPal', `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD.`);
-    window.open(safePaypalUrl, '_blank', 'noopener,noreferrer');
-    close();
+    });
   };
 
   const handleRestore = async () => {
-    if (NativeBridge.isNative()) {
-      appToast.info('Restoring Purchases', 'Verifying with App Store...');
-      const result = await NativeBridge.restorePurchases();
-      if (result.success) {
-        appToast.info('Restore Complete', 'Your purchases have been restored.');
-      } else {
-        appToast.error('Nothing to Restore', 'No previous purchases found.');
-      }
-    } else {
-      appToast.info('Restore Unavailable', 'Purchase restoration is only available in the native app.');
-    }
+    await PaymentOrchestrator.restore();
   };
 
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -124,8 +101,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={close}
-            className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md"
+            onPointerDown={close}
+            className="fixed inset-0 z-[10001] bg-black/70"
           />
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -140,7 +117,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
           >
             <div className={cn(
               "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto shadow-2xl",
-              isLight ? "bg-background border border-border/40" : "bg-zinc-900 border border-white/10"
+              isLight ? "bg-background border border-border" : "bg-zinc-950 border border-white/10"
             )}>
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
@@ -179,43 +156,55 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                             className={cn(
-                              "relative rounded-2xl border p-4 bg-gradient-to-r transition-all shadow-card",
+                              "relative rounded-[20px] border p-4 transition-all overflow-hidden",
                               config.accent, config.border,
-                              isPopular && "ring-1 ring-primary/30"
+                              isPopular && "ring-2 ring-primary/40 scale-[1.02]"
                             )}
                           >
                             {pkg.badge && (
-                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-primary text-primary-foreground px-2.5 py-0.5 rounded-full">
+                              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-black bg-primary text-primary-foreground px-3 py-0.5 rounded-full shadow-lg border border-primary-foreground/10 uppercase tracking-widest">
                                 {pkg.badge}
                               </span>
                             )}
                             <div className="flex items-center gap-3">
-                              <div className={cn("flex-shrink-0", config.iconBg)}>
+                              <div className={cn("flex-shrink-0 flex items-center justify-center", config.iconBg)}>
                                 <Icon className="w-5 h-5" aria-hidden="true" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline gap-1.5 flex-wrap">
                                   <span className="font-black text-sm uppercase tracking-tight text-foreground">{pkg.name}</span>
-                                  <span className="text-[10px] font-black text-primary uppercase">{pkg.tokens} tokens</span>
+                                  <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded-md">{pkg.tokens} tokens</span>
                                 </div>
-                                <div className="flex items-baseline gap-1 mt-0.5 flex-wrap">
-                                  <span className="font-black text-base tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
+                                <div className="flex items-baseline gap-1 mt-1 flex-wrap">
+                                  <span className="font-black text-lg tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
                                   <span className="text-[10px] font-black text-muted-foreground">USD</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground">{formatUSD(pricePerToken)} / token</span>
+                                  <span className="text-[10px] font-bold text-muted-foreground ml-1">{formatUSD(pricePerToken)} / token</span>
                                 </div>
-                                <p className="text-[11px] font-medium text-muted-foreground mt-1">{pkg.description}</p>
+                                <p className="text-[11px] font-medium text-muted-foreground mt-1 leading-snug">{pkg.description}</p>
                               </div>
                               <button
-                                onClick={() => { haptics.tap(); handlePurchase(pkg); }}
+                                onClick={(e) => { e.preventDefault(); haptics.tap(); handlePurchase(pkg); }}
+                                disabled={isPurchasing}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
-                                className="flex-shrink-0 h-11 px-5 rounded-full font-black text-[11px] uppercase tracking-widest active:scale-95 transition-transform whitespace-nowrap"
-                                style={{
-                                  backgroundColor: '#000000',
-                                  color: '#FFFFFF',
-                                  boxShadow: '0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
-                                }}
+                                className={cn(
+                                  "flex-shrink-0 h-11 px-5 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
+                                  isPurchasing ? "opacity-60 cursor-not-allowed" : "active:scale-95 touch-manipulation hover:shadow-lg",
+                                  NativeBridge.isIOS() 
+                                    ? "bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10" 
+                                    : "bg-primary text-primary-foreground shadow-lg"
+                                )}
                               >
-                                {NativeBridge.isIOS() ? 'Buy ·  Pay' : 'Get Offer'}
+                                {isPurchasing ? 'Processing...' : (
+                                  NativeBridge.isIOS() ? (
+                                    <>
+                                      <span>Buy with</span>
+                                      <FaApple className="w-4 h-4 mb-[2px]" />
+                                      <span>Pay</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-[11px] uppercase tracking-widest">Get Offer</span>
+                                  )
+                                )}
                               </button>
                             </div>
                           </motion.div>
@@ -256,7 +245,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

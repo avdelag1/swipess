@@ -82,7 +82,7 @@ export const LazyImage = memo(function LazyImage({
         }
       },
       {
-        rootMargin: '200px', // Start loading 200px before entering viewport
+        rootMargin: '600px', // Preload ~a screen ahead so images are ready as you scroll
         threshold: 0.01,
       }
     );

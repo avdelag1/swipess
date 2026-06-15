@@ -27,6 +27,8 @@ const DOC_TYPES = [
   { key: 'passport', label: 'Passport' },
   { key: 'government_id', label: 'Gov. ID' },
   { key: 'drivers_license', label: 'License' },
+  { key: 'six_month_lease', label: '6-Month Lease' },
+  { key: 'recommendation', label: 'Recommendation' },
 ] as const;
 
 const csvToArray = (csv: string) =>
@@ -131,12 +133,28 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         const path = `${user.id}/${docType}_${Date.now()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from('legal-documents').upload(path, file);
         if (uploadErr) throw uploadErr;
-        const { error: insertErr } = await supabase.from('legal_documents').insert({
+        const { error: insertErr } = await supabase.from('legal_documents' as any).insert({
           user_id: user.id, document_type: docType, file_name: file.name,
           file_path: path, file_size: file.size, mime_type: file.type, status: 'pending',
         });
         if (insertErr) throw insertErr;
-        appToast.success('Document uploaded');
+
+        // Create an admin review case for this verification document
+        const publicUrlData = supabase.storage.from('legal-documents').getPublicUrl(path);
+        await supabase.from('legal_cases').insert({
+          case_number: `VER-${Date.now().toString().slice(-6)}`,
+          title: `Resident Verification: ${docType}`,
+          description: `User uploaded a new document (${file.name}) for resident verification.`,
+          case_type: 'compliance',
+          status: 'open',
+          priority: 'medium',
+          parties_involved: { client_id: user.id },
+          documents: [
+            { name: file.name, url: publicUrlData.data.publicUrl, type: docType }
+          ]
+        });
+
+        appToast.success('Document uploaded and sent for review');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
       } catch (err: any) { appToast.error(err.message || 'Upload failed'); }
       finally { setUploading(null); }
@@ -253,7 +271,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10002] flex flex-col bg-background overflow-hidden"
+          className="fixed inset-0 z-[10002] flex flex-col bg-background/80 backdrop-blur-3xl saturate-150 overflow-hidden"
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>
@@ -305,7 +323,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
               <Textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder={role === 'owner' ? "Premium serviced apartments in Tulum..." : "I work as... I own a business called... I love..."}
+                placeholder={role === 'owner' ? "Premium serviced apartments in Miami..." : "I work as... I own a business called... I love..."}
                 rows={3}
                 maxLength={240}
                 className="min-h-[90px] text-sm"
@@ -340,7 +358,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                   </LabeledField>
                 )}
                 <LabeledField label={role === 'owner' ? 'Location' : 'City'}>
-                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
+                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Miami" maxLength={60} />
                 </LabeledField>
                 {role !== 'owner' && (
                   <>

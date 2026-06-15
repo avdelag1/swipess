@@ -57,11 +57,19 @@ function TopBarComponent({
   const useLightIcons = isDashboard || !isLight;
   const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
 
-  // Note: when an activeCategory is set on the dashboard, the SwipeDeckBackButton
-  // already provides the persistent back arrow. Don't render a duplicate here.
-  const onBack = propOnBack || (showBack
-    ? () => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard')
-    : undefined);
+  // Note: when an activeCategory is set on the dashboard, we are in the Swipe Deck.
+  // We need to show the back arrow instead of the Avatar pill to let the user exit the deck.
+  const activeCategory = useFilterStore((s) => s.activeCategory);
+  const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
+
+  // Hierarchical "up" navigation: a sub-page goes to its section home, a
+  // section home goes to the dashboard — so the user never has to tap back
+  // several times to escape a deep flow.
+  const onBack = propOnBack || (
+    isSwipeDeck
+      ? () => { useFilterStore.getState().setActiveCategory(null as any); navigate('/client/dashboard'); }
+      : (showBack ? () => navigate(getParentRoute(location.pathname) ?? '/client/dashboard') : undefined)
+  );
 
   const clusterPillStyle: React.CSSProperties = { overflow: 'visible' };
 
@@ -79,7 +87,7 @@ function TopBarComponent({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1)',
   };
 
 
@@ -112,16 +120,17 @@ function TopBarComponent({
     .toUpperCase();
 
   return (
-    <header 
+    <header
+      data-skip-press-engine
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
+        "fixed top-0 left-0 right-0 z-[100] transition-[transform,opacity] duration-200 pointer-events-none",
         !isActuallyVisible && "opacity-0 -translate-y-full",
         className
       )}
       style={{
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
-        paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
-        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px))',
+        paddingTop: 'calc(var(--safe-top, 0px) + 16px)',
+        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) + 10px)',
         background: 'transparent',
         border: 'none',
         viewTransitionName: 'swipess-header',
@@ -131,15 +140,14 @@ function TopBarComponent({
 
         {/* LEFT: avatar + name only */}
         <div
-          className="flex min-w-0 items-center pointer-events-auto glass-pill px-1.5 h-[38px]"
+          className="flex min-w-0 items-center pointer-events-auto glass-pill chrome-solid px-1.5 h-[38px]"
           style={clusterPillStyle}
         >
           {onBack ? (
-            <motion.button
-              transition={TAP_SPRING}
-              whileTap={{ scale: 0.94 }}
+            <button
+              type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex shrink-0 items-center justify-center rounded-full h-[32px] w-[32px]"
+              className="tap-css-only flex shrink-0 items-center justify-center rounded-full h-[32px] w-[32px]"
               style={glassPillStyle}
               aria-label="Back"
             >
@@ -153,17 +161,16 @@ function TopBarComponent({
                     : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))',
                 }}
               />
-            </motion.button>
+            </button>
           ) : (
             user && (
-              <motion.button
-                transition={TAP_SPRING}
-                whileTap={{ scale: 0.94 }}
+              <button
+                type="button"
                 onClick={() => {
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="flex shrink-0 items-center gap-2 rounded-full pl-0.5 pr-2.5 h-[32px] group"
+                className="tap-css-only flex shrink-0 items-center gap-2 rounded-full pl-0.5 pr-2.5 h-[32px] group"
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
@@ -178,6 +185,8 @@ function TopBarComponent({
                     <img
                       src={profile?.avatar_url || user?.user_metadata?.avatar_url}
                       alt="Profile"
+                      loading="eager"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -219,14 +228,13 @@ function TopBarComponent({
         {/* RIGHT: tokens + theme + notifications — tight cluster */}
         {!minimal && (
           <div
-            className="flex items-center pointer-events-auto glass-pill px-1 h-[38px] shrink-0"
+            className="flex items-center pointer-events-auto glass-pill chrome-solid px-1 h-[38px] shrink-0"
             style={clusterPillStyle}
           >
-            <motion.button
-              transition={TAP_SPRING}
-              whileTap={{ scale: 0.92 }}
+            <button
+              type="button"
               onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              className="flex shrink-0 items-center justify-center rounded-full relative h-[32px] w-[32px]"
+              className="tap-css-only flex shrink-0 items-center justify-center rounded-full relative h-[32px] px-2 gap-1"
               style={glassPillStyle}
               aria-label="Tokens"
             >
@@ -272,7 +280,7 @@ function TopBarComponent({
                 }}
                 strokeWidth={1.9}
               />
-            </motion.button>
+            </button>
 
             <ThemeToggle glassPillStyle={glassPillStyle} />
 

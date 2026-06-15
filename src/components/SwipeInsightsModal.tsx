@@ -1,23 +1,32 @@
-import { motion, PanInfo } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
-  Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle, ChevronLeft,
-  ChevronRight, Clock, DollarSign, Eye, Fuel, Gauge, Home, MapPin,
-  Ruler, ShieldCheck, Square, User, Wrench, X, Zap,
+  Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle,
+  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
+  Share2, ShieldCheck, Square, User, Wrench, Zap,
 } from 'lucide-react';
+import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { PropertyImageGallery } from './PropertyImageGallery';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
+import { triggerHaptic } from '@/utils/haptics';
+import { canNativeShare, copyToClipboard, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
+import { appToast } from '@/utils/appNotification';
 
 interface SwipeInsightsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   listing?: Listing | null;
   profile?: MatchedClientProfile | null;
+  /** Primary action — "Connect" rail button calls this (e.g. start a conversation). */
+  onConnect?: () => void;
+  /** Share rail button. When omitted, falls back to native share / copy link. */
+  onShare?: () => void;
+  /** Report rail button. When provided, a Report action appears in the rail. */
+  onReport?: () => void;
 }
 
 const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = {
@@ -30,7 +39,7 @@ const CATEGORY_META: Record<string, { icon: React.ReactNode; label: string }> = 
   services: { icon: <Briefcase className="w-4 h-4" />, label: 'Service' },
 };
 
-export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: SwipeInsightsModalProps) {
+export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onConnect, onShare, onReport }: SwipeInsightsModalProps) {
   const { isLight } = useAppTheme();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
@@ -48,8 +57,68 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     return [];
   }, [isClientProfile, profile, listing]);
 
-  const handleDragEnd = (_e: any, info: PanInfo) => {
-    if (info.offset.y > 60 || info.velocity.y > 350) onOpenChange(false);
+  // On native, let the hero photo draw under the status bar (notch) for a true
+  // full-screen feel while the modal is open; revert to the app default on close.
+  useEffect(() => {
+    if (!open || !Capacitor.isNativePlatform()) return;
+    import('@capacitor/status-bar')
+      .then(({ StatusBar }) => StatusBar.setOverlaysWebView({ overlay: true }))
+      .catch(() => { /* status bar plugin unavailable */ });
+    return () => {
+      import('@capacitor/status-bar')
+        .then(({ StatusBar }) => StatusBar.setOverlaysWebView({ overlay: false }))
+        .catch(() => { /* status bar plugin unavailable */ });
+    };
+  }, [open]);
+
+  const handleClose = () => {
+    triggerHaptic('light');
+    onOpenChange(false);
+  };
+
+  const prevImage = () => {
+    triggerHaptic('light');
+    setImageIndex(i => (i - 1 + images.length) % images.length);
+  };
+
+  const nextImage = () => {
+    triggerHaptic('light');
+    setImageIndex(i => (i + 1) % images.length);
+  };
+
+  const openGallery = () => {
+    if (images.length === 0) return;
+    triggerHaptic('light');
+    setGalleryOpen(true);
+  };
+
+  const handleReport = () => {
+    triggerHaptic('medium');
+    onReport?.();
+    onOpenChange(false);
+  };
+
+  const handleShareClick = async () => {
+    triggerHaptic('light');
+    if (onShare) { onShare(); return; }
+    const shareTitle = profile?.name || listing?.title || 'Check this out on Swipess';
+    const shareUrl = generateShareUrl(
+      profile
+        ? { profileId: (profile as any)?.user_id || (profile as any)?.id }
+        : { listingId: (listing as any)?.id }
+    );
+    if (canNativeShare()) {
+      await shareViaNavigator({ title: shareTitle, text: `Check out ${shareTitle} on Swipess!`, url: shareUrl });
+    } else {
+      const ok = await copyToClipboard(shareUrl);
+      if (ok) appToast.info('Link copied to clipboard');
+    }
+  };
+
+  const handleConnect = () => {
+    triggerHaptic('success');
+    onConnect?.();
+    onOpenChange(false);
   };
 
   if (!listing && !profile) return null;
@@ -127,169 +196,123 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
     ? ((profile as any)?.interests || (profile as any)?.lifestyle_tags || [])
     : (listing?.amenities || listing?.equipment || listing?.skills || (listing as any)?.tags || []) as string[];
 
-  const surface = isLight ? 'bg-white' : 'bg-card';
   const textPri = isLight ? 'text-slate-900' : 'text-white';
   const textSec = isLight ? 'text-slate-700' : 'text-white/60';
   const textTer = isLight ? 'text-slate-600' : 'text-white/40';
-  const card = isLight ? 'bg-slate-100/80 border-slate-200' : 'bg-white/[0.04] border-white/10';
-  const chipBg = isLight ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-white/[0.06] text-white/80 border-white/10';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
         className={cn(
-          "max-w-[100vw] sm:max-w-md w-full h-[96dvh] mt-[4dvh] sm:mt-0 sm:h-[88vh] p-0 rounded-t-[2.5rem] sm:rounded-[3rem] border-none flex flex-col overflow-hidden shadow-2xl",
-          surface
+          "w-full max-w-[100vw] h-[100dvh] max-h-[100dvh] p-0 rounded-none border-none flex flex-col overflow-hidden shadow-2xl",
+          isLight ? "bg-white" : "bg-black"
         )}
       >
         <div className="flex flex-col h-full min-h-0 relative">
-          {/* Drag handle */}
-          <motion.div
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.4}
-            onDragEnd={handleDragEnd}
-            className="shrink-0 flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing z-30"
-          >
-            <div className={cn("w-12 h-1.5 rounded-full", isLight ? "bg-slate-300" : "bg-white/20")} />
-          </motion.div>
-
-          {/* Header bar */}
-          <div className="px-5 pb-3 flex items-center justify-between z-30">
-            <button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
-              )}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className={cn(
-              "flex items-center gap-2 px-3.5 py-2 rounded-2xl backdrop-blur-xl",
-              isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20"
-            )}>
-              {meta.icon}
-              <span className={cn("text-[11px] font-semibold uppercase tracking-wider", isLight ? "text-white" : textPri)}>{meta.label}</span>
-            </div>
-            <button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-                isLight ? "bg-slate-900 text-white border border-slate-900 shadow-md" : "bg-white/10 border border-white/20 text-white"
-              )}
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
+          
           {/* Scrollable body */}
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide">
-            {/* Photo carousel */}
-            {images.length > 0 && (
-              <div className="relative w-full h-[65vh] min-h-[400px] bg-black">
-                <button
-                  type="button"
-                  onClick={() => setGalleryOpen(true)}
-                  className="absolute inset-0 w-full h-full"
-                >
-                  <img
-                    src={images[imageIndex]}
-                    alt={title || ''}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i - 1 + images.length) % images.length); }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setImageIndex(i => (i + 1) % images.length); }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {images.map((_, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "h-1.5 rounded-full transition-all",
-                            i === imageIndex ? "w-6 bg-white" : "w-1.5 bg-white/40"
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-16">
 
-            <div className="px-5 pt-5 pb-8 space-y-6">
-              {/* Title */}
-              <div className="space-y-1.5">
-                <h2 className={cn("text-2xl font-bold tracking-tight leading-tight", textPri)}>{title}</h2>
+            {/* ── Luxury Card Hero ── */}
+            <div className="z-10 shrink-0 relative w-full h-[50vh] min-h-[400px] rounded-b-[2.5rem] overflow-hidden bg-black/50 shadow-2xl">
+                {images.length > 0 ? (
+                  <>
+                    <img
+                      src={images[imageIndex]}
+                      alt={title || ''}
+                      className="w-full h-full object-cover"
+                    />
+                    {images.length > 1 && (
+                      <>
+                        <div className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" onClick={prevImage} />
+                        <div className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" onClick={nextImage} />
+                        <div className="absolute top-4 left-0 right-0 flex justify-center gap-1.5 z-30 px-4">
+                          {images.map((_, idx) => (
+                            <div key={idx} className={cn("h-1.5 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.5)]", idx === imageIndex ? "bg-white w-4" : "bg-white/40 w-1.5")} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-white/40"><Eye className="w-12 h-12" /></div>
+                  </div>
+                )}
+                
+                {/* Elegant Gradient Overlay for text/buttons */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                {/* Category badge overlaid bottom-left */}
+                <div className="absolute bottom-6 left-5 z-20">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                    <div className="text-[#ff3366]">{meta.icon}</div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
+                  </div>
+                </div>
+            </div>
+
+            {/* ── Content ── */}
+            <div className="px-5 mt-2 relative z-10 space-y-8">
+
+              {/* Title + location, below the photo */}
+              <div className="space-y-3">
+                <h2 className={cn("text-[2.5rem] font-black italic uppercase tracking-tighter leading-[0.9]", textPri)}>
+                  {title}
+                </h2>
                 {subtitle && (
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className={cn("w-3.5 h-3.5", textTer)} />
-                    <p className={cn("text-sm", textSec)}>{subtitle}</p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#a16b00]/15 border border-[#f5a623]/30">
+                    <MapPin className="w-4 h-4 text-[#f5a623]" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f5a623]">{subtitle}</span>
                   </div>
                 )}
               </div>
 
-              {/* Specs grid */}
+              {/* Chunky Specs Grid */}
               {specs.length > 0 && (
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 gap-4">
                   {specs.map((s, i) => (
-                    <div key={i} className={cn("p-3.5 rounded-2xl border flex items-center gap-3", card)}>
+                    <div key={i} className={cn("p-6 rounded-[2.5rem] flex items-center gap-5 shadow-sm", isLight ? "bg-slate-100" : "bg-[#161618]")}>
                       <div className={cn(
-                        "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
-                        isLight ? "bg-white text-slate-600 border border-slate-200" : "bg-white/[0.06] text-white/70 border border-white/10"
+                        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner",
+                        isLight ? "bg-white text-indigo-600" : "bg-[#252528] text-indigo-400"
                       )}>
                         {s.icon}
                       </div>
-                      <div className="min-w-0">
-                        <p className={cn("text-[10px] font-semibold uppercase tracking-wider", textTer)}>{s.label}</p>
-                        <p className={cn("text-sm font-bold truncate", textPri)}>{s.value}</p>
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <p className={cn("text-[10px] font-black uppercase tracking-[0.25em]", textTer)}>{s.label}</p>
+                        <p className={cn("text-[17px] font-black italic tracking-tight uppercase", textPri)}>{s.value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Empty state */}
-              {specs.length === 0 && !description && tags.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-3", isLight ? "bg-slate-100" : "bg-white/5")}>
-                    <Eye className={cn("w-6 h-6", textTer)} />
-                  </div>
-                  <p className={cn("text-sm font-medium", textTer)}>No additional details available</p>
-                  <p className={cn("text-xs mt-1", textTer)}>Tap close to go back</p>
-                </div>
-              )}
-
-              {/* Description */}
+              {/* Description styled as "The Experience" */}
               {description && (
-                <div className="space-y-2">
-                  <h3 className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", textTer)}>About</h3>
-                  <p className={cn("text-sm leading-relaxed whitespace-pre-wrap", textSec)}>{description}</p>
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center gap-4">
+                    <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", textTer)}>Overview</h3>
+                    <div className={cn("flex-1 h-px", isLight ? "bg-slate-200" : "bg-white/10")} />
+                  </div>
+                  <p className={cn("text-[16px] italic leading-[1.6] whitespace-pre-wrap font-medium", textSec)}>
+                    {description}
+                  </p>
                 </div>
               )}
 
               {/* Tags */}
               {tags.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", textTer)}>
+                <div className="space-y-4 pt-4">
+                  <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", textTer)}>
                     {isClientProfile ? 'Interests' : (category === 'worker' || category === 'services' ? 'Skills' : (listing?.equipment?.length ? 'Equipment' : 'Amenities'))}
                   </h3>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2.5">
                     {tags.map((t, i) => (
-                      <span key={i} className={cn("px-3 py-1.5 rounded-full text-[12px] font-medium border", chipBg)}>{t}</span>
+                      <span key={i} className={cn("px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider", isLight ? "bg-slate-100 text-slate-700" : "bg-[#161618] text-white/80")}>
+                        {t}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -297,20 +320,35 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
             </div>
           </div>
 
-          {/* Footer */}
-          <div className={cn(
-            "shrink-0 p-5 pt-3 border-t backdrop-blur-2xl",
-            isLight ? "border-slate-200 bg-white/90" : "border-white/5 bg-black/40"
-          )}>
-            <Button
-              onClick={() => onOpenChange(false)}
-              className={cn(
-                "w-full h-14 rounded-2xl font-bold text-base tracking-wide active:scale-[0.98] transition-all border-0 shadow-lg",
-                isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
-              )}
+          {/* Floating return button — top-right corner */}
+          <div className="absolute top-0 right-0 p-safe pt-safe-top z-50">
+            <div className="flex justify-end px-5 pt-4">
+              <button
+                onClick={handleClose}
+                aria-label="Close"
+                className="w-11 h-11 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white active:scale-90 transition-transform shadow-lg"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Vertical action rail — same icon-button style as the swipe cards */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-50 pointer-events-auto">
+            <div
+              className="flex flex-col gap-1.5 p-1.5 rounded-full"
+              style={{
+                background: 'rgba(24, 24, 28, 0.55)',
+                border: '1px solid rgba(255, 255, 255, 0.20)',
+                boxShadow: '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+              }}
             >
-              Close
-            </Button>
+              <GlassIconButton icon={Share2} onClick={handleShareClick} label="Share" tone="onPhoto" size="md" haptic={false} />
+              <GlassIconButton icon={MessageCircle} onClick={handleConnect} label="Connect" tone="onPhoto" size="md" haptic={false} />
+              {onReport && (
+                <GlassIconButton icon={Flag} onClick={handleReport} label="Report" tone="onPhoto" size="md" haptic={false} />
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>

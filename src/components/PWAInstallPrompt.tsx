@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Download, Share, Sparkles, X } from 'lucide-react';
-import useAppTheme from '@/hooks/useAppTheme';
+import { X } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
-import { cn } from '@/lib/utils';
+import { Capacitor } from '@capacitor/core';
 
 // BeforeInstallPromptEvent is not in the standard TS lib
 interface BeforeInstallPromptEvent extends Event {
@@ -11,7 +10,6 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISSED_KEY = 'Swipess-pwa-install-dismissed';
-const DISMISSED_FOREVER_KEY = 'Swipess-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -36,20 +34,16 @@ function wasDismissedRecently(): boolean {
   return Date.now() - parseInt(ts, 10) < 3 * 24 * 60 * 60 * 1000;
 }
 
-function wasDismissedForever(): boolean {
-  return localStorage.getItem(DISMISSED_FOREVER_KEY) === '1';
-}
-
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
-  const { theme } = useAppTheme();
-  const isDark = theme === 'dark';
+
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
-    // Skip if already installed or dismissed forever
-    if (isAlreadyInstalled() || wasDismissedForever() || wasDismissedRecently()) return;
+    // Skip if native app, already installed or dismissed recently
+    if (isNative || isAlreadyInstalled() || wasDismissedRecently()) return;
 
     const ios = isIOS();
     setIosMode(ios);
@@ -94,92 +88,52 @@ export function PWAInstallPrompt() {
     localStorage.setItem(DISMISSED_KEY, String(Date.now()));
   }, []);
 
-  const handleDismissForever = useCallback(() => {
-    setVisible(false);
-    localStorage.setItem(DISMISSED_FOREVER_KEY, '1');
-  }, []);
-
-  if (!visible) return null;
+  if (isNative || !visible) return null;
 
   return (
     <div
       role="dialog"
       aria-label="Install Swipess app"
-      className="fixed bottom-0 left-0 right-0 z-[10000] px-4 pb-safe-bottom"
-      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)' }}
+      className="fixed bottom-0 left-0 right-0 z-[10000] bg-black/95 border-t border-white/10 shadow-2xl overflow-hidden pb-safe-bottom"
     >
-      <div className={cn(
-        "relative rounded-[2.5rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-md mx-auto overflow-hidden",
-        isDark ? "bg-[#111] border border-white/10" : "bg-white border border-black/5"
-      )}>
-        {/* Decorative background element */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-rose-500/10 blur-2xl pointer-events-none" />
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-4">
-            <div className={cn(
-               "w-12 h-12 rounded-2x overflow-hidden flex items-center justify-center",
-               isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-50 border border-black/5"
-            )}>
-               <SwipessLogo size="xs" />
-            </div>
-            <div>
-              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>Swipess</p>
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-orange-500" />
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/70" : "text-black/70")}>Elite Discovery</p>
-              </div>
-            </div>
-          </div>
+      <div className="w-full max-w-lg mx-auto flex items-center justify-between px-4 py-3 pt-safe-top">
+        {/* Left Side: Logo & Text */}
+        <div className="flex items-center gap-3">
           <button
             onClick={handleDismiss}
             aria-label="Dismiss install prompt"
-            className={cn("transition-colors p-2 -mt-2 -mr-2", isDark ? "text-white/20 hover:text-white/50" : "text-black/20 hover:text-black/50")}
+            className="text-white/40 hover:text-white transition-colors p-1 -ml-2"
           >
-            <X size={20} strokeWidth={1.5} />
+            <X size={16} strokeWidth={2} />
           </button>
+          
+          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+             <SwipessLogo size="xs" variant="transparent" />
+          </div>
+          
+          <div className="flex flex-col">
+            <span className="text-white font-black text-sm leading-tight">Swipess</span>
+            <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider">Download the App</span>
+          </div>
         </div>
 
-        {/* Body */}
-        <p className={cn("text-sm mt-4 font-bold leading-relaxed", isDark ? "text-white/70" : "text-black/60")}>
-          {iosMode
-            ? 'Install Swipess for a premium, edge-to-edge native experience.'
-            : 'Get the app for faster navigation and real-time elite discovery.'}
-        </p>
- 
-        {/* iOS instructions */}
-        {iosMode && (
-          <div className={cn(
-             "mt-4 rounded-2xl px-4 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest",
-             isDark ? "bg-white/5 text-white/60" : "bg-black/5 text-black/60"
-          )}>
-            <Share size={16} className="flex-shrink-0 text-orange-500" />
-            <span>Tap <strong className={isDark ? "text-white" : "text-black"}>Share</strong> then <strong className={isDark ? "text-white" : "text-black"}>"Add to Home Screen"</strong></span>
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex gap-2 mt-3">
-          {!iosMode && (
+        {/* Right Side: Install Button */}
+        <div className="flex items-center gap-2">
+          {iosMode ? (
+            <button
+              onClick={() => alert("Tap the Share icon at the bottom of your browser, then tap 'Add to Home Screen' to install.")}
+              className="bg-white text-black px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider hover:bg-white/90 active:scale-95 transition-all"
+            >
+              Get App
+            </button>
+          ) : (
             <button
               onClick={handleInstall}
-              className="flex-1 flex items-center justify-center gap-2 bg-[#f97316] hover:bg-[#ea6c10] active:scale-95 transition-all text-white text-sm font-semibold rounded-xl py-2.5 px-4"
+              className="bg-white text-black px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider hover:bg-white/90 active:scale-95 transition-all"
             >
-              <Download size={16} />
               Install
             </button>
           )}
-          <button
-            onClick={handleDismissForever}
-            className={cn(
-              "flex-1 text-xs font-semibold transition-colors py-2.5 px-3 rounded-xl border",
-              isDark
-                ? "text-white/70 hover:text-white border-white/20 hover:border-white/40"
-                : "text-black/60 hover:text-black border-black/15 hover:border-black/30"
-            )}
-          >
-            {iosMode ? 'Maybe later' : 'Not now'}
-          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bath, Bed, Camera, Flame, MapPin, MessageCircle, Square, X, Zap } from 'lucide-react';
+import { Bath, Bed, Heart, MapPin, MessageCircle, Share2, Square, Zap } from 'lucide-react';
 import { useSwipe } from '@/hooks/useSwipe';
 import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';
-import { PropertyImageGallery } from './PropertyImageGallery';
+import { triggerHaptic } from '@/utils/haptics';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 
 interface PropertyDetailsProps {
@@ -24,17 +24,7 @@ interface PropertyDetailsProps {
 export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: PropertyDetailsProps) {
   const swipeMutation = useSwipe();
   const hasPremiumMessaging = useHasPremiumFeature('messaging');
-  const [galleryState, setGalleryState] = useState<{
-    isOpen: boolean;
-    images: string[];
-    alt: string;
-    initialIndex: number;
-  }>({
-    isOpen: false,
-    images: [],
-    alt: '',
-    initialIndex: 0
-  });
+  const [isLiked, setIsLiked] = useState(false);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ['listing', listingId],
@@ -81,7 +71,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     enabled: !!listingId && isOpen,
   });
 
-  const handleSwipe = (direction: 'left' | 'right') => {
+  const handleSwipe = useCallback((direction: 'left' | 'right') => {
     if (!listingId) return;
     
     swipeMutation.mutate({
@@ -91,18 +81,13 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     });
     
     onClose();
-  };
+  }, [listingId, swipeMutation, onClose]);
 
-  const handleImageClick = (listing: any, imageIndex: number = 0) => {
-    if (listing.images && listing.images.length > 0) {
-      setGalleryState({
-        isOpen: true,
-        images: listing.images,
-        alt: listing.title,
-        initialIndex: imageIndex
-      });
-    }
-  };
+  const handleLikeToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic('medium');
+    setIsLiked(prev => !prev);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -126,31 +111,28 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               <DialogTitle>Property Details</DialogTitle>
             </DialogHeader>
             
-            <div 
-              className="relative overflow-hidden cursor-pointer group h-[60vh]"
-              onClick={() => handleImageClick(listing, 0)}
-            >
-              <img
-                src={listing.images?.[0] || '/placeholder.svg'}
-                alt={listing.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              
-              {/* Image overlay with camera icon */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                <div className="transition-opacity duration-300 rounded-full p-3 opacity-0 group-hover:opacity-100 bg-white/90">
-                  <Camera className="w-6 h-6 text-gray-800" />
-                </div>
+            <div className="px-4 pt-4 pb-2 z-10">
+              <div className="relative overflow-hidden h-[50vh] rounded-[2rem] shadow-2xl border border-border/10 bg-muted/30">
+                <img
+                  src={listing.images?.[0] || '/placeholder.svg'}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Elegant Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none" />
+                
+                {/* Floating Heart Button */}
+                <button
+                  onClick={handleLikeToggle}
+                  className="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/20 transition-all active:scale-90 hover:bg-black/30 shadow-lg"
+                  aria-label={isLiked ? "Unlike property" : "Like property"}
+                >
+                  <Heart 
+                    className={`w-[22px] h-[22px] transition-colors duration-300 ${isLiked ? 'fill-rose-500 text-rose-500' : 'fill-transparent text-white'}`} 
+                  />
+                </button>
               </div>
-              
-              {listing.images && listing.images.length > 1 && (
-                <div className="absolute bottom-4 right-4 px-3 py-2 text-sm bg-black/70 text-white rounded-full backdrop-blur-sm">
-                  1 / {listing.images.length}
-                </div>
-              )}
-              
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             </div>
 
             {/* Scrollable Content */}
@@ -240,17 +222,15 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               </div>
             </ScrollArea>
 
-            {/* Action Buttons - Floating Glass Pill */}
+            {/* Action Buttons - Premium Minimal Design */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md z-50 pointer-events-none">
-              <div className="flex gap-3 p-2 bg-background/50 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.6)] pointer-events-auto">
+              <div className="flex gap-4 p-2 bg-background/80 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.4)] pointer-events-auto">
                 <Button
                   variant="outline"
-                  className="flex-1 gap-2 h-14 rounded-full border-border dark:border-white/5 bg-secondary/50 dark:bg-white/5 hover:bg-secondary dark:hover:bg-white/10 hover:border-border dark:hover:border-white/10"
-                  onClick={() => handleSwipe('left')}
-                  disabled={swipeMutation.isPending}
+                  className="flex-shrink-0 w-14 h-14 rounded-full border-border/50 bg-secondary/30 hover:bg-secondary/60 backdrop-blur-md"
+                  onClick={() => { triggerHaptic('light'); }}
                 >
-                  <X className="w-5 h-5" />
-                  <span className="hidden sm:inline font-bold tracking-wide">Pass</span>
+                  <Share2 className="w-5 h-5 opacity-80" />
                 </Button>
                 
                 {/* Check if direct messaging is available for this listing category */}
@@ -259,39 +239,26 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   const canMessage = hasPremiumMessaging || isDirectMessaging;
                   return (
                     <Button
-                      variant="outline"
-                      className="flex-[1.5] gap-2 h-14 rounded-full border-border dark:border-white/5 bg-secondary/50 dark:bg-white/5 hover:bg-secondary dark:hover:bg-white/10 hover:border-border dark:hover:border-white/10"
-                      onClick={canMessage ? onMessageClick : () => {}}
+                      className="flex-1 gap-2 h-14 rounded-full bg-foreground text-background hover:scale-[1.02] transition-all font-black uppercase tracking-widest border-none shadow-lg"
+                      onClick={() => {
+                        if (canMessage) {
+                          triggerHaptic('medium');
+                          onMessageClick();
+                        }
+                      }}
                       disabled={!canMessage}
                     >
                       {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400" />}
                       <MessageCircle className="w-5 h-5" />
-                      <span className="font-bold tracking-wide">{isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Locked')}</span>
+                      <span className="font-bold tracking-wide">{isDirectMessaging ? 'Contact Host' : (hasPremiumMessaging ? 'Contact' : 'Locked')}</span>
                     </Button>
                   );
                 })()}
-                
-                <Button
-                  className="flex-1 gap-2 h-14 rounded-full bg-gradient-to-r from-orange-500 to-red-600 hover:scale-[1.02] transition-all shadow-[0_0_25px_rgba(249,115,22,0.4)] text-white font-black uppercase italic tracking-widest border-none"
-                  onClick={() => handleSwipe('right')}
-                  disabled={swipeMutation.isPending}
-                >
-                  <Flame className="w-5 h-5" />
-                  <span className="hidden sm:inline">Like</span>
-                </Button>
               </div>
             </div>
           </>
         ) : null}
       </DialogContent>
-
-      <PropertyImageGallery
-        images={galleryState.images}
-        alt={galleryState.alt}
-        isOpen={galleryState.isOpen}
-        onClose={() => setGalleryState(prev => ({ ...prev, isOpen: false }))}
-        initialIndex={galleryState.initialIndex}
-      />
     </Dialog>
   );
 }

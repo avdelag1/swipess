@@ -14,10 +14,11 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, RotateCcw, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
+import { useModalStore } from '@/state/modalStore';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { LoopVideo } from '@/components/video/LoopVideo';
@@ -76,13 +77,15 @@ interface SimpleOwnerSwipeCardProps {
   onDragStart?: () => void;
   onShare?: () => void;
   onReport?: () => void;
-  onUndo?: () => void;
-  onBack?: () => void;
   onLike?: () => void;
   onDislike?: () => void;
+  onUndo?: () => void;
   canUndo?: boolean;
+  onSoon?: () => void;
+  onBack?: () => void;
   fullScreen?: boolean;
   disableDrag?: boolean;
+  renderTopRail?: React.ReactNode;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -94,16 +97,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onSwipe,
   onTap: onTap,
   onInsights,
-  isTop = true,
+  isTop = false,
   onDragStart,
   onReport,
   onShare,
   onMessage,
   onUndo,
-  canUndo,
+  canUndo = false,
+  onSoon,
   onBack,
   disableDrag,
   fullScreen = false,
+  renderTopRail,
 }, ref) => {
   const { isRailVisible } = useChromeReveal();
   const isDragging = useRef(false);
@@ -133,9 +138,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile]);
 
   const imageCount = images.length;
-  const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
   const videoUrl = (profile as any)?.video_url as string | null | undefined;
-  const showVideoSlide = !!videoUrl && currentImageIndex === 0;
 
   useEffect(() => {
     if (!isTop || !images.length) return;
@@ -261,7 +264,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     if (isMagnifierActive() || wasMagnifierActive()) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
     const width = rect.width;
+    const height = rect.height;
 
     if (imageCount > 1 && clickX < width * 0.33) {
       setPhotoDirection('left');
@@ -273,7 +278,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       triggerHaptic('light');
     } else {
       revealChrome();
-      onTap?.();
+      if (clickY > height * 0.33 && clickY < height * 0.67) {
+        onTap?.();
+      }
       triggerHaptic('light');
     }
   }, [imageCount, onTap, isMagnifierActive, wasMagnifierActive]);
@@ -305,6 +312,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
+    { icon: Map, onClick: () => useModalStore.getState().openPassportMap(), label: 'Map' },
+    { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
@@ -347,16 +356,57 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onDragStart={preventDrag}
           onContextMenu={preventContextMenuClick}
         >
-          {showVideoSlide ? (
-            <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop} />
-          ) : (
-            <SharedCardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} direction={photoDirection} priority fullScreen={true} animate={!isZoomed} />
-          )}
+          {images.map((imgUrl, idx) => {
+            const isActive = currentImageIndex === idx;
+            const isVideo = !!videoUrl && idx === 0;
+            if (isVideo) {
+              return (
+                <div key={`video-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                  <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop && isActive} />
+                </div>
+              );
+            }
+            return (
+              <div key={`img-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out bg-black" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                <SharedCardImage src={imgUrl} alt={profile.name || 'Client'} name={profile.name} direction={photoDirection} priority={idx === 0 || idx === currentImageIndex} fullScreen={true} animate={!isZoomed && isActive} />
+              </div>
+            );
+          })}
           {isTop && (
             <>
               <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-20 transition-opacity duration-200"
                   style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
+              
+              <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+                <button
+                  data-no-cinematic
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onBack) onBack();
+                  }}
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
+                </button>
+
+                {canUndo ? (
+                  <button
+                    data-no-cinematic
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onUndo) onUndo();
+                    }}
+                    className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    aria-label="Undo"
+                  >
+                    <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                  </button>
+                ) : <div className="w-12 h-12" />}
+              </div>
             </>
           )}
         </div>
@@ -485,35 +535,45 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-3 z-50 pointer-events-auto"
+            className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div
-              className="flex flex-col gap-1.5 p-1.5 rounded-full"
-              style={{
-                // Solid rail — sits over the moving card, so no backdrop-filter
-                // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.20)',
-                boxShadow:
-                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              {actionButtons.map((btn, idx) => (
+            {renderTopRail}
+
+            <GlassIconButton
+              icon={Map}
+              onClick={() => useModalStore.getState().openPassportMap()}
+              label="Map"
+              tone="onPhoto"
+              size="lg"
+              guardSwipe
+              className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+            />
+
+            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              {[
+                { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
+              ].map((btn, idx) => (
                 <GlassIconButton
                   key={idx}
                   icon={btn.icon}
                   onClick={btn.onClick}
                   label={btn.label}
-                  tone="onPhoto"
+                  tone="surface"
                   size="md"
                   guardSwipe
+                  className="w-[44px] h-[44px] bg-transparent border-none shadow-none text-white hover:bg-white/10"
                 />
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 });

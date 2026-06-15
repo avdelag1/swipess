@@ -107,7 +107,10 @@ STEP 1 — Detect the category from the user's words:
 - "worker": a person offering a job, service, or skill (cleaner, plumber, chef, teacher, photographer, massage, etc.)
 The user pre-selected "${hintCategory}" — only override it if their words CLEARLY describe a different category.
 
-STEP 2 — Extract the fields for the detected category. Be faithful to the user's words. NEVER invent specifics (price, beds, year, brand, model) that were not stated. Use null for anything not mentioned.
+STEP 2 — Step-by-Step Thinking:
+Before assigning any properties, write out your logic inside the "think" property. Analyze what category fits best, map out the amenities, evaluate vehicle specs or worker skills, and determine the optimal title and description based ONLY on the provided text.
+
+STEP 3 — Extract the fields for the detected category. Be faithful to the user's words. NEVER invent specifics (price, beds, year, brand, model) that were not stated. Use null for anything not mentioned.
 
 Base price: ${body.price ?? "(unknown)"} — if this is a number, you MUST return it as "price"; it is the seller's chosen price, do not change it.
 Base city: ${body.city ?? "(unknown)"}
@@ -124,11 +127,12 @@ Field rules:
   motorcycle: ${JSON.stringify(AMENITY_VOCAB.motorcycle)}
   bicycle: ${JSON.stringify(AMENITY_VOCAB.bicycle)}
   worker: ${JSON.stringify(AMENITY_VOCAB.worker)}
-- "description": a polished, professional, high-converting paragraph (2-5 sentences) in English that naturally weaves in the user's details and chosen amenities. Confident and factual — no placeholders, no bullet lists.
-- "title": short and catchy, <= 70 chars.
+- "title": Create a highly fitting, attractive title depending entirely on the description (<= 70 chars). Focus on the core offering.
+- "description": A concise, professional paragraph in English. Do NOT create bloated, overly long descriptions; organize the facts instead of inventing a narrative. Weave in the user's details and chosen amenities confidently.
 
 Return ONLY valid JSON with ALL of these keys (null when not applicable):
 {
+  "think": string,
   "category": "property" | "motorcycle" | "bicycle" | "worker",
   "title": string,
   "description": string,

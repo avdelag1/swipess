@@ -1,4 +1,5 @@
 import { logger } from '@/utils/prodLogger';
+import type { PassportAction } from '@/utils/passportLocation';
 
 export function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -17,19 +18,25 @@ export const NAV_LABELS: Record<string, string> = {
   '/owner/properties': 'My Listings',
   '/legal': 'Legal Section',
   '/explore/events': 'Browse Events',
+  '/client/dashboard': 'Swipe Deck',
+  '/owner/dashboard': 'Owner Deck',
 };
+
+export const PASSPORT_PATTERN = /\[PASSPORT:(\{[\s\S]*?\})\]/g;
 
 export function parseNavActions(content: string): {
   cleanContent: string;
   navPaths: string[];
   draftActions: { category: string; data: any }[];
   filterAction: any | null;
+  passportAction: PassportAction | null;
   listings: any[];
   profiles: any[];
 } {
   const navPaths: string[] = [];
   const draftActions: { category: string; data: any }[] = [];
   let filterAction = null;
+  let passportAction: PassportAction | null = null;
   let listings: any[] = [];
   let profiles: any[] = [];
 
@@ -58,6 +65,15 @@ export function parseNavActions(content: string): {
     return '';
   });
 
+  cleanContent = cleanContent.replace(PASSPORT_PATTERN, (_, jsonData) => {
+    try {
+      passportAction = JSON.parse(jsonData);
+    } catch (e) {
+      logger.error('Failed to parse passport JSON:', e);
+    }
+    return '';
+  });
+
   const LISTINGS_PATTERN = /\[LISTINGS:(\[[\s\S]*?\])\]/g;
   cleanContent = cleanContent.replace(LISTINGS_PATTERN, (_, jsonData) => {
     try {
@@ -82,5 +98,5 @@ export function parseNavActions(content: string): {
 
   cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n').trim();
 
-  return { cleanContent, navPaths, draftActions, filterAction, listings, profiles };
+  return { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles };
 }

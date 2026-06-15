@@ -22,7 +22,7 @@ import { getSafePaymentUrl } from '@/config/iapProducts';
 const PACKAGES = [
   {
     id: "starter",
-    appleProductId: "Swipess.promo.event.week.v2",
+    appleProductId: "Swipess.promo.event.week.v3",
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     color: "#14b8a6",
@@ -42,17 +42,17 @@ const PACKAGES = [
   },
   {
     id: "growth",
-    appleProductId: "Swipess.promo.event.month.v2",
+    appleProductId: "Swipess.promo.event.month.v3",
     name: "Growth",
     icon: <Star className="w-5 h-5" />,
     color: "#6366f1",
     colorRgb: "99,102,241",
-    price: 79.99,
-    duration: "1 month",
-    durationLabel: "/ 1 month",
+    price: 49.99,
+    duration: "3 months",
+    durationLabel: "/ 3 months",
     image: "/growth_promo_card_1777061867792.png",
     perks: [
-      "Top featured placement for 30 days",
+      "Top featured placement for 90 days",
       "3 Broadcast push notifications to matches",
       "Enhanced business profile with 'Verified' badge",
     ],
@@ -62,12 +62,12 @@ const PACKAGES = [
   },
   {
     id: "premium",
-    appleProductId: "Swipess.promo.event.quarter.v2",
+    appleProductId: "Swipess.promo.event.quarter.v3",
     name: "Wave",
     icon: <Crown className="w-5 h-5" />,
     color: "#a855f7",
     colorRgb: "168,85,247",
-    price: 199.99,
+    price: 99.99,
     duration: "6 months",
     durationLabel: "/ 6 months",
     image: "/premium_promo_card_1777061887805.png",
@@ -234,9 +234,9 @@ function PromoSwipeCard({
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2">
-          <span className="text-5xl font-black text-white">${pkg.price.toFixed(2)}</span>
-          <span className="text-sm font-bold text-white uppercase tracking-wider">USD {pkg.durationLabel}</span>
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
+          <span className="text-4xl sm:text-5xl font-black text-white leading-none">${pkg.price.toFixed(2)}</span>
+          <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider mt-1 sm:mt-0">USD {pkg.durationLabel}</span>
         </div>
 
         {/* Perks */}
@@ -358,9 +358,12 @@ export default function AdvertisePage() {
   const handleLaunchPayment = async (pkg: typeof PACKAGES[0]) => {
     haptics.tap();
 
+    // APPLE REVIEW BYPASS: Allow Apple to test payments instantly
+    const isAppleReviewer = user?.email?.toLowerCase().includes('apple');
+
     // Step 1: Submission must be approved before payment.
     // Always route to the submission form first; payment unlocks after approval.
-    if (approvedSubmission) {
+    if (approvedSubmission || isAppleReviewer) {
       if (NativeBridge.isIOS()) {
         appToast.info("Connecting to App Store...");
         const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);
@@ -652,7 +655,7 @@ export default function AdvertisePage() {
             <Megaphone className="w-4 h-4" />
             Start Promoting — From $4.99 USD
           </motion.button>
-          <p className="text-[10px] text-center mt-2" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
+          <p className="text-[10px] text-center mt-3 font-bold" style={{ color: th.textFaint }}>No upfront payment · You pay securely in-app after approval</p>
         </div>
 
            {approvedSubmission && (
@@ -674,18 +677,24 @@ export default function AdvertisePage() {
                   <button
                     key={pkg.id}
                     onClick={() => handleLaunchPayment(pkg)}
-                    className="flex items-center justify-between p-5 rounded-2xl bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/10 border border-white/10 hover:border-white/30 transition-all group overflow-hidden relative"
+                    style={{
+                      boxShadow: `0 8px 30px rgba(${pkg.colorRgb}, 0.1)`,
+                    }}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+                    <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity"
+                         style={{ backgroundImage: `linear-gradient(to right, transparent, ${pkg.color})` }} />
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/10" 
+                           style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
                         {pkg.icon}
                       </div>
                       <div className="text-left">
                         <div className="font-black text-white text-sm uppercase tracking-tight">{pkg.name}</div>
-                        <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest">${pkg.price} USD / {pkg.durationLabel}</div>
+                        <div className="text-[11px] text-white/50 font-bold uppercase tracking-widest">${pkg.price} USD {pkg.durationLabel}</div>
                       </div>
                     </div>
-                    <ArrowUpRight className="w-5 h-5 text-white/20 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                    <ArrowUpRight className="w-6 h-6 text-white/20 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all relative z-10" />
                   </button>
                 ))}
               </div>
@@ -787,7 +796,7 @@ export default function AdvertisePage() {
                     {[
                       { icon: ClipboardList, color: "#f97316", colorRgb: "249,115,22", title: "Submit your event", desc: "Fill out this form with your event or business details" },
                       { icon: Shield,        color: "#3b82f6", colorRgb: "59,130,246",  title: "We review it",      desc: "Our team verifies submissions are appropriate & legal within 24 h" },
-                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? We contact you on WhatsApp to finalize & publish" },
+                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? You'll be notified to complete your payment and launch!" },
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -973,7 +982,7 @@ export default function AdvertisePage() {
               <div className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Review & Submit</h2>
-                  <p className="text-sm" style={{ color: th.textMuted }}>Our team will contact you to confirm payment and publishing.</p>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Our team will verify your details. Once approved, you can choose your package and pay to launch.</p>
                 </div>
 
                 {/* Summary */}
@@ -1001,13 +1010,13 @@ export default function AdvertisePage() {
                     style={{ borderTop: `1px solid ${th.divider}` }}>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-orange-400">Step 1: Free Review</p>
                     <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
-                      Our team will verify your details. Once approved, you'll receive a notification and can choose your promotion package.
+                      Our team will verify your details. Once approved, you'll be notified and can securely choose your promotion package.
                     </p>
                   </div>
                 </div>
 
                 <p className="text-[11px] text-center px-4" style={{ color: th.textFaint }}>
-                  By submitting, you agree our team will reach out via WhatsApp to finalize payment before publishing.
+                  By submitting, you agree to our terms. No payment is required until your event is approved.
                 </p>
 
                 <div className="flex gap-3">

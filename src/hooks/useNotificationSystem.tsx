@@ -246,6 +246,12 @@ export function useNotificationSystem() {
         // Use client-side routing to avoid full page reload
         navigate(url);
       } catch { /* silent */ }
+    } else if (notification.type === 'premium_purchase' || notification.type === 'activation_purchase') {
+      // Payment related — go to profile/dashboard where benefits/tokens show
+      navigate('/profile');
+    } else if (!['success', 'info', 'warning', 'error'].includes((notification.type || '') as string)) {
+      // Show full details for social notifications if there is no URL
+      window.alert(`${notification.title}\n\n${notification.message}`);
     }
 
     // Auto-dismiss the banner on click

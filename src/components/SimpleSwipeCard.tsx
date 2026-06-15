@@ -23,12 +23,13 @@ import { ClientCardInfo, PropertyCardInfo, ServiceCardInfo, VehicleCardInfo } fr
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
+import { useModalStore } from '@/state/modalStore';
 import CardImage from '@/components/CardImage';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, RotateCcw, Share2, Undo2 } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -54,11 +55,12 @@ interface SimpleSwipeCardProps {
   onMessage?: () => void;
   onUndo?: () => void;
   canUndo?: boolean;
-  onBack?: () => void;
+  onExit?: () => void;
   isTop?: boolean;
   onDragStart?: () => void;
   disableDrag?: boolean;
   fullScreen?: boolean;
+  renderTopRail?: React.ReactNode;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -76,10 +78,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onShare,
   onMessage,
   onUndo,
-  canUndo,
-  onBack,
+  canUndo = false,
+  onExit,
   disableDrag,
   fullScreen = false,
+  renderTopRail,
 }, ref) => {
   const { isLight } = useAppTheme();
    
@@ -168,7 +171,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [listing]);
 
   const imageCount = images.length;
-  const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
 
   useEffect(() => {
     if (!isTop || images.length <= 1) return;
@@ -297,7 +299,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     if (isMagnifierActive() || wasMagnifierActive()) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
     const width = rect.width;
+    const height = rect.height;
 
     if (imageCount > 1 && clickX < width * 0.33) {
       setPhotoDirection('left');
@@ -309,7 +313,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       triggerHaptic('light');
     } else {
       revealChrome();
-      onCardTap?.();
+      if (clickY > height * 0.33 && clickY < height * 0.67) {
+        onCardTap?.();
+      }
       triggerHaptic('light');
     }
   }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
@@ -342,6 +348,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   const actionButtons = useMemo(() => [
+    { icon: Map, onClick: () => useModalStore.getState().openPassportMap(), label: 'Map' },
+    { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
     { icon: Share2, onClick: onShare, label: 'Share' },
     { icon: MessageCircle, onClick: onMessage, label: 'Message' },
     { icon: BarChart3, onClick: onInsights, label: 'Insights' },
@@ -387,23 +395,33 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onDragStart={preventDrag}
           onContextMenu={preventContextMenuClick}
         >
-          {currentImage === 'video_attachment' && (listing as any).video_url ? (
-            <LoopVideo
-              src={(listing as any).video_url}
-              className="absolute inset-0 w-full h-full object-cover"
-              active={isTop}
-            />
-          ) : (
-            <CardImage
-              src={currentImage}
-              alt={(listing as any).title || 'Listing'}
-              name={(listing as any).title}
-              direction={photoDirection}
-              priority
-              fullScreen={true}
-              animate={!isZoomed}
-            />
-          )}
+          {images.map((imgUrl, idx) => {
+            const isActive = currentImageIndex === idx;
+            if (imgUrl === 'video_attachment' && (listing as any).video_url) {
+              return (
+                <div key={`video-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                  <LoopVideo
+                    src={(listing as any).video_url}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    active={isTop && isActive}
+                  />
+                </div>
+              );
+            }
+            return (
+              <div key={`img-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out bg-black" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
+                <CardImage
+                  src={imgUrl}
+                  alt={(listing as any).title || 'Listing'}
+                  name={(listing as any).title}
+                  direction={photoDirection}
+                  priority={idx === 0 || idx === currentImageIndex}
+                  fullScreen={true}
+                  animate={!isZoomed && isActive}
+                />
+              </div>
+            );
+          })}
           {isTop && (
             <>
               <div
@@ -448,9 +466,40 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
         </AnimatePresence>
 
-        {isTop && (
+
+        {isTop && (listing as any).category !== 'events' && (
           <>
             <GestureHints hidden={isZoomed} />
+            
+            <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+              <button
+                data-no-cinematic
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onExit) onExit();
+                }}
+                className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
+              </button>
+
+              {canUndo ? (
+                <button
+                  data-no-cinematic
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onUndo) onUndo();
+                  }}
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  aria-label="Undo"
+                >
+                  <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                </button>
+              ) : <div className="w-12 h-12" />}
+            </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
@@ -467,6 +516,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
              </div>
           </div>
         </motion.div>
+          </>
+        )}
 
 
         <div
@@ -583,14 +634,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         )}
 
-          </>
-        )}
       </motion.div>
 
-      {/* Action rail lives OUTSIDE the draggable motion.div so Framer Motion's
-          native drag listener cannot intercept the button pointer events. */}
+      {/* Action rail lives OUTSIDE the draggable motion.div */}
       <AnimatePresence>
-        {isTop && !isZoomed && isRailVisible && (
+        {isTop && !isZoomed && isRailVisible && (listing as any).category !== 'events' && (
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
@@ -598,35 +646,45 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-3 z-50 pointer-events-auto"
+            className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
             style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <div
-              className="flex flex-col gap-1.5 p-1.5 rounded-full"
-              style={{
-                // Solid rail — sits over the moving card, so no backdrop-filter
-                // (it would re-blur the card pixels every frame and tile).
-                background: 'rgba(24, 24, 28, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.20)',
-                boxShadow:
-                  '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              {actionButtons.map((btn, idx) => (
+            {renderTopRail}
+
+            <GlassIconButton
+              icon={Map}
+              onClick={() => useModalStore.getState().openPassportMap()}
+              label="Map"
+              tone="onPhoto"
+              size="lg"
+              guardSwipe
+              className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+            />
+
+            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              {[
+                { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: MessageCircle, onClick: onMessage, label: 'Message' },
+                { icon: BarChart3, onClick: onInsights, label: 'Insights' },
+                { icon: Flag, onClick: onReport, label: 'Report' },
+              ].map((btn, idx) => (
                 <GlassIconButton
                   key={idx}
                   icon={btn.icon}
                   onClick={btn.onClick}
                   label={btn.label}
-                  tone="onPhoto"
+                  tone="surface"
                   size="md"
                   guardSwipe
+                  className="w-[44px] h-[44px] bg-transparent border-none shadow-none text-white hover:bg-white/10"
                 />
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 });

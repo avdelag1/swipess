@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bike, Briefcase, Building2, Camera,
-  Mic, Search, Sparkles, Wand2, X, Zap
+  AudioLines, Search, Sparkles, Wand2, X, Zap, Mic
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
@@ -98,16 +98,18 @@ export function AIListingWizard() {
   const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
+  const modalBg = isLight 
+    ? 'bg-white chrome-solid saturate-150 border-black/10' 
+    : 'bg-[#050505]/95 chrome-solid saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
   const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/80' : 'text-white/90';
+  const textMuted = isLight ? 'text-black/80' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
-    : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
+    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    : 'bg-black/60 border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
-    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-white/20';
+    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -119,10 +121,13 @@ export function AIListingWizard() {
   const [extras, setExtras] = useState<Record<string, unknown>>({});
   const [progressPhase, setProgressPhase] = useState<ProgressPhase>('upload');
   const [progressPct, setProgressPct] = useState(0);
+  const [micVolume, setMicVolume] = useState(0);
   const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setPrompt(prev => prev ? `${prev} ${text}` : text);
-    }
+      setMicVolume(0);
+    },
+    onVolumeChange: (vol) => setMicVolume(vol)
   });
   const [micTipOpen, setMicTipOpen] = useState(false);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
@@ -409,24 +414,24 @@ export function AIListingWizard() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-            isLight ? "bg-white/40" : "bg-black/80"
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-0 sm:p-6",
+            isLight && "modal-scrim--lux"
           )}
-          style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 30 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
+              "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
             modalBg
             )}
+            style={{ WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}
           >
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
-               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-pink-600/5 blur-[120px] rounded-full" />
+               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-rose-500/20 to-orange-500/10 blur-[120px] rounded-full mix-blend-screen" />
+               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-pink-500/20 to-purple-500/10 blur-[100px] rounded-full mix-blend-screen" />
             </div>
 
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
@@ -435,7 +440,7 @@ export function AIListingWizard() {
                   <Sparkles className="w-6 h-6 text-rose-400" />
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Magic AI Creation</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-500", textPrimary)}>AI Uploading. Listing.</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
                     <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
@@ -485,8 +490,8 @@ export function AIListingWizard() {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
-                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_15px_rgba(255,77,0,0.3)]"
-                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
+                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/5 border border-t-white/30 border-l-white/10 border-r-white/5 border-b-transparent hover:border-white/40 shadow-inner"
                               )}
                             >
                               <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-white" : textMuted)} />
@@ -510,7 +515,7 @@ export function AIListingWizard() {
                                 <img src={previewUrls[i]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                 <button 
                                   onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 transition-all border border-white/10"
+                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-white/10"
                                 >
                                   <X className="w-4 h-4 text-white" />
                                 </button>
@@ -519,7 +524,7 @@ export function AIListingWizard() {
                           </AnimatePresence>
                           <button
                             onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15 bg-black/5" : "border-white/20 bg-white/5")}
                           >
                             <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
                               <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
@@ -556,39 +561,49 @@ export function AIListingWizard() {
                         <div className="relative group">
                           <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
                             <PopoverTrigger asChild>
-                              <button
-                                onClick={handleVoiceToggle}
-                                className={cn(
-                                  "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
-                                  isRecording 
-                                    ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
-                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
-                                )}
-                              >
-                                {isRecording ? (
-                                  <motion.div 
-                                    className="absolute inset-0 bg-white/20"
-                                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                    transition={{ duration: 1.5, repeat: Infinity }}
+                              <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
+                                {isRecording && (
+                                  <motion.div
+                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 blur-md pointer-events-none"
+                                    animate={{ 
+                                      scale: 1 + (micVolume / 255) * 1.5,
+                                      opacity: 0.4 + (micVolume / 255) * 0.6 
+                                    }}
+                                    transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                   />
-                                ) : (
-                                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 )}
-                                <Mic className={cn("w-5 h-5 relative z-10", isRecording ? "text-white animate-pulse" : "text-white")} />
-                              </button>
+                                <button
+                                  onClick={handleVoiceToggle}
+                                  className={cn(
+                                    "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
+                                    isRecording 
+                                      ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                      : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
+                                  )}
+                                >
+                                  {!isRecording && (
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  )}
+                                  {isRecording ? (
+                                    <Mic className="w-5 h-5 relative z-10 text-white animate-pulse" />
+                                  ) : (
+                                    <Mic className="w-5 h-5 relative z-10 text-white" />
+                                  )}
+                                </button>
+                              </div>
                             </PopoverTrigger>
                             <PopoverContent
                               side="top"
                               sideOffset={12}
-                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl chrome-solid"
                             >
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                  <Mic className="w-4 h-4 text-rose-400" />
+                                  <AudioLines className="w-4 h-4 text-rose-400" />
                                   <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                                 </div>
                                 <p className="text-[12px] leading-relaxed text-white">
-                                  Tap the mic and describe your listing out loud. Tap again to stop.
+                                  Tap to describe your listing out loud. The visualizer reacts to your voice!
                                 </p>
                               </div>
                             </PopoverContent>
@@ -597,13 +612,39 @@ export function AIListingWizard() {
                           <div className="relative">
                             <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
                             <textarea
-                              value={isRecording && interimTranscript ? (prompt ? prompt + ' ' + interimTranscript : interimTranscript) : prompt}
+                              value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
-                              placeholder={isRecording ? "Listening..." : "Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."}
+                              placeholder="Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."
                               className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
                             />
+                            {isRecording && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
+                                <motion.div 
+                                  className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
+                                  animate={{ opacity: [0.5, 1, 0.5] }}
+                                  transition={{ repeat: Infinity, duration: 1.5 }}
+                                />
+                                <div className="flex items-center gap-2 mb-3 relative z-10">
+                                  <Mic className="w-6 h-6 text-white animate-pulse" />
+                                  <span className="text-sm font-black uppercase tracking-widest text-white">Listening...</span>
+                                </div>
+                                <div className="flex gap-1 items-end h-8 relative z-10">
+                                  {[...Array(12)].map((_, i) => (
+                                    <motion.div
+                                      key={i}
+                                      className="w-1.5 bg-gradient-to-t from-rose-500 to-orange-500 rounded-full"
+                                      animate={{ 
+                                        height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4 
+                                      }}
+                                      transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                                    />
+                                  ))}
+                                </div>
+                                <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak your details aloud</p>
+                              </div>
+                            )}
                             {isTranscribing && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/35 rounded-[2rem]">
                                 <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
                                   <PremiumSpinner className="w-4 h-4" />
                                   <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>

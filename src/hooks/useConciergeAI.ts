@@ -5,6 +5,7 @@ import { useUserSubscription } from '@/hooks/useSubscription';
 import { useTokens } from '@/hooks/useTokens';
 import { logSupabaseError } from '@/lib/supabaseError';
 import { logger } from '@/utils/prodLogger';
+import { useFilterStore } from '@/state/filterStore';
 
 export interface ChatMessage {
   id: string;
@@ -472,6 +473,16 @@ export function useConciergeAI() {
         },
         body: JSON.stringify({
           messages: apiMessages,
+          locationContext: (() => {
+            const s = useFilterStore.getState();
+            return {
+              passportMode: s.passportMode,
+              passportLabel: s.passportLabel,
+              userLatitude: s.userLatitude,
+              userLongitude: s.userLongitude,
+              radiusKm: s.radiusKm,
+            };
+          })(),
           ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
           ...(activeCharacter === 'beaugosse' ? { character: 'beaugosse', charmLevel: egoLevel } : {}),
           ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),

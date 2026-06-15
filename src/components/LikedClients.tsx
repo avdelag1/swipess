@@ -287,7 +287,7 @@ export function LikedClients() {
         )}
       </div>
 
-      <Suspense fallback={null}><SwipeInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} profile={selectedClientForView} /></Suspense>
+      <Suspense fallback={null}><SwipeInsightsModal open={showInsightsModal} onOpenChange={setShowInsightsModal} profile={selectedClientForView} onConnect={() => { if (selectedClientForView) handleAction('message', selectedClientForView); }} /></Suspense>
       
       <ConnectingOverlay 
         isOpen={isConnecting}

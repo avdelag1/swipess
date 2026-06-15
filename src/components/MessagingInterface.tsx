@@ -201,6 +201,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
     setNewMessage('');
     stopTyping();
+    triggerHaptic('medium');
 
     try {
       await sendMessage.mutateAsync({

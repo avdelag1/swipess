@@ -34,9 +34,9 @@ export function SwipeDeckBackButton() {
         navigate(`/${activeMode}/dashboard`);
       }}
       aria-label="Back to dashboard"
-      className="absolute left-2 z-[10020] flex items-center justify-center w-14 h-14 bg-transparent border-0 shadow-none transition-all active:scale-90 pointer-events-auto"
+      className="absolute right-2 z-[10020] flex items-center justify-center w-14 h-14 bg-transparent border-0 shadow-none transition-all active:scale-90 pointer-events-auto"
       style={{
-        top: 'calc(var(--safe-top, 0px) + var(--top-bar-height) - 4px)',
+        top: 'calc(var(--safe-top, 0px) + 16px)',
         backgroundColor: 'transparent',
         boxShadow: 'none',
         color: '#FFFFFF',

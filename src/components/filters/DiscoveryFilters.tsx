@@ -176,7 +176,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
         moto_types: motoTypes, engine_cc_min: engineRange[0],
         radius_km: localRadiusKm
       });
-    }, 800);
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange, localRadiusKm, onApply]);
@@ -247,7 +247,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
 
 
       {/* Demographic Filters */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <Collapsible>
           <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       </Card>
 
       {/* Location Filter & Radius */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-0 pt-6 px-6">
           <div className="flex items-center gap-2">
              <Globe className="w-4 h-4 text-primary" />
@@ -307,7 +307,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       </Card>
 
       {/* Budget Filter */}
-      <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
+      <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white/50 border-black/5" : "bg-card/30 border-white/5")}>
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
              <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
@@ -339,7 +339,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       {/* CATEGORY SPECIFIC FILTERS */}
       {category === 'property' && (
         <>
-          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white border-black/[0.03]" : "bg-card/30 border-white/5")}>
+          <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white border-black/[0.03]" : "bg-card/30 border-white/5")}>
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
@@ -408,7 +408,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
 
       {category === 'motorcycle' && (
         <>
-          <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/80 border-black/10 shadow-xl" : "bg-card/30 border-white/5")}>
+          <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white/80 border-black/10 shadow-xl" : "bg-card/30 border-white/5")}>
             <CardHeader className="pb-2">
               <span className="text-xs font-black uppercase tracking-widest">Engine Power</span>
             </CardHeader>
@@ -426,7 +426,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
       )}
 
       {category === 'service' && (
-        <Card className={cn("backdrop-blur-md overflow-hidden rounded-[2rem]", isLight ? "bg-white/80 border-black/10 shadow-xl" : "bg-card/30 border-white/5")}>
+        <Card className={cn("overflow-hidden rounded-[2rem]", isLight ? "bg-white/80 border-black/10 shadow-xl" : "bg-card/30 border-white/5")}>
           <CardHeader className="pb-2 px-6 pt-6">
             <div className="flex items-center gap-2">
               <WorkersIcon className="w-4 h-4 text-primary" />

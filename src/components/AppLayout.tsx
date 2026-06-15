@@ -15,6 +15,9 @@ import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
+import { PassportMapModal } from '@/components/PassportMapModal';
+import { PassportModal } from '@/components/PassportModal';
+import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
@@ -120,7 +123,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   // Filters removed from here since they are unused
 
-
+  useEffect(() => {
+    prefetchPassportMapImmediate();
+  }, []);
 
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('swipess-ui-recovery'));
@@ -193,6 +198,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
+  const isSubscriptionRoute = location.pathname.startsWith('/subscription');
 
   const searchParams = new URLSearchParams(location.search);
   const hasActiveChat = searchParams.has('conversationId') || searchParams.has('startConversation');
@@ -207,13 +213,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     const isRadio = path.startsWith('/radio');
     const isCamera = path.startsWith('/camera');
-    const isRoommates = path.startsWith('/explore/roommates');
     const isEvents = path.startsWith('/explore/events');
     const isDirectChatInner = path.startsWith('/messages') && hasActiveChat;
-    return isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isRoommates || isDirectChatInner || isEvents;
-  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard]);
+    return isSubscriptionRoute || isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isDirectChatInner || isEvents;
+  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard, isSubscriptionRoute]);
 
-  const showAppChrome = !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
+  const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {
@@ -323,6 +328,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
         <GlobalDialogs userRole={userRole} />
       </Suspense>
+
+      {/* Eager-mounted — no lazy chunk delay on first tap */}
+      <PassportModal />
+      <PassportMapModal />
     </div>
   );
 }

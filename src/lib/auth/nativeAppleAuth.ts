@@ -12,14 +12,19 @@
  *   2. pass its SHA-256 hash to Apple (Apple embeds the hash in the token)
  *   3. pass the RAW nonce to Supabase, which re-hashes and compares
  */
-import { Capacitor } from '@capacitor/core';
-
 // Must match the iOS bundle identifier and be listed as an authorized
 // client id on the Apple provider in the Supabase dashboard.
 const APPLE_BUNDLE_ID = 'com.swipess.mobile';
 
 export function isNativeAppleAvailable(): boolean {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+  // TEMPORARY BYPASS: Since you are on a Personal Team (free account) and cannot add 
+  // the "Sign In with Apple" capability in Xcode, we force this to return false. 
+  // This tells the app to use the web-based Apple Login instead of the native one, 
+  // bypassing Xcode entirely so you can test!
+  return false; 
+  
+  // Original code:
+  // return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 }
 
 function generateRawNonce(): string {

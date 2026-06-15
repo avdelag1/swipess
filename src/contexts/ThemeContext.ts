@@ -1,5 +1,6 @@
 import React from 'react';
 import { flushSync } from 'react-dom';
+import { Capacitor } from '@capacitor/core';
 
 export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black' | 'Swipess-style';
 
@@ -75,6 +76,16 @@ function applyThemeToDOM(theme: Theme) {
   else if (theme === 'amber-matte') targetColor = '#1a1200';
   else targetColor = '#ffffff';
   meta.setAttribute('content', targetColor);
+
+  // Native: match the status bar to the active theme — dark text on the light
+  // theme, light text on every dark theme — and tint its background (Android)
+  // so the bar blends into the screen instead of a fixed black strip.
+  if (Capacitor.isNativePlatform()) {
+    const isLightTheme = theme === 'light';
+    void import('@/utils/microPolish').then(({ setStatusBarColor }) => {
+      void setStatusBarColor(isLightTheme ? 'light' : 'dark', targetColor);
+    });
+  }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {

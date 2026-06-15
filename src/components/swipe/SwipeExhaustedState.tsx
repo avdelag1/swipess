@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { MapPin, SlidersHorizontal } from 'lucide-react';
+import { Map, MapPin, SlidersHorizontal } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeExhaustedStateProps {
@@ -15,6 +15,7 @@ interface SwipeExhaustedStateProps {
   activeCategory?: string;
   onCategoryChange?: (category: string) => void;
   onOpenFilters?: () => void;
+  onOpenMap?: () => void;
   role?: 'client' | 'owner';
   [key: string]: any;
 }
@@ -30,6 +31,7 @@ export const SwipeExhaustedState = ({
   activeCategory = 'property',
   onCategoryChange,
   onOpenFilters,
+  onOpenMap,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
@@ -123,6 +125,24 @@ export const SwipeExhaustedState = ({
               Move the slider to search further
             </p>
           </div>
+        )}
+
+        {onOpenMap && (
+          <button
+            onClick={() => {
+              triggerHaptic('heavy');
+              onOpenMap();
+            }}
+            className={cn(
+              'w-full min-h-12 py-3 px-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 border flex items-center justify-center gap-2',
+              isLight
+                ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
+                : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30'
+            )}
+          >
+            <Map className="w-4 h-4" />
+            Explore on Live Map
+          </button>
         )}
 
         {/* Category switcher */}

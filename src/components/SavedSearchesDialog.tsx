@@ -178,7 +178,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       appToast.info(!currentStatus ? 'Alerts Enabled' : 'Alerts Disabled', `You will ${!currentStatus ? 'now' : 'no longer'} receive notifications for this search.`);
 
       fetchSavedSearches();
-    } catch (err) {
+    } catch (_err) {
       appToast.error('Failed to update alerts');
     }
   };
@@ -463,7 +463,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
                     <Input
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="e.g., Tulum"
+                      placeholder="e.g., Miami"
                       className="bg-white/5 border-white/20 text-white"
                     />
                   </div>

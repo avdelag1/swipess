@@ -642,6 +642,126 @@ Email: <u>_________________________________</u></p>
   </div>
 </div>
 `
+  },
+  {
+    id: 'motorcycle-bill-of-sale',
+    name: 'Motorcycle Bill of Sale',
+    description: 'Agreement for buying/selling a motorcycle',
+    category: 'moto',
+    forRole: 'owner',
+    content: `
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1 style="font-size: 24px; font-weight: bold;">MOTORCYCLE BILL OF SALE</h1>
+</div>
+
+<p><strong>Date:</strong> <u>[DATE]</u></p>
+
+<p>I, <strong><u>[SELLER NAME]</u></strong> ("Seller"), do hereby sell, transfer, and convey to <strong><u>[BUYER NAME]</u></strong> ("Buyer") the following motorcycle:</p>
+
+<ul>
+  <li><strong>Make:</strong> <u>[MAKE]</u></li>
+  <li><strong>Model:</strong> <u>[MODEL]</u></li>
+  <li><strong>Year:</strong> <u>[YEAR]</u></li>
+  <li><strong>VIN:</strong> <u>[VIN NUMBER]</u></li>
+  <li><strong>Odometer Reading:</strong> <u>[MILEAGE]</u></li>
+</ul>
+
+<p>For the total sum of <strong><u>[SALE PRICE]</u></strong>, paid by <u>[PAYMENT METHOD]</u>.</p>
+<p>The Seller certifies that they are the lawful owner of this vehicle, free and clear of all liens and encumbrances. The vehicle is sold "AS IS", without any warranties.</p>
+
+<br>
+<div style="display: flex; justify-content: space-between; margin-top: 40px;">
+  <div style="width: 45%;">
+    <p><strong>SELLER SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>[SELLER NAME]</u></p>
+    <p>Date: <u>[DATE]</u></p>
+  </div>
+  <div style="width: 45%;">
+    <p><strong>BUYER SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>[BUYER NAME]</u></p>
+    <p>Date: <u>[DATE]</u></p>
+  </div>
+</div>
+`
+  },
+  {
+    id: 'divorce-settlement',
+    name: 'Uncontested Divorce Settlement',
+    description: 'Basic settlement agreement for uncontested divorce',
+    category: 'service',
+    forRole: 'owner',
+    content: `
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1 style="font-size: 24px; font-weight: bold;">MARITAL SETTLEMENT AGREEMENT</h1>
+</div>
+
+<p><strong>Date:</strong> <u>[DATE]</u></p>
+<p>This agreement is made between <strong><u>[SPOUSE A NAME]</u></strong> and <strong><u>[SPOUSE B NAME]</u></strong>.</p>
+<p>The parties were married on <strong><u>[DATE OF MARRIAGE]</u></strong> and separated on <strong><u>[DATE OF SEPARATION]</u></strong>. Irreconcilable differences have led to the breakdown of the marriage, and the parties wish to settle all matters amicably.</p>
+
+<h2 style="font-size: 18px;">1. SPOUSAL SUPPORT (ALIMONY)</h2>
+<p><u>[INSERT SUPPORT TERMS, e.g., Neither party shall receive spousal support / Spouse A shall pay Spouse B $X per month]</u>.</p>
+
+<h2 style="font-size: 18px;">2. PROPERTY DIVISION</h2>
+<p>The parties agree to divide their property as follows:</p>
+<ul>
+  <li><strong>To Spouse A:</strong> <u>[LIST ASSETS]</u></li>
+  <li><strong>To Spouse B:</strong> <u>[LIST ASSETS]</u></li>
+</ul>
+
+<h2 style="font-size: 18px;">3. DEBTS</h2>
+<p>Each party shall be responsible for debts acquired in their individual names since the date of separation.</p>
+
+<br>
+<div style="display: flex; justify-content: space-between; margin-top: 40px;">
+  <div style="width: 45%;">
+    <p><strong>SPOUSE A SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>[SPOUSE A NAME]</u></p>
+    <p>Date: <u>[DATE]</u></p>
+  </div>
+  <div style="width: 45%;">
+    <p><strong>SPOUSE B SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>[SPOUSE B NAME]</u></p>
+    <p>Date: <u>[DATE]</u></p>
+  </div>
+</div>
+`
+  },
+  {
+    id: 'promissory-note',
+    name: 'Promissory Note (Pagaré)',
+    description: 'Legal promise to pay a specific amount',
+    category: 'promise',
+    forRole: 'owner',
+    content: `
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1 style="font-size: 24px; font-weight: bold;">PROMISSORY NOTE (PAGARÉ)</h1>
+</div>
+
+<p><strong>Date:</strong> <u>[DATE]</u><br><strong>Location:</strong> <u>[CITY, STATE]</u></p>
+
+<p>For value received, I, <strong><u>[BORROWER NAME]</u></strong> ("Borrower"), promise to pay to the order of <strong><u>[LENDER NAME]</u></strong> ("Lender"), the principal sum of <strong><u>[PRINCIPAL AMOUNT]</u></strong>, along with an annual interest rate of <strong><u>[INTEREST RATE]%</u></strong>.</p>
+
+<h2 style="font-size: 18px;">1. PAYMENT TERMS</h2>
+<p>This note shall be paid in full on or before <strong><u>[DUE DATE]</u></strong>. Payment shall be made via <u>[PAYMENT METHOD]</u>.</p>
+
+<h2 style="font-size: 18px;">2. LATE FEES</h2>
+<p>If payment is not made within <u>[NUMBER]</u> days of the due date, a late fee of <strong><u>[LATE FEE AMOUNT]</u></strong> will be added to the balance.</p>
+
+<p>By signing below, the Borrower accepts the terms of this note.</p>
+
+<br>
+<div style="margin-top: 40px;">
+  <p><strong>BORROWER SIGNATURE</strong></p>
+  <p style="border-bottom: 1px solid #000; height: 40px; width: 45%;"></p>
+  <p>Name: <u>[BORROWER NAME]</u></p>
+  <p>Date: <u>[DATE]</u></p>
+</div>
+`
   }
 ];
 

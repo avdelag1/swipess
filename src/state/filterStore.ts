@@ -55,6 +55,10 @@ interface FilterState {
   radiusKm: number;
   userLatitude: number | null;
   userLongitude: number | null;
+  /** True when user teleported via Global Passport (not physical GPS). */
+  passportMode: boolean;
+  /** Display label for passport destination, e.g. "Paris, France". */
+  passportLabel: string | null;
 
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
@@ -96,6 +100,8 @@ interface FilterState {
   setClientNationalities: (nationalities: string[]) => void;
   setRadiusKm: (radius: number) => void;
   setUserLocation: (lat: number, lon: number) => void;
+  setPassportLocation: (lat: number, lon: number, label?: string) => void;
+  clearPassportLocation: () => void;
   clearUserLocation: () => void;
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -151,6 +157,8 @@ export const useFilterStore = create<FilterState>()(
     radiusKm: 50,
     userLatitude: null,
     userLongitude: null,
+    passportMode: false,
+    passportLabel: null,
     priceRange: null,
     bedrooms: [],
     bathrooms: [],
@@ -186,8 +194,28 @@ export const useFilterStore = create<FilterState>()(
     },
     setUserLocation: (lat, lon) => {
       set((state) => ({
-        userLatitude: lat, 
+        userLatitude: lat,
         userLongitude: lon,
+        passportMode: false,
+        passportLabel: null,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setPassportLocation: (lat, lon, label) => {
+      set((state) => ({
+        userLatitude: lat,
+        userLongitude: lon,
+        passportMode: true,
+        passportLabel: label ?? null,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    clearPassportLocation: () => {
+      set((state) => ({
+        passportMode: false,
+        passportLabel: null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -216,6 +244,18 @@ export const useFilterStore = create<FilterState>()(
         
         // Service mapping
         if (filters.service_categories) mapped.serviceTypes = filters.service_categories;
+        if (filters.moto_types) mapped.motoTypes = filters.moto_types;
+        if (filters.bicycle_types) mapped.bicycleTypes = filters.bicycle_types;
+        if (filters.radius_km !== undefined) mapped.radiusKm = filters.radius_km;
+        if (filters.budget_min !== undefined || filters.budget_max !== undefined) {
+          mapped.priceRange = [filters.budget_min || 0, filters.budget_max || 1000000];
+        }
+        if (filters.bedrooms_min !== undefined) {
+          mapped.bedrooms = [filters.bedrooms_min, filters.bedrooms_min];
+        }
+        if (filters.interest_type && filters.interest_type !== 'both') {
+          mapped.listingType = filters.interest_type;
+        }
 
         return {
           ...mapped,
@@ -226,8 +266,10 @@ export const useFilterStore = create<FilterState>()(
     },
     clearUserLocation: () => {
       set((state) => ({
-        userLatitude: null, 
+        userLatitude: null,
         userLongitude: null,
+        passportMode: false,
+        passportLabel: null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -366,13 +408,30 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    setFilters: (filters) => {
+    setFilters: (filters: Record<string, unknown>) => {
       set((state) => ({
-        ...(filters.categories !== undefined && { categories: filters.categories }),
-        ...(filters.category !== undefined && { activeCategory: filters.category }),
-        ...(filters.listingType !== undefined && { listingType: filters.listingType }),
-        ...(filters.clientGender !== undefined && { clientGender: filters.clientGender }),
-        ...(filters.clientType !== undefined && { clientType: filters.clientType }),
+        ...(filters.categories !== undefined && { categories: filters.categories as QuickFilterCategory[] }),
+        ...((filters.category !== undefined || filters.activeCategory !== undefined) && {
+          activeCategory: (filters.activeCategory ?? filters.category) as QuickFilterCategory | null,
+        }),
+        ...(filters.listingType !== undefined && { listingType: filters.listingType as FilterState['listingType'] }),
+        ...(filters.clientGender !== undefined && { clientGender: filters.clientGender as FilterState['clientGender'] }),
+        ...(filters.clientType !== undefined && { clientType: filters.clientType as FilterState['clientType'] }),
+        ...(filters.userLatitude !== undefined && { userLatitude: filters.userLatitude as number | null }),
+        ...(filters.userLongitude !== undefined && { userLongitude: filters.userLongitude as number | null }),
+        ...(filters.radiusKm !== undefined && { radiusKm: filters.radiusKm as number }),
+        ...(filters.passportMode !== undefined && { passportMode: filters.passportMode as boolean }),
+        ...(filters.passportLabel !== undefined && { passportLabel: filters.passportLabel as string | null }),
+        ...(filters.priceRange !== undefined && { priceRange: filters.priceRange as [number, number] | null }),
+        ...(filters.bedrooms !== undefined && { bedrooms: filters.bedrooms as number[] }),
+        ...(filters.bathrooms !== undefined && { bathrooms: filters.bathrooms as number[] }),
+        ...(filters.amenities !== undefined && { amenities: filters.amenities as string[] }),
+        ...(filters.propertyTypes !== undefined && { propertyTypes: filters.propertyTypes as string[] }),
+        ...(filters.serviceTypes !== undefined && { serviceTypes: filters.serviceTypes as string[] }),
+        ...(filters.furnished !== undefined && { furnished: filters.furnished as boolean }),
+        ...(filters.petFriendly !== undefined && { petFriendly: filters.petFriendly as boolean }),
+        ...(filters.motoTypes !== undefined && { motoTypes: filters.motoTypes as string[] }),
+        ...(filters.bicycleTypes !== undefined && { bicycleTypes: filters.bicycleTypes as string[] }),
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -449,6 +508,8 @@ export const useFilterStore = create<FilterState>()(
         ageRange: state.clientAgeRange ?? undefined,
         budgetRange: state.clientBudgetRange ?? undefined,
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
+        ageRange: state.clientAgeRange ?? undefined,
+        budgetRange: state.clientBudgetRange ?? undefined,
         radiusKm: state.radiusKm,
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
@@ -495,9 +556,22 @@ export const useFilterStore = create<FilterState>()(
         clientType: state.clientType,
         userLatitude: state.userLatitude,
         userLongitude: state.userLongitude,
+        passportMode: state.passportMode,
+        passportLabel: state.passportLabel,
         radiusKm: state.radiusKm,
+        priceRange: state.priceRange,
+        bedrooms: state.bedrooms,
+        bathrooms: state.bathrooms,
+        amenities: state.amenities,
+        propertyTypes: state.propertyTypes,
+        serviceTypes: state.serviceTypes,
+        motoTypes: state.motoTypes,
+        bicycleTypes: state.bicycleTypes,
         furnished: state.furnished,
         petFriendly: state.petFriendly,
+        clientAgeRange: state.clientAgeRange,
+        clientBudgetRange: state.clientBudgetRange,
+        clientNationalities: state.clientNationalities,
         pokerCardOrder: state.pokerCardOrder,
         ownerPokerCardOrder: state.ownerPokerCardOrder,
       }), // only persist these fields

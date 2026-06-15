@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  Building2, Coins, Crown, Flame, LogOut, Megaphone, Scale as ScaleIcon, Settings, Sparkles, ThumbsUp, Zap, UserCircle
+  Building2, Coins, Crown, Flame, LogOut, Megaphone, Scale as ScaleIcon, Settings, Sparkles, ThumbsUp, UserCircle, Zap
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";

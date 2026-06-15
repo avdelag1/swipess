@@ -6,9 +6,15 @@ import { ClientFilters, MatchedClientProfile } from './types';
 import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
+import {
+  filterByDistance,
+  filterClientsByOwnerFilters,
+  hasActiveLocationFilter,
+} from '@/utils/matchingFilters';
+import { isDemoFeedEnabled } from '@/utils/demoFeed';
 
 const CLIENT_FIELDS = `
-    user_id, name, age, gender, city, country, profile_images,
+    user_id, name, age, gender, city, country, latitude, longitude, profile_images,
     interests, personality_traits, smoking_habit, work_schedule, nationality,
     languages, neighborhood, bio, occupation, preferred_activities, roommate_available
 `;
@@ -290,7 +296,9 @@ export function useSmartClientMatching(
                 .from('likes')
                 .select('target_id, direction, created_at')
                 .eq('user_id', userId)
-                .eq('target_type', 'profile');
+                .eq('target_type', 'profile')
+                .order('created_at', { ascending: false })
+                .limit(500);
             
             if (error) throw error;
             
@@ -346,7 +354,7 @@ export function useSmartClientMatching(
                 // category (buyers / renters / hire / roommates) so each
                 // owner-side filter shows the right human photos.
                 const appendDemoClients = (real: MatchedClientProfile[]): MatchedClientProfile[] => {
-                    if (page !== 0) return real;
+                    if (!isDemoFeedEnabled() || page !== 0) return real;
                     const realIds = new Set(real.map(r => r.user_id));
                     const demos = filterDemoClientsForCategory(_category, isRoommateSection)
                         .filter(d => !realIds.has(d.user_id))
@@ -365,6 +373,7 @@ export function useSmartClientMatching(
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
                         let finalClients = (rpcClients as any[])
                             .filter(c => c.user_id !== userId)
+                            .filter(c => !swipedProfileIds.has(c.user_id))
                             .filter(c => !adminIds?.has(c.user_id))
                             .filter(c => c.role === 'client')
                             .filter(c => (c.client_type || '') !== 'business');
@@ -391,8 +400,23 @@ export function useSmartClientMatching(
                             };
                         }).filter((c: any) => c.profile_images.length > 0);
 
-                        // Always append demos (real first) so testing data is never lost
-                        const withDemos = appendDemoClients(normalizedClients as any);
+                        let locationFiltered = normalizedClients as any[];
+                        if (hasActiveLocationFilter(filters)) {
+                            locationFiltered = filterByDistance(
+                                locationFiltered,
+                                filters!.userLatitude!,
+                                filters!.userLongitude!,
+                                filters?.radiusKm ?? 50,
+                                false,
+                            );
+                        }
+
+                        locationFiltered = filterClientsByOwnerFilters(
+                            locationFiltered as MatchedClientProfile[],
+                            filters as any,
+                        );
+
+                        const withDemos = appendDemoClients(locationFiltered as MatchedClientProfile[]);
                         if (withDemos.length > 0) {
                             runIdleTask(() => {
                                 const imagesToPrewarm = withDemos.flatMap((p: any) => p.profile_images || p.images || []).slice(0, 5);
@@ -486,6 +510,10 @@ export function useSmartClientMatching(
 
                 const finalProfiles = profiles || [];
 
+                const userLat = filters?.userLatitude;
+                const userLon = filters?.userLongitude;
+                const radiusKm = filters?.radiusKm ?? 50;
+
                 let results = finalProfiles
                     .filter(p => !adminIds?.has(p.user_id)) // admin exclusion
                     .filter(p => (p as any).client_type !== 'business') // business/place exclusion
@@ -497,13 +525,21 @@ export function useSmartClientMatching(
                         age: p.age || 0, gender: p.gender || '',
                         interests: p.interests || [], preferred_activities: p.preferred_activities || [],
                         location: { city: p.city }, lifestyle_tags: (p as any).personality_traits || [],
-                        profile_images: finalImgs, 
+                        profile_images: finalImgs,
+                        latitude: p.latitude, longitude: p.longitude,
                         matchPercentage: 80,
                         matchReasons: ['Profile available'], incompatibleReasons: [], verified: true,
                         roommate_available: !!p.roommate_available, city: p.city, country: p.country, work_schedule: p.work_schedule,
                         occupation: p.occupation || ''
                     } as MatchedClientProfile;
                 });
+
+                // Distance filter — same passport/GPS logic as listings
+                if (userLat != null && userLon != null) {
+                    results = filterByDistance(results as any[], userLat, userLon, radiusKm, false) as typeof results;
+                }
+
+                results = filterClientsByOwnerFilters(results, filters as any);
 
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);

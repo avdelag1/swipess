@@ -1,37 +1,37 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Heart, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, MapPin, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
 const SLIDES = [
   {
-    title: "Discover Tulum",
-    desc: "The elite marketplace for premium villas, exotic vehicles, and secret events.",
+    title: "Discover Properties",
+    desc: "Find your ideal client. Buyers, tenants. And connect with direct owners.",
     icon: MapPin,
-    color: "from-teal-400 to-emerald-500",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200"
+    color: "from-blue-400 to-cyan-500",
+    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1200"
   },
   {
-    title: "Swipe to Match",
-    desc: "Find the perfect roommate or client with our AI-powered matching logic.",
-    icon: Heart,
+    title: "Trusted Network",
+    desc: "Find the perfect roommate or tenant. Connect with trusted people and rent together.",
+    icon: Users,
     color: "from-rose-400 to-pink-500",
     image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=1200"
-  },
-  {
-    title: "Resident Identity",
-    desc: "Your digital VAP card proves you belong to the elite Swipess community.",
-    icon: ShieldCheck,
-    color: "from-blue-400 to-indigo-500",
-    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=1200"
   },
   {
     title: "AI Concierge",
     desc: "Your personal assistant for finding the best local deals and private parties.",
     icon: Sparkles,
     color: "from-amber-400 to-orange-500",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200"
+    image: "/images/ai_chat_onboarding.png"
+  },
+  {
+    title: "Resident Identity",
+    desc: "Your digital VAP card proves you belong to the elite Swipess community.",
+    icon: ShieldCheck,
+    color: "from-indigo-400 to-violet-500",
+    image: "/images/resident_girl_onboarding.png"
   }
 ];
 
@@ -62,6 +62,40 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
           className="absolute inset-0"
         >
           <img src={slide.image} className="w-full h-full object-cover opacity-60" alt="" />
+          
+          {index === 3 && (
+            <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none mb-32">
+               <motion.div 
+                 initial={{ y: 20, opacity: 0, rotate: -2 }}
+                 animate={{ y: 0, opacity: 1, rotate: 0 }}
+                 transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 25 }}
+                 className="w-full max-w-[300px] rounded-[2rem] backdrop-blur-xl bg-white/10 border border-white/20 p-6 shadow-2xl relative overflow-hidden"
+               >
+                 <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2" />
+                 <div className="absolute bottom-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />
+                 <div className="relative z-10">
+                   <div className="flex justify-between items-start mb-8">
+                     <ShieldCheck className="w-8 h-8 text-white/80" />
+                     <div className="text-right">
+                       <p className="text-white font-black text-lg tracking-widest uppercase">Resident</p>
+                       <p className="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Verified</p>
+                     </div>
+                   </div>
+                   <div className="space-y-4">
+                     <div>
+                       <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider mb-0.5">Origin</p>
+                       <p className="text-white font-bold text-xl">New York</p>
+                     </div>
+                     <div>
+                       <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider mb-0.5">Duration</p>
+                       <p className="text-white font-medium text-sm">1 Year Lease</p>
+                     </div>
+                   </div>
+                 </div>
+               </motion.div>
+            </div>
+          )}
+
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         </motion.div>
       </AnimatePresence>

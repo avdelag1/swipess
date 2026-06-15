@@ -39,6 +39,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
+import { broadcastSectionReset } from '@/utils/sectionNavigation';
 
 const ICON_SIZE = 26;
 
@@ -180,15 +181,26 @@ export const BottomNavigation = memo(({
 
       haptics.tap();
 
-      if (item.path === location.pathname) {
-        haptics.tap();
-        // Tapping Dashboard while already on dashboard resets to category selection grid
+      // Re-tapping the nav button for the section you're already in returns you
+      // to that section's home page — and resets any in-page sub-view (e.g. the
+      // Legal hub's editor/signing screens) — so you don't have to tap back
+      // several times to get back to where you started.
+      const withinSection =
+        !!item.path &&
+        (location.pathname === item.path || location.pathname.startsWith(item.path + '/'));
+
+      if (withinSection && item.path) {
+        // Tapping Dashboard while already on dashboard resets to the category grid
         if (item.id === 'dashboard') {
           setCategories([]);
         }
-        // Pressing the current page's nav item also closes any open overlays
         closeAll();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        broadcastSectionReset(item.path);
+        if (location.pathname !== item.path) {
+          navigate(item.path); // pop any deeper route back to the section home
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         return;
       }
 
@@ -251,34 +263,31 @@ export const BottomNavigation = memo(({
     <nav
       role="navigation"
       aria-label="Main navigation"
+      data-skip-press-engine
       className={cn(
-        'app-bottom-bar pb-2 pt-1 transition-all duration-150',
+        'app-bottom-bar transition-all duration-150 w-full flex justify-center',
         isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
       style={{
         transitionTimingFunction: 'ease-out',
-        paddingLeft: 'max(12px, env(safe-area-inset-left))',
-        paddingRight: 'max(12px, env(safe-area-inset-right))',
-        paddingBottom: 'calc(8px + max(0px, env(safe-area-inset-bottom)))',
+        paddingLeft: 'max(0px, env(safe-area-inset-left))',
+        paddingRight: 'max(0px, env(safe-area-inset-right))',
+        paddingBottom: 'max(0px, env(safe-area-inset-bottom))',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* ── Liquid Glass bar surface ────────────────────────────────────────
-          The bar itself is a glass layer so the swipe card content shows
-          through, reinforcing the "floating above" feeling. */}
+      {/* ── Solid Premium Bar ────────────────────────────────────────
+          The bar sits lower and uses a strong, rich background to feel more premium. */}
       <div
         className={cn(
-          "pointer-events-auto",
-          "mx-auto w-fit max-w-[95vw]",
-          "glass-surface px-1.5 py-1",
-          "rounded-full"
+          "pointer-events-auto floating-dock-nav",
+          "w-max max-w-[calc(100vw-24px)]",
+          "px-1 py-1.5 border",
+          isLight
+            ? "glass-light-surface border-black/8"
+            : "glass-dark border-white/12",
         )}
-        style={{
-          filter: isLight
-            ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.12))'
-            : 'drop-shadow(0 8px 32px rgba(0,0,0,0.45))',
-        }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
@@ -287,15 +296,15 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
+            // justify-start on phone (items scroll from the left); justify-center
+            // on md+ so the buttons sit in the middle. CSS-media-query driven so
+            // it never depends on JS resize timing.
+            'relative flex items-center justify-start md:justify-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
             transform: 'translateZ(0)',
             overflowX: 'auto',
-            scrollSnapType: 'x proximity',
-            scrollPaddingLeft: '16px',
-            scrollPaddingRight: '16px',
             scrollbarWidth: 'none' as const,
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
@@ -304,8 +313,8 @@ export const BottomNavigation = memo(({
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
-            justifyContent: 'safe center',
             scrollBehavior: 'smooth',
+            padding: '0 8px',
           }}
         >
           {navItems.map((item) => {
@@ -318,6 +327,7 @@ export const BottomNavigation = memo(({
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
                 data-instant-feedback
+                data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
@@ -338,8 +348,7 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: 'clamp(42px, 10vw, 54px)',
-                  scrollSnapAlign: 'center',
+                  minWidth: isTablet ? '64px' : 'calc(100vw / 6.5)', // Let about 6.5 items fit on screen at once
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 14px' : (isNarrow ? '5px' : 'clamp(5px, 1.4vw, 10px)'),
                   cursor: 'pointer',

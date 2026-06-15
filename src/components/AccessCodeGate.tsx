@@ -116,7 +116,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                 <button
                   type="submit"
                   style={btnColor ? { background: btnColor } : undefined}
-                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_8px_28px_rgba(0,0,0,0.45)] hover:brightness-105 active:scale-[0.97] transition-all flex items-center justify-center gap-3 ${btnColor ? 'text-white' : 'bg-white text-black'}`}
+                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_8px_28px_rgba(0,0,0,0.45)] hover:brightness-105 active:scale-[0.97] transition-all flex items-center justify-center gap-3 text-white ${btnColor ? '' : 'bg-white/20 border border-white/20'}`}
                 >
                   <Sparkles className="w-4 h-4" />
                   {btnText}

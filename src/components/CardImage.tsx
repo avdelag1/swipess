@@ -43,6 +43,37 @@ const CardImage = memo(({
   const [errored, setErrored] = useState<boolean>(false);
   const fallbackTriedRef = useRef(false);
 
+  // Preload the image a screen ahead of the viewport so it's already there as
+  // you scroll instead of popping in. Priority, marketing, already-cached images
+  // (and the swipe deck, which prewarms its own images) start in view; only
+  // off-screen list/grid images wait for the observer.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState<boolean>(() => {
+    if (priority || isMarketingSlide) return true;
+    if (cacheKey && imageCache.has(cacheKey)) return true;
+    return typeof IntersectionObserver === 'undefined';
+  });
+
+  useEffect(() => {
+    if (isInView) return;
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIsInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '600px', threshold: 0.01 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isInView]);
+
   useEffect(() => {
     fallbackTriedRef.current = false;
     setErrored(false);
@@ -120,6 +151,7 @@ const CardImage = memo(({
 
   return (
       <div
+        ref={containerRef}
         style={{
           position: 'absolute',
           inset: 0,
@@ -146,7 +178,7 @@ const CardImage = memo(({
             <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
 
-          {blurSrc && (
+          {blurSrc && isInView && (
             <img
               src={blurSrc}
               alt=""
@@ -184,13 +216,16 @@ const CardImage = memo(({
           onContextMenu={e => e.preventDefault()}
         />
       )}
-      {imgSrc && (
+      {imgSrc && isInView && (
         <motion.img
           src={imgSrc}
           alt={alt ?? ''}
           data-swipe-card-image="true"
           draggable={false}
-          loading={priority ? "eager" : "lazy"}
+          // Render is already gated by the IntersectionObserver above, so by the
+          // time this mounts the image is near/in view — load it now rather than
+          // deferring again to the browser's narrower native-lazy threshold.
+          loading="eager"
           decoding="async"
           fetchpriority={priority ? "high" : "auto"}
           initial={false}

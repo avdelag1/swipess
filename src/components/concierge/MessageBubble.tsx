@@ -8,31 +8,38 @@ import { ChatListingCard } from '@/components/ChatListingCard';
 import { ChatProfileCard } from '@/components/ChatProfileCard';
 import { NAV_LABELS, parseNavActions } from './conciergeUtils';
 import type { ChatMessage } from '@/hooks/useConciergeAI';
+import type { PassportAction } from '@/utils/passportLocation';
 
-export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onSpeak, speakingMsgId, isSpeaking }: {
+export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onPassport, onSpeak, speakingMsgId, isSpeaking }: {
   message: ChatMessage, isUser: boolean, isSwipess: boolean, isLight?: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
   onResend?: () => void, onNavigate?: (p:string)=>void,
   onDraft?: (cat: any, data: any) => void,
   onFilter?: (filters: any) => void,
+  onPassport?: (action: PassportAction) => void,
   onSpeak?: (id: string, text: string) => void, speakingMsgId: string | null, isSpeaking: boolean
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { cleanContent, navPaths, draftActions, filterAction, listings, profiles } = useMemo(
-    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
+  const { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, passportAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
 
   const displayContent = useMemo(() => {
-    return cleanContent
-      .replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '')
-      .replace(/\[LISTINGS:[^\]]*\]?/g, '')
-      .replace(/\[PROFILES:[^\]]*\]?/g, '')
-      .replace(/\[DRAFT:[^\]]*\]?/g, '')
-      .replace(/\[FILTER:[^\]]*\]?/g, '')
-      .replace(/\[NAV:[^\]]*\]?/g, '')
-      .trim();
+    let disp = cleanContent.replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '');
+    const tags = ['[LISTINGS:', '[PROFILES:', '[DRAFT:', '[FILTER:', '[PASSPORT:', '[NAV:'];
+    let earliestIndex = -1;
+    tags.forEach(tag => {
+      const idx = disp.indexOf(tag);
+      if (idx !== -1 && (earliestIndex === -1 || idx < earliestIndex)) {
+        earliestIndex = idx;
+      }
+    });
+    if (earliestIndex !== -1) {
+      disp = disp.substring(0, earliestIndex);
+    }
+    return disp.trim();
   }, [cleanContent]);
 
   useEffect(() => {
@@ -41,6 +48,13 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
       return () => clearTimeout(timer);
     }
   }, [isUser, filterAction, onFilter]);
+
+  useEffect(() => {
+    if (!isUser && passportAction && onPassport) {
+      const timer = setTimeout(() => onPassport(passportAction), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isUser, passportAction, onPassport]);
 
   const handleCopy = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -133,7 +147,7 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
         </div>
       )}
 
-      {(navPaths.length > 0 || draftActions.length > 0 || filterAction) && (
+      {(navPaths.length > 0 || draftActions.length > 0 || filterAction || passportAction) && (
         <div className="flex flex-wrap gap-1.5 mt-1">
           {onNavigate && navPaths.map(path => (
             <button
@@ -159,6 +173,14 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
               className="flex items-center justify-center px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest bg-primary/10 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-sm"
             >
               Applying Search Filters
+            </button>
+          )}
+          {passportAction && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onPassport?.(passportAction); }}
+              className="flex items-center justify-center px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest bg-indigo-500/15 text-indigo-400 hover:bg-indigo-500/25 hover:scale-105 transition-all shadow-sm"
+            >
+              {passportAction.useGPS ? 'Use My Location' : `Explore ${passportAction.city || 'City'}`}
             </button>
           )}
         </div>

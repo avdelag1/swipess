@@ -167,7 +167,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
   ]
 
   const locationOptions = [
-    'Tulum Centro', 'Zona Hotelera', 'Aldea Zama', 'La Veleta', 'Región 15'
+    'Miami Centro', 'Zona Hotelera', 'Aldea Zama', 'La Veleta', 'Región 15'
   ]
 
   const motoTypeOptions = [

@@ -29,6 +29,10 @@ const config: CapacitorConfig = {
         'Swipess uses Face ID for secure authentication.',
       NSContactsUsageDescription:
         'Swipess can share listings with your contacts if you choose to.',
+      NSCalendarsUsageDescription:
+        'Swipess adds events to your calendar so you never miss experiences, workshops, or ceremonies.',
+      NSRemindersUsageDescription:
+        'Swipess can add event reminders to help you prepare for upcoming experiences.',
     },
   },
   plugins: {

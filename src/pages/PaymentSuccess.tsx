@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { STORAGE } from '@/constants/app';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
 
 /**
  * PaymentSuccess - Silent Payment Processing
@@ -29,221 +27,33 @@ export default function PaymentSuccess() {
     processedRef.current = true;
 
     const processPayment = async () => {
-      const pendingPurchase =
-        sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-        sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY) ||
-        localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-        localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
       const returnPath =
         sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY) ||
         localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
-      if (!pendingPurchase) {
-        // No pending purchase - might be a refresh, just redirect
-        appToast.error('No pending purchase found. If you completed a payment, please contact support.');
-        navigate(returnPath || '/client/dashboard', { replace: true });
-        return;
-      }
+      // We no longer read SELECTED_PLAN_KEY and blindly insert.
+      // The backend (e.g. validate-paypal-order edge function or webhook) 
+      // will handle the database inserts asynchronously.
 
-      try {
-        const purchase = JSON.parse(pendingPurchase);
-        let pkg;
+      // Clear the return path
+      sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+      localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
-        // Fetch package based on what info we have
-        if (purchase.packageId) {
-          // Try by numeric DB id first, then by apple_product_id string
-          const numericId = Number(purchase.packageId);
-          if (!isNaN(numericId)) {
-            const { data, error: pkgErr } = await supabase
-              .from('subscription_packages')
-              .select('*')
-              .eq('id', numericId)
-              .maybeSingle();
-            if (pkgErr) logger.warn('[PaymentSuccess] package lookup by id failed:', pkgErr);
-            pkg = data;
-          }
-          if (!pkg) {
-            const { data, error: pkgErr } = await supabase
-              .from('subscription_packages')
-              .select('*')
-              .eq('apple_product_id', purchase.packageId)
-              .maybeSingle();
-            if (pkgErr) logger.warn('[PaymentSuccess] package lookup by apple_product_id failed:', pkgErr);
-            pkg = data;
-          }
-        }
-        if (!pkg && purchase.planId) {
-          pkg = await mapMonthlyPlanToPackage(purchase.planId);
-        }
-        // Fallback: build a minimal synthetic package from stored purchase data
-        if (!pkg && purchase.tokens && purchase.package_category) {
-          pkg = {
-            id: null,
-            package_category: purchase.package_category,
-            tokens: purchase.tokens,
-            duration_days: 30,
-          };
-        }
+      // Invalidate relevant queries so the UI updates when the backend finishes
+      queryClient.invalidateQueries({ queryKey: ['tokens'] });
+      queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-document-quota'] });
 
-        if (!pkg) {
-          appToast.error('Package not found. Please contact support.');
-          navigate(returnPath || '/client/dashboard', { replace: true });
-          return;
-        }
+      appToast.info('Verifying Payment', 'Your premium features will be unlocked momentarily once verified by PayPal.');
 
-        const role = pkg.package_category?.includes('client') ? 'client' : 'owner';
-        const isMonthly = pkg.package_category?.includes('monthly');
-        const isPayPerUse = pkg.package_category?.includes('pay_per_use');
-
-        // Process subscription/activation silently
-        if (isMonthly) {
-          await processMonthlySubscription(user.id, pkg);
-        } else if (isPayPerUse) {
-          await processPayPerUseActivation(user.id, pkg);
-        }
-
-        // Clear all payment-related storage (both session and local)
-        sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
-        sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
-        sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
-        localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
-        localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
-        localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
-
-        // Invalidate relevant queries for immediate UI update
-        queryClient.invalidateQueries({ queryKey: ['tokens'] });
-        queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] });
-        queryClient.invalidateQueries({ queryKey: ['legal-document-quota'] });
-
-        // Show single toast notification - premium, non-intrusive
-        appToast.success('Congratulations! Your Premium package is now active.');
-
-        // Silent redirect back to where user was (or dashboard)
-        const targetPath = returnPath || `/${role}/dashboard`;
+      setTimeout(() => {
+        const targetPath = returnPath || `/client/dashboard`;
         navigate(targetPath, { replace: true });
-
-      } catch (error) {
-        logger.error('Payment processing error:', error);
-        appToast.error('Failed to process payment. Please contact support with your PayPal receipt.');
-        navigate(returnPath || '/client/dashboard', { replace: true });
-      }
+      }, 3000);
     };
 
     processPayment();
   }, [user, navigate, queryClient]);
-
-  // Process monthly subscription
-  const processMonthlySubscription = async (userId: string, pkg: any) => {
-    // Deactivate any previous subscriptions of same category
-    const { data: existingSubs } = await supabase
-      .from('user_subscriptions')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('is_active', true);
-
-    if (existingSubs && existingSubs.length > 0) {
-      await supabase
-        .from('user_subscriptions')
-        .update({ is_active: false })
-        .in('id', existingSubs.map(s => s.id));
-    }
-
-    // Create new subscription
-    const { error: subError } = await supabase
-      .from('user_subscriptions')
-      .insert({
-        user_id: userId,
-        package_id: pkg.id,
-        payment_status: 'paid',
-        is_active: true,
-      });
-
-    if (subError) throw subError;
-
-    // Create tokens for monthly
-    const resetDate = new Date();
-    resetDate.setMonth(resetDate.getMonth() + 1);
-    resetDate.setDate(1);
-
-    const { error: activError } = await supabase
-      .from('tokens')
-      .insert({
-        user_id: userId,
-        activation_type: 'subscription',
-        total_activations: pkg.tokens || 30,
-        remaining_activations: pkg.tokens || 30,
-        used_activations: 0,
-        reset_date: resetDate.toISOString().split('T')[0],
-      });
-
-    if (activError) throw activError;
-
-    // Create legal document quota if included
-    if (pkg.legal_documents_included && pkg.legal_documents_included > 0) {
-      const nextMonth = new Date();
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      nextMonth.setDate(1);
-
-      const { error: quotaError } = await supabase
-        .from('legal_document_quota')
-        .upsert({
-          user_id: userId,
-          monthly_limit: pkg.legal_documents_included,
-          used_this_month: 0,
-          reset_date: nextMonth.toISOString().split('T')[0],
-        });
-      if (quotaError) throw quotaError;
-    }
-  };
-
-  // Process pay-per-use token purchase
-  const processPayPerUseActivation = async (userId: string, pkg: any) => {
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + (pkg.duration_days || 30));
-
-    const { error: activError } = await supabase
-      .from('tokens')
-      .insert({
-        user_id: userId,
-        activation_type: 'pay_per_use',
-        total_activations: pkg.tokens,
-        remaining_activations: pkg.tokens,
-        used_activations: 0,
-        expires_at: expiresAt.toISOString(),
-      });
-
-    if (activError) throw activError;
-  };
-
-  // Map plan IDs to package names
-  const mapMonthlyPlanToPackage = async (planId: string) => {
-    const planMap: Record<string, string> = {
-      // New subscription plans (SubscriptionPackagesPage)
-      'client-unlimited-1-month': '1 Month Access',
-      'client-unlimited-6-months': '6 Months Access',
-      'client-unlimited-1-year': '1 Year Access',
-      // Legacy plan IDs (backwards compatibility)
-      'client-unlimited': 'Ultimate Seeker',
-      'client-premium-plus-plus': 'Multi-Matcher',
-      'client-premium': 'Basic Explorer',
-      'owner-unlimited': 'Empire Builder',
-      'owner-premium-max': 'Multi-Asset Manager',
-      'owner-premium-plus-plus': 'Category Pro',
-      'owner-premium-plus': 'Starter Lister',
-    };
-
-    const packageName = planMap[planId];
-    if (!packageName) return null;
-
-    const { data, error: pkgErr } = await supabase
-      .from('subscription_packages')
-      .select('*')
-      .eq('name', packageName)
-      .maybeSingle();
-
-    if (pkgErr) logger.warn('[PaymentSuccess] mapMonthlyPlanToPackage lookup failed:', pkgErr);
-    return data;
-  };
 
   // Minimal loading UI - just a spinner, user won't see this long
   return (

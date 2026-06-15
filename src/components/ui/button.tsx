@@ -121,6 +121,10 @@ function getRippleColor(variant: string | null | undefined): string {
   }
 }
 
+const prefersFineHover =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -185,7 +189,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         whileTap={elastic ? elasticTap : subtleTap}
-        whileHover={hoverLift}
+        whileHover={prefersFineHover ? hoverLift : undefined}
         onClick={handleClick}
         {...(props as any)}
       >

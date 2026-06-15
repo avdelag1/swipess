@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ExternalLink, MessageCircle, Share2 } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 import { EventItem } from '@/types/events';
-import { generateShareUrl } from '@/hooks/useSharing';
+import { canNativeShare, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
 import { useAuth } from '@/hooks/useAuth';
 
 export function ShareModal({
@@ -23,24 +23,20 @@ export function ShareModal({
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: `Check out ${event.title} in Tulum! Sign up on Swipess to get connected 🎉`,
-          url: url
-        });
-        onClose();
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') handleCopy();
-      }
+    if (canNativeShare()) {
+      await shareViaNavigator({
+        title: event.title,
+        text: `Check out ${event.title} in Miami! Sign up on Swipess to get connected 🎉`,
+        url,
+      });
+      onClose();
     } else {
       handleCopy();
     }
   };
 
   const handleWhatsAppShare = () => {
-    const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Tulum!\n\n${url}`);
+    const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Miami!\n\n${url}`);
     window.open(`https://wa.me/?text=${msg}`, '_system');
     onClose();
   };

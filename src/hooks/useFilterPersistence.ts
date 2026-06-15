@@ -68,9 +68,62 @@ export function useFilterPersistence() {
             if (filters.clientType) {
               updates.clientType = filters.clientType;
             }
-            
+            if (typeof filters.radiusKm === 'number') {
+              updates.radiusKm = filters.radiusKm;
+            }
+            if (typeof filters.userLatitude === 'number') {
+              updates.userLatitude = filters.userLatitude;
+            }
+            if (typeof filters.userLongitude === 'number') {
+              updates.userLongitude = filters.userLongitude;
+            }
+            if (typeof filters.passportMode === 'boolean') {
+              updates.passportMode = filters.passportMode;
+            }
+            if (filters.passportLabel) {
+              updates.passportLabel = filters.passportLabel as string;
+            }
+            if (Array.isArray(filters.priceRange)) {
+              updates.priceRange = filters.priceRange;
+            }
+            if (Array.isArray(filters.bedrooms)) {
+              updates.bedrooms = filters.bedrooms;
+            }
+            if (Array.isArray(filters.bathrooms)) {
+              updates.bathrooms = filters.bathrooms;
+            }
+            if (Array.isArray(filters.amenities)) {
+              updates.amenities = filters.amenities;
+            }
+            if (Array.isArray(filters.propertyTypes)) {
+              updates.propertyTypes = filters.propertyTypes;
+            }
+            if (Array.isArray(filters.serviceTypes)) {
+              updates.serviceTypes = filters.serviceTypes;
+            }
+            if (Array.isArray(filters.motoTypes)) {
+              updates.motoTypes = filters.motoTypes;
+            }
+            if (Array.isArray(filters.bicycleTypes)) {
+              updates.bicycleTypes = filters.bicycleTypes;
+            }
+            if (typeof filters.furnished === 'boolean') {
+              updates.furnished = filters.furnished;
+            }
+            if (typeof filters.petFriendly === 'boolean') {
+              updates.petFriendly = filters.petFriendly;
+            }
             if (Object.keys(updates).length > 0) {
               store.setFilters(updates as any);
+            }
+            if (Array.isArray(filters.clientAgeRange)) {
+              store.setClientAgeRange(filters.clientAgeRange as [number, number]);
+            }
+            if (Array.isArray(filters.clientBudgetRange)) {
+              store.setClientBudgetRange(filters.clientBudgetRange as [number, number]);
+            }
+            if (Array.isArray(filters.clientNationalities)) {
+              store.setClientNationalities(filters.clientNationalities as string[]);
             }
           }
         }
@@ -95,6 +148,24 @@ export function useFilterPersistence() {
       listingType: state.listingType,
       clientGender: state.clientGender,
       clientType: state.clientType,
+      radiusKm: state.radiusKm,
+      userLatitude: state.userLatitude,
+      userLongitude: state.userLongitude,
+      passportMode: state.passportMode,
+      passportLabel: state.passportLabel,
+      priceRange: state.priceRange,
+      bedrooms: state.bedrooms,
+      bathrooms: state.bathrooms,
+      amenities: state.amenities,
+      propertyTypes: state.propertyTypes,
+      serviceTypes: state.serviceTypes,
+      motoTypes: state.motoTypes,
+      bicycleTypes: state.bicycleTypes,
+      furnished: state.furnished,
+      petFriendly: state.petFriendly,
+      clientAgeRange: state.clientAgeRange,
+      clientBudgetRange: state.clientBudgetRange,
+      clientNationalities: state.clientNationalities,
       savedAt: new Date().toISOString(),
     };
 

@@ -31,6 +31,21 @@ html, body, #root {
   touch-action: pan-y;
 }
 
+/* 📷 NO TAP SQUARE OVER PHOTOS
+   The story-style image tap-zones (insights modal, event hero, carousels) are
+   large invisible <button>s layered over the photo. On touch they would flash
+   the OS tap-highlight and show a focus outline the size of the photo. Kill
+   both for pointer activation everywhere, while keeping the focus ring for
+   keyboard users (accessibility). */
+button, a, [role="button"], summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* 🚀 FLAGSHIP LAYOUT CONTAINMENT */
 .glass-nano-texture {
   contain: paint layout style;
@@ -112,9 +127,12 @@ body.swipe-deck-active #root {
 .pr-safe       { padding-right:  env(safe-area-inset-right, 0px) !important; }
 
 /* Push page content down while letting background bleed to top */
-.swipess-page-wrapper > *:not(.fixed):not(.absolute) {
+.swipess-page-wrapper > *:not(.fixed):not(.absolute):not(.full-bleed-top) {
   padding-top: calc(var(--top-bar-height) + env(safe-area-inset-top, 0px)) !important;
 }
+/* Immersive detail pages (e.g. event hero) opt out so their photo reaches the
+   very top instead of sitting below a reserved top-bar gap. */
+.swipess-page-wrapper > .full-bleed-top { padding-top: 0 !important; }
 
 /* Bottom padding = fixed nav bar height + home-indicator safe area */
 .swipess-page-wrapper {
@@ -327,10 +345,10 @@ html[data-theme-transition] ::view-transition-new(root) {
 .glass-surface,
 .glass-pill {
   position: relative;
-  background: rgba(245, 245, 247, 0.35); /* Neutral frost (YouTube-style, no blue tint) — more see-through */
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  backdrop-filter: blur(32px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(248, 248, 250, 0.58); /* Brighter, more solid frost — less see-through, more vivid */
+  -webkit-backdrop-filter: blur(32px) saturate(220%);
+  backdrop-filter: blur(32px) saturate(220%);
+  border: 1px solid rgba(255, 255, 255, 0.34);
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.28),
     inset 0 1px 1px rgba(255, 255, 255, 0.45);
@@ -357,11 +375,65 @@ html[data-theme-transition] ::view-transition-new(root) {
 .glass-pill > * { position: relative; z-index: 1; }
 
 .glass-dark {
-  background: rgba(12, 12, 14, 0.75); /* Less transparent */
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(14, 14, 18, 0.9); /* Near-solid — kills the washed-out look */
+  border-color: rgba(255, 255, 255, 0.14);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.glass-light-surface {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    var(--shadow-soft-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Ambient page backgrounds — depth behind floating surfaces */
+.ambient-page-bg--dark {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 77, 0, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 50%),
+    linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 0%) 100%);
+}
+
+.ambient-page-bg--light {
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(255, 77, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 35% at 85% 5%, rgba(236, 72, 153, 0.06) 0%, transparent 45%),
+    linear-gradient(180deg, #F8F8FA 0%, #F0F0F4 100%);
+}
+
+/* Floating dock nav */
+.ambient-page-shell:not(:has(.pointer-events-none-force)) {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 77, 0, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+    hsl(var(--background));
+}
+
+.light .ambient-page-shell:not(:has(.pointer-events-none-force)) {
+  background:
+    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(255, 77, 0, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 35% at 85% 5%, rgba(236, 72, 153, 0.05) 0%, transparent 45%),
+    #F5F5F7;
+}
+
+.floating-dock-nav {
+  margin-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  border-radius: 28px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    0 -4px 24px rgba(0, 0, 0, 0.12),
+    0 16px 48px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+body.hw-high .floating-dock-nav {
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
 }
 
 .glass-pill[data-active="true"],
@@ -423,8 +495,8 @@ html[data-theme-transition] ::view-transition-new(root) {
 .swipe-live-card [data-card-glass] {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  background: rgba(18, 18, 22, 0.78) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(20, 20, 26, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
   isolation: auto !important;
 }
 .swipe-live-card .glass-pill::before,
@@ -437,11 +509,11 @@ html[data-theme-transition] ::view-transition-new(root) {
    where .dark is forced on <html> regardless of user's chosen filter. */
 .dark .glass-surface,
 .dark .glass-pill {
-  background: rgba(18, 18, 22, 0.65);
-  border-color: rgba(255, 255, 255, 0.10);
+  background: rgba(24, 24, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.50),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .dark .glass-surface::before,
@@ -457,11 +529,11 @@ html[data-theme-transition] ::view-transition-new(root) {
 .light .glass-pill,
 .white-matte .glass-surface,
 .white-matte .glass-pill {
-  background: rgba(255, 255, 255, 0.68);
-  border-color: rgba(0, 0, 0, 0.10);
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(0, 0, 0, 0.14);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.60);
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .light .glass-surface::before,
@@ -512,6 +584,15 @@ html {
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 72px;
   --bottom-nav-height: 64px;
+  --keyboard-height: 0px;
+}
+
+/* When the native keyboard is open, drop the floating bottom nav so it doesn't
+   hover above the keyboard and steal typing room (toggled by useNativeKeyboard). */
+.keyboard-open .app-bottom-bar {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 html, body {
@@ -590,13 +671,13 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --primary-foreground: 0 0% 100%;
     --secondary: 327 15% 15%;
     --secondary-foreground: 0 0% 98%;
-    --accent: 327 100% 60%;
+    --accent: 327 100% 64%;
     --accent-foreground: 0 0% 100%;
     --muted: 327 15% 15%;
-    --muted-foreground: 327 10% 70%;
-    --border: 327 15% 20%;
-    --input: 327 15% 20%;
-    --ring: 327 100% 60%;
+    --muted-foreground: 327 22% 85%;
+    --border: 327 24% 32%;
+    --input: 327 24% 32%;
+    --ring: 327 100% 64%;
 
     --nav-bg: transparent;
     --nav-border: rgba(255, 255, 255, 0.08);
@@ -640,7 +721,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --btn-secondary-bg: rgba(255, 255, 255, 0.1);
     --btn-secondary-text: #FFFFFF;
     --icon-active: #FF6B35;
-    --icon-inactive: rgba(255, 255, 255, 0.6);
+    --icon-inactive: rgba(255, 255, 255, 0.82);
 
     /* Modern theme variables */
     --bg-primary: 0 0% 98%;
@@ -683,14 +764,14 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 96%;
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 75%;
-    --accent: 0 100% 60%;
+    --muted-foreground: 0 0% 88%;
+    --accent: 0 100% 64%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 64%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 0 100% 60%;
+    --border: 0 0% 28%;
+    --input: 0 0% 28%;
+    --ring: 0 100% 64%;
 
     /* Semantic UI Tokens */
     --btn-primary-bg: #FF4D00;
@@ -698,19 +779,19 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --btn-secondary-bg: rgba(255, 255, 255, 0.1);
     --btn-secondary-text: #FFFFFF;
     --icon-active: #FF6B35;
-    --icon-inactive: rgba(255, 255, 255, 0.6);
+    --icon-inactive: rgba(255, 255, 255, 0.82);
 
     /* Modern theme variables */
     --bg-primary: 0 0% 5%;
     --bg-secondary: 0 0% 10%;
     --bg-tertiary: 0 0% 15%;
-    --text-primary: 0 0% 96%;
-    --text-secondary: 0 0% 75%;
-    --text-tertiary: 0 0% 50%;
-    --border-primary: 0 0% 16%;
-    --border-secondary: 0 0% 20%;
-    --accent-primary: 0 100% 60%;
-    --accent-secondary: 0 100% 70%;
+    --text-primary: 0 0% 99%;
+    --text-secondary: 0 0% 88%;
+    --text-tertiary: 0 0% 66%;
+    --border-primary: 0 0% 28%;
+    --border-secondary: 0 0% 34%;
+    --accent-primary: 0 100% 64%;
+    --accent-secondary: 0 100% 72%;
 
     /* Shadows - Deep shadows for maximum depth */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -928,9 +1009,10 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
       /* Remove the hard disable. Modern iPhones handle this easily. */
     }
 
-    /* Faster transitions on mobile - no !important to avoid janky framer-motion */
-    * {
-      transition-duration: 200ms;
+    /* Scope transitions — avoid slowing transform/button feedback globally */
+    button, a, [role="button"], input, select, textarea {
+      transition-property: color, background-color, border-color, opacity, box-shadow;
+      transition-duration: 120ms;
       transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
     }
 
@@ -2939,10 +3021,16 @@ input:focus, textarea:focus, .glass-input:focus-within {
   --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2), 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
-/* Softer Glass Backdrop */
+/* Chrome pills — solid by default; blur only on hw-high */
 .glass-surface, .glass-pill {
-  backdrop-filter: blur(40px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.hw-high .glass-surface,
+body.hw-high .glass-pill {
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
 }
 
 /* Smooth micro-interaction on all cards */

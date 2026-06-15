@@ -11,6 +11,8 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
+import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
+import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     } catch { return 0; }
   });
   const [editOpen, setEditOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false); // For Aladdin/genie minimize effect
   const theme = CARD_THEMES[themeIndex];
   const isOwner = role === 'owner';
 
@@ -39,6 +42,17 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     try { localStorage.setItem(THEME_STORAGE_KEY, String(next)); } catch { /* empty */ }
     return next;
   });
+
+  // Aladdin / Genie (MacBook minimize) effect: shrink + curve to bottom on close
+  const triggerGenieClose = () => {
+    if (isExiting) return;
+    setIsExiting(true);
+    // Animation duration ~400ms, then actual close
+    setTimeout(() => {
+      setIsExiting(false);
+      onClose();
+    }, 420);
+  };
 
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
@@ -99,6 +113,19 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     };
   }, [user?.id, isOpen, queryClient, profileTable, profileQueryKey]);
 
+  // Protect this sensitive ID card from screenshots / screen recording (trust feature)
+  useEffect(() => {
+    if (isOpen) {
+      void enablePrivacyScreen('vap-id-card');
+    } else {
+      void disablePrivacyScreen('vap-id-card-closed');
+    }
+    return () => {
+      // Ensure disabled when unmounting while open
+      if (isOpen) void disablePrivacyScreen('vap-id-unmount');
+    };
+  }, [isOpen]);
+
   const name = ext?.name || user?.email?.split('@')[0] || 'Resident';
   const city = ext?.city || '';
   const country = ext?.country || '';
@@ -130,24 +157,31 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.6 } }}
-          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 backdrop-blur-xl p-4"
-          onClick={onClose}
+          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 p-4"
+          style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
+          onClick={triggerGenieClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 100 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
+            animate={{ 
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
+              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
+            }}
             exit={{ 
-              scaleY: [1, 0.7, 0.0],
-              scaleX: [1, 0.2, 0.0],
-              y: [0, 200, 800],
-              opacity: [1, 1, 0],
-              filter: ["blur(0px)", "blur(4px)", "blur(12px)"],
-              transition: {
-                duration: 0.6,
-                ease: "anticipate"
+              scale: 0.04,
+              y: 520,
+              x: 0,
+              opacity: 0,
+              filter: "blur(20px)",
+              borderRadius: "999px",
+              transition: { 
+                type: "spring", 
+                stiffness: 180, 
+                damping: 22, 
+                mass: 0.6,
+                duration: 0.42 
               }
             }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.8 }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-[98vw] max-w-none h-[98dvh] max-h-[98dvh] flex flex-col"
@@ -171,7 +205,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 <Pencil className="h-5 w-5" strokeWidth={2.6} />
               </button>
               <button
-                onClick={onClose}
+                onClick={triggerGenieClose}
                 aria-label="Close card"
                 className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
               >
@@ -190,7 +224,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
                     <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
-                      {avatarUrl ? <img src={avatarUrl} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
+                      {avatarUrl ? <img src={ensureAbsoluteSupabaseUrl(avatarUrl)} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
                     </div>
                   </div>
 

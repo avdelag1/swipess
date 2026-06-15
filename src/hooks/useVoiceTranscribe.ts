@@ -58,6 +58,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
 
 export interface UseVoiceTranscribeOptions {
   onStop?: (text: string) => void;
+  onVolumeChange?: (volume: number) => void;
 }
 
 export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoiceTranscribeResult {
@@ -314,6 +315,10 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       let sum = 0;
       for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
       const avg = sum / dataArray.length;
+
+      if (optionsRef.current?.onVolumeChange) {
+        optionsRef.current.onVolumeChange(avg);
+      }
 
       if (avg > 5) { // Threshold for speaking
         lastVoiceTime = Date.now();

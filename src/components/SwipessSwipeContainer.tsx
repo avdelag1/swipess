@@ -4,9 +4,12 @@ import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
+import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { SwipessLoader } from './swipe/SwipessLoader';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 import { normalizeCategoryName } from '@/types/filters';
 
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
@@ -34,7 +37,8 @@ import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore'
 import { useFilterActions, useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Bike, Briefcase, Home } from 'lucide-react';
+import { Bike, Briefcase, Home, Map } from 'lucide-react';
+import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
@@ -126,6 +130,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
+  const passportLabel = useFilterStore((s) => s.passportLabel);
+  const kmHudExpanded = useFilterStore((s) => s.kmHudExpanded);
+  const setKmHudExpanded = useFilterStore((s) => s.setKmHudExpanded);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const { setCategories, setListingType } = useFilterActions();
   const listingType = useFilterStore((state) => state.listingType);
@@ -134,7 +141,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [locationDetected, setLocationDetected] = useState(false);
 
   const detectLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!canGeolocate()) return;
     setLocationDetecting(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -142,13 +149,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setRadiusKm(5000); // Auto-set to large radius so users see all real data
         setLocationDetected(true);
         setLocationDetecting(false);
-      },
-      () => {
+      })
+      .catch(() => {
         setLocationDetecting(false);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
+      });
   }, [setUserLocation, setRadiusKm]);
+
+  useEffect(() => {
+    prefetchPassportMapImmediate();
+  }, []);
+
+  useEffect(() => {
+    if (userLatitude != null && userLongitude != null) {
+      setLocationDetected(true);
+    }
+  }, [userLatitude, userLongitude]);
 
   // 📍 Location requested only on explicit user gesture (filter / slider).
 
@@ -320,6 +335,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       stableFilters.showHireServices ? '1' : '0',
       stableFilters.clientGender || '',
       stableFilters.clientType || '',
+      stableFilters.motoTypes?.join(',') || '',
+      stableFilters.bicycleTypes?.join(',') || '',
+      stableFilters.serviceCategory?.join(',') || '',
+      stableFilters.ageRange?.join('-') || '',
+      stableFilters.budgetRange?.join('-') || '',
       stableFilters.radiusKm?.toString() || '50',
       stableFilters.userLatitude?.toString() || '0',
       stableFilters.userLongitude?.toString() || '0',
@@ -844,6 +864,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   };
   const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
 
+  if (
+    deckQueue.length === 0
+    && (isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current)
+  ) {
+    return <SwipeLoadingSkeleton />;
+  }
+
   return (
     <>
     <div className={cn(
@@ -855,9 +882,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         "bg-swipe-frame"
       )} />
 
-      {/* Single back button is owned by SwipeDeckBackButton — no duplicate radar header here */}
+      {/* Single back button is handled by TopBar now */}
 
-      {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
+          {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div
         aria-hidden
         className="absolute inset-0 pointer-events-none z-[1]"
@@ -873,87 +900,110 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </motion.div>
 
-      <div
-        className={cn(
-          "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
-        )}
-        {...pullDown.bind}
-      >
-        <SwipeDeckBackButton />
-        <motion.div
-          className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-          style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
+        <div
+          className={cn(
+            "flex-1 relative flex w-full h-full items-stretch justify-center px-1 pt-1 z-10 pointer-events-auto min-h-0 overflow-hidden"
+          )}
+          {...pullDown.bind}
         >
-          {/* Rounded backdrop matches card corners so deck blends into background */}
-          <div
-            aria-hidden
-            className={cn(
-              "absolute inset-0 -z-10 transition-colors duration-500",
-              "bg-swipe-frame"
-            )}
-            style={{ borderRadius: 48 }}
-          />
-          <AnimatePresence mode="sync" initial={false}>
-            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <motion.div
-                key="swipe-deck"
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
-              >
-                <AnimatePresence>
-                  {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
-                    const isTopCard = listing.id === topCard?.id;
-                    return (
-                      <motion.div
-                        key={listing.id}
-                        exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                        className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
-                      >
-                      {dataType === 'people' ? (
-                        <SimpleOwnerSwipeCard
-                          ref={isTopCard ? cardRef as any : undefined}
-                          profile={listing}
-                          onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onTap={isTopCard ? handleInsights : undefined}
-                          onInsights={isTopCard ? handleInsights : undefined}
-                          onShare={isTopCard ? handleShare : undefined}
-                          onSoon={isTopCard ? handleSoon : undefined}
-                          onMessage={isTopCard ? handleMessage : undefined}
-                          onReport={isTopCard ? () => {
-                            setSelectedListing(listing);
-                            setReportDialogOpen(true);
-                            triggerHaptic('medium');
-                          } : undefined}
-                          onDragStart={isTopCard ? handleDragStart : undefined}
-                          isTop={isTopCard}
-                          onUndo={isTopCard ? undoLastSwipe : undefined}
-                          canUndo={canUndo}
-                          onBack={handleBack}
-                        />
-                      ) : (
-                        <SimpleSwipeCard
-                          ref={isTopCard ? cardRef : undefined}
-                          listing={listing}
-                          isTop={isTopCard}
-                          fullScreen={false}
-                          onSwipe={isTopCard ? handleSwipe : () => {}}
-                          onCardTap={isTopCard ? handleInsights : undefined}
-                          onInsights={isTopCard ? handleInsights : undefined}
-                          onShare={isTopCard ? handleShare : undefined}
-                          onSoon={isTopCard ? handleSoon : undefined}
-                          onMessage={isTopCard ? handleMessage : undefined}
-                          onReport={isTopCard ? () => {
-                            setSelectedListing(listing);
-                            setReportDialogOpen(true);
-                            triggerHaptic('medium');
-                          } : undefined}
-                          onDragStart={isTopCard ? handleDragStart : undefined}
-                          onUndo={isTopCard ? undoLastSwipe : undefined}
-                          canUndo={canUndo}
-                          onBack={handleBack}
-                        />
+          <motion.div
+            className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
+            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
+          >
+            {/* Rounded backdrop matches card corners so deck blends into background */}
+            <div
+              aria-hidden
+              className={cn(
+                "absolute inset-0 -z-10 transition-colors duration-500",
+                "bg-swipe-frame"
+              )}
+              style={{ borderRadius: 48 }}
+            />
+            <AnimatePresence mode="sync" initial={false}>
+              {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+                <motion.div
+                  key="swipe-deck"
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
+                >
+                  <AnimatePresence>
+                    {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                      const isTopCard = listing.id === topCard?.id;
+                      return (
+                        <motion.div
+                          key={listing.id}
+                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                          className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                        >
+                        {dataType === 'people' ? (
+                          <SimpleOwnerSwipeCard
+                            ref={isTopCard ? cardRef as any : undefined}
+                            profile={listing}
+                            onSwipe={isTopCard ? handleSwipe : () => {}}
+                            onTap={isTopCard ? handleInsights : undefined}
+                            onInsights={isTopCard ? handleInsights : undefined}
+                            onShare={isTopCard ? handleShare : undefined}
+                            onSoon={isTopCard ? handleSoon : undefined}
+                            onMessage={isTopCard ? handleMessage : undefined}
+                            onReport={isTopCard ? () => {
+                              setSelectedListing(listing);
+                              setReportDialogOpen(true);
+                              triggerHaptic('medium');
+                            } : undefined}
+                            onDragStart={isTopCard ? handleDragStart : undefined}
+                            isTop={isTopCard}
+                            onUndo={isTopCard ? undoLastSwipe : undefined}
+                            canUndo={canUndo}
+                            onBack={handleBack}
+                            renderTopRail={isTopCard ? (
+                              <LocationRadiusSelector
+                                radiusKm={radiusKm}
+                                onRadiusChange={setRadiusKm}
+                                onDetectLocation={detectLocation}
+                                detecting={locationDetecting}
+                                detected={locationDetected}
+                                lat={userLatitude}
+                                lng={userLongitude}
+                                orientation="vertical"
+                              />
+                            ) : undefined}
+                          />
+                        ) : (
+                          <SimpleSwipeCard
+                            ref={isTopCard ? cardRef : undefined}
+                            listing={listing}
+                            isTop={isTopCard}
+                            fullScreen={false}
+                            onSwipe={isTopCard ? handleSwipe : () => {}}
+                            onCardTap={isTopCard ? handleInsights : undefined}
+                            onInsights={isTopCard ? handleInsights : undefined}
+                            onShare={isTopCard ? handleShare : undefined}
+                            onSoon={isTopCard ? handleSoon : undefined}
+                            onMessage={isTopCard ? handleMessage : undefined}
+                            onExit={isTopCard ? handleBack : undefined}
+                            onUndo={isTopCard ? undoLastSwipe : undefined}
+                            canUndo={canUndo}
+                            onReport={isTopCard ? () => {
+                              setSelectedListing(listing);
+                              setReportDialogOpen(true);
+                              triggerHaptic('medium');
+                            } : undefined}
+                            onDragStart={isTopCard ? handleDragStart : undefined}
+                            renderTopRail={isTopCard ? (
+                              <LocationRadiusSelector
+                                radiusKm={radiusKm}
+                                onRadiusChange={setRadiusKm}
+                                onDetectLocation={detectLocation}
+                                detecting={locationDetecting}
+                                detected={locationDetected}
+                                lat={userLatitude}
+                                lng={userLongitude}
+                                orientation="vertical"
+                              />
+                            ) : undefined}
+                          />
                       )}
                     </motion.div>
                   );
@@ -969,7 +1019,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
-                  <SwipessLoader />
+                  <SwipeLoadingSkeleton />
                 ) : (
                 <SwipeExhaustedState
                   radiusKm={radiusKm}
@@ -992,6 +1042,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     triggerHaptic('medium');
                     navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
                   }}
+                  onOpenMap={() => {
+                    triggerHaptic('heavy');
+                    prefetchPassportMapImmediate();
+                    useModalStore.getState().openPassportMap();
+                  }}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
                 )}
@@ -1001,7 +1056,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </motion.div>
     </div>
 
-    {/* Bottom action bar removed — the same actions (Share / Message /
+          {/* Bottom action bar removed — the same actions (Share / Message /
         Insights / Report) live on the right-side rail in SimpleSwipeCard,
         keeping the card photo unobstructed. */}
     </div>
@@ -1024,6 +1079,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onOpenChange={setInsightsModalOpen}
             listing={dataType === 'people' ? null : topCard}
             profile={dataType === 'people' ? topCard : null}
+            onConnect={handleMessage}
+            onReport={() => { setSelectedListing(topCard); setReportDialogOpen(true); }}
           /></Suspense>
         )}
         {shareDialogOpen && topCard && (

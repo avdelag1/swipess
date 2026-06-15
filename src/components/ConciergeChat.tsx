@@ -14,8 +14,9 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import useAppTheme from '@/hooks/useAppTheme';
 import { PERSONA_VOICE_PROFILES, useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { appToast } from '@/utils/appNotification';
-import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { applyConciergeFilters, applyPassportAction } from '@/utils/conciergeActions';
+import type { PassportAction } from '@/utils/passportLocation';
 import { ConciergePrivacyPortal } from '@/components/concierge/ConciergePrivacyPortal';
 import { WelcomeState } from '@/components/concierge/WelcomeState';
 import { MessageBubble } from '@/components/concierge/MessageBubble';
@@ -42,8 +43,18 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
+  const [isExiting, setIsExiting] = useState(false); // Aladdin/genie minimize effect
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const triggerGenieClose = () => {
+    triggerHaptic('light');
+    setIsExiting(true);
+    setTimeout(() => {
+      onClose();
+      setIsExiting(false);
+    }, 400);
+  };
 
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
@@ -76,7 +87,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'Social Alpha', tagline: 'From Los Angeles', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
     { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Wisdom', tagline: 'From Yucatán, México', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20' },
     { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Analyst', tagline: 'From London', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20' },
-    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Spirit', tagline: 'From Tulum', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20' },
+    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Spirit', tagline: 'From Miami', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20' },
     { key: 'ezriyah', label: 'Ezriyah', subtitle: 'Integration Coach', tagline: 'Local Legend', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20' },
   ];
 
@@ -193,6 +204,30 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     onClose();
   };
 
+  const handlePassport = useCallback(async (action: PassportAction) => {
+    triggerHaptic('heavy');
+    const result = await applyPassportAction(action);
+    if (!result.ok) {
+      appToast.error(result.error || 'Could not change location');
+      return;
+    }
+    appToast.success(`Exploring ${result.label}`);
+    appNavigate('/client/dashboard');
+    onClose();
+  }, [appNavigate, onClose]);
+
+  const handleFilter = useCallback(async (filters: Record<string, unknown>) => {
+    triggerHaptic('medium');
+    const { passportLabel } = await applyConciergeFilters(filters);
+    if (passportLabel) {
+      appToast.success(`Exploring ${passportLabel} — swipe to see matches`);
+      appNavigate('/client/dashboard');
+      onClose();
+    } else {
+      appToast.success('Search filters applied — swipe to see matches');
+    }
+  }, [appNavigate, onClose]);
+
   const handleDraft = useCallback((category: string, data: any) => {
     triggerHaptic('heavy');
     if (category === 'profile') {
@@ -224,27 +259,48 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 transition-all duration-500", isLight && !isSwipess ? "bg-black/20 backdrop-blur-sm" : "bg-black/60 backdrop-blur-2xl")}>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0" />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.6 } }}
+          className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 modal-scrim", isLight && !isSwipess && "modal-scrim--lux")}
+        >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={triggerGenieClose} className="absolute inset-0" />
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ scale: 0.95, opacity: 0, y: 40 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 40 }}
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0 }}
+            animate={{ 
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1,
+              transition: { type: 'spring', damping: 22, stiffness: 280, mass: 0.7 }
+            }}
+            exit={{ 
+              scale: 0.04,
+              y: 520,
+              opacity: 0,
+              borderRadius: "999px",
+              transition: { 
+                type: "spring", 
+                stiffness: 180, 
+                damping: 22, 
+                mass: 0.6,
+                duration: 0.42 
+              }
+            }}
             className={cn(
                "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
             style={{
+              transformOrigin: 'bottom center',
               paddingTop: 'env(safe-area-inset-top, 0px)',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}
           >
             {isSwipess && (
               <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/8 rounded-full opacity-70" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full opacity-50" />
               </div>
             )}
 
@@ -264,7 +320,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
-                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-md" : "border-white/5 bg-black/60 backdrop-blur-3xl"
+                  isLight && !isSwipess ? "border-slate-200 bg-white chrome-solid" : "border-white/5 bg-black/90 chrome-solid"
                 )}>
                   <div className="flex items-center gap-4">
                     <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
@@ -298,7 +354,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             })()}
                          </button>
                        </PopoverTrigger>
-                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70]", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10 backdrop-blur-3xl")}>
+                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70] chrome-solid", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10")}>
                         <div className="p-3 mb-2">
                           <h4 className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight && !isSwipess ? "text-foreground/50" : "text-white/40")}>Select Logic Profile</h4>
                         </div>
@@ -323,7 +379,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={onClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
+                    <button onClick={triggerGenieClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
                       <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-600" : "text-white/80")} strokeWidth={2.2} />
                     </button>
                   </div>
@@ -353,7 +409,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         onResend={() => resendMessage(m.id)}
                         onNavigate={handleNavigate}
                         onDraft={handleDraft}
-                        onFilter={(f) => { useFilterStore.getState().setFilters(f); appToast.success('Search Logic Updated'); }}
+                        onFilter={handleFilter}
+                        onPassport={handlePassport}
                         onSpeak={handleSpeak}
                         speakingMsgId={speakingMsgId}
                         isSpeaking={isSpeaking}
@@ -372,7 +429,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                         initial={{ opacity: 0, y: 12, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.94 }}
-                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
+                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
                       >
                          <Timer className="w-4 h-4 text-[#FF3D00]" />
                          <span className={cn("text-[11px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
@@ -385,15 +442,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
-                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/30 backdrop-blur-xl shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
-                       <div className="pl-3 flex items-center gap-1.5 self-center">
+                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-colors duration-200 border border-border/50 bg-secondary/40 shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
+                       <div className="pl-2 flex items-center gap-0.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className={cn("p-3 rounded-2xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
+                          <button className={cn("p-2 rounded-xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>
-                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background/95 backdrop-blur-2xl shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
+                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
                                <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
                                   <span className={cn("flex items-center gap-3 text-[11px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
                                     <Timer className="w-4 h-4 text-[#FF3D00]" />
@@ -409,7 +466,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                           <button
                             onClick={isListening ? stopListening : startListening}
                             className={cn(
-                              "p-3 rounded-2xl transition-all relative group overflow-hidden hover:bg-secondary/80",
+                              "p-2 rounded-xl transition-all relative group overflow-hidden hover:bg-secondary/80",
                               isListening
                                 ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110"
                                 : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white"
@@ -434,10 +491,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
                             }
                           }}
-                          placeholder={isListening ? "Listening... Speak now" : "Inquire for discovery..."}
+                          placeholder={isListening ? "Listening…" : "Inquire for discovery"}
                           rows={1}
                           className={cn(
-                            "w-full bg-transparent border-none outline-none focus:ring-0 py-4 pl-3 pr-4 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-relaxed self-center font-medium",
+                            "flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 py-4 pl-1 pr-3 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-snug self-center font-medium",
                             isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
                           )}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
@@ -471,7 +528,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
             )}
           </motion.div>
 
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body

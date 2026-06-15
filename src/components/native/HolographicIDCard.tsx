@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Briefcase, Clock, Fingerprint, Globe, MapPin, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
+import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const { isLight } = useAppTheme();
@@ -107,7 +108,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
                 {avatar ? (
                   <img 
-                    src={avatar} 
+                    src={ensureAbsoluteSupabaseUrl(avatar)} 
                     alt={'Resident'}
                     className="w-full h-full object-cover"
                   />

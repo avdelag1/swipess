@@ -250,7 +250,7 @@ export function OwnerLocationSelector({
                   {filteredCountries.length > 0 ? (
                     <>
                       {(() => {
-                        const popular = ['Mexico', 'United States', 'Canada', 'Argentina', 'Colombia', 'Italy', 'Spain', 'France', 'Russia'];
+                        const popular = ['Mexico', 'United States', 'Canada', 'France', 'Russia', 'Spain', 'Italy', 'United Kingdom', 'Germany', 'Argentina', 'Colombia', 'Venezuela'];
                         const matchedPopular = popular.filter(p => p.toLowerCase().includes(countrySearch.toLowerCase()) && allCountries.includes(p));
                         
                         if (matchedPopular.length > 0) {
@@ -318,16 +318,16 @@ export function OwnerLocationSelector({
                       {(() => {
                         // Quick list of popular cities generally
                         const popularCities = [
-                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Tulum', 'Playa del Carmen', 'Mérida', 'Querétaro',
+                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Mérida', 'Querétaro',
                           'New York City', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'San Francisco', 'Las Vegas', 'Austin',
                           'Toronto', 'Montreal', 'Vancouver', 'Calgary',
-                          'Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza',
+                          'Paris', 'Marseille', 'Lyon', 'Nice',
+                          'Moscow', 'Saint Petersburg',
                           'Madrid', 'Barcelona', 'Valencia', 'Seville',
                           'Rome', 'Milan', 'Naples', 'Florence', 'Venice',
-                          'Paris', 'Marseille', 'Lyon', 'Nice',
-                          'Bogotá', 'Medellín', 'Cali', 'Cartagena',
-                          'Moscow', 'Saint Petersburg',
-                          'London', 'Manchester', 'Birmingham', 'Edinburgh'
+                          'London', 'Manchester', 'Birmingham', 'Edinburgh',
+                          'Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza',
+                          'Bogotá', 'Medellín', 'Cali', 'Cartagena'
                         ];
                         
                         const matchedPopular = filteredCities.filter(c => 

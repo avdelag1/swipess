@@ -139,6 +139,24 @@ export function getFullImageUrl(url: string): string {
 }
 
 /**
+ * CRITICAL for Native iOS (Capacitor): Ensure Supabase storage URLs are absolute.
+ * Relative paths like /storage/v1/... work on web but resolve to capacitor://localhost on native iOS.
+ * Always prefix with VITE_SUPABASE_URL if the URL looks relative.
+ */
+export function ensureAbsoluteSupabaseUrl(url: string | null | undefined): string {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    return trimmed;
+  }
+  const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+  if (!base) return trimmed;
+  // Handle leading / or storage paths
+  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${base}${path}`;
+}
+
+/**
  * Generate blur data URL for progressive loading
  * Creates a tiny blurred placeholder while full image loads
  */

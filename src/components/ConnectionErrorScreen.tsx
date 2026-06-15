@@ -9,10 +9,12 @@
  *   - Subtle particle background to maintain visual depth
  */
 
+import { useEffect } from 'react';
 import { Loader2, RefreshCw, Wifi, WifiOff, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ConnectionStatus } from '@/hooks/useConnectionHealth';
 import useAppTheme from '@/hooks/useAppTheme';
+import { markAppRendered } from '@/utils/bootSplash';
 import { cn } from '@/lib/utils';
 
 interface ConnectionErrorScreenProps {
@@ -29,6 +31,10 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
   const isDisconnected = status === 'disconnected';
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+
+  // If we reached this screen during boot, the static splash is still on top.
+  // Fade it so this screen is actually visible instead of the watchdog.
+  useEffect(() => { markAppRendered(); }, []);
 
   const statusConfig = isChecking
     ? { icon: Wifi, color: '#60a5fa', label: 'Connecting…', sub: 'Establishing a secure tunnel to Swipess servers.' }

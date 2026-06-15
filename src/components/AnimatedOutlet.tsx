@@ -23,7 +23,7 @@ export function AnimatedOutlet() {
 
   const SuspenseFallback = () => (
     <div
-      className="swipess-page-skeleton w-full min-h-[60vh] flex flex-col"
+      className="route-skeleton"
       style={{
         viewTransitionName: isSupported ? 'swipess-page-skeleton' : undefined,
         contain: 'layout style paint',
@@ -31,15 +31,9 @@ export function AnimatedOutlet() {
       aria-busy="true"
       aria-label="Loading content"
     >
-      <div className="h-16 w-full bg-muted/30 animate-pulse" style={{ contain: 'layout paint' }} />
-      <div className="flex-1 p-4 space-y-4">
-        <div className="h-8 w-3/4 bg-muted/30 animate-pulse rounded" style={{ contain: 'layout paint' }} />
-        <div className="h-8 w-1/2 bg-muted/30 animate-pulse rounded" style={{ contain: 'layout paint' }} />
-        <div className="h-32 w-full bg-muted/30 animate-pulse rounded-lg" style={{ contain: 'layout paint' }} />
-        <div className="h-32 w-full bg-muted/30 animate-pulse rounded-lg" style={{ contain: 'layout paint' }} />
-        <div className="h-32 w-full bg-muted/30 animate-pulse rounded-lg" style={{ contain: 'layout paint' }} />
-      </div>
-      <div className="h-16 w-full bg-muted/30 animate-pulse" style={{ contain: 'layout paint' }} />
+      <div className="route-skeleton-bar w-48 max-w-[70%]" />
+      <div className="route-skeleton-bar w-32 max-w-[50%] opacity-70" />
+      <div className="route-skeleton-bar w-64 max-w-[85%] h-24 rounded-2xl opacity-50" />
     </div>
   );
 
@@ -68,7 +62,7 @@ export function AnimatedOutlet() {
 
   return (
     <div
-      className="min-h-full w-full flex flex-col flex-1"
+      className="min-h-full w-full flex flex-col flex-1 ambient-page-shell"
       style={{
         position: 'relative',
         pointerEvents: isDashboardRoute ? 'none' : 'auto',

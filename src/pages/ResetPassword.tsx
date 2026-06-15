@@ -129,7 +129,7 @@ const ResetPassword = () => {
         {/* Back Button */}
         <motion.button
           onClick={() => navigate("/")}
-          className="mb-8 flex items-center gap-2 text-white/70 hover:text-white transition-all group"
+          className="mb-8 flex items-center gap-2 text-white transition-all group"
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -186,7 +186,7 @@ const ResetPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -266,7 +266,7 @@ const ResetPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -277,8 +277,8 @@ const ResetPassword = () => {
             <div className="pt-4">
               <Button
                 type="submit"
-                disabled={loading || !passwordsMatch || passwordStrength.score < 4}
-                className="w-full h-16 text-[12px] font-black uppercase italic tracking-[0.25em] bg-[#FF4D00] text-white rounded-2xl shadow-[0_15px_45px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-[0.96] transition-all relative overflow-hidden group disabled:opacity-30 disabled:pointer-events-none"
+                disabled={loading}
+                className="w-full h-16 text-[12px] font-black uppercase italic tracking-[0.25em] bg-[#FF4D00] text-white rounded-2xl shadow-[0_15px_45px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-[0.96] transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {/* Shimmer effect */}
                 <motion.div

@@ -8,13 +8,12 @@ import App from "./App.tsx";
 import "./styles/tokens.css";
 import "./styles/matte-themes.css";
 import "./index.css";
-// PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~84 KiB saved total)
-// responsive.css = desktop grids, print styles, sidebar nav
-// PremiumShine.css = subscription card glow effects
-// premium-polish.css = heavy animations
-// matte-themes.css = alternate color themes
-// pwa-performance.css = hardware overrides
+import "./styles/pwa-performance.css";
+// PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";
+import { applyHardwareTierClasses } from "@/utils/hardwareTier";
+
+applyHardwareTierClasses();
 
 // 🚀 EMERGENCY RECOVERY: Handle Vite preload and script load failures
 // This prevents the infinite reload loop when chunks are missing after a deployment.
@@ -80,7 +79,6 @@ if (typeof window !== 'undefined') {
   requestAnimationFrame(() => {
     import("./styles/PremiumShine.css");
     import("./styles/premium-polish.css");
-    import("./styles/pwa-performance.css");
   });
 }
 import { supabase } from "@/integrations/supabase/client";
@@ -153,11 +151,21 @@ async function bootstrap() {
 
   // EMERGENCY RESET: ?reset=1 in URL wipes all state so users can escape crash loops
   if (window.location.search.includes('reset=1')) {
+    // Synchronous storage wipes can't hang — do them first, unconditionally.
     try {
       sessionStorage.clear();
       localStorage.removeItem('swipe-deck-store');
       localStorage.removeItem('swipe-deck-version');
       localStorage.removeItem('swipess_global_reload_count');
+    } catch { /* empty */ }
+
+    // Service-worker + Cache Storage cleanup CAN hang on some Android WebViews
+    // (the promise never settles). If we awaited it directly, the recovery
+    // redirect below would never run and the user would be stranded on the
+    // boot splash at ?reset=1 — exactly the crash-loop this branch exists to
+    // escape. Race the cleanup against a hard timeout so recovery ALWAYS
+    // proceeds.
+    const wipeRuntimeCaches = async () => {
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
         await Promise.all(regs.map(r => r.unregister()));
@@ -166,7 +174,12 @@ async function bootstrap() {
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
       }
-    } catch { /* empty */ }
+    };
+    await Promise.race([
+      wipeRuntimeCaches().catch(() => { /* best-effort */ }),
+      new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+    ]);
+
     // Force cache bust on replace to completely bypass browser HTTP disk cache!
     window.location.replace(window.location.pathname + '?v=' + Date.now());
     return;
@@ -257,8 +270,6 @@ const deferredInit = (callback: () => void, timeout = 5000) => {
 // Secondary Tools: Pushed to idle to avoid main-thread noise during boot
 deferredInit(async () => {
   try {
-    const body = document.body;
-    body.classList.add('hw-high', 'perf-ultra');
     initHaptics();
 
     // Register service worker with AGGRESSIVE update detection.

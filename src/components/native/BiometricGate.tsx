@@ -4,11 +4,19 @@ import { motion } from 'framer-motion';
 import { Fingerprint, Lock } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
 import { Capacitor } from '@capacitor/core';
+import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
+import { nativeStore } from '@/lib/nativeStore';
 
 export const BiometricGate = ({ children }: { children: React.ReactNode }) => {
-  const [isLocked, setIsLocked] = useState(() => {
-    return localStorage.getItem('swipess_biometric_enabled') === 'true';
-  });
+  const [isLocked, setIsLocked] = useState(false);
+
+  // Async read from reliable native prefs (with localStorage fallback during migration)
+  useEffect(() => {
+    (async () => {
+      const enabled = (await nativeStore.get('swipess_biometric_enabled')) === 'true';
+      setIsLocked(enabled);
+    })();
+  }, []);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const verify = async () => {
@@ -21,22 +29,31 @@ export const BiometricGate = ({ children }: { children: React.ReactNode }) => {
     haptics.impact('medium');
 
     try {
-      // Logic for Native Biometric Bridge
-      const bridge = (window as any).WebToNative;
-      if (bridge?.authenticate) {
-        const result = await bridge.authenticate({
-          reason: 'Authenticate to access Swipess',
-          title: 'Secure Access'
-        });
-        if (result.success) {
-          haptics.notification('success');
-          setIsLocked(false);
-        }
-      } else {
-        // Fallback for development/web
-        setTimeout(() => setIsLocked(false), 1000);
+      // Real biometric auth: Face ID / Touch ID / fingerprint, with the device
+      // passcode allowed as a fallback.
+      const { isAvailable, deviceIsSecure } = await BiometricAuth.checkBiometry();
+
+      // No biometry AND no passcode set — there's nothing to authenticate
+      // against, so don't trap the user out of their own account.
+      if (!isAvailable && !deviceIsSecure) {
+        setIsLocked(false);
+        return;
       }
+
+      await BiometricAuth.authenticate({
+        reason: 'Authenticate to access Swipess',
+        cancelTitle: 'Cancel',
+        allowDeviceCredential: true,
+        iosFallbackTitle: 'Use Passcode',
+        androidTitle: 'Secure Access',
+        androidSubtitle: 'Unlock your Swipess vault',
+        androidConfirmationRequired: false,
+      });
+
+      haptics.notification('success');
+      setIsLocked(false);
     } catch (err) {
+      // Cancelled or failed — stay locked; the user can tap "Try Again".
       logger.error('[BiometricGate] Auth failed:', err);
     } finally {
       setIsVerifying(false);

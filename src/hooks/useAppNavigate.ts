@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTransition } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
-import { prefetchRoute } from '@/utils/routePrefetcher';
+import { isRoutePrefetched, prefetchRoute } from '@/utils/routePrefetcher';
 
 /**
  * ⚡ INSTANT NAVIGATION HOOK
@@ -35,13 +35,15 @@ export function useAppNavigate() {
       });
     };
 
-    // GPU View Transitions API — never let it block navigation
+    const useInstantNav = typeof to === 'string'
+      && (isRoutePrefetched(to) || to.endsWith('/dashboard') || to === '/messages' || to === '/notifications');
+
+    // Skip view transitions for prefetched / tab routes — feels instant
     try {
-      if (typeof document !== 'undefined' && (document as any).startViewTransition) {
+      if (!useInstantNav && typeof document !== 'undefined' && (document as any).startViewTransition) {
         const transition = (document as any).startViewTransition(() => {
           performNavigation();
         });
-        // Safety: if the transition promise rejects/hangs, the nav still ran inside the callback.
         if (transition?.finished?.catch) transition.finished.catch(() => {});
       } else {
         performNavigation();

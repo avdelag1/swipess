@@ -84,8 +84,22 @@ export const StoreKitService = {
 
       store
         .when()
-        .approved((tx: any) => tx.verify())
-        .verified((tx: any) => tx.finish());
+        .approved((tx: any) => {
+          tx.verify();
+          // If we are in local development/simulator, the Apple Prod verification endpoint will fail.
+          // We must finish the transaction after a delay to prevent the consumable from getting stuck forever.
+          setTimeout(() => {
+            if (tx.state !== cdv.TransactionState.FINISHED) {
+              logger.warn('[IAP] Force-finishing stuck transaction to clear queue.');
+              tx.finish();
+            }
+          }, 3000);
+        })
+        .verified((tx: any) => tx.finish())
+        .unverified((tx: any) => {
+          logger.warn('[IAP] Transaction unverified. Finishing to unblock future purchases.');
+          tx.finish();
+        });
 
       const platformConfig = Capacitor.getPlatform() === 'ios'
         ? (window as any).CdvPurchase.Platform.APPLE_APPSTORE

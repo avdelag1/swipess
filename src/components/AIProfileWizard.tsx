@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { AudioLines, Camera, Loader2, Search, Sparkles, Wand2, X, Mic } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -38,10 +38,13 @@ export function AIProfileWizard() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
+  const [micVolume, setMicVolume] = useState(0);
   const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
-    }
+      setMicVolume(0);
+    },
+    onVolumeChange: (vol) => setMicVolume(vol)
   });
   const { enhanceText, isEnhancing } = useAIEnhanceText();
   const [micTipOpen, setMicTipOpen] = useState(false);
@@ -98,7 +101,9 @@ export function AIProfileWizard() {
 
   const handleClose = () => {
     setModal('showAIProfile', false);
-    if (isOnboardingActive) setOnboardingActive(false);
+    if (isOnboardingActive) {
+      openAIListing('property');
+    }
     setTimeout(() => {
       setStep('compose');
       setNarrative('');
@@ -283,7 +288,7 @@ export function AIProfileWizard() {
     }
   };
 
-  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Tulum under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
+  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Miami under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
 
   return (
     <AnimatePresence>
@@ -306,8 +311,8 @@ export function AIProfileWizard() {
           )}
         >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-pink-600/5 blur-[120px] rounded-full" />
+             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-rose-500/20 to-orange-500/10 blur-[120px] rounded-full mix-blend-screen" />
+             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-pink-500/20 to-purple-500/10 blur-[100px] rounded-full mix-blend-screen" />
           </div>
 
           <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-black/8" : "border-white/5")}>
@@ -316,8 +321,8 @@ export function AIProfileWizard() {
                 <Sparkles className="w-6 h-6 text-rose-400" />
               </div>
               <div>
-                <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", textPrimary)}>Magic Profile</h2>
-                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest">One-Step Setup</span>
+                <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-500", textPrimary)}>Magic Profile</h2>
+                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-rose-500">One-Step Setup</span>
               </div>
             </div>
             <button onClick={handleClose} className={cn("w-11 h-11 flex items-center justify-center rounded-2xl", closeBtnCls)}>
@@ -394,26 +399,36 @@ export function AIProfileWizard() {
                       <div className="relative group">
                         <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
                           <PopoverTrigger asChild>
-                            <button
-                              onClick={handleVoiceToggle}
-                              className={cn(
-                                "absolute right-4 top-4 w-10 h-10 z-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
-                                isRecording 
-                                  ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] scale-110 animate-pulse" 
-                                  : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
-                              )}
-                            >
-                              {isRecording ? (
-                                <motion.div 
-                                  className="absolute inset-0 bg-white/20"
-                                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                  transition={{ duration: 1.5, repeat: Infinity }}
+                            <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
+                              {isRecording && (
+                                <motion.div
+                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 blur-md pointer-events-none"
+                                  animate={{ 
+                                    scale: 1 + (micVolume / 255) * 1.5,
+                                    opacity: 0.4 + (micVolume / 255) * 0.6 
+                                  }}
+                                  transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                 />
-                              ) : (
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                               )}
-                              <Mic className={cn("w-5 h-5 relative z-10", isRecording ? "text-white animate-pulse" : "text-white")} />
-                            </button>
+                              <button
+                                onClick={handleVoiceToggle}
+                                className={cn(
+                                  "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
+                                  isRecording 
+                                    ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
+                                )}
+                              >
+                                {!isRecording && (
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                )}
+                                {isRecording ? (
+                                  <Mic className="w-5 h-5 relative z-10 text-white animate-pulse" />
+                                ) : (
+                                  <Mic className="w-5 h-5 relative z-10 text-white" />
+                                )}
+                              </button>
+                            </div>
                           </PopoverTrigger>
                           <PopoverContent
                             side="top"
@@ -422,11 +437,11 @@ export function AIProfileWizard() {
                           >
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <Mic className="w-4 h-4 text-rose-400" />
+                                <AudioLines className="w-4 h-4 text-rose-400" />
                                 <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                               </div>
                               <p className="text-[12px] leading-relaxed text-white">
-                                Tap the mic and describe yourself out loud. Tap again to stop.
+                                Tap to describe yourself out loud. The visualizer reacts to your voice!
                               </p>
                             </div>
                           </PopoverContent>
@@ -435,11 +450,37 @@ export function AIProfileWizard() {
                         <div className="relative">
                           <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
                           <textarea
-                            value={isRecording && interimTranscript ? (narrative ? narrative + ' ' + interimTranscript : interimTranscript) : narrative}
+                            value={narrative}
                             onChange={(e) => setNarrative(e.target.value)}
-                            placeholder={isRecording ? "Listening..." : placeholder}
+                            placeholder={placeholder}
                             className={cn("w-full h-44 p-5 pl-14 pr-16 rounded-[2rem] text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
                           />
+                          {isRecording && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
+                              <motion.div 
+                                className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                              />
+                              <div className="flex items-center gap-2 mb-3 relative z-10">
+                                <Mic className="w-6 h-6 text-white animate-pulse" />
+                                <span className="text-sm font-black uppercase tracking-widest text-white">Listening...</span>
+                              </div>
+                              <div className="flex gap-1 items-end h-8 relative z-10">
+                                {[...Array(12)].map((_, i) => (
+                                  <motion.div
+                                    key={i}
+                                    className="w-1.5 bg-gradient-to-t from-rose-500 to-orange-500 rounded-full"
+                                    animate={{ 
+                                      height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4 
+                                    }}
+                                    transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+                                  />
+                                ))}
+                              </div>
+                              <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak your details aloud</p>
+                            </div>
+                          )}
                           {isTranscribing && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
                               <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">

@@ -7,13 +7,13 @@ import { EventItem } from '@/types/events';
 const REELS = 'w=1200&q=85&fit=crop&ar=3:4&auto=format';
 
 export const CATEGORIES = [
-  { key: 'all',    label: 'All',         icon: Sparkles, img: `https://images.unsplash.com/photo-1493514789931-586cb221d7a7?${REELS}`, color: '#f97316' },
-  { key: 'beach',  label: 'Beach',       icon: Palmtree, img: `https://images.unsplash.com/photo-1519046904884-53103b34b206?${REELS}`, color: '#0ea5e9' },
-  { key: 'jungle', label: 'Jungle',      icon: Leaf,     img: `https://images.unsplash.com/photo-1502784444187-359ac186c5bb?${REELS}`, color: '#22c55e' },
-  { key: 'music',  label: 'Music',       icon: Music,    img: `https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?${REELS}`, color: '#8b5cf6' },
-  { key: 'food',   label: 'Restaurants', icon: Utensils, img: `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?${REELS}`, color: '#ef4444' },
-  { key: 'promo',  label: 'Deals',       icon: Tag,      img: `https://images.unsplash.com/photo-1551918120-9739cb430c6d?${REELS}`,    color: '#facc15' },
-  { key: 'likes',  label: 'My Likes',    icon: Heart,    img: `https://images.unsplash.com/photo-1496950866446-3253e1470e8e?${REELS}`, color: '#ec4899' },
+  { key: 'all',    label: 'All',         icon: Sparkles, img: `https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?${REELS}`, color: '#f97316' },
+  { key: 'beach',  label: 'Beach',       icon: Palmtree, img: `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?${REELS}`, color: '#0ea5e9' },
+  { key: 'jungle', label: 'Jungle',      icon: Leaf,     img: `https://images.unsplash.com/photo-1535940432221-df13a25ba40a?${REELS}`, color: '#22c55e' },
+  { key: 'music',  label: 'Music',       icon: Music,    img: `https://images.unsplash.com/photo-1540039155733-5c2024c0847b?${REELS}`, color: '#8b5cf6' },
+  { key: 'food',   label: 'Restaurants', icon: Utensils, img: `https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?${REELS}`, color: '#ef4444' },
+  { key: 'promo',  label: 'Deals',       icon: Tag,      img: `https://images.unsplash.com/photo-1555529733-0e670560f7e1?${REELS}`,    color: '#facc15' },
+  { key: 'likes',  label: 'My Likes',    icon: Heart,    img: `https://images.unsplash.com/photo-1518002171953-a080ee817e1f?${REELS}`, color: '#ec4899' },
 ];
 
 export const MOCK_EVENTS: EventItem[] = [

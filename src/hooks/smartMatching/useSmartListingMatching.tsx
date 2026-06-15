@@ -10,6 +10,12 @@ import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
 import { runIdleTask } from '@/lib/utils';
 import { useAdminUserIds } from '../useAdminUserIds';
 import { SWIPE_CARD_FIELDS } from './swipeCardFields';
+import {
+  filterByDistance,
+  filterListingsByAdvancedFilters,
+  hasActiveLocationFilter,
+} from '@/utils/matchingFilters';
+import { isDemoFeedEnabled } from '@/utils/demoFeed';
 
 // Demo listings — appended AFTER real listings so the deck is never empty
 // during testing. Each category (property / motorcycle / bicycle / worker)
@@ -236,7 +242,9 @@ export function useSmartListingMatching(
                 .from('likes')
                 .select('target_id, direction, created_at')
                 .eq('user_id', userId)
-                .eq('target_type', 'listing');
+                .eq('target_type', 'listing')
+                .order('created_at', { ascending: false })
+                .limit(500);
             
             if (likesError) throw likesError;
 
@@ -377,7 +385,7 @@ export function useSmartListingMatching(
                 // Helper: append demo listings AFTER real ones so testing data is never lost.
                 // Demos bypass swipe exclusion — they always reappear so user can practice repeatedly.
                 const appendDemos = (real: any[]): any[] => {
-                    if (page !== 0) return real;
+                    if (!isDemoFeedEnabled() || page !== 0) return real;
                     const existingIds = new Set(real.map(r => r.id));
                     const filteredDemos = DEMO_LISTINGS.filter(l => {
                         if (existingIds.has(l.id)) return false;
@@ -409,13 +417,27 @@ export function useSmartListingMatching(
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         // Keep the deterministic order returned by the backend RPC so
                         // every account sees the same listings in the same sequence.
-                        const results = (rpcListings as any[])
+                        let results = (rpcListings as any[])
                             .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !swipedListingIds.has(l.id))
                             .map(l => ({
                                 ...l,
                                 owner_id: l.owner_id || l.user_id,
                                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                             }));
+
+                        if (hasActiveLocationFilter(filters)) {
+                            results = filterByDistance(
+                                results,
+                                filters!.userLatitude!,
+                                filters!.userLongitude!,
+                                filters?.radiusKm ?? 50,
+                                false,
+                            );
+                        }
+
+                        results = filterListingsByAdvancedFilters(results, filters);
+
                         const withDemos = appendDemos(results);
 
                         // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
@@ -494,16 +516,10 @@ export function useSmartListingMatching(
                 const userLat = filters?.userLatitude;
                 const userLon = filters?.userLongitude;
                 const radiusKm = filters?.radiusKm ?? 50;
-                const filteredListings = (userLat != null && userLon != null)
-                    ? adminFiltered.filter(listing => {
-                        if (listing.latitude == null || listing.longitude == null) return true; // no coords = include
-                        const dLat = (listing.latitude - userLat) * Math.PI / 180;
-                        const dLon = (listing.longitude - userLon) * Math.PI / 180;
-                        const a = Math.sin(dLat/2)**2 + Math.cos(userLat * Math.PI/180) * Math.cos(listing.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
-                        const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                        return km <= radiusKm;
-                    })
+                const distanceFiltered = (userLat != null && userLon != null)
+                    ? filterByDistance(adminFiltered, userLat, userLon, radiusKm, false)
                     : adminFiltered;
+                const filteredListings = filterListingsByAdvancedFilters(distanceFiltered, filters);
 
                 // 5. Scoring, Sorting, and Update Recovery
                 const matchedResults = filteredListings.map(listing => {

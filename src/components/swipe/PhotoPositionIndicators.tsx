@@ -19,7 +19,7 @@ export function PhotoPositionIndicators({ count, currentIndex, hidden = false, c
       )}
       style={{
         opacity: hidden ? 0 : 1,
-        top: 'calc(var(--safe-top, 0px) + 48px)',
+        top: 'calc(var(--safe-top, 0px) + 72px)',
       }}
     >
       <div className="flex items-center justify-center gap-1.5">

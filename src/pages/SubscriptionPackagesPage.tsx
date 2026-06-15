@@ -1,23 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
-import { logger } from '@/utils/prodLogger';
 import { useActiveMode } from "@/hooks/useActiveMode";
+import { useState } from 'react';
 import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { appToast } from '@/utils/appNotification';
-import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
+import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from "@/config/iapProducts";
+import { FaApple } from 'react-icons/fa';
 
 import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 
 const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
-    appleProductId: 'Swipess.plus.monthly.v2',
+    appleProductId: 'Swipess.plus.monthly.v3',
     name: 'Monthly',
     label: 'STARTER',
     price: 39.99,
@@ -40,7 +41,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-6-months',
-    appleProductId: 'Swipess.plus.semestral.v2',
+    appleProductId: 'Swipess.plus.semestral.v3',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: 119.99,
@@ -65,7 +66,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-1-year',
-    appleProductId: 'Swipess.plus.annual.v2',
+    appleProductId: 'Swipess.plus.annual.v3',
     name: 'Yearly Elite',
     label: 'BEST VALUE',
     price: 299.99,
@@ -94,31 +95,31 @@ const clientPremiumPlans = [
 
 const accentStyles = {
   blue: {
-    border: 'border-white/15',
-    badge: 'bg-white/10 text-foreground border border-white/15',
-    glow: '',
-    button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
-    checkColor: 'text-foreground',
-    topGradient: 'from-white/10 via-transparent to-transparent',
-    priceShadow: '',
+    border: 'border-cyan-500/50',
+    badge: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30',
+    glow: 'shadow-[0_0_30px_rgba(6,182,212,0.2)]',
+    button: 'bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-black',
+    checkColor: 'text-cyan-400',
+    topGradient: 'from-cyan-500/20 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]',
   },
   pink: {
-    border: 'border-pink-500/35',
-    badge: 'bg-pink-500/20 text-pink-400 border border-pink-500/20',
-    glow: 'shadow-[0_0_30px_rgba(236,72,153,0.12)]',
-    button: 'bg-gradient-to-r from-pink-600 to-orange-500',
-    checkColor: 'text-pink-400',
-    topGradient: 'from-pink-500/15 via-transparent to-transparent',
-    priceShadow: '',
+    border: 'border-fuchsia-500/50',
+    badge: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30',
+    glow: 'shadow-[0_0_40px_rgba(217,70,239,0.3)]',
+    button: 'bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white font-black',
+    checkColor: 'text-fuchsia-400',
+    topGradient: 'from-fuchsia-500/25 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_15px_rgba(217,70,239,0.5)]',
   },
   gold: {
-    border: 'border-amber-500/40',
-    badge: 'bg-amber-500/20 text-amber-400 border border-amber-500/25',
-    glow: 'shadow-[0_0_50px_rgba(245,158,11,0.15)]',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500',
+    border: 'border-amber-400/60',
+    badge: 'bg-amber-400/20 text-amber-300 border border-amber-400/40',
+    glow: 'shadow-[0_0_60px_rgba(251,191,36,0.35)]',
+    button: 'bg-gradient-to-r from-yellow-400 to-amber-600 text-white font-black',
     checkColor: 'text-amber-400',
-    topGradient: 'from-amber-500/15 via-transparent to-transparent',
-    priceShadow: 'drop-shadow-[0_0_12px_rgba(245,158,11,0.3)]',
+    topGradient: 'from-amber-400/25 via-transparent to-transparent',
+    priceShadow: 'drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]',
   },
 };
 
@@ -128,91 +129,58 @@ export default function SubscriptionPackagesPage() {
   const { activeMode, isLoading: roleLoading } = useActiveMode();
   const userRole = activeMode;
 
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
   const handlePremiumPurchase = async (plan: typeof clientPremiumPlans[0]) => {
-    try {
-      haptics.tap();
+    setIsPurchasing(true);
+    haptics.tap();
 
-      if (NativeBridge.isNative()) {
-        if (!plan.appleProductId) {
-          appToast.error('Plan unavailable on this device.');
-          return;
-        }
-        appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
-        const result = await NativeBridge.purchaseProduct(plan.appleProductId);
-        if (result.success) {
-          appToast.success('Subscription Successful!');
-          navigate(`/${userRole}/dashboard`);
-          return;
-        } else {
-          const cancelled = (result as any).error === 'CANCELLED';
-          if (!cancelled) {
-            appToast.error('Purchase could not be completed');
-          }
-          return;
+    await PaymentOrchestrator.purchase({
+      appleProductId: plan.appleProductId,
+      paypalUrl: plan.paypalUrl,
+      returnPath: `/${userRole}/dashboard`,
+      onSuccess: () => {
+        appToast.success('Subscription Activated', 'Welcome to the elite tier.');
+        setIsPurchasing(false);
+        navigate(`/${userRole}/dashboard`);
+      },
+      onError: (err) => {
+        setIsPurchasing(false);
+        if (err !== 'CANCELLED') {
+          appToast.error('Purchase Failed', err);
         }
       }
-
-      if (!plan.paypalUrl) {
-        appToast.error('Payment link unavailable');
-        return;
-      }
-
-      sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-      sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
-        role: userRole,
-        planId: plan.id,
-        name: plan.name,
-        at: new Date().toISOString()
-      }));
-      window.open(plan.paypalUrl, '_blank');
-      appToast.success('Redirecting to Checkout');
-    } catch (error) {
-      logger.error('Payment redirect failed:', error);
-      appToast.error('Could not open payment window');
-    }
+    });
   };
 
   const handleRestore = async () => {
-    appToast.info('Restoring Purchases', 'Syncing with App Store subscriptions...');
-    
-    if (NativeBridge.isIOS()) {
-      const result = await NativeBridge.restorePurchases();
-      if (result.success) {
-        appToast.success('Subscription status verified.');
-      } else {
-        appToast.error('Restoration Failed');
-      }
-      return;
-    }
-
-    setTimeout(() => {
-      appToast.success('Subscription status verified.');
-    }, 1500);
+    await PaymentOrchestrator.restore();
   };
 
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="animate-pulse text-muted-foreground font-black uppercase tracking-widest text-xs text-center">Resonating with Hub...</div>
+        <div className="animate-pulse text-white/60 font-black uppercase tracking-widest text-xs text-center">Resonating with Hub...</div>
       </div>
     );
   }
 
   return (
     <PaymentErrorBoundary>
-      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden" style={{ contain: 'layout' }}>
+      {/* fixed inset-0 z-[100] forces it to cover the entire screen, ignoring any top/bottom nav spacing from layouts */}
+      <div className="fixed inset-0 z-[100] bg-black flex flex-col pb-safe-bottom overflow-x-hidden overflow-y-auto" style={{ contain: 'layout' }}>
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-primary/5 blur-[120px] rounded-full" />
       </div>
 
-      <div className="relative z-10 shrink-0 pt-[env(safe-area-inset-top)] px-4">
-        <div className="max-w-5xl mx-auto py-3 flex items-center justify-between">
+      <div className="relative z-10 shrink-0 pt-safe-top">
+        <div className="max-w-5xl mx-auto py-3 px-4 flex items-center justify-between">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full glass-pill text-xs font-black uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background border border-border text-xs font-black uppercase tracking-widest text-foreground/80 hover:text-foreground transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
             Back
@@ -227,14 +195,14 @@ export default function SubscriptionPackagesPage() {
         >
           <div className="inline-flex items-center gap-2 mb-6">
             <Zap className="w-8 h-8 text-brand-accent-2 animate-pulse" />
-            <span className="text-xs font-black uppercase tracking-[0.25em] text-muted-foreground/80">
+            <span className="text-xs font-black uppercase tracking-[0.25em] text-white/60/80">
               The Swipess Experience
             </span>
           </div>
-          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-foreground mb-8 uppercase">
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tighter text-white mb-8 uppercase">
             Own the <span className="text-brand-accent-2 italic">Network</span>
           </h1>
-          <p className="text-base font-bold text-muted-foreground leading-relaxed max-w-xl mx-auto px-4">
+          <p className="text-base font-bold text-white/60 leading-relaxed max-w-xl mx-auto px-4">
             Stop paying commissions. Start resonating. Unlock direct access to owners, verified legal support, and unlimited AI assistance.
           </p>
         </motion.div>
@@ -254,11 +222,14 @@ export default function SubscriptionPackagesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "flex-1 flex flex-col liquid-glass-card refraction-edge glass-nano-texture rounded-[3rem] p-1.5 transition-all duration-500",
-                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-500/40"
+                  "flex-1 flex flex-col rounded-[3rem] p-1.5 transition-all duration-500 bg-background border relative overflow-hidden",
+                  style.border,
+                  style.glow,
+                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_40px_80px_rgba(0,0,0,0.5)] border-amber-400/60"
                 )}
               >
-                <div className="relative flex flex-col flex-1 p-8 sm:p-10">
+                <div className={cn("absolute inset-0 bg-gradient-to-b pointer-events-none opacity-50", style.topGradient)} />
+                <div className="relative z-10 flex flex-col flex-1 p-8 sm:p-10">
                   {/* Badge */}
                   <div className="flex items-center justify-between mb-8">
                     <span className={cn("text-xs font-black uppercase tracking-[0.25em] px-4 py-1.5 rounded-full", style.badge)}>
@@ -270,13 +241,13 @@ export default function SubscriptionPackagesPage() {
                   </div>
 
                   {/* Plan name */}
-                  <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-widest">{plan.name}</h3>
+                  <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-widest">{plan.name}</h3>
                   {'aiTier' in plan && (
                     <span className={cn(
                       "inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl mb-4",
                       plan.accent === 'gold' ? "bg-amber-500/20 text-amber-400" :
                       plan.accent === 'pink' ? "bg-pink-500/20 text-pink-400" :
-                      "bg-white/10 text-foreground"
+                      "bg-background text-foreground"
                     )}>
                       <Sparkles className="w-4 h-4" />
                       {(plan as any).aiTier}
@@ -285,10 +256,10 @@ export default function SubscriptionPackagesPage() {
 
                   {/* Price */}
                   <div className="flex items-baseline gap-2 mb-8">
-                    <span className="text-5xl sm:text-6xl font-black text-foreground tracking-tighter">
+                    <span className={cn("text-5xl sm:text-6xl font-black text-white tracking-tighter", style.priceShadow)}>
                       ${plan.price}
                     </span>
-                    <span className="text-xs font-black text-foreground/40 uppercase tracking-widest leading-loose">
+                    <span className="text-xs font-black text-white/40 uppercase tracking-widest leading-loose">
                       USD {plan.durationText}
                     </span>
                   </div>
@@ -300,7 +271,7 @@ export default function SubscriptionPackagesPage() {
                     {plan.benefits.map((benefit, i) => (
                       <div key={i} className="flex items-start gap-4">
                         <Check className={cn("w-5 h-5 flex-shrink-0 mt-1", style.checkColor)} />
-                        <span className="text-sm font-bold text-foreground/90 leading-snug uppercase tracking-tight">{benefit}</span>
+                        <span className="text-sm font-bold text-white/90 leading-snug uppercase tracking-tight">{benefit}</span>
                       </div>
                     ))}
                   </div>
@@ -311,15 +282,15 @@ export default function SubscriptionPackagesPage() {
                       "p-5 rounded-[1.8rem] mb-8 space-y-3.5 border",
                       plan.accent === 'gold' ? "bg-amber-500/10 border-amber-500/20 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]" :
                       plan.accent === 'pink' ? "bg-pink-500/10 border-pink-500/20 shadow-[inset_0_0_20px_rgba(236,72,153,0.05)]" :
-                      "bg-white/5 border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.04)]"
+                      "bg-background border-border shadow-[inset_0_0_20px_rgba(0,0,0,0.04)]"
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40">Magic AI Benefits</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Magic AI Benefits</span>
                       </div>
                       {(plan as any).aiFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-start gap-3">
-                          <span className="text-sm font-bold text-foreground leading-relaxed">{feature}</span>
+                          <span className="text-sm font-bold text-white leading-relaxed">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -328,15 +299,25 @@ export default function SubscriptionPackagesPage() {
                   {/* CTA */}
                   <Button
                     onClick={() => handlePremiumPurchase(plan)}
+                    disabled={isPurchasing}
                     className={cn(
-                      "w-full h-16 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.25em] text-white transition-all active:scale-[0.98] shadow-2xl",
-                      style.button,
-                      isHighlight && "shadow-amber-500/20"
+                      "w-full h-16 rounded-[1.5rem] font-black transition-all active:scale-[0.98] shadow-2xl disabled:opacity-70 flex items-center justify-center gap-1.5",
+                      NativeBridge.isIOS()
+                        ? "bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10 text-[16px] tracking-normal"
+                        : cn(style.button, "uppercase tracking-[0.1em] text-[13px] text-white", isHighlight && "shadow-amber-500/40")
                     )}
                   >
-                    {NativeBridge.isIOS() 
-                      ? (isHighlight ? 'Subscribe ·  Pay' : 'Subscribe') 
-                      : (isHighlight ? 'Get Offer · Swipess Pro' : 'Get Offer')}
+                    {isPurchasing ? 'Connecting to App Store...' : (
+                      NativeBridge.isIOS() ? (
+                        <>
+                          <span>Subscribe with</span>
+                          <FaApple className="w-5 h-5 mb-[2px]" />
+                          <span>Pay</span>
+                        </>
+                      ) : (
+                        <>Subscribe · ${plan.price} · Swipess Pro</>
+                      )
+                    )}
                   </Button>
                 </div>
               </motion.div>
@@ -348,43 +329,20 @@ export default function SubscriptionPackagesPage() {
         <div className="mt-16 pt-8 max-w-5xl mx-auto w-full border-t border-white/5 flex flex-col items-center gap-8 mb-8">
           <button 
             onClick={handleRestore}
-            className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 hover:text-white transition-colors"
+            className="flex items-center gap-2.5 text-xs font-black uppercase tracking-[0.3em] text-white/60/60 hover:text-white transition-colors"
           >
             <RefreshCcw className="w-5 h-5" />
             Restore Subscriptions
           </button>
 
-          {/*  App Store Subscription Policy Disclosure (Guideline 3.1.2) */}
-          <div className="max-w-2xl text-center px-6 space-y-6">
-            <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest leading-relaxed">
-              Payment will be charged to your Apple ID account at the confirmation of purchase. Subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
+          {/*  App Store Subscription Policy Disclosure */}
+          <div className="max-w-2xl text-center px-6 space-y-4">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
+              Auto-renewing subscription. Cancel anytime in App Store settings.
             </p>
-            <div className="flex items-center justify-center gap-8">
+            <div className="flex items-center justify-center gap-8 pt-2">
               <button onClick={() => navigate('/privacy-policy')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Privacy Policy</button>
-              <button onClick={() => navigate('/terms-of-service')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Terms of Service</button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-12 w-full px-6">
-            <div className="space-y-3 text-center group">
-              <Shield className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Secure Gateway</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Protected by Enterprise <br />Payment Protocols</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Clock className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Instant Hydration</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Digital assets unlock <br />immediately</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Zap className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Priority Support</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">Direct source access <br />unlocked now</p>
-            </div>
-            <div className="space-y-3 text-center group">
-              <Sparkles className="w-8 h-8 text-brand-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-              <h5 className="text-xs font-black uppercase text-foreground tracking-[0.2em]">Concierge Elite</h5>
-              <p className="text-[10px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest">24/7 Human-AI <br />Hybrid Assistance</p>
+              <button onClick={() => navigate('/terms-of-service')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Terms</button>
             </div>
           </div>
         </div>

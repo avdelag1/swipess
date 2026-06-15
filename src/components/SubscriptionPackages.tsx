@@ -8,7 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { NativeBridge } from '@/utils/nativeBridge';
+import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from '@/config/iapProducts';
+import { FaApple } from 'react-icons/fa';
 
 interface SubscriptionPackagesProps {
   isOpen?: boolean;
@@ -34,10 +36,10 @@ type Plan = {
 const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-1-month',
-    appleProductId: 'Swipess.plus.monthly.v2',
+    appleProductId: 'Swipess.plus.monthly.v3',
     name: 'Monthly',
     label: 'STARTER',
-    price: '$29.99',
+    price: '$39.99',
     durationText: '/month',
     benefits: [
       'Communicate with listings and members',
@@ -51,10 +53,10 @@ const clientPlans: Plan[] = [
   },
   {
     id: 'client-unlimited-6-months',
-    appleProductId: 'Swipess.plus.semestral.v2',
+    appleProductId: 'Swipess.plus.semestral.v3',
     name: 'Semi-Annual',
     label: 'POPULAR',
-    price: '$111.99',
+    price: '$119.99',
     durationText: '/6 months',
     benefits: [
       'Communicate with listings and members',
@@ -70,10 +72,10 @@ const clientPlans: Plan[] = [
   },
   {
     id: 'client-unlimited-1-year',
-    appleProductId: 'Swipess.plus.annual.v2',
+    appleProductId: 'Swipess.plus.annual.v3',
     name: 'Yearly',
     label: 'BEST VALUE',
-    price: '$149.99',
+    price: '$299.99',
     durationText: '/year',
     benefits: [
       'Communicate with listings and members',
@@ -94,7 +96,7 @@ const clientPlans: Plan[] = [
 const accentStyles = {
   blue: {
     border: 'border-white/15',
-    badge: 'bg-white/10 text-foreground',
+    badge: 'bg-background text-foreground border border-border',
     button: 'bg-gradient-to-r from-zinc-900 to-zinc-700 text-white',
     checkColor: 'text-foreground',
     topGradient: 'from-white/10 via-transparent to-transparent',
@@ -117,44 +119,14 @@ const accentStyles = {
 
 export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client' }: SubscriptionPackagesProps) {
   const { user } = useAuth();
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   if (!isOpen) return null;
 
   const plans = clientPlans;
 
   const handleSubscribe = async (plan: Plan) => {
-    const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
-    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
-    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-
-    if (NativeBridge.isNative()) {
-       if (!plan.appleProductId) {
-         appToast.error('Plan unavailable on this device.');
-         return;
-       }
-       appToast.info('Connecting to App Store', 'Initiating secure In-App Purchase...');
-       const result = await NativeBridge.purchaseProduct(plan.appleProductId);
-       if (result.success) {
-         appToast.success('Subscription Successful!');
-         onClose?.();
-         return;
-       } else {
-         const cancelled = (result as any).error === 'CANCELLED';
-         if (!cancelled) {
-           appToast.error('Purchase could not be completed');
-         }
-         return;
-       }
-    }
-
-    // Web fallback (browser only — never on native iOS)
-    if (!plan.paypalUrl) {
-      appToast.error('Payment link unavailable');
-      return;
-    }
-    window.open(plan.paypalUrl, '_blank');
-
-    appToast.info('Redirecting to Checkout', `Selected: ${plan.name} (${plan.price} USD)`);
+    setIsPurchasing(true);
 
     if (user?.id) {
       supabase.from('notifications').insert([{
@@ -163,17 +135,29 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         title: 'Premium Package Selected!',
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
         is_read: false
-      }]).then(({ error }) => {
-        if (error) logger.warn('[SubscriptionPackages] notification insert failed:', error);
-      }).catch(() => {});
+      }]).catch(() => {});
     }
+
+    await PaymentOrchestrator.purchase({
+      appleProductId: plan.appleProductId!,
+      paypalUrl: plan.paypalUrl,
+      returnPath: `/${userRole}/dashboard`,
+      onSuccess: () => {
+        appToast.success('Subscription Successful!');
+        setIsPurchasing(false);
+        onClose?.();
+      },
+      onError: (err) => {
+        setIsPurchasing(false);
+        if (err !== 'CANCELLED') {
+          appToast.error('Purchase Failed', err);
+        }
+      }
+    });
   };
 
-  const handleRestore = () => {
-    appToast.info('Restoring Purchases', 'Checking App Store for previous subscriptions...');
-    setTimeout(() => {
-      appToast.success('No previous purchases found.');
-    }, 1500);
+  const handleRestore = async () => {
+    await PaymentOrchestrator.restore();
   };
 
   return (
@@ -239,14 +223,23 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleSubscribe(pkg)}
                     className={cn(
-                       "w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[13px] text-white transition-opacity hover:opacity-90 shadow-xl",
-                       style.button,
-                       isHighlight && "shadow-amber-500/20"
+                       "w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5",
+                       NativeBridge.isIOS()
+                          ? "bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10 text-[15px] tracking-normal"
+                          : cn(style.button, "uppercase tracking-[0.2em] text-[13px] text-white", isHighlight && "shadow-amber-500/20")
                     )}
                   >
-                    {NativeBridge.isIOS() 
-                      ? (isHighlight ? 'Upgrade ·  Pay' : 'Subscribe') 
-                      : (isHighlight ? 'Upgrade to Swipess' : 'Activate Access')}
+                    {isPurchasing ? 'Connecting...' : (
+                      NativeBridge.isIOS() ? (
+                        <>
+                          <span>Buy with</span>
+                          <FaApple className="w-5 h-5 mb-[2px]" />
+                          <span>Pay</span>
+                        </>
+                      ) : (
+                        isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
+                      )
+                    )}
                   </motion.button>
                 </div>
               </motion.div>

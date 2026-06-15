@@ -19,6 +19,8 @@ function getShareBaseUrl(): string {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 
 export type ShareMethod =
   | 'link_copied'
@@ -163,13 +165,41 @@ export async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
-// Share via native share API if available
+/**
+ * True when an OS-level share sheet is available: native (Capacitor) always,
+ * or web when the Web Share API is present. Use this to decide whether to show
+ * a "Share" button — inside a native WebView `navigator.share` is often missing
+ * even though the native share sheet works fine via the Capacitor Share plugin.
+ */
+export function canNativeShare(): boolean {
+  if (Capacitor.isNativePlatform()) return true;
+  return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+}
+
+// Share via the OS share sheet — the Capacitor Share plugin on a native device,
+// the Web Share API as the fallback on web/PWA. Returns false when no share
+// sheet is available or the user dismissed it, so callers can fall back to
+// copy-link / navigate.
 export async function shareViaNavigator(params: {
   title: string;
   text: string;
   url: string;
 }): Promise<boolean> {
-  if (navigator.share) {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await Share.share({
+        title: params.title,
+        text: params.text,
+        url: params.url,
+        dialogTitle: params.title,
+      });
+      return true;
+    } catch (_error) {
+      // User dismissed the share sheet, or there was nothing to share.
+      return false;
+    }
+  }
+  if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
     try {
       await navigator.share({
         title: params.title,

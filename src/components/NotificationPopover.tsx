@@ -343,6 +343,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             "backdrop-blur-3xl bg-background/70 saturate-150 overflow-hidden gap-0",
             className
           )}
+          style={{ WebkitBackdropFilter: 'blur(64px)', backdropFilter: 'blur(64px)' }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -354,7 +355,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             <DialogTitle className="sr-only">Notifications</DialogTitle>
 
             {/* Header */}
-            <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-background">
+            <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-primary/10">

@@ -29,6 +29,8 @@ export interface MatchedClientProfile {
     incompatibleReasons: string[];
     city?: string;
     country?: string;
+    latitude?: number | null;
+    longitude?: number | null;
     avatar_url?: string;
     verified?: boolean;
     work_schedule?: string;
@@ -66,6 +68,10 @@ export interface ClientFilters {
     clientGender?: string;
     clientType?: string;
     categories?: string[];
+    // Location / passport (shared with ListingFilters)
+    radiusKm?: number;
+    userLatitude?: number;
+    userLongitude?: number;
 }
 
 // Re-export ListingFilters from the single source of truth

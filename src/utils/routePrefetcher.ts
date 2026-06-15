@@ -73,6 +73,11 @@ const routeImports: Record<string, RouteImport> = {
   '/explore/tours': () => import('@/pages/VideoTours'),
   // Filter routes
   '/client/filters': () => import('@/pages/ClientFilters'),
+  '/owner/filters': () => import('@/pages/OwnerFilters'),
+  '/client/liked-properties': () => import('@/pages/ClientLikedProperties'),
+  '/client/who-liked-you': () => import('@/pages/ClientWhoLikedYou'),
+  '/owner/liked-clients': () => import('@/pages/OwnerLikedClients'),
+  '/explore/radio': () => import('@/pages/WorldRadioDirectory'),
 };
 
 // Cache for prefetched routes
@@ -147,7 +152,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   const sharedRoutes = ['/messages', '/notifications', '/explore/events'];
   
   if (role === 'client') {
-    const critical = ['/client/profile', ...sharedRoutes];
+    const critical = ['/client/profile', '/client/liked-properties', '/client/who-liked-you', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p).catch(() => {}));
     
     // Everything else — sequential background prefetch (start fast)

@@ -87,6 +87,10 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
             if (!open) setSelectedClientId(null);
           }}
           profile={selectedProfile || null}
+          onConnect={() => {
+            onOpenChange(false);
+            if (selectedClientId) navigate(`/messages?startConversation=${selectedClientId}`);
+          }}
         />
       </Suspense>
     </>
