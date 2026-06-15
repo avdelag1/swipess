@@ -32,10 +32,10 @@ export function syncUserGpsDotOnMap(
       type: 'circle',
       source: GPS_SOURCE_ID,
       paint: {
-        'circle-radius': 22,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 18, 14, 28, 16, 36],
         'circle-color': '#10B981',
-        'circle-opacity': 0.22,
-        'circle-blur': 0.4,
+        'circle-opacity': 0.28,
+        'circle-blur': 0.35,
       },
     });
 
@@ -44,12 +44,12 @@ export function syncUserGpsDotOnMap(
       type: 'circle',
       source: GPS_SOURCE_ID,
       paint: {
-        'circle-radius': 14,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 22],
         'circle-color': '#10B981',
-        'circle-opacity': 0.35,
-        'circle-stroke-width': 2,
+        'circle-opacity': 0.45,
+        'circle-stroke-width': 2.5,
         'circle-stroke-color': '#ffffff',
-        'circle-stroke-opacity': 0.9,
+        'circle-stroke-opacity': 1,
       },
     });
 
@@ -58,7 +58,7 @@ export function syncUserGpsDotOnMap(
       type: 'circle',
       source: GPS_SOURCE_ID,
       paint: {
-        'circle-radius': 7,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 6, 14, 9, 16, 11],
         'circle-color': '#10B981',
         'circle-stroke-width': 3,
         'circle-stroke-color': '#ffffff',

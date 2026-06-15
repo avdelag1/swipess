@@ -11,17 +11,15 @@ export const PASSPORT_GRADIENTS = {
 } as const;
 
 export const RADIUS_GRADIENTS: Record<number, string> = {
-  10: 'linear-gradient(135deg, #10B981, #06B6D4)',
-  25: 'linear-gradient(135deg, #6366F1, #A855F7)',
-  50: 'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  100: 'linear-gradient(135deg, #F59E0B, #D97706)',
-  200: 'linear-gradient(135deg, #EF4444, #DC2626)',
+  5: 'linear-gradient(135deg, #10B981, #06B6D4)',
+  20: 'linear-gradient(135deg, #6366F1, #A855F7)',
+  40: 'linear-gradient(135deg, #8B5CF6, #EC4899)',
+  80: 'linear-gradient(135deg, #F59E0B, #D97706)',
 };
 
 export function gradientForRadius(km: number): string {
-  if (km <= 15) return RADIUS_GRADIENTS[10];
-  if (km <= 35) return RADIUS_GRADIENTS[25];
-  if (km <= 75) return RADIUS_GRADIENTS[50];
-  if (km <= 150) return RADIUS_GRADIENTS[100];
-  return RADIUS_GRADIENTS[200];
+  if (km <= 12) return RADIUS_GRADIENTS[5];
+  if (km <= 30) return RADIUS_GRADIENTS[20];
+  if (km <= 55) return RADIUS_GRADIENTS[40];
+  return RADIUS_GRADIENTS[80];
 }

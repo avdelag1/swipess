@@ -71,7 +71,7 @@ export function syncRadiusCircleOnMap(
       source: SOURCE_ID,
       paint: {
         'fill-color': '#C4B5FD',
-        'fill-opacity': 0.08,
+        'fill-opacity': 0.12,
       },
     });
 
@@ -82,7 +82,7 @@ export function syncRadiusCircleOnMap(
       source: SOURCE_ID,
       paint: {
         'fill-color': '#8B5CF6',
-        'fill-opacity': 0.15,
+        'fill-opacity': 0.22,
       },
     });
 
@@ -94,7 +94,7 @@ export function syncRadiusCircleOnMap(
       paint: {
         'line-color': '#EC4899',
         'line-width': 6,
-        'line-opacity': 0.3,
+        'line-opacity': 0.45,
         'line-blur': 8,
       },
     });

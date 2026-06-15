@@ -10,6 +10,15 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import {
+  addCinematic3DBuildings,
+  applyCinematicFog,
+  CINEMATIC_BEARING,
+  CINEMATIC_PITCH,
+  cinematicEaseTo,
+  cinematicFlyTo,
+  zoomForRadiusKm,
+} from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
 import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
@@ -30,9 +39,6 @@ type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
 
-function zoomForRadiusKm(km: number): number {
-  return Math.min(16, Math.max(10, 13.8 - Math.log2(km)));
-}
 const FILTER_TABS: { id: MapLayerFilter; label: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', label: 'All', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
   { id: 'listings', label: 'Listings', icon: Building2, gradient: PASSPORT_GRADIENTS.listings },
@@ -94,6 +100,14 @@ export const PassportMapModal = memo(() => {
 
   const nearbyCount = (visibleListings.length + visibleProfiles.length);
 
+  /** Search zone center — your GPS when local, passport target when exploring */
+  const radiusCenter = useMemo(() => {
+    if (passportMode && lat != null && lng != null) return { lat, lng };
+    if (deviceGps) return deviceGps;
+    if (lat != null && lng != null) return { lat, lng };
+    return null;
+  }, [passportMode, lat, lng, deviceGps]);
+
   const selectedId = selected
     ? (selected.type === 'listing' ? selected.data.id : selected.data.id)
     : null;
@@ -105,48 +119,42 @@ export const PassportMapModal = memo(() => {
     setModal('showPassportMapModal', false);
   }, [setModal]);
 
-  // Dynamically zoom map to fit the expanding/contracting radius
-  useEffect(() => {
-    if (!isOpen || !mapReady || !mapRef.current || lat == null || lng == null) return;
-    
-    // Zoom out slightly more than before to show margin around the circle
-    const targetZoom = 12.8 - Math.log2(radiusKm);
-    
-    mapRef.current.easeTo({
-      center: [lng, lat],
-      zoom: targetZoom,
-      duration: 150, // very fast, instant feeling
-      essential: true
-    });
-  }, [radiusKm, lat, lng, mapReady, isOpen]);
+  const radiusCenterRef = useRef(radiusCenter);
+  radiusCenterRef.current = radiusCenter;
+  const prevRadiusKmRef = useRef(radiusKm);
 
-  const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 12) => {
+  // Frame circle only when user changes radius — keeps 3D pitch, never fights GPS pan/zoom
+  useEffect(() => {
+    if (!isOpen || !mapReady || !mapRef.current) return;
+    if (prevRadiusKmRef.current === radiusKm) return;
+    prevRadiusKmRef.current = radiusKm;
+    const center = radiusCenterRef.current;
+    if (!center) return;
+    cinematicEaseTo(
+      mapRef.current,
+      [center.lng, center.lat],
+      zoomForRadiusKm(radiusKm),
+      { duration: 400 },
+    );
+  }, [radiusKm, isOpen, mapReady]);
+
+  const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setPassportLocation(newLat, newLng, label);
-    setRadiusKm(50);
-    mapRef.current?.flyTo({ 
-      center: [newLng, newLat], 
-      zoom, 
-      duration: 3500,
-      pitch: 60,
-      bearing: 20,
-      essential: true 
-    });
+    if (mapRef.current) {
+      cinematicFlyTo(mapRef.current, [newLng, newLat], zoom, { duration: 3200, pitch: 62, bearing: 28 });
+    }
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
-  }, [setPassportLocation, setRadiusKm]);
+  }, [setPassportLocation]);
 
   const flyToRef = useRef(flyTo);
   flyToRef.current = flyTo;
 
   const focusPin = useCallback((pin: SelectedPin) => {
     setSelected(pin);
-    mapRef.current?.flyTo({
-      center: [pin.data.lng, pin.data.lat],
-      zoom: 14,
-      duration: 1500,
-      pitch: 45,
-      essential: true
-    });
+    if (mapRef.current) {
+      cinematicFlyTo(mapRef.current, [pin.data.lng, pin.data.lat], 14.5, { duration: 1500, pitch: 52 });
+    }
   }, []);
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
@@ -198,13 +206,12 @@ export const PassportMapModal = memo(() => {
 
         if (!fix || !mapRef.current) return;
 
-        mapRef.current.flyTo({
-          center: [fix.lng, fix.lat],
-          zoom: opts?.zoom ?? zoomForRadiusKm(radiusKm),
-          duration: 900,
-          pitch: 50,
-          essential: true,
-        });
+        cinematicFlyTo(
+          mapRef.current,
+          [fix.lng, fix.lat],
+          opts?.zoom ?? zoomForRadiusKm(radiusKm),
+          { duration: 1100, pitch: CINEMATIC_PITCH },
+        );
         if (opts?.announce) appToast.success('Centered on your location');
       } catch {
         appToast.error('Could not detect location');
@@ -220,8 +227,8 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
-    centerOnDeviceGps({ zoom: 16, refresh: true, announce: true });
-  }, [centerOnDeviceGps]);
+    centerOnDeviceGps({ zoom: zoomForRadiusKm(radiusKm), refresh: true, announce: true });
+  }, [centerOnDeviceGps, radiusKm]);
 
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
@@ -247,13 +254,6 @@ export const PassportMapModal = memo(() => {
     autoGpsAttemptedRef.current = true;
     centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
   }, [isOpen, mapReady, passportMode, radiusKm]);
-
-  // Dynamically update Mapbox Standard light preset on theme change
-  useEffect(() => {
-    if (mapReady && mapRef.current) {
-      mapRef.current.setConfigProperty('basemap', 'lightPreset', isLight ? 'day' : 'night');
-    }
-  }, [isLight, mapReady]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -297,26 +297,27 @@ export const PassportMapModal = memo(() => {
 
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/standard',
+          style: isLightRef.current ? 'mapbox://styles/mapbox/light-v11' : 'mapbox://styles/mapbox/dark-v11',
           center: [initialLng, initialLat],
           zoom: initialZoom,
+          pitch: CINEMATIC_PITCH,
+          bearing: CINEMATIC_BEARING,
           attributionControl: false,
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
-          doubleClickZoom: true,
+          doubleClickZoom: false,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+        map.touchZoomRotate.enableRotation();
+        map.dragRotate.enable();
 
         map.on('load', () => {
           if (cancelled) return;
 
-          // Mapbox Standard Configuration
-          map.setConfigProperty('basemap', 'lightPreset', isLightRef.current ? 'day' : 'night');
-          // Hide POI labels to keep map clean for Swipess
-          map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
-          map.setConfigProperty('basemap', 'showTransitLabels', false);
+          applyCinematicFog(map, isLightRef.current);
+          addCinematic3DBuildings(map, isLightRef.current);
 
           requestAnimationFrame(() => {
             resizeMap();
@@ -348,7 +349,7 @@ export const PassportMapModal = memo(() => {
           e.preventDefault();
           if (!useModalStore.getState().showPassportMapModal) return;
           triggerHaptic('medium');
-          centerOnDeviceGpsRef.current({ zoom: 16, refresh: true });
+          centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
         });
 
         map.on('touchend', () => {
@@ -356,7 +357,7 @@ export const PassportMapModal = memo(() => {
           const now = Date.now();
           if (now - lastTouchTapRef.current < 320) {
             triggerHaptic('medium');
-            centerOnDeviceGpsRef.current({ zoom: 16, refresh: true });
+            centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
             lastTouchTapRef.current = 0;
             return;
           }
@@ -466,17 +467,21 @@ export const PassportMapModal = memo(() => {
     };
   }, [isOpen, passportMode, setUserLocation]);
 
-  // Live FB-style radius circle — updates instantly when radius or center changes
+  // Live radius circle around you (or passport explore target)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || lat == null || lng == null) return;
+    if (!map || !mapReady || !radiusCenter) return;
 
-    const apply = () => syncRadiusCircleOnMap(map, lng, lat, radiusKm, {
-      showCenterDot: passportMode,
-    });
+    const apply = () => syncRadiusCircleOnMap(
+      map,
+      radiusCenter.lng,
+      radiusCenter.lat,
+      radiusKm,
+      { showCenterDot: false },
+    );
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [mapReady, lat, lng, radiusKm, passportMode]);
+  }, [mapReady, radiusCenter, radiusKm]);
 
   useEffect(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
@@ -591,10 +596,11 @@ export const PassportMapModal = memo(() => {
             whileTap={{ scale: 0.9 }}
             onClick={handleGPS}
             disabled={gpsLoading}
-            className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] bg-black/40 backdrop-blur-md disabled:opacity-60"
+            className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-2xl text-white border border-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)] disabled:opacity-60"
+            style={{ background: PASSPORT_GRADIENTS.tokens }}
             title="My location"
           >
-            {gpsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" strokeWidth={2.2} />}
+            {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" strokeWidth={2.2} />}
           </motion.button>
         </div>
 
@@ -715,10 +721,10 @@ export const PassportMapModal = memo(() => {
                     />
                     <style>{`
                       input[type="range"]::-webkit-slider-thumb {
-                        background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : '#8B5CF6'};
+                        background: ${radiusKm <= 12 ? '#10B981' : radiusKm <= 30 ? '#6366F1' : radiusKm <= 55 ? '#8B5CF6' : '#F59E0B'};
                       }
                       input[type="range"]::-moz-range-thumb {
-                        background: ${radiusKm <= 15 ? '#10B981' : radiusKm <= 35 ? '#6366F1' : radiusKm <= 75 ? '#8B5CF6' : radiusKm <= 150 ? '#F59E0B' : '#EF4444'};
+                        background: ${radiusKm <= 12 ? '#10B981' : radiusKm <= 30 ? '#6366F1' : radiusKm <= 55 ? '#8B5CF6' : '#F59E0B'};
                       }
                     `}</style>
                   </div>
@@ -819,7 +825,11 @@ export const PassportMapModal = memo(() => {
               <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] ring-2 ring-white/60" />
               <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">You</span>
             </div>
-            <span className="text-[8px] font-bold uppercase tracking-wider text-white/25">Double-tap to zoom to you</span>
+            <div className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full border-2 border-[#A855F7] bg-[#8B5CF6]/40" />
+              <span className="text-[8px] font-bold uppercase tracking-wider text-white/40">Radius</span>
+            </div>
+            <span className="text-[8px] font-bold uppercase tracking-wider text-white/25">Double-tap · fly to you</span>
           </div>
         )}
       </div>
