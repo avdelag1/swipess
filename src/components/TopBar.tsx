@@ -55,7 +55,6 @@ function TopBarComponent({
   const setModal = useModalStore(s => s.setModal);
   const openPassport = useModalStore(s => s.openPassport);
   const openPassportMap = useModalStore(s => s.openPassportMap);
-  const openPassport = useModalStore(s => s.openPassport);
   const { tokens } = useTokens();
   const { t } = useTranslation();
 

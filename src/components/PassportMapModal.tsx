@@ -645,9 +645,7 @@ export const PassportMapModal = memo(() => {
       return { lat: lat + r * Math.cos(theta), lng: lng + r * Math.sin(theta) };
     };
 
-    const upsertListing = (l: (typeof visibleListings)[number]) => {
-      const key = `listing:${l.id}`;
-      nextKeys.add(key);
+    visibleListings.forEach((l) => {
       const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
       const el = createListingMarkerEl(l, isSelected);
       el.addEventListener('click', (e) => {
@@ -677,53 +675,7 @@ export const PassportMapModal = memo(() => {
           .setLngLat([coords.lng, coords.lat])
           .addTo(mapRef.current!),
       );
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([l.lng, l.lat])
-        .addTo(map);
-      registry.set(key, { marker, el, cleanup });
-    };
-
-    const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
-      const key = `profile:${p.id}`;
-      nextKeys.add(key);
-      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
-      const existing = registry.get(key);
-
-      if (existing) {
-        existing.marker.setLngLat([p.lng, p.lat]);
-        updateProfileMarkerEl(existing.el, p, isSelected);
-        return;
-      }
-
-      const el = createProfileMarkerEl(p, isSelected);
-      const cleanup = bindMarkerDoubleTapZoom(
-        el,
-        () => [p.lng, p.lat],
-        mapRef,
-        lastDoubleTapZoomAtRef,
-        () => {
-          triggerHaptic('medium');
-          focusPin({ type: 'profile', data: p });
-        },
-        () => useModalStore.getState().showPassportMapModal,
-        () => triggerHaptic('light'),
-      );
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([p.lng, p.lat])
-        .addTo(map);
-      registry.set(key, { marker, el, cleanup });
-    };
-
-    visibleListings.forEach(upsertListing);
-    visibleProfiles.forEach(upsertProfile);
-
-    for (const [key, entry] of registry) {
-      if (!nextKeys.has(key)) {
-        entry.cleanup();
-        entry.marker.remove();
-        registry.delete(key);
-      }
-    }
+    });
   }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
 
   const mapboxReady = tokenReady;
