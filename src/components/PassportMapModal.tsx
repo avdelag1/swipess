@@ -43,7 +43,6 @@ import {
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
-import { computeMapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -76,8 +75,7 @@ import {
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const PIN_PREVIEW_CARD = { width: 280, height: 260 };
-type PinPreviewMode = 'anchored' | 'sheet';
+type PinPreviewMode = 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
 
@@ -588,13 +586,11 @@ export const PassportMapModal = memo(() => {
       const storeLat = useFilterStore.getState().userLatitude;
       const storeLng = useFilterStore.getState().userLongitude;
       const deviceFix = deviceGpsRef.current;
-      const hasUserHub = !!(deviceFix || (storeLat != null && storeLng != null));
       const hub = deviceFix ?? (storeLat != null && storeLng != null
         ? { lat: storeLat, lng: storeLng }
         : MAP_SEARCH_HUB);
       const initialLng = hub.lng;
       const initialLat = hub.lat;
-      const storeRadius = useFilterStore.getState().radiusKm;
       const initialZoom = 2.2; // Always start zoomed out to guarantee a dramatic "Google Earth" cinematic fly-in to the user's street
 
       try {
