@@ -20,6 +20,7 @@ import {
   cinematicMaxPitchForViewport,
   cinematicOpenGlide,
   cinematicPitchForViewport,
+  fitMapToPins,
   zoomForRadiusKm,
   incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
@@ -127,6 +128,8 @@ export const PassportMapModal = memo(() => {
   const userMapInteractedRef = useRef(false);
   const suppressMapInteractionRef = useRef(false);
   const initialCenterDoneRef = useRef(false);
+  const pinsFitDoneRef = useRef(false);
+  const hubSearchLockedRef = useRef(true);
   // Camera memory — once the user has panned/zoomed/picked a pin, the persistent
   // Mapbox instance already holds their last view, so we stop auto-centering on reopen.
   const userEverMovedRef = useRef(false);
@@ -159,6 +162,7 @@ export const PassportMapModal = memo(() => {
   const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
   /** Until user picks GPS / long-press / search, show the Tulum listing cluster. */
   const [hubSearchLocked, setHubSearchLocked] = useState(true);
+  hubSearchLockedRef.current = hubSearchLocked;
   const mapHudRef = useRef<HTMLDivElement>(null);
 
   const shouldFetchMapData = isOpen || mapReady;
@@ -363,6 +367,7 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
+    hubSearchLockedRef.current = false;
     setHubSearchLocked(false);
     setSearchAnchor(null);
     clearPassportLocation();
@@ -372,6 +377,7 @@ export const PassportMapModal = memo(() => {
 
   const relocateSearchTo = useCallback((lng: number, lat: number) => {
     triggerHaptic('heavy');
+    hubSearchLockedRef.current = false;
     setHubSearchLocked(false);
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
@@ -432,11 +438,11 @@ export const PassportMapModal = memo(() => {
     target: { lat: number; lng: number },
     session: number,
     opts?: { duration?: number; fly?: boolean },
-  ) => {
-    if (session !== mapOpenSessionRef.current) return;
-    if (userMapInteractedRef.current || selectedRef.current) return;
+  ): boolean => {
+    if (session !== mapOpenSessionRef.current) return false;
+    if (userMapInteractedRef.current || selectedRef.current) return false;
     const map = mapRef.current;
-    if (!map || !mapReady) return;
+    if (!map || !mapReady || !map.isStyleLoaded()) return false;
 
     const center: [number, number] = [target.lng, target.lat];
     const zoom = zoomForRadiusKm(radiusKm);
@@ -450,19 +456,18 @@ export const PassportMapModal = memo(() => {
     window.setTimeout(releaseSuppress, (duration || FLY_DURATION_OPEN_MS) + 120);
 
     if (opts?.fly) {
-      // Gentle settle-down onto the target — calm regional view, then a soft,
-      // slow descent. Replays on every open (warm map keeps its last view).
       cinematicOpenGlide(map, center, zoom, { pitch, bearing: CINEMATIC_BEARING });
-      return;
+      return true;
     }
 
     if (duration <= 0) {
       map.jumpTo({ center, zoom, pitch, bearing: map.getBearing() });
       releaseSuppress();
-      return;
+      return true;
     }
 
     cinematicEaseTo(map, center, zoom, { duration, pitch });
+    return true;
   }, [mapReady, radiusKm]);
 
   const centerMapOnTargetRef = useRef(centerMapOnTarget);
@@ -470,20 +475,84 @@ export const PassportMapModal = memo(() => {
   const applyGpsFixRef = useRef(applyGpsFix);
   applyGpsFixRef.current = applyGpsFix;
 
+  const performOpenFlyIn = useCallback((session: number): boolean => {
+    if (!isOpen || session !== mapOpenSessionRef.current) return false;
+    if (userMapInteractedRef.current || selectedRef.current || initialCenterDoneRef.current) return false;
+
+    const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
+    if (pm && userLatitude != null && userLongitude != null) {
+      if (centerMapOnTargetRef.current({ lat: userLatitude, lng: userLongitude }, session, { fly: true, duration: FLY_DURATION_OPEN_MS })) {
+        initialCenterDoneRef.current = true;
+        return true;
+      }
+      return false;
+    }
+
+    if (hubSearchLockedRef.current) {
+      if (centerMapOnTargetRef.current(MAP_SEARCH_HUB, session, { fly: true, duration: FLY_DURATION_OPEN_MS })) {
+        initialCenterDoneRef.current = true;
+        return true;
+      }
+      return false;
+    }
+
+    if (!canGeolocate()) {
+      if (centerMapOnTargetRef.current(MAP_SEARCH_HUB, session, { fly: true, duration: FLY_DURATION_OPEN_MS })) {
+        initialCenterDoneRef.current = true;
+        return true;
+      }
+      return false;
+    }
+
+    const cached = getCachedGpsFix();
+    const storeFix = userLatitude != null && userLongitude != null
+      ? { lat: userLatitude, lng: userLongitude }
+      : null;
+    const initial = cached ?? storeFix ?? MAP_SEARCH_HUB;
+    if (centerMapOnTargetRef.current(initial, session, { fly: true, duration: FLY_DURATION_OPEN_MS })) {
+      initialCenterDoneRef.current = true;
+      return true;
+    }
+    return false;
+  }, [isOpen]);
+
+  const performOpenFlyInRef = useRef(performOpenFlyIn);
+  performOpenFlyInRef.current = performOpenFlyIn;
+
+  const scheduleOpenFlyIn = useCallback((session: number) => {
+    const attempt = () => performOpenFlyInRef.current(session);
+    if (attempt()) return;
+
+    const map = mapRef.current;
+    if (map && !map.isStyleLoaded()) {
+      map.once('load', () => { performOpenFlyInRef.current(session); });
+    }
+
+    requestAnimationFrame(() => { attempt(); });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { attempt(); });
+    });
+    window.setTimeout(() => { attempt(); }, 120);
+    window.setTimeout(() => { attempt(); }, 400);
+  }, []);
+
   // New open session — reset interaction flags once per open (not on GPS/radius churn).
   useEffect(() => {
     if (isOpen && !prevMapOpenRef.current) {
       mapOpenSessionRef.current += 1;
       userMapInteractedRef.current = false;
       initialCenterDoneRef.current = false;
+      pinsFitDoneRef.current = false;
+      hubSearchLockedRef.current = true;
       setHubSearchLocked(true);
       setSearchAnchor(null);
+      scheduleOpenFlyIn(mapOpenSessionRef.current);
     }
     if (!isOpen) {
       initialCenterDoneRef.current = false;
     }
     prevMapOpenRef.current = isOpen;
-  }, [isOpen]);
+  }, [isOpen, scheduleOpenFlyIn]);
 
   // Re-allow auto-center when switching passport explore ↔ GPS while map stays open.
   useEffect(() => {
@@ -493,63 +562,47 @@ export const PassportMapModal = memo(() => {
     prevPassportModeRef.current = passportMode;
   }, [isOpen, passportMode]);
 
-  // Auto-center exactly once per open — never re-run when GPS or radius updates.
+  // Retry cinematic fly-in when the map finishes warming or style loads after open.
   useEffect(() => {
     if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
+    scheduleOpenFlyIn(mapOpenSessionRef.current);
+  }, [isOpen, mapReady, passportMode, hubSearchLocked, scheduleOpenFlyIn]);
 
-    const session = mapOpenSessionRef.current;
+  // Refine camera to frame every pin once listing data arrives on open.
+  useEffect(() => {
+    if (!isOpen || !mapReady || pinsFitDoneRef.current || userMapInteractedRef.current || selectedRef.current) return;
+    const map = mapRef.current;
+    const mapboxgl = mapboxRef.current;
+    if (!map || !mapboxgl || !map.isStyleLoaded()) return;
+
+    const pins = [
+      ...visibleListings.map((l) => ({ lng: l.lng, lat: l.lat })),
+      ...visibleProfiles.map((p) => ({ lng: p.lng, lat: p.lat })),
+    ];
+    if (pins.length === 0) return;
+
+    const center = radiusCenterRef.current ?? MAP_SEARCH_HUB;
+    if (fitMapToPins(map, mapboxgl, center, pins, { duration: 1600, padding: 72 })) {
+      pinsFitDoneRef.current = true;
+      initialCenterDoneRef.current = true;
+    }
+  }, [isOpen, mapReady, visibleListings, visibleProfiles]);
+
+  // Warm GPS after hub fly-in when user unlocks location search.
+  useEffect(() => {
+    if (!isOpen || hubSearchLockedRef.current || !canGeolocate()) return undefined;
+
     let cancelled = false;
-
-    const runCenter = (target: { lat: number; lng: number }, duration = FLY_DURATION_OPEN_MS) => {
-      if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      centerMapOnTargetRef.current(target, session, { fly: true, duration });
-      initialCenterDoneRef.current = true;
-    };
-
-    const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
-    if (pm && userLatitude != null && userLongitude != null) {
-      if (userMapInteractedRef.current) return undefined;
-      centerMapOnTargetRef.current(
-        { lat: userLatitude, lng: userLongitude },
-        session,
-        { fly: true, duration: FLY_DURATION_OPEN_MS },
-      );
-      initialCenterDoneRef.current = true;
-      return () => { cancelled = true; };
-    }
-
-    // Default open: fly to the listing hub so pins are visible immediately.
-    if (hubSearchLocked) {
-      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
-      return () => { cancelled = true; };
-    }
-
-    if (!canGeolocate()) {
-      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
-      return () => { cancelled = true; };
-    }
-
     setGpsLoading(true);
-    const cached = getCachedGpsFix();
-    const storeFix = userLatitude != null && userLongitude != null
-      ? { lat: userLatitude, lng: userLongitude }
-      : null;
-    const initial = cached ?? storeFix;
-    if (initial) runCenter(initial, FLY_DURATION_OPEN_MS);
-
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || useFilterStore.getState().passportMode) return;
       applyGpsFixRef.current(fix);
-      // Never yank the camera once the user is browsing a pin or has taken control.
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      runCenter(fix, FLY_DURATION_OPEN_MS);
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode, hubSearchLocked]);
+  }, [isOpen, hubSearchLocked]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -593,8 +646,6 @@ export const PassportMapModal = memo(() => {
         : MAP_SEARCH_HUB);
       const initialLng = hub.lng;
       const initialLat = hub.lat;
-      // Calm regional altitude — never the whole globe. The open glide handles
-      // the cinematic descent from here down onto the user's location.
       const initialZoom = CINEMATIC_OPEN_ALTITUDE_ZOOM;
 
       try {
@@ -862,12 +913,20 @@ export const PassportMapModal = memo(() => {
     const canvas = map.getCanvas();
     if (isOpen) {
       canvas.style.visibility = 'visible';
+      const session = mapOpenSessionRef.current;
       resizeMap();
       requestAnimationFrame(() => {
         resizeMap();
-        requestAnimationFrame(resizeMap);
+        if (!initialCenterDoneRef.current) performOpenFlyInRef.current(session);
+        requestAnimationFrame(() => {
+          resizeMap();
+          if (!initialCenterDoneRef.current) performOpenFlyInRef.current(session);
+        });
       });
-      const t = window.setTimeout(resizeMap, 80);
+      const t = window.setTimeout(() => {
+        resizeMap();
+        if (!initialCenterDoneRef.current) performOpenFlyInRef.current(session);
+      }, 120);
       return () => window.clearTimeout(t);
     }
 

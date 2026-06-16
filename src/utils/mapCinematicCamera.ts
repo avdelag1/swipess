@@ -176,6 +176,34 @@ export function cinematicOpenGlide(
   });
 }
 
+type MapboxModule = typeof import('mapbox-gl').default;
+
+/** Frame every pin plus the search hub so all listings are visible on open. */
+export function fitMapToPins(
+  map: MapboxMap,
+  mapboxgl: MapboxModule,
+  center: { lng: number; lat: number },
+  pins: { lng: number; lat: number }[],
+  opts?: { padding?: number; maxZoom?: number; duration?: number },
+): boolean {
+  const valid = pins.filter((p) => Number.isFinite(p.lng) && Number.isFinite(p.lat));
+  if (valid.length === 0) return false;
+
+  const bounds = new mapboxgl.LngLatBounds();
+  bounds.extend([center.lng, center.lat]);
+  for (const pin of valid) bounds.extend([pin.lng, pin.lat]);
+
+  map.fitBounds(bounds, {
+    padding: opts?.padding ?? 80,
+    maxZoom: opts?.maxZoom ?? 14.5,
+    duration: opts?.duration ?? FLY_DURATION_OPEN_MS,
+    pitch: cinematicPitchForViewport(),
+    bearing: CINEMATIC_BEARING,
+    essential: true,
+  });
+  return true;
+}
+
 /** Zoom step per double-tap — one natural "notch" in, like Google/Apple Maps.
  *  (A large step felt like a teleport and made repeat double-taps unusable.) */
 export const DOUBLE_TAP_ZOOM_STEP = 2.0;
