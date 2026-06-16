@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,6 +67,7 @@ export function SeekerAdSection() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
+  const descRef = useAutoResizeTextarea(form.description);
 
   const activeCat = WORKER_CATEGORIES.find(c => c.id === form.categoryId);
 
@@ -313,6 +315,7 @@ export function SeekerAdSection() {
                   <div>
                     <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-2 block">Tell us more</Label>
                     <textarea
+                      ref={descRef}
                       value={form.description}
                       onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                       placeholder="Describe exactly what you need, any specific requirements..."

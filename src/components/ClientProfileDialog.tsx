@@ -1,6 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +52,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<string>('');
   const [bio, setBio] = useState<string>('');
+  const bioRef = useAutoResizeTextarea(bio);
   const [interests, setInterests] = useState<string[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [profileImages, setProfileImages] = useState<string[]>([]);
@@ -365,6 +367,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                    <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>About You — shown on your card</Label>
                    <textarea
+                     ref={bioRef}
                      value={bio}
                      onChange={(e) => setBio(e.target.value)}
                      maxLength={500}
