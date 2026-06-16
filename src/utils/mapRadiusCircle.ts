@@ -91,16 +91,15 @@ export function syncRadiusCircleOnMap(
       },
     });
 
-    // Outer bloom ring
+    // Outer bloom ring (no slot — outdoors-v12 rejects Mapbox Standard-only slots)
     map.addLayer({
       id: GLOW_OUTER_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': RADIUS_CYAN,
         'line-width': 10,
-        'line-opacity': 0.18,
+        'line-opacity': 0.22,
         'line-blur': 10,
       },
     });
@@ -110,11 +109,10 @@ export function syncRadiusCircleOnMap(
       id: GLOW_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': RADIUS_CYAN,
         'line-width': 4,
-        'line-opacity': 0.42,
+        'line-opacity': 0.5,
         'line-blur': 3,
       },
     });
@@ -124,11 +122,10 @@ export function syncRadiusCircleOnMap(
       id: LINE_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': '#E0F7FF',
         'line-width': 1.75,
-        'line-opacity': 0.72,
+        'line-opacity': 0.82,
       },
     });
   } else {
@@ -142,7 +139,6 @@ export function syncRadiusCircleOnMap(
         id: CENTER_ID,
         type: 'circle',
         source: CENTER_ID,
-        slot: 'top',
         paint: {
           'circle-radius': 7,
           'circle-color': '#EF4444', // Red center dot per Dribbble design

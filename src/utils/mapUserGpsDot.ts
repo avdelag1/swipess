@@ -31,7 +31,6 @@ export function syncUserGpsDotOnMap(
       id: GPS_PULSE_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
-      slot: 'top',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 24],
         'circle-color': '#10B981',
@@ -44,7 +43,6 @@ export function syncUserGpsDotOnMap(
       id: GPS_RING_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
-      slot: 'top',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 8, 14, 12, 16, 16],
         'circle-color': '#10B981',
@@ -59,7 +57,6 @@ export function syncUserGpsDotOnMap(
       id: GPS_DOT_ID,
       type: 'circle',
       source: GPS_SOURCE_ID,
-      slot: 'top',
       paint: {
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 6, 16, 8],
         'circle-color': '#10B981',
