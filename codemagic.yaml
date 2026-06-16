@@ -9,6 +9,10 @@
 #      and name the integration EXACTLY:  AppStoreConnect
 #   3. In App Store Connect, register bundle id  com.swipess.mobile  and
 #      create the app record before the first signed build.
+#   4. Team settings -> Environment variables -> group "swipess_env":
+#        VITE_MAPBOX_ACCESS_TOKEN  (required — map bakes token at vite build)
+#        VITE_SUPABASE_URL         (optional)
+#        VITE_SUPABASE_PUBLISHABLE_KEY (optional)
 
 workflows:
   ios-testflight:
@@ -24,6 +28,8 @@ workflows:
           include: true
           source: true
     environment:
+      groups:
+        - swipess_env
       ios_signing:
         provisioning_profiles:
           - profile
@@ -44,6 +50,14 @@ workflows:
           echo "Branch: ${CM_BRANCH:-unknown}"
           echo "Commit: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
           echo "App version (package.json): $(node -p "require('./package.json').version")"
+      - name: Verify Mapbox token for iOS web build
+        script: |
+          if [ -z "$VITE_MAPBOX_ACCESS_TOKEN" ]; then
+            echo "ERROR: VITE_MAPBOX_ACCESS_TOKEN is missing."
+            echo "Add it to Codemagic env group 'swipess_env' (Team settings -> Environment variables)."
+            exit 1
+          fi
+          echo "Mapbox token present (${#VITE_MAPBOX_ACCESS_TOKEN} chars)"
       - name: Build web + sync Capacitor iOS (+ Info.plist patch + version sync)
         script: npm run ios:sync
       - name: Confirm Xcode marketing version

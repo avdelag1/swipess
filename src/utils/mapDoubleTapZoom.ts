@@ -52,6 +52,8 @@ export function bindMapDoubleTapZoom(
   opts: {
     isActive: () => boolean;
     lastZoomAtRef: { current: number };
+    /** Updated on every canvas pointerup — used to ignore stray map clicks during double-tap. */
+    lastPointerUpAtRef?: { current: number };
     onZoom?: () => void;
   },
 ): () => void {
@@ -79,6 +81,7 @@ export function bindMapDoubleTapZoom(
   const onPointerUp = (e: PointerEvent) => {
     if (!opts.isActive()) return;
     const now = Date.now();
+    if (opts.lastPointerUpAtRef) opts.lastPointerUpAtRef.current = now;
     const x = e.clientX;
     const y = e.clientY;
 

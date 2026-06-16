@@ -40,6 +40,7 @@ import {
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
+  MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { useAuth } from '@/hooks/useAuth';
@@ -134,6 +135,7 @@ export const PassportMapModal = memo(() => {
   const unbindInteractionRef = useRef<(() => void) | null>(null);
   const openedOnceRef = useRef(false);
   const lastDoubleTapZoomAtRef = useRef(0);
+  const lastMapPointerUpAtRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
   const deviceGpsRef = useRef<{ lat: number; lng: number } | null>(null);
   const lastGpsStateAtRef = useRef(0);
@@ -664,20 +666,11 @@ export const PassportMapModal = memo(() => {
             resizeMap();
             const fix = deviceGpsRef.current ?? getCachedGpsFix();
             const mapOpen = useModalStore.getState().showPassportMapModal;
-            const { passportMode: pm, radiusKm: rKm } = useFilterStore.getState();
+            const { passportMode: pm } = useFilterStore.getState();
             if (fix && mapOpen && !pm) {
               try {
                 syncUserGpsDotOnMap(map, fix.lng, fix.lat);
-                suppressMapInteractionRef.current = true;
-                map.jumpTo({
-                  center: [fix.lng, fix.lat],
-                  zoom: zoomForRadiusKm(rKm),
-                  pitch: cinematicPitchForViewport(),
-                  bearing: CINEMATIC_BEARING,
-                });
-                suppressMapInteractionRef.current = false;
               } catch {
-                suppressMapInteractionRef.current = false;
                 // Style layers can race on slow devices
               }
             }
@@ -701,6 +694,7 @@ export const PassportMapModal = memo(() => {
         unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
           isActive: () => useModalStore.getState().showPassportMapModal,
           lastZoomAtRef: lastDoubleTapZoomAtRef,
+          lastPointerUpAtRef: lastMapPointerUpAtRef,
           onZoom: () => {
             markUserMapControlRef.current();
             triggerHaptic('light');
@@ -717,7 +711,7 @@ export const PassportMapModal = memo(() => {
         unbindInteractionRef.current = bindMapInteractionTracking(
           map,
           () => markUserMapControlRef.current(),
-          (ev) => suppressMapInteractionRef.current && !ev.originalEvent,
+          (ev) => !ev.originalEvent,
         );
 
         map.scrollZoom.enable();
@@ -727,8 +721,11 @@ export const PassportMapModal = memo(() => {
 
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          // Ignore clicks while a double-tap sequence may still be in progress.
+          if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
-          if (Date.now() - lastDoubleTapZoomAtRef.current < 500) return;
+          if (now - lastDoubleTapZoomAtRef.current < 500) return;
           clearPinPreview();
         });
 
