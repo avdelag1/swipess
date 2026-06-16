@@ -565,33 +565,6 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen, mapReady]);
 
-  // Cinematic open — fires exactly once per open. Always lands on the listing hub
-  // (Tulum) so pins are visible immediately; passport-explore mode lands on its target.
-  // GPS centering is intentionally NOT done here — user taps the GPS button for that.
-  useEffect(() => {
-    if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
-    if (selectedRef.current || userMapInteractedRef.current) return;
-
-    const map = mapRef.current;
-    if (!map) return;
-
-    const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
-    const target = (pm && userLatitude != null && userLongitude != null)
-      ? { lat: userLatitude, lng: userLongitude }
-      : MAP_SEARCH_HUB;
-
-    const zoom = zoomForRadiusKm(radiusKmRef.current);
-    const pitch = cinematicPitchForViewport();
-
-    suppressMapInteractionRef.current = true;
-    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
-    map.once('moveend', releaseSuppress);
-    window.setTimeout(releaseSuppress, FLY_DURATION_OPEN_MS + 120);
-
-    cinematicOpenGlide(map, [target.lng, target.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
-    initialCenterDoneRef.current = true;
-  }, [isOpen, mapReady, passportMode]);
-
   useEffect(() => {
     if (!shouldWarmMap) return;
     let cancelled = false;
@@ -987,9 +960,12 @@ export const PassportMapModal = memo(() => {
         },
         () => useModalStore.getState().showPassportMapModal,
       );
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.25s ease-out';
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([l.lng, l.lat])
         .addTo(map);
+      requestAnimationFrame(() => { el.style.opacity = '1'; });
       registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
     };
 
@@ -1018,9 +994,12 @@ export const PassportMapModal = memo(() => {
         },
         () => useModalStore.getState().showPassportMapModal,
       );
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.25s ease-out';
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([p.lng, p.lat])
         .addTo(map);
+      requestAnimationFrame(() => { el.style.opacity = '1'; });
       registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
     };
 
