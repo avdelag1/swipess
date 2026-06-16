@@ -92,16 +92,15 @@ export function cinematicFlyTo(
   map: MapboxMap,
   center: [number, number],
   zoom: number,
-  opts?: { duration?: number; bearing?: number; pitch?: number; speed?: number; curve?: number },
+  opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number },
 ): void {
   map.flyTo({
     center,
     zoom,
     pitch: opts?.pitch ?? CINEMATIC_PITCH,
     bearing: opts?.bearing ?? CINEMATIC_BEARING,
-    duration: opts?.duration ?? FLY_DURATION_MS,
-    speed: opts?.speed ?? FLY_SPEED,
-    curve: opts?.curve ?? FLY_CURVE,
+    speed: opts?.speed ?? 1.2,
+    curve: opts?.curve ?? 1.68,
     essential: true,
   });
 }

@@ -442,7 +442,6 @@ export const PassportMapModal = memo(() => {
 
     if (opts?.fly) {
       cinematicFlyTo(map, center, zoom, {
-        duration: duration || FLY_DURATION_OPEN_MS,
         pitch,
       });
       return;
