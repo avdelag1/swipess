@@ -43,7 +43,6 @@ import {
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
-import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -76,7 +75,6 @@ import {
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const PIN_PREVIEW_CARD = { width: 280, height: 260 };
 type PinPreviewMode = 'anchored' | 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
@@ -283,37 +281,7 @@ export const PassportMapModal = memo(() => {
     userEverMovedRef.current = true;
     setSelected(pin);
     setPreviewMode('sheet');
-    setPreviewPlacement(computeMapPinPreviewPlacement(
-      point.x,
-      point.y,
-      { width: hudRect.width, height: hudRect.height },
-      PIN_PREVIEW_CARD,
-    ));
-  }, [selected, previewMode]);
-
-  useEffect(() => {
-    if (!selected || previewMode !== 'anchored' || !mapReady || !mapRef.current) {
-      setPreviewPlacement(null);
-      return;
-    }
-
-    const map = mapRef.current;
-    const sync = () => updatePreviewPlacement();
-    sync();
-    map.on('move', sync);
-    map.on('zoom', sync);
-    map.on('resize', sync);
-    map.on('pitch', sync);
-    map.on('rotate', sync);
-
-    return () => {
-      map.off('move', sync);
-      map.off('zoom', sync);
-      map.off('resize', sync);
-      map.off('pitch', sync);
-      map.off('rotate', sync);
-    };
-  }, [selected, previewMode, mapReady, updatePreviewPlacement]);
+  }, []);
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
     triggerHaptic('medium');
