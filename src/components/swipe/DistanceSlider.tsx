@@ -106,7 +106,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
                activeCategory === 'buyers' ? 'Buyers' :
                activeCategory === 'renters' ? 'Renters' :
                activeCategory === 'hire' ? 'Workers' :
-               activeCategory ? activeCategory.replace(/-/g, ' ') : 'Clients'}
+               activeCategory ? activeCategory.replace(/-/g, ' ') : 'Properties'}
             </span>
           </div>
         </div>

@@ -64,12 +64,12 @@ export const PassportMapPinPreview = memo(({
       className={cn(
         'overflow-hidden z-30 shadow-[0_16px_40px_rgba(0,0,0,0.45)]',
         isAnchored
-          ? 'w-[min(280px,calc(100vw-32px))] rounded-2xl'
+          ? 'w-[min(320px,calc(100vw-32px))] rounded-2xl'
           : 'w-full max-w-md shrink-0 mx-3 mb-[calc(env(safe-area-inset-bottom,0px)+12px)] rounded-[1.75rem] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]',
         isLight ? 'bg-white border border-black/8' : 'bg-[#111] border border-white/10',
       )}
     >
-      <div className={cn('relative w-full bg-slate-900', isAnchored ? 'h-24' : 'h-36')}>
+      <div className={cn('relative w-full bg-slate-900', isAnchored ? 'h-32' : 'h-36')}>
         {data.imageUrl ? (
           <img src={data.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
@@ -86,13 +86,13 @@ export const PassportMapPinPreview = memo(({
           type="button"
           data-no-cinematic
           onClick={onClose}
-          className="map-hud-btn absolute top-2 right-2 glass-pill bg-black/40 backdrop-blur-md p-1.5 z-10"
+          className="map-hud-btn absolute top-2 right-2 glass-pill bg-black/60 hover:bg-black/80 backdrop-blur-md p-1.5 z-20 shadow-lg"
           aria-label="Close preview"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-3.5 h-3.5 text-white" />
         </button>
 
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-3rem)]">
+        <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-3.5rem)] z-10">
           <span
             className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white"
             style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
