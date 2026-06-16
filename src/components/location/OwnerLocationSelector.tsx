@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, MapPin, Search } from 'lucide-react';
+import { AlertCircle, MapPin, Move, Search } from 'lucide-react';
 import {
   getCitiesInCountry,
   getCityByName,
@@ -13,6 +13,10 @@ import {
   searchCities,
 } from '@/data/worldLocations';
 import type { CityLocation } from '@/data/worldLocations';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { getMapboxAccessToken, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface OwnerLocationSelectorProps {
   region?: string;
@@ -165,6 +169,88 @@ export function OwnerLocationSelector({
     onNeighborhoodChange(newNeighborhood);
     setNeighborhoodSearch('');
   };
+
+  // ---------------------------------------------------------------------------
+  // Interactive map — lets the owner drag the pin or tap to set the EXACT spot.
+  // Until now the pin was silently inferred from the selected city's center with
+  // no way to move it; this gives a real, touchable control.
+  // ---------------------------------------------------------------------------
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  // Tracks the last coordinate WE pushed, so prop-sync doesn't fight a drag/tap.
+  const lastSyncedRef = useRef<{ lat: number; lng: number } | null>(null);
+  const [mapToken, setMapToken] = useState<string>(() => getMapboxAccessToken());
+
+  const hasCoords = latitude != null && longitude != null;
+
+  // Resolve the token at runtime if it wasn't baked into the bundle.
+  useEffect(() => {
+    if (mapToken) return;
+    let active = true;
+    resolveMapboxAccessToken().then((t) => {
+      if (active && t) setMapToken(t);
+    });
+    return () => { active = false; };
+  }, [mapToken]);
+
+  // Initialise the map once we have both a token and a coordinate to center on.
+  useEffect(() => {
+    if (!mapToken || !hasCoords || !mapContainerRef.current || mapRef.current) return;
+
+    mapboxgl.accessToken = mapToken;
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [longitude as number, latitude as number],
+      zoom: 13,
+      attributionControl: false,
+    });
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+    mapRef.current = map;
+
+    const marker = new mapboxgl.Marker({ draggable: true, color: '#10b981' })
+      .setLngLat([longitude as number, latitude as number])
+      .addTo(map);
+    markerRef.current = marker;
+    lastSyncedRef.current = { lat: latitude as number, lng: longitude as number };
+
+    const commit = (lat: number, lng: number) => {
+      lastSyncedRef.current = { lat, lng };
+      triggerHaptic('light');
+      onCoordinatesChange?.(lat, lng);
+    };
+
+    marker.on('dragend', () => {
+      const ll = marker.getLngLat();
+      commit(ll.lat, ll.lng);
+    });
+
+    map.on('click', (e: any) => {
+      const { lng, lat } = e.lngLat;
+      marker.setLngLat([lng, lat]);
+      commit(lat, lng);
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapToken, hasCoords]);
+
+  // Keep the pin in sync when coords change from elsewhere (e.g. city selected).
+  useEffect(() => {
+    if (!mapRef.current || !markerRef.current || !hasCoords) return;
+    const last = lastSyncedRef.current;
+    if (last && Math.abs(last.lat - (latitude as number)) < 1e-6 && Math.abs(last.lng - (longitude as number)) < 1e-6) {
+      return; // This change came from our own drag/tap — don't fight it.
+    }
+    markerRef.current.setLngLat([longitude as number, latitude as number]);
+    mapRef.current.flyTo({ center: [longitude as number, latitude as number], zoom: 13, duration: 600 });
+    lastSyncedRef.current = { lat: latitude as number, lng: longitude as number };
+  }, [latitude, longitude, hasCoords]);
 
   return (
     <Card className="bg-card border-border">
@@ -460,6 +546,48 @@ export function OwnerLocationSelector({
             )}
           </div>
         )}
+
+        {/* Interactive map — drag / tap to set the exact spot */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-foreground text-sm flex items-center gap-1.5">
+              <Move className="w-3.5 h-3.5 text-primary" />
+              Fine-tune your pin
+            </Label>
+            {hasCoords && (
+              <span className="text-[10px] text-muted-foreground">Drag the pin or tap the map</span>
+            )}
+          </div>
+
+          {hasCoords && mapToken ? (
+            <div className="relative">
+              <div
+                ref={mapContainerRef}
+                className="w-full h-56 rounded-xl border border-border overflow-hidden bg-muted"
+              />
+              <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex items-center gap-1.5 bg-background/85 backdrop-blur-md rounded-lg px-2.5 py-1.5 border border-border">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                <span className="text-[11px] text-foreground font-medium">
+                  Drag the green pin or tap anywhere to set your exact location
+                </span>
+              </div>
+            </div>
+          ) : hasCoords && !mapToken ? (
+            <div className="w-full h-32 rounded-xl border border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1.5 text-center px-4">
+              <MapPin className="w-5 h-5 text-emerald-400" />
+              <p className="text-xs text-muted-foreground">
+                Pin set from your city. Interactive map is unavailable right now.
+              </p>
+            </div>
+          ) : (
+            <div className="w-full h-32 rounded-xl border border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1.5 text-center px-4">
+              <MapPin className="w-5 h-5 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">
+                Pick a city above to drop a pin, then drag it to your exact spot.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Privacy Note - Compact */}
         <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
