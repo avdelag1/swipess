@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Copy, Gift } from 'lucide-react';
+import { Check, Copy, Gift, Users } from 'lucide-react';
+import { useModalStore } from '@/state/modalStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { appToast } from '@/utils/appNotification';
 import {
@@ -175,6 +176,14 @@ export function SharedProfileSection({
               </p>
             </div>
           </div>
+
+          <Button
+            onClick={() => useModalStore.getState().openInviteFriends()}
+            className="w-full h-12 rounded-[1.5rem] mb-4 bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider text-[11px] shadow-[0_12px_30px_-8px_rgba(235,72,152,0.55)] active:scale-[0.98] transition-transform"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Invite Friends from Contacts
+          </Button>
 
           {/* Copy Link */}
           <div className="flex gap-3 mb-6">

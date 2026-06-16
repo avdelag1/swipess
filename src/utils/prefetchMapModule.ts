@@ -29,3 +29,7 @@ export function prefetchPassportMapImmediate(): void {
   warmMapboxModules().catch(() => {});
   void resolveMapboxAccessToken();
 }
+
+export function isPassportMapPrefetched(): boolean {
+  return started;
+}

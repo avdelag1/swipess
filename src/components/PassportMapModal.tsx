@@ -17,7 +17,6 @@ import {
   CINEMATIC_BEARING,
   CINEMATIC_PITCH,
   cinematicEaseTo,
-  cinematicFlyTo,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -35,6 +34,8 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import { bindMapDoubleTapZoom, bindMarkerGestures } from '@/utils/mapDoubleTapZoom';
+import { persistClientProfileGps } from '@/utils/persistProfileGps';
+import { useAuth } from '@/hooks/useAuth';
 import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
@@ -70,6 +71,7 @@ const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
   const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
@@ -662,7 +664,10 @@ export const PassportMapModal = memo(() => {
       if (now - lastGpsStateAtRef.current > 2500) {
         lastGpsStateAtRef.current = now;
         setDeviceGps(fix);
-        if (!passportMode) setUserLocation(latitude, longitude);
+        if (!passportMode) {
+          setUserLocation(latitude, longitude);
+          if (user?.id) void persistClientProfileGps(user.id, latitude, longitude);
+        }
       }
     };
 
@@ -687,7 +692,7 @@ export const PassportMapModal = memo(() => {
       if (webWatchId != null) navigator.geolocation.clearWatch(webWatchId);
       if (nativeWatchId != null) void Geolocation.clearWatch({ id: nativeWatchId });
     };
-  }, [isOpen, passportMode, setUserLocation, applyDeviceGpsToMap]);
+  }, [isOpen, passportMode, setUserLocation, applyDeviceGpsToMap, user?.id]);
 
   // Live radius circle around you (or passport explore target)
   useEffect(() => {

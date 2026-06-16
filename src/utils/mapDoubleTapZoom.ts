@@ -137,9 +137,17 @@ export function bindMarkerGestures(
 ): () => void {
   let lastTap: MapTapPoint | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let singleTapTimer: ReturnType<typeof setTimeout> | null = null;
   let isLongPress = false;
   let startX = 0;
   let startY = 0;
+
+  const clearSingleTap = () => {
+    if (singleTapTimer) {
+      clearTimeout(singleTapTimer);
+      singleTapTimer = null;
+    }
+  };
 
   const start = (e: PointerEvent) => {
     if (!isActive()) return;
@@ -170,9 +178,8 @@ export function bindMarkerGestures(
     const map = mapRef.current;
 
     if (!isLongPress) {
-      onTap();
-
       if (map && isMapDoubleTap(lastTap, now, x, y)) {
+        clearSingleTap();
         e.preventDefault();
         if (tryMapDoubleTapZoom(map, getCenter(), lastZoomAtRef)) {
           lastTap = null;
@@ -181,7 +188,13 @@ export function bindMarkerGestures(
         }
       }
 
+      clearSingleTap();
       lastTap = { time: now, x, y };
+      singleTapTimer = setTimeout(() => {
+        singleTapTimer = null;
+        lastTap = null;
+        onTap();
+      }, MAP_DOUBLE_TAP_WINDOW_MS);
     }
   };
 
@@ -190,6 +203,7 @@ export function bindMarkerGestures(
   el.addEventListener('pointerup', onPointerUp);
   return () => {
     if (timer) clearTimeout(timer);
+    clearSingleTap();
     el.removeEventListener('pointerdown', start);
     el.removeEventListener('pointermove', move);
     el.removeEventListener('pointerup', onPointerUp);

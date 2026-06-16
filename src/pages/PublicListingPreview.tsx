@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { useQuery } from '@tanstack/react-query';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,9 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 const DirectMessageDialog = lazyWithRetry(() => import('@/components/DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import {
-  Anchor, Bath, Bed, Bike, ChevronLeft,
-  Home, LogIn, MapPin,
-  MessageCircle, Share2, Square, UserPlus,
+  Anchor, ArrowRight, Bath, Bed, Bike, ChevronLeft,
+  Home, LogIn, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, Square, UserPlus,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -28,6 +27,11 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 
+function formatPrice(price?: number | null): string {
+  if (price == null || Number.isNaN(price)) return '—';
+  return `$${price.toLocaleString()}`;
+}
+
 export default function PublicListingPreview() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -38,13 +42,13 @@ export default function PublicListingPreview() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
-  
+
   const startConversation = useStartConversation();
   const { canStartNewConversation } = useMessagingQuota();
+  const refCode = searchParams.get('ref');
+  const isGuest = !user;
 
-  // Capture referral code
   useEffect(() => {
-    const refCode = searchParams.get('ref');
     if (refCode && refCode.length > 0) {
       if (user?.id && user.id === refCode) return;
       localStorage.setItem(STORAGE.REFERRAL_CODE_KEY, JSON.stringify({
@@ -53,7 +57,7 @@ export default function PublicListingPreview() {
         source: `/listing/${id}`,
       }));
     }
-  }, [searchParams, id, user?.id]);
+  }, [refCode, id, user?.id]);
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ['public-listing', id],
@@ -65,6 +69,16 @@ export default function PublicListingPreview() {
     },
     enabled: !!id,
   });
+
+  const category = listing?.category || 'property';
+  const mode = (listing as { listing_type?: string } | undefined)?.listing_type || 'rent';
+  const images = useMemo(
+    () => (Array.isArray(listing?.images) ? listing.images : []) as string[],
+    [listing?.images],
+  );
+  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-Swipes.png`;
+  const locationLabel = [listing?.neighborhood, listing?.city].filter(Boolean).join(', ') || 'Location on request';
+  const description = typeof listing?.description === 'string' ? listing.description.trim() : '';
 
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
@@ -84,57 +98,23 @@ export default function PublicListingPreview() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <AtmosphericLayer variant="Swipes" opacity={0.12} />
-        <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/15 border-t-[#EB4898] animate-spin relative z-10" />
-      </div>
-    );
-  }
-
-  if (error || !listing) {
-    return (
-      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
-        <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
-          <Home className="w-10 h-10 text-white/20" />
-        </div>
-        <h1 className="text-2xl font-bold text-white mb-3 relative z-10">Listing Not Found</h1>
-        <p className="text-white/50 text-sm max-w-xs mb-8 relative z-10">
-          This listing is no longer available.
-        </p>
-        <Button
-          onClick={() => { triggerHaptic('medium'); navigate('/'); }}
-          className="h-14 px-10 rounded-2xl bg-white text-black font-bold relative z-10"
-        >
-          Go to Swipess
-        </Button>
-      </div>
-    );
-  }
-
-  const category = listing.category || 'property';
-  const mode = (listing as any).listing_type || 'rent';
-  const images = (Array.isArray(listing.images) ? listing.images : []) as string[];
-  const heroImage = images[0] || `${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/og-image-Swipes.png`;
-
   const handleCreateAccount = () => {
     triggerHaptic('success');
     navigate(`/?returnTo=/listing/${id}&intent=signup`);
   };
+
   const handleSignIn = () => {
     triggerHaptic('medium');
     navigate(`/?returnTo=/listing/${id}&intent=signin`);
   };
-  
+
   const handleSendMessage = async (text: string) => {
     if (!listing?.owner_id || isCreatingConversation) return;
     if (!guardNewConversation(canStartNewConversation)) return;
-    
+
     setIsCreatingConversation(true);
     triggerHaptic('medium');
-    
+
     try {
       const result = await startConversation.mutateAsync({
         otherUserId: listing.owner_id,
@@ -142,12 +122,10 @@ export default function PublicListingPreview() {
         initialMessage: text,
         canStartNewConversation,
       });
-      
+
       setShowDirectMessageDialog(false);
       setIsConnecting(true);
-      
-      // Premium cinematic delay
-      
+
       if (result?.conversationId) {
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
@@ -161,26 +139,60 @@ export default function PublicListingPreview() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center gap-6">
+        <AtmosphericLayer variant="Swipes" opacity={0.1} />
+        <SwipessLogo size="md" variant="transparent" className="opacity-60 relative z-10" />
+        <div className="w-12 h-12 rounded-full border-[3px] border-[#EB4898]/20 border-t-[#EB4898] animate-spin relative z-10" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-white/35 relative z-10">Loading listing</p>
+      </div>
+    );
+  }
+
+  if (error || !listing) {
+    return (
+      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+        <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
+          <Home className="w-10 h-10 text-white/20" />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-3 relative z-10">Listing Not Found</h1>
+        <p className="text-white/50 text-sm max-w-xs mb-8 relative z-10">
+          This listing is no longer available or the link may have expired.
+        </p>
+        <Button
+          onClick={() => { triggerHaptic('medium'); navigate('/'); }}
+          className="h-14 px-10 rounded-2xl bg-white text-black font-bold relative z-10"
+        >
+          Explore Swipess
+        </Button>
+      </div>
+    );
+  }
+
+  const seoDescription = `${listing.beds || 0} beds · ${listing.baths || 0} baths · ${listing.city || 'Swipess'} — ${formatPrice(listing.price)}`;
+
   return (
-    <div className="fixed inset-0 w-full bg-black text-white flex flex-col overflow-hidden">
+    <div className="fixed inset-0 w-full bg-[#07070d] text-white flex flex-col overflow-hidden">
       <SEO
         title={listing.title || 'Swipess Listing'}
-        description={`${listing.beds || 0} Beds Â· ${listing.baths || 0} Baths Â· ${listing.city || 'Tulum'} â€” $${listing.price?.toLocaleString() || 'â€”'}`}
+        description={seoDescription}
         image={heroImage}
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/listing/${id}`}
         type="website"
       />
 
-      <AtmosphericLayer variant="Swipes" opacity={0.08} />
+      <AtmosphericLayer variant="Swipes" opacity={0.07} />
 
-      {/* Top minimal nav (in-flow, never overlaps card) */}
+      {/* Top nav */}
       <div
-        className="relative z-50 flex items-center justify-between px-5 pb-3 shrink-0"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+        className="relative z-50 flex items-center justify-between px-4 pb-2 shrink-0"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)' }}
       >
         <button
           onClick={() => { triggerHaptic('light'); if (window.history.length > 1) navigate(-1); else navigate('/'); }}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+          className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
           aria-label="Back"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -188,23 +200,47 @@ export default function PublicListingPreview() {
         <SwipessLogo size="sm" variant="transparent" className="opacity-90" />
         <button
           onClick={() => { triggerHaptic('light'); setShowShareDialog(true); }}
-          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
+          className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 transition-transform"
           aria-label="Share"
         >
-          <Share2 className="w-4.5 h-4.5" />
+          <Share2 className="w-4 h-4" />
         </button>
       </div>
 
-      <div
-        className="flex-1 min-h-0 px-4 flex flex-col gap-3 max-w-md mx-auto w-full"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
-      >
-        {/* Hero swipe card */}
+      {/* Guest welcome strip */}
+      {isGuest && (
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 min-h-0"
+          className="relative z-40 mx-4 mb-2 shrink-0"
+        >
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#EB4898]/15 via-black/40 to-[#FF4D00]/15 backdrop-blur-xl px-4 py-3 flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#EB4898]/20 flex items-center justify-center shrink-0 mt-0.5">
+              <Sparkles className="w-4 h-4 text-[#EB4898]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-black uppercase tracking-wider text-white">
+                {refCode ? 'A friend shared this with you' : 'Shared listing preview'}
+              </p>
+              <p className="text-[10px] text-white/55 mt-0.5 leading-relaxed">
+                Create a free account to message the owner, save listings, and swipe more deals near you.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      <div
+        className="flex-1 min-h-0 flex flex-col gap-3 max-w-md mx-auto w-full px-4 overflow-y-auto no-scrollbar"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
+      >
+        {/* Hero card */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="shrink-0"
+          style={{ minHeight: 'min(52vh, 420px)' }}
         >
           <PreviewSwipeCard
             fill
@@ -212,7 +248,7 @@ export default function PublicListingPreview() {
             fallback={<SwipessLogo size="lg" variant="transparent" className="opacity-30" />}
             badges={
               <>
-                <Badge className="bg-black/50 backdrop-blur-xl text-white border border-white/15 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">
+                <Badge className="bg-black/55 backdrop-blur-xl text-white border border-white/15 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">
                   {getCategoryIcon(category)}
                   <span className="ml-1.5">{getCategoryLabel(category)}</span>
                 </Badge>
@@ -220,41 +256,43 @@ export default function PublicListingPreview() {
                   'backdrop-blur-xl border text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full',
                   mode === 'sale'
                     ? 'bg-[#FF4D00]/20 text-[#FF4D00] border-[#FF4D00]/30'
-                    : 'bg-[#EB4898]/20 text-[#EB4898] border-[#EB4898]/30'
+                    : 'bg-[#EB4898]/20 text-[#EB4898] border-[#EB4898]/30',
                 )}>
                   {mode === 'sale' ? 'For Sale' : 'For Rent'}
                 </Badge>
               </>
             }
             overlay={
-              <div className="space-y-3">
-                <h1 className="text-2xl font-black uppercase tracking-tight leading-[1.05] text-white drop-shadow-lg line-clamp-2 break-words">
+              <div className="space-y-2.5">
+                <h1 className="text-[1.65rem] font-black uppercase tracking-tight leading-[1.05] text-white drop-shadow-lg line-clamp-2 break-words">
                   {listing.title || 'Swipess Listing'}
                 </h1>
-                <div className="flex items-center gap-2 text-white/80">
-                  <MapPin className="w-4 h-4 text-[#FF4D00] flex-shrink-0" />
-                  <span className="text-xs font-bold uppercase tracking-wider truncate">
-                    {[listing.neighborhood, listing.city].filter(Boolean).join(', ') || 'Location'}
-                  </span>
+                <div className="flex items-center gap-2 text-white/85">
+                  <MapPin className="w-4 h-4 text-[#FF4D00] shrink-0" />
+                  <span className="text-[11px] font-bold uppercase tracking-wider truncate">{locationLabel}</span>
                 </div>
-                <div className="flex items-end justify-between pt-1">
+                <div className="flex items-end justify-between pt-1 gap-3">
                   <div>
-                    <div className="text-2xl font-black tracking-tight text-white leading-none">
-                      ${listing.price?.toLocaleString() || 'â€”'}
+                    <div className="text-[1.75rem] font-black tracking-tight text-white leading-none">
+                      {formatPrice(listing.price)}
                     </div>
-                    <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/50 mt-1.5">
-                      {mode === 'rent' ? 'Per Cycle' : 'Total'}
+                    <div className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/50 mt-1">
+                      {mode === 'rent' ? 'Per cycle' : 'Total price'}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     {[
                       { icon: Bed, value: listing.beds, label: 'Beds' },
                       { icon: Bath, value: listing.baths, label: 'Baths' },
                       { icon: Square, value: listing.square_footage, label: 'Sq Ft' },
                     ].map((s, i) => (
-                      <div key={i} className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 flex flex-col items-center justify-center">
-                        <s.icon className="w-3.5 h-3.5 text-white/70 mb-0.5" />
-                        <span className="text-xs font-black tabular-nums leading-none text-white">{s.value || 'â€”'}</span>
+                      <div
+                        key={i}
+                        title={s.label}
+                        className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 flex flex-col items-center justify-center"
+                      >
+                        <s.icon className="w-3 h-3 text-white/70 mb-0.5" />
+                        <span className="text-[10px] font-black tabular-nums leading-none text-white">{s.value ?? '—'}</span>
                       </div>
                     ))}
                   </div>
@@ -264,72 +302,114 @@ export default function PublicListingPreview() {
           />
         </motion.div>
 
-        {/* CTAs */}
+        {/* Details panel */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-2 shrink-0"
+          transition={{ duration: 0.4, delay: 0.08 }}
+          className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 space-y-3 shrink-0"
         >
-          {user ? (
-            <Button
-              onClick={() => {
-                triggerHaptic('success');
-                if (!guardNewConversation(canStartNewConversation)) return;
-                setShowDirectMessageDialog(true);
-              }}
-              className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
-            >
-              <MessageCircle className="w-5 h-5 mr-2.5" />
-              Message Owner
-            </Button>
-          ) : (
-            <>
-              <Button
-                onClick={handleCreateAccount}
-                className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(224,30,42,0.5)] border border-white/15"
-              >
-                <UserPlus className="w-5 h-5 mr-2.5" />
-                Create Account
-              </Button>
-              <Button
-                onClick={handleSignIn}
-                className="w-full h-12 rounded-2xl bg-white hover:bg-white/95 text-black font-bold uppercase tracking-wider border border-white/30 active:scale-[0.98] transition-transform shadow-[0_12px_34px_rgba(255,255,255,0.18)]"
-              >
-                <LogIn className="w-5 h-5 mr-2.5" />
-                Sign In
-              </Button>
-            </>
+          {description && (
+            <p className="text-[13px] text-white/75 leading-relaxed line-clamp-4">{description}</p>
           )}
-          <p className="text-center text-[9px] font-bold uppercase tracking-[0.3em] text-white/25 pt-1">
-            Powered by Swipess
-          </p>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/25 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+              <ShieldCheck className="w-3 h-3" />
+              Verified on Swipess
+            </span>
+            {refCode && isGuest && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EB4898]/15 border border-[#EB4898]/25 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#F9A8D4]">
+                Referral applied
+              </span>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Sticky CTA dock */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.14 }}
+          className="sticky bottom-0 z-30 shrink-0 pt-1"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 4px)' }}
+        >
+          <div className="rounded-[1.75rem] border border-white/12 bg-[#0d0d14]/90 backdrop-blur-2xl p-3 shadow-[0_-8px_40px_rgba(0,0,0,0.45)] space-y-2">
+            {user ? (
+              <Button
+                onClick={() => {
+                  triggerHaptic('success');
+                  if (!guardNewConversation(canStartNewConversation)) return;
+                  setShowDirectMessageDialog(true);
+                }}
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Message Owner
+              </Button>
+            ) : (
+              <>
+                <Button
+                  onClick={handleCreateAccount}
+                  className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(224,30,42,0.45)] border border-white/15"
+                >
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Join Free to Contact Owner
+                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={handleSignIn}
+                    variant="outline"
+                    className="h-11 rounded-xl bg-white/5 border-white/15 text-white font-bold uppercase tracking-wider text-[10px] hover:bg-white/10 active:scale-[0.98]"
+                  >
+                    <LogIn className="w-4 h-4 mr-1.5" />
+                    Sign In
+                  </Button>
+                  <Button
+                    onClick={() => { triggerHaptic('light'); navigate('/'); }}
+                    variant="outline"
+                    className="h-11 rounded-xl bg-white/5 border-white/15 text-white/80 font-bold uppercase tracking-wider text-[10px] hover:bg-white/10 active:scale-[0.98]"
+                  >
+                    <ArrowRight className="w-4 h-4 mr-1.5" />
+                    Explore App
+                  </Button>
+                </div>
+              </>
+            )}
+            <p className="text-center text-[9px] font-bold uppercase tracking-[0.28em] text-white/25 pt-0.5">
+              Swipess · Elite marketplace
+            </p>
+          </div>
         </motion.div>
       </div>
 
       {listing && user && (
-        <Suspense fallback={null}><DirectMessageDialog
-          open={showDirectMessageDialog}
-          onOpenChange={setShowDirectMessageDialog}
-          onConfirm={handleSendMessage}
-          recipientName="Asset Authority"
-          category={category}
-          isLoading={isCreatingConversation}
-        /></Suspense>
+        <Suspense fallback={null}>
+          <DirectMessageDialog
+            open={showDirectMessageDialog}
+            onOpenChange={setShowDirectMessageDialog}
+            onConfirm={handleSendMessage}
+            recipientName="Asset Authority"
+            category={category}
+            isLoading={isCreatingConversation}
+          />
+        </Suspense>
       )}
 
       {listing && (
-        <Suspense fallback={null}><ShareDialog
-          open={showShareDialog}
-          onOpenChange={setShowShareDialog}
-          listingId={id}
-          title={listing.title || 'Swipess Listing'}
-          description={`${listing.title || 'Listing'} â€” ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Tulum'} for $${listing.price?.toLocaleString() || 'â€”'}.`}
-          previewImage={heroImage}
-        /></Suspense>
+        <Suspense fallback={null}>
+          <ShareDialog
+            open={showShareDialog}
+            onOpenChange={setShowShareDialog}
+            listingId={id}
+            title={listing.title || 'Swipess Listing'}
+            description={`${listing.title || 'Listing'} — ${listing.beds || 0}B/${listing.baths || 0}B in ${listing.city || 'Swipess'} for ${formatPrice(listing.price)}.`}
+            previewImage={heroImage}
+          />
+        </Suspense>
       )}
-      
-      <ConnectingOverlay 
+
+      <ConnectingOverlay
         isOpen={isConnecting}
         recipientName={listing?.title || 'Asset Owner'}
       />

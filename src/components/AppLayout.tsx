@@ -13,6 +13,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
+import { useProfileGpsPersist } from '@/hooks/useProfileGpsPersist';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
@@ -51,6 +52,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [showPassportMapModal]);
   const { activeMode } = useActiveMode();
   useDeepLinks();
+  useProfileGpsPersist();
 
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;

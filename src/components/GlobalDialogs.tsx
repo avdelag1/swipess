@@ -1,6 +1,7 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { memo, Suspense, useEffect, useState } from 'react';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
+import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -47,6 +48,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
   const [isWarmedUp, setIsWarmedUp] = useState(false);
   const [conciergeChunkReady, setConciergeChunkReady] = useState(false);
+  const [aiWizardsReady, setAiWizardsReady] = useState(false);
   const [reportState, setReportState] = useState<{
     open: boolean;
     reportedUserId?: string;
@@ -77,6 +79,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
     let cancelled = false;
     prefetchConciergeChatModule().then(() => {
       if (!cancelled) setConciergeChunkReady(true);
+    });
+    prefetchAIWizardsModule().then(() => {
+      if (!cancelled) setAiWizardsReady(true);
     });
     return () => { cancelled = true; };
   }, []);
@@ -251,16 +256,21 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </DeferredDialog>
 
-      <DeferredDialog when={store.showAIListing} threshold={0}>
+      <DeferredDialog when={aiWizardsReady || store.showAIListing} threshold={0} keepMounted>
         <AIListingWizard />
       </DeferredDialog>
 
-      <DeferredDialog when={store.showAIProfile} threshold={0}>
+      <DeferredDialog when={aiWizardsReady || store.showAIProfile} threshold={0} keepMounted>
         <AIProfileWizard />
       </DeferredDialog>
 
       <Suspense fallback={null}><TokensModal userRole={userRole === 'admin' ? 'client' : userRole} /></Suspense>
-      <Suspense fallback={null}><InviteFriendsDialog isOpen={store.showInviteFriends} onClose={() => setModal('showInviteFriends', false)} /></Suspense>
+      <Suspense fallback={null}>
+        <InviteFriendsDialog
+          isOpen={store.showInviteFriends}
+          onClose={() => store.setModal('showInviteFriends', false)}
+        />
+      </Suspense>
 
       <DeferredDialog when={reportState.open}>
         <ReportDialog

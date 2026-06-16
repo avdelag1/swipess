@@ -63,6 +63,7 @@ interface ModalState {
   openSubscription: (reason: string) => void;
   openPassportMap: (opts?: { showCities?: boolean }) => void;
   openAIChat: () => void;
+  openInviteFriends: () => void;
   clearPassportMapFlags: () => void;
   closeAll: () => void;
 }
@@ -129,6 +130,8 @@ export const useModalStore = create<ModalState>((set) => ({
     prefetchConciergeChatModule();
     set({ showAIChat: true });
   },
+
+  openInviteFriends: () => set({ showInviteFriends: true }),
 
   clearPassportMapFlags: () => set({
     passportMapShowCities: false,
