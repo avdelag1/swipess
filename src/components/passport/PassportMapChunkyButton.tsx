@@ -46,7 +46,7 @@ export const PassportMapChunkyButton = memo(({
           aria-label={badge != null && badge > 0 ? `${label}, ${badge} nearby` : label}
           title={label}
         >
-          <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px]" />
+          <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
           {active && (
             <div
               className="absolute inset-0 rounded-full opacity-80"

@@ -12,6 +12,8 @@ export interface DistanceSliderProps {
   onDetectLocation: () => void;
   detecting: boolean;
   detected: boolean;
+  /** Force light-on-dark text/controls — for the always-dark map radius window. */
+  onDark?: boolean;
 }
 
 /**
@@ -21,8 +23,11 @@ export interface DistanceSliderProps {
  * Uses local state and Framer Motion for instant visual feedback.
  * The store/parent is only updated on pointer release to avoid flooding Zustand.
  */
-export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected, onDark = false }: DistanceSliderProps) => {
   const { isLight } = useAppTheme();
+  // The map radius window is a solid dark surface in every theme, so its text/controls
+  // must stay light regardless of the user's chosen app theme.
+  const dark = onDark || !isLight;
   const maxKm = 100;
   const activeCategory = useFilterStore(s => s.activeCategory);
 
@@ -75,9 +80,9 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             aria-pressed={detected}
             className={cn(
               "relative w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border",
-              isLight
-                ? "bg-white border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]"
-                : "bg-white/[0.04] border-white/10 backdrop-blur-xl hover:bg-white/[0.08]",
+              dark
+                ? "bg-white/[0.04] border-white/10 backdrop-blur-xl hover:bg-white/[0.08]"
+                : "bg-white border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]",
               detected && "ring-2 ring-primary/40"
             )}
           >
@@ -86,14 +91,14 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             ) : detected ? (
               <Crosshair className="w-4 h-4 text-primary" />
             ) : (
-              <MapPin className={cn("w-4 h-4", isLight ? "text-black/70" : "text-primary")} />
+              <MapPin className={cn("w-4 h-4", dark ? "text-primary" : "text-black/70")} />
             )}
             {detected && (
               <span className="absolute inset-0 rounded-full animate-ping bg-primary/20 pointer-events-none" />
             )}
           </button>
           <div className="flex flex-col">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mb-1">Scanning</span>
+            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1", dark ? "text-white/55" : "text-muted-foreground")}>Scanning</span>
             <span className="text-xs font-black text-primary leading-none uppercase italic tracking-wider">
               {activeCategory === 'all-clients' ? 'Everyone' :
                activeCategory === 'buyers' ? 'Buyers' :
@@ -105,7 +110,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         </div>
         <div className="flex items-center gap-2">
           <div className="px-2.5 py-1 rounded-full flex items-center justify-center">
-            <span className={cn("text-sm font-black tracking-tight", isLight ? "text-black" : "text-primary")}>
+            <span className={cn("text-sm font-black tracking-tight", dark ? "text-primary" : "text-black")}>
               {localKm} <span className="text-[10px] opacity-60 italic">km</span>
             </span>
           </div>
@@ -172,8 +177,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
       </motion.div>
       
       <div className="flex justify-between mt-2 px-1">
-        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">Local</span>
-        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">100 km+</span>
+        <span className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", dark ? "text-white/40" : "text-muted-foreground/40")}>Local</span>
+        <span className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", dark ? "text-white/40" : "text-muted-foreground/40")}>100 km+</span>
       </div>
     </motion.div>
   );
