@@ -281,7 +281,7 @@ export function useProfileSetup() {
         });
 
         if (attempt < 3) {
-          // Exponential backoff: 500ms, 1000ms
+          await new Promise(resolve => setTimeout(resolve, attempt === 1 ? 500 : 1000));
         }
       }
 

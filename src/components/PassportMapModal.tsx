@@ -366,7 +366,13 @@ export const PassportMapModal = memo(() => {
     triggerHaptic('heavy');
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
-    userMapInteractedRef.current = false;
+    setUserLocation(lat, lng);
+    seedGpsCache(lat, lng);
+    deviceGpsRef.current = { lat, lng };
+    setDeviceGps({ lat, lng });
+    userMapInteractedRef.current = true;
+    initialCenterDoneRef.current = true;
+    userEverMovedRef.current = true;
     const map = mapRef.current;
     if (map?.isStyleLoaded()) {
       cinematicEaseTo(
@@ -376,8 +382,8 @@ export const PassportMapModal = memo(() => {
         { duration: OPEN_CENTER_MS, pitch: cinematicPitchForViewport() },
       );
     }
-    appToast.success('Search area moved here — 1s press anywhere');
-  }, [clearPassportLocation, radiusKm]);
+    appToast.success('Search area moved here — hold 1s on empty map');
+  }, [clearPassportLocation, radiusKm, setUserLocation]);
 
   const relocateSearchRef = useRef(relocateSearchTo);
   relocateSearchRef.current = relocateSearchTo;
@@ -572,13 +578,11 @@ export const PassportMapModal = memo(() => {
       const storeLat = useFilterStore.getState().userLatitude;
       const storeLng = useFilterStore.getState().userLongitude;
       const deviceFix = deviceGpsRef.current;
-      const hasUserHub = !!(deviceFix || (storeLat != null && storeLng != null));
       const hub = deviceFix ?? (storeLat != null && storeLng != null
         ? { lat: storeLat, lng: storeLng }
         : MAP_SEARCH_HUB);
       const initialLng = hub.lng;
       const initialLat = hub.lat;
-      const storeRadius = useFilterStore.getState().radiusKm;
       const initialZoom = 2.2; // Always start zoomed out to guarantee a dramatic "Google Earth" cinematic fly-in to the user's street
 
       try {

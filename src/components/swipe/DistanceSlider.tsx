@@ -28,7 +28,6 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   // The map radius window is a solid dark surface in every theme, so its text/controls
   // must stay light regardless of the user's chosen app theme.
   const dark = onDark || !isLight;
-  const maxKm = 100;
   const activeCategory = useFilterStore(s => s.activeCategory);
 
   // Discrete precise steps to prevent inaccurate selections

@@ -149,8 +149,8 @@ async function bootstrap() {
     } catch { /* empty */ }
   }
 
-  // EMERGENCY RESET: ?reset=1 in URL wipes all state so users can escape crash loops
-  if (window.location.search.includes('reset=1')) {
+  // EMERGENCY RESET: ?reset=1 (or legacy ?clear-cache=1) wipes state to escape crash loops
+  if (window.location.search.includes('reset=1') || window.location.search.includes('clear-cache=1')) {
     // Synchronous storage wipes can't hang — do them first, unconditionally.
     try {
       sessionStorage.clear();

@@ -16,6 +16,10 @@ import type {
   QuickFilterListingType,
   QuickFilters
 } from '@/types/filters';
+
+/** Default discovery radius — 1 km was too tight for first-open empty decks. */
+export const DEFAULT_RADIUS_KM = 10;
+
 // Accent color lookup for categories (from SwipeConstants)
 const CATEGORY_ACCENTS: Record<string, string> = {
   property: '#3b82f6',
@@ -156,7 +160,7 @@ export const useFilterStore = create<FilterState>()(
     clientAgeRange: null,
     clientBudgetRange: null,
     clientNationalities: [],
-    radiusKm: 1,
+    radiusKm: DEFAULT_RADIUS_KM,
     userLatitude: null,
     userLongitude: null,
     passportMode: false,
@@ -480,7 +484,7 @@ export const useFilterStore = create<FilterState>()(
         bicycleTypes: [],
         furnished: false,
         petFriendly: false,
-        radiusKm: 1,
+        radiusKm: DEFAULT_RADIUS_KM,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));

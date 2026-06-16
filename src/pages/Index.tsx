@@ -212,7 +212,7 @@ const Index = () => {
             <div className="bg-background border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
               <p className="text-foreground font-medium text-sm mb-3">Taking longer than usual...</p>
               <button
-                onClick={() => { window.location.href = '/?clear-cache=1'; }}
+                onClick={() => { window.location.href = '/?reset=1&t=' + Date.now(); }}
                 className="w-full py-2.5 bg-brand-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-brand-primary/20 transition-transform active:scale-95"
               >
                 Refresh Session

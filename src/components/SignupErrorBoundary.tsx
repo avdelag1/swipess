@@ -30,7 +30,7 @@ class SignupErrorBoundary extends Component<Props, State> {
 
   private handleRetry = () => {
     this.setState({ hasError: false, error: undefined });
-    window.location.href = '/?clear-cache=1';
+    window.location.href = '/?reset=1&t=' + Date.now();
   };
 
   public render() {
