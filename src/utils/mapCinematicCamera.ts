@@ -32,8 +32,8 @@ export function zoomForRadiusKm(km: number): number {
   // zoom 14 ≈ 1km across screen. This tuned formula keeps the circle
   // visible but NOT covering the entire viewport.
   // 5km → ~13.3, 20km → ~11.3, 40km → ~10.3, 80km → ~9.3
-  const z = 14.6 - Math.log2(Math.max(km, 3));
-  return Math.min(15, Math.max(8.5, z));
+  const z = 14.6 - Math.log2(Math.max(km, 0.5));
+  return Math.min(16, Math.max(8.5, z));
 }
 
 export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {

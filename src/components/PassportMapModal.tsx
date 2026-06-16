@@ -490,10 +490,10 @@ export const PassportMapModal = memo(() => {
     const session = mapOpenSessionRef.current;
     let cancelled = false;
 
-    const runCenter = (target: { lat: number; lng: number }, duration = OPEN_CENTER_MS) => {
+    const runCenter = (target: { lat: number; lng: number }, duration = FLY_DURATION_OPEN_MS) => {
       if (cancelled || session !== mapOpenSessionRef.current) return;
       if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      centerMapOnTargetRef.current(target, session, { duration });
+      centerMapOnTargetRef.current(target, session, { fly: true, duration });
       initialCenterDoneRef.current = true;
     };
 
@@ -1046,25 +1046,14 @@ export const PassportMapModal = memo(() => {
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
         {/* Gradients removed for a cleaner map view as requested */}
-        {isOpen && !selected && (
-          <div
-            className="map-hud-panel absolute left-1/2 -translate-x-1/2 z-30 rounded-full px-4 py-2 flex items-center gap-2 pointer-events-none shadow-lg"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 72px)' }}
-          >
-            {!passportMode && deviceGps && !gpsLoading && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.9)] shrink-0" />
-            )}
-            {gpsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00C6FF] shrink-0" />}
-            <span className="text-[11px] font-bold text-white tracking-wide whitespace-nowrap">{statusLine}</span>
-          </div>
-        )}
+        {/* Status pill moved to bottom left */}
 
         {/* Map HUD — collapsed by default for a clean phone view */}
         <AnimatePresence>
           {isOpen && (
             <>
-              {/* Top City Strip — Always visible now */}
-              {!selected && (
+              {/* Top City Strip — Visible only when menu is expanded */}
+              {hudExpanded && !selected && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1272,9 +1261,18 @@ export const PassportMapModal = memo(() => {
             pushed up automatically (flex flow + layout animation) so they never overlap. */}
         <div className="absolute inset-x-0 bottom-0 z-40 pointer-events-none flex flex-col justify-end" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
 
-          {/* Floating km radius pill — left aligned; rides up above any open drawer */}
+          {/* Floating km radius pill & status — left aligned; rides up above any open drawer */}
           {isOpen && !selected && (
-            <motion.div layout className="self-start px-3 mb-3 pointer-events-auto">
+            <motion.div layout className="self-start flex flex-col items-start gap-2 px-3 mb-3 pointer-events-auto">
+              {/* Status pill — GPS / nearby count */}
+              <div className="map-hud-panel rounded-full px-4 py-2 flex items-center gap-2 shadow-lg bg-[#161b27]/95 border border-white/12">
+                {!passportMode && deviceGps && !gpsLoading && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.9)] shrink-0" />
+                )}
+                {gpsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00C6FF] shrink-0" />}
+                <span className="text-[11px] font-bold text-white tracking-wide whitespace-nowrap">{statusLine}</span>
+              </div>
+
               <LocationRadiusSelector
                 surface="map"
                 radiusKm={radiusKm}
