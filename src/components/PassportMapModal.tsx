@@ -128,6 +128,9 @@ export const PassportMapModal = memo(() => {
   const userMapInteractedRef = useRef(false);
   const suppressMapInteractionRef = useRef(false);
   const initialCenterDoneRef = useRef(false);
+  // Camera memory — once the user has panned/zoomed/picked a pin, the persistent
+  // Mapbox instance already holds their last view, so we stop auto-centering on reopen.
+  const userEverMovedRef = useRef(false);
   const prevMapOpenRef = useRef(false);
   const prevPassportModeRef = useRef(passportMode);
   const unbindLongPressRef = useRef<(() => void) | null>(null);
@@ -276,11 +279,17 @@ export const PassportMapModal = memo(() => {
   flyToRef.current = flyTo;
 
   const focusPinAnchored = useCallback((pin: SelectedPin) => {
+    // Engaging a pin locks the camera so the delayed GPS auto-center can never
+    // yank the view back to the open position while the user is browsing pins.
+    initialCenterDoneRef.current = true;
+    userEverMovedRef.current = true;
     setSelected(pin);
     setPreviewMode('anchored');
   }, []);
 
   const focusPinSheet = useCallback((pin: SelectedPin) => {
+    initialCenterDoneRef.current = true;
+    userEverMovedRef.current = true;
     setSelected(pin);
     setPreviewMode('sheet');
     setPreviewPlacement(null);
@@ -456,6 +465,7 @@ export const PassportMapModal = memo(() => {
   const markUserMapControl = useCallback(() => {
     userMapInteractedRef.current = true;
     initialCenterDoneRef.current = true;
+    userEverMovedRef.current = true;
   }, []);
   const markUserMapControlRef = useRef(markUserMapControl);
   markUserMapControlRef.current = markUserMapControl;
@@ -466,7 +476,7 @@ export const PassportMapModal = memo(() => {
     opts?: { duration?: number; fly?: boolean },
   ) => {
     if (session !== mapOpenSessionRef.current) return;
-    if (userMapInteractedRef.current) return;
+    if (userMapInteractedRef.current || selectedRef.current) return;
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
@@ -533,10 +543,18 @@ export const PassportMapModal = memo(() => {
 
     const runCenter = (target: { lat: number; lng: number }, duration = OPEN_CENTER_MS) => {
       if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (userMapInteractedRef.current || initialCenterDoneRef.current) return;
+      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
       centerMapOnTargetRef.current(target, session, { duration });
       initialCenterDoneRef.current = true;
     };
+
+    // Map memory — once the user has moved the map (or opened a pin) in any prior
+    // session, the persistent Mapbox instance already holds their last view. Don't
+    // yank it back to GPS/city on reopen; the GPS button still recenters on demand.
+    if (userEverMovedRef.current) {
+      initialCenterDoneRef.current = true;
+      return () => { cancelled = true; };
+    }
 
     const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
     if (pm && userLatitude != null && userLongitude != null) {
@@ -563,9 +581,9 @@ export const PassportMapModal = memo(() => {
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || useFilterStore.getState().passportMode) return;
       applyGpsFixRef.current(fix);
-      if (!userMapInteractedRef.current && !initialCenterDoneRef.current) {
-        runCenter(fix, OPEN_CENTER_MS);
-      }
+      // Never yank the camera once the user is browsing a pin or has taken control.
+      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
+      runCenter(fix, OPEN_CENTER_MS);
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
@@ -934,9 +952,6 @@ export const PassportMapModal = memo(() => {
       const el = createListingMarkerEl(l, isSelected);
       const cleanup = bindMarkerGestures(
         el,
-        () => [l.lng, l.lat],
-        mapRef,
-        lastDoubleTapZoomAtRef,
         () => {
           triggerHaptic('light');
           focusPinSheet({ type: 'listing', data: l });
@@ -946,7 +961,6 @@ export const PassportMapModal = memo(() => {
           focusPinAnchored({ type: 'listing', data: l });
         },
         () => useModalStore.getState().showPassportMapModal,
-        () => triggerHaptic('light'),
       );
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([l.lng, l.lat])
@@ -969,9 +983,6 @@ export const PassportMapModal = memo(() => {
       const el = createProfileMarkerEl(p, isSelected);
       const cleanup = bindMarkerGestures(
         el,
-        () => [p.lng, p.lat],
-        mapRef,
-        lastDoubleTapZoomAtRef,
         () => {
           triggerHaptic('light');
           focusPinSheet({ type: 'profile', data: p });
@@ -981,7 +992,6 @@ export const PassportMapModal = memo(() => {
           focusPinAnchored({ type: 'profile', data: p });
         },
         () => useModalStore.getState().showPassportMapModal,
-        () => triggerHaptic('light'),
       );
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([p.lng, p.lat])
@@ -1091,8 +1101,8 @@ export const PassportMapModal = memo(() => {
 
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/18 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-56 pointer-events-none z-[5] bg-gradient-to-t from-black/72 via-black/22 to-transparent" />
 
         {/* Status pill — GPS / nearby count */}
         {isOpen && !selected && (
@@ -1129,7 +1139,7 @@ export const PassportMapModal = memo(() => {
                   className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full text-white/80 border border-white/10 shadow-md hover:bg-white/10 transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
-                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
+                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px] pointer-events-none" />
                   <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                 </button>
 
@@ -1139,22 +1149,23 @@ export const PassportMapModal = memo(() => {
                     transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                     className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-md overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
+                    <div className="absolute inset-0 bg-[#1A202C]/85 backdrop-blur-[8px] pointer-events-none" />
                     <button
                       type="button"
                       data-no-cinematic
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
-                      className={cn('map-hud-btn absolute left-0 top-0 bottom-0 flex items-center justify-center text-white/80 z-20 hover:text-white', MAP_HUD_BTN)}
+                      className="map-hud-btn absolute inset-y-0 left-0 w-[34px] flex items-center justify-center text-white/80 z-20 hover:text-white"
+                      aria-label="Search location"
                     >
                       <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                     </button>
-                    <div className={cn('absolute left-0 right-0 top-0 bottom-0 transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+                    <div className={cn('absolute left-0 right-0 top-0 bottom-0 flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
                       <div
                         ref={geocoderContainerRef}
                         className={cn(
-                          'w-full h-full [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:h-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-none [&_.mapboxgl-ctrl-geocoder]:rounded-full [&_.mapboxgl-ctrl-geocoder]:bg-transparent',
+                          'w-full h-full flex items-center [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:h-full [&_.mapboxgl-ctrl-geocoder]:min-h-0 [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-none [&_.mapboxgl-ctrl-geocoder]:rounded-full [&_.mapboxgl-ctrl-geocoder]:bg-transparent [&_.mapboxgl-ctrl-geocoder]:flex [&_.mapboxgl-ctrl-geocoder]:items-center',
                           '[&_.mapboxgl-ctrl-geocoder]:border-0',
-                          '[&_input]:text-white [&_input]:placeholder:text-white/60 [&_input]:text-[12px] [&_input]:font-medium [&_input]:h-full [&_input]:pl-[36px] [&_input]:bg-transparent [&_input]:outline-none',
+                          '[&_input]:text-white [&_input]:placeholder:text-white/60 [&_input]:text-[12px] [&_input]:font-medium [&_input]:h-[34px] [&_input]:leading-[34px] [&_input]:pl-[36px] [&_input]:bg-transparent [&_input]:outline-none',
                           '[&_.mapboxgl-ctrl-geocoder--icon-search]:hidden',
                           '[&_.mapboxgl-ctrl-geocoder--button]:bg-transparent [&_.mapboxgl-ctrl-geocoder--button]:text-white',
                         )}
@@ -1186,7 +1197,7 @@ export const PassportMapModal = memo(() => {
                   aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                   title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                 >
-                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/75 backdrop-blur-[8px]" />
+                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
                   {hudExpanded
                     ? <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                     : <Menu className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
@@ -1209,7 +1220,7 @@ export const PassportMapModal = memo(() => {
                         aria-label={t('map.myLocation')}
                         title={t('map.myLocation')}
                       >
-                        <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px]" />
+                        <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
                         {gpsLoading
                           ? <Loader2 className={cn(MAP_HUD_ICON, 'animate-spin relative z-10')} />
                           : <Navigation className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
@@ -1274,34 +1285,34 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
-        {/* Floating km radius pill — bottom left, lifts when city strip is open */}
-        {isOpen && !selected && (
-          <div
-            className="absolute left-3 z-[45] pointer-events-auto"
-            style={{
-              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${hudExpanded && activeDrawer === 'cities' ? 92 : 20}px)`,
-            }}
-          >
-            <LocationRadiusSelector
-              surface="map"
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={handleGPS}
-              detecting={gpsLoading}
-              detected={!passportMode && !!deviceGps}
-              lat={radiusCenter?.lat}
-              lng={radiusCenter?.lng}
-              title={passportLabel ?? undefined}
-              expanded={radiusHudExpanded}
-              onExpandedChange={setRadiusHudExpanded}
-            />
-          </div>
-        )}
-
-        {/* Bottom HUD - Collapsible Drawers & Dock */}
+        {/* Bottom HUD — km radius pill + collapsible drawers in ONE bottom-anchored
+            column. When the city strip or results carousel mounts, the km selector is
+            pushed up automatically (flex flow + layout animation) so they never overlap. */}
         <div className="absolute inset-x-0 bottom-0 z-40 pointer-events-none flex flex-col justify-end" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
-          
-          {/* Active Drawer Area */}
+
+          {/* Floating km radius pill — left aligned; rides up above any open drawer */}
+          {isOpen && !selected && (
+            <motion.div layout className="self-start px-3 mb-3 pointer-events-auto">
+              <LocationRadiusSelector
+                surface="map"
+                radiusKm={radiusKm}
+                onRadiusChange={setRadiusKm}
+                onDetectLocation={handleGPS}
+                detecting={gpsLoading}
+                detected={!passportMode && !!deviceGps}
+                lat={radiusCenter?.lat}
+                lng={radiusCenter?.lng}
+                title={passportLabel ?? undefined}
+                expanded={radiusHudExpanded}
+                onExpandedChange={(v) => {
+                  setRadiusHudExpanded(v);
+                  if (v) setActiveDrawer(null);
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* Active Drawer Area (city strip / results carousel) */}
           <AnimatePresence mode="wait">
             {isOpen && hudExpanded && !selected && activeDrawer === 'cities' && (
               <motion.div
@@ -1310,7 +1321,7 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full pointer-events-auto mb-4"
+                className="w-full pointer-events-auto"
               >
                 {/* City quick-filter strip */}
                 <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
@@ -1369,7 +1380,7 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full pointer-events-auto mb-4"
+                className="w-full pointer-events-auto"
               >
                 <PassportMapResultsRail
                   listings={visibleListings}
@@ -1382,21 +1393,22 @@ export const PassportMapModal = memo(() => {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Double-tap hint when expanded controls are open */}
-          <AnimatePresence>
-            {isOpen && hudExpanded && (
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                className="px-4 pb-2 text-[9px] font-semibold text-white/40 tracking-wide pointer-events-none text-center w-full"
-              >
-                {t('map.doubleTapHint')}
-              </motion.p>
-            )}
-          </AnimatePresence>
         </div>
+
+        {/* Double-tap hint — pinned bottom-center, hidden while a drawer is docked */}
+        <AnimatePresence>
+          {isOpen && hudExpanded && !selected && !activeDrawer && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="absolute inset-x-0 z-[39] text-center text-[9px] font-semibold text-white/45 tracking-wide pointer-events-none"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4px)' }}
+            >
+              {t('map.doubleTapHint')}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         {isOpen && !mapboxReady && !mapLoading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">

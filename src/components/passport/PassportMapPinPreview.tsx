@@ -82,36 +82,40 @@ export const PassportMapPinPreview = memo(({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-        <button
-          type="button"
-          data-no-cinematic
-          onClick={onClose}
-          className="map-hud-btn absolute top-2 right-2 glass-pill bg-black/60 hover:bg-black/80 backdrop-blur-md p-1.5 z-20 shadow-lg"
-          aria-label="Close preview"
-        >
-          <X className="w-3.5 h-3.5 text-white" />
-        </button>
+        {/* Header row — badges (left, wrap) and close button (right) sit in a flex
+            row so they can never overlap or "mix" regardless of badge count. */}
+        <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-2">
+          <div className="flex flex-wrap items-start gap-1.5 min-w-0">
+            <span
+              className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white max-w-[150px] truncate"
+              style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
+            >
+              {isListing ? categoryLabel(data.category) : 'Person'}
+            </span>
+            {isListing && data.price != null && (
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-white/95 text-slate-900">
+                ${data.price.toLocaleString()}
+              </span>
+            )}
+            {travelTime && (
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black deck-hud-solid text-white flex items-center gap-1 border border-white/20">
+                {(travelTime as TravelTimeResult & { profile?: string }).profile === 'walking'
+                  ? <Footprints className="w-3 h-3" />
+                  : <Car className="w-3 h-3" />}
+                {travelTime.formattedDuration}
+              </span>
+            )}
+          </div>
 
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-3.5rem)] z-10">
-          <span
-            className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white"
-            style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
+          <button
+            type="button"
+            data-no-cinematic
+            onClick={onClose}
+            className="map-hud-btn shrink-0 flex items-center justify-center rounded-full bg-black/75 hover:bg-black/90 p-1.5 shadow-lg ring-1 ring-white/15"
+            aria-label="Close preview"
           >
-            {isListing ? categoryLabel(data.category) : 'Person'}
-          </span>
-          {isListing && data.price != null && (
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-white/95 text-slate-900">
-              ${data.price.toLocaleString()}
-            </span>
-          )}
-          {travelTime && (
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-black deck-hud-solid text-white flex items-center gap-1 border border-white/20">
-              {(travelTime as TravelTimeResult & { profile?: string }).profile === 'walking'
-                ? <Footprints className="w-3 h-3" />
-                : <Car className="w-3 h-3" />}
-              {travelTime.formattedDuration}
-            </span>
-          )}
+            <X className="w-3.5 h-3.5 text-white" />
+          </button>
         </div>
 
         <div className="absolute bottom-2 left-3 right-3">
