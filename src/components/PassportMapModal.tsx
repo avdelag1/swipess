@@ -18,7 +18,6 @@ import {
   CINEMATIC_PITCH,
   cinematicEaseTo,
   cinematicFlyTo,
-  incrementalDoubleTapZoom,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -30,9 +29,12 @@ import { PassportMapResultsRail } from '@/components/passport/PassportMapResults
 import {
   createListingMarkerEl,
   createProfileMarkerEl,
+  updateListingMarkerEl,
+  updateProfileMarkerEl,
   type MapLayerFilter,
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
+import { bindMapDoubleTapZoom, bindMarkerDoubleTapZoom } from '@/utils/mapDoubleTapZoom';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { gradientForRadius, PASSPORT_GRADIENTS, RADIUS_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -56,8 +58,6 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
-const DOUBLE_TAP_WINDOW_MS = 450;
-const DOUBLE_TAP_SLOP_PX = 60;
 
 const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -92,16 +92,19 @@ export const PassportMapModal = memo(() => {
   const geocoderContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import('mapbox-gl').Map | null>(null);
   const mapboxRef = useRef<MapboxGL | null>(null);
-  const markersRef = useRef<import('mapbox-gl').Marker[]>([]);
+  const markersRef = useRef<Map<string, {
+    marker: import('mapbox-gl').Marker;
+    el: HTMLDivElement;
+    cleanup: () => void;
+  }>>(new Map());
+  const unbindMapDoubleTapRef = useRef<(() => void) | null>(null);
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
   const autoGpsAttemptedRef = useRef(false);
   const initialFlyDoneRef = useRef(false);
   const openedOnceRef = useRef(false);
-  const lastMapTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
   const lastDoubleTapZoomAtRef = useRef(0);
-  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
@@ -433,19 +436,6 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
 
-        const handleDoubleTapZoom = (lngLat: { lng: number; lat: number }) => {
-          const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 120) return;
-          if (singleTapTimerRef.current) {
-            clearTimeout(singleTapTimerRef.current);
-            singleTapTimerRef.current = null;
-          }
-          if (!incrementalDoubleTapZoom(map, [lngLat.lng, lngLat.lat])) return;
-          lastDoubleTapZoomAtRef.current = now;
-          lastMapTapRef.current = null;
-          triggerHaptic('light');
-        };
-
         map.on('load', () => {
           if (cancelled) return;
 
@@ -470,39 +460,16 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Unified double-tap zoom — Mapbox fires `click` on mobile taps (not dblclick).
-        map.on('click', (e: mapboxgl.MapMouseEvent) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-
-          const now = Date.now();
-          const point = e.point;
-          const last = lastMapTapRef.current;
-
-          if (
-            last
-            && now - last.time < DOUBLE_TAP_WINDOW_MS
-            && Math.hypot(point.x - last.x, point.y - last.y) < DOUBLE_TAP_SLOP_PX
-          ) {
-            e.preventDefault();
-            handleDoubleTapZoom(e.lngLat);
-            return;
-          }
-
-          lastMapTapRef.current = { time: now, x: point.x, y: point.y };
-          if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
-          singleTapTimerRef.current = setTimeout(() => {
-            if (lastMapTapRef.current?.time === now) {
-              setSelected(null);
-              lastMapTapRef.current = null;
-            }
-            singleTapTimerRef.current = null;
-          }, DOUBLE_TAP_WINDOW_MS);
+        unbindMapDoubleTapRef.current?.();
+        unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
+          isActive: () => useModalStore.getState().showPassportMapModal,
+          lastZoomAtRef: lastDoubleTapZoomAtRef,
+          onZoom: () => triggerHaptic('light'),
         });
 
-        map.on('dblclick', (e: mapboxgl.MapMouseEvent) => {
-          e.preventDefault();
+        map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
-          handleDoubleTapZoom(e.lngLat);
+          setSelected(null);
         });
 
         mapRef.current = map;
@@ -563,9 +530,14 @@ export const PassportMapModal = memo(() => {
   }, [isOpen, mapReady, deviceGps, lat, lng]);
 
   useEffect(() => () => {
-    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    unbindMapDoubleTapRef.current?.();
+    unbindMapDoubleTapRef.current = null;
     resizeObserverRef.current?.disconnect();
-    markersRef.current.forEach(m => m.remove());
+    markersRef.current.forEach(entry => {
+      entry.cleanup();
+      entry.marker.remove();
+    });
+    markersRef.current.clear();
     geocoderRef.current?.onRemove();
     if (mapRef.current) removeUserGpsDotFromMap(mapRef.current);
     mapRef.current?.remove();
@@ -656,40 +628,83 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
 
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
-
+    const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
+    const registry = markersRef.current;
+    const nextKeys = new Set<string>();
 
-    visibleListings.forEach((l) => {
+    const upsertListing = (l: (typeof visibleListings)[number]) => {
+      const key = `listing:${l.id}`;
+      nextKeys.add(key);
       const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
-      const el = createListingMarkerEl(l, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'listing', data: l });
-      });
-      markersRef.current.push(
-        new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([l.lng, l.lat])
-          .addTo(mapRef.current!),
-      );
-    });
+      const existing = registry.get(key);
 
-    visibleProfiles.forEach((p) => {
-      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
-      const el = createProfileMarkerEl(p, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'profile', data: p });
-      });
-      markersRef.current.push(
-        new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([p.lng, p.lat])
-          .addTo(mapRef.current!),
+      if (existing) {
+        existing.marker.setLngLat([l.lng, l.lat]);
+        updateListingMarkerEl(existing.el, l, isSelected);
+        return;
+      }
+
+      const el = createListingMarkerEl(l, isSelected);
+      const cleanup = bindMarkerDoubleTapZoom(
+        el,
+        () => [l.lng, l.lat],
+        mapRef,
+        lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('medium');
+          focusPin({ type: 'listing', data: l });
+        },
+        () => useModalStore.getState().showPassportMapModal,
+        () => triggerHaptic('light'),
       );
-    });
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([l.lng, l.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
+    };
+
+    const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
+      const key = `profile:${p.id}`;
+      nextKeys.add(key);
+      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
+      const existing = registry.get(key);
+
+      if (existing) {
+        existing.marker.setLngLat([p.lng, p.lat]);
+        updateProfileMarkerEl(existing.el, p, isSelected);
+        return;
+      }
+
+      const el = createProfileMarkerEl(p, isSelected);
+      const cleanup = bindMarkerDoubleTapZoom(
+        el,
+        () => [p.lng, p.lat],
+        mapRef,
+        lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('medium');
+          focusPin({ type: 'profile', data: p });
+        },
+        () => useModalStore.getState().showPassportMapModal,
+        () => triggerHaptic('light'),
+      );
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([p.lng, p.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
+    };
+
+    visibleListings.forEach(upsertListing);
+    visibleProfiles.forEach(upsertProfile);
+
+    for (const [key, entry] of registry) {
+      if (!nextKeys.has(key)) {
+        entry.cleanup();
+        entry.marker.remove();
+        registry.delete(key);
+      }
+    }
   }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
 
   const mapboxReady = tokenReady;

@@ -40,18 +40,18 @@ function roundMapCoord(value: number, decimals = 3) {
   return Math.round(value * factor) / factor;
 }
 
-// Deterministic micro-scatter to prevent perfect overlaps
-function applyScatter(lat: number, lng: number, id: string, index: number) {
+/** Stable per-id offset so pins at the same address stay separated and never drift on refetch. */
+function applyScatter(lat: number, lng: number, id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = Math.imul(31, hash) + id.charCodeAt(i) | 0;
   }
-  // ~15 to 25 meters scatter
-  const radius = 0.0001 + (Math.abs(hash % 100) / 100) * 0.00015;
-  const angle = (Math.abs(hash) + index) * 2.39996;
+  // ~60–140m ring — visible separation without leaving the neighborhood
+  const radiusDeg = 0.00055 + (Math.abs(hash % 100) / 100) * 0.00075;
+  const angle = ((Math.abs(hash) % 360) * Math.PI) / 180;
   return {
-    lat: lat + Math.sin(angle) * radius,
-    lng: lng + Math.cos(angle) * radius,
+    lat: lat + Math.sin(angle) * radiusDeg,
+    lng: lng + Math.cos(angle) * radiusDeg,
   };
 }
 
@@ -96,10 +96,10 @@ export function usePassportMapData(
       const profilesRaw = profilesRes.data || [];
       const now = Date.now();
 
-      const listings: MapListingPin[] = listingsRaw.map((l, index) => {
+      const listings: MapListingPin[] = listingsRaw.map((l) => {
         const imgs = Array.isArray(l.images) ? l.images : [];
         const first = imgs[0];
-        const scattered = applyScatter(l.latitude, l.longitude, l.id, index);
+        const scattered = applyScatter(l.latitude, l.longitude, l.id);
         return {
           id: l.id,
           title: l.title || 'Listing',
@@ -115,11 +115,11 @@ export function usePassportMapData(
         };
       });
 
-      const profiles: MapProfilePin[] = profilesRaw.map((p, index) => {
+      const profiles: MapProfilePin[] = profilesRaw.map((p) => {
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
         const updatedAt = p.updated_at ? new Date(p.updated_at).getTime() : 0;
-        const scattered = applyScatter(p.latitude, p.longitude, p.user_id, index);
+        const scattered = applyScatter(p.latitude, p.longitude, p.user_id);
         return {
           id: p.user_id,
           name: p.name || 'User',
