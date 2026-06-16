@@ -157,8 +157,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.6 } }}
-          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/70 p-4"
-          style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}
+          className="fixed inset-x-0 top-0 z-[10001] flex items-center justify-center bg-black/70 p-4"
+          style={{ 
+            WebkitBackdropFilter: 'blur(24px)', 
+            backdropFilter: 'blur(24px)',
+            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)'
+          }}
           onClick={triggerGenieClose}
         >
           <motion.div
@@ -184,9 +188,9 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
             }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[98vw] max-w-none h-[98dvh] max-h-[98dvh] flex flex-col"
+            className="relative w-[92vw] max-w-[400px] h-auto max-h-full flex flex-col pt-8 pb-4"
           >
-            <div className="flex items-center justify-between mb-3 px-1 gap-2 mt-12 sm:mt-16">
+            <div className="flex items-center justify-between mb-4 px-1 gap-2">
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
