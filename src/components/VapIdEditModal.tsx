@@ -326,9 +326,10 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                 placeholder={role === 'owner' ? "Premium serviced apartments in Miami..." : "I work as... I own a business called... I love..."}
                 rows={3}
                 maxLength={240}
+                autoGrow
+                showCount
                 className="min-h-[90px] text-sm"
               />
-              <p className="mt-1 text-[10px] text-muted-foreground text-right">{bio.length}/240</p>
             </section>
 
             {/* Details */}
