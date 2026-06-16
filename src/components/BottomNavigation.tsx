@@ -42,6 +42,7 @@ import { useModalStore } from '@/state/modalStore';
 
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 
 const ICON_SIZE = 26;
 
@@ -335,6 +336,7 @@ export const BottomNavigation = memo(({
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
+                  if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   handlePointerDown(e);
                 }}

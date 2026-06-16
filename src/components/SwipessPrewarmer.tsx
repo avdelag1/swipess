@@ -6,6 +6,7 @@ import { logger } from '@/utils/prodLogger';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { prefetchCityPhotos } from '@/utils/prefetchCityPhotos';
+import { prefetchEventCategoryPhotos } from '@/utils/prefetchEventCategoryPhotos';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 import { warmDiscoveryCache } from '@/utils/performance';
@@ -42,6 +43,7 @@ export const SwipessPrewarmer = () => {
       prefetchRoute('/notifications');
       prefetchPassportMapModule();
       prefetchCityPhotos();
+      prefetchEventCategoryPhotos();
       prefetchConciergeChatModule();
       prefetchAIWizardsModule();
 

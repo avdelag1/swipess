@@ -20,6 +20,8 @@ import { hideChrome } from '@/hooks/useChromeReveal';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
+import { EventCategoryCircle } from '@/components/events/EventCategoryCircle';
+import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { PromoteCTACard } from '@/components/events/PromoteCTACard';
 const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 // Static Data
@@ -65,6 +67,7 @@ export default function EventosFeed() {
 
   useEffect(() => {
     hideChrome();
+    prefetchEventCategoryPhotosImmediate();
     return () => hideChrome();
   }, []);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -305,71 +308,27 @@ export default function EventosFeed() {
           </button>
 
           <div className="flex-1 flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-1 pb-2 -ml-2 pl-2">
-            {CATEGORIES.map((cat) => {
-              const active = activeCategory === cat.key;
-
-              return (
-                <button
-                  key={cat.key}
-                  type="button"
-                  data-no-cinematic
-                  data-skip-press-engine
-                  onClick={() => {
-                    triggerHaptic('light');
-                    hideChrome();
-                    if (cat.key === activeCategory) {
-                      resetFeedPosition('smooth');
-                      return;
-                    }
-                    setActiveCategory(cat.key);
-                    if (cat.key === 'likes') navigate('/explore/events/likes');
-                  }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-95 group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-                >
-                  <div 
-                    className={cn(
-                      "w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300",
-                      active 
-                        ? "bg-gradient-to-tr from-[#FF4D00] to-[#EB4898] shadow-lg shadow-[#EB4898]/30" 
-                        : (isLight ? "bg-black/10" : "bg-white/20")
-                    )}
-                  >
-                    <div className={cn(
-                      "w-full h-full rounded-full border-[2.5px] overflow-hidden relative shadow-inner",
-                      isLight ? "border-white bg-slate-100" : "border-[#0a0a0b] bg-[#1a1a1b]"
-                    )}>
-                      {cat.img ? (
-                         <img 
-                           src={cat.img} 
-                           alt={cat.label} 
-                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                         />
-                      ) : (
-                         <div className="w-full h-full flex items-center justify-center">
-                            <cat.icon className={cn("w-5 h-5", isLight ? "text-slate-400" : "text-white/40")} />
-                         </div>
-                      )}
-                      {/* Dark overlay for inactive */}
-                      {!active && (
-                        <div className={cn(
-                          "absolute inset-0 transition-colors",
-                          isLight ? "bg-white/40" : "bg-black/50"
-                        )} />
-                      )}
-                    </div>
-                  </div>
-                  <span 
-                    className={cn(
-                      "text-[10px] font-bold tracking-wide w-[64px] text-center truncate",
-                      active ? (isLight ? "text-black" : "text-white") : (isLight ? "text-black/60 font-semibold" : "text-white/60 font-semibold")
-                    )}
-                    style={{ textShadow: active && !isLight ? '0 2px 8px rgba(0,0,0,0.8)' : undefined }}
-                  >
-                    {cat.label}
-                  </span>
-                </button>
-              );
-            })}
+            {CATEGORIES.map((cat, index) => (
+              <EventCategoryCircle
+                key={cat.key}
+                label={cat.label}
+                img={cat.img}
+                icon={cat.icon}
+                active={activeCategory === cat.key}
+                isLight={isLight}
+                priority={index < 4}
+                onClick={() => {
+                  triggerHaptic('light');
+                  hideChrome();
+                  if (cat.key === activeCategory) {
+                    resetFeedPosition('smooth');
+                    return;
+                  }
+                  setActiveCategory(cat.key);
+                  if (cat.key === 'likes') navigate('/explore/events/likes');
+                }}
+              />
+            ))}
           </div>
         </div>
 

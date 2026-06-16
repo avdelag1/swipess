@@ -65,7 +65,12 @@ const routeImports: Record<string, RouteImport> = {
   '/messages': () => import('@/pages/MessagingDashboard').then(m => ({ default: m.MessagingDashboard })),
   '/notifications': () => import('@/pages/NotificationsPage'),
   '/subscription/packages': () => import('@/pages/SubscriptionPackagesPage'),
-  '/explore/events': () => import('@/pages/EventosFeed'),
+  '/explore/events': () => import('@/pages/EventosFeed').then((m) => {
+    import('@/utils/prefetchEventCategoryPhotos').then(({ prefetchEventCategoryPhotosImmediate }) => {
+      prefetchEventCategoryPhotosImmediate();
+    });
+    return m;
+  }),
   '/explore/roommates': () => import('@/pages/RoommateMatching'),
   '/client/advertise': () => import('@/pages/AdvertisePage'),
   '/explore/prices': () => import('@/pages/PriceTracker'),

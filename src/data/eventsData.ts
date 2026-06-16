@@ -1,19 +1,28 @@
 import { Heart, Leaf, Music, Palmtree, Sparkles, Tag, Utensils } from 'lucide-react';
 import { EventItem } from '@/types/events';
 
-// Portrait-orientation, high-resolution Unsplash photos curated for the
-// vertical Instagram-Reels-style event feed. `ar=3:4` keeps them cropped
-// for full-bleed phone viewports without distortion.
+// Portrait-orientation Unsplash params for full-bleed event cards in the feed.
 const REELS = 'w=1200&q=85&fit=crop&ar=3:4&auto=format';
 
+/** Bundled ring photos — ship with the app so category circles never depend on CDN at tap-time. */
+export const EVENT_CATEGORY_IMAGES = [
+  '/images/filters/events_card.jpg',
+  '/images/filters/event_beach_party_1780637338591.png',
+  '/images/filters/property_jungle_villa.jpg',
+  '/images/filters/promote_dj_set_1780637360943.png',
+  '/images/filters/property_loft_interior.jpg',
+  '/images/filters/owner_promote_card.jpg',
+  '/images/filters/event_cacao_ceremony_1780637326772.png',
+] as const;
+
 export const CATEGORIES = [
-  { key: 'all',    label: 'All',         icon: Sparkles, img: `https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?${REELS}`, color: '#f97316' },
-  { key: 'beach',  label: 'Beach',       icon: Palmtree, img: `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?${REELS}`, color: '#0ea5e9' },
-  { key: 'jungle', label: 'Jungle',      icon: Leaf,     img: `https://images.unsplash.com/photo-1535940432221-df13a25ba40a?${REELS}`, color: '#22c55e' },
-  { key: 'music',  label: 'Music',       icon: Music,    img: `https://images.unsplash.com/photo-1540039155733-5c2024c0847b?${REELS}`, color: '#8b5cf6' },
-  { key: 'food',   label: 'Restaurants', icon: Utensils, img: `https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?${REELS}`, color: '#ef4444' },
-  { key: 'promo',  label: 'Deals',       icon: Tag,      img: `https://images.unsplash.com/photo-1555529733-0e670560f7e1?${REELS}`,    color: '#facc15' },
-  { key: 'likes',  label: 'My Likes',    icon: Heart,    img: `https://images.unsplash.com/photo-1518002171953-a080ee817e1f?${REELS}`, color: '#ec4899' },
+  { key: 'all',    label: 'All',         icon: Sparkles, img: EVENT_CATEGORY_IMAGES[0], color: '#f97316' },
+  { key: 'beach',  label: 'Beach',       icon: Palmtree, img: EVENT_CATEGORY_IMAGES[1], color: '#0ea5e9' },
+  { key: 'jungle', label: 'Jungle',      icon: Leaf,     img: EVENT_CATEGORY_IMAGES[2], color: '#22c55e' },
+  { key: 'music',  label: 'Music',       icon: Music,    img: EVENT_CATEGORY_IMAGES[3], color: '#8b5cf6' },
+  { key: 'food',   label: 'Restaurants', icon: Utensils, img: EVENT_CATEGORY_IMAGES[4], color: '#ef4444' },
+  { key: 'promo',  label: 'Deals',       icon: Tag,      img: EVENT_CATEGORY_IMAGES[5], color: '#facc15' },
+  { key: 'likes',  label: 'My Likes',    icon: Heart,    img: EVENT_CATEGORY_IMAGES[6], color: '#ec4899' },
 ];
 
 export const MOCK_EVENTS: EventItem[] = [
