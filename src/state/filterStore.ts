@@ -156,7 +156,7 @@ export const useFilterStore = create<FilterState>()(
     clientAgeRange: null,
     clientBudgetRange: null,
     clientNationalities: [],
-    radiusKm: 3,
+    radiusKm: 1,
     userLatitude: null,
     userLongitude: null,
     passportMode: false,
@@ -480,7 +480,7 @@ export const useFilterStore = create<FilterState>()(
         bicycleTypes: [],
         furnished: false,
         petFriendly: false,
-        radiusKm: 3,
+        radiusKm: 1,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
