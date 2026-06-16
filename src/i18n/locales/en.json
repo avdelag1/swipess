@@ -593,6 +593,7 @@
     "youAreHere": "You are here",
     "findingYou": "Finding you…",
     "scanningArea": "Scanning area…",
+    "enableLocationHint": "Tap GPS or enable location",
     "noResults": "No listings in {{radius}} km",
     "loadError": "Could not load map data",
     "doubleTapHint": "Double-tap map to zoom in",

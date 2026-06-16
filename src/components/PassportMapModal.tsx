@@ -40,9 +40,9 @@ import {
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
+  MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
-import { persistClientProfileGps } from '@/utils/persistProfileGps';
-import { useAuth } from '@/hooks/useAuth';
+
 import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
@@ -90,7 +90,6 @@ const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const { t } = useTranslation();
-  const { user } = useAuth();
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
   const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
@@ -133,13 +132,13 @@ export const PassportMapModal = memo(() => {
   // Mapbox instance already holds their last view, so we stop auto-centering on reopen.
   const userEverMovedRef = useRef(false);
   const prevMapOpenRef = useRef(false);
+  const prevPassportModeRef = useRef(passportMode);
   const unbindLongPressRef = useRef<(() => void) | null>(null);
   const unbindInteractionRef = useRef<(() => void) | null>(null);
-  const openedOnceRef = useRef(false);
   const lastDoubleTapZoomAtRef = useRef(0);
+  const lastMapPointerUpAtRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
   const deviceGpsRef = useRef<{ lat: number; lng: number } | null>(null);
-  const lastGpsStateAtRef = useRef(0);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
@@ -171,7 +170,9 @@ export const PassportMapModal = memo(() => {
   }, [isOpen]);
 
   useEffect(() => {
-    if (activeDrawer) setRadiusHudExpanded(false);
+    if (activeDrawer === 'cities') {
+      setRadiusHudExpanded(false);
+    }
   }, [activeDrawer]);
 
   useEffect(() => {
@@ -416,7 +417,6 @@ export const PassportMapModal = memo(() => {
     triggerHaptic('heavy');
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
-    setUserLocation(lat, lng);
     userMapInteractedRef.current = false;
     const map = mapRef.current;
     if (map?.isStyleLoaded()) {
@@ -428,7 +428,7 @@ export const PassportMapModal = memo(() => {
       );
     }
     appToast.success('Search area moved here — 1s press anywhere');
-  }, [clearPassportLocation, setUserLocation, radiusKm]);
+  }, [clearPassportLocation, radiusKm]);
 
   const relocateSearchRef = useRef(relocateSearchTo);
   relocateSearchRef.current = relocateSearchTo;
@@ -525,6 +525,14 @@ export const PassportMapModal = memo(() => {
     }
     prevMapOpenRef.current = isOpen;
   }, [isOpen]);
+
+  // Re-allow auto-center when switching passport explore ↔ GPS while map stays open.
+  useEffect(() => {
+    if (isOpen && prevPassportModeRef.current !== passportMode) {
+      initialCenterDoneRef.current = false;
+    }
+    prevPassportModeRef.current = passportMode;
+  }, [isOpen, passportMode]);
 
   // Auto-center exactly once per open — never re-run when GPS or radius updates.
   useEffect(() => {
@@ -682,20 +690,11 @@ export const PassportMapModal = memo(() => {
             resizeMap();
             const fix = deviceGpsRef.current ?? getCachedGpsFix();
             const mapOpen = useModalStore.getState().showPassportMapModal;
-            const { passportMode: pm, radiusKm: rKm } = useFilterStore.getState();
+            const { passportMode: pm } = useFilterStore.getState();
             if (fix && mapOpen && !pm) {
               try {
                 syncUserGpsDotOnMap(map, fix.lng, fix.lat);
-                suppressMapInteractionRef.current = true;
-                map.jumpTo({
-                  center: [fix.lng, fix.lat],
-                  zoom: zoomForRadiusKm(rKm),
-                  pitch: cinematicPitchForViewport(),
-                  bearing: CINEMATIC_BEARING,
-                });
-                suppressMapInteractionRef.current = false;
               } catch {
-                suppressMapInteractionRef.current = false;
                 // Style layers can race on slow devices
               }
             }
@@ -719,6 +718,7 @@ export const PassportMapModal = memo(() => {
         unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
           isActive: () => useModalStore.getState().showPassportMapModal,
           lastZoomAtRef: lastDoubleTapZoomAtRef,
+          lastPointerUpAtRef: lastMapPointerUpAtRef,
           onZoom: () => {
             markUserMapControlRef.current();
             triggerHaptic('light');
@@ -735,7 +735,7 @@ export const PassportMapModal = memo(() => {
         unbindInteractionRef.current = bindMapInteractionTracking(
           map,
           () => markUserMapControlRef.current(),
-          (ev) => suppressMapInteractionRef.current && !ev.originalEvent,
+          (ev) => !ev.originalEvent,
         );
 
         map.scrollZoom.enable();
@@ -745,8 +745,11 @@ export const PassportMapModal = memo(() => {
 
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          // Ignore clicks while a double-tap sequence may still be in progress.
+          if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
-          if (Date.now() - lastDoubleTapZoomAtRef.current < 500) return;
+          if (now - lastDoubleTapZoomAtRef.current < 500) return;
           clearPinPreview();
         });
 
@@ -820,6 +823,18 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen, mapReady, deviceGps, lat, lng]);
 
+  // Keep geocoder proximity near user as GPS warms up after mount.
+  useEffect(() => {
+    const geocoder = geocoderRef.current as { setProximity?: (p: { longitude: number; latitude: number }) => void } | null;
+    if (!geocoder?.setProximity || !mapReady) return;
+    const proximity = deviceGps
+      ? { longitude: deviceGps.lng, latitude: deviceGps.lat }
+      : lat != null && lng != null
+        ? { longitude: lng, latitude: lat }
+        : null;
+    if (proximity) geocoder.setProximity(proximity);
+  }, [mapReady, deviceGps, lat, lng]);
+
   useEffect(() => () => {
     unbindLongPressRef.current?.();
     unbindLongPressRef.current = null;
@@ -854,13 +869,11 @@ export const PassportMapModal = memo(() => {
         requestAnimationFrame(resizeMap);
       });
       const t = window.setTimeout(resizeMap, 80);
-      if (!openedOnceRef.current) openedOnceRef.current = true;
       return () => window.clearTimeout(t);
     }
 
     canvas.style.visibility = 'hidden';
     clearPinPreview();
-    openedOnceRef.current = false;
     return undefined;
   }, [isOpen, resizeMap, mapReady]);
 
@@ -890,14 +903,6 @@ export const PassportMapModal = memo(() => {
     startGpsWatch();
     return () => stopGpsWatch();
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!deviceGps || !user?.id || passportMode) return;
-    const now = Date.now();
-    if (now - lastGpsStateAtRef.current < 2500) return;
-    lastGpsStateAtRef.current = now;
-    void persistClientProfileGps(user.id, deviceGps.lat, deviceGps.lng);
-  }, [deviceGps, user?.id, passportMode]);
 
   // Live radius circle around you (or passport explore target)
   useEffect(() => {
@@ -1052,7 +1057,7 @@ export const PassportMapModal = memo(() => {
             : isFetched
               ? t('map.noResults', { radius: radiusKm })
               : usingSearchFallback
-                ? t('map.scanningArea')
+                ? (canGeolocate() ? t('map.enableLocationHint', { defaultValue: 'Tap GPS or enable location' }) : t('map.scanningArea'))
                 : t('map.scanningArea');
 
   const mapHostVisible = isOpen;
@@ -1427,18 +1432,6 @@ export const PassportMapModal = memo(() => {
             <p className="text-white font-bold">{mapError}</p>
           </div>
         )}
-
-        {showInitialDataLoad && (
-          <div
-            className="map-hud-panel absolute left-4 z-20 rounded-full px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
-          >
-            <Loader2 className="w-3 h-3 animate-spin" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white">{t('map.scanningArea')}</span>
-          </div>
-        )}
-
-
 
         <AnimatePresence>
           {selected && previewMode === 'anchored' && previewPlacement && (

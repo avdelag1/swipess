@@ -2,6 +2,8 @@ import type { Map as MapboxMap } from 'mapbox-gl';
 import { incrementalDoubleTapZoom } from '@/utils/mapCinematicCamera';
 
 export const MAP_DOUBLE_TAP_WINDOW_MS = 450;
+/** Faster sheet open on markers — still leaves room for double-tap zoom on empty map. */
+export const MAP_MARKER_TAP_DELAY_MS = 220;
 export const MAP_DOUBLE_TAP_SLOP_PX = 72;
 export const MAP_LONG_PRESS_MS = 1000;
 export const MAP_LONG_PRESS_MOVE_SLOP = 14;
@@ -52,6 +54,8 @@ export function bindMapDoubleTapZoom(
   opts: {
     isActive: () => boolean;
     lastZoomAtRef: { current: number };
+    /** Updated on every canvas pointerup — used to ignore stray map clicks during double-tap. */
+    lastPointerUpAtRef?: { current: number };
     onZoom?: () => void;
   },
 ): () => void {
@@ -79,6 +83,7 @@ export function bindMapDoubleTapZoom(
   const onPointerUp = (e: PointerEvent) => {
     if (!opts.isActive()) return;
     const now = Date.now();
+    if (opts.lastPointerUpAtRef) opts.lastPointerUpAtRef.current = now;
     const x = e.clientX;
     const y = e.clientY;
 
@@ -240,7 +245,33 @@ export function bindMarkerGestures(
     clearTimer();
     // A tap on a pin must win over the map's pan/zoom handlers behind it.
     e.stopPropagation();
-    if (!isLongPress && !moved) onTap();
+    if (timer) clearTimeout(timer);
+
+    const now = Date.now();
+    const x = e.clientX;
+    const y = e.clientY;
+    const map = mapRef.current;
+
+    if (!isLongPress) {
+      if (map && isMapDoubleTap(lastTap, now, x, y)) {
+        clearSingleTap();
+        e.preventDefault();
+        const center = lngLatFromMapClientPoint(map, x, y);
+        if (tryMapDoubleTapZoom(map, center, lastZoomAtRef)) {
+          lastTap = null;
+          onZoom?.();
+          return;
+        }
+      }
+
+      clearSingleTap();
+      lastTap = { time: now, x, y };
+      singleTapTimer = setTimeout(() => {
+        singleTapTimer = null;
+        lastTap = null;
+        onTap();
+      }, MAP_MARKER_TAP_DELAY_MS);
+    }
   };
 
   const onPointerCancel = () => clearTimer();

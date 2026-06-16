@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -164,11 +164,14 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
     });
   };
 
-  // Auto-notify with debounce to prevent re-render loops and UI lag
+  const onApplyRef = useRef(onApply);
+  onApplyRef.current = onApply;
+
+  // Auto-notify with debounce — stable ref avoids parent inline-callback re-render loops.
   useEffect(() => {
     const timer = setTimeout(() => {
       const budgetValues = getBudgetValues();
-      onApply({
+      onApplyRef.current({
         category, interest_type: interestType, selected_budget_range: selectedBudgetRange,
         budget_min: budgetValues.min, budget_max: budgetValues.max,
         location_neighborhoods: locationNeighborhoods,
@@ -179,7 +182,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange, localRadiusKm, onApply]);
+  }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange, localRadiusKm]);
 
   const toggleItem = (arr: string[], item: string, setter: (val: string[]) => void) => {
     setter(arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item]);

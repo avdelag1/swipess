@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
@@ -138,7 +138,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
-  const { setCategories, setListingType } = useFilterActions();
+  const { setCategories, selectDeckCategory } = useFilterActions();
   const listingType = useFilterStore((state) => state.listingType);
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
@@ -181,8 +181,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }))
   );
 
-  const storeCategories = useFilterStore((state) => state.categories);
-  const storeActiveCategory = storeCategories.length > 0 ? storeCategories[0] : null;
+  const deckCategory = activeCategory;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [_deckLength, setDeckLength] = useState(0);
@@ -202,28 +201,28 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const getInitialDeck = () => {
     const store = useSwipeDeckStore.getState();
     const items = activeMode === 'owner' 
-      ? store.getOwnerDeckItems(storeActiveCategory || 'all')
-      : store.getClientDeckItems(storeActiveCategory || 'all');
+      ? store.getOwnerDeckItems(deckCategory || 'all')
+      : store.getClientDeckItems(deckCategory || 'all');
     return items;
   };
 
   const deckQueueRef = useRef<any[]>(getInitialDeck());
   const currentIndexRef = useRef(
     activeMode === 'owner' 
-      ? (useSwipeDeckStore.getState().ownerDecks[storeActiveCategory || 'all']?.currentIndex || 0)
-      : (useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.currentIndex || 0)
+      ? (useSwipeDeckStore.getState().ownerDecks[deckCategory || 'all']?.currentIndex || 0)
+      : (useSwipeDeckStore.getState().clientDecks[deckCategory || 'all']?.currentIndex || 0)
   );
-  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.swipedIds || []));
+  const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[deckCategory || 'all']?.swipedIds || []));
 
   const cardRef = useRef<SimpleSwipeCardRef>(null);
 
   // Events live on the vertical Reels feed — never in the swipe deck.
   useEffect(() => {
-    if (storeActiveCategory !== 'events') return;
+    if (deckCategory !== 'events') return;
     setCategories([]);
     setActiveCategory(null);
     navigate(EVENTS_FEED_PATH);
-  }, [storeActiveCategory, navigate, setCategories, setActiveCategory]);
+  }, [deckCategory, navigate, setCategories, setActiveCategory]);
 
   useEffect(() => {
     setCurrentIndex(currentIndexRef.current);
@@ -303,10 +302,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   useEffect(() => {
     if (undoSuccess) {
       const storeState = useSwipeDeckStore.getState();
-      const newIndex = storeState.clientDecks[storeActiveCategory || 'all']?.currentIndex || 0;
+      const newIndex = storeState.clientDecks[deckCategory || 'all']?.currentIndex || 0;
       currentIndexRef.current = newIndex;
       setCurrentIndex(newIndex);
-      swipedIdsRef.current = new Set(storeState.clientDecks[storeActiveCategory || 'all']?.swipedIds || []);
+      swipedIdsRef.current = new Set(storeState.clientDecks[deckCategory || 'all']?.swipedIds || []);
       resetUndoState();
       logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
@@ -377,7 +376,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       setPage(0);
       setCurrentIndex(0);
       setDeckLength(0);
-      resetClientDeck(storeActiveCategory || 'all');
+      resetClientDeck(deckCategory || 'all');
       queryClient.removeQueries({ queryKey: ['smart-listings'] });
       try {
         sessionStorage.removeItem('swipe-deck-items');
@@ -388,17 +387,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { logger.warn('session storage error', _err); }
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
-  if (filterSignature !== prevFilterSignatureRef.current) {
-    filterChangedRef.current = true;
+  // Clear deck refs before paint when filters change — avoids old card photo flash.
+  useLayoutEffect(() => {
+    if (filterSignature === prevFilterSignatureRef.current) return;
     prevFilterSignatureRef.current = filterSignature;
-    // Clear deck synchronously during render so the previous category's
-    // top card photo doesn't flash before the new query resolves.
+    filterChangedRef.current = true;
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
-  }
+  }, [filterSignature]);
 
   useEffect(() => {
     if (!filterChangedRef.current) return;
@@ -413,18 +412,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
     setPage(0);
-    resetClientDeck(storeActiveCategory || 'all');
+    resetClientDeck(deckCategory || 'all');
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
 
     return () => clearTimeout(settledTimer);
-  }, [filterSignature, resetClientDeck]);
+  }, [filterSignature, resetClientDeck, deckCategory]);
 
   const dataType = useMemo(() => {
-    if (['buyers', 'renters', 'leads', 'hire'].includes(storeActiveCategory || '')) return 'people';
+    if (['buyers', 'renters', 'leads', 'hire'].includes(deckCategory || '')) return 'people';
     return 'listing';
-  }, [storeActiveCategory]);
+  }, [deckCategory]);
 
   const {
     data: smartListings = [],
@@ -449,7 +448,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     dataType !== 'people'
   );
 
-  const selectedCategoryDb = useMemo(() => (storeActiveCategory ? normalizeCategoryName(storeActiveCategory) : undefined), [storeActiveCategory]);
+  const selectedCategoryDb = useMemo(() => (deckCategory ? normalizeCategoryName(deckCategory) : undefined), [deckCategory]);
 
   const smartData = useMemo(() => {
     const rawData = dataType === 'people' ? smartClients : smartListings;
@@ -460,8 +459,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       return rawData.filter((item: any) => normalizeCategoryName(item?.category) === selectedCategoryDb);
     }
 
-    if (dataType === 'people' && storeActiveCategory && ['buyers', 'renters', 'hire', 'leads'].includes(storeActiveCategory)) {
-      const expected = categoryToClientType(storeActiveCategory);
+    if (dataType === 'people' && deckCategory && ['buyers', 'renters', 'hire', 'leads'].includes(deckCategory)) {
+      const expected = categoryToClientType(deckCategory);
       if (!expected) return rawData;
       return rawData.filter((item: any) =>
         resolveClientType({
@@ -473,7 +472,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     return rawData;
-  }, [dataType, smartClients, smartListings, selectedCategoryDb, storeActiveCategory]);
+  }, [dataType, smartClients, smartListings, selectedCategoryDb, deckCategory]);
   const isLoading = dataType === 'people' ? smartClientsLoading : smartListingsLoading;
   const isFetching = dataType === 'people' ? smartClientsFetching : smartListingsFetching;
   const error = dataType === 'people' ? smartClientsError : smartListingsError;
@@ -507,7 +506,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
         deckQueueRef.current = smartData;
         setDeckLength(smartData.length);
-        setClientDeck(storeActiveCategory || 'all', smartData, false);
+        setClientDeck(deckCategory || 'all', smartData, false);
       }
     }
   }
@@ -592,11 +591,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       }
 
       setDeckLength(deckQueueRef.current.length);
-      setClientDeck(storeActiveCategory || 'all', deckQueueRef.current, true);
+      setClientDeck(deckCategory || 'all', deckQueueRef.current, true);
       persistDeckToSession('client', 'listings', deckQueueRef.current);
 
-      if (!isClientReady(storeActiveCategory || 'all')) {
-        markClientReady(storeActiveCategory || 'all');
+      if (!isClientReady(deckCategory || 'all')) {
+        markClientReady(deckCategory || 'all');
       }
     }
 
@@ -624,7 +623,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
-    markClientSwiped(storeActiveCategory || 'all', listing.id);
+    markClientSwiped(deckCategory || 'all', listing.id);
 
     recordSwipe(listing.id, 'listing', direction);
 
@@ -834,7 +833,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const pullDown = usePullDownToDismiss({ onRefresh: handleRefresh });
 
-  if (!storeActiveCategory) {
+  if (!deckCategory) {
     return (
       <>
         <div className="relative w-full h-full flex flex-col">
@@ -844,24 +843,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               return;
             }
             if (cat === 'rentals') {
-              setActiveCategory('property');
-              setCategories(['property']);
-              setListingType('rent');
+              selectDeckCategory('property', 'rent');
               return;
             }
             if (cat === 'property') {
-              setActiveCategory('property');
-              setCategories(['property']);
-              setListingType('sale');
+              selectDeckCategory('property', 'sale');
               return;
             }
             if (cat === 'events') {
               navigate(EVENTS_FEED_PATH);
               return;
             }
-            setActiveCategory(cat as any);
-            setCategories([cat] as any);
-            setListingType('both');
+            selectDeckCategory(cat as Parameters<typeof selectDeckCategory>[0], 'both');
           }} />
         </div>
         {dataType === 'people' ? (
@@ -885,7 +878,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     leads: 'Leads',
     hire: 'Workers',
   };
-  const currentCategoryName = categoryNames[storeActiveCategory] || storeActiveCategory;
+  const currentCategoryName = categoryNames[deckCategory] || deckCategory;
 
   if (
     deckQueue.length === 0
@@ -1063,7 +1056,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   detected={locationDetected}
                   categoryName={currentCategoryName}
                   isLoading={isLoading || isFetching}
-                  activeCategory={storeActiveCategory}
+                  activeCategory={deckCategory}
                   onCategoryChange={(cat) => {
                     triggerHaptic('medium');
                     if (cat === 'events') {

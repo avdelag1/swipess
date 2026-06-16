@@ -117,16 +117,10 @@ export function applyAdvancedFiltersToStore(
     Object.assign(merged, mergeCategoryBlob(blob, cat as CategoryKey, userRole));
   }
 
-  store.setFilters(merged as Parameters<typeof store.setFilters>[0]);
-
-  // Demographic / discovery fields that setFilters does not cover
-  if (merged.clientAgeRange) {
-    store.setClientAgeRange(merged.clientAgeRange as [number, number]);
-  }
-  if (merged.clientBudgetRange) {
-    store.setClientBudgetRange(merged.clientBudgetRange as [number, number]);
-  }
-  if (merged.clientNationalities) {
-    store.setClientNationalities(merged.clientNationalities as string[]);
-  }
+  store.setFilters({
+    ...(merged as Parameters<typeof store.setFilters>[0]),
+    ...(merged.clientAgeRange !== undefined && { clientAgeRange: merged.clientAgeRange as [number, number] | null }),
+    ...(merged.clientBudgetRange !== undefined && { clientBudgetRange: merged.clientBudgetRange as [number, number] | null }),
+    ...(merged.clientNationalities !== undefined && { clientNationalities: merged.clientNationalities as string[] }),
+  });
 }

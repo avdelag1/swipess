@@ -44,16 +44,9 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     displayPct.set((radiusKm / maxKm) * 100);
   }, [radiusKm, displayPct]);
 
-  // Use a timeout to debounce the store update to avoid dashboard re-render floods
-  // The localKm and displayPct still provide 60fps instant feedback
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localKm !== radiusKm) {
-        onRadiusChange(localKm);
-      }
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [localKm, radiusKm, onRadiusChange]);
+  const commitRadius = (val: number) => {
+    if (val !== radiusKm) onRadiusChange(val);
+  };
 
   const handleInputChange = (val: number) => {
     setLocalKm(val);
@@ -159,6 +152,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           step={1}
           value={localKm}
           onChange={(e) => handleInputChange(Number(e.target.value))}
+          onPointerUp={() => commitRadius(localKm)}
+          onTouchEnd={() => commitRadius(localKm)}
           className="absolute left-[3%] right-[3%] opacity-0 h-10 cursor-pointer touch-none z-30"
           title="Slide to adjust your search distance"
           aria-label="Search Radius Slider"

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
+import { useFilterStore } from '@/state/filterStore'
 import { appToast } from '@/utils/appNotification';
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -154,8 +155,36 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
       setIsScanning(true)
       
       await updatePreferences(formData)
+
+      const amenities: string[] = []
+      if (formData.requires_gym) amenities.push('gym')
+      if (formData.requires_balcony) amenities.push('balcony')
+      if (formData.requires_elevator) amenities.push('elevator')
+      if (formData.requires_jacuzzi) amenities.push('jacuzzi')
+      if (formData.requires_coworking_space) amenities.push('coworking')
+      if (formData.requires_solar_panels) amenities.push('solar')
+
+      const listingType = formData.preferred_listing_types.includes('buy')
+        ? 'sale'
+        : formData.preferred_listing_types.includes('rent')
+          ? 'rent'
+          : 'both'
+
+      useFilterStore.getState().setFilters({
+        priceRange: [formData.min_price, formData.max_price],
+        bedrooms: [formData.min_bedrooms, formData.max_bedrooms],
+        bathrooms: [formData.min_bathrooms, formData.max_bathrooms],
+        propertyTypes: formData.property_types,
+        motoTypes: formData.moto_types,
+        bicycleTypes: formData.bicycle_types,
+        furnished: formData.furnished_required,
+        petFriendly: formData.pet_friendly_required,
+        amenities,
+        listingType,
+      })
+
       setIsScanning(false)
-      appToast.success('Preferences Updated')
+      appToast.success('Preferences saved — deck updated')
       onOpenChange(false)
     } catch (_error) {
       setIsScanning(false)

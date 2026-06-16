@@ -52,6 +52,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const [localFilters, setLocalFilters] = useState<Record<string, any>>(getListingFilters());
   const [isScanning, setIsScanning] = useState(false);
 
+  const handleFilterApply = useCallback((f: Record<string, unknown>) => {
+    setLocalFilters(f);
+  }, []);
+
   const handleScan = useCallback(() => {
     haptics.success();
     setIsScanning(true);
@@ -194,13 +198,13 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               </h2>
 
               <div className="rounded-[3rem] p-6 shadow-2xl bg-card border border-border backdrop-blur-3xl">
-                {activeCategory === 'property' && <PropertyClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
-                {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
-                {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
-                {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
-                {activeCategory === 'buyers' && <DiscoveryFilters category="property" onApply={(f) => setLocalFilters(f)} initialFilters={{ ...localFilters, interest_type: 'buy' }} activeCount={0} />}
-                {activeCategory === 'renters' && <DiscoveryFilters category="property" onApply={(f) => setLocalFilters(f)} initialFilters={{ ...localFilters, interest_type: 'rent' }} activeCount={0} />}
-                {activeCategory === 'leads' && <DiscoveryFilters category="service" onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'property' && <PropertyClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'motorcycle' && <MotoClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'bicycle' && <BicycleClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'services' && <WorkerClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'buyers' && <DiscoveryFilters category="property" onApply={handleFilterApply} initialFilters={{ ...localFilters, interest_type: 'buy' }} activeCount={0} />}
+                {activeCategory === 'renters' && <DiscoveryFilters category="property" onApply={handleFilterApply} initialFilters={{ ...localFilters, interest_type: 'rent' }} activeCount={0} />}
+                {activeCategory === 'leads' && <DiscoveryFilters category="service" onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
               </div>
 
               <div className="flex flex-col gap-4 pt-6">
