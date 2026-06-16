@@ -36,11 +36,11 @@ export const PassportMapChunkyButton = memo(({
           data-no-cinematic
           onClick={onClick}
           className={cn(
-            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] shadow-lg transition-all duration-300',
+            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-full shadow-lg transition-all duration-300',
             size,
             active
               ? 'text-white shadow-[0_8px_16px_rgba(0,0,0,0.15)] scale-105'
-              : 'bg-white/95 border border-black/5 text-slate-700 hover:bg-white hover:scale-105',
+              : 'bg-[#161b27]/95 border border-white/10 text-white/90 hover:bg-[#202738]/95 hover:scale-105',
             className,
           )}
           style={active ? { background: gradient } : undefined}
