@@ -6,11 +6,21 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  Briefcase, Camera, ChevronRight, Coins,
-  Crown, LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings,
-  Map, Sparkles, ThumbsUp, User, Users, Zap
-} from "lucide-react";
+import { 
+  Camera, 
+  ChevronRight, 
+  Coins, 
+  Crown, 
+  LogOut, 
+  Megaphone, 
+  MessageSquare, 
+  Radio, 
+  Settings, 
+  Sparkles, 
+  ThumbsUp, 
+  User, 
+  Zap 
+} from 'lucide-react';
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -184,7 +194,7 @@ const ClientProfile = () => {
             <span className="relative z-10">Magic AI Profile</span>
           </motion.button>
 
-          {/* 2x2 Grid of Feature Buttons */}
+          {/* Grid of Feature Buttons */}
           <div className="grid grid-cols-2 gap-3">
             {/* Edit Profile */}
             <motion.button
@@ -230,37 +240,26 @@ const ClientProfile = () => {
               <span>Tokens</span>
             </motion.button>
 
-            {/* Roommate Matching */}
+            {/* Settings */}
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/explore/roommates'); }}
+              onClick={() => { triggerHaptic('medium'); navigate('/client/settings'); }}
               className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)' }}
+              style={{ background: 'linear-gradient(135deg, #64748B, #334155)' }}
             >
-              <Users className="w-7 h-7 text-white" />
-              <span>Roommates</span>
+              <Settings className="w-7 h-7 text-white" />
+              <span>{t('nav.settings')}</span>
             </motion.button>
 
-            {/* Seekers / Hire */}
+            {/* Sign Out */}
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/explore/seekers'); }}
+              onClick={() => { triggerHaptic('medium'); signOut(); }}
               className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #8B5CF6, #EC4899)' }}
+              style={{ background: 'linear-gradient(135deg, #EF4444, #991B1B)' }}
             >
-              <Briefcase className="w-7 h-7 text-white" />
-              <span>Seekers</span>
-            </motion.button>
-
-            {/* Live Map */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); useModalStore.getState().openPassportMap({ showCities: true }); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #0072FF, #00C6FF)' }}
-            >
-              <Map className="w-7 h-7 text-white" />
-              <span>Live Map</span>
+              <LogOut className="w-7 h-7 text-white" />
+              <span>{t('actions.signOut')}</span>
             </motion.button>
 
             {/* Premium */}
@@ -273,6 +272,13 @@ const ClientProfile = () => {
               <Crown className="w-7 h-7 text-white" />
               <span>Premium</span>
             </motion.button>
+          </div>
+        </div>
+
+        {/* SHARE AND EARN */}
+        <div className="p-[1.5px] rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(255,77,0,0.2), rgba(235,72,152,0.2))' }}>
+          <div className={cn("rounded-3xl", isLight ? "bg-white" : "bg-[#020202]")}>
+            <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
           </div>
         </div>
 
@@ -290,7 +296,7 @@ const ClientProfile = () => {
         </div>
 
         {/* SEEKER AD SECTION (Tasker / Requests) */}
-        <div className="mt-6 mb-2">
+        <div className="mt-2 mb-2">
           <SeekerAdSection />
         </div>
 
@@ -339,60 +345,9 @@ const ClientProfile = () => {
           <ActivityFeed />
         </div>
 
-        <div className="p-[1.5px] rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(255,77,0,0.2), rgba(235,72,152,0.2))' }}>
-          <div className={cn("rounded-3xl", isLight ? "bg-white" : "bg-[#020202]")}>
-            <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
-          </div>
-        </div>
-
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center pt-4 pb-12">
           <LanguageToggle />
         </div>
-
-        {/* SYSTEM AUTHORITY STACK */}
-        <div className="space-y-3 pt-6">
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={() => { triggerHaptic('success'); navigate('/client/dashboard'); }}
-            className="w-full h-12 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
-            style={{
-              background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
-            }}
-          >
-            <Crown className="w-6 h-6 text-white" />
-            <span>{t('nav.dashboard')}</span>
-          </motion.button>
-
-          <div className="grid grid-cols-1 gap-3">
-            {[
-              { label: t('nav.legal'), icon: ScaleIcon, path: '/client/legal-services' },
-              { label: t('nav.settings'), icon: Settings, path: '/client/settings' },
-              { label: t('actions.signOut'), icon: LogOut, path: 'signout', urgent: true },
-            ].map((btn: { label: string; icon: React.ComponentType<{ className?: string }>; path?: string; action?: string; urgent?: boolean }) => (
-              <motion.button
-                key={btn.label}
-                whileHover={{ x: 4 }}
-                onClick={() => {
-                  triggerHaptic('medium');
-                  if (btn.action === 'vap-edit') { setIsVapModalOpen(true); return; }
-                  if (btn.path === 'signout') signOut();
-                  else if (btn.path) navigate(btn.path);
-                }}
-                className={cn(
-                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
-                  btn.urgent
-                    ? "bg-red-500/10 border-red-500/20 text-red-400"
-                    : "bg-card border-border text-foreground hover:bg-secondary"
-                )}
-              >
-                <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-400" : "text-foreground/80")} />
-                <span className="text-xs font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        <div className="h-24" />
       </div>
 
       <Suspense fallback={null}><ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} /></Suspense>
