@@ -31,26 +31,47 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   const maxKm = 100;
   const activeCategory = useFilterStore(s => s.activeCategory);
 
+  // Discrete precise steps to prevent inaccurate selections
+  const KM_STEPS = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
+  const maxStep = KM_STEPS.length - 1;
+
+  // Find nearest step index for the incoming radiusKm
+  const getStepIndex = (km: number) => {
+    let closest = 0;
+    let minDiff = Infinity;
+    for (let i = 0; i < KM_STEPS.length; i++) {
+      const diff = Math.abs(KM_STEPS[i] - km);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = i;
+      }
+    }
+    return closest;
+  };
+
   // Local value drives the visual (thumb, fill, label) instantly.
-  const [localKm, setLocalKm] = useState(radiusKm);
+  const [localStep, setLocalStep] = useState(() => getStepIndex(radiusKm));
+  const localKm = KM_STEPS[localStep];
   
   // Motion values for sub-pixel smooth animations
-  const displayPct = useMotionValue((radiusKm / maxKm) * 100);
+  const displayPct = useMotionValue((localStep / maxStep) * 100);
   const springPct = useSpring(displayPct, { stiffness: 450, damping: 32, mass: 0.6 });
 
   // Keep in sync when the parent changes the value externally (e.g. GPS detect).
   useEffect(() => {
-    setLocalKm(radiusKm);
-    displayPct.set((radiusKm / maxKm) * 100);
+    const step = getStepIndex(radiusKm);
+    setLocalStep(step);
+    displayPct.set((step / maxStep) * 100);
   }, [radiusKm, displayPct]);
 
-  const commitRadius = (val: number) => {
-    if (val !== radiusKm) onRadiusChange(val);
+  const commitRadius = (valStep: number) => {
+    const km = KM_STEPS[valStep];
+    if (km !== radiusKm) onRadiusChange(km);
   };
 
-  const handleInputChange = (val: number) => {
-    setLocalKm(val);
-    displayPct.set((val / maxKm) * 100);
+  const handleInputChange = (valStep: number) => {
+    setLocalStep(valStep);
+    displayPct.set((valStep / maxStep) * 100);
   };
 
   return (
@@ -147,13 +168,13 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         <input
           id="radius-slider"
           type="range"
-          min={1}
-          max={maxKm}
+          min={0}
+          max={maxStep}
           step={1}
-          value={localKm}
+          value={localStep}
           onChange={(e) => handleInputChange(Number(e.target.value))}
-          onPointerUp={() => commitRadius(localKm)}
-          onTouchEnd={() => commitRadius(localKm)}
+          onPointerUp={() => commitRadius(localStep)}
+          onTouchEnd={() => commitRadius(localStep)}
           className="absolute left-[3%] right-[3%] opacity-0 h-10 cursor-pointer touch-none z-30"
           title="Slide to adjust your search distance"
           aria-label="Search Radius Slider"

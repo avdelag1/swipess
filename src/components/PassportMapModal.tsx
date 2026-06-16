@@ -281,7 +281,10 @@ export const PassportMapModal = memo(() => {
     userEverMovedRef.current = true;
     setSelected(pin);
     setPreviewMode('sheet');
+    setRadiusHudExpanded(false); // Close the km slider when a pin is clicked
   }, []);
+
+  // Anchored preview was removed in favor of sheet preview
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
     triggerHaptic('medium');
@@ -1042,10 +1045,7 @@ export const PassportMapModal = memo(() => {
 
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/18 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-56 pointer-events-none z-[5] bg-gradient-to-t from-black/72 via-black/22 to-transparent" />
-
-        {/* Status pill — GPS / nearby count */}
+        {/* Gradients removed for a cleaner map view as requested */}
         {isOpen && !selected && (
           <div
             className="map-hud-panel absolute left-1/2 -translate-x-1/2 z-30 rounded-full px-4 py-2 flex items-center gap-2 pointer-events-none shadow-lg"
