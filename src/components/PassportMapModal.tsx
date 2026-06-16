@@ -60,6 +60,7 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const PIN_PREVIEW_CARD = { width: 280, height: 260 };
+type PinPreviewMode = 'anchored' | 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
 
@@ -118,6 +119,7 @@ export const PassportMapModal = memo(() => {
 
   const [deviceGps, setDeviceGps] = useState<{ lat: number; lng: number } | null>(null);
   const [selected, setSelected] = useState<SelectedPin | null>(null);
+  const [previewMode, setPreviewMode] = useState<PinPreviewMode | null>(null);
   const selectedRef = useRef<SelectedPin | null>(null);
   selectedRef.current = selected;
   const [layerFilter, setLayerFilter] = useState<MapLayerFilter>('all');
@@ -185,12 +187,18 @@ export const PassportMapModal = memo(() => {
     ? (selected.type === 'listing' ? selected.data.id : selected.data.id)
     : null;
 
+  const clearPinPreview = useCallback(() => {
+    setSelected(null);
+    setPreviewMode(null);
+    setPreviewPlacement(null);
+  }, []);
+
   const onClose = useCallback(() => {
     triggerHaptic('light');
-    setSelected(null);
+    clearPinPreview();
     setActiveDrawer(null);
     setModal('showPassportMapModal', false);
-  }, [setModal]);
+  }, [setModal, clearPinPreview]);
 
   const radiusCenterRef = useRef(radiusCenter);
   radiusCenterRef.current = radiusCenter;
@@ -223,14 +231,21 @@ export const PassportMapModal = memo(() => {
   const flyToRef = useRef(flyTo);
   flyToRef.current = flyTo;
 
-  const focusPin = useCallback((pin: SelectedPin) => {
+  const focusPinAnchored = useCallback((pin: SelectedPin) => {
     setSelected(pin);
+    setPreviewMode('anchored');
+  }, []);
+
+  const focusPinSheet = useCallback((pin: SelectedPin) => {
+    setSelected(pin);
+    setPreviewMode('sheet');
+    setPreviewPlacement(null);
   }, []);
 
   const updatePreviewPlacement = useCallback(() => {
     const map = mapRef.current;
     const hud = mapHudRef.current;
-    if (!map || !hud || !selected) {
+    if (!map || !hud || !selected || previewMode !== 'anchored') {
       setPreviewPlacement(null);
       return;
     }
@@ -243,10 +258,10 @@ export const PassportMapModal = memo(() => {
       { width: hudRect.width, height: hudRect.height },
       PIN_PREVIEW_CARD,
     ));
-  }, [selected]);
+  }, [selected, previewMode]);
 
   useEffect(() => {
-    if (!selected || !mapReady || !mapRef.current) {
+    if (!selected || previewMode !== 'anchored' || !mapReady || !mapRef.current) {
       setPreviewPlacement(null);
       return;
     }
@@ -267,25 +282,25 @@ export const PassportMapModal = memo(() => {
       map.off('pitch', sync);
       map.off('rotate', sync);
     };
-  }, [selected, mapReady, updatePreviewPlacement]);
+  }, [selected, previewMode, mapReady, updatePreviewPlacement]);
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
     triggerHaptic('medium');
     setModal('showPassportMapModal', false);
-    setSelected(null);
+    clearPinPreview();
     if (pin.type === 'listing') {
       openPropertyInsights(pin.data.id);
     } else {
       openClientInsights(pin.data.id);
     }
-  }, [setModal, openPropertyInsights, openClientInsights]);
+  }, [setModal, openPropertyInsights, openClientInsights, clearPinPreview]);
 
   const openDetailsFor = useCallback((listingId: string) => {
     triggerHaptic('medium');
     setModal('showPassportMapModal', false);
-    setSelected(null);
+    clearPinPreview();
     openPropertyDetails(listingId);
-  }, [setModal, openPropertyDetails]);
+  }, [setModal, openPropertyDetails, clearPinPreview]);
 
   const centerOnDeviceGps = useCallback((opts?: { zoom?: number; refresh?: boolean; announce?: boolean }) => {
     const run = async () => {
@@ -530,7 +545,7 @@ export const PassportMapModal = memo(() => {
 
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
-          setSelected(null);
+          clearPinPreview();
         });
 
         mapRef.current = map;
@@ -579,7 +594,7 @@ export const PassportMapModal = memo(() => {
       });
       geocoder.on('result', (ev: any) => {
         const [newLng, newLat] = ev.result.center;
-        setSelected(null);
+        clearPinPreview();
         flyToRef.current(newLat, newLng, ev.result.place_name);
       });
       geocoderRef.current = geocoder;
@@ -625,7 +640,7 @@ export const PassportMapModal = memo(() => {
     }
 
     canvas.style.visibility = 'hidden';
-    setSelected(null);
+    clearPinPreview();
     openedOnceRef.current = false;
     return undefined;
   }, [isOpen, resizeMap, mapReady]);
@@ -748,11 +763,11 @@ export const PassportMapModal = memo(() => {
         lastDoubleTapZoomAtRef,
         () => {
           triggerHaptic('light');
-          openInsightsFor({ type: 'listing', data: l });
+          focusPinSheet({ type: 'listing', data: l });
         },
         () => {
           triggerHaptic('medium');
-          focusPin({ type: 'listing', data: l });
+          focusPinAnchored({ type: 'listing', data: l });
         },
         () => useModalStore.getState().showPassportMapModal,
         () => triggerHaptic('light'),
@@ -783,11 +798,11 @@ export const PassportMapModal = memo(() => {
         lastDoubleTapZoomAtRef,
         () => {
           triggerHaptic('light');
-          openInsightsFor({ type: 'profile', data: p });
+          focusPinSheet({ type: 'profile', data: p });
         },
         () => {
           triggerHaptic('medium');
-          focusPin({ type: 'profile', data: p });
+          focusPinAnchored({ type: 'profile', data: p });
         },
         () => useModalStore.getState().showPassportMapModal,
         () => triggerHaptic('light'),
@@ -808,7 +823,7 @@ export const PassportMapModal = memo(() => {
         registry.delete(key);
       }
     }
-  }, [visibleListings, visibleProfiles, mapReady, isOpen, focusPin]);
+  }, [visibleListings, visibleProfiles, mapReady, isOpen, focusPinAnchored, focusPinSheet]);
 
   useEffect(() => {
     if (!isOpen || !mapReady) return;
@@ -1032,7 +1047,7 @@ export const PassportMapModal = memo(() => {
                         onClick={() => {
                           triggerHaptic('light');
                           setLayerFilter(id);
-                          setSelected(null);
+                          clearPinPreview();
                         }}
                       />
                     ))}
@@ -1149,7 +1164,7 @@ export const PassportMapModal = memo(() => {
                   filter={layerFilter}
                   selectedId={selectedId}
                   activePeopleCount={activePeopleCount}
-                  onSelect={focusPin}
+                  onSelect={focusPinSheet}
                 />
               </motion.div>
             )}
@@ -1248,9 +1263,9 @@ export const PassportMapModal = memo(() => {
 
 
         <AnimatePresence>
-          {selected && previewPlacement && (
+          {selected && previewMode === 'anchored' && previewPlacement && (
             <div
-              key={`${selected.type}-${selected.data.id}`}
+              key={`anchored-${selected.type}-${selected.data.id}`}
               className="absolute z-50 pointer-events-auto"
               style={{
                 left: previewPlacement.left,
@@ -1264,11 +1279,35 @@ export const PassportMapModal = memo(() => {
                 selected={selected}
                 isLight={isLight}
                 variant="anchored"
-                onClose={() => setSelected(null)}
+                onClose={clearPinPreview}
                 onInsights={() => openInsightsFor(selected)}
                 onDetails={selected.type === 'listing' ? () => openDetailsFor(selected.data.id) : undefined}
               />
             </div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {selected && previewMode === 'sheet' && (
+            <motion.div
+              key={`sheet-${selected.type}-${selected.data.id}`}
+              initial={{ opacity: 0, y: 32 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 340 }}
+              className="absolute inset-x-0 bottom-0 z-50 pointer-events-auto flex justify-center"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <PassportMapPinPreview
+                selected={selected}
+                isLight={isLight}
+                variant="sheet"
+                onClose={clearPinPreview}
+                onInsights={() => openInsightsFor(selected)}
+                onDetails={selected.type === 'listing' ? () => openDetailsFor(selected.data.id) : undefined}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
         </div>

@@ -65,7 +65,7 @@ export const PassportMapPinPreview = memo(({
         'overflow-hidden z-30 shadow-[0_16px_40px_rgba(0,0,0,0.45)]',
         isAnchored
           ? 'w-[min(280px,calc(100vw-32px))] rounded-2xl'
-          : 'shrink-0 mx-3 mb-[calc(env(safe-area-inset-bottom,0px)+12px)] rounded-[1.75rem] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]',
+          : 'w-full max-w-md shrink-0 mx-3 mb-[calc(env(safe-area-inset-bottom,0px)+12px)] rounded-[1.75rem] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]',
         isLight ? 'bg-white border border-black/8' : 'bg-[#111] border border-white/10',
       )}
     >
