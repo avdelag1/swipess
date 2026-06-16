@@ -85,11 +85,12 @@ export const LocationRadiusSelector = memo(({
 
   const panelClass = cn(
     isMapCompact
-      ? 'absolute bottom-full left-0 mb-2 w-[min(280px,calc(100vw-2rem))] rounded-2xl border p-4 shadow-[0_16px_48px_rgba(0,0,0,0.55)] z-[10030] bg-[#1A202C]/95 border-white/12 text-white'
+      ? 'absolute bottom-full left-0 mb-2 w-[min(280px,calc(100vw-2rem))] rounded-2xl border p-4 shadow-[0_16px_48px_rgba(0,0,0,0.65)] z-[10030] bg-[#12161f] border-white/12 text-white'
       : cn(
-          'rounded-[2.5rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]',
+          'rounded-[2.5rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.72)]',
           isMap
-            ? 'fixed left-4 right-4 mx-auto max-w-sm z-[10030] bg-[#1A202C]/92 border-white/12 backdrop-blur-xl text-white'
+            // Solid, fully-opaque panel — the live map must NOT bleed through the radius window.
+            ? 'fixed left-4 right-4 mx-auto max-w-sm z-[10030] bg-[#12161f] border-white/12 text-white'
             : cn('fixed left-4 right-4 mx-auto max-w-sm z-[10009] chrome-solid', isLight ? 'bg-white/95 border-black/10' : 'bg-[#0d0d0d]/95 border-white/10'),
         ),
   );
@@ -124,6 +125,7 @@ export const LocationRadiusSelector = memo(({
             onDetectLocation={onDetectLocation}
             detecting={detecting}
             detected={detected}
+            onDark={isMap}
           />
           <div className={cn('mt-5 pt-5 border-t', isMap ? 'border-white/10' : isLight ? 'border-black/10' : 'border-white/10')}>
             <button
@@ -169,10 +171,10 @@ export const LocationRadiusSelector = memo(({
       <div
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          'flex items-center transition-transform flex-row rounded-full border shadow-[0_4px_16px_rgba(0,0,0,0.4)]',
-          isMapCompact ? 'gap-1 px-1 py-0.5 h-8 bg-[#1A202C]/90 border-white/12' : 'gap-2 p-2',
+          'flex items-center transition-transform flex-row rounded-full border shadow-[0_6px_20px_rgba(0,0,0,0.5)]',
+          isMapCompact ? 'gap-1 px-1 py-0.5 h-8 bg-[#161b27]/95 border-white/12' : 'gap-2 p-2',
           !isMapCompact && (isMap
-            ? 'bg-[#1A202C]/88 border-white/12 backdrop-blur-xl'
+            ? 'bg-[#161b27]/95 border-white/14'
             : cn('glass-pill chrome-solid', isLight ? 'glass-light-surface' : 'glass-dark')),
         )}
       >

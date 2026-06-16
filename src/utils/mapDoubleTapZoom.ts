@@ -185,89 +185,75 @@ export function bindMapInteractionTracking(
   };
 }
 
-/** Handle tap, long-press, and double-tap on HTML marker elements. */
+export const MAP_MARKER_LONG_PRESS_MS = 400;
+
+/**
+ * Tap (instant) + long-press on HTML marker elements.
+ *
+ * A single tap opens the pin preview immediately — no double-tap wait — so the
+ * listing card feels snappy. Zooming lives on the map canvas (double-tap empty
+ * map), which keeps pin selection and zoom from fighting each other.
+ */
 export function bindMarkerGestures(
   el: HTMLElement,
-  getCenter: () => [number, number],
-  mapRef: { current: MapboxMap | null },
-  lastZoomAtRef: { current: number },
   onTap: () => void,
   onLongPress: () => void,
   isActive: () => boolean,
-  onZoom?: () => void,
 ): () => void {
-  let lastTap: MapTapPoint | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let singleTapTimer: ReturnType<typeof setTimeout> | null = null;
   let isLongPress = false;
+  let moved = false;
   let startX = 0;
   let startY = 0;
 
-  const clearSingleTap = () => {
-    if (singleTapTimer) {
-      clearTimeout(singleTapTimer);
-      singleTapTimer = null;
+  const clearTimer = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
     }
   };
 
   const start = (e: PointerEvent) => {
     if (!isActive()) return;
     isLongPress = false;
+    moved = false;
     startX = e.clientX;
     startY = e.clientY;
+    clearTimer();
     timer = setTimeout(() => {
+      timer = null;
       isLongPress = true;
       onLongPress();
-    }, 400);
+    }, MAP_MARKER_LONG_PRESS_MS);
   };
 
   const move = (e: PointerEvent) => {
     if (!isActive()) return;
     if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
-      if (timer) clearTimeout(timer);
+      moved = true;
+      clearTimer();
     }
   };
 
   const onPointerUp = (e: PointerEvent) => {
     if (!isActive()) return;
+    clearTimer();
+    // A tap on a pin must win over the map's pan/zoom handlers behind it.
     e.stopPropagation();
-    if (timer) clearTimeout(timer);
-
-    const now = Date.now();
-    const x = e.clientX;
-    const y = e.clientY;
-    const map = mapRef.current;
-
-    if (!isLongPress) {
-      if (map && isMapDoubleTap(lastTap, now, x, y)) {
-        clearSingleTap();
-        e.preventDefault();
-        const center = lngLatFromMapClientPoint(map, x, y);
-        if (tryMapDoubleTapZoom(map, center, lastZoomAtRef)) {
-          lastTap = null;
-          onZoom?.();
-          return;
-        }
-      }
-
-      clearSingleTap();
-      lastTap = { time: now, x, y };
-      singleTapTimer = setTimeout(() => {
-        singleTapTimer = null;
-        lastTap = null;
-        onTap();
-      }, MAP_DOUBLE_TAP_WINDOW_MS);
-    }
+    if (!isLongPress && !moved) onTap();
   };
+
+  const onPointerCancel = () => clearTimer();
 
   el.addEventListener('pointerdown', start);
   el.addEventListener('pointermove', move);
   el.addEventListener('pointerup', onPointerUp);
+  el.addEventListener('pointercancel', onPointerCancel);
   return () => {
-    if (timer) clearTimeout(timer);
-    clearSingleTap();
+    clearTimer();
     el.removeEventListener('pointerdown', start);
     el.removeEventListener('pointermove', move);
     el.removeEventListener('pointerup', onPointerUp);
+    el.removeEventListener('pointercancel', onPointerCancel);
   };
 }
