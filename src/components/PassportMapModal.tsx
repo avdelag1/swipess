@@ -18,11 +18,13 @@ import {
   FLY_DURATION_OPEN_MS,
   OPEN_CENTER_MS,
   cinematicEaseTo,
+  cinematicFlyTo,
   cinematicMaxPitchForViewport,
   cinematicOpenGlide,
   cinematicPitchForViewport,
   fitMapToPins,
   zoomForRadiusKm,
+  incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
@@ -45,7 +47,6 @@ import {
   lngLatFromMapClientPoint,
   MAP_DOUBLE_TAP_SLOP_PX,
   MAP_DOUBLE_TAP_WINDOW_MS,
-  tryMapDoubleTapZoom,
 } from '@/utils/mapDoubleTapZoom';
 
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
@@ -80,21 +81,9 @@ import {
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-type PinPreviewMode = 'sheet';
+type PinPreviewMode = 'anchored' | 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
-
-function isValidMapCoord(lat: number | null | undefined, lng: number | null | undefined): lat is number {
-  return (
-    lat != null
-    && lng != null
-    && Number.isFinite(lat)
-    && Number.isFinite(lng)
-    && Math.abs(lat) <= 90
-    && Math.abs(lng) <= 180
-    && !(Math.abs(lat) < 0.01 && Math.abs(lng) < 0.01)
-  );
-}
 
 const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -140,11 +129,11 @@ export const PassportMapModal = memo(() => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
+  const framedOpenSessionRef = useRef(0);
+  const pinsFitDoneRef = useRef(false);
   const userMapInteractedRef = useRef(false);
   const suppressMapInteractionRef = useRef(false);
   const initialCenterDoneRef = useRef(false);
-  const framedOpenSessionRef = useRef(0);
-  const pinsFitDoneRef = useRef(false);
   // Camera memory — once the user has panned/zoomed/picked a pin, the persistent
   // Mapbox instance already holds their last view, so we stop auto-centering on reopen.
   const userEverMovedRef = useRef(false);
@@ -169,6 +158,8 @@ export const PassportMapModal = memo(() => {
   const [layerFilter, setLayerFilter] = useState<MapLayerFilter>('all');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  /** Prefetch pins while the map warms in the background — show instantly on open. */
+  const shouldLoadMapPins = isOpen || mapReady;
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
@@ -180,11 +171,6 @@ export const PassportMapModal = memo(() => {
   /** First open: search the listing cluster hub — not stale profile GPS thousands of km away. */
   const [hubSearchOnOpen, setHubSearchOnOpen] = useState(true);
   const mapHudRef = useRef<HTMLDivElement>(null);
-
-  /** Prefetch pins while the map warms in the background — show instantly on open. */
-  const shouldLoadMapPins = isOpen || mapReady;
-  /** Always prefetch Tulum hub listings — map modal stays mounted for warm-start. */
-  const shouldPrefetchMapData = true;
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -218,19 +204,18 @@ export const PassportMapModal = memo(() => {
 
   /** Map circle + camera center — long-press anchor beats GPS for the radius ring. */
   const radiusCenter = useMemo(() => {
-    if (passportMode && isValidMapCoord(lat, lng)) return { lat, lng };
+    if (passportMode && lat != null && lng != null) return { lat, lng };
     if (searchAnchor) return searchAnchor;
     if (hubSearchOnOpen) return MAP_SEARCH_HUB;
     if (deviceGps) return deviceGps;
-    if (isValidMapCoord(lat, lng)) return { lat, lng };
+    if (lat != null && lng != null) return { lat, lng };
     return MAP_SEARCH_HUB;
   }, [passportMode, lat, lng, deviceGps, searchAnchor, hubSearchOnOpen]);
 
   const searchCoords = useMemo(() => {
-    if (passportMode && isValidMapCoord(lat, lng)) return { lat, lng };
-    if (hubSearchOnOpen || !isOpen) return MAP_SEARCH_HUB;
+    if (!shouldLoadMapPins) return null;
     return radiusCenter;
-  }, [passportMode, lat, lng, hubSearchOnOpen, isOpen, radiusCenter]);
+  }, [shouldLoadMapPins, radiusCenter]);
 
   const usingSearchFallback = isOpen && radiusCenter == null;
 
@@ -238,7 +223,7 @@ export const PassportMapModal = memo(() => {
     searchCoords?.lat ?? null,
     searchCoords?.lng ?? null,
     radiusKm,
-    shouldPrefetchMapData,
+    shouldLoadMapPins,
   );
   const activePeopleCount = data?.activePeopleCount ?? 0;
 
@@ -251,11 +236,6 @@ export const PassportMapModal = memo(() => {
     if (!data || layerFilter === 'listings') return [];
     return data.profiles;
   }, [data, layerFilter]);
-
-  const visibleListingsRef = useRef(visibleListings);
-  visibleListingsRef.current = visibleListings;
-  const visibleProfilesRef = useRef(visibleProfiles);
-  visibleProfilesRef.current = visibleProfiles;
 
   const nearbyCount = (visibleListings.length + visibleProfiles.length);
   const showInitialDataLoad = isFetching && !data;
@@ -293,7 +273,7 @@ export const PassportMapModal = memo(() => {
           center.lng,
           center.lat,
           radiusKm,
-          { showCenterDot: !passportMode },
+          { showCenterDot: true },
         );
       } catch {
         // Style can still be loading on first paint
@@ -308,49 +288,7 @@ export const PassportMapModal = memo(() => {
     map.once('load', onReady);
     map.once('style.load', onReady);
     map.once('idle', onReady);
-  }, [radiusKm, passportMode]);
-
-  const runOpenCinematic = useCallback((): boolean => {
-    const map = mapRef.current;
-    const mapboxgl = mapboxRef.current;
-    if (!map || !mapboxgl || !map.isStyleLoaded()) return false;
-    if (userMapInteractedRef.current) return false;
-
-    const center = radiusCenterRef.current ?? MAP_SEARCH_HUB;
-    const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
-    const pitch = cinematicPitchForViewport();
-
-    suppressMapInteractionRef.current = true;
-    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
-    map.once('moveend', releaseSuppress);
-    window.setTimeout(releaseSuppress, CINEMATIC_OPEN_GLIDE_MS + 500);
-
-    window.setTimeout(() => {
-      if (pinsFitDoneRef.current || userMapInteractedRef.current) {
-        refreshMapVisualsRef.current();
-        return;
-      }
-      const pins = [
-        ...visibleListingsRef.current.map((l) => ({ lng: l.lng, lat: l.lat })),
-        ...visibleProfilesRef.current.map((p) => ({ lng: p.lng, lat: p.lat })),
-      ];
-      if (pins.length > 0) {
-        fitMapToPins(map, mapboxgl, center, pins, { duration: 1400, padding: 80, maxZoom: 13.5 });
-        pinsFitDoneRef.current = true;
-      }
-      applyRadiusCircleNow();
-      refreshMapVisualsRef.current();
-    }, CINEMATIC_OPEN_GLIDE_MS + 250);
-
-    cinematicOpenGlide(map, [center.lng, center.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
-    applyRadiusCircleNow();
-    syncMarkersRef.current();
-    initialCenterDoneRef.current = true;
-    return true;
-  }, [applyRadiusCircleNow]);
-
-  const runOpenCinematicRef = useRef(runOpenCinematic);
-  runOpenCinematicRef.current = runOpenCinematic;
+  }, [radiusKm]);
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.
   useEffect(() => {
@@ -373,6 +311,7 @@ export const PassportMapModal = memo(() => {
   }, [radiusKm, isOpen, mapReady]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
+    setHubSearchOnOpen(false);
     setPassportLocation(newLat, newLng, label);
     if (mapRef.current) {
       cinematicEaseTo(
@@ -394,9 +333,6 @@ export const PassportMapModal = memo(() => {
   const focusPinSheet = useCallback((pin: SelectedPin) => {
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
-    // Guard against the map's click handler clearing this selection immediately (mobile race)
-    const guard = (mapRef.current as any)?.__markerTapGuard;
-    if (guard) guard.current = Date.now();
     setSelected(pin);
     setPreviewMode('sheet');
     setRadiusHudExpanded(false); // Close the km slider when a pin is clicked
@@ -511,7 +447,6 @@ export const PassportMapModal = memo(() => {
   }, []);
 
   const applyGpsFix = useCallback((fix: GpsFix | { lat: number; lng: number }) => {
-    if (!isValidMapCoord(fix.lat, fix.lng)) return;
     const next = { lat: fix.lat, lng: fix.lng };
     if (coordsNearFix(deviceGpsRef.current, next)) return;
     deviceGpsRef.current = next;
@@ -544,6 +479,45 @@ export const PassportMapModal = memo(() => {
   const markUserMapControlRef = useRef(markUserMapControl);
   markUserMapControlRef.current = markUserMapControl;
 
+  const centerMapOnTarget = useCallback((
+    target: { lat: number; lng: number },
+    session: number,
+    opts?: { duration?: number; fly?: boolean },
+  ) => {
+    if (session !== mapOpenSessionRef.current) return;
+    if (userMapInteractedRef.current || selectedRef.current) return;
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+
+    const center: [number, number] = [target.lng, target.lat];
+    const zoom = zoomForRadiusKm(radiusKm);
+    const pitch = cinematicPitchForViewport();
+
+    const duration = opts?.duration ?? OPEN_CENTER_MS;
+
+    suppressMapInteractionRef.current = true;
+    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
+    map.once('moveend', releaseSuppress);
+    window.setTimeout(releaseSuppress, (duration || FLY_DURATION_OPEN_MS) + 120);
+
+    if (opts?.fly) {
+      cinematicFlyTo(map, center, zoom, {
+        pitch,
+      });
+      return;
+    }
+
+    if (duration <= 0) {
+      map.jumpTo({ center, zoom, pitch, bearing: map.getBearing() });
+      releaseSuppress();
+      return;
+    }
+
+    cinematicEaseTo(map, center, zoom, { duration, pitch });
+  }, [mapReady, radiusKm]);
+
+  const centerMapOnTargetRef = useRef(centerMapOnTarget);
+  centerMapOnTargetRef.current = centerMapOnTarget;
   const applyGpsFixRef = useRef(applyGpsFix);
   applyGpsFixRef.current = applyGpsFix;
 
@@ -629,7 +603,6 @@ export const PassportMapModal = memo(() => {
         : MAP_SEARCH_HUB;
       const initialLng = hub.lng;
       const initialLat = hub.lat;
-      // Start at regional altitude so every open cinematic glide is visible.
       const initialZoom = CINEMATIC_OPEN_ALTITUDE_ZOOM;
 
       try {
@@ -667,7 +640,6 @@ export const PassportMapModal = memo(() => {
         const canvas = map.getCanvas();
         canvas.setAttribute('tabindex', '-1');
         canvas.setAttribute('data-map-canvas', '');
-        // Mapbox owns pan/zoom; avoid browser swallowing rapid taps on iOS PWA.
         canvas.style.touchAction = 'none';
 
         map.on('load', () => {
@@ -711,14 +683,16 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Double-tap zoom: container touchend (iOS PWA) + dblclick (desktop) — one handler each.
-        unbindMapDoubleTapRef.current?.();
         const mapContainer = map.getContainer();
-        mapContainer.style.touchAction = 'none';
-
-        const onDoubleTapZoomed = () => {
-          markUserMapControlRef.current();
-          triggerHaptic('light');
+        const handleDoubleTapZoom = (center: [number, number]) => {
+          if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          if (now - lastDoubleTapZoomAtRef.current < 120) return;
+          if (incrementalDoubleTapZoom(map, center)) {
+            lastDoubleTapZoomAtRef.current = now;
+            markUserMapControlRef.current();
+            triggerHaptic('light');
+          }
         };
 
         let lastTouchTapTime = 0;
@@ -741,11 +715,8 @@ export const PassportMapModal = memo(() => {
           ) {
             e.preventDefault();
             e.stopPropagation();
-            const center = lngLatFromMapClientPoint(map, touch.clientX, touch.clientY);
-            if (tryMapDoubleTapZoom(map, center, lastDoubleTapZoomAtRef, 80)) {
-              lastTouchTapTime = 0;
-              onDoubleTapZoomed();
-            }
+            handleDoubleTapZoom(lngLatFromMapClientPoint(map, touch.clientX, touch.clientY));
+            lastTouchTapTime = 0;
           } else {
             lastTouchTapTime = now;
             lastTouchTapX = touch.clientX;
@@ -756,11 +727,7 @@ export const PassportMapModal = memo(() => {
 
         const onMapDblClick = (e: import('mapbox-gl').MapMouseEvent) => {
           e.preventDefault();
-          if (!useModalStore.getState().showPassportMapModal) return;
-          const center = [e.lngLat.lng, e.lngLat.lat] as [number, number];
-          if (tryMapDoubleTapZoom(map, center, lastDoubleTapZoomAtRef, 80)) {
-            onDoubleTapZoomed();
-          }
+          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
         };
         map.on('dblclick', onMapDblClick);
 
@@ -787,10 +754,6 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enable();
         map.touchPitch.enable();
 
-        // Guard: marker taps set a timestamp so the map click doesn't immediately clear the selection
-        const markerTapGuardRef = { current: 0 };
-        (map as any).__markerTapGuard = markerTapGuardRef;
-
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const now = Date.now();
@@ -798,8 +761,6 @@ export const PassportMapModal = memo(() => {
           if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
           if (now - lastDoubleTapZoomAtRef.current < 500) return;
-          // Ignore clicks that happen right after a marker tap (mobile event chain race)
-          if (now - markerTapGuardRef.current < 400) return;
           clearPinPreview();
         });
 
@@ -967,7 +928,6 @@ export const PassportMapModal = memo(() => {
       map.once('idle', () => syncMarkersRef.current());
       return;
     }
-
     const mapboxgl = mapboxRef.current;
     const registry = markersRef.current;
     const nextKeys = new Set<string>();
@@ -986,7 +946,6 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createListingMarkerEl(l, isSelected);
-      el.style.opacity = '1';
       const cleanup = bindMarkerGestures(
         el,
         () => {
@@ -1018,7 +977,6 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createProfileMarkerEl(p, isSelected);
-      el.style.opacity = '1';
       const cleanup = bindMarkerGestures(
         el,
         () => {
@@ -1079,36 +1037,34 @@ export const PassportMapModal = memo(() => {
     refreshMapVisuals();
   }, [data, shouldLoadMapPins, mapReady, refreshMapVisuals]);
 
-  // Every open: cinematic glide → fit all pins → radar (retries until style is ready).
+  // First paint each open session — hub center, circle, pins (no async GPS yank).
   useEffect(() => {
     if (!isOpen || !mapReady) return;
     const session = mapOpenSessionRef.current;
     if (framedOpenSessionRef.current === session) return;
+    framedOpenSessionRef.current = session;
 
-    const attempt = () => {
-      if (framedOpenSessionRef.current === session) return;
-      if (runOpenCinematicRef.current()) {
-        framedOpenSessionRef.current = session;
-      }
-    };
-
-    attempt();
+    const map = mapRef.current;
+    const center = radiusCenterRef.current;
+    if (map && center && !userMapInteractedRef.current) {
+      const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
+      const pitch = cinematicPitchForViewport();
+      cinematicOpenGlide(map, [center.lng, center.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
+      applyRadiusCircleNow();
+      initialCenterDoneRef.current = true;
+    }
     refreshMapVisuals();
-    const t1 = window.setTimeout(() => { attempt(); refreshMapVisuals(); }, 80);
-    const t2 = window.setTimeout(() => { attempt(); refreshMapVisuals(); }, 300);
-    const t3 = window.setTimeout(refreshMapVisuals, 800);
-    const t4 = window.setTimeout(refreshMapVisuals, 1500);
+    const t1 = window.setTimeout(refreshMapVisuals, 50);
+    const t2 = window.setTimeout(refreshMapVisuals, 250);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
-      window.clearTimeout(t3);
-      window.clearTimeout(t4);
     };
-  }, [isOpen, mapReady, refreshMapVisuals]);
+  }, [isOpen, mapReady, refreshMapVisuals, applyRadiusCircleNow]);
 
-  // Refine camera to frame every pin once listing data arrives on open.
+  // Frame all listing pins after the open cinematic glide finishes.
   useEffect(() => {
-    if (!isOpen || !mapReady || pinsFitDoneRef.current || userMapInteractedRef.current || selectedRef.current) return;
+    if (!isOpen || !mapReady || pinsFitDoneRef.current || userMapInteractedRef.current) return;
     const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
     if (!map || !mapboxgl || !map.isStyleLoaded()) return;
@@ -1120,18 +1076,16 @@ export const PassportMapModal = memo(() => {
     if (pins.length === 0) return;
 
     const center = radiusCenterRef.current ?? MAP_SEARCH_HUB;
-    if (fitMapToPins(map, mapboxgl, center, pins, { duration: 1600, padding: 72 })) {
-      pinsFitDoneRef.current = true;
-      initialCenterDoneRef.current = true;
-      applyRadiusCircleNow();
-    }
-  }, [isOpen, mapReady, visibleListings, visibleProfiles, applyRadiusCircleNow]);
-
-  // Pins must repaint the moment the sheet opens or cached data lands.
-  useEffect(() => {
-    if (!isOpen || !mapReady || !data) return;
-    refreshMapVisuals();
-  }, [isOpen, mapReady, data, nearbyCount, refreshMapVisuals]);
+    const t = window.setTimeout(() => {
+      if (pinsFitDoneRef.current || userMapInteractedRef.current || !mapRef.current) return;
+      if (fitMapToPins(map, mapboxgl, center, pins, { duration: 1200, padding: 72, maxZoom: 13.5 })) {
+        pinsFitDoneRef.current = true;
+        applyRadiusCircleNow();
+        refreshMapVisuals();
+      }
+    }, CINEMATIC_OPEN_GLIDE_MS + 200);
+    return () => window.clearTimeout(t);
+  }, [isOpen, mapReady, visibleListings, visibleProfiles, applyRadiusCircleNow, refreshMapVisuals]);
 
   // Selection highlight only — avoids rebuilding every marker on tap
   useEffect(() => {
@@ -1144,10 +1098,10 @@ export const PassportMapModal = memo(() => {
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
       const isHiddenBySelection = selected != null && !isSelected;
       
+      entry.el.style.opacity = isHiddenBySelection ? '0' : '1';
+      entry.el.style.pointerEvents = isHiddenBySelection ? 'none' : 'auto';
+      // Use standard CSS transition for a clean fade effect
       entry.el.style.transition = 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-      entry.el.style.opacity = isHiddenBySelection ? '0.15' : '1';
-      // Keep pointer events active so tapping another pin while one is selected still works
-      entry.el.style.pointerEvents = 'auto';
 
       if (entry.pinType === 'listing') {
         const listing = listingsById.get(entry.pinId);
@@ -1311,12 +1265,12 @@ export const PassportMapModal = memo(() => {
                       type="button"
                       data-no-cinematic
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
-                      className="absolute left-[1px] top-[1px] w-[32px] h-[32px] flex items-center justify-center text-white z-20 hover:text-white transition-all"
+                      className="map-hud-btn shrink-0 w-[32px] h-[32px] flex items-center justify-center text-white z-20 hover:text-white transition-all"
                       aria-label="Search location"
                     >
                       <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.5} />
                     </button>
-                    <div className={cn('flex-1 h-full relative flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100 pl-[34px]' : 'opacity-0 pointer-events-none')}>
+                    <div className={cn('flex-1 h-full relative flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
                       <div
                         ref={geocoderContainerRef}
                         className={cn(
