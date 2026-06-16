@@ -484,7 +484,7 @@ export const PassportMapModal = memo(() => {
 
   // Auto-center exactly once per open — never re-run when GPS or radius updates.
   useEffect(() => {
-    if (!isOpen || !mapReady || initialCenterDoneRef.current || isMapDataLoading) return;
+    if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
 
     const session = mapOpenSessionRef.current;
     let cancelled = false;
@@ -532,7 +532,7 @@ export const PassportMapModal = memo(() => {
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode, isMapDataLoading]);
+  }, [isOpen, mapReady, passportMode]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -600,7 +600,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
-          doubleClickZoom: true,
+          doubleClickZoom: false,
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
@@ -657,19 +657,46 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        map.on('dblclick', (e) => {
-          e.preventDefault();
+        // Double-tap zoom: use raw touchend for mobile (dblclick doesn't fire
+        // reliably on PWA/WebView) + dblclick for desktop.
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        const handleDoubleTapZoom = (lngLat: [number, number]) => {
           if (!useModalStore.getState().showPassportMapModal) return;
-          
-          const center = [e.lngLat.lng, e.lngLat.lat] as [number, number];
           const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 120) return;
-          
-          if (incrementalDoubleTapZoom(map, center)) {
+          if (now - lastDoubleTapZoomAtRef.current < 150) return;
+          if (incrementalDoubleTapZoom(map, lngLat)) {
             lastDoubleTapZoomAtRef.current = now;
             markUserMapControlRef.current();
             triggerHaptic('light');
           }
+        };
+
+        // Mobile: detect double-tap via touchend pairs
+        canvas.addEventListener('touchend', (e) => {
+          if (e.touches.length > 0) return; // multi-finger
+          const touch = e.changedTouches[0];
+          if (!touch) return;
+          const now = Date.now();
+          const dx = Math.abs(touch.clientX - lastTapX);
+          const dy = Math.abs(touch.clientY - lastTapY);
+          if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
+            e.preventDefault();
+            const point = map.unproject([touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top]);
+            handleDoubleTapZoom([point.lng, point.lat]);
+            lastTapTime = 0; // reset so triple-tap doesn't fire again
+          } else {
+            lastTapTime = now;
+            lastTapX = touch.clientX;
+            lastTapY = touch.clientY;
+          }
+        }, { passive: false });
+
+        // Desktop: native dblclick
+        map.on('dblclick', (e) => {
+          e.preventDefault();
+          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
         });
 
         unbindLongPressRef.current?.();
@@ -897,6 +924,9 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createListingMarkerEl(l, isSelected);
+      // Start invisible — prevents the "blink at top-left" while Mapbox projects the coordinate
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.25s ease-out';
       const cleanup = bindMarkerGestures(
         el,
         () => {
@@ -912,6 +942,8 @@ export const PassportMapModal = memo(() => {
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([l.lng, l.lat])
         .addTo(map);
+      // Fade in after Mapbox has placed the element at the correct screen position
+      requestAnimationFrame(() => { el.style.opacity = '1'; });
       registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
     };
 
@@ -928,6 +960,9 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createProfileMarkerEl(p, isSelected);
+      // Start invisible — prevents the "blink at top-left" while Mapbox projects the coordinate
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.25s ease-out';
       const cleanup = bindMarkerGestures(
         el,
         () => {
@@ -943,6 +978,8 @@ export const PassportMapModal = memo(() => {
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([p.lng, p.lat])
         .addTo(map);
+      // Fade in after Mapbox has placed the element at the correct screen position
+      requestAnimationFrame(() => { el.style.opacity = '1'; });
       registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
     };
 
@@ -981,10 +1018,10 @@ export const PassportMapModal = memo(() => {
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
       const isHiddenBySelection = selected != null && !isSelected;
       
-      entry.el.style.opacity = isHiddenBySelection ? '0' : '1';
-      entry.el.style.pointerEvents = isHiddenBySelection ? 'none' : 'auto';
-      // Use standard CSS transition for a clean fade effect
       entry.el.style.transition = 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+      entry.el.style.opacity = isHiddenBySelection ? '0.15' : '1';
+      // Keep pointer events active so tapping another pin while one is selected still works
+      entry.el.style.pointerEvents = 'auto';
 
       if (entry.pinType === 'listing') {
         const listing = listingsById.get(entry.pinId);
