@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
+import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
@@ -140,6 +141,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
+  const { user } = useAuth();
 
   const detectLocation = useCallback(() => {
     if (!canGeolocate()) return;
@@ -150,11 +152,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setRadiusKm(100);
         setLocationDetected(true);
         setLocationDetecting(false);
+        if (user?.id) void persistClientProfileGps(user.id, latitude, longitude);
       })
       .catch(() => {
         setLocationDetecting(false);
       });
-  }, [setUserLocation, setRadiusKm]);
+  }, [setUserLocation, setRadiusKm, user?.id]);
 
   useEffect(() => {
     if (userLatitude != null && userLongitude != null) {
@@ -162,10 +165,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, [userLatitude, userLongitude]);
 
-  // ­ƒôì Location requested only on explicit user gesture (filter / slider).
-
-  // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
-  const { user } = useAuth();
+  // Location requested only on explicit user gesture (filter / slider).
   const { data: userRole } = useUserRole(user?.id);
   const queryClient = useQueryClient();
 

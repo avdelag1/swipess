@@ -315,7 +315,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                />
                {data?.user_id && (
                  <div className="space-y-2">
-                   <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-700" : "text-white/90")}>Optional 6s silent video loop â€” plays first on your card</p>
+                   <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-700" : "text-white/90")}>Optional 6s silent video loop — plays first on your card</p>
                    <ListingVideoUpload
                      userId={data.user_id}
                      videoUrl={videoUrl}

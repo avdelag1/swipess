@@ -204,7 +204,7 @@ export default function OwnerViewClientProfile() {
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
                   <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
-                    {client.age ? `${client.age} â€¢ ` : ''}{client.city || 'Swipes Sector'}
+                    {client.age ? `${client.age} · ` : ''}{client.city || 'Swipes Sector'}
                   </p>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export default function OwnerViewClientProfile() {
                     <div className="space-y-1">
                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Specifications</p>
                        <p className="text-lg font-black text-white tracking-tighter uppercase italic">
-                         {preferences.min_bedrooms || 0}+ BR â€¢ {preferences.min_bathrooms || 0}+ BA
+                         {preferences.min_bedrooms || 0}+ BR · {preferences.min_bathrooms || 0}+ BA
                        </p>
                     </div>
                   </div>

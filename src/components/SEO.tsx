@@ -13,7 +13,7 @@ interface SEOProps {
  * Dynamically updates document metadata for premium social sharing previews.
  */
 export function SEO({
-  title = 'Swipess â€” Immersive Discovery',
+  title = 'Swipess — Immersive Discovery',
   description = 'Elite marketplace and discovery engine for properties, vehicles, and services.',
   image = 'https://swipess.com/og-image-Swipes.png',
   url = 'https://swipess.com',

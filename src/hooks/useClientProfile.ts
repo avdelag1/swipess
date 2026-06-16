@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
 import { resolveClientType } from '@/utils/clientType';
+import { isValidListingCoordinates, resolveListingCoordinatesSync } from '@/utils/listingLocation';
+
 
 export type ClientProfileLite = {
   id?: number;
@@ -128,7 +130,7 @@ export function useSaveClientProfile() {
 
       const { data: existing, error: existingError } = await supabase
         .from('client_profiles')
-        .select('id')
+        .select('id, city, country, neighborhood, latitude, longitude')
         .eq('user_id', uid)
         .maybeSingle();
       
@@ -152,6 +154,20 @@ export function useSaveClientProfile() {
       });
       if (derivedType) {
         cleanUpdates.client_type = derivedType;
+      }
+
+      if (!isValidListingCoordinates(cleanUpdates.latitude, cleanUpdates.longitude)) {
+        const coords = resolveListingCoordinatesSync({
+          city: cleanUpdates.city ?? existing?.city,
+          country: cleanUpdates.country ?? existing?.country,
+          neighborhood: cleanUpdates.neighborhood ?? existing?.neighborhood,
+          latitude: existing?.latitude,
+          longitude: existing?.longitude,
+        });
+        if (coords) {
+          cleanUpdates.latitude = coords.latitude;
+          cleanUpdates.longitude = coords.longitude;
+        }
       }
 
       let profileData: ClientProfileLite;

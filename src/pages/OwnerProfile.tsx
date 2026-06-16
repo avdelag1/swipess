@@ -121,7 +121,7 @@ const OwnerProfile = () => {
               <Sparkles className="w-7 h-7 text-white" />
               <div className="text-left">
                 <span className="block text-[16px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Profile</span>
-                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Speak â€” AI builds your business profile</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Speak — AI builds your business profile</span>
               </div>
             </div>
           </Button>
