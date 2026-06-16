@@ -14,7 +14,6 @@ import {
   applyCinematicFog,
   CINEMATIC_BEARING,
   CINEMATIC_OPEN_ALTITUDE_ZOOM,
-  CINEMATIC_OPEN_GLIDE_MS,
   FLY_DURATION_OPEN_MS,
   OPEN_CENTER_MS,
   cinematicEaseTo,
@@ -22,7 +21,6 @@ import {
   cinematicMaxPitchForViewport,
   cinematicOpenGlide,
   cinematicPitchForViewport,
-  fitMapToPins,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -128,7 +126,9 @@ export const PassportMapModal = memo(() => {
   const initStartedRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
   const framedOpenSessionRef = useRef(0);
-  const pinsFitDoneRef = useRef(false);
+  // Map init runs once and must survive isOpen toggles — see init effect below.
+  const beginInitRef = useRef<(() => void) | null>(null);
+  const mapUnmountedRef = useRef(false);
   const userMapInteractedRef = useRef(false);
   const suppressMapInteractionRef = useRef(false);
   const initialCenterDoneRef = useRef(false);
@@ -528,7 +528,6 @@ export const PassportMapModal = memo(() => {
       userMapInteractedRef.current = false;
       userEverMovedRef.current = false;
       initialCenterDoneRef.current = false;
-      pinsFitDoneRef.current = false;
       framedOpenSessionRef.current = 0;
     }
     if (!isOpen) {
@@ -575,27 +574,35 @@ export const PassportMapModal = memo(() => {
   // Create Mapbox once the host is mounted. Warm-start on dashboard (hidden) so
   // the first open is instant; still defer if the genie sheet is animating open.
   useEffect(() => {
-    if (initStartedRef.current || !mapContainerRef.current) return;
+    if (!mapContainerRef.current) return undefined;
+    // Effect (re)mounted — the map is alive again.
+    mapUnmountedRef.current = false;
 
-    let cancelled = false;
+    let deferHandle: ReturnType<typeof setTimeout> | null = null;
 
     const beginInit = () => {
-      if (cancelled || initStartedRef.current || !mapContainerRef.current) return;
-      if (isOpen) setMapLoading(true);
+      if (mapUnmountedRef.current || initStartedRef.current || !mapContainerRef.current) return;
+      // Synchronous lock: a pending defer-timer and the open-kick effect must
+      // never both create a Mapbox instance. Reset on any early-out below.
+      initStartedRef.current = true;
+      if (useModalStore.getState().showPassportMapModal) setMapLoading(true);
       setMapError(null);
 
     (async () => {
       const token = await resolveMapboxAccessToken();
-      if (cancelled || !mapContainerRef.current) return;
+      if (mapUnmountedRef.current || !mapContainerRef.current) {
+        initStartedRef.current = false;
+        return;
+      }
 
       if (!token) {
         setMapLoading(false);
         setTokenReady(false);
+        initStartedRef.current = false;
         return;
       }
 
       setTokenReady(true);
-      initStartedRef.current = true;
 
       const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
       const hub = pm && userLatitude != null && userLongitude != null
@@ -607,7 +614,10 @@ export const PassportMapModal = memo(() => {
 
       try {
         const { mapboxgl } = await warmMapboxModules();
-        if (cancelled || !mapContainerRef.current) return;
+        if (mapUnmountedRef.current || !mapContainerRef.current) {
+          initStartedRef.current = false;
+          return;
+        }
 
         mapboxRef.current = mapboxgl;
         mapboxgl.accessToken = token;
@@ -643,7 +653,7 @@ export const PassportMapModal = memo(() => {
         canvas.style.touchAction = 'none';
 
         map.on('load', () => {
-          if (cancelled) return;
+          if (mapUnmountedRef.current) return;
 
           try {
             applyCinematicFog(map, isLightRef.current);
@@ -676,7 +686,7 @@ export const PassportMapModal = memo(() => {
           const status = e?.error?.status;
           const message = e?.error?.message ?? '';
           if (status === 401 || status === 403 || /unauthorized|forbidden/i.test(message)) {
-            if (!cancelled) {
+            if (!mapUnmountedRef.current) {
               setMapError('Mapbox token rejected — check URL restrictions in your Mapbox dashboard');
               setMapLoading(false);
             }
@@ -740,7 +750,7 @@ export const PassportMapModal = memo(() => {
           resizeObserverRef.current.observe(mapContainerRef.current);
         }
       } catch {
-        if (!cancelled) {
+        if (!mapUnmountedRef.current) {
           setMapError('Failed to initialize map — try refreshing the page');
           setMapLoading(false);
           initStartedRef.current = false;
@@ -749,20 +759,31 @@ export const PassportMapModal = memo(() => {
     })();
     };
 
-    // Init immediately when open; defer warm-start so WebGL doesn't crash iOS on boot.
-    if (isOpen) {
+    // Expose so the open-kick effect can start init the instant the user opens
+    // the map, without this effect re-running (which used to cancel an in-flight
+    // background init and leave mapReady stuck false → blank map, no pins).
+    beginInitRef.current = beginInit;
+
+    // Init immediately when already open; otherwise defer the warm-start so a
+    // fresh WebGL context doesn't crash iOS during app boot.
+    if (useModalStore.getState().showPassportMapModal) {
       beginInit();
     } else {
-      const deferMs = 900;
-      const handle = setTimeout(beginInit, deferMs);
-      return () => {
-        cancelled = true;
-        clearTimeout(handle);
-      };
+      deferHandle = setTimeout(beginInit, 900);
     }
 
-    return () => { cancelled = true; };
-  }, [isOpen, resizeMap]);
+    // Only clears the pending defer timer — never cancels a committed init.
+    // True teardown is handled by the unmount effect (sets mapUnmountedRef).
+    return () => {
+      if (deferHandle) clearTimeout(deferHandle);
+    };
+  }, [resizeMap]);
+
+  // If the user opens the map before the deferred warm-start fired, init now.
+  // Guarded by initStartedRef so this never double-creates the Mapbox instance.
+  useEffect(() => {
+    if (isOpen && !initStartedRef.current) beginInitRef.current?.();
+  }, [isOpen]);
 
   // Geocoder mounts after map is ready — keeps first paint fast
   useEffect(() => {
@@ -816,6 +837,7 @@ export const PassportMapModal = memo(() => {
   }, [mapReady, deviceGps, lat, lng]);
 
   useEffect(() => () => {
+    mapUnmountedRef.current = true;
     unbindLongPressRef.current?.();
     unbindLongPressRef.current = null;
     unbindInteractionRef.current?.();
@@ -1036,31 +1058,6 @@ export const PassportMapModal = memo(() => {
       window.clearTimeout(t2);
     };
   }, [isOpen, mapReady, refreshMapVisuals, applyRadiusCircleNow]);
-
-  // Frame all listing pins after the open cinematic glide finishes.
-  useEffect(() => {
-    if (!isOpen || !mapReady || pinsFitDoneRef.current || userMapInteractedRef.current) return;
-    const map = mapRef.current;
-    const mapboxgl = mapboxRef.current;
-    if (!map || !mapboxgl || !map.isStyleLoaded()) return;
-
-    const pins = [
-      ...visibleListings.map((l) => ({ lng: l.lng, lat: l.lat })),
-      ...visibleProfiles.map((p) => ({ lng: p.lng, lat: p.lat })),
-    ];
-    if (pins.length === 0) return;
-
-    const center = radiusCenterRef.current ?? MAP_SEARCH_HUB;
-    const t = window.setTimeout(() => {
-      if (pinsFitDoneRef.current || userMapInteractedRef.current || !mapRef.current) return;
-      if (fitMapToPins(map, mapboxgl, center, pins, { duration: 1200, padding: 72, maxZoom: 13.5 })) {
-        pinsFitDoneRef.current = true;
-        applyRadiusCircleNow();
-        refreshMapVisuals();
-      }
-    }, CINEMATIC_OPEN_GLIDE_MS + 200);
-    return () => window.clearTimeout(t);
-  }, [isOpen, mapReady, visibleListings, visibleProfiles, applyRadiusCircleNow, refreshMapVisuals]);
 
   // Selection highlight only — avoids rebuilding every marker on tap
   useEffect(() => {
