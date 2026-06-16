@@ -66,71 +66,71 @@ export function syncRadiusCircleOnMap(
     }
   };
 
+  const ensureLayer = (id: string, spec: Parameters<MapboxMap['addLayer']>[0]) => {
+    if (!map.getLayer(id)) map.addLayer(spec);
+  };
+
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: 'geojson', data: polygon });
-
-    // Wide soft halo — glass radar wash (very transparent)
-    map.addLayer({
-      id: FILL_OUTER_ID,
-      type: 'fill',
-      source: SOURCE_ID,
-      paint: {
-        'fill-color': RADIUS_CYAN,
-        'fill-opacity': 0.04,
-      },
-    });
-
-    // Inner tint — subtle cyan core, still see-through
-    map.addLayer({
-      id: FILL_ID,
-      type: 'fill',
-      source: SOURCE_ID,
-      paint: {
-        'fill-color': RADIUS_BLUE,
-        'fill-opacity': 0.07,
-      },
-    });
-
-    // Outer bloom ring
-    map.addLayer({
-      id: GLOW_OUTER_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': RADIUS_CYAN,
-        'line-width': 10,
-        'line-opacity': 0.18,
-        'line-blur': 10,
-      },
-    });
-
-    // Crisp glowing edge
-    map.addLayer({
-      id: GLOW_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': RADIUS_CYAN,
-        'line-width': 4,
-        'line-opacity': 0.42,
-        'line-blur': 3,
-      },
-    });
-
-    // Sharp white-cyan rim — defines the search boundary
-    map.addLayer({
-      id: LINE_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': '#E0F7FF',
-        'line-width': 1.75,
-        'line-opacity': 0.72,
-      },
-    });
   } else {
     upsert(SOURCE_ID, polygon);
   }
+
+  // Ensure layers exist — a prior failed addLayer can leave source without rings.
+  ensureLayer(FILL_OUTER_ID, {
+    id: FILL_OUTER_ID,
+    type: 'fill',
+    source: SOURCE_ID,
+    paint: {
+      'fill-color': RADIUS_CYAN,
+      'fill-opacity': 0.08,
+    },
+  });
+
+  ensureLayer(FILL_ID, {
+    id: FILL_ID,
+    type: 'fill',
+    source: SOURCE_ID,
+    paint: {
+      'fill-color': RADIUS_BLUE,
+      'fill-opacity': 0.12,
+    },
+  });
+
+  ensureLayer(GLOW_OUTER_ID, {
+    id: GLOW_OUTER_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': RADIUS_CYAN,
+      'line-width': 10,
+      'line-opacity': 0.38,
+      'line-blur': 10,
+    },
+  });
+
+  ensureLayer(GLOW_ID, {
+    id: GLOW_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': RADIUS_CYAN,
+      'line-width': 4,
+      'line-opacity': 0.65,
+      'line-blur': 3,
+    },
+  });
+
+  ensureLayer(LINE_ID, {
+    id: LINE_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': '#E0F7FF',
+      'line-width': 1.75,
+      'line-opacity': 0.95,
+    },
+  });
 
   if (showCenterDot) {
     if (!map.getSource(CENTER_ID)) {
@@ -141,7 +141,7 @@ export function syncRadiusCircleOnMap(
         source: CENTER_ID,
         paint: {
           'circle-radius': 7,
-          'circle-color': '#EF4444', // Red center dot per Dribbble design
+          'circle-color': '#EF4444',
           'circle-stroke-width': 3,
           'circle-stroke-color': '#ffffff',
           'circle-opacity': 1,
@@ -157,7 +157,7 @@ export function syncRadiusCircleOnMap(
           source: CENTER_ID,
           paint: {
             'circle-radius': 7,
-            'circle-color': '#EF4444', // Red center dot per Dribbble design
+            'circle-color': '#EF4444',
             'circle-stroke-width': 3,
             'circle-stroke-color': '#ffffff',
             'circle-opacity': 1,
@@ -171,7 +171,6 @@ export function syncRadiusCircleOnMap(
     if (map.getSource(CENTER_ID)) map.removeSource(CENTER_ID);
   }
 
-  // Subtle pulse as radius changes — stays glassy at all sizes
   const sizeFactor = Math.min(radiusKm / 80, 1);
   if (map.getLayer(LINE_ID)) {
     map.setPaintProperty(LINE_ID, 'line-width', 1.5 + sizeFactor * 0.75);
