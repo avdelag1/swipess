@@ -879,7 +879,10 @@ export const PassportMapModal = memo(() => {
 
   const syncMarkers = useCallback(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
-    if (!mapRef.current.isStyleLoaded()) return;
+    if (!mapRef.current.isStyleLoaded()) {
+      mapRef.current.once('styledata', syncMarkers);
+      return;
+    }
 
     const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
