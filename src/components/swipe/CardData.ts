@@ -147,7 +147,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=90',
   ],
   bicycle: [
-    '/images/filters/bicycle.jpg',
+    '/images/filters/electric_bicycle_new.png',
     '/images/filters/bicycle_coco_sunset.jpg',
     '/images/filters/bicycle_beach_ride.jpg',
     'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=800&q=90',
@@ -171,10 +171,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=90',
   ],
   buyers: [
-    'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?auto=format&fit=crop&w=800&q=90',
-    '/images/filters/buyers_tulum_sold.jpg',
+    '/images/filters/buyers_property_new.png',
+    '/images/filters/buyers_motorcycle_new.png',
+    '/images/filters/buyers_bicycle_new.png',
   ],
   renters: [
     'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=90',
