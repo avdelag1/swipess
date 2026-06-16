@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { AtmosphericLayer } from './AtmosphericLayer';
@@ -46,6 +46,7 @@ interface Props {
 
 export function AccessCodeGate({ onGranted }: Props) {
   const [code, setCode] = useState('');
+  const [showCode, setShowCode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
@@ -153,9 +154,9 @@ export function AccessCodeGate({ onGranted }: Props) {
 
               <form onSubmit={handleSubmit} className="w-full space-y-4">
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                   <input
-                    type="text"
+                    type={showCode ? 'text' : 'password'}
                     value={code}
                     onChange={(e) => { setCode(e.target.value); setError(''); }}
                     placeholder="Enter access code"
@@ -163,8 +164,16 @@ export function AccessCodeGate({ onGranted }: Props) {
                     autoCapitalize="characters"
                     autoCorrect="off"
                     spellCheck={false}
-                    className="w-full h-14 pl-12 pr-4 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-wider uppercase placeholder:text-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
+                    className={`w-full h-14 pl-12 pr-12 rounded-full bg-white/5 border border-white/20 text-white text-sm font-semibold placeholder:text-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors ${showCode ? 'tracking-wider uppercase' : 'tracking-normal'}`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowCode(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
+                    aria-label={showCode ? 'Hide access code' : 'Show access code'}
+                  >
+                    {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
                 {error && (
                   <motion.p
@@ -189,14 +198,16 @@ export function AccessCodeGate({ onGranted }: Props) {
               <button
                 type="button"
                 onClick={() => setShowRequest(v => !v)}
-                className="w-full h-12 rounded-full border border-white/25 bg-white/8 text-white text-[11px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-white/12 active:scale-[0.98] transition-all"
+                className="w-full min-h-12 py-2.5 px-4 rounded-full border border-white/25 bg-white/8 text-white hover:bg-white/12 active:scale-[0.98] transition-all grid grid-cols-[20px_1fr_20px] items-center gap-2.5"
               >
-                <MessageSquare className="w-4 h-4 shrink-0" />
-                <span>{showRequest ? 'Hide request form' : "Don't have a code? Request one"}</span>
+                <MessageSquare className="w-4 h-4 shrink-0 justify-self-center" />
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] leading-tight text-center">
+                  {showRequest ? 'Hide request form' : "Don't have a code? Request one"}
+                </span>
                 <motion.span
                   animate={{ rotate: showRequest ? 180 : 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                  className="shrink-0"
+                  className="shrink-0 justify-self-center"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </motion.span>
@@ -261,14 +272,14 @@ export function AccessCodeGate({ onGranted }: Props) {
                           <button
                             type="submit"
                             disabled={submitting || !form.name.trim() || !form.email.trim()}
-                            className="w-full h-11 rounded-xl bg-white text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.97] transition-transform disabled:opacity-40"
+                            className="w-full min-h-11 py-2.5 rounded-xl bg-white text-black font-bold text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-transform disabled:opacity-40"
                           >
                             {submitting ? (
-                              <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                              <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                             ) : (
                               <>
-                                <Send className="w-3.5 h-3.5" />
-                                Request Code
+                                <Send className="w-3.5 h-3.5 shrink-0" />
+                                <span className="text-center leading-none">Request Code</span>
                               </>
                             )}
                           </button>
