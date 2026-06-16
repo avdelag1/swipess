@@ -485,7 +485,7 @@ export const PassportMapModal = memo(() => {
 
   // Auto-center exactly once per open — never re-run when GPS or radius updates.
   useEffect(() => {
-    if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
+    if (!isOpen || !mapReady || initialCenterDoneRef.current || isMapDataLoading) return;
 
     const session = mapOpenSessionRef.current;
     let cancelled = false;
@@ -533,7 +533,7 @@ export const PassportMapModal = memo(() => {
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode]);
+  }, [isOpen, mapReady, passportMode, isMapDataLoading]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -601,7 +601,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
-          doubleClickZoom: false,
+          doubleClickZoom: true,
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
