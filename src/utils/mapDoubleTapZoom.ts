@@ -243,34 +243,9 @@ export function bindMarkerGestures(
   const onPointerUp = (e: PointerEvent) => {
     if (!isActive()) return;
     clearTimer();
-    // A tap on a pin must win over the map's pan/zoom handlers behind it.
-    e.stopPropagation();
-    if (timer) clearTimeout(timer);
-
-    const now = Date.now();
-    const x = e.clientX;
-    const y = e.clientY;
-    const map = mapRef.current;
-
-    if (!isLongPress) {
-      if (map && isMapDoubleTap(lastTap, now, x, y)) {
-        clearSingleTap();
-        e.preventDefault();
-        const center = lngLatFromMapClientPoint(map, x, y);
-        if (tryMapDoubleTapZoom(map, center, lastZoomAtRef)) {
-          lastTap = null;
-          onZoom?.();
-          return;
-        }
-      }
-
-      clearSingleTap();
-      lastTap = { time: now, x, y };
-      singleTapTimer = setTimeout(() => {
-        singleTapTimer = null;
-        lastTap = null;
-        onTap();
-      }, MAP_MARKER_TAP_DELAY_MS);
+    if (!isLongPress && !moved) {
+      e.stopPropagation();
+      onTap();
     }
   };
 
