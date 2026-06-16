@@ -214,6 +214,11 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/workers_dog_sitting.png',
     '/images/filters/workers_massage_therapy.png',
   ],
+  premium: [
+    '/images/filters/premium_starter.png',
+    '/images/filters/premium_popular.png',
+    '/images/filters/premium_elite.png',
+  ],
 };
 
 // Neutral dark fallback only — no colored tint, so images never look
@@ -241,4 +246,5 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   leads: NEUTRAL_FALLBACK,
   pros: NEUTRAL_FALLBACK,
   seekers: NEUTRAL_FALLBACK,
+  premium: NEUTRAL_FALLBACK,
 };
