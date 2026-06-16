@@ -24,7 +24,6 @@ import {
   cinematicPitchForViewport,
   fitMapToPins,
   zoomForRadiusKm,
-  incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
@@ -683,18 +682,6 @@ export const PassportMapModal = memo(() => {
             }
           }
         });
-
-        const mapContainer = map.getContainer();
-        const handleDoubleTapZoom = (center: [number, number]) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-          const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 120) return;
-          if (incrementalDoubleTapZoom(map, center)) {
-            lastDoubleTapZoomAtRef.current = now;
-            markUserMapControlRef.current();
-            triggerHaptic('light');
-          }
-        };
 
         // ═══════════════════════════════════════════════════════════════════
         // DOUBLE-TAP ZOOM — DO NOT REMOVE OR RELOCATE THESE LINES

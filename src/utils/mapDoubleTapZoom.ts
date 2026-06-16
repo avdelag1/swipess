@@ -151,17 +151,23 @@ export function bindMapLongPress(
 
   const onPointerUp = () => clearTimer();
 
-  canvas.addEventListener('pointerdown', onPointerDown);
-  canvas.addEventListener('pointermove', onPointerMove);
-  canvas.addEventListener('pointerup', onPointerUp);
-  canvas.addEventListener('pointercancel', onPointerUp);
+  // Capture phase: the double-tap zoom binder (also on this canvas) calls
+  // stopPropagation() on a detected double-tap. A bubble-phase listener here
+  // would be suppressed by that, leaving the long-press timer running so it
+  // fires ~1s after a double-tap and wrongly relocates the radar. Capture-phase
+  // listeners on the same element still run after a non-immediate
+  // stopPropagation, so the timer is always cleared. DO NOT switch to bubble.
+  canvas.addEventListener('pointerdown', onPointerDown, { capture: true });
+  canvas.addEventListener('pointermove', onPointerMove, { capture: true });
+  canvas.addEventListener('pointerup', onPointerUp, { capture: true });
+  canvas.addEventListener('pointercancel', onPointerUp, { capture: true });
 
   return () => {
     clearTimer();
-    canvas.removeEventListener('pointerdown', onPointerDown);
-    canvas.removeEventListener('pointermove', onPointerMove);
-    canvas.removeEventListener('pointerup', onPointerUp);
-    canvas.removeEventListener('pointercancel', onPointerUp);
+    canvas.removeEventListener('pointerdown', onPointerDown, { capture: true });
+    canvas.removeEventListener('pointermove', onPointerMove, { capture: true });
+    canvas.removeEventListener('pointerup', onPointerUp, { capture: true });
+    canvas.removeEventListener('pointercancel', onPointerUp, { capture: true });
   };
 }
 

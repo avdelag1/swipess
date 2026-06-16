@@ -32,6 +32,15 @@ point via `relocateSearchRef.current(lng, lat)`. Bound on the canvas with
 `pointerdown/pointermove/pointerup`. Do **not** move this to the container or
 a React synthetic event — it must fire even under HUD overlays.
 
+**Critical:** these listeners MUST be registered in **capture phase**
+(`{ capture: true }`). The double-tap zoom binder shares the same canvas and
+calls `stopPropagation()` on a detected double-tap. A bubble-phase long-press
+listener would be suppressed by that, so the long-press timer started by the
+second tap is never cleared — it fires ~1s later and wrongly relocates the
+radar (which also wipes the listings, since the search center jumps to an
+empty area). Capture-phase listeners on the same element still run after a
+non-immediate `stopPropagation`. Do **not** switch these back to bubble phase.
+
 ### 3. Cinematic open animation (`cinematicOpenGlide`)
 
 **File:** `src/components/PassportMapModal.tsx` — "First paint" `useEffect`  
