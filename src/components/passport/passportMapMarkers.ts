@@ -9,6 +9,25 @@ export type SelectedPin =
 
 
 
+/**
+ * Re-apply a marker's inline style WITHOUT wiping the properties Mapbox and the
+ * map modal manage on the same element. Assigning `el.style.cssText` resets
+ * every inline style — including the `transform` Mapbox uses to position the
+ * pin — which snapped pins to the top-left corner (translate(0,0)) until the
+ * next map render. That is the "pins fly to the corner then vanish" glitch seen
+ * when closing the pin sheet. We restore transform + the modal-driven
+ * opacity/transition/pointer-events/z-index after rewriting the rest.
+ */
+function applyMarkerStyle(el: HTMLElement, css: string): void {
+  const { transform, opacity, transition, pointerEvents, zIndex } = el.style;
+  el.style.cssText = css;
+  if (transform) el.style.transform = transform;
+  if (opacity) el.style.opacity = opacity;
+  if (transition) el.style.transition = transition;
+  if (pointerEvents) el.style.pointerEvents = pointerEvents;
+  if (zIndex) el.style.zIndex = zIndex;
+}
+
 const injectMarkerStyles = () => {
   if (typeof document === 'undefined' || document.getElementById('passport-marker-styles')) return;
   const style = document.createElement('style');
@@ -88,7 +107,7 @@ export function updateListingMarkerEl(
   listing: MapListingPin,
   isSelected: boolean,
 ): void {
-  el.style.cssText = listingMarkerStyle(isSelected);
+  applyMarkerStyle(el, listingMarkerStyle(isSelected));
   const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
   const dotHtml = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 4px ${dotColor}80;"></span>`;
   const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
@@ -155,7 +174,7 @@ export function updateProfileMarkerEl(
   profile: MapProfilePin,
   isSelected: boolean,
 ): void {
-  el.style.cssText = profileMarkerStyle(isSelected);
+  applyMarkerStyle(el, profileMarkerStyle(isSelected));
   el.dataset.selected = isSelected.toString();
 
   if (profile.imageUrl) {

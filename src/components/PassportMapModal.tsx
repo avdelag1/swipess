@@ -13,11 +13,12 @@ import {
   addCinematic3DBuildings,
   applyCinematicFog,
   CINEMATIC_BEARING,
+  CINEMATIC_OPEN_ALTITUDE_ZOOM,
   FLY_DURATION_OPEN_MS,
   OPEN_CENTER_MS,
   cinematicEaseTo,
-  cinematicFlyTo,
   cinematicMaxPitchForViewport,
+  cinematicOpenGlide,
   cinematicPitchForViewport,
   zoomForRadiusKm,
   incrementalDoubleTapZoom,
@@ -449,9 +450,9 @@ export const PassportMapModal = memo(() => {
     window.setTimeout(releaseSuppress, (duration || FLY_DURATION_OPEN_MS) + 120);
 
     if (opts?.fly) {
-      cinematicFlyTo(map, center, zoom, {
-        pitch,
-      });
+      // Gentle settle-down onto the target — calm regional view, then a soft,
+      // slow descent. Replays on every open (warm map keeps its last view).
+      cinematicOpenGlide(map, center, zoom, { pitch, bearing: CINEMATIC_BEARING });
       return;
     }
 
@@ -592,7 +593,9 @@ export const PassportMapModal = memo(() => {
         : MAP_SEARCH_HUB);
       const initialLng = hub.lng;
       const initialLat = hub.lat;
-      const initialZoom = 2.2; // Zoomed out for cinematic fly-in on open
+      // Calm regional altitude — never the whole globe. The open glide handles
+      // the cinematic descent from here down onto the user's location.
+      const initialZoom = CINEMATIC_OPEN_ALTITUDE_ZOOM;
 
       try {
         const { mapboxgl } = await warmMapboxModules();

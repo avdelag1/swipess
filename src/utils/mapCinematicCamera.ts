@@ -10,6 +10,11 @@ export const FLY_CURVE = 1.68;
 export const FLY_SPEED = 1.55;
 export const FLY_DURATION_MS = 2400;
 export const FLY_DURATION_OPEN_MS = 2000;
+/** Altitude the open glide starts from. Zoomed in enough that the whole globe
+ *  is never shown — the user opens on a calm regional view, not "the world". */
+export const CINEMATIC_OPEN_ALTITUDE_ZOOM = 5;
+/** Duration of the gentle settle-down onto the user's location on open. */
+export const CINEMATIC_OPEN_GLIDE_MS = 2200;
 /** Fast snap when map opens — user expects immediate centering, not a 2s flight. */
 export const OPEN_CENTER_MS = 380;
 export const CINEMATIC_MAX_PITCH_MOBILE = 58;
@@ -118,7 +123,7 @@ export function cinematicFlyTo(
   zoom: number,
   opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number; duration?: number },
 ): void {
-  const options: mapboxgl.FlyToOptions = {
+  const options: Parameters<MapboxMap['flyTo']>[0] = {
     center,
     zoom,
     pitch: opts?.pitch ?? CINEMATIC_PITCH,
@@ -134,6 +139,41 @@ export function cinematicFlyTo(
   }
 
   map.flyTo(options);
+}
+
+/** Slow start, slow finish — calm cinematic descent (no plunge). */
+const easeInOutCubic = (t: number): number =>
+  t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+/**
+ * Gentle "settle down onto the target" open animation. Cuts to a calm regional
+ * altitude (never the whole globe) then eases smoothly down to the search zoom,
+ * decelerating into place for a soft landing instead of a fast dive. Replays on
+ * every open, including the warm/persistent map that retains its last view.
+ */
+export function cinematicOpenGlide(
+  map: MapboxMap,
+  center: [number, number],
+  zoom: number,
+  opts?: { pitch?: number; bearing?: number; altitudeZoom?: number; duration?: number },
+): void {
+  const pitch = opts?.pitch ?? cinematicPitchForViewport();
+  const bearing = opts?.bearing ?? CINEMATIC_BEARING;
+  map.jumpTo({
+    center,
+    zoom: opts?.altitudeZoom ?? CINEMATIC_OPEN_ALTITUDE_ZOOM,
+    pitch,
+    bearing,
+  });
+  map.easeTo({
+    center,
+    zoom,
+    pitch,
+    bearing,
+    duration: opts?.duration ?? CINEMATIC_OPEN_GLIDE_MS,
+    easing: easeInOutCubic,
+    essential: true,
+  });
 }
 
 /** Zoom step per double-tap — one natural "notch" in, like Google/Apple Maps.
