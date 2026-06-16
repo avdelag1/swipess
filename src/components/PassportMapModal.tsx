@@ -1241,7 +1241,7 @@ export const PassportMapModal = memo(() => {
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  'px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-1.5',
+                  'px-4 w-full flex flex-col items-start justify-start pointer-events-auto gap-1.5',
                   selected && 'opacity-90',
                 )}
               >
