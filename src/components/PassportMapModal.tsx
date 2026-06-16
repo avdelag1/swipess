@@ -188,7 +188,7 @@ export const PassportMapModal = memo(() => {
     if (searchAnchor) return searchAnchor;
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
-    return null;
+    return MAP_SEARCH_HUB;
   }, [passportMode, lat, lng, deviceGps, searchAnchor]);
 
   const searchCoords = useMemo(() => {
@@ -526,14 +526,6 @@ export const PassportMapModal = memo(() => {
       initialCenterDoneRef.current = true;
     };
 
-    // Map memory — once the user has moved the map (or opened a pin) in any prior
-    // session, the persistent Mapbox instance already holds their last view. Don't
-    // yank it back to GPS/city on reopen; the GPS button still recenters on demand.
-    if (userEverMovedRef.current) {
-      initialCenterDoneRef.current = true;
-      return () => { cancelled = true; };
-    }
-
     const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
     if (pm && userLatitude != null && userLongitude != null) {
       if (userMapInteractedRef.current) return undefined;
@@ -546,7 +538,10 @@ export const PassportMapModal = memo(() => {
       return () => { cancelled = true; };
     }
 
-    if (!canGeolocate()) return () => { cancelled = true; };
+    if (!canGeolocate()) {
+      runCenter(MAP_SEARCH_HUB, OPEN_CENTER_MS);
+      return () => { cancelled = true; };
+    }
 
     setGpsLoading(true);
     const cached = getCachedGpsFix();
@@ -1100,6 +1095,62 @@ export const PassportMapModal = memo(() => {
         <AnimatePresence>
           {isOpen && (
             <>
+              {/* Top City Strip — Always visible now */}
+              {!selected && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute z-40 left-0 right-0 pointer-events-none"
+                  style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
+                >
+                  <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto">
+                    <div className="flex items-center gap-2 px-3 py-1.5">
+                      {PASSPORT_QUICK_CITIES.map((city) => {
+                        const isActive = passportMode && passportLabel?.includes(city.name);
+                        return (
+                          <button
+                            key={city.name}
+                            type="button"
+                            onClick={() => {
+                              triggerHaptic('medium');
+                              setPassportLocation(city.lat, city.lng, `${city.name}`);
+                              setRadiusKm(20);
+                              if (mapRef.current) {
+                                cinematicEaseTo(
+                                  mapRef.current,
+                                  [city.lng, city.lat],
+                                  zoomForRadiusKm(20),
+                                  { duration: 280, pitch: cinematicPitchForViewport() },
+                                );
+                              }
+                              appToast.success(`Flying to ${city.name}`);
+                            }}
+                            className={cn(
+                              'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
+                              isActive
+                                ? 'bg-white/95 border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
+                                : 'bg-[#1A202C]/85 backdrop-blur-[8px] border-white/10 text-white/90 hover:bg-white/20',
+                            )}
+                          >
+                            <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
+                              <img
+                                src={city.img}
+                                alt=""
+                                loading="lazy"
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
+                              />
+                            </div>
+                            {city.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1147,61 +1198,6 @@ export const PassportMapModal = memo(() => {
                           '[&_.mapboxgl-ctrl-geocoder--button]:bg-transparent [&_.mapboxgl-ctrl-geocoder--button]:text-white',
                         )}
                       />
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Top City Strip */}
-                {hudExpanded && !selected && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-[52px] left-0 right-[-48px] pointer-events-auto"
-                  >
-                    <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-                      <div className="flex items-center gap-2 pl-[12px] pr-4 py-1.5">
-                        {PASSPORT_QUICK_CITIES.map((city) => {
-                          const isActive = passportMode && passportLabel?.includes(city.name);
-                          return (
-                            <button
-                              key={city.name}
-                              type="button"
-                              onClick={() => {
-                                triggerHaptic('medium');
-                                setPassportLocation(city.lat, city.lng, `${city.name}`);
-                                setRadiusKm(20);
-                                if (mapRef.current) {
-                                  cinematicEaseTo(
-                                    mapRef.current,
-                                    [city.lng, city.lat],
-                                    zoomForRadiusKm(20),
-                                    { duration: 280, pitch: cinematicPitchForViewport() },
-                                  );
-                                }
-                                appToast.success(`Flying to ${city.name}`);
-                              }}
-                              className={cn(
-                                'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
-                                isActive
-                                  ? 'bg-white/95 border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
-                                  : 'bg-[#1A202C]/85 backdrop-blur-[8px] border-white/10 text-white/90 hover:bg-white/20',
-                              )}
-                            >
-                              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
-                                <img
-                                  src={city.img}
-                                  alt=""
-                                  loading="lazy"
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
-                                />
-                              </div>
-                              {city.name}
-                            </button>
-                          );
-                        })}
-                      </div>
                     </div>
                   </motion.div>
                 )}
