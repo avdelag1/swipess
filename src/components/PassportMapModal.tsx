@@ -43,7 +43,6 @@ import {
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
-import { computeMapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -76,8 +75,7 @@ import {
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const PIN_PREVIEW_CARD = { width: 280, height: 260 };
-type PinPreviewMode = 'anchored' | 'sheet';
+type PinPreviewMode = 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
 
@@ -158,7 +156,11 @@ export const PassportMapModal = memo(() => {
   const [hudExpanded, setHudExpanded] = useState(false);
   const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
   const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
+  /** Until user picks GPS / long-press / search, show the Tulum listing cluster. */
+  const [hubSearchLocked, setHubSearchLocked] = useState(true);
   const mapHudRef = useRef<HTMLDivElement>(null);
+
+  const shouldFetchMapData = isOpen || mapReady;
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -186,15 +188,16 @@ export const PassportMapModal = memo(() => {
   const radiusCenter = useMemo(() => {
     if (passportMode && lat != null && lng != null) return { lat, lng };
     if (searchAnchor) return searchAnchor;
+    if (hubSearchLocked) return MAP_SEARCH_HUB;
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
     return MAP_SEARCH_HUB;
-  }, [passportMode, lat, lng, deviceGps, searchAnchor]);
+  }, [passportMode, lat, lng, deviceGps, searchAnchor, hubSearchLocked]);
 
   const searchCoords = useMemo(() => {
-    if (!isOpen) return null;
+    if (!shouldFetchMapData) return null;
     return radiusCenter;
-  }, [isOpen, radiusCenter]);
+  }, [shouldFetchMapData, radiusCenter]);
 
   const usingSearchFallback = isOpen && radiusCenter == null;
 
@@ -202,7 +205,7 @@ export const PassportMapModal = memo(() => {
     searchCoords?.lat ?? null,
     searchCoords?.lng ?? null,
     radiusKm,
-    isOpen,
+    shouldFetchMapData,
   );
   const activePeopleCount = data?.activePeopleCount ?? 0;
 
@@ -359,6 +362,7 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
+    setHubSearchLocked(false);
     setSearchAnchor(null);
     clearPassportLocation();
     userMapInteractedRef.current = false;
@@ -367,6 +371,7 @@ export const PassportMapModal = memo(() => {
 
   const relocateSearchTo = useCallback((lng: number, lat: number) => {
     triggerHaptic('heavy');
+    setHubSearchLocked(false);
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
     userMapInteractedRef.current = false;
@@ -428,9 +433,7 @@ export const PassportMapModal = memo(() => {
     opts?: { duration?: number; fly?: boolean },
   ) => {
     if (session !== mapOpenSessionRef.current) return;
-    if (selectedRef.current) return;
-    // Allow the very first programmatic center to override user interaction, so we don't get stuck in space
-    if (userMapInteractedRef.current && !opts?.fly) return;
+    if (userMapInteractedRef.current || selectedRef.current) return;
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
@@ -447,7 +450,6 @@ export const PassportMapModal = memo(() => {
 
     if (opts?.fly) {
       cinematicFlyTo(map, center, zoom, {
-        duration: duration || FLY_DURATION_OPEN_MS,
         pitch,
       });
       return;
@@ -473,6 +475,8 @@ export const PassportMapModal = memo(() => {
       mapOpenSessionRef.current += 1;
       userMapInteractedRef.current = false;
       initialCenterDoneRef.current = false;
+      setHubSearchLocked(true);
+      setSearchAnchor(null);
     }
     if (!isOpen) {
       initialCenterDoneRef.current = false;
@@ -497,7 +501,7 @@ export const PassportMapModal = memo(() => {
 
     const runCenter = (target: { lat: number; lng: number }, duration = FLY_DURATION_OPEN_MS) => {
       if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (initialCenterDoneRef.current) return;
+      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
       centerMapOnTargetRef.current(target, session, { fly: true, duration });
       initialCenterDoneRef.current = true;
     };
@@ -511,6 +515,12 @@ export const PassportMapModal = memo(() => {
         { fly: true, duration: FLY_DURATION_OPEN_MS },
       );
       initialCenterDoneRef.current = true;
+      return () => { cancelled = true; };
+    }
+
+    // Default open: fly to the listing hub so pins are visible immediately.
+    if (hubSearchLocked) {
+      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
       return () => { cancelled = true; };
     }
 
@@ -538,7 +548,7 @@ export const PassportMapModal = memo(() => {
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode]);
+  }, [isOpen, mapReady, passportMode, hubSearchLocked]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -577,15 +587,12 @@ export const PassportMapModal = memo(() => {
       const storeLat = useFilterStore.getState().userLatitude;
       const storeLng = useFilterStore.getState().userLongitude;
       const deviceFix = deviceGpsRef.current;
-      const hasUserHub = !!(deviceFix || (storeLat != null && storeLng != null));
       const hub = deviceFix ?? (storeLat != null && storeLng != null
         ? { lat: storeLat, lng: storeLng }
         : MAP_SEARCH_HUB);
-      // Always start zoomed out and slightly offset to guarantee a dramatic "Google Earth" cinematic fly-in
-      const initialLng = (hub?.lng ?? MAP_SEARCH_HUB.lng) + 0.15;
-      const initialLat = (hub?.lat ?? MAP_SEARCH_HUB.lat) - 0.15;
-      const storeRadius = useFilterStore.getState().radiusKm;
-      const initialZoom = 2.2; 
+      const initialLng = hub.lng;
+      const initialLat = hub.lat;
+      const initialZoom = 2.2; // Zoomed out for cinematic fly-in on open
 
       try {
         const { mapboxgl } = await warmMapboxModules();
@@ -607,7 +614,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
-          doubleClickZoom: true,
+          doubleClickZoom: false,
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
@@ -666,8 +673,47 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Desktop: native dblclick (Mapbox also natively handles touch double-tap via doubleClickZoom)
-        // No custom listener needed for double-tap zoom anymore!
+        // Double-tap zoom: container touchend for mobile + dblclick for desktop.
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        const mapContainer = map.getContainer();
+        const handleDoubleTapZoom = (lngLat: [number, number]) => {
+          if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          if (now - lastDoubleTapZoomAtRef.current < 150) return;
+          if (incrementalDoubleTapZoom(map, lngLat)) {
+            lastDoubleTapZoomAtRef.current = now;
+            markUserMapControlRef.current();
+            triggerHaptic('light');
+          }
+        };
+
+        mapContainer.addEventListener('touchend', (e) => {
+          if (e.touches.length > 0) return;
+          const touch = e.changedTouches[0];
+          if (!touch) return;
+          const now = Date.now();
+          const dx = Math.abs(touch.clientX - lastTapX);
+          const dy = Math.abs(touch.clientY - lastTapY);
+          if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = canvas.getBoundingClientRect();
+            const point = map.unproject([touch.clientX - rect.left, touch.clientY - rect.top]);
+            handleDoubleTapZoom([point.lng, point.lat]);
+            lastTapTime = 0;
+          } else {
+            lastTapTime = now;
+            lastTapX = touch.clientX;
+            lastTapY = touch.clientY;
+          }
+        }, { passive: false, capture: true });
+
+        map.on('dblclick', (e) => {
+          e.preventDefault();
+          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
+        });
 
         unbindLongPressRef.current?.();
         unbindLongPressRef.current = bindMapLongPress(map, {
