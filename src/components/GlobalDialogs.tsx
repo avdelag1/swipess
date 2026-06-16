@@ -1,6 +1,6 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { memo, Suspense, useEffect, useState } from 'react';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +11,7 @@ import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyAdvancedFiltersToStore } from '@/utils/applyAdvancedFilters';
 import { DeferredDialog } from './DeferredDialog';
-import { cn } from '@/lib/utils';
+
 
 // 🚀 SPEED OF LIGHT: LAZY WITH RETRY HARDENING
 const AdvancedFiltersDialog = lazyWithRetry(() => import('@/components/AdvancedFiltersDialog'));
@@ -35,68 +35,6 @@ const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').t
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const InviteFriendsDialog = lazyWithRetry(() => import('@/components/InviteFriendsDialog').then(m => ({ default: m.InviteFriendsDialog })));
 
-const ConciergeChatFallback = memo(() => {
-  const { isLight, theme } = useAppTheme();
-  const isSwipess = theme === 'dark' || !isLight;
-
-  return (
-    <div className="fixed inset-0 z-[10000] bg-black/70 flex items-end md:items-center justify-center">
-      <div className={cn(
-        "relative w-full h-full md:max-w-3xl md:h-[90vh] md:rounded-[3rem] border flex flex-col overflow-hidden transition-all duration-700",
-        isSwipess ? "bg-[#050505] border-[#FF3D00]/20 shadow-[0_0_50px_rgba(255,61,0,0.1)]" : "bg-white border-black/[0.05] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
-      )}>
-        {/* 🛸 Ambient Background */}
-        {isSwipess && (
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#FF3D00]/10 blur-[120px] rounded-full" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[120px] rounded-full" />
-          </div>
-        )}
-
-        {/* Header Skeleton */}
-        <div className={cn(
-          "h-20 flex items-center justify-between px-6 border-b relative z-10",
-          isSwipess ? "border-white/10 bg-zinc-950" : "border-black/[0.05] bg-background"
-        )}>
-          <div className="flex items-center gap-4">
-            <div className={cn("w-12 h-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/10" : "bg-black/[0.05] border-black/[0.1]")} />
-            <div className="space-y-2">
-              <div className={cn("h-3 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-black/[0.08]")} />
-              <div className={cn("h-2 w-20 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-black/[0.05]")} />
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <div className={cn("h-12 w-32 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/10" : "bg-black/[0.05] border-black/[0.1]")} />
-            <div className={cn("h-12 w-12 rounded-2xl animate-pulse border", isSwipess ? "bg-white/5 border-white/10" : "bg-black/[0.05] border-black/[0.1]")} />
-          </div>
-        </div>
-        
-        {/* Content Skeleton */}
-        <div className="flex-1 p-8 space-y-10 overflow-hidden relative z-10 flex flex-col items-center justify-center">
-          <div className={cn(
-            "w-24 h-24 rounded-[3rem] border flex items-center justify-center animate-pulse",
-            isSwipess ? "border-primary/10 bg-primary/5" : "border-black/[0.05] bg-black/[0.02]"
-          )} />
-          <div className="space-y-3 text-center">
-             <div className={cn("h-4 w-48 rounded-full animate-pulse", isSwipess ? "bg-white/10" : "bg-black/[0.08]")} />
-             <div className={cn("h-2 w-32 rounded-full animate-pulse", isSwipess ? "bg-white/5" : "bg-black/[0.05]")} />
-          </div>
-        </div>
-        
-        {/* Input Skeleton */}
-        <div className={cn(
-          "p-8 border-t pb-[calc(env(safe-area-inset-bottom,0px)+32px)] relative z-10",
-          isSwipess ? "border-white/10 bg-zinc-950" : "border-black/[0.05] bg-background"
-        )}>
-          <div className={cn("h-16 w-full rounded-[2.2rem] animate-pulse border", isSwipess ? "bg-white/5 border-white/10" : "bg-white border-black/[0.05]")} />
-        </div>
-      </div>
-    </div>
-  );
-});
-
-ConciergeChatFallback.displayName = 'ConciergeChatFallback';
-
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
 }
@@ -108,6 +46,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   const queryClient = useQueryClient();
 
   const [isWarmedUp, setIsWarmedUp] = useState(false);
+  const [conciergeChunkReady, setConciergeChunkReady] = useState(false);
   const [reportState, setReportState] = useState<{
     open: boolean;
     reportedUserId?: string;
@@ -132,6 +71,14 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   useEffect(() => { 
     const t = setTimeout(() => setIsWarmedUp(true), 2000); 
     return () => clearTimeout(t); 
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    prefetchConciergeChatModule().then(() => {
+      if (!cancelled) setConciergeChunkReady(true);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   // DATA FETCHING (Lazy-enabled)
@@ -297,7 +244,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       {/* Top-left WelcomeNotification removed: the centered WelcomeBonusModal
           is now the single source of welcome greeting. */}
 
-      <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0} keepMounted>
+      <DeferredDialog when={conciergeChunkReady || store.showAIChat} fallback={null} threshold={300} keepMounted>
         <ConciergeChat
           isOpen={store.showAIChat}
           onClose={() => store.setModal('showAIChat', false)}

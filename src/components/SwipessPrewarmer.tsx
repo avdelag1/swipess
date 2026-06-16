@@ -6,6 +6,7 @@ import { logger } from '@/utils/prodLogger';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchPassportMapModule } from '@/utils/prefetchMapModule';
 import { prefetchCityPhotos } from '@/utils/prefetchCityPhotos';
+import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { warmDiscoveryCache } from '@/utils/performance';
 
 /**
@@ -40,6 +41,7 @@ export const SwipessPrewarmer = () => {
       prefetchRoute('/notifications');
       prefetchPassportMapModule();
       prefetchCityPhotos();
+      prefetchConciergeChatModule();
 
       // Pre-decode poker filter card photos so the quick-filter deck snaps in
       try {

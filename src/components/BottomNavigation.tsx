@@ -32,13 +32,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
+import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
-import { useGuidedTourActive } from '@/state/guidedTourStore';
+
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 
 const ICON_SIZE = 26;
@@ -100,18 +101,13 @@ export const BottomNavigation = memo(({
 
   const { t } = useTranslation();
 
-  const prewarmAIChat = useCallback(() => {
-    import('@/components/ConciergeChat').catch(() => {});
+  const openAIChat = useCallback(() => {
+    useModalStore.getState().openAIChat();
   }, []);
 
-  const openAIChat = useCallback(() => {
-    // While the guided tour is running, the Concierge launcher is reserved
-    // as a tour highlight target only — tapping it must NOT open the chat
-    // (that was crashing navigation). The tour itself explains it.
-    if (useGuidedTourActive.getState().isActive) return;
-    prewarmAIChat();
-    setModal('showAIChat', true);
-  }, [prewarmAIChat, setModal]);
+  useEffect(() => {
+    prefetchConciergeChatModule();
+  }, []);
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
@@ -331,6 +327,7 @@ export const BottomNavigation = memo(({
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
+                  if (item.id === 'ai') prefetchConciergeChatModule();
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
                 }}

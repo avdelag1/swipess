@@ -638,7 +638,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
             <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
-                { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
+                { icon: Mic, onClick: () => useModalStore.getState().openAIChat(), label: 'Voice' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                 { icon: BarChart3, onClick: onInsights, label: 'Insights' },

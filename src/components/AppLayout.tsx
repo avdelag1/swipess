@@ -208,10 +208,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isCamera = path.startsWith('/camera');
     const isEvents = path.startsWith('/explore/events');
     const isDirectChatInner = path.startsWith('/messages') && hasActiveChat;
-    return isSubscriptionRoute || isCamera || isRadio || showAIChat || showAIListing || showAIProfile || isSwipeDashboard || isDirectChatInner || isEvents;
-  }, [location.pathname, hasActiveChat, showAIChat, showAIListing, showAIProfile, isSwipeDashboard, isSubscriptionRoute]);
+    return isSubscriptionRoute || isCamera || isRadio || showAIListing || showAIProfile || isSwipeDashboard || isDirectChatInner || isEvents;
+  }, [location.pathname, hasActiveChat, showAIListing, showAIProfile, isSwipeDashboard, isSubscriptionRoute]);
 
-  const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIChat && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
+  const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
     if (isRoommatesRoute) {
