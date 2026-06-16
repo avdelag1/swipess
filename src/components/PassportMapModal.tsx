@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Globe2, LayoutList, Loader2, MapPin, Navigation, Search, Users, X } from 'lucide-react';
+import { Building2, Globe2, Layers, LayoutList, Loader2, MapPin, Minimize2, Navigation, Search, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -58,6 +58,8 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const PIN_PREVIEW_CARD = { width: 280, height: 260 };
+const MAP_HUD_BTN = 'w-[34px] h-[34px]';
+const MAP_HUD_ICON = 'w-4 h-4';
 
 const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -116,11 +118,13 @@ export const PassportMapModal = memo(() => {
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [hudExpanded, setHudExpanded] = useState(false);
   const [previewPlacement, setPreviewPlacement] = useState<MapPinPreviewPlacement | null>(null);
   const mapHudRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
+    if (!isOpen) setHudExpanded(false);
   }, [isOpen]);
 
   useEffect(() => {
@@ -465,7 +469,6 @@ export const PassportMapModal = memo(() => {
           doubleClickZoom: true,
         });
 
-        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
 
@@ -672,49 +675,81 @@ export const PassportMapModal = memo(() => {
 
     const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
-    const locationCounts = new Map<string, number>();
+    const registry = markersRef.current;
+    const nextKeys = new Set<string>();
 
-    const getOffset = (lat: number, lng: number) => {
-      const key = `${lat.toFixed(4)}_${lng.toFixed(4)}`;
-      const count = locationCounts.get(key) || 0;
-      locationCounts.set(key, count + 1);
-      if (count === 0) return { lat, lng };
-      const r = 0.00015 * Math.ceil(Math.sqrt(count));
-      const theta = count * 2.39996;
-      return { lat: lat + r * Math.cos(theta), lng: lng + r * Math.sin(theta) };
+    const upsertListing = (l: (typeof visibleListings)[number]) => {
+      const key = `listing:${l.id}`;
+      nextKeys.add(key);
+      const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
+      const existing = registry.get(key);
+
+      if (existing) {
+        existing.marker.setLngLat([l.lng, l.lat]);
+        updateListingMarkerEl(existing.el, l, isSelected);
+        return;
+      }
+
+      const el = createListingMarkerEl(l, isSelected);
+      const cleanup = bindMarkerDoubleTapZoom(
+        el,
+        () => [l.lng, l.lat],
+        mapRef,
+        lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('medium');
+          focusPin({ type: 'listing', data: l });
+        },
+        () => useModalStore.getState().showPassportMapModal,
+        () => triggerHaptic('light'),
+      );
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([l.lng, l.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
     };
 
-    visibleListings.forEach((l) => {
-      const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
-      const el = createListingMarkerEl(l, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'listing', data: l });
-      });
-      const coords = getOffset(l.lat, l.lng);
-      markersRef.current.push(
-        new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([coords.lng, coords.lat])
-          .addTo(mapRef.current!),
-      );
-    });
-
-    visibleProfiles.forEach((p) => {
+    const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
+      const key = `profile:${p.id}`;
+      nextKeys.add(key);
       const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
+      const existing = registry.get(key);
+
+      if (existing) {
+        existing.marker.setLngLat([p.lng, p.lat]);
+        updateProfileMarkerEl(existing.el, p, isSelected);
+        return;
+      }
+
       const el = createProfileMarkerEl(p, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'profile', data: p });
-      });
-      const coords = getOffset(p.lat, p.lng);
-      markersRef.current.push(
-        new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([coords.lng, coords.lat])
-          .addTo(mapRef.current!),
+      const cleanup = bindMarkerDoubleTapZoom(
+        el,
+        () => [p.lng, p.lat],
+        mapRef,
+        lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('medium');
+          focusPin({ type: 'profile', data: p });
+        },
+        () => useModalStore.getState().showPassportMapModal,
+        () => triggerHaptic('light'),
       );
-    });
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([p.lng, p.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
+    };
+
+    visibleListings.forEach(upsertListing);
+    visibleProfiles.forEach(upsertProfile);
+
+    for (const [key, entry] of registry) {
+      if (!nextKeys.has(key)) {
+        entry.cleanup();
+        entry.marker.remove();
+        registry.delete(key);
+      }
+    }
   }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
 
   const mapboxReady = tokenReady;
@@ -784,171 +819,163 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        {/* SLEEK MAP CONTROLS (Top Left & Top Right) */}
+        {/* Map HUD — collapsed by default for a clean phone view */}
         <AnimatePresence>
           {isOpen && (
             <>
-              {/* Top Left: Close & Search */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute z-40 pointer-events-none flex items-center gap-2"
-                style={{ 
-                  top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
-                  left: '16px' 
+                style={{
+                  top: 'calc(env(safe-area-inset-top, 0px) + 12px)',
+                  left: '12px',
                 }}
               >
-                {/* Close Button */}
                 <button
                   type="button"
                   onClick={onClose}
-                  className="pointer-events-auto flex shrink-0 items-center justify-center w-[44px] h-[44px] rounded-full text-white/80 border border-white/10 shadow-lg overflow-hidden hover:bg-white/10 transition-all"
+                  className={cn('pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full text-white/80 border border-white/10 shadow-md hover:bg-white/10 transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
-                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px] pointer-events-none" />
-                  <X className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
+                  <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                 </button>
 
-                {/* Expandable Search */}
-                <motion.div
-                  animate={{ 
-                    width: isSearchOpen ? 240 : 44,
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="pointer-events-auto relative flex items-center h-[44px] rounded-full border border-white/10 shadow-lg overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px] pointer-events-none" />
-                  {/* The Search Icon that toggles the input */}
-                  <button 
-                    type="button"
-                    onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className="absolute left-0 top-0 bottom-0 w-[44px] flex items-center justify-center text-white/80 z-20 hover:text-white"
+                {hudExpanded && (
+                  <motion.div
+                    animate={{ width: isSearchOpen ? 200 : 34 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                    className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-md overflow-hidden"
                   >
-                    <Search className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-                  </button>
-
-                  {/* Geocoder Container Container */}
-                  <div className={cn("absolute left-0 right-0 top-0 bottom-0 transition-opacity duration-200 z-10", isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none")}>
-                    <div
-                      ref={geocoderContainerRef}
-                      className={cn(
-                        'w-full h-full [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:h-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-none [&_.mapboxgl-ctrl-geocoder]:rounded-full [&_.mapboxgl-ctrl-geocoder]:bg-transparent',
-                        '[&_.mapboxgl-ctrl-geocoder]:border-0',
-                        '[&_input]:text-white [&_input]:placeholder:text-white/60 [&_input]:text-[13px] [&_input]:font-medium [&_input]:h-full [&_input]:pl-[42px] [&_input]:bg-transparent [&_input]:outline-none',
-                        '[&_.mapboxgl-ctrl-geocoder--icon-search]:hidden', // hide default search icon
-                        '[&_.mapboxgl-ctrl-geocoder--button]:bg-transparent [&_.mapboxgl-ctrl-geocoder--button]:text-white' // make clear button transparent
-                      )}
-                    />
-                  </div>
-                </motion.div>
-              </motion.div>
-
-              {/* Stacked Controls (Top Right) */}
-              <motion.div
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute right-[16px] z-40 flex flex-col gap-[12px] items-center pointer-events-auto"
-                style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
-              >
-                <div className="relative flex flex-col items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={handleGPS}
-                    disabled={gpsLoading}
-                    className="relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-lg transition-all duration-200 text-white/80 hover:bg-white/10 disabled:opacity-60"
-                    aria-label={t('map.myLocation')}
-                    title={t('map.myLocation')}
-                  >
-                    <div className="absolute inset-0 rounded-full bg-[#1A202C]/60 backdrop-blur-[10px]" />
-                    {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin relative z-10" /> : <Navigation className="w-5 h-5 relative z-10" strokeWidth={2.0} />}
-                  </button>
-                  {!passportMode && deviceGps && (
-                    <span className="absolute -top-1.5 -right-2.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[#0a0a12] shadow-[0_0_10px_rgba(16,185,129,0.8)] z-30" aria-hidden />
-                  )}
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
-                    {t('map.myLocation')}
-                  </span>
-                </div>
-
-                {FILTER_TABS.map(({ id, labelKey, icon, gradient }) => (
-                  <PassportMapChunkyButton
-                    key={id}
-                    icon={icon}
-                    label={t(labelKey)}
-                    gradient={gradient}
-                    active={layerFilter === id}
-                    badge={
-                      id === 'listings' ? visibleListings.length
-                        : id === 'people' ? visibleProfiles.length
-                          : nearbyCount
-                    }
-                    onClick={() => {
-                      triggerHaptic('light');
-                      setLayerFilter(id);
-                      setSelected(null);
-                    }}
-                  />
-                ))}
-
-                {/* Cities vertical button */}
-                <div className="relative flex flex-col items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic('light');
-                      setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
-                    }}
-                    className={cn(
-                      'relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg',
-                      activeDrawer === 'cities'
-                        ? 'border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                        : 'border-white/10 text-white/80 hover:bg-white/10',
-                    )}
-                    aria-label={t('map.cities')}
-                    title={t('map.cities')}
-                  >
-                    <div className={cn('absolute inset-0 rounded-full backdrop-blur-[10px]', activeDrawer === 'cities' ? 'bg-white/20' : 'bg-[#1A202C]/90')} />
-                    <Globe2 className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-                  </button>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
-                    {t('map.cities')}
-                  </span>
-                </div>
-
-                {/* Results vertical button */}
-                <div className="relative flex flex-col items-center gap-1">
-                  <div className="relative">
+                    <div className="absolute inset-0 bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
                     <button
                       type="button"
+                      onClick={() => setIsSearchOpen(!isSearchOpen)}
+                      className={cn('absolute left-0 top-0 bottom-0 flex items-center justify-center text-white/80 z-20 hover:text-white', MAP_HUD_BTN)}
+                    >
+                      <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
+                    </button>
+                    <div className={cn('absolute left-0 right-0 top-0 bottom-0 transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+                      <div
+                        ref={geocoderContainerRef}
+                        className={cn(
+                          'w-full h-full [&_.mapboxgl-ctrl-geocoder]:w-full [&_.mapboxgl-ctrl-geocoder]:h-full [&_.mapboxgl-ctrl-geocoder]:max-w-none [&_.mapboxgl-ctrl-geocoder]:shadow-none [&_.mapboxgl-ctrl-geocoder]:rounded-full [&_.mapboxgl-ctrl-geocoder]:bg-transparent',
+                          '[&_.mapboxgl-ctrl-geocoder]:border-0',
+                          '[&_input]:text-white [&_input]:placeholder:text-white/60 [&_input]:text-[12px] [&_input]:font-medium [&_input]:h-full [&_input]:pl-[36px] [&_input]:bg-transparent [&_input]:outline-none',
+                          '[&_.mapboxgl-ctrl-geocoder--icon-search]:hidden',
+                          '[&_.mapboxgl-ctrl-geocoder--button]:bg-transparent [&_.mapboxgl-ctrl-geocoder--button]:text-white',
+                        )}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                className="absolute right-[12px] z-40 flex flex-col gap-2 items-center pointer-events-auto"
+                style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setHudExpanded(prev => !prev);
+                    if (hudExpanded) {
+                      setActiveDrawer(null);
+                      setIsSearchOpen(false);
+                    }
+                  }}
+                  className={cn('relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md text-white/90 hover:bg-white/10 transition-all', MAP_HUD_BTN)}
+                  aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
+                  title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
+                >
+                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/75 backdrop-blur-[8px]" />
+                  {hudExpanded
+                    ? <Minimize2 className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
+                    : <Layers className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
+                </button>
+
+                {hudExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="flex flex-col gap-2 items-center"
+                  >
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={handleGPS}
+                        disabled={gpsLoading}
+                        className={cn('relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md transition-all text-white/80 hover:bg-white/10 disabled:opacity-60', MAP_HUD_BTN)}
+                        aria-label={t('map.myLocation')}
+                        title={t('map.myLocation')}
+                      >
+                        <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px]" />
+                        {gpsLoading
+                          ? <Loader2 className={cn(MAP_HUD_ICON, 'animate-spin relative z-10')} />
+                          : <Navigation className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
+                      </button>
+                      {!passportMode && deviceGps && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0a12] z-30" aria-hidden />
+                      )}
+                    </div>
+
+                    {FILTER_TABS.map(({ id, labelKey, icon, gradient }) => (
+                      <PassportMapChunkyButton
+                        key={id}
+                        icon={icon}
+                        label={t(labelKey)}
+                        gradient={gradient}
+                        active={layerFilter === id}
+                        compact
+                        showLabel={false}
+                        badge={
+                          id === 'listings' ? visibleListings.length
+                            : id === 'people' ? visibleProfiles.length
+                              : nearbyCount
+                        }
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setLayerFilter(id);
+                          setSelected(null);
+                        }}
+                      />
+                    ))}
+
+                    <PassportMapChunkyButton
+                      icon={Globe2}
+                      label={t('map.cities')}
+                      gradient={PASSPORT_GRADIENTS.all}
+                      active={activeDrawer === 'cities'}
+                      compact
+                      showLabel={false}
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
+                      }}
+                    />
+
+                    <PassportMapChunkyButton
+                      icon={LayoutList}
+                      label={t('map.results')}
+                      gradient={PASSPORT_GRADIENTS.listings}
+                      active={activeDrawer === 'results'}
+                      compact
+                      showLabel={false}
+                      badge={nearbyCount}
                       onClick={() => {
                         triggerHaptic('light');
                         setActiveDrawer(prev => prev === 'results' ? null : 'results');
                       }}
-                      className={cn(
-                        'relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg',
-                        activeDrawer === 'results'
-                          ? 'border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
-                          : 'border-white/10 text-white/80 hover:bg-white/10',
-                      )}
-                      aria-label={`${t('map.results')}, ${nearbyCount} nearby`}
-                      title={t('map.results')}
-                    >
-                      <div className={cn('absolute inset-0 rounded-full backdrop-blur-[10px]', activeDrawer === 'results' ? 'bg-white/20' : 'bg-[#1A202C]/90')} />
-                      <LayoutList className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-                    </button>
-                    {nearbyCount > 0 && (
-                      <span className="absolute -top-1.5 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#00C6FF] text-[10px] font-black text-[#0B0E14] flex items-center justify-center shadow-[0_2px_8px_rgba(0,229,255,0.45)] z-30 ring-2 ring-[#0a0a12]">
-                        {nearbyCount > 99 ? '99+' : nearbyCount}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
-                    {t('map.results')}
-                  </span>
-                </div>
+                    />
+                  </motion.div>
+                )}
               </motion.div>
             </>
           )}
@@ -959,7 +986,7 @@ export const PassportMapModal = memo(() => {
           
           {/* Active Drawer Area */}
           <AnimatePresence mode="wait">
-            {isOpen && !selected && activeDrawer === 'cities' && (
+            {isOpen && hudExpanded && !selected && activeDrawer === 'cities' && (
               <motion.div
                 key="cities-drawer"
                 initial={{ opacity: 0, y: 20 }}
@@ -1018,7 +1045,7 @@ export const PassportMapModal = memo(() => {
               </motion.div>
             )}
 
-            {isOpen && !selected && activeDrawer === 'results' && data && (
+            {isOpen && hudExpanded && !selected && activeDrawer === 'results' && data && (
               <motion.div
                 key="results-drawer"
                 initial={{ opacity: 0, y: 20 }}
@@ -1041,22 +1068,21 @@ export const PassportMapModal = memo(() => {
 
           {/* Bottom Dock Control Bar */}
           <AnimatePresence>
-            {isOpen && (
+            {isOpen && hudExpanded && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  'px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-2',
+                  'px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-1.5',
                   selected && 'opacity-90',
                 )}
               >
-                <p className="text-[10px] font-semibold text-white/45 tracking-wide pointer-events-none">
+                <p className="text-[9px] font-semibold text-white/40 tracking-wide pointer-events-none">
                   {t('map.doubleTapHint')}
                 </p>
-                {/* Center Sleek Radius Slider */}
-                <div className="w-full max-w-[280px] bg-[#1A202C]/90 backdrop-blur-[10px] border border-white/10 shadow-2xl rounded-full px-5 py-2.5 flex flex-col gap-2 relative">
+                <div className="w-full max-w-[240px] bg-[#1A202C]/85 backdrop-blur-[8px] border border-white/10 shadow-xl rounded-full px-4 py-2 flex flex-col gap-1.5 relative">
                   <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-white/50 px-1">
                     <span>5km</span>
                     <span className="text-[#00C6FF]">{radiusKm}km Radius</span>

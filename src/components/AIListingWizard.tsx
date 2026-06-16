@@ -27,6 +27,18 @@ import { QuickCityPicker } from '@/components/location/QuickCityPicker';
 import { resolveListingCoordinates } from '@/utils/listingLocation';
 import { logger } from '@/utils/prodLogger';
 import { useTranslation } from 'react-i18next';
+import { validateImageFile } from '@/utils/fileValidation';
+
+const AI_MAX_PHOTOS: Record<string, number> = {
+  property: 30,
+  motorcycle: 5,
+  bicycle: 5,
+  worker: 3,
+};
+
+function photoFileKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
 
 type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -207,6 +219,8 @@ export function AIListingWizard() {
     }, 300);
   };
 
+  const maxPhotos = category ? (AI_MAX_PHOTOS[category] ?? 10) : 10;
+
   const handleImageAdd = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -214,9 +228,33 @@ export function AIListingWizard() {
     input.multiple = true;
     input.onchange = (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
-      setImageFiles(prev => [...prev, ...files]);
+      if (files.length === 0) return;
+
+      const available = maxPhotos - imageFiles.length;
+      if (available <= 0) {
+        appToast.error('Maximum photos reached');
+        return;
+      }
+
+      const picked = files.slice(0, available);
+      const valid = picked.filter((file) => {
+        const result = validateImageFile(file);
+        if (!result.isValid) appToast.error('Invalid file', result.error);
+        return result.isValid;
+      });
+
+      if (valid.length > 0) {
+        setImageFiles(prev => [...prev, ...valid]);
+        triggerHaptic('light');
+      }
     };
     input.click();
+  };
+
+  const handleClearAllPhotos = () => {
+    if (imageFiles.length === 0) return;
+    setImageFiles([]);
+    triggerHaptic('medium');
   };
 
   const handleVoiceToggle = async () => {
@@ -531,27 +569,44 @@ export function AIListingWizard() {
                       </div>
 
                       <div className="space-y-4">
-                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>2. Photos</label>
+                        <div className="flex items-center justify-between ml-2 mr-1">
+                          <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>
+                            2. Photos ({imageFiles.length}/{maxPhotos})
+                          </label>
+                          {imageFiles.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleClearAllPhotos}
+                              className="text-[9px] font-black uppercase tracking-widest text-rose-400/90 hover:text-rose-300 px-2 py-1 rounded-lg border border-rose-500/25"
+                            >
+                              Clear all
+                            </button>
+                          )}
+                        </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           <AnimatePresence>
-                            {imageFiles.map((_file, i) => (
+                            {imageFiles.map((file, i) => (
                               <motion.div
-                                key={`file-${i}`}
+                                key={photoFileKey(file)}
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
                               >
-                                <img src={previewUrls[i]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                <button 
+                                <img src={previewUrls[i]} alt="" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
                                   onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/75 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-white/10"
+                                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/80 rounded-full border border-white/15 shadow-lg"
+                                  aria-label="Remove photo"
                                 >
-                                  <X className="w-4 h-4 text-white" />
+                                  <X className="w-3.5 h-3.5 text-white" />
                                 </button>
                               </motion.div>
                             ))}
                           </AnimatePresence>
+                          {imageFiles.length < maxPhotos && (
                           <button
+                            type="button"
                             onClick={handleImageAdd}
                             className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15 bg-black/5" : "border-white/20 bg-white/5")}
                           >
@@ -560,6 +615,7 @@ export function AIListingWizard() {
                             </div>
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photos</span>
                           </button>
+                          )}
                         </div>
                       </div>
 

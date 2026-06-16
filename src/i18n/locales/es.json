@@ -547,7 +547,9 @@
     "scanningArea": "Escaneando zona…",
     "noResults": "Sin anuncios en {{radius}} km",
     "loadError": "No se pudieron cargar los datos del mapa",
-    "doubleTapHint": "Toca dos veces el mapa para acercar"
+    "doubleTapHint": "Toca dos veces el mapa para acercar",
+    "expandControls": "Mostrar controles",
+    "collapseControls": "Ocultar controles"
   },
   "tokens": {
     "outOfTokens": "Sin tokens de mensajes",

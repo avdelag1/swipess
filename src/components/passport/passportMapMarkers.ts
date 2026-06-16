@@ -55,13 +55,13 @@ const injectMarkerStyles = () => {
 function listingMarkerStyle(isSelected: boolean) {
   return `
     display: flex; align-items: center; justify-content: center;
-    min-width: ${isSelected ? '56px' : '46px'}; height: ${isSelected ? '36px' : '32px'};
-    padding: 0 12px; border-radius: 999px;
+    min-width: ${isSelected ? '44px' : '36px'}; height: ${isSelected ? '24px' : '20px'};
+    padding: 0 8px; border-radius: 999px;
     background: ${isSelected ? PASSPORT_GRADIENTS.listings : '#ffffff'};
     color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: 11px; font-weight: 900; letter-spacing: 0.03em;
-    border: 2px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
-    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,114,255,${isSelected ? '0.3' : '0.15'});
+    font-size: 9px; font-weight: 900; letter-spacing: 0.02em;
+    border: 1.5px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
+    box-shadow: 0 ${isSelected ? '4' : '2'}px ${isSelected ? '10' : '6'}px rgba(0,114,255,${isSelected ? '0.28' : '0.12'});
     cursor: pointer;
     white-space: nowrap;
   `;
@@ -97,10 +97,10 @@ export function updateListingMarkerEl(
 }
 
 function profileMarkerStyle(isSelected: boolean) {
-  const size = isSelected ? 48 : 42;
+  const size = isSelected ? 34 : 28;
   return `
     width: ${size}px; height: ${size}px; border-radius: 50%;
-    border: 3px solid ${isSelected ? '#A5B4FC' : '#6366F1'};
+    border: 2px solid ${isSelected ? '#A5B4FC' : '#6366F1'};
     background: #111;
     box-shadow: 0 ${isSelected ? '10' : '5'}px ${isSelected ? '24' : '14'}px rgba(99,102,241,${isSelected ? '0.55' : '0.4'});
     overflow: visible; cursor: pointer;

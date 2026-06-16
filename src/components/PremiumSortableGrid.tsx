@@ -215,7 +215,7 @@ function SortableItem({
       setDragEnabled(true);
       onDragStart();
       triggerHaptic('medium');
-    }, 400);
+    }, 280);
   }, [onDragStart, clearLongPress]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {

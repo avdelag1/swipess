@@ -595,7 +595,9 @@
     "scanningArea": "Scanning area…",
     "noResults": "No listings in {{radius}} km",
     "loadError": "Could not load map data",
-    "doubleTapHint": "Double-tap map to zoom in"
+    "doubleTapHint": "Double-tap map to zoom in",
+    "expandControls": "Show map controls",
+    "collapseControls": "Hide map controls"
   },
   "tokens": {
     "outOfTokens": "Out of message tokens",
