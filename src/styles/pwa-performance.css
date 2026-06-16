@@ -18,11 +18,19 @@
     }
 
     /* Press feedback — sub-60ms feels physical */
-    button:active:not([disabled]),
-    [role="button"]:active:not([disabled]),
+    button:active:not([disabled]):not([data-no-cinematic]),
+    [role="button"]:active:not([disabled]):not([data-map-canvas]),
     .touchable:active {
         transform: scale(0.95) !important;
         transition: transform 50ms cubic-bezier(0, 0, 0.2, 1) !important;
+    }
+
+    /* Mapbox canvas is tabindex=0 full-screen — never scale it on tap */
+    .mapboxgl-canvas:active,
+    [data-map-canvas]:active,
+    [data-map-surface] [tabindex]:active {
+        transform: none !important;
+        filter: none !important;
     }
 
     /* Eliminate any lingering CSS transition delays on nav/bottom-bar */
@@ -298,14 +306,29 @@ button:disabled,
 /* FIX #12: Optimize Touch Feedback — covers ALL interactive elements */
 /* Note: will-change must NOT be set here (:active is too late for the browser to prepare).
    GPU promotion for animated elements is handled by translateZ(0) on the element itself. */
-button:active:not([disabled]),
+button:active:not([disabled]):not([data-no-cinematic]),
 a:active,
 [role="button"]:active,
-[tabindex]:active:not([tabindex="-1"]),
+[tabindex]:active:not([tabindex="-1"]):not([data-map-canvas]),
 label:active,
 .touchable:active {
     transform: scale(0.96);
     transition: transform 0.04s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mapboxgl-canvas:active,
+[data-map-canvas]:active,
+[data-map-surface] .mapboxgl-canvas:active,
+[data-map-surface] [tabindex]:active {
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+}
+
+.instant-active-element.mapboxgl-canvas,
+.instant-active-element[data-map-canvas] {
+    transform: none !important;
+    filter: none !important;
 }
 
 /* FIX #13: Prevent Scroll Jank on Filter Panels */

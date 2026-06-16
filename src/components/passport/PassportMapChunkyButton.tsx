@@ -33,9 +33,10 @@ export const PassportMapChunkyButton = memo(({
       <div className="relative">
         <button
           type="button"
+          data-no-cinematic
           onClick={onClick}
           className={cn(
-            'relative flex items-center justify-center shrink-0 rounded-full border shadow-md transition-all duration-200',
+            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border shadow-md transition-all duration-200',
             size,
             active
               ? 'border-white/40 text-white'

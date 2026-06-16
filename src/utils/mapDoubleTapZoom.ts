@@ -19,6 +19,18 @@ export function isMapDoubleTap(
   );
 }
 
+/** Screen point → lng/lat for double-tap zoom centered on the finger. */
+export function lngLatFromMapClientPoint(
+  map: MapboxMap,
+  clientX: number,
+  clientY: number,
+): [number, number] {
+  const canvas = map.getCanvas();
+  const rect = canvas.getBoundingClientRect();
+  const lngLat = map.unproject([clientX - rect.left, clientY - rect.top]);
+  return [lngLat.lng, lngLat.lat];
+}
+
 export function tryMapDoubleTapZoom(
   map: MapboxMap,
   center: [number, number],
@@ -55,9 +67,8 @@ export function bindMapDoubleTapZoom(
   const handleDoubleTapAt = (x: number, y: number) => {
     if (!opts.isActive()) return;
     clearSingleTap();
-    const rect = canvas.getBoundingClientRect();
-    const lngLat = map.unproject([x - rect.left, y - rect.top]);
-    if (tryMapDoubleTapZoom(map, [lngLat.lng, lngLat.lat], opts.lastZoomAtRef)) {
+    const center = lngLatFromMapClientPoint(map, x, y);
+    if (tryMapDoubleTapZoom(map, center, opts.lastZoomAtRef)) {
       lastTap = null;
       opts.onZoom?.();
     }
@@ -149,7 +160,8 @@ export function bindMarkerGestures(
       if (map && isMapDoubleTap(lastTap, now, x, y)) {
         clearSingleTap();
         e.preventDefault();
-        if (tryMapDoubleTapZoom(map, getCenter(), lastZoomAtRef)) {
+        const center = lngLatFromMapClientPoint(map, x, y);
+        if (tryMapDoubleTapZoom(map, center, lastZoomAtRef)) {
           lastTap = null;
           onZoom?.();
           return;

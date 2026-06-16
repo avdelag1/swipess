@@ -507,6 +507,14 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
 
+        // Mapbox sets tabindex=0 on the canvas — global [tabindex]:active CSS was
+        // scaling the full-screen canvas on every tap (felt like the whole page
+        // was one giant button). Keep it out of the tab order and press-engine.
+        const canvas = map.getCanvas();
+        canvas.setAttribute('tabindex', '-1');
+        canvas.setAttribute('data-map-canvas', '');
+        canvas.style.touchAction = 'none';
+
         map.on('load', () => {
           if (cancelled) return;
 
@@ -545,6 +553,8 @@ export const PassportMapModal = memo(() => {
 
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
+          // Ignore the stray click Mapbox emits right after our double-tap zoom.
+          if (Date.now() - lastDoubleTapZoomAtRef.current < 500) return;
           clearPinPreview();
         });
 
@@ -901,8 +911,17 @@ export const PassportMapModal = memo(() => {
         visibility: mapHostVisible ? 'visible' : 'hidden',
       }}
     >
-      <div className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden select-none touch-none">
-        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full select-none touch-none" style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} />
+      <div
+        data-map-surface
+        className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden select-none touch-none"
+        style={{ touchAction: 'none', overscrollBehavior: 'none' }}
+      >
+        <div
+          ref={mapContainerRef}
+          data-map-surface
+          className="absolute inset-0 w-full h-full select-none touch-none"
+          style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
+        />
 
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
@@ -939,8 +958,9 @@ export const PassportMapModal = memo(() => {
               >
                 <button
                   type="button"
+                  data-no-cinematic
                   onClick={onClose}
-                  className={cn('pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full text-white/80 border border-white/10 shadow-md hover:bg-white/10 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full text-white/80 border border-white/10 shadow-md hover:bg-white/10 transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
                   <div className="absolute inset-0 rounded-full bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
@@ -956,8 +976,9 @@ export const PassportMapModal = memo(() => {
                     <div className="absolute inset-0 bg-[#1A202C]/70 backdrop-blur-[8px] pointer-events-none" />
                     <button
                       type="button"
+                      data-no-cinematic
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
-                      className={cn('absolute left-0 top-0 bottom-0 flex items-center justify-center text-white/80 z-20 hover:text-white', MAP_HUD_BTN)}
+                      className={cn('map-hud-btn absolute left-0 top-0 bottom-0 flex items-center justify-center text-white/80 z-20 hover:text-white', MAP_HUD_BTN)}
                     >
                       <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                     </button>
@@ -986,6 +1007,7 @@ export const PassportMapModal = memo(() => {
               >
                 <button
                   type="button"
+                  data-no-cinematic
                   onClick={() => {
                     triggerHaptic('light');
                     setHudExpanded(prev => !prev);
@@ -994,7 +1016,7 @@ export const PassportMapModal = memo(() => {
                       setIsSearchOpen(false);
                     }
                   }}
-                  className={cn('relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md text-white/90 hover:bg-white/10 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md text-white/90 hover:bg-white/10 transition-all', MAP_HUD_BTN)}
                   aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                   title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                 >
@@ -1014,9 +1036,10 @@ export const PassportMapModal = memo(() => {
                     <div className="relative">
                       <button
                         type="button"
+                        data-no-cinematic
                         onClick={handleGPS}
                         disabled={gpsLoading}
-                        className={cn('relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md transition-all text-white/80 hover:bg-white/10 disabled:opacity-60', MAP_HUD_BTN)}
+                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md transition-all text-white/80 hover:bg-white/10 disabled:opacity-60', MAP_HUD_BTN)}
                         aria-label={t('map.myLocation')}
                         title={t('map.myLocation')}
                       >

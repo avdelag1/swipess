@@ -84,8 +84,9 @@ export const PassportMapPinPreview = memo(({
 
         <button
           type="button"
+          data-no-cinematic
           onClick={onClose}
-          className="absolute top-2 right-2 glass-pill bg-black/40 backdrop-blur-md p-1.5 z-10"
+          className="map-hud-btn absolute top-2 right-2 glass-pill bg-black/40 backdrop-blur-md p-1.5 z-10"
           aria-label="Close preview"
         >
           <X className="w-3.5 h-3.5" />
@@ -153,9 +154,10 @@ export const PassportMapPinPreview = memo(({
         <div className="flex gap-2">
           <button
             type="button"
+            data-no-cinematic
             onClick={onInsights}
             className={cn(
-              'flex-1 rounded-xl flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white transition-all active:scale-[0.98] shadow-lg',
+              'map-hud-btn flex-1 rounded-xl flex items-center justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-lg',
               isAnchored ? 'py-2.5' : 'py-3.5 rounded-2xl',
             )}
             style={{
@@ -169,9 +171,10 @@ export const PassportMapPinPreview = memo(({
           {isListing && onDetails && (
             <button
               type="button"
+              data-no-cinematic
               onClick={onDetails}
               className={cn(
-                'px-3 rounded-xl flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-white transition-all active:scale-[0.98]',
+                'map-hud-btn px-3 rounded-xl flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-white transition-all',
                 isAnchored ? 'py-2.5' : 'py-3.5 rounded-2xl',
               )}
               style={{ background: PASSPORT_GRADIENTS.tokens }}
