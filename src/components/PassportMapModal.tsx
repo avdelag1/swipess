@@ -41,11 +41,10 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import {
+  bindMapDoubleTapZoom,
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
-  lngLatFromMapClientPoint,
-  MAP_DOUBLE_TAP_SLOP_PX,
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
@@ -697,47 +696,28 @@ export const PassportMapModal = memo(() => {
           }
         };
 
-        let lastTouchTapTime = 0;
-        let lastTouchTapX = 0;
-        let lastTouchTapY = 0;
-        const onContainerTouchEnd = (e: TouchEvent) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-          if (e.touches.length > 0) return;
-          const touch = e.changedTouches[0];
-          if (!touch) return;
-          const now = Date.now();
-          lastMapPointerUpAtRef.current = now;
-          const dx = Math.abs(touch.clientX - lastTouchTapX);
-          const dy = Math.abs(touch.clientY - lastTouchTapY);
-          if (
-            lastTouchTapTime > 0
-            && now - lastTouchTapTime < MAP_DOUBLE_TAP_WINDOW_MS
-            && dx < MAP_DOUBLE_TAP_SLOP_PX
-            && dy < MAP_DOUBLE_TAP_SLOP_PX
-          ) {
-            e.preventDefault();
-            e.stopPropagation();
-            handleDoubleTapZoom(lngLatFromMapClientPoint(map, touch.clientX, touch.clientY));
-            lastTouchTapTime = 0;
-          } else {
-            lastTouchTapTime = now;
-            lastTouchTapX = touch.clientX;
-            lastTouchTapY = touch.clientY;
-          }
-        };
-        mapContainer.addEventListener('touchend', onContainerTouchEnd, { passive: false, capture: true });
+        // ═══════════════════════════════════════════════════════════════════
+        // DOUBLE-TAP ZOOM — DO NOT REMOVE OR RELOCATE THESE LINES
+        // Uses pointerup on the canvas (not touchend on the container) so it
+        // fires reliably on iOS/Android regardless of touchAction or overlay
+        // elements. Replacing with touchend or dblclick breaks mobile zoom.
+        // ═══════════════════════════════════════════════════════════════════
+        unbindMapDoubleTapRef.current?.();
+        unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
+          isActive: () => useModalStore.getState().showPassportMapModal,
+          lastZoomAtRef: lastDoubleTapZoomAtRef,
+          lastPointerUpAtRef: lastMapPointerUpAtRef,
+          onZoom: () => {
+            markUserMapControlRef.current();
+            triggerHaptic('light');
+          },
+        });
 
-        const onMapDblClick = (e: import('mapbox-gl').MapMouseEvent) => {
-          e.preventDefault();
-          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
-        };
-        map.on('dblclick', onMapDblClick);
-
-        unbindMapDoubleTapRef.current = () => {
-          mapContainer.removeEventListener('touchend', onContainerTouchEnd, { capture: true });
-          map.off('dblclick', onMapDblClick);
-        };
-
+        // ═══════════════════════════════════════════════════════════════════
+        // LONG-PRESS RELOCATE — DO NOT REMOVE OR RELOCATE THESE LINES
+        // 1-second hold on any empty map area moves the radar search circle
+        // to that point. Bound on the canvas so it works under all overlays.
+        // ═══════════════════════════════════════════════════════════════════
         unbindLongPressRef.current?.();
         unbindLongPressRef.current = bindMapLongPress(map, {
           isActive: () => useModalStore.getState().showPassportMapModal,
