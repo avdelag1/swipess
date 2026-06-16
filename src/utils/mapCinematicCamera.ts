@@ -204,9 +204,8 @@ export function fitMapToPins(
   return true;
 }
 
-/** Zoom step per double-tap — one natural "notch" in, like Google/Apple Maps.
- *  (A large step felt like a teleport and made repeat double-taps unusable.) */
-export const DOUBLE_TAP_ZOOM_STEP = 2.0;
+/** Zoom step per double-tap — one decisive notch in (was 2.0, felt like 4+ taps). */
+export const DOUBLE_TAP_ZOOM_STEP = 4.0;
 export const DOUBLE_TAP_MAX_ZOOM = 18.5;
 const DOUBLE_TAP_ZOOM_MS = 380;
 
@@ -216,8 +215,9 @@ export function incrementalDoubleTapZoom(
   center: [number, number],
 ): boolean {
   const current = map.getZoom();
-  const next = Math.min(DOUBLE_TAP_MAX_ZOOM, current + DOUBLE_TAP_ZOOM_STEP);
-  if (next <= current + 0.01) return false;
+  const target = current < 12 ? Math.max(current + DOUBLE_TAP_ZOOM_STEP, 13) : current + DOUBLE_TAP_ZOOM_STEP;
+  const next = Math.min(DOUBLE_TAP_MAX_ZOOM, target);
+  if (next <= current + 0.05) return false;
 
   map.easeTo({
     around: center,
