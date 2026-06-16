@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useMemo, useState } from 'react';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -58,7 +59,10 @@ export function LocationSearchFilter({
   const countries = useMemo(() => selectedRegion ? getCountriesInRegion(selectedRegion) : [], [selectedRegion]);
   const cities = useMemo(() => selectedRegion && selectedCountry ? getCitiesInCountry(selectedRegion, selectedCountry) : [], [selectedRegion, selectedCountry]);
   const featuredDestinations = useMemo(() => getFeaturedDestinations(), []);
-  const searchResults = useMemo(() => searchQuery.length >= 2 ? searchCities(searchQuery) : [], [searchQuery]);
+  // Debounce the heavy world-wide city search so the input stays instant while
+  // searchCities() (scans the full location DB) only runs once typing settles.
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 250);
+  const searchResults = useMemo(() => debouncedSearchQuery.length >= 2 ? searchCities(debouncedSearchQuery) : [], [debouncedSearchQuery]);
 
   // Get selected city data
   const selectedCityData = useMemo(() => {
