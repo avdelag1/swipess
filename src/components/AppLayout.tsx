@@ -1,6 +1,4 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-// PassportMapModal is eager-imported — lazy + Suspense(null) caused a blank first open.
-import { PassportMapModal } from './PassportMapModal';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -22,6 +20,9 @@ const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.To
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
 const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
+const PassportMapModal = lazyWithRetry(() =>
+  import('./PassportMapModal').then(m => ({ default: m.PassportMapModal })),
+);
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
@@ -351,7 +352,19 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
 
       {/* Stay mounted after first open — tearing down Mapbox on every close caused crashes */}
-      {mountPassportMap && <PassportMapModal />}
+      {mountPassportMap && (
+        <Suspense
+          fallback={
+            showPassportMapModal ? (
+              <div className="fixed inset-0 z-[10025] bg-[#0a0a12] flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-[#00C6FF]/30 border-t-[#00C6FF] rounded-full animate-spin" />
+              </div>
+            ) : null
+          }
+        >
+          <PassportMapModal />
+        </Suspense>
+      )}
     </div>
   );
 }
