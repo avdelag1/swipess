@@ -160,11 +160,17 @@ export function bindMapLongPress(
   };
 }
 
+type MapUserEvent = { originalEvent?: Event };
+
 export function bindMapInteractionTracking(
   map: MapboxMap,
   onUserInteract: () => void,
+  shouldIgnore?: (ev: MapUserEvent) => boolean,
 ): () => void {
-  const mark = () => onUserInteract();
+  const mark = (ev: MapUserEvent = {}) => {
+    if (shouldIgnore?.(ev)) return;
+    onUserInteract();
+  };
   map.on('dragstart', mark);
   map.on('zoomstart', mark);
   map.on('rotatestart', mark);
