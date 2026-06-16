@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -53,7 +53,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
   // Detect if we're on mobile/tablet for fullscreen mode
   const isMobile = window.innerWidth < 768;
 
-  const handleApplyFilters = (category: CategoryType, filters: any) => {
+  const handleApplyFilters = useCallback((category: CategoryType, filters: any) => {
     // Count active filters
     const count = Object.entries(filters).filter(([_key, value]) => {
       if (Array.isArray(value)) return value.length > 0;
@@ -65,7 +65,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
 
     setFilterCounts(prev => ({ ...prev, [category]: count }));
     setCategoryFilters(prev => ({ ...prev, [category]: filters }));
-  };
+  }, []);
+
+  // Stable per-category callbacks so the memoized filter panels don't re-render
+  // every time this dialog re-renders (inline arrows would defeat React.memo).
+  const applyProperty = useCallback((filters: any) => handleApplyFilters('property', filters), [handleApplyFilters]);
+  const applyMotorcycle = useCallback((filters: any) => handleApplyFilters('motorcycle', filters), [handleApplyFilters]);
+  const applyBicycle = useCallback((filters: any) => handleApplyFilters('bicycle', filters), [handleApplyFilters]);
+  const applyServices = useCallback((filters: any) => handleApplyFilters('services', filters), [handleApplyFilters]);
 
   const handleApply = () => {
     // FIX: Combine filters from ALL categories, not just active one
@@ -222,14 +229,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   userRole === 'owner' ? (
                     <DiscoveryFilters
                       category="property"
-                      onApply={(filters) => handleApplyFilters('property', filters)}
+                      onApply={applyProperty}
                       initialFilters={categoryFilters.property}
                       activeCount={filterCounts.property}
                       hideApplyButton={true}
                     />
                   ) : (
                     <PropertyClientFilters
-                      onApply={(filters) => handleApplyFilters('property', filters)}
+                      onApply={applyProperty}
                       initialFilters={categoryFilters.property}
                       activeCount={filterCounts.property}
                     />
@@ -239,14 +246,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   userRole === 'owner' ? (
                     <DiscoveryFilters
                       category="motorcycle"
-                      onApply={(filters) => handleApplyFilters('motorcycle', filters)}
+                      onApply={applyMotorcycle}
                       initialFilters={categoryFilters.motorcycle}
                       activeCount={filterCounts.motorcycle}
                       hideApplyButton={true}
                     />
                   ) : (
                     <MotoClientFilters
-                      onApply={(filters) => handleApplyFilters('motorcycle', filters)}
+                      onApply={applyMotorcycle}
                       initialFilters={categoryFilters.motorcycle}
                       activeCount={filterCounts.motorcycle}
                     />
@@ -256,14 +263,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   userRole === 'owner' ? (
                     <DiscoveryFilters
                       category="bicycle"
-                      onApply={(filters) => handleApplyFilters('bicycle', filters)}
+                      onApply={applyBicycle}
                       initialFilters={categoryFilters.bicycle}
                       activeCount={filterCounts.bicycle}
                       hideApplyButton={true}
                     />
                   ) : (
                     <BicycleClientFilters
-                      onApply={(filters) => handleApplyFilters('bicycle', filters)}
+                      onApply={applyBicycle}
                       initialFilters={categoryFilters.bicycle}
                       activeCount={filterCounts.bicycle}
                     />
@@ -273,14 +280,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   userRole === 'owner' ? (
                     <DiscoveryFilters
                       category="service"
-                      onApply={(filters) => handleApplyFilters('services', filters)}
+                      onApply={applyServices}
                       initialFilters={categoryFilters.services}
                       activeCount={filterCounts.services}
                       hideApplyButton={true}
                     />
                   ) : (
                     <WorkerClientFilters
-                      onApply={(filters) => handleApplyFilters('services', filters)}
+                      onApply={applyServices}
                       initialFilters={categoryFilters.services}
                       activeCount={filterCounts.services}
                     />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -37,7 +37,7 @@ interface PropertyClientFiltersProps {
   activeCount: number;
 }
 
-export function PropertyClientFilters({ onApply, initialFilters = {}, activeCount }: PropertyClientFiltersProps) {
+function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCount }: PropertyClientFiltersProps) {
   const { isLight } = useAppTheme();
   const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
   const inactivePill = isLight
@@ -234,4 +234,5 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
   );
 }
 
+export const PropertyClientFilters = memo(PropertyClientFiltersComponent);
 

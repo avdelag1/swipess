@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
@@ -29,7 +29,7 @@ interface BicycleClientFiltersProps {
   activeCount: number;
 }
 
-export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount }: BicycleClientFiltersProps) {
+function BicycleClientFiltersComponent({ onApply, initialFilters = {}, activeCount }: BicycleClientFiltersProps) {
   const { isLight } = useAppTheme();
   const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
   const inactivePill = isLight ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
@@ -174,5 +174,7 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
     </div>
   );
 }
+
+export const BicycleClientFilters = memo(BicycleClientFiltersComponent);
 
 

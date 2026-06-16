@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -32,7 +32,7 @@ interface MotoClientFiltersProps {
   activeCount: number;
 }
 
-export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }: MotoClientFiltersProps) {
+function MotoClientFiltersComponent({ onApply, initialFilters = {}, activeCount }: MotoClientFiltersProps) {
   const { isLight } = useAppTheme();
   const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
   const inactivePill = isLight ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
@@ -211,5 +211,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
     </div>
   );
 }
+
+export const MotoClientFilters = memo(MotoClientFiltersComponent);
 
 
