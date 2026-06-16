@@ -24,50 +24,54 @@ export function syncUserGpsDotOnMap(
     }
   };
 
+  const ensureLayer = (id: string, spec: Parameters<MapboxMap['addLayer']>[0]) => {
+    if (!map.getLayer(id)) map.addLayer(spec);
+  };
+
   if (!map.getSource(GPS_SOURCE_ID)) {
     map.addSource(GPS_SOURCE_ID, { type: 'geojson', data: point });
-
-    map.addLayer({
-      id: GPS_PULSE_ID,
-      type: 'circle',
-      source: GPS_SOURCE_ID,
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 24],
-        'circle-color': '#10B981',
-        'circle-opacity': 0.28,
-        'circle-blur': 0.35,
-      },
-    });
-
-    map.addLayer({
-      id: GPS_RING_ID,
-      type: 'circle',
-      source: GPS_SOURCE_ID,
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 8, 14, 12, 16, 16],
-        'circle-color': '#10B981',
-        'circle-opacity': 0.45,
-        'circle-stroke-width': 2.5,
-        'circle-stroke-color': '#ffffff',
-        'circle-stroke-opacity': 1,
-      },
-    });
-
-    map.addLayer({
-      id: GPS_DOT_ID,
-      type: 'circle',
-      source: GPS_SOURCE_ID,
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 6, 16, 8],
-        'circle-color': '#10B981',
-        'circle-stroke-width': 3,
-        'circle-stroke-color': '#ffffff',
-        'circle-opacity': 1,
-      },
-    });
   } else {
     upsert(GPS_SOURCE_ID, point);
   }
+
+  ensureLayer(GPS_PULSE_ID, {
+    id: GPS_PULSE_ID,
+    type: 'circle',
+    source: GPS_SOURCE_ID,
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 14, 18, 16, 24],
+      'circle-color': '#10B981',
+      'circle-opacity': 0.28,
+      'circle-blur': 0.35,
+    },
+  });
+
+  ensureLayer(GPS_RING_ID, {
+    id: GPS_RING_ID,
+    type: 'circle',
+    source: GPS_SOURCE_ID,
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 8, 14, 12, 16, 16],
+      'circle-color': '#10B981',
+      'circle-opacity': 0.45,
+      'circle-stroke-width': 2.5,
+      'circle-stroke-color': '#ffffff',
+      'circle-stroke-opacity': 1,
+    },
+  });
+
+  ensureLayer(GPS_DOT_ID, {
+    id: GPS_DOT_ID,
+    type: 'circle',
+    source: GPS_SOURCE_ID,
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 4, 14, 6, 16, 8],
+      'circle-color': '#10B981',
+      'circle-stroke-width': 3,
+      'circle-stroke-color': '#ffffff',
+      'circle-opacity': 1,
+    },
+  });
 }
 
 export function removeUserGpsDotFromMap(map: MapboxMap): void {

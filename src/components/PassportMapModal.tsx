@@ -265,8 +265,13 @@ export const PassportMapModal = memo(() => {
       }
     };
 
-    if (map.isStyleLoaded()) paint();
-    else map.once('style.load', paint);
+    if (map.isStyleLoaded()) {
+      paint();
+      return;
+    }
+    const onReady = () => paint();
+    map.once('load', onReady);
+    map.once('style.load', onReady);
   }, [mapReady, radiusKm]);
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.

@@ -66,71 +66,71 @@ export function syncRadiusCircleOnMap(
     }
   };
 
+  const ensureLayer = (id: string, spec: Parameters<MapboxMap['addLayer']>[0]) => {
+    if (!map.getLayer(id)) map.addLayer(spec);
+  };
+
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: 'geojson', data: polygon });
-
-    // Wide soft halo — glass radar wash (very transparent)
-    map.addLayer({
-      id: FILL_OUTER_ID,
-      type: 'fill',
-      source: SOURCE_ID,
-      paint: {
-        'fill-color': RADIUS_CYAN,
-        'fill-opacity': 0.04,
-      },
-    });
-
-    // Inner tint — subtle cyan core, still see-through
-    map.addLayer({
-      id: FILL_ID,
-      type: 'fill',
-      source: SOURCE_ID,
-      paint: {
-        'fill-color': RADIUS_BLUE,
-        'fill-opacity': 0.07,
-      },
-    });
-
-    // Outer bloom ring (no slot — outdoors-v12 rejects Mapbox Standard-only slots)
-    map.addLayer({
-      id: GLOW_OUTER_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': RADIUS_CYAN,
-        'line-width': 10,
-        'line-opacity': 0.22,
-        'line-blur': 10,
-      },
-    });
-
-    // Crisp glowing edge
-    map.addLayer({
-      id: GLOW_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': RADIUS_CYAN,
-        'line-width': 4,
-        'line-opacity': 0.5,
-        'line-blur': 3,
-      },
-    });
-
-    // Sharp white-cyan rim — defines the search boundary
-    map.addLayer({
-      id: LINE_ID,
-      type: 'line',
-      source: SOURCE_ID,
-      paint: {
-        'line-color': '#E0F7FF',
-        'line-width': 1.75,
-        'line-opacity': 0.82,
-      },
-    });
   } else {
     upsert(SOURCE_ID, polygon);
   }
+
+  // Ensure layers exist — a prior failed addLayer (e.g. invalid slot) left source without rings.
+  ensureLayer(FILL_OUTER_ID, {
+    id: FILL_OUTER_ID,
+    type: 'fill',
+    source: SOURCE_ID,
+    paint: {
+      'fill-color': RADIUS_CYAN,
+      'fill-opacity': 0.04,
+    },
+  });
+
+  ensureLayer(FILL_ID, {
+    id: FILL_ID,
+    type: 'fill',
+    source: SOURCE_ID,
+    paint: {
+      'fill-color': RADIUS_BLUE,
+      'fill-opacity': 0.07,
+    },
+  });
+
+  ensureLayer(GLOW_OUTER_ID, {
+    id: GLOW_OUTER_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': RADIUS_CYAN,
+      'line-width': 10,
+      'line-opacity': 0.22,
+      'line-blur': 10,
+    },
+  });
+
+  ensureLayer(GLOW_ID, {
+    id: GLOW_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': RADIUS_CYAN,
+      'line-width': 4,
+      'line-opacity': 0.5,
+      'line-blur': 3,
+    },
+  });
+
+  ensureLayer(LINE_ID, {
+    id: LINE_ID,
+    type: 'line',
+    source: SOURCE_ID,
+    paint: {
+      'line-color': '#E0F7FF',
+      'line-width': 1.75,
+      'line-opacity': 0.82,
+    },
+  });
 
   if (showCenterDot) {
     if (!map.getSource(CENTER_ID)) {
