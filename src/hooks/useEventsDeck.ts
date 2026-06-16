@@ -1,0 +1,83 @@
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/prodLogger';
+import { MOCK_EVENTS } from '@/data/eventsData';
+import type { EventItem } from '@/types/events';
+
+export function pickEventImage(ev: Partial<EventItem>): string | null {
+  if (typeof ev.image_url === 'string' && ev.image_url.trim()) return ev.image_url;
+  const gallery = Array.isArray(ev.image_urls) ? ev.image_urls : [];
+  for (const item of gallery) {
+    if (typeof item === 'string' && item.trim()) return item;
+    if (item && typeof item === 'object') {
+      const url = (item as { url?: string; image_url?: string; src?: string }).url
+        || (item as { image_url?: string }).image_url
+        || (item as { src?: string }).src;
+      if (typeof url === 'string' && url.trim()) return url;
+    }
+  }
+  return null;
+}
+
+function formatEventRow(ev: Record<string, unknown>): EventItem {
+  return {
+    id: String(ev.id),
+    title: (ev.title as string) || 'Untitled Event',
+    description: (ev.description as string) || null,
+    category: (ev.category as string) || 'all',
+    image_url: pickEventImage(ev as Partial<EventItem>),
+    image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
+    video_url: (ev.video_url as string) || null,
+    event_date: (ev.event_date as string) || null,
+    location: (ev.location as string) || null,
+    location_detail: (ev.location_detail as string) || null,
+    organizer_name: (ev.organizer_name as string) || null,
+    organizer_whatsapp: (ev.organizer_whatsapp as string) || null,
+    promo_text: (ev.promo_text as string) || null,
+    discount_tag: (ev.discount_tag as string) || null,
+    is_free: !!ev.is_free,
+    price_text: (ev.price_text as string) || null,
+  };
+}
+
+/** Events for the main swipe deck — DB rows plus demo cards for onboarding. */
+export function useEventsDeck(enabled: boolean) {
+  return useQuery({
+    queryKey: ['eventos', 'swipe-deck', 'v1'],
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<EventItem[]> => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
+        .order('event_date', { ascending: true })
+        .limit(100);
+
+      if (error) {
+        logger.warn('[useEventsDeck] fetch error:', error);
+        throw error;
+      }
+
+      const dbEvents = (data || []).map((row) => formatEventRow(row as Record<string, unknown>));
+      const seen = new Set(dbEvents.map((e) => e.id));
+      const demos = (MOCK_EVENTS || []).filter((m) => !seen.has(m.id));
+      return [...dbEvents, ...demos];
+    },
+  });
+}
+
+export function useEventLikes(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['event-likes', userId],
+    queryFn: async () => {
+      if (!userId) return new Set<string>();
+      const { data } = await supabase
+        .from('likes')
+        .select('target_id')
+        .eq('user_id', userId)
+        .eq('target_type', 'event');
+      return new Set((data || []).map((l) => l.target_id));
+    },
+    enabled: !!userId,
+  });
+}

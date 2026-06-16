@@ -1,7 +1,7 @@
 // cache-bust: 2026-04-18-v14
 import { memo, Suspense, useCallback, useEffect, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { useNavigate } from 'react-router-dom';
+
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import {
@@ -39,7 +39,6 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     } catch { /* localStorage parse failure — use default order */ }
     return [...UNIFIED_CARDS];
   });
-  const navigate = useNavigate();
   const [showVapModal, setShowVapModal] = useState(false);
 
   // Persist card order to store (zustand persist writes to localStorage)
@@ -66,10 +65,9 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
-    if (id === 'events') navigate('/explore/events');
-    else if (id === 'vap') setShowVapModal(true);
+    if (id === 'vap') setShowVapModal(true);
     else setCategories(id as QuickFilterCategory);
-  }, [setCategories, navigate]);
+  }, [setCategories]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');

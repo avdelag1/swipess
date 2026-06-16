@@ -69,8 +69,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
     
-    if (id === 'events') navigate('/explore/events');
-    else if (id === 'premium') navigate('/subscription/packages');
+    if (id === 'premium') navigate('/subscription/packages');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 

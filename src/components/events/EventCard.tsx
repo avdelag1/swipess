@@ -1,11 +1,13 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
+import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { GlassIconButton } from '@/components/ui/GlassIconButton';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -17,7 +19,6 @@ function formatDate(str: string | null): string {
   return `In ${diff} days`;
 }
 
-// ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
   event, onLike, liked, onChat, onShare, onMiddleTap,
   activeColor = '#f97316',
@@ -30,8 +31,13 @@ export const EventCard = memo(({
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+  const { isRailVisible } = useChromeReveal();
   const [likeAnim, setLikeAnim] = useState(false);
   const lastTapRef = useRef(0);
+
+  useEffect(() => {
+    revealChrome();
+  }, [event.id]);
 
   const handleLike = useCallback(() => {
     onLike();
@@ -46,24 +52,27 @@ export const EventCard = memo(({
     (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, category: 'listing' } }));
   }, [event.id, event.title]);
 
-  // Double-tap to like
   const handleCardTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const now = Date.now();
     if (now - lastTapRef.current < 350) {
-      // Double tap → like
       handleLike();
       lastTapRef.current = 0;
-    } else {
-      lastTapRef.current = now;
-      // Single tap → open detail after a short delay
-      setTimeout(() => {
-        if (lastTapRef.current !== 0) {
-          onMiddleTap();
-          lastTapRef.current = 0;
-        }
-      }, 360);
+      return;
     }
+    lastTapRef.current = now;
+    revealChrome();
+    setTimeout(() => {
+      if (lastTapRef.current !== 0) {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const clickY = e.clientY - rect.top;
+        const height = rect.height;
+        if (clickY > height * 0.33 && clickY < height * 0.67) {
+          onMiddleTap();
+        }
+        lastTapRef.current = 0;
+      }
+    }, 360);
   }, [handleLike, onMiddleTap]);
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
@@ -78,7 +87,6 @@ export const EventCard = memo(({
       )}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background — event image or rich gradient */}
       {hasImage ? (
         <>
           <img
@@ -87,7 +95,6 @@ export const EventCard = memo(({
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
           />
-          {/* Darken for text legibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
         </>
       ) : (
@@ -101,24 +108,22 @@ export const EventCard = memo(({
         />
       )}
 
-      {/* Gradient overlay for bottom text */}
       <div className={cn(
         "absolute inset-0 pointer-events-none",
-        hasImage 
+        hasImage
           ? "bg-gradient-to-t from-black/95 via-transparent to-transparent"
-          : isLight 
-            ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90" 
+          : isLight
+            ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90"
             : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
       )} />
 
-      {/* Tap anywhere on card body to open detail */}
       <button
+        type="button"
         onClick={handleCardTap}
         className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
         aria-label="Open event details"
       />
 
-      {/* Double-tap to like overlay */}
       <AnimatePresence>
         {likeAnim && (
           <motion.div
@@ -133,87 +138,60 @@ export const EventCard = memo(({
         )}
       </AnimatePresence>
 
-      {/* ── RIGHT SIDE ACTION RAIL ──────────────────────────────────────── */}
-      <div className="absolute right-3 flex flex-col gap-4 items-center z-30 bottom-[calc(11rem+env(safe-area-inset-bottom,0px))]">
-        {/* Like / Heart */}
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
-          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-          title={liked ? "Unlike" : "Like"}
-        >
+      <AnimatePresence>
+        {isRailVisible && (
           <motion.div
-            whileTap={{ scale: 0.85 }}
-            animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
-            transition={{ duration: 0.35 }}
-            className={cn(
-              "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
-              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-black/50 border-white/30"
-            )}>
-            <Heart className={cn('w-5 h-5 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
-          </motion.div>
-          <span className={cn("text-[10px] font-bold", liked ? "text-red-400" : "text-white/60")}>Like</span>
-        </button>
-
-        {/* WhatsApp host contact */}
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
-          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-          title="Message host on WhatsApp"
-          aria-label="WhatsApp host"
-        >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
+            data-no-cinematic
+            data-no-pull-dismiss
+            initial={{ opacity: 0, x: 18, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 12, scale: 0.94 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
+            style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
           >
-            <MessageCircle className="w-5 h-5 text-white" style={{ color: activeColor }} />
-          </motion.div>
-          <span className={cn("text-[10px] font-bold text-white/60")}>WhatsApp</span>
-        </button>
+            <GlassIconButton
+              icon={Heart}
+              onClick={handleLike}
+              label={liked ? 'Unlike' : 'Like'}
+              tone="onPhoto"
+              size="lg"
+              guardSwipe
+              iconColor={liked ? '#f43f5e' : undefined}
+              iconClassName={liked ? 'fill-rose-500' : undefined}
+              className={cn('w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]', liked && 'border-rose-500/50')}
+            />
 
-        {/* Share */}
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
-          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-          title="Share event"
-        >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
-          >
-            <Share2 className="w-5 h-5 text-white" style={{ color: activeColor }} />
+            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+              {[
+                { icon: Eye, onClick: onMiddleTap, label: 'Details' },
+                { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },
+                { icon: Share2, onClick: onShare, label: 'Share' },
+                { icon: Flag, onClick: handleReport, label: 'Report' },
+              ].map((btn, idx) => (
+                <GlassIconButton
+                  key={idx}
+                  icon={btn.icon}
+                  onClick={btn.onClick}
+                  label={btn.label}
+                  tone="surface"
+                  size="md"
+                  guardSwipe
+                  className="w-[44px] h-[44px] bg-transparent border-none shadow-none text-white hover:bg-white/10"
+                />
+              ))}
+            </div>
           </motion.div>
-          <span className={cn("text-[10px] font-bold text-white/60")}>Share</span>
-        </button>
+        )}
+      </AnimatePresence>
 
-        {/* Report */}
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); handleReport(); }}
-          className="flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
-          title="Report event"
-        >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
-          >
-            <Flag className="w-4 h-4 text-white/80" />
-          </motion.div>
-          <span className={cn("text-[10px] font-bold text-white/60")}>Report</span>
-        </button>
-      </div>
-
-      {/* ── BOTTOM INFO PANEL ──────────────────────────────────────────── */}
-      <div 
+      <div
         className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-6 pointer-events-none"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
       >
-        {/* Category pill */}
         {categoryMeta && (
           <div className="flex items-center gap-2 mb-3 pointer-events-auto">
-            <div 
+            <div
               className="px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md border border-white/10"
               style={{ background: `${activeColor}30` }}
             >
@@ -235,26 +213,22 @@ export const EventCard = memo(({
           </div>
         )}
 
-        {/* Event title */}
         <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-2xl pr-16">
           {event.title}
         </h2>
 
-        {/* Organizer */}
         {event.organizer_name && (
           <p className="text-sm text-white/60 font-semibold mt-1.5 drop-shadow-lg">
             by {event.organizer_name}
           </p>
         )}
 
-        {/* Promo text */}
         {event.promo_text && (
           <p className="text-sm text-white/80 mt-2 leading-relaxed drop-shadow-lg line-clamp-2 pr-16">
             {event.promo_text}
           </p>
         )}
 
-        {/* Meta chips: date + location */}
         <div className="flex flex-wrap items-center gap-2 mt-3">
           {event.event_date && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
@@ -275,10 +249,11 @@ export const EventCard = memo(({
           )}
         </div>
 
-        {/* Interaction hint — single tap opens the full event detail page */}
         <div className="flex items-center gap-2 mt-4 opacity-50">
           <div className="w-5 h-[2px] rounded-full bg-white/60" />
-          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">Tap for details</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">
+            {isRailVisible ? 'Tap center for details' : 'Tap photo to reveal actions'}
+          </span>
         </div>
       </div>
     </div>
