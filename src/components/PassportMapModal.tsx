@@ -645,14 +645,57 @@ export const PassportMapModal = memo(() => {
       return { lat: lat + r * Math.cos(theta), lng: lng + r * Math.sin(theta) };
     };
 
+    const bindGestures = (el: HTMLElement, pin: { type: 'listing' | 'profile'; data: any }) => {
+      let timer: any;
+      let isLongPress = false;
+      let startX = 0;
+      let startY = 0;
+      
+      const start = (e: any) => {
+        isLongPress = false;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        timer = setTimeout(() => {
+          isLongPress = true;
+          triggerHaptic('medium');
+          focusPin(pin);
+        }, 400);
+      };
+      
+      const move = (e: any) => {
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        if (Math.abs(x - startX) > 10 || Math.abs(y - startY) > 10) {
+          clearTimeout(timer);
+        }
+      };
+
+      const end = (e: Event) => {
+        clearTimeout(timer);
+        if (!isLongPress) {
+          e.stopPropagation();
+          e.preventDefault();
+          triggerHaptic('light');
+          openInsightsFor(pin);
+        }
+      };
+
+      el.addEventListener('touchstart', start, { passive: true });
+      el.addEventListener('touchmove', move, { passive: true });
+      el.addEventListener('touchend', end);
+      el.addEventListener('mousedown', start);
+      el.addEventListener('mousemove', move);
+      el.addEventListener('mouseup', end);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      });
+    };
+
     visibleListings.forEach((l) => {
       const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
       const el = createListingMarkerEl(l, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'listing', data: l });
-      });
+      bindGestures(el, { type: 'listing', data: l });
       const coords = getOffset(l.lat, l.lng);
       markersRef.current.push(
         new mapboxgl.Marker({ element: el, anchor: 'center' })
@@ -664,11 +707,7 @@ export const PassportMapModal = memo(() => {
     visibleProfiles.forEach((p) => {
       const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
       const el = createProfileMarkerEl(p, isSelected);
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        triggerHaptic('medium');
-        focusPin({ type: 'profile', data: p });
-      });
+      bindGestures(el, { type: 'profile', data: p });
       const coords = getOffset(p.lat, p.lng);
       markersRef.current.push(
         new mapboxgl.Marker({ element: el, anchor: 'center' })
@@ -676,7 +715,7 @@ export const PassportMapModal = memo(() => {
           .addTo(mapRef.current!),
       );
     });
-  }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
+  }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin, openInsightsFor]);
 
   const mapboxReady = tokenReady;
 
@@ -732,7 +771,7 @@ export const PassportMapModal = memo(() => {
       }}
     >
       <div className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden">
-        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
+        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" style={{ touchAction: 'none' }} />
 
         {isOpen && (
         <div data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">

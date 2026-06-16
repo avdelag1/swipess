@@ -249,29 +249,12 @@ function TopBarComponent({
 
             <button
               type="button"
-              onClick={() => { haptics.tap(); openPassport(); }}
-              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
-              style={glassPillStyle}
-              aria-label={t('map.globalPassport')}
-            >
-              <Globe
-                className={HEADER_ICON}
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(99,102,241,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
-            </button>
-
-            <button
-              type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
               aria-label="Global Passport"
             >
-              <Globe2
+              <Globe
                 className={HEADER_ICON}
                 style={{
                   color: iconColor,
