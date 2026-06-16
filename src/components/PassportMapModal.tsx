@@ -66,7 +66,6 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
   coordsNearFix,
   getCachedGpsFix,
-  prefetchUserGps,
   seedGpsCache,
   startGpsWatch,
   stopGpsWatch,
@@ -241,6 +240,8 @@ export const PassportMapModal = memo(() => {
 
   const radiusCenterRef = useRef(radiusCenter);
   radiusCenterRef.current = radiusCenter;
+  const radiusKmRef = useRef(radiusKm);
+  radiusKmRef.current = radiusKm;
   const prevRadiusKmRef = useRef(radiusKm);
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.
@@ -493,63 +494,32 @@ export const PassportMapModal = memo(() => {
     prevPassportModeRef.current = passportMode;
   }, [isOpen, passportMode]);
 
-  // Auto-center exactly once per open — never re-run when GPS or radius updates.
+  // Cinematic open — fires exactly once per open. Always lands on the listing hub
+  // (Tulum) so pins are visible immediately; passport-explore mode lands on its target.
+  // GPS centering is intentionally NOT done here — user taps the GPS button for that.
   useEffect(() => {
     if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
+    if (selectedRef.current || userMapInteractedRef.current) return;
 
-    const session = mapOpenSessionRef.current;
-    let cancelled = false;
-
-    const runCenter = (target: { lat: number; lng: number }, duration = FLY_DURATION_OPEN_MS) => {
-      if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      centerMapOnTargetRef.current(target, session, { fly: true, duration });
-      initialCenterDoneRef.current = true;
-    };
+    const map = mapRef.current;
+    if (!map) return;
 
     const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
-    if (pm && userLatitude != null && userLongitude != null) {
-      if (userMapInteractedRef.current) return undefined;
-      centerMapOnTargetRef.current(
-        { lat: userLatitude, lng: userLongitude },
-        session,
-        { fly: true, duration: FLY_DURATION_OPEN_MS },
-      );
-      initialCenterDoneRef.current = true;
-      return () => { cancelled = true; };
-    }
-
-    // Default open: fly to the listing hub so pins are visible immediately.
-    if (hubSearchLocked) {
-      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
-      return () => { cancelled = true; };
-    }
-
-    if (!canGeolocate()) {
-      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
-      return () => { cancelled = true; };
-    }
-
-    setGpsLoading(true);
-    const cached = getCachedGpsFix();
-    const storeFix = userLatitude != null && userLongitude != null
+    const target = (pm && userLatitude != null && userLongitude != null)
       ? { lat: userLatitude, lng: userLongitude }
-      : null;
-    const initial = cached ?? storeFix;
-    if (initial) runCenter(initial, FLY_DURATION_OPEN_MS);
+      : MAP_SEARCH_HUB;
 
-    void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
-      if (cancelled || !fix || useFilterStore.getState().passportMode) return;
-      applyGpsFixRef.current(fix);
-      // Never yank the camera once the user is browsing a pin or has taken control.
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      runCenter(fix, FLY_DURATION_OPEN_MS);
-    }).finally(() => {
-      if (!cancelled) setGpsLoading(false);
-    });
+    const zoom = zoomForRadiusKm(radiusKmRef.current);
+    const pitch = cinematicPitchForViewport();
 
-    return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode, hubSearchLocked]);
+    suppressMapInteractionRef.current = true;
+    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
+    map.once('moveend', releaseSuppress);
+    window.setTimeout(releaseSuppress, FLY_DURATION_OPEN_MS + 120);
+
+    cinematicOpenGlide(map, [target.lng, target.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
+    initialCenterDoneRef.current = true;
+  }, [isOpen, mapReady, passportMode]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
