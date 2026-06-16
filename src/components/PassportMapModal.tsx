@@ -158,7 +158,6 @@ export const PassportMapModal = memo(() => {
   const [hudExpanded, setHudExpanded] = useState(false);
   const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
   const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
-  const [previewPlacement, setPreviewPlacement] = useState<MapPinPreviewPlacement | null>(null);
   const mapHudRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -227,7 +226,6 @@ export const PassportMapModal = memo(() => {
   const clearPinPreview = useCallback(() => {
     setSelected(null);
     setPreviewMode(null);
-    setPreviewPlacement(null);
   }, []);
 
   const onClose = useCallback(() => {
@@ -278,33 +276,13 @@ export const PassportMapModal = memo(() => {
   const flyToRef = useRef(flyTo);
   flyToRef.current = flyTo;
 
-  const focusPinAnchored = useCallback((pin: SelectedPin) => {
-    // Engaging a pin locks the camera so the delayed GPS auto-center can never
-    // yank the view back to the open position while the user is browsing pins.
-    initialCenterDoneRef.current = true;
-    userEverMovedRef.current = true;
-    setSelected(pin);
-    setPreviewMode('anchored');
-  }, []);
+
 
   const focusPinSheet = useCallback((pin: SelectedPin) => {
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
     setSelected(pin);
     setPreviewMode('sheet');
-    setPreviewPlacement(null);
-  }, []);
-
-  const updatePreviewPlacement = useCallback(() => {
-    const map = mapRef.current;
-    const hud = mapHudRef.current;
-    if (!map || !hud || !selected || previewMode !== 'anchored') {
-      setPreviewPlacement(null);
-      return;
-    }
-
-    const point = map.project([selected.data.lng, selected.data.lat]);
-    const hudRect = hud.getBoundingClientRect();
     setPreviewPlacement(computeMapPinPreviewPlacement(
       point.x,
       point.y,
@@ -917,7 +895,7 @@ export const PassportMapModal = memo(() => {
           radiusCenter.lng,
           radiusCenter.lat,
           radiusKm,
-          { showCenterDot: false },
+          { showCenterDot: true },
         );
       } catch {
         // Style can still be loading on first paint
@@ -958,7 +936,7 @@ export const PassportMapModal = memo(() => {
         },
         () => {
           triggerHaptic('medium');
-          focusPinAnchored({ type: 'listing', data: l });
+          focusPinSheet({ type: 'listing', data: l });
         },
         () => useModalStore.getState().showPassportMapModal,
       );
@@ -989,7 +967,7 @@ export const PassportMapModal = memo(() => {
         },
         () => {
           triggerHaptic('medium');
-          focusPinAnchored({ type: 'profile', data: p });
+          focusPinSheet({ type: 'profile', data: p });
         },
         () => useModalStore.getState().showPassportMapModal,
       );
@@ -1009,7 +987,7 @@ export const PassportMapModal = memo(() => {
         registry.delete(key);
       }
     }
-  }, [visibleListings, visibleProfiles, mapReady, isOpen, focusPinAnchored, focusPinSheet]);
+  }, [visibleListings, visibleProfiles, mapReady, isOpen, focusPinSheet]);
 
   useEffect(() => {
     if (!isOpen || !mapReady) return;
@@ -1136,10 +1114,9 @@ export const PassportMapModal = memo(() => {
                   type="button"
                   data-no-cinematic
                   onClick={onClose}
-                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full text-white/80 border border-white/10 shadow-md hover:bg-white/10 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-[14px] bg-white/95 border border-black/5 text-slate-700 shadow-lg hover:bg-white transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
-                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px] pointer-events-none" />
                   <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                 </button>
 
@@ -1173,6 +1150,61 @@ export const PassportMapModal = memo(() => {
                     </div>
                   </motion.div>
                 )}
+
+                {/* Top City Strip */}
+                {hudExpanded && !selected && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-[52px] left-0 right-[-48px] pointer-events-auto"
+                  >
+                    <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
+                      <div className="flex items-center gap-2 pl-[12px] pr-4 py-1.5">
+                        {PASSPORT_QUICK_CITIES.map((city) => {
+                          const isActive = passportMode && passportLabel?.includes(city.name);
+                          return (
+                            <button
+                              key={city.name}
+                              type="button"
+                              onClick={() => {
+                                triggerHaptic('medium');
+                                setPassportLocation(city.lat, city.lng, `${city.name}`);
+                                setRadiusKm(20);
+                                if (mapRef.current) {
+                                  cinematicEaseTo(
+                                    mapRef.current,
+                                    [city.lng, city.lat],
+                                    zoomForRadiusKm(20),
+                                    { duration: 280, pitch: cinematicPitchForViewport() },
+                                  );
+                                }
+                                appToast.success(`Flying to ${city.name}`);
+                              }}
+                              className={cn(
+                                'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
+                                isActive
+                                  ? 'bg-white/95 border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
+                                  : 'bg-[#1A202C]/85 backdrop-blur-[8px] border-white/10 text-white/90 hover:bg-white/20',
+                              )}
+                            >
+                              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
+                                <img
+                                  src={city.img}
+                                  alt=""
+                                  loading="lazy"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
+                                />
+                              </div>
+                              {city.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
 
               <motion.div
@@ -1193,11 +1225,10 @@ export const PassportMapModal = memo(() => {
                       setIsSearchOpen(false);
                     }
                   }}
-                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md text-white/90 hover:bg-white/10 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] bg-white/95 border border-black/5 shadow-lg text-slate-700 hover:bg-white transition-all', MAP_HUD_BTN)}
                   aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                   title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                 >
-                  <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
                   {hudExpanded
                     ? <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
                     : <Menu className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
@@ -1216,11 +1247,10 @@ export const PassportMapModal = memo(() => {
                         data-no-cinematic
                         onClick={handleGPS}
                         disabled={gpsLoading}
-                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-md transition-all text-white/80 hover:bg-white/10 disabled:opacity-60', MAP_HUD_BTN)}
+                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] bg-white/95 border border-black/5 shadow-lg transition-all text-slate-700 hover:bg-white disabled:opacity-60', MAP_HUD_BTN)}
                         aria-label={t('map.myLocation')}
                         title={t('map.myLocation')}
                       >
-                        <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
                         {gpsLoading
                           ? <Loader2 className={cn(MAP_HUD_ICON, 'animate-spin relative z-10')} />
                           : <Navigation className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
@@ -1252,19 +1282,7 @@ export const PassportMapModal = memo(() => {
                       />
                     ))}
 
-                    <PassportMapChunkyButton
-                      icon={Globe2}
-                      label={t('map.cities')}
-                      gradient={PASSPORT_GRADIENTS.all}
-                      active={activeDrawer === 'cities'}
-                      compact
-                      showLabel={false}
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
-                      }}
-                    />
-
+                    {/* Removed Cities button because they are now on top */}
                     <PassportMapChunkyButton
                       icon={LayoutList}
                       label={t('map.results')}
@@ -1314,65 +1332,7 @@ export const PassportMapModal = memo(() => {
 
           {/* Active Drawer Area (city strip / results carousel) */}
           <AnimatePresence mode="wait">
-            {isOpen && hudExpanded && !selected && activeDrawer === 'cities' && (
-              <motion.div
-                key="cities-drawer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full pointer-events-auto"
-              >
-                {/* City quick-filter strip */}
-                <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-                  <div className="flex items-center gap-2.5 px-4 py-1.5">
-                    {PASSPORT_QUICK_CITIES.map((city) => {
-                      const isActive = passportMode && passportLabel?.includes(city.name);
-                      return (
-                        <button
-                          key={city.name}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic('medium');
-                            setPassportLocation(city.lat, city.lng, `${city.name}`);
-                            setRadiusKm(20);
-                            if (mapRef.current) {
-                              cinematicEaseTo(
-                                mapRef.current,
-                                [city.lng, city.lat],
-                                zoomForRadiusKm(20),
-                                { duration: 280, pitch: cinematicPitchForViewport() },
-                              );
-                            }
-                            appToast.success(`Flying to ${city.name}`);
-                          }}
-                          className={cn(
-                            'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
-                            isActive
-                              ? 'bg-white/22 border-white/40 text-white shadow-lg ring-1 ring-white/20'
-                              : 'map-hud-panel border-white/10 text-white/80 hover:bg-black/60',
-                          )}
-                        >
-                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
-                            <img
-                              src={city.img}
-                              alt=""
-                              loading="eager"
-                              decoding="async"
-                              fetchPriority="high"
-                              className="w-full h-full object-cover"
-                              onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}
-                            />
-                          </div>
-                          {city.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
+            {/* Cities drawer removed because they are now on top */}
             {isOpen && hudExpanded && !selected && activeDrawer === 'results' && data && (
               <motion.div
                 key="results-drawer"
@@ -1433,30 +1393,6 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        <AnimatePresence>
-          {selected && previewMode === 'anchored' && previewPlacement && (
-            <div
-              key={`anchored-${selected.type}-${selected.data.id}`}
-              className="absolute z-50 pointer-events-auto"
-              style={{
-                left: previewPlacement.left,
-                top: previewPlacement.top,
-                transform: previewPlacement.transform,
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <PassportMapPinPreview
-                selected={selected}
-                isLight={isLight}
-                variant="anchored"
-                onClose={clearPinPreview}
-                onInsights={() => openInsightsFor(selected)}
-                onDetails={selected.type === 'listing' ? () => openDetailsFor(selected.data.id) : undefined}
-              />
-            </div>
-          )}
-        </AnimatePresence>
 
         <AnimatePresence>
           {selected && previewMode === 'sheet' && (
@@ -1466,7 +1402,7 @@ export const PassportMapModal = memo(() => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
               transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-              className="absolute inset-x-0 bottom-0 z-50 pointer-events-auto flex justify-center"
+              className="absolute inset-x-0 bottom-0 md:inset-auto md:left-4 md:top-[88px] md:bottom-4 z-50 pointer-events-auto flex justify-center md:justify-start"
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
             >

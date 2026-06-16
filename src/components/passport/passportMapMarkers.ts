@@ -7,14 +7,7 @@ export type SelectedPin =
   | { type: 'listing'; data: MapListingPin }
   | { type: 'profile'; data: MapProfilePin };
 
-function formatPinPrice(price?: number): string | null {
-  if (price == null || Number.isNaN(price)) return null;
-  if (price >= 1000) {
-    const k = price / 1000;
-    return `$${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}k`;
-  }
-  return `$${Math.round(price)}`;
-}
+
 
 const injectMarkerStyles = () => {
   if (typeof document === 'undefined' || document.getElementById('passport-marker-styles')) return;
@@ -54,14 +47,14 @@ const injectMarkerStyles = () => {
 
 function listingMarkerStyle(isSelected: boolean) {
   return `
-    display: flex; align-items: center; justify-content: center;
-    min-width: ${isSelected ? '44px' : '36px'}; height: ${isSelected ? '24px' : '20px'};
-    padding: 0 8px; border-radius: 999px;
-    background: ${isSelected ? PASSPORT_GRADIENTS.listings : '#ffffff'};
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    height: ${isSelected ? '28px' : '24px'};
+    padding: 0 10px 0 6px; border-radius: 14px;
+    background: ${isSelected ? '#111827' : '#ffffff'};
     color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: 9px; font-weight: 900; letter-spacing: 0.02em;
-    border: 1.5px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
-    box-shadow: 0 ${isSelected ? '4' : '2'}px ${isSelected ? '10' : '6'}px rgba(0,114,255,${isSelected ? '0.28' : '0.12'});
+    font-size: ${isSelected ? '11px' : '10px'}; font-weight: 800; letter-spacing: 0.01em;
+    border: 1px solid ${isSelected ? '#374151' : '#E2E8F0'};
+    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,0,0,${isSelected ? '0.3' : '0.12'});
     cursor: pointer;
     white-space: nowrap;
   `;
@@ -74,11 +67,16 @@ export function createListingMarkerEl(
   injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--listing';
-  const price = formatPinPrice(listing.price);
-  const label = price ?? 'View';
-
+  
   el.style.cssText = listingMarkerStyle(isSelected);
-  el.textContent = label;
+  
+  const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
+  const dotHtml = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 4px ${dotColor}80;"></span>`;
+  
+  // Show title up to 15 chars to keep it neat
+  const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
+  el.innerHTML = `${dotHtml} <span>${shortTitle}</span>`;
+  
   el.dataset.pinId = listing.id;
   el.dataset.pinType = 'listing';
   el.dataset.selected = isSelected.toString();
@@ -90,9 +88,11 @@ export function updateListingMarkerEl(
   listing: MapListingPin,
   isSelected: boolean,
 ): void {
-  const price = formatPinPrice(listing.price);
   el.style.cssText = listingMarkerStyle(isSelected);
-  el.textContent = price ?? 'View';
+  const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
+  const dotHtml = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 4px ${dotColor}80;"></span>`;
+  const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
+  el.innerHTML = `${dotHtml} <span>${shortTitle}</span>`;
   el.dataset.selected = isSelected.toString();
 }
 

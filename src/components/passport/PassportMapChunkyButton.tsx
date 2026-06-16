@@ -36,23 +36,17 @@ export const PassportMapChunkyButton = memo(({
           data-no-cinematic
           onClick={onClick}
           className={cn(
-            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-full border shadow-md transition-all duration-200',
+            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] shadow-lg transition-all duration-300',
             size,
             active
-              ? 'border-white/40 text-white'
-              : 'border-white/10 text-white/80 hover:bg-white/10',
+              ? 'text-white shadow-[0_8px_16px_rgba(0,0,0,0.15)] scale-105'
+              : 'bg-white/95 border border-black/5 text-slate-700 hover:bg-white hover:scale-105',
             className,
           )}
+          style={active ? { background: gradient } : undefined}
           aria-label={badge != null && badge > 0 ? `${label}, ${badge} nearby` : label}
           title={label}
         >
-          <div className="absolute inset-0 rounded-full bg-[#1A202C]/85 backdrop-blur-[8px]" />
-          {active && (
-            <div
-              className="absolute inset-0 rounded-full opacity-80"
-              style={{ background: gradient }}
-            />
-          )}
           <Icon className={cn(iconSize, 'shrink-0 relative z-10')} strokeWidth={active ? 2.5 : 2.0} />
         </button>
         {badge != null && badge > 0 && (

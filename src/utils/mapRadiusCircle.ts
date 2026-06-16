@@ -146,11 +146,12 @@ export function syncRadiusCircleOnMap(
         source: CENTER_ID,
         slot: 'top',
         paint: {
-          'circle-radius': 6,
-          'circle-color': RADIUS_CYAN,
-          'circle-stroke-width': 2,
+          'circle-radius': 7,
+          'circle-color': '#EF4444', // Red center dot per Dribbble design
+          'circle-stroke-width': 3,
           'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.85,
+          'circle-opacity': 1,
+          'circle-stroke-opacity': 1,
         },
       });
     } else {
@@ -161,11 +162,12 @@ export function syncRadiusCircleOnMap(
           type: 'circle',
           source: CENTER_ID,
           paint: {
-            'circle-radius': 6,
-            'circle-color': RADIUS_CYAN,
-            'circle-stroke-width': 2,
+            'circle-radius': 7,
+            'circle-color': '#EF4444', // Red center dot per Dribbble design
+            'circle-stroke-width': 3,
             'circle-stroke-color': '#ffffff',
-            'circle-opacity': 0.85,
+            'circle-opacity': 1,
+            'circle-stroke-opacity': 1,
           },
         });
       }
