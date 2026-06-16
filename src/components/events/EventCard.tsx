@@ -6,7 +6,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
-import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { hideChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 
 function formatDate(str: string | null): string {
@@ -22,22 +22,27 @@ function formatDate(str: string | null): string {
 export const EventCard = memo(({
   event, onLike, liked, onChat, onShare, onMiddleTap,
   activeColor = '#f97316',
-  imageUrl
+  imageUrl,
+  isActive = false,
 }: {
   event: EventItem; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   activeColor?: string;
   imageUrl?: string | null;
+  isActive?: boolean;
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
   const { isRailVisible } = useChromeReveal();
+  const showActions = isActive && isRailVisible;
   const [likeAnim, setLikeAnim] = useState(false);
   const lastTapRef = useRef(0);
 
+  // Immersive photo first — hide action chrome whenever this card becomes active.
   useEffect(() => {
-    revealChrome();
-  }, [event.id]);
+    if (!isActive) return;
+    hideChrome();
+  }, [isActive, event.id]);
 
   const handleLike = useCallback(() => {
     onLike();
@@ -52,28 +57,24 @@ export const EventCard = memo(({
     (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, category: 'listing' } }));
   }, [event.id, event.title]);
 
-  const handleCardTap = useCallback((e: React.MouseEvent) => {
+  const handleInsights = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic('medium');
+    onMiddleTap();
+  }, [onMiddleTap]);
+
+  const handlePhotoTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const now = Date.now();
-    if (now - lastTapRef.current < 350) {
+    if (now - lastTapRef.current < 320) {
       handleLike();
       lastTapRef.current = 0;
       return;
     }
     lastTapRef.current = now;
+    triggerHaptic('light');
     revealChrome();
-    setTimeout(() => {
-      if (lastTapRef.current !== 0) {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const clickY = e.clientY - rect.top;
-        const height = rect.height;
-        if (clickY > height * 0.33 && clickY < height * 0.67) {
-          onMiddleTap();
-        }
-        lastTapRef.current = 0;
-      }
-    }, 360);
-  }, [handleLike, onMiddleTap]);
+  }, [handleLike]);
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
   const finalImageUrl = imageUrl || event.image_url;
@@ -82,8 +83,9 @@ export const EventCard = memo(({
   return (
     <div
       className={cn(
-        "force-white relative w-full h-full overflow-hidden transition-colors duration-500 touch-pan-y",
-        isLight ? "bg-white" : "bg-black"
+        'force-white relative w-full h-full overflow-hidden transition-colors duration-500 touch-pan-y',
+        isLight ? 'bg-white' : 'bg-black',
+        !isActive && 'pointer-events-none',
       )}
       data-testid={`event-card-${event.id}`}
     >
@@ -109,20 +111,23 @@ export const EventCard = memo(({
       )}
 
       <div className={cn(
-        "absolute inset-0 pointer-events-none",
+        'absolute inset-0 pointer-events-none transition-opacity duration-200',
+        showActions ? 'opacity-100' : 'opacity-0',
         hasImage
-          ? "bg-gradient-to-t from-black/95 via-transparent to-transparent"
+          ? 'bg-gradient-to-t from-black/95 via-transparent to-transparent'
           : isLight
-            ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90"
-            : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
+            ? 'bg-gradient-to-t from-white/80 via-white/10 to-white/20'
+            : 'bg-gradient-to-t from-black/80 via-black/5 to-black/20',
       )} />
 
-      <button
-        type="button"
-        onClick={handleCardTap}
-        className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
-        aria-label="Open event details"
-      />
+      {isActive && (
+        <button
+          type="button"
+          onClick={handlePhotoTap}
+          className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
+          aria-label="Tap to reveal actions"
+        />
+      )}
 
       <AnimatePresence>
         {likeAnim && (
@@ -139,7 +144,7 @@ export const EventCard = memo(({
       </AnimatePresence>
 
       <AnimatePresence>
-        {isRailVisible && (
+        {showActions && (
           <motion.div
             data-no-cinematic
             data-no-pull-dismiss
@@ -148,11 +153,11 @@ export const EventCard = memo(({
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
-            style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
+            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 28px)' }}
           >
             <GlassIconButton
               icon={Heart}
-              onClick={handleLike}
+              onClick={(e) => { e.stopPropagation(); handleLike(); }}
               label={liked ? 'Unlike' : 'Like'}
               tone="onPhoto"
               size="lg"
@@ -164,7 +169,7 @@ export const EventCard = memo(({
 
             <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
-                { icon: Eye, onClick: onMiddleTap, label: 'Details' },
+                { icon: Eye, onClick: handleInsights, label: 'Insights' },
                 { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: Flag, onClick: handleReport, label: 'Report' },
@@ -172,7 +177,10 @@ export const EventCard = memo(({
                 <GlassIconButton
                   key={idx}
                   icon={btn.icon}
-                  onClick={btn.onClick}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    btn.onClick(e);
+                  }}
                   label={btn.label}
                   tone="surface"
                   size="md"
@@ -186,11 +194,14 @@ export const EventCard = memo(({
       </AnimatePresence>
 
       <div
-        className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-6 pointer-events-none"
+        className={cn(
+          'absolute bottom-0 left-0 right-0 z-20 px-5 pb-6 pointer-events-none transition-opacity duration-200',
+          showActions ? 'opacity-100' : 'opacity-0',
+        )}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
       >
         {categoryMeta && (
-          <div className="flex items-center gap-2 mb-3 pointer-events-auto">
+          <div className="flex items-center gap-2 mb-3">
             <div
               className="px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md border border-white/10"
               style={{ background: `${activeColor}30` }}
@@ -247,13 +258,6 @@ export const EventCard = memo(({
               <span className="text-[11px] font-bold text-white/90">{event.price_text}</span>
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-2 mt-4 opacity-50">
-          <div className="w-5 h-[2px] rounded-full bg-white/60" />
-          <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60">
-            {isRailVisible ? 'Tap center for details' : 'Tap photo to reveal actions'}
-          </span>
         </div>
       </div>
     </div>

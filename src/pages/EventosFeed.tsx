@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import { useTranslation } from 'react-i18next';
+import { hideChrome } from '@/hooks/useChromeReveal';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
@@ -57,6 +58,15 @@ export default function EventosFeed() {
     const color = CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316';
     setAmbientColor(color);
   }, [activeCategory, setAmbientColor]);
+
+  useEffect(() => {
+    hideChrome();
+  }, [activeIdx]);
+
+  useEffect(() => {
+    hideChrome();
+    return () => hideChrome();
+  }, []);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 
@@ -276,8 +286,12 @@ export default function EventosFeed() {
         <div className="flex items-start gap-4">
           {/* Back button */}
           <button
+            type="button"
+            data-no-cinematic
+            data-skip-press-engine
             onClick={() => {
               triggerHaptic('light');
+              hideChrome();
               navigate(getParentRoute(location.pathname) ?? '/client/dashboard');
             }}
             className={cn(
@@ -297,8 +311,12 @@ export default function EventosFeed() {
               return (
                 <button
                   key={cat.key}
+                  type="button"
+                  data-no-cinematic
+                  data-skip-press-engine
                   onClick={() => {
                     triggerHaptic('light');
+                    hideChrome();
                     if (cat.key === activeCategory) {
                       resetFeedPosition('smooth');
                       return;
@@ -430,7 +448,7 @@ export default function EventosFeed() {
             scrollSnapStop: 'always',
           } as React.CSSProperties}
         >
-          {filteredEvents.map((event) => (
+          {filteredEvents.map((event, index) => (
             <div
               key={event.id}
               className="w-full shrink-0 snap-start snap-always relative"
@@ -438,6 +456,7 @@ export default function EventosFeed() {
             >
               <EventCard
                 event={event}
+                isActive={activeIdx === index}
                 imageUrl={pickEventImage(event)}
                 liked={likedIds.has(event.id)}
                 activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
