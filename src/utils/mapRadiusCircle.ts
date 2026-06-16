@@ -96,7 +96,6 @@ export function syncRadiusCircleOnMap(
       id: GLOW_OUTER_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': RADIUS_CYAN,
         'line-width': 10,
@@ -110,7 +109,6 @@ export function syncRadiusCircleOnMap(
       id: GLOW_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': RADIUS_CYAN,
         'line-width': 4,
@@ -124,7 +122,6 @@ export function syncRadiusCircleOnMap(
       id: LINE_ID,
       type: 'line',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'line-color': '#E0F7FF',
         'line-width': 1.75,
@@ -142,7 +139,6 @@ export function syncRadiusCircleOnMap(
         id: CENTER_ID,
         type: 'circle',
         source: CENTER_ID,
-        slot: 'top',
         paint: {
           'circle-radius': 7,
           'circle-color': '#EF4444', // Red center dot per Dribbble design
