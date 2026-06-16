@@ -74,7 +74,6 @@ export function syncRadiusCircleOnMap(
       id: FILL_OUTER_ID,
       type: 'fill',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'fill-color': RADIUS_CYAN,
         'fill-opacity': 0.04,
@@ -86,7 +85,6 @@ export function syncRadiusCircleOnMap(
       id: FILL_ID,
       type: 'fill',
       source: SOURCE_ID,
-      slot: 'top',
       paint: {
         'fill-color': RADIUS_BLUE,
         'fill-opacity': 0.07,

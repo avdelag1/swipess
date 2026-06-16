@@ -512,7 +512,7 @@ export const PassportMapModal = memo(() => {
     }
 
     if (!canGeolocate()) {
-      runCenter(MAP_SEARCH_HUB, OPEN_CENTER_MS);
+      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
       return () => { cancelled = true; };
     }
 
@@ -522,14 +522,14 @@ export const PassportMapModal = memo(() => {
       ? { lat: userLatitude, lng: userLongitude }
       : null;
     const initial = cached ?? storeFix;
-    if (initial) runCenter(initial, OPEN_CENTER_MS);
+    if (initial) runCenter(initial, FLY_DURATION_OPEN_MS);
 
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || useFilterStore.getState().passportMode) return;
       applyGpsFixRef.current(fix);
       // Never yank the camera once the user is browsing a pin or has taken control.
       if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      runCenter(fix, OPEN_CENTER_MS);
+      runCenter(fix, FLY_DURATION_OPEN_MS);
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
@@ -1060,7 +1060,7 @@ export const PassportMapModal = memo(() => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute z-40 left-0 right-0 pointer-events-none"
+                  className="absolute z-40 left-0 right-[64px] pointer-events-none"
                   style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
                 >
                   <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto">
@@ -1124,7 +1124,7 @@ export const PassportMapModal = memo(() => {
                   type="button"
                   data-no-cinematic
                   onClick={onClose}
-                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-[14px] bg-white/95 border border-black/5 text-slate-700 shadow-lg hover:bg-white transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full bg-[#161b27]/95 border border-white/10 text-white shadow-lg hover:bg-[#202738]/95 transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
                   <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
@@ -1180,7 +1180,7 @@ export const PassportMapModal = memo(() => {
                       setIsSearchOpen(false);
                     }
                   }}
-                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] bg-white/95 border border-black/5 shadow-lg text-slate-700 hover:bg-white transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-[#161b27]/95 border border-white/10 shadow-lg text-white hover:bg-[#202738]/95 transition-all', MAP_HUD_BTN)}
                   aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                   title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                 >
@@ -1202,7 +1202,7 @@ export const PassportMapModal = memo(() => {
                         data-no-cinematic
                         onClick={handleGPS}
                         disabled={gpsLoading}
-                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-[14px] bg-white/95 border border-black/5 shadow-lg transition-all text-slate-700 hover:bg-white disabled:opacity-60', MAP_HUD_BTN)}
+                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-[#161b27]/95 border border-white/10 shadow-lg transition-all text-white hover:bg-[#202738]/95 disabled:opacity-60', MAP_HUD_BTN)}
                         aria-label={t('map.myLocation')}
                         title={t('map.myLocation')}
                       >
