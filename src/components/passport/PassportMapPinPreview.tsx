@@ -85,13 +85,13 @@ export const PassportMapPinPreview = memo(({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-2 right-2 glass-pill p-1.5 z-10"
+          className="absolute top-2 right-2 glass-pill bg-black/40 backdrop-blur-md p-1.5 z-10"
           aria-label="Close preview"
         >
           <X className="w-3.5 h-3.5" />
         </button>
 
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-40px)]">
+        <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-3rem)]">
           <span
             className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider text-white"
             style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}

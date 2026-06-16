@@ -393,7 +393,7 @@ export const PassportMapModal = memo(() => {
         mapRef.current,
         [lng, lat],
         zoomForRadiusKm(radiusKm),
-        { duration: 1400, pitch: CINEMATIC_PITCH },
+        { duration: 3500, pitch: CINEMATIC_PITCH },
       );
       initialFlyDoneRef.current = true;
       return;
@@ -407,7 +407,7 @@ export const PassportMapModal = memo(() => {
       mapRef.current,
       [target.lng, target.lat],
       zoomForRadiusKm(radiusKm),
-      { duration: 1100, pitch: CINEMATIC_PITCH },
+      { duration: 3500, pitch: CINEMATIC_PITCH },
     );
     initialFlyDoneRef.current = true;
   }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps]);
@@ -488,7 +488,7 @@ export const PassportMapModal = memo(() => {
               setTimeout(() => {
                 const mapInstance = mapRef.current;
                 if (!mapInstance) return;
-                cinematicFlyTo(mapInstance, [initialLng, initialLat], zoomForRadiusKm(useFilterStore.getState().radiusKm), { duration: 3800, pitch: CINEMATIC_PITCH, bearing: CINEMATIC_BEARING });
+                cinematicFlyTo(mapInstance, [initialLng, initialLat], zoomForRadiusKm(useFilterStore.getState().radiusKm), { duration: 5500, pitch: CINEMATIC_PITCH, bearing: CINEMATIC_BEARING });
               }, 400);
             }
           });
@@ -805,8 +805,8 @@ export const PassportMapModal = memo(() => {
         visibility: mapHostVisible ? 'visible' : 'hidden',
       }}
     >
-      <div className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden">
-        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" style={{ touchAction: 'none' }} />
+      <div className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden select-none touch-none">
+        <div ref={mapContainerRef} className="absolute inset-0 w-full h-full select-none touch-none" style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }} />
 
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
