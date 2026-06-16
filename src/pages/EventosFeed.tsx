@@ -1,7 +1,7 @@
 import { logger } from '@/utils/prodLogger';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { useVirtualizer } from '@tanstack/react-virtual';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -222,13 +222,7 @@ export default function EventosFeed() {
     };
   }, [activeIdx, totalRows]);
 
-  const rowVirtualizer = useVirtualizer({
-    count: totalRows,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => window.innerHeight || 800,
-    overscan: 2,
-    initialOffset: 0,
-  });
+
 
   useEffect(() => {
     const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
@@ -430,7 +424,7 @@ export default function EventosFeed() {
       ) : (
         <div 
           ref={parentRef} 
-          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar"
+          className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col"
           style={{
             WebkitOverflowScrolling: 'touch',
             overscrollBehaviorY: 'contain',
@@ -438,39 +432,29 @@ export default function EventosFeed() {
             scrollSnapStop: 'always',
           } as React.CSSProperties}
         >
-          <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const isPromoteRow = virtualRow.index === filteredEvents.length;
-              const event = filteredEvents[virtualRow.index];
-              if (!isPromoteRow && !event) return null;
-
-              return (
-                <div
-                  key={virtualRow.key}
-                  className="absolute top-0 left-0 w-full snap-start snap-always"
-                  style={{
-                    height: '100dvh',
-                    width: '100%',
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                >
-                  {isPromoteRow ? (
-                    <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
-                  ) : (
-                    <EventCard
-                      event={event}
-                      imageUrl={pickEventImage(event)}
-                      liked={likedIds.has(event.id)}
-                      activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                      onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                      onChat={() => handleOpenChat(event)}
-                      onShare={() => handleShare(event)}
-                      onMiddleTap={() => handleMiddleTap(event)}
-                    />
-                  )}
-                </div>
-              );
-            })}
+          {filteredEvents.map((event) => (
+            <div
+              key={event.id}
+              className="w-full shrink-0 snap-start snap-always relative"
+              style={{ height: '100dvh' }}
+            >
+              <EventCard
+                event={event}
+                imageUrl={pickEventImage(event)}
+                liked={likedIds.has(event.id)}
+                activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                onChat={() => handleOpenChat(event)}
+                onShare={() => handleShare(event)}
+                onMiddleTap={() => handleMiddleTap(event)}
+              />
+            </div>
+          ))}
+          <div
+            className="w-full shrink-0 snap-start snap-always relative"
+            style={{ height: '100dvh' }}
+          >
+            <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
           </div>
         </div>
       )}

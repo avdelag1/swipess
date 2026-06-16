@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { ChevronLeft, Crown, Sparkles, UserRound, Map } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound, Globe2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -54,6 +54,7 @@ function TopBarComponent({
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
   const openPassportMap = useModalStore(s => s.openPassportMap);
+  const openPassport = useModalStore(s => s.openPassport);
   const { tokens } = useTokens();
 
   const isActuallyVisible = true;
@@ -250,9 +251,9 @@ function TopBarComponent({
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
               style={glassPillStyle}
-              aria-label="Live Map"
+              aria-label="Global Passport"
             >
-              <Map
+              <Globe2
                 className={HEADER_ICON}
                 style={{
                   color: iconColor,

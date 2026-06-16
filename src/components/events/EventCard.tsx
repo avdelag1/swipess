@@ -148,7 +148,7 @@ export const EventCard = memo(({
             transition={{ duration: 0.35 }}
             className={cn(
               "w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border transition-all",
-              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-white/10 border-white/20"
+              liked ? "bg-red-500/25 border-red-500/50 shadow-red-500/20" : "bg-black/50 border-white/30"
             )}>
             <Heart className={cn('w-5 h-5 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
           </motion.div>
@@ -165,7 +165,7 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
           >
             <MessageCircle className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
@@ -181,7 +181,7 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
+            className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
           >
             <Share2 className="w-5 h-5 text-white" style={{ color: activeColor }} />
           </motion.div>
@@ -197,9 +197,9 @@ export const EventCard = memo(({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-white/10 border-white/20"
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-xl border bg-black/50 border-white/30"
           >
-            <Flag className="w-4 h-4 text-white/50" />
+            <Flag className="w-4 h-4 text-white/80" />
           </motion.div>
           <span className={cn("text-[10px] font-bold text-white/60")}>Report</span>
         </button>

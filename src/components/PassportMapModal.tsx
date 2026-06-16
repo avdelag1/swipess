@@ -18,7 +18,6 @@ import {
   CINEMATIC_PITCH,
   cinematicEaseTo,
   cinematicFlyTo,
-  incrementalDoubleTapZoom,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -335,7 +334,7 @@ export const PassportMapModal = memo(() => {
 
       const initialLng = useFilterStore.getState().userLongitude ?? -80.1918;
       const initialLat = useFilterStore.getState().userLatitude ?? 25.7617;
-      const initialZoom = useFilterStore.getState().userLatitude != null ? 10 : 3;
+      const initialZoom = 1.5;
 
       try {
         const { mapboxgl, MapboxGeocoder } = await warmMapboxModules();
@@ -355,20 +354,12 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: true,
           projection: 'globe' as any,
-          doubleClickZoom: false,
+          doubleClickZoom: true,
         });
 
         map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
         map.touchZoomRotate.enableRotation();
         map.dragRotate.enable();
-
-        const handleDoubleTapZoom = (lngLat: { lng: number; lat: number }) => {
-          const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 120) return;
-          if (!incrementalDoubleTapZoom(map, [lngLat.lng, lngLat.lat])) return;
-          lastDoubleTapZoomAtRef.current = now;
-          triggerHaptic('light');
-        };
 
         map.on('load', () => {
           if (cancelled) return;
@@ -380,6 +371,15 @@ export const PassportMapModal = memo(() => {
             resizeMap();
             setMapReady(true);
             setMapLoading(false);
+
+            // Trigger beautiful initial world-to-GPS swoop
+            if (canGeolocate() && useFilterStore.getState().userLatitude != null) {
+              setTimeout(() => {
+                const mapInstance = mapRef.current;
+                if (!mapInstance) return;
+                cinematicFlyTo(mapInstance, [initialLng, initialLat], zoomForRadiusKm(useFilterStore.getState().radiusKm), { duration: 3800, pitch: CINEMATIC_PITCH, bearing: CINEMATIC_BEARING });
+              }, 400);
+            }
           });
         });
 
@@ -397,33 +397,6 @@ export const PassportMapModal = memo(() => {
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           setSelected(null);
-        });
-
-        map.on('dblclick', (e: mapboxgl.MapMouseEvent) => {
-          e.preventDefault();
-          if (!useModalStore.getState().showPassportMapModal) return;
-          handleDoubleTapZoom(e.lngLat);
-        });
-
-        map.on('touchend', (e: mapboxgl.MapTouchEvent) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-          if (e.originalEvent.touches.length > 0) return;
-
-          const now = Date.now();
-          const point = e.point;
-          const last = lastTouchTapRef.current;
-
-          if (
-            last
-            && now - last.time < DOUBLE_TAP_WINDOW_MS
-            && Math.hypot(point.x - last.x, point.y - last.y) < DOUBLE_TAP_SLOP_PX
-          ) {
-            lastTouchTapRef.current = null;
-            handleDoubleTapZoom(e.lngLat);
-            return;
-          }
-
-          lastTouchTapRef.current = { time: now, x: point.x, y: point.y };
         });
 
         mapRef.current = map;
@@ -567,6 +540,17 @@ export const PassportMapModal = memo(() => {
     markersRef.current = [];
 
     const mapboxgl = mapboxRef.current;
+    const locationCounts = new Map<string, number>();
+
+    const getOffset = (lat: number, lng: number) => {
+      const key = `${lat.toFixed(4)}_${lng.toFixed(4)}`;
+      const count = locationCounts.get(key) || 0;
+      locationCounts.set(key, count + 1);
+      if (count === 0) return { lat, lng };
+      const r = 0.00015 * Math.ceil(Math.sqrt(count));
+      const theta = count * 2.39996;
+      return { lat: lat + r * Math.cos(theta), lng: lng + r * Math.sin(theta) };
+    };
 
     visibleListings.forEach((l) => {
       const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
@@ -576,9 +560,10 @@ export const PassportMapModal = memo(() => {
         triggerHaptic('medium');
         focusPin({ type: 'listing', data: l });
       });
+      const coords = getOffset(l.lat, l.lng);
       markersRef.current.push(
         new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([l.lng, l.lat])
+          .setLngLat([coords.lng, coords.lat])
           .addTo(mapRef.current!),
       );
     });
@@ -591,9 +576,10 @@ export const PassportMapModal = memo(() => {
         triggerHaptic('medium');
         focusPin({ type: 'profile', data: p });
       });
+      const coords = getOffset(p.lat, p.lng);
       markersRef.current.push(
         new mapboxgl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([p.lng, p.lat])
+          .setLngLat([coords.lng, coords.lat])
           .addTo(mapRef.current!),
       );
     });
