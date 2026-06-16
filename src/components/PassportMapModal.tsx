@@ -290,21 +290,19 @@ export const PassportMapModal = memo(() => {
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
     triggerHaptic('medium');
-    setModal('showPassportMapModal', false);
     clearPinPreview();
     if (pin.type === 'listing') {
       openPropertyInsights(pin.data.id);
     } else {
       openClientInsights(pin.data.id);
     }
-  }, [setModal, openPropertyInsights, openClientInsights, clearPinPreview]);
+  }, [openPropertyInsights, openClientInsights, clearPinPreview]);
 
   const openDetailsFor = useCallback((listingId: string) => {
     triggerHaptic('medium');
-    setModal('showPassportMapModal', false);
     clearPinPreview();
     openPropertyDetails(listingId);
-  }, [setModal, openPropertyDetails, clearPinPreview]);
+  }, [openPropertyDetails, clearPinPreview]);
 
   const centerOnDeviceGps = useCallback((opts?: { zoom?: number; refresh?: boolean; announce?: boolean }) => {
     const run = async () => {
