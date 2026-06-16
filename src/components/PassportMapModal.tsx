@@ -1134,19 +1134,18 @@ export const PassportMapModal = memo(() => {
                   <motion.div
                     animate={{ width: isSearchOpen ? 200 : 34 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                    className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-md overflow-hidden"
+                    className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-lg overflow-hidden bg-[#161b27]/95"
                   >
-                    <div className="absolute inset-0 bg-[#1A202C]/85 backdrop-blur-[8px] pointer-events-none" />
                     <button
                       type="button"
                       data-no-cinematic
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
-                      className="map-hud-btn absolute inset-y-0 left-0 w-[34px] flex items-center justify-center text-white/80 z-20 hover:text-white"
+                      className="map-hud-btn shrink-0 w-[32px] h-[32px] flex items-center justify-center text-white z-20 hover:text-white transition-all"
                       aria-label="Search location"
                     >
-                      <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
+                      <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.5} />
                     </button>
-                    <div className={cn('absolute left-0 right-0 top-0 bottom-0 flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+                    <div className={cn('flex-1 h-full relative flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
                       <div
                         ref={geocoderContainerRef}
                         className={cn(
