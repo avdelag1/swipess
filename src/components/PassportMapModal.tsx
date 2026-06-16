@@ -137,6 +137,8 @@ export const PassportMapModal = memo(() => {
   const lastDoubleTapZoomAtRef = useRef(0);
   const lastMapPointerUpAtRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
+  const syncMarkersRef = useRef<() => void>(() => {});
+  const refreshMapVisualsRef = useRef<() => void>(() => {});
   const deviceGpsRef = useRef<{ lat: number; lng: number } | null>(null);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
@@ -159,6 +161,8 @@ export const PassportMapModal = memo(() => {
   const [hudExpanded, setHudExpanded] = useState(false);
   const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
   const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
+  /** First open: search the listing cluster hub — not stale profile GPS thousands of km away. */
+  const [hubSearchOnOpen, setHubSearchOnOpen] = useState(true);
   const mapHudRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -171,8 +175,11 @@ export const PassportMapModal = memo(() => {
 
   // Show all layers by default — user filters via the HUD menu.
   useEffect(() => {
-    if (isOpen) setLayerFilter('all');
-  }, [isOpen]);
+    if (isOpen) {
+      setLayerFilter('all');
+      if (!passportMode && !searchAnchor) setHubSearchOnOpen(true);
+    }
+  }, [isOpen, passportMode, searchAnchor]);
 
   useEffect(() => {
     if (activeDrawer === 'cities') {
@@ -188,14 +195,15 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, passportMapShowCities, clearPassportMapFlags]);
 
-  /** Search zone center — long-press anchor beats GPS for the radius circle. */
+  /** Map circle + camera center — long-press anchor beats GPS for the radius ring. */
   const radiusCenter = useMemo(() => {
     if (passportMode && lat != null && lng != null) return { lat, lng };
     if (searchAnchor) return searchAnchor;
+    if (hubSearchOnOpen) return MAP_SEARCH_HUB;
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
     return MAP_SEARCH_HUB;
-  }, [passportMode, lat, lng, deviceGps, searchAnchor]);
+  }, [passportMode, lat, lng, deviceGps, searchAnchor, hubSearchOnOpen]);
 
   const searchCoords = useMemo(() => {
     if (!shouldLoadMapPins) return null;
@@ -248,7 +256,7 @@ export const PassportMapModal = memo(() => {
   const applyRadiusCircleNow = useCallback(() => {
     const map = mapRef.current;
     const center = radiusCenterRef.current;
-    if (!map || !mapReady || !center) return;
+    if (!map || !center) return;
 
     const paint = () => {
       if (!map.isStyleLoaded()) return;
@@ -272,7 +280,8 @@ export const PassportMapModal = memo(() => {
     const onReady = () => paint();
     map.once('load', onReady);
     map.once('style.load', onReady);
-  }, [mapReady, radiusKm]);
+    map.once('idle', onReady);
+  }, [radiusKm]);
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.
   useEffect(() => {
@@ -295,6 +304,7 @@ export const PassportMapModal = memo(() => {
   }, [radiusKm, isOpen, mapReady]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
+    setHubSearchOnOpen(false);
     setPassportLocation(newLat, newLng, label);
     if (mapRef.current) {
       cinematicEaseTo(
@@ -391,6 +401,7 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
+    setHubSearchOnOpen(false);
     setSearchAnchor(null);
     clearPassportLocation();
     userMapInteractedRef.current = false;
@@ -399,6 +410,7 @@ export const PassportMapModal = memo(() => {
 
   const relocateSearchTo = useCallback((lng: number, lat: number) => {
     triggerHaptic('heavy');
+    setHubSearchOnOpen(false);
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
     setUserLocation(lat, lng);
@@ -523,57 +535,23 @@ export const PassportMapModal = memo(() => {
     prevPassportModeRef.current = passportMode;
   }, [isOpen, passportMode]);
 
-  // Auto-center exactly once per open — never re-run when GPS or radius updates.
+  // Warm GPS dot on open — never yank camera away from the listing cluster on first paint.
   useEffect(() => {
-    if (!isOpen || !mapReady || initialCenterDoneRef.current || isMapDataLoading) return;
+    if (!isOpen || !mapReady) return;
 
-    const session = mapOpenSessionRef.current;
     let cancelled = false;
-
-    const runCenter = (target: { lat: number; lng: number }, duration = OPEN_CENTER_MS) => {
-      if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      centerMapOnTargetRef.current(target, session, { duration });
-      initialCenterDoneRef.current = true;
-    };
-
-    const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
-    if (pm && userLatitude != null && userLongitude != null) {
-      if (userMapInteractedRef.current) return undefined;
-      centerMapOnTargetRef.current(
-        { lat: userLatitude, lng: userLongitude },
-        session,
-        { duration: OPEN_CENTER_MS },
-      );
-      initialCenterDoneRef.current = true;
-      return () => { cancelled = true; };
-    }
-
-    if (!canGeolocate()) {
-      runCenter(MAP_SEARCH_HUB, OPEN_CENTER_MS);
-      return () => { cancelled = true; };
-    }
+    if (!canGeolocate()) return undefined;
 
     setGpsLoading(true);
-    const cached = getCachedGpsFix();
-    const storeFix = userLatitude != null && userLongitude != null
-      ? { lat: userLatitude, lng: userLongitude }
-      : null;
-    const initial = cached ?? storeFix;
-    if (initial) runCenter(initial, OPEN_CENTER_MS);
-
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || useFilterStore.getState().passportMode) return;
       applyGpsFixRef.current(fix);
-      // Never yank the camera once the user is browsing a pin or has taken control.
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
-      runCenter(fix, OPEN_CENTER_MS);
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode, isMapDataLoading]);
+  }, [isOpen, mapReady]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -683,14 +661,7 @@ export const PassportMapModal = memo(() => {
             }
             setMapReady(true);
             setMapLoading(false);
-            const rc = radiusCenterRef.current;
-            if (rc) {
-              try {
-                syncRadiusCircleOnMap(map, rc.lng, rc.lat, useFilterStore.getState().radiusKm, { showCenterDot: true });
-              } catch {
-                // Style layers can race on slow devices
-              }
-            }
+            refreshMapVisualsRef.current();
           });
         });
 
@@ -858,19 +829,19 @@ export const PassportMapModal = memo(() => {
     const canvas = map.getCanvas();
     if (isOpen) {
       canvas.style.visibility = 'visible';
-      resizeMap();
+      refreshMapVisualsRef.current();
       requestAnimationFrame(() => {
-        resizeMap();
-        requestAnimationFrame(resizeMap);
+        refreshMapVisualsRef.current();
+        requestAnimationFrame(refreshMapVisualsRef.current);
       });
-      const t = window.setTimeout(resizeMap, 80);
+      const t = window.setTimeout(refreshMapVisualsRef.current, 80);
       return () => window.clearTimeout(t);
     }
 
     canvas.style.visibility = 'hidden';
     clearPinPreview();
     return undefined;
-  }, [isOpen, resizeMap, mapReady]);
+  }, [isOpen, mapReady]);
 
   const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {
     const map = mapRef.current;
@@ -905,33 +876,13 @@ export const PassportMapModal = memo(() => {
     applyRadiusCircleNow();
   }, [shouldLoadMapPins, applyRadiusCircleNow, radiusCenter, radiusKm]);
 
-  // Frame search area instantly once per open session (no globe fly-in).
-  useEffect(() => {
-    if (!isOpen || !mapReady || !mapRef.current) return;
-    const session = mapOpenSessionRef.current;
-    if (framedOpenSessionRef.current === session) return;
-    framedOpenSessionRef.current = session;
-
-    const map = mapRef.current;
-    const center = radiusCenterRef.current;
-    if (!center) return;
-
-    if (!userEverMovedRef.current && !userMapInteractedRef.current) {
-      map.jumpTo({
-        center: [center.lng, center.lat],
-        zoom: zoomForRadiusKm(radiusKm),
-        pitch: cinematicPitchForViewport(),
-        bearing: map.getBearing(),
-      });
-    }
-    applyRadiusCircleNow();
-  }, [isOpen, mapReady, radiusKm, applyRadiusCircleNow]);
-
   const syncMarkers = useCallback(() => {
-    if (!mapRef.current || !mapReady || !mapboxRef.current || !shouldLoadMapPins) return;
-    if (!mapRef.current.isStyleLoaded()) return;
-
     const map = mapRef.current;
+    if (!map || !mapboxRef.current || !shouldLoadMapPins) return;
+    if (!map.isStyleLoaded()) {
+      map.once('idle', () => syncMarkersRef.current());
+      return;
+    }
     const mapboxgl = mapboxRef.current;
     const registry = markersRef.current;
     const nextKeys = new Set<string>();
@@ -1009,7 +960,19 @@ export const PassportMapModal = memo(() => {
         registry.delete(key);
       }
     }
-  }, [visibleListings, visibleProfiles, mapReady, shouldLoadMapPins, focusPinSheet]);
+  }, [visibleListings, visibleProfiles, shouldLoadMapPins, focusPinSheet]);
+
+  syncMarkersRef.current = syncMarkers;
+
+  const refreshMapVisuals = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    resizeMap();
+    applyRadiusCircleNow();
+    syncMarkersRef.current();
+  }, [resizeMap, applyRadiusCircleNow]);
+
+  refreshMapVisualsRef.current = refreshMapVisuals;
 
   useEffect(() => {
     if (!shouldLoadMapPins || !mapReady) return;
@@ -1026,8 +989,35 @@ export const PassportMapModal = memo(() => {
   // Re-sync when prefetched data lands while the sheet is still closed.
   useEffect(() => {
     if (!data || !shouldLoadMapPins || !mapReady) return;
-    syncMarkers();
-  }, [data, shouldLoadMapPins, mapReady, syncMarkers]);
+    refreshMapVisuals();
+  }, [data, shouldLoadMapPins, mapReady, refreshMapVisuals]);
+
+  // First paint each open session — hub center, circle, pins (no async GPS yank).
+  useEffect(() => {
+    if (!isOpen || !mapReady) return;
+    const session = mapOpenSessionRef.current;
+    if (framedOpenSessionRef.current === session) return;
+    framedOpenSessionRef.current = session;
+
+    const map = mapRef.current;
+    const center = radiusCenterRef.current;
+    if (map && center && !userEverMovedRef.current && !userMapInteractedRef.current) {
+      map.jumpTo({
+        center: [center.lng, center.lat],
+        zoom: zoomForRadiusKm(useFilterStore.getState().radiusKm),
+        pitch: cinematicPitchForViewport(),
+        bearing: map.getBearing(),
+      });
+      initialCenterDoneRef.current = true;
+    }
+    refreshMapVisuals();
+    const t1 = window.setTimeout(refreshMapVisuals, 50);
+    const t2 = window.setTimeout(refreshMapVisuals, 250);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [isOpen, mapReady, refreshMapVisuals]);
 
   // Selection highlight only — avoids rebuilding every marker on tap
   useEffect(() => {

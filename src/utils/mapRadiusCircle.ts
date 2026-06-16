@@ -83,7 +83,7 @@ export function syncRadiusCircleOnMap(
     source: SOURCE_ID,
     paint: {
       'fill-color': RADIUS_CYAN,
-      'fill-opacity': 0.04,
+      'fill-opacity': 0.08,
     },
   });
 
@@ -93,7 +93,7 @@ export function syncRadiusCircleOnMap(
     source: SOURCE_ID,
     paint: {
       'fill-color': RADIUS_BLUE,
-      'fill-opacity': 0.07,
+      'fill-opacity': 0.12,
     },
   });
 
@@ -104,7 +104,7 @@ export function syncRadiusCircleOnMap(
     paint: {
       'line-color': RADIUS_CYAN,
       'line-width': 10,
-      'line-opacity': 0.22,
+      'line-opacity': 0.38,
       'line-blur': 10,
     },
   });
@@ -116,7 +116,7 @@ export function syncRadiusCircleOnMap(
     paint: {
       'line-color': RADIUS_CYAN,
       'line-width': 4,
-      'line-opacity': 0.5,
+      'line-opacity': 0.65,
       'line-blur': 3,
     },
   });
@@ -128,7 +128,7 @@ export function syncRadiusCircleOnMap(
     paint: {
       'line-color': '#E0F7FF',
       'line-width': 1.75,
-      'line-opacity': 0.82,
+      'line-opacity': 0.95,
     },
   });
 

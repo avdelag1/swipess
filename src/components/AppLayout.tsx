@@ -1,4 +1,6 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+// PassportMapModal is eager-imported — lazy + Suspense(null) caused a blank first open.
+import { PassportMapModal } from './PassportMapModal';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -20,7 +22,6 @@ const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.To
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
 const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
-const PassportMapModal = lazyWithRetry(() => import('./PassportMapModal').then(m => ({ default: m.PassportMapModal })));
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
@@ -58,11 +59,19 @@ export function AppLayout({ children }: AppLayoutProps) {
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
+  // Mount synchronously on first open — useEffect left a blank frame before.
+  const mountPassportMap = keepMapMounted || showPassportMapModal || isSwipeDashboard;
+
+  useLayoutEffect(() => {
+    if (mountPassportMap && !keepMapMounted) {
+      setKeepMapMounted(true);
+    }
+  }, [mountPassportMap, keepMapMounted]);
+
   useEffect(() => {
     // Warm Mapbox + GPS on dashboard so map open snaps to you instantly.
     if (showPassportMapModal || isSwipeDashboard) {
-      setKeepMapMounted(true);
-      if (isSwipeDashboard) prefetchPassportMapImmediate();
+      prefetchPassportMapImmediate();
 
       // Seed GPS cache from store only — no geolocation API on boot (caused iOS crashes).
       const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
@@ -342,11 +351,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
 
       {/* Stay mounted after first open — tearing down Mapbox on every close caused crashes */}
-      {keepMapMounted && (
-        <Suspense fallback={null}>
-          <PassportMapModal />
-        </Suspense>
-      )}
+      {mountPassportMap && <PassportMapModal />}
     </div>
   );
 }
