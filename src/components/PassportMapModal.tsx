@@ -281,6 +281,9 @@ export const PassportMapModal = memo(() => {
   const focusPinSheet = useCallback((pin: SelectedPin) => {
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
+    // Guard against the map's click handler clearing this selection immediately (mobile race)
+    const guard = (mapRef.current as any)?.__markerTapGuard;
+    if (guard) guard.current = Date.now();
     setSelected(pin);
     setPreviewMode('sheet');
     setRadiusHudExpanded(false); // Close the km slider when a pin is clicked
@@ -615,7 +618,9 @@ export const PassportMapModal = memo(() => {
         const canvas = map.getCanvas();
         canvas.setAttribute('tabindex', '-1');
         canvas.setAttribute('data-map-canvas', '');
-        canvas.style.touchAction = 'none';
+        // touch-action: pan-x pan-y lets the browser fire touch events
+        // while Mapbox handles gesture recognition internally
+        canvas.style.touchAction = 'pan-x pan-y';
 
         map.on('load', () => {
           if (cancelled) return;
@@ -657,11 +662,12 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Double-tap zoom: use raw touchend for mobile (dblclick doesn't fire
-        // reliably on PWA/WebView) + dblclick for desktop.
+        // Double-tap zoom: use raw touchend on the map container for mobile
+        // (canvas touch-action can suppress events on iOS PWA) + dblclick for desktop.
         let lastTapTime = 0;
         let lastTapX = 0;
         let lastTapY = 0;
+        const mapContainer = map.getContainer();
         const handleDoubleTapZoom = (lngLat: [number, number]) => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const now = Date.now();
@@ -673,8 +679,8 @@ export const PassportMapModal = memo(() => {
           }
         };
 
-        // Mobile: detect double-tap via touchend pairs
-        canvas.addEventListener('touchend', (e) => {
+        // Mobile: detect double-tap via touchend pairs on the container
+        mapContainer.addEventListener('touchend', (e) => {
           if (e.touches.length > 0) return; // multi-finger
           const touch = e.changedTouches[0];
           if (!touch) return;
@@ -683,7 +689,9 @@ export const PassportMapModal = memo(() => {
           const dy = Math.abs(touch.clientY - lastTapY);
           if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
             e.preventDefault();
-            const point = map.unproject([touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top]);
+            e.stopPropagation();
+            const rect = canvas.getBoundingClientRect();
+            const point = map.unproject([touch.clientX - rect.left, touch.clientY - rect.top]);
             handleDoubleTapZoom([point.lng, point.lat]);
             lastTapTime = 0; // reset so triple-tap doesn't fire again
           } else {
@@ -691,7 +699,7 @@ export const PassportMapModal = memo(() => {
             lastTapX = touch.clientX;
             lastTapY = touch.clientY;
           }
-        }, { passive: false });
+        }, { passive: false, capture: true });
 
         // Desktop: native dblclick
         map.on('dblclick', (e) => {
@@ -717,6 +725,10 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enable();
         map.touchPitch.enable();
 
+        // Guard: marker taps set a timestamp so the map click doesn't immediately clear the selection
+        const markerTapGuardRef = { current: 0 };
+        (map as any).__markerTapGuard = markerTapGuardRef;
+
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const now = Date.now();
@@ -724,6 +736,8 @@ export const PassportMapModal = memo(() => {
           if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
           if (now - lastDoubleTapZoomAtRef.current < 500) return;
+          // Ignore clicks that happen right after a marker tap (mobile event chain race)
+          if (now - markerTapGuardRef.current < 400) return;
           clearPinPreview();
         });
 
