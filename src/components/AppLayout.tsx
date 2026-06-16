@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useLocation } from 'react-router-dom';
@@ -44,7 +44,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
-  const { showAIChat, showAIListing, showAIProfile } = modalStore;
+  const { showAIChat, showAIListing, showAIProfile, showPassportMapModal } = modalStore;
+  const [keepMapMounted, setKeepMapMounted] = useState(false);
+  useEffect(() => {
+    if (showPassportMapModal) setKeepMapMounted(true);
+  }, [showPassportMapModal]);
   const { activeMode } = useActiveMode();
   useDeepLinks();
 
@@ -322,7 +326,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <GlobalDialogs userRole={userRole} />
       </Suspense>
 
-      {modalStore.showPassportMapModal && (
+      {/* Stay mounted after first open — tearing down Mapbox on every close caused crashes */}
+      {keepMapMounted && (
         <Suspense fallback={null}>
           <PassportMapModal />
         </Suspense>

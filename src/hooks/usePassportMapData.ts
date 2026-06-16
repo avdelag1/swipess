@@ -78,13 +78,13 @@ export function usePassportMapData(
           p_user_lat: searchLat!,
           p_user_lon: searchLng!,
           p_radius_km: radiusKm,
-          p_limit: 300,
+          p_limit: 120,
         }),
         supabase.rpc('get_passport_map_profiles', {
           p_user_lat: searchLat!,
           p_user_lon: searchLng!,
           p_radius_km: radiusKm,
-          p_limit: 300,
+          p_limit: 120,
           p_exclude_user_id: user?.id ?? undefined,
         }),
       ]);
