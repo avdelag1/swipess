@@ -20,6 +20,7 @@ import {
   cinematicMaxPitchForViewport,
   cinematicPitchForViewport,
   zoomForRadiusKm,
+  incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
@@ -36,13 +37,13 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import {
-  bindMapDoubleTapZoom,
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
+import { computeMapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -75,7 +76,8 @@ import {
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-type PinPreviewMode = 'sheet';
+const PIN_PREVIEW_CARD = { width: 280, height: 260 };
+type PinPreviewMode = 'anchored' | 'sheet';
 const MAP_HUD_BTN = 'w-[34px] h-[34px]';
 const MAP_HUD_ICON = 'w-4 h-4';
 
@@ -97,8 +99,6 @@ export const PassportMapModal = memo(() => {
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
   const openClientInsights = useModalStore(s => s.openClientInsights);
-  const showPropertyInsights = useModalStore(s => s.showPropertyInsights);
-  const showClientInsights = useModalStore(s => s.showClientInsights);
   const lat = useFilterStore(s => s.userLatitude);
   const lng = useFilterStore(s => s.userLongitude);
   const radiusKm = useFilterStore(s => s.radiusKm);
@@ -158,11 +158,7 @@ export const PassportMapModal = memo(() => {
   const [hudExpanded, setHudExpanded] = useState(false);
   const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
   const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
-  /** Until user picks GPS / long-press / search, show the Tulum listing cluster. */
-  const [hubSearchLocked, setHubSearchLocked] = useState(true);
   const mapHudRef = useRef<HTMLDivElement>(null);
-
-  const shouldFetchMapData = isOpen || mapReady;
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -190,16 +186,15 @@ export const PassportMapModal = memo(() => {
   const radiusCenter = useMemo(() => {
     if (passportMode && lat != null && lng != null) return { lat, lng };
     if (searchAnchor) return searchAnchor;
-    if (hubSearchLocked) return MAP_SEARCH_HUB;
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
     return MAP_SEARCH_HUB;
-  }, [passportMode, lat, lng, deviceGps, searchAnchor, hubSearchLocked]);
+  }, [passportMode, lat, lng, deviceGps, searchAnchor]);
 
   const searchCoords = useMemo(() => {
-    if (!shouldFetchMapData) return null;
+    if (!isOpen) return null;
     return radiusCenter;
-  }, [shouldFetchMapData, radiusCenter]);
+  }, [isOpen, radiusCenter]);
 
   const usingSearchFallback = isOpen && radiusCenter == null;
 
@@ -207,7 +202,7 @@ export const PassportMapModal = memo(() => {
     searchCoords?.lat ?? null,
     searchCoords?.lng ?? null,
     radiusKm,
-    shouldFetchMapData,
+    isOpen,
   );
   const activePeopleCount = data?.activePeopleCount ?? 0;
 
@@ -286,6 +281,9 @@ export const PassportMapModal = memo(() => {
   const focusPinSheet = useCallback((pin: SelectedPin) => {
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
+    // Guard against the map's click handler clearing this selection immediately (mobile race)
+    const guard = (mapRef.current as any)?.__markerTapGuard;
+    if (guard) guard.current = Date.now();
     setSelected(pin);
     setPreviewMode('sheet');
     setRadiusHudExpanded(false); // Close the km slider when a pin is clicked
@@ -361,7 +359,6 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
-    setHubSearchLocked(false);
     setSearchAnchor(null);
     clearPassportLocation();
     userMapInteractedRef.current = false;
@@ -370,7 +367,6 @@ export const PassportMapModal = memo(() => {
 
   const relocateSearchTo = useCallback((lng: number, lat: number) => {
     triggerHaptic('heavy');
-    setHubSearchLocked(false);
     setSearchAnchor({ lat, lng });
     clearPassportLocation();
     userMapInteractedRef.current = false;
@@ -474,8 +470,6 @@ export const PassportMapModal = memo(() => {
       mapOpenSessionRef.current += 1;
       userMapInteractedRef.current = false;
       initialCenterDoneRef.current = false;
-      setHubSearchLocked(true);
-      setSearchAnchor(null);
     }
     if (!isOpen) {
       initialCenterDoneRef.current = false;
@@ -517,12 +511,6 @@ export const PassportMapModal = memo(() => {
       return () => { cancelled = true; };
     }
 
-    // Default open: fly to the listing hub so pins are visible immediately.
-    if (hubSearchLocked) {
-      runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
-      return () => { cancelled = true; };
-    }
-
     if (!canGeolocate()) {
       runCenter(MAP_SEARCH_HUB, FLY_DURATION_OPEN_MS);
       return () => { cancelled = true; };
@@ -547,7 +535,7 @@ export const PassportMapModal = memo(() => {
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady, passportMode, hubSearchLocked]);
+  }, [isOpen, mapReady, passportMode]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -586,11 +574,13 @@ export const PassportMapModal = memo(() => {
       const storeLat = useFilterStore.getState().userLatitude;
       const storeLng = useFilterStore.getState().userLongitude;
       const deviceFix = deviceGpsRef.current;
+      const hasUserHub = !!(deviceFix || (storeLat != null && storeLng != null));
       const hub = deviceFix ?? (storeLat != null && storeLng != null
         ? { lat: storeLat, lng: storeLng }
         : MAP_SEARCH_HUB);
       const initialLng = hub.lng;
       const initialLat = hub.lat;
+      const storeRadius = useFilterStore.getState().radiusKm;
       const initialZoom = 2.2; // Always start zoomed out to guarantee a dramatic "Google Earth" cinematic fly-in to the user's street
 
       try {
@@ -628,7 +618,9 @@ export const PassportMapModal = memo(() => {
         const canvas = map.getCanvas();
         canvas.setAttribute('tabindex', '-1');
         canvas.setAttribute('data-map-canvas', '');
-        canvas.style.touchAction = 'none';
+        // touch-action: pan-x pan-y lets the browser fire touch events
+        // while Mapbox handles gesture recognition internally
+        canvas.style.touchAction = 'pan-x pan-y';
 
         map.on('load', () => {
           if (cancelled) return;
@@ -670,15 +662,49 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        unbindMapDoubleTapRef.current?.();
-        unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
-          isActive: () => useModalStore.getState().showPassportMapModal,
-          lastZoomAtRef: lastDoubleTapZoomAtRef,
-          lastPointerUpAtRef: lastMapPointerUpAtRef,
-          onZoom: () => {
+        // Double-tap zoom: use raw touchend on the map container for mobile
+        // (canvas touch-action can suppress events on iOS PWA) + dblclick for desktop.
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        const mapContainer = map.getContainer();
+        const handleDoubleTapZoom = (lngLat: [number, number]) => {
+          if (!useModalStore.getState().showPassportMapModal) return;
+          const now = Date.now();
+          if (now - lastDoubleTapZoomAtRef.current < 150) return;
+          if (incrementalDoubleTapZoom(map, lngLat)) {
+            lastDoubleTapZoomAtRef.current = now;
             markUserMapControlRef.current();
             triggerHaptic('light');
-          },
+          }
+        };
+
+        // Mobile: detect double-tap via touchend pairs on the container
+        mapContainer.addEventListener('touchend', (e) => {
+          if (e.touches.length > 0) return; // multi-finger
+          const touch = e.changedTouches[0];
+          if (!touch) return;
+          const now = Date.now();
+          const dx = Math.abs(touch.clientX - lastTapX);
+          const dy = Math.abs(touch.clientY - lastTapY);
+          if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = canvas.getBoundingClientRect();
+            const point = map.unproject([touch.clientX - rect.left, touch.clientY - rect.top]);
+            handleDoubleTapZoom([point.lng, point.lat]);
+            lastTapTime = 0; // reset so triple-tap doesn't fire again
+          } else {
+            lastTapTime = now;
+            lastTapX = touch.clientX;
+            lastTapY = touch.clientY;
+          }
+        }, { passive: false, capture: true });
+
+        // Desktop: native dblclick
+        map.on('dblclick', (e) => {
+          e.preventDefault();
+          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
         });
 
         unbindLongPressRef.current?.();
@@ -699,6 +725,10 @@ export const PassportMapModal = memo(() => {
         map.touchZoomRotate.enable();
         map.touchPitch.enable();
 
+        // Guard: marker taps set a timestamp so the map click doesn't immediately clear the selection
+        const markerTapGuardRef = { current: 0 };
+        (map as any).__markerTapGuard = markerTapGuardRef;
+
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const now = Date.now();
@@ -706,6 +736,8 @@ export const PassportMapModal = memo(() => {
           if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
           if (now - lastDoubleTapZoomAtRef.current < 500) return;
+          // Ignore clicks that happen right after a marker tap (mobile event chain race)
+          if (now - markerTapGuardRef.current < 400) return;
           clearPinPreview();
         });
 
@@ -769,7 +801,6 @@ export const PassportMapModal = memo(() => {
       geocoder.on('result', (ev: any) => {
         const [newLng, newLat] = ev.result.center;
         clearPinPreview();
-        setHubSearchLocked(false);
         flyToRef.current(newLat, newLng, ev.result.place_name);
       });
       geocoderRef.current = geocoder;
@@ -887,8 +918,6 @@ export const PassportMapModal = memo(() => {
   const syncMarkers = useCallback(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
     if (!mapRef.current.isStyleLoaded()) return;
-    const host = mapContainerRef.current;
-    if (!host || host.clientWidth < 48 || host.clientHeight < 48) return;
 
     const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
@@ -992,7 +1021,7 @@ export const PassportMapModal = memo(() => {
     };
   }, [syncMarkers, isOpen, mapReady]);
 
-  // Selection highlight only — all pins stay visible (normal map app behavior).
+  // Selection highlight only — avoids rebuilding every marker on tap
   useEffect(() => {
     if (!mapReady || !isOpen) return;
     const registry = markersRef.current;
@@ -1001,7 +1030,11 @@ export const PassportMapModal = memo(() => {
 
     for (const entry of registry.values()) {
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
-      entry.el.style.opacity = '1';
+      const isHiddenBySelection = selected != null && !isSelected;
+      
+      entry.el.style.transition = 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+      entry.el.style.opacity = isHiddenBySelection ? '0.15' : '1';
+      // Keep pointer events active so tapping another pin while one is selected still works
       entry.el.style.pointerEvents = 'auto';
 
       if (entry.pinType === 'listing') {
@@ -1013,32 +1046,6 @@ export const PassportMapModal = memo(() => {
       }
     }
   }, [selected, mapReady, isOpen, visibleListings, visibleProfiles]);
-
-  // After Insights closes, restore every pin on the map.
-  useEffect(() => {
-    if (!isOpen || showPropertyInsights || showClientInsights) return;
-    clearPinPreview();
-    for (const entry of markersRef.current.values()) {
-      entry.el.style.opacity = '1';
-    }
-    if (markerSyncRafRef.current != null) cancelAnimationFrame(markerSyncRafRef.current);
-    markerSyncRafRef.current = requestAnimationFrame(() => {
-      markerSyncRafRef.current = null;
-      syncMarkers();
-    });
-  }, [showPropertyInsights, showClientInsights, isOpen, clearPinPreview, syncMarkers]);
-
-  // Paint pins + radius as soon as the sheet opens and listing data is ready.
-  useEffect(() => {
-    if (!isOpen || !mapReady) return;
-    const refresh = () => {
-      resizeMap();
-      syncMarkers();
-    };
-    requestAnimationFrame(refresh);
-    const t = window.setTimeout(refresh, 80);
-    return () => window.clearTimeout(t);
-  }, [isOpen, mapReady, data, resizeMap, syncMarkers]);
 
   const mapboxReady = tokenReady;
 
@@ -1125,7 +1132,6 @@ export const PassportMapModal = memo(() => {
                             type="button"
                             onClick={() => {
                               triggerHaptic('medium');
-                              setHubSearchLocked(false);
                               setPassportLocation(city.lat, city.lng, `${city.name}`);
                               setRadiusKm(20);
                               if (mapRef.current) {
