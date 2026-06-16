@@ -20,6 +20,7 @@ import {
   cinematicMaxPitchForViewport,
   cinematicPitchForViewport,
   zoomForRadiusKm,
+  incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
@@ -36,7 +37,6 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import {
-  bindMapDoubleTapZoom,
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
@@ -658,15 +658,19 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        unbindMapDoubleTapRef.current?.();
-        unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
-          isActive: () => useModalStore.getState().showPassportMapModal,
-          lastZoomAtRef: lastDoubleTapZoomAtRef,
-          lastPointerUpAtRef: lastMapPointerUpAtRef,
-          onZoom: () => {
+        map.on('dblclick', (e) => {
+          e.preventDefault();
+          if (!useModalStore.getState().showPassportMapModal) return;
+          
+          const center = [e.lngLat.lng, e.lngLat.lat] as [number, number];
+          const now = Date.now();
+          if (now - lastDoubleTapZoomAtRef.current < 120) return;
+          
+          if (incrementalDoubleTapZoom(map, center)) {
+            lastDoubleTapZoomAtRef.current = now;
             markUserMapControlRef.current();
             triggerHaptic('light');
-          },
+          }
         });
 
         unbindLongPressRef.current?.();
