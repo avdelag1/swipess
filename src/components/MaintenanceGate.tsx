@@ -1,5 +1,5 @@
 import React, { startTransition, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, ChevronDown, Lock, MessageSquare, Send } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown, Lock, MessageSquare, Send, Eye, EyeOff } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -56,6 +56,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
+  const [showCode, setShowCode] = useState(false);
 
   // Request form state
   const [showRequest, setShowRequest] = useState(false);
@@ -153,17 +154,26 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
           transition={{ duration: 0.45 }}
           className="space-y-3"
         >
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => { setCode(e.target.value); if (error) setError(false); }}
-            placeholder="PROMO CODE"
-            autoFocus
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            className="w-full h-14 rounded-2xl bg-card border border-border focus:border-primary/60 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)] px-5 text-center text-foreground text-lg font-semibold tracking-[0.3em] uppercase placeholder:text-muted-foreground/40 placeholder:tracking-[0.3em] outline-none transition-all"
-          />
+          <div className="relative">
+            <input
+              type={showCode ? "text" : "password"}
+              value={code}
+              onChange={(e) => { setCode(e.target.value); if (error) setError(false); }}
+              placeholder="PROMO CODE"
+              autoFocus
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              className="w-full h-14 rounded-2xl bg-card border border-border focus:border-primary/60 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.15)] px-5 pr-14 text-center text-foreground text-lg font-semibold tracking-[0.3em] uppercase placeholder:text-muted-foreground/40 placeholder:tracking-[0.3em] outline-none transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowCode(!showCode)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors p-1"
+            >
+              {showCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
 
           {error && (
             <p className="text-xs text-destructive text-center">
@@ -189,7 +199,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-            <span>{showRequest ? "Hide request form" : "Don't have a code? Request access"}</span>
+            <span>{showRequest ? "Hide request form" : "Need a code? Request access"}</span>
             <motion.span
               animate={{ rotate: showRequest ? 180 : 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
