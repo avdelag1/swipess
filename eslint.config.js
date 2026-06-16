@@ -19,6 +19,7 @@ export default tseslint.config(
       'android/**/build/**',
       'android/app/src/main/assets/public/**',
       'ios/App/App/public/**',
+      'ios/DerivedData/**',
     ],
   },
   {

@@ -92,6 +92,8 @@ interface FilterState {
   setOwnerPokerCardOrder: (order: string[]) => void;
   toggleCategory: (category: QuickFilterCategory) => void;
   setCategories: (categories: QuickFilterCategory[]) => void;
+  /** Single filterVersion bump when picking a bento category + listing type. */
+  selectDeckCategory: (category: QuickFilterCategory, listingType: QuickFilterListingType) => void;
   setListingType: (type: QuickFilterListingType) => void;
   setClientGender: (gender: ClientGender) => void;
   setClientType: (type: ClientType) => void;
@@ -251,7 +253,9 @@ export const useFilterStore = create<FilterState>()(
           mapped.priceRange = [filters.budget_min || 0, filters.budget_max || 1000000];
         }
         if (filters.bedrooms_min !== undefined) {
-          mapped.bedrooms = [filters.bedrooms_min, filters.bedrooms_min];
+          const maxBed = filters.bedrooms_max ?? filters.max_bedrooms
+            ?? (state.bedrooms.length > 1 ? state.bedrooms[1] : 10);
+          mapped.bedrooms = [filters.bedrooms_min, maxBed];
         }
         if (filters.interest_type && filters.interest_type !== 'both') {
           mapped.listingType = filters.interest_type;
@@ -290,12 +294,31 @@ export const useFilterStore = create<FilterState>()(
         const newCategories = isActive
           ? state.categories.filter(c => c !== category)
           : [...state.categories, category];
+        const single = newCategories.length === 1 ? newCategories[0] : null;
         return {
           categories: newCategories,
-          activeCategory: newCategories.length === 1 ? newCategories[0] : null,
+          activeCategory: single,
+          accentColor: single ? (CATEGORY_ACCENTS[single] ?? null) : null,
           filterVersion: state.filterVersion + 1,
           lastChangedAt: Date.now(),
         };
+      });
+    },
+    selectDeckCategory: (category, listingType) => {
+      const state = get();
+      if (
+        state.activeCategory === category
+        && state.categories.length === 1
+        && state.categories[0] === category
+        && state.listingType === listingType
+      ) return;
+      set({
+        activeCategory: category,
+        categories: [category],
+        accentColor: CATEGORY_ACCENTS[category] ?? null,
+        listingType,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
       });
     },
     setCategories: (categories) => {
@@ -311,6 +334,7 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setListingType: (type) => {
+      if (get().listingType === type) return;
       set((state) => ({
         listingType: type,
         filterVersion: state.filterVersion + 1,
@@ -432,6 +456,10 @@ export const useFilterStore = create<FilterState>()(
         ...(filters.petFriendly !== undefined && { petFriendly: filters.petFriendly as boolean }),
         ...(filters.motoTypes !== undefined && { motoTypes: filters.motoTypes as string[] }),
         ...(filters.bicycleTypes !== undefined && { bicycleTypes: filters.bicycleTypes as string[] }),
+        ...(filters.clientAgeRange !== undefined && { clientAgeRange: filters.clientAgeRange as [number, number] | null }),
+        ...(filters.clientBudgetRange !== undefined && { clientBudgetRange: filters.clientBudgetRange as [number, number] | null }),
+        ...(filters.clientNationalities !== undefined && { clientNationalities: filters.clientNationalities as string[] }),
+        ...(filters.accentColor !== undefined && { accentColor: filters.accentColor as string | null }),
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -440,12 +468,19 @@ export const useFilterStore = create<FilterState>()(
       set((state) => ({
         activeCategory: null,
         categories: [],
+        accentColor: null,
         listingType: 'both',
         priceRange: null,
         bedrooms: [],
         bathrooms: [],
         amenities: [],
         propertyTypes: [],
+        serviceTypes: [],
+        motoTypes: [],
+        bicycleTypes: [],
+        furnished: false,
+        petFriendly: false,
+        radiusKm: 3,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -598,6 +633,7 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   setActiveCategory: state.setActiveCategory,
   toggleCategory: state.toggleCategory,
   setCategories: state.setCategories,
+  selectDeckCategory: state.selectDeckCategory,
   setListingType: state.setListingType,
   setClientGender: state.setClientGender,
   setClientType: state.setClientType,

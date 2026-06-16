@@ -2,6 +2,8 @@ import type { Map as MapboxMap } from 'mapbox-gl';
 import { incrementalDoubleTapZoom } from '@/utils/mapCinematicCamera';
 
 export const MAP_DOUBLE_TAP_WINDOW_MS = 450;
+/** Faster sheet open on markers — still leaves room for double-tap zoom on empty map. */
+export const MAP_MARKER_TAP_DELAY_MS = 220;
 export const MAP_DOUBLE_TAP_SLOP_PX = 72;
 export const MAP_LONG_PRESS_MS = 1000;
 export const MAP_LONG_PRESS_MOVE_SLOP = 14;
@@ -259,7 +261,7 @@ export function bindMarkerGestures(
         singleTapTimer = null;
         lastTap = null;
         onTap();
-      }, MAP_DOUBLE_TAP_WINDOW_MS);
+      }, MAP_MARKER_TAP_DELAY_MS);
     }
   };
 
