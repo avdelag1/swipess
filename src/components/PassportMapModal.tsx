@@ -21,7 +21,6 @@ import {
   cinematicPitchForViewport,
   fitMapToPins,
   zoomForRadiusKm,
-  incrementalDoubleTapZoom,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
@@ -38,10 +37,14 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import {
+  bindMapDoubleTapZoom,
   bindMapInteractionTracking,
   bindMapLongPress,
   bindMarkerGestures,
+  lngLatFromMapClientPoint,
+  MAP_DOUBLE_TAP_SLOP_PX,
   MAP_DOUBLE_TAP_WINDOW_MS,
+  tryMapDoubleTapZoom,
 } from '@/utils/mapDoubleTapZoom';
 
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
@@ -618,9 +621,8 @@ export const PassportMapModal = memo(() => {
         const canvas = map.getCanvas();
         canvas.setAttribute('tabindex', '-1');
         canvas.setAttribute('data-map-canvas', '');
-        // touch-action: pan-x pan-y lets the browser fire touch events
-        // while Mapbox handles gesture recognition internally
-        canvas.style.touchAction = 'pan-x pan-y';
+        // Mapbox owns pan/zoom; avoid browser swallowing rapid taps on iOS PWA.
+        canvas.style.touchAction = 'none';
 
         map.on('load', () => {
           if (cancelled) return;
@@ -663,47 +665,71 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Double-tap zoom: container touchend for mobile + dblclick for desktop.
-        let lastTapTime = 0;
-        let lastTapX = 0;
-        let lastTapY = 0;
+        // Double-tap zoom: canvas pointerup + container touchend (iOS PWA) + dblclick (desktop).
+        unbindMapDoubleTapRef.current?.();
         const mapContainer = map.getContainer();
-        const handleDoubleTapZoom = (lngLat: [number, number]) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-          const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 150) return;
-          if (incrementalDoubleTapZoom(map, lngLat)) {
-            lastDoubleTapZoomAtRef.current = now;
-            markUserMapControlRef.current();
-            triggerHaptic('light');
-          }
+        mapContainer.style.touchAction = 'none';
+
+        const onDoubleTapZoomed = () => {
+          markUserMapControlRef.current();
+          triggerHaptic('light');
         };
 
-        mapContainer.addEventListener('touchend', (e) => {
+        const unbindCanvasDoubleTap = bindMapDoubleTapZoom(map, {
+          isActive: () => useModalStore.getState().showPassportMapModal,
+          lastZoomAtRef: lastDoubleTapZoomAtRef,
+          lastPointerUpAtRef: lastMapPointerUpAtRef,
+          onZoom: onDoubleTapZoomed,
+        });
+
+        let lastTouchTapTime = 0;
+        let lastTouchTapX = 0;
+        let lastTouchTapY = 0;
+        const onContainerTouchEnd = (e: TouchEvent) => {
+          if (!useModalStore.getState().showPassportMapModal) return;
           if (e.touches.length > 0) return;
           const touch = e.changedTouches[0];
           if (!touch) return;
           const now = Date.now();
-          const dx = Math.abs(touch.clientX - lastTapX);
-          const dy = Math.abs(touch.clientY - lastTapY);
-          if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
+          lastMapPointerUpAtRef.current = now;
+          const dx = Math.abs(touch.clientX - lastTouchTapX);
+          const dy = Math.abs(touch.clientY - lastTouchTapY);
+          if (
+            lastTouchTapTime > 0
+            && now - lastTouchTapTime < MAP_DOUBLE_TAP_WINDOW_MS
+            && dx < MAP_DOUBLE_TAP_SLOP_PX
+            && dy < MAP_DOUBLE_TAP_SLOP_PX
+          ) {
             e.preventDefault();
             e.stopPropagation();
-            const rect = canvas.getBoundingClientRect();
-            const point = map.unproject([touch.clientX - rect.left, touch.clientY - rect.top]);
-            handleDoubleTapZoom([point.lng, point.lat]);
-            lastTapTime = 0;
+            const center = lngLatFromMapClientPoint(map, touch.clientX, touch.clientY);
+            if (tryMapDoubleTapZoom(map, center, lastDoubleTapZoomAtRef)) {
+              lastTouchTapTime = 0;
+              onDoubleTapZoomed();
+            }
           } else {
-            lastTapTime = now;
-            lastTapX = touch.clientX;
-            lastTapY = touch.clientY;
+            lastTouchTapTime = now;
+            lastTouchTapX = touch.clientX;
+            lastTouchTapY = touch.clientY;
           }
-        }, { passive: false, capture: true });
+        };
+        mapContainer.addEventListener('touchend', onContainerTouchEnd, { passive: false, capture: true });
 
-        map.on('dblclick', (e) => {
+        const onMapDblClick = (e: import('mapbox-gl').MapMouseEvent) => {
           e.preventDefault();
-          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
-        });
+          if (!useModalStore.getState().showPassportMapModal) return;
+          const center = [e.lngLat.lng, e.lngLat.lat] as [number, number];
+          if (tryMapDoubleTapZoom(map, center, lastDoubleTapZoomAtRef)) {
+            onDoubleTapZoomed();
+          }
+        };
+        map.on('dblclick', onMapDblClick);
+
+        unbindMapDoubleTapRef.current = () => {
+          unbindCanvasDoubleTap();
+          mapContainer.removeEventListener('touchend', onContainerTouchEnd, { capture: true });
+          map.off('dblclick', onMapDblClick);
+        };
 
         unbindLongPressRef.current?.();
         unbindLongPressRef.current = bindMapLongPress(map, {
