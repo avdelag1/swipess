@@ -68,57 +68,72 @@ export function addCinematic3DBuildings(map: MapboxMap, _isLight: boolean): void
       'source-layer': 'building',
       filter: ['==', 'extrude', 'true'],
       type: 'fill-extrusion',
-      minzoom: 13,
+      minzoom: 15,
       paint: {
-        'fill-extrusion-color': '#d4d4d8',
+        'fill-extrusion-color': '#aaa',
         'fill-extrusion-height': [
-          'interpolate', ['linear'], ['zoom'],
-          13, 0,
-          13.05, ['get', 'height'],
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          15,
+          0,
+          15.05,
+          ['get', 'height'],
         ],
         'fill-extrusion-base': [
-          'interpolate', ['linear'], ['zoom'],
-          13, 0,
-          13.05, ['get', 'min_height'],
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          15,
+          0,
+          15.05,
+          ['get', 'min_height'],
         ],
-        'fill-extrusion-opacity': 0.65,
+        'fill-extrusion-opacity': 0.6,
       },
     },
     labelLayerId,
   );
 }
 
-export function cinematicFlyTo(
-  map: MapboxMap,
-  center: [number, number],
-  zoom: number,
-  opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number },
-): void {
-  map.flyTo({
-    center,
-    zoom,
-    pitch: opts?.pitch ?? CINEMATIC_PITCH,
-    bearing: opts?.bearing ?? CINEMATIC_BEARING,
-    speed: opts?.speed ?? 1.2,
-    curve: opts?.curve ?? 1.68,
-    essential: true,
-  });
-}
-
 export function cinematicEaseTo(
   map: MapboxMap,
   center: [number, number],
   zoom: number,
-  opts?: { duration?: number; bearing?: number; pitch?: number },
+  opts?: { bearing?: number; duration?: number; pitch?: number },
 ): void {
   map.easeTo({
     center,
     zoom,
-    pitch: opts?.pitch ?? CINEMATIC_PITCH,
+    pitch: opts?.pitch ?? cinematicPitchForViewport(),
     bearing: opts?.bearing ?? map.getBearing(),
-    duration: opts?.duration ?? 320,
+    duration: opts?.duration ?? OPEN_CENTER_MS,
     essential: true,
   });
+}
+
+export function cinematicFlyTo(
+  map: MapboxMap,
+  center: [number, number],
+  zoom: number,
+  opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number; duration?: number },
+): void {
+  const options: mapboxgl.FlyToOptions = {
+    center,
+    zoom,
+    pitch: opts?.pitch ?? CINEMATIC_PITCH,
+    bearing: opts?.bearing ?? CINEMATIC_BEARING,
+    essential: true,
+  };
+  
+  if (opts?.duration) {
+    options.duration = opts.duration;
+  } else {
+    options.speed = opts?.speed ?? 1.2;
+    options.curve = opts?.curve ?? 1.68;
+  }
+
+  map.flyTo(options);
 }
 
 /** Zoom step per double-tap — one natural "notch" in, like Google/Apple Maps.
