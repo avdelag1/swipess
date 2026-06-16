@@ -163,7 +163,7 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Description</label>
-                <Textarea value={businessDesc} onChange={(e) => setBusinessDesc(e.target.value)} placeholder="Describe your business or listings..." maxLength={1000} autoGrow showCount className="min-h-[100px] rounded-2xl bg-muted/30 p-4" />
+                <Textarea value={businessDesc} onChange={(e) => setBusinessDesc(e.target.value)} placeholder="Describe your business, listings, and what makes you stand out…" maxLength={1000} autoGrow showCount className="min-h-[100px] rounded-2xl bg-muted/30 p-4" />
               </div>
             </section>
 

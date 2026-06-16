@@ -112,6 +112,7 @@ export const PassportMapModal = memo(() => {
   const initStartedRef = useRef(false);
   const autoGpsAttemptedRef = useRef(false);
   const initialFlyDoneRef = useRef(false);
+  const flewToDeviceGpsRef = useRef(false);
   const openedOnceRef = useRef(false);
   const lastDoubleTapZoomAtRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
@@ -380,12 +381,16 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, lat, lng, passportMode, deviceGps]);
 
-  // Request device GPS as soon as the map opens (before Mapbox finishes loading).
+  // Reset camera fly flags when the map closes so each open recenters on the user.
   useEffect(() => {
-    if (!isOpen) {
-      autoGpsAttemptedRef.current = false;
-      return;
-    }
+    if (isOpen) return;
+    initialFlyDoneRef.current = false;
+    flewToDeviceGpsRef.current = false;
+    autoGpsAttemptedRef.current = false;
+  }, [isOpen]);
+
+  // Warm GPS while the map is mounted (dashboard warm-start) — not only when visible.
+  useEffect(() => {
     if (passportMode || autoGpsAttemptedRef.current || !canGeolocate()) return;
 
     autoGpsAttemptedRef.current = true;
@@ -414,9 +419,24 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
-  }, [isOpen, passportMode, setUserLocation]);
+  }, [passportMode, setUserLocation]);
 
-  // Snap camera once on first open — reopen is instant (map stays warm).
+  const flyToUserOnMap = useCallback((target: { lat: number; lng: number }, markDone = true) => {
+    const map = mapRef.current;
+    if (!map) return;
+    cinematicFlyTo(
+      map,
+      [target.lng, target.lat],
+      zoomForRadiusKm(radiusKm),
+      { duration: FLY_DURATION_OPEN_MS, pitch: cinematicPitchForViewport() },
+    );
+    if (markDone) {
+      initialFlyDoneRef.current = true;
+      flewToDeviceGpsRef.current = true;
+    }
+  }, [radiusKm]);
+
+  // Snap camera to user (or passport target) every time the map opens.
   useEffect(() => {
     if (!isOpen || !mapReady || !mapRef.current) return;
     if (initialFlyDoneRef.current) {
@@ -424,32 +444,29 @@ export const PassportMapModal = memo(() => {
       return;
     }
 
-    const map = mapRef.current;
-    const zoom = zoomForRadiusKm(radiusKm);
-
     if (passportMode && lat != null && lng != null) {
-      cinematicFlyTo(
-        map,
-        [lng, lat],
-        zoom,
-        { duration: FLY_DURATION_OPEN_MS, pitch: cinematicPitchForViewport() },
-      );
-      initialFlyDoneRef.current = true;
+      flyToUserOnMap({ lat, lng });
       return;
     }
 
-    const target = deviceGpsRef.current ?? deviceGps
-      ?? (lat != null && lng != null ? { lat, lng } : null);
-    if (!target) return;
+    const liveGps = deviceGpsRef.current ?? deviceGps;
+    if (liveGps) {
+      flyToUserOnMap(liveGps);
+      return;
+    }
 
-    cinematicFlyTo(
-      map,
-      [target.lng, target.lat],
-      zoom,
-      { duration: FLY_DURATION_OPEN_MS, pitch: cinematicPitchForViewport() },
-    );
-    initialFlyDoneRef.current = true;
-  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps, resizeMap]);
+    if (lat != null && lng != null) {
+      flyToUserOnMap({ lat, lng }, false);
+      initialFlyDoneRef.current = true;
+    }
+  }, [isOpen, mapReady, passportMode, lat, lng, deviceGps, resizeMap, flyToUserOnMap]);
+
+  // When live GPS arrives after open, refly from stale store coords to device position.
+  useEffect(() => {
+    if (!isOpen || !mapReady || !mapRef.current || passportMode || !deviceGps) return;
+    if (flewToDeviceGpsRef.current) return;
+    flyToUserOnMap(deviceGps);
+  }, [deviceGps, isOpen, mapReady, passportMode, flyToUserOnMap]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -548,9 +565,16 @@ export const PassportMapModal = memo(() => {
 
           requestAnimationFrame(() => {
             resizeMap();
+            const fix = deviceGpsRef.current;
+            if (fix) {
+              try {
+                syncUserGpsDotOnMap(map, fix.lng, fix.lat);
+              } catch {
+                // Style layers can race on slow devices
+              }
+            }
             setMapReady(true);
             setMapLoading(false);
-
           });
         });
 
@@ -1259,13 +1283,13 @@ export const PassportMapModal = memo(() => {
                     <div
                       className="absolute left-0 h-1.5 rounded-full transition-all duration-100 ease-out"
                       style={{ 
-                        width: `${((radiusKm - 5) / 75) * 100}%`,
+                        width: `${((radiusKm - 3) / 77) * 100}%`,
                         background: 'linear-gradient(135deg, #00C6FF, #0072FF)' 
                       }}
                     />
                     <input
                       type="range"
-                      min={5}
+                      min={3}
                       max={80}
                       step={1}
                       value={radiusKm}
@@ -1279,7 +1303,7 @@ export const PassportMapModal = memo(() => {
                     <div 
                       className="absolute w-4 h-4 rounded-full bg-[#00C6FF] border-2 border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
                       style={{
-                        left: `calc(${((radiusKm - 5) / 75) * 100}% - 8px)`
+                        left: `calc(${((radiusKm - 3) / 77) * 100}% - 8px)`
                       }}
                     />
                   </div>

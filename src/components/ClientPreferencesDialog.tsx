@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
 import { appToast } from '@/utils/appNotification';
 import { AnimatePresence, motion } from 'framer-motion'
@@ -21,6 +21,7 @@ interface ClientPreferencesDialogProps {
 export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreferencesDialogProps) {
   const { data: preferences, updatePreferences, isLoading } = useClientFilterPreferences()
   const [isScanning, setIsScanning] = useState(false)
+  const [activeTab, setActiveTab] = useState('properties')
 
 
 
@@ -215,7 +216,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
           <DialogTitle>My Preferences</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="properties" className="flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <TabsList className="mx-6 mt-4">
             <TabsTrigger value="properties">Properties</TabsTrigger>
             <TabsTrigger value="motorcycles">
@@ -226,8 +227,8 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
             </TabsTrigger>
           </TabsList>
 
-  // PROPERTIES TAB
-  <TabsContent value="properties" className="flex-1 mt-0">
+  {activeTab === 'properties' && (
+  <div className="flex-1 mt-0 min-h-0 data-[state=active]:flex flex-col">
             <ScrollArea className="h-full px-6">
               <div className="space-y-6 py-4">
                 {/* Price Range */}
@@ -430,10 +431,11 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                 </div>
               </div>
             </ScrollArea>
-          </TabsContent>
+          </div>
+          )}
 
-          {/* MOTORCYCLES TAB */}
-          <TabsContent value="motorcycles" className="flex-1 mt-0">
+          {activeTab === 'motorcycles' && (
+          <div className="flex-1 mt-0 min-h-0 flex flex-col">
             <ScrollArea className="h-full px-6">
               <div className="space-y-6 py-4">
                 {/* Motorcycle Types */}
@@ -708,10 +710,11 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                 </div>
               </div>
             </ScrollArea>
-          </TabsContent>
+          </div>
+          )}
 
-          {/* BICYCLES TAB */}
-          <TabsContent value="bicycles" className="flex-1 mt-0">
+          {activeTab === 'bicycles' && (
+          <div className="flex-1 mt-0 min-h-0 flex flex-col">
             <ScrollArea className="h-full px-6">
               <div className="space-y-6 py-4">
                 {/* Bicycle Types */}
@@ -909,7 +912,8 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                 </div>
               </div>
             </ScrollArea>
-          </TabsContent>
+          </div>
+          )}
 
         </Tabs>
 

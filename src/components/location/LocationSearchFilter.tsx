@@ -51,7 +51,7 @@ export function LocationSearchFilter({
   const [selectedCountry, setSelectedCountry] = useState(currentFilter.country || '');
   const [selectedCity, setSelectedCity] = useState(currentFilter.city || '');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState(currentFilter.neighborhood || '');
-  const [radius, setRadius] = useState(currentFilter.radiusKm || 50);
+  const [radius, setRadius] = useState(currentFilter.radiusKm || 3);
   const [isExpanded, setIsExpanded] = useState(!compact);
 
   // Get data
@@ -390,7 +390,7 @@ export function LocationSearchFilter({
                 setRadius(v[0]);
                 updateFilter({ radiusKm: v[0] });
               }}
-              min={5}
+              min={3}
               max={200}
               step={5}
               className="w-full"
