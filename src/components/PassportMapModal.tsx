@@ -45,6 +45,12 @@ import {
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
+
+/** Default search hub when GPS is still warming up — matches prod listing cluster. */
+const MAP_SEARCH_HUB = PASSPORT_QUICK_CITIES.find(c => c.name === 'Tulum') ?? {
+  lat: 20.2114,
+  lng: -87.4654,
+};
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 
 type MapboxGL = typeof import('mapbox-gl').default;
@@ -122,7 +128,27 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, passportMapShowCities, clearPassportMapFlags]);
 
-  const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
+  /** Search zone center — your GPS when local, passport target when exploring */
+  const radiusCenter = useMemo(() => {
+    if (passportMode && lat != null && lng != null) return { lat, lng };
+    if (deviceGps) return deviceGps;
+    if (lat != null && lng != null) return { lat, lng };
+    return null;
+  }, [passportMode, lat, lng, deviceGps]);
+
+  const searchCoords = useMemo(() => {
+    if (!isOpen) return null;
+    return radiusCenter ?? MAP_SEARCH_HUB;
+  }, [isOpen, radiusCenter]);
+
+  const usingSearchFallback = isOpen && radiusCenter == null;
+
+  const { data, isFetching, isError, isFetched } = usePassportMapData(
+    searchCoords?.lat ?? null,
+    searchCoords?.lng ?? null,
+    radiusKm,
+    isOpen,
+  );
   const activePeopleCount = data?.activePeopleCount ?? 0;
 
   const visibleListings = useMemo(() => {
@@ -136,14 +162,7 @@ export const PassportMapModal = memo(() => {
   }, [data, layerFilter]);
 
   const nearbyCount = (visibleListings.length + visibleProfiles.length);
-
-  /** Search zone center — your GPS when local, passport target when exploring */
-  const radiusCenter = useMemo(() => {
-    if (passportMode && lat != null && lng != null) return { lat, lng };
-    if (deviceGps) return deviceGps;
-    if (lat != null && lng != null) return { lat, lng };
-    return null;
-  }, [passportMode, lat, lng, deviceGps]);
+  const showInitialDataLoad = isFetching && !data;
 
   const selectedId = selected
     ? (selected.type === 'listing' ? selected.data.id : selected.data.id)
@@ -675,13 +694,21 @@ export const PassportMapModal = memo(() => {
 
   const mapboxReady = tokenReady;
 
-  const statusLine = gpsLoading
-    ? t('map.findingYou')
-    : !passportMode && deviceGps
-      ? t('map.youAreHere')
-      : nearbyCount > 0
-        ? `${nearbyCount} in ${radiusKm}km`
-        : t('map.scanningArea');
+  const statusLine = isError
+    ? t('map.loadError')
+    : gpsLoading && !radiusCenter
+      ? t('map.findingYou')
+      : showInitialDataLoad
+        ? t('map.scanningArea')
+        : !passportMode && deviceGps && !gpsLoading
+          ? t('map.youAreHere')
+          : nearbyCount > 0
+            ? `${nearbyCount} in ${radiusKm}km`
+            : isFetched
+              ? t('map.noResults', { radius: radiusKm })
+              : usingSearchFallback
+                ? t('map.scanningArea')
+                : t('map.scanningArea');
 
   const mapHostVisible = isOpen;
   const instantOpen = isOpen && passportMapHandoff;
@@ -1073,13 +1100,13 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        {isLoading && (
+        {showInitialDataLoad && (
           <div
             className="map-hud-panel absolute left-4 z-20 rounded-full px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
           >
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white">Updating</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white">{t('map.scanningArea')}</span>
           </div>
         )}
 

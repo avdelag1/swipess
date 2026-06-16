@@ -34,6 +34,12 @@ export interface MapProfilePin {
 
 const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** ~100m grid — stops GPS jitter from invalidating the query key every watch tick. */
+function roundMapCoord(value: number, decimals = 3) {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
 // Deterministic micro-scatter to prevent perfect overlaps
 function applyScatter(lat: number, lng: number, id: string, index: number) {
   let hash = 0;
@@ -57,22 +63,26 @@ export function usePassportMapData(
 ) {
   const { user } = useAuth();
 
+  const searchLat = lat != null ? roundMapCoord(lat) : null;
+  const searchLng = lng != null ? roundMapCoord(lng) : null;
+
   return useQuery({
-    queryKey: ['passport-map-data', lat, lng, radiusKm, user?.id],
-    enabled: enabled && lat != null && lng != null,
+    queryKey: ['passport-map-data', searchLat, searchLng, radiusKm, user?.id],
+    enabled: enabled && searchLat != null && searchLng != null,
     staleTime: 30_000,
     refetchInterval: enabled ? 30_000 : false,
+    placeholderData: (prev) => prev,
     queryFn: async () => {
       const [listingsRes, profilesRes] = await Promise.all([
         supabase.rpc('get_passport_map_listings', {
-          p_user_lat: lat!,
-          p_user_lon: lng!,
+          p_user_lat: searchLat!,
+          p_user_lon: searchLng!,
           p_radius_km: radiusKm,
           p_limit: 300,
         }),
         supabase.rpc('get_passport_map_profiles', {
-          p_user_lat: lat!,
-          p_user_lon: lng!,
+          p_user_lat: searchLat!,
+          p_user_lon: searchLng!,
           p_radius_km: radiusKm,
           p_limit: 300,
           p_exclude_user_id: user?.id ?? undefined,

@@ -545,6 +545,8 @@
     "youAreHere": "Sei qui",
     "findingYou": "Ti sto cercando…",
     "scanningArea": "Scansione area…",
+    "noResults": "Nessun annuncio entro {{radius}} km",
+    "loadError": "Impossibile caricare i dati della mappa",
     "doubleTapHint": "Tocca due volte la mappa per ingrandire"
   },
   "tokens": {
