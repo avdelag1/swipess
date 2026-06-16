@@ -22,12 +22,18 @@ export function prefetchPassportMapModule(): Promise<void> {
   return loadPromise;
 }
 
-/** Aggressive warm — call on swipe deck mount. */
+/** Aggressive warm — call on swipe deck mount / map button press. */
 export function prefetchPassportMapImmediate(): void {
   if (typeof window === 'undefined') return;
   started = true;
   warmMapboxModules().catch(() => {});
   void resolveMapboxAccessToken();
+  prefetchCityPhotos();
+  if (!loadPromise) {
+    loadPromise = import('@/components/PassportMapModal')
+      .then(() => {})
+      .catch(() => { loadPromise = null; });
+  }
 }
 
 export function isPassportMapPrefetched(): boolean {

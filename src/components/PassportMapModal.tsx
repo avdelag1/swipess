@@ -15,9 +15,11 @@ import {
   addCinematic3DBuildings,
   applyCinematicFog,
   CINEMATIC_BEARING,
-  CINEMATIC_PITCH,
+  FLY_DURATION_OPEN_MS,
   cinematicEaseTo,
   cinematicFlyTo,
+  cinematicMaxPitchForViewport,
+  cinematicPitchForViewport,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -77,7 +79,8 @@ export const PassportMapModal = memo(() => {
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
   const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
-  const shouldWarmMap = isOpen;
+  // Mounted only when AppLayout wants a warm map — resolve token + init early.
+  const shouldWarmMap = true;
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
@@ -222,7 +225,12 @@ export const PassportMapModal = memo(() => {
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setPassportLocation(newLat, newLng, label);
     if (mapRef.current) {
-      cinematicEaseTo(mapRef.current, [newLng, newLat], zoom, { duration: 300, pitch: 62, bearing: 28 });
+      cinematicEaseTo(
+        mapRef.current,
+        [newLng, newLat],
+        zoom,
+        { duration: 300, pitch: cinematicPitchForViewport(), bearing: CINEMATIC_BEARING },
+      );
     }
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
@@ -337,7 +345,7 @@ export const PassportMapModal = memo(() => {
           mapRef.current,
           [fix.lng, fix.lat],
           opts?.zoom ?? zoomForRadiusKm(radiusKm),
-          { duration: 320, pitch: CINEMATIC_PITCH },
+          { duration: 320, pitch: cinematicPitchForViewport() },
         );
         if (opts?.announce) appToast.success('Centered on your location');
       } catch {
@@ -424,7 +432,7 @@ export const PassportMapModal = memo(() => {
         map,
         [lng, lat],
         zoom,
-        { duration: 4000, pitch: CINEMATIC_PITCH },
+        { duration: FLY_DURATION_OPEN_MS, pitch: cinematicPitchForViewport() },
       );
       initialFlyDoneRef.current = true;
       return;
@@ -438,7 +446,7 @@ export const PassportMapModal = memo(() => {
       map,
       [target.lng, target.lat],
       zoom,
-      { duration: 4000, pitch: CINEMATIC_PITCH },
+      { duration: FLY_DURATION_OPEN_MS, pitch: cinematicPitchForViewport() },
     );
     initialFlyDoneRef.current = true;
   }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps, resizeMap]);
@@ -452,15 +460,18 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
-  // Create the Mapbox instance only when the live map is visible — initializing
-  // while the genie sheet scales the host to ~0.35× (passport warm-behind) yields
-  // a blank/broken canvas that never recovers on some devices.
+  // Create Mapbox once the host is mounted. Warm-start on dashboard (hidden) so
+  // the first open is instant; still defer if the genie sheet is animating open.
   useEffect(() => {
-    if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
+    if (initStartedRef.current || !mapContainerRef.current) return;
 
     let cancelled = false;
-    setMapLoading(true);
-    setMapError(null);
+    let idleHandle: number | ReturnType<typeof setTimeout> | null = null;
+
+    const beginInit = () => {
+      if (cancelled || initStartedRef.current || !mapContainerRef.current) return;
+      if (isOpen) setMapLoading(true);
+      setMapError(null);
 
     (async () => {
       const token = await resolveMapboxAccessToken();
@@ -475,9 +486,16 @@ export const PassportMapModal = memo(() => {
       setTokenReady(true);
       initStartedRef.current = true;
 
-      const initialLng = useFilterStore.getState().userLongitude ?? -80.1918;
-      const initialLat = useFilterStore.getState().userLatitude ?? 25.7617;
-      const initialZoom = 1.5;
+      const storeLat = useFilterStore.getState().userLatitude;
+      const storeLng = useFilterStore.getState().userLongitude;
+      const deviceFix = deviceGpsRef.current;
+      const hasUserHub = !!(deviceFix || (storeLat != null && storeLng != null));
+      const hub = deviceFix ?? (storeLat != null && storeLng != null
+        ? { lat: storeLat, lng: storeLng }
+        : MAP_SEARCH_HUB);
+      const initialLng = hub.lng;
+      const initialLat = hub.lat;
+      const initialZoom = hasUserHub ? 4.5 : 2.2;
 
       try {
         const { mapboxgl } = await warmMapboxModules();
@@ -487,19 +505,20 @@ export const PassportMapModal = memo(() => {
         mapboxgl.accessToken = token;
 
         const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const flyPitch = cinematicPitchForViewport();
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,
-          pitch: isMobile ? 0 : CINEMATIC_PITCH,
-          bearing: isMobile ? 0 : CINEMATIC_BEARING,
+          pitch: flyPitch,
+          bearing: CINEMATIC_BEARING,
           attributionControl: false,
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
           doubleClickZoom: false,
-          maxPitch: isMobile ? 50 : 65,
+          maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
         });
@@ -520,7 +539,9 @@ export const PassportMapModal = memo(() => {
 
           try {
             applyCinematicFog(map, isLightRef.current);
-            if (!isMobile) addCinematic3DBuildings(map, isLightRef.current);
+            if (!isMobile) {
+              addCinematic3DBuildings(map, isLightRef.current);
+            }
           } catch {
             // Style layers can race on slow devices — map still usable without extras
           }
@@ -572,8 +593,26 @@ export const PassportMapModal = memo(() => {
         }
       }
     })();
+    };
 
-    return () => { cancelled = true; };
+    if (isOpen) {
+      beginInit();
+    } else if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleHandle = window.requestIdleCallback(() => beginInit(), { timeout: 1200 });
+    } else {
+      idleHandle = setTimeout(beginInit, 600);
+    }
+
+    return () => {
+      cancelled = true;
+      if (idleHandle != null) {
+        if (typeof idleHandle === 'number' && 'cancelIdleCallback' in window) {
+          window.cancelIdleCallback(idleHandle);
+        } else {
+          clearTimeout(idleHandle as ReturnType<typeof setTimeout>);
+        }
+      }
+    };
   }, [isOpen, resizeMap]);
 
   // Geocoder mounts after map is ready — keeps first paint fast
@@ -1140,7 +1179,7 @@ export const PassportMapModal = memo(() => {
                                 mapRef.current,
                                 [city.lng, city.lat],
                                 zoomForRadiusKm(20),
-                                { duration: 280, pitch: CINEMATIC_PITCH },
+                                { duration: 280, pitch: cinematicPitchForViewport() },
                               );
                             }
                             appToast.success(`Flying to ${city.name}`);

@@ -1,8 +1,29 @@
 import type { Map as MapboxMap } from 'mapbox-gl';
 
 /** Default "flying / plane" camera — pitched 3D view */
-export const CINEMATIC_PITCH = 58;
-export const CINEMATIC_BEARING = 22;
+export const CINEMATIC_PITCH = 60;
+export const CINEMATIC_BEARING = 25;
+/** Slightly lower pitch on phones — still feels airborne, fewer GPU spikes */
+export const CINEMATIC_PITCH_MOBILE = 52;
+/** Arc + speed for Mapbox flyTo — higher curve = more dramatic flight path */
+export const FLY_CURVE = 1.68;
+export const FLY_SPEED = 1.55;
+export const FLY_DURATION_MS = 2400;
+export const FLY_DURATION_OPEN_MS = 2000;
+export const CINEMATIC_MAX_PITCH_MOBILE = 58;
+export const CINEMATIC_MAX_PITCH_DESKTOP = 65;
+
+export function cinematicPitchForViewport(): number {
+  return typeof window !== 'undefined' && window.innerWidth < 768
+    ? CINEMATIC_PITCH_MOBILE
+    : CINEMATIC_PITCH;
+}
+
+export function cinematicMaxPitchForViewport(): number {
+  return typeof window !== 'undefined' && window.innerWidth < 768
+    ? CINEMATIC_MAX_PITCH_MOBILE
+    : CINEMATIC_MAX_PITCH_DESKTOP;
+}
 
 export function zoomForRadiusKm(km: number): number {
   // Mapbox zoom ≈ log2(circumference / radius_px). At equator,
@@ -69,14 +90,16 @@ export function cinematicFlyTo(
   map: MapboxMap,
   center: [number, number],
   zoom: number,
-  opts?: { duration?: number; bearing?: number; pitch?: number },
+  opts?: { duration?: number; bearing?: number; pitch?: number; speed?: number; curve?: number },
 ): void {
   map.flyTo({
     center,
     zoom,
     pitch: opts?.pitch ?? CINEMATIC_PITCH,
     bearing: opts?.bearing ?? CINEMATIC_BEARING,
-    duration: opts?.duration ?? 1400,
+    duration: opts?.duration ?? FLY_DURATION_MS,
+    speed: opts?.speed ?? FLY_SPEED,
+    curve: opts?.curve ?? FLY_CURVE,
     essential: true,
   });
 }
@@ -92,7 +115,7 @@ export function cinematicEaseTo(
     zoom,
     pitch: opts?.pitch ?? CINEMATIC_PITCH,
     bearing: opts?.bearing ?? map.getBearing(),
-    duration: opts?.duration ?? 400,
+    duration: opts?.duration ?? 320,
     essential: true,
   });
 }
@@ -114,7 +137,7 @@ export function incrementalDoubleTapZoom(
   map.easeTo({
     center,
     zoom: next,
-    pitch: CINEMATIC_PITCH,
+    pitch: cinematicPitchForViewport(),
     bearing: map.getBearing(),
     duration: DOUBLE_TAP_ZOOM_MS,
     easing: (t: number) => 1 - (1 - t) ** 3,

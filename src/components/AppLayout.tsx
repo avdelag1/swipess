@@ -28,6 +28,7 @@ import { hideChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReve
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
+import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 
 
 const NotificationSystem = lazyWithRetry(() =>
@@ -47,9 +48,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const modalStore = useModalStore();
   const { showAIChat, showAIListing, showAIProfile, showPassportMapModal } = modalStore;
   const [keepMapMounted, setKeepMapMounted] = useState(false);
-  useEffect(() => {
-    if (showPassportMapModal) setKeepMapMounted(true);
-  }, [showPassportMapModal]);
   const { activeMode } = useActiveMode();
   useDeepLinks();
   useProfileGpsPersist();
@@ -58,6 +56,14 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
+
+  useEffect(() => {
+    // Warm Mapbox on dashboard so first map open is instant (not after first visit).
+    if (showPassportMapModal || isSwipeDashboard) {
+      setKeepMapMounted(true);
+      if (isSwipeDashboard) prefetchPassportMapImmediate();
+    }
+  }, [showPassportMapModal, isSwipeDashboard]);
 
   // Chrome visibility policy:
   //   • Dashboard "picking phase" (no quick filter selected yet): chrome
