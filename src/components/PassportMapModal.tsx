@@ -428,7 +428,9 @@ export const PassportMapModal = memo(() => {
     opts?: { duration?: number; fly?: boolean },
   ) => {
     if (session !== mapOpenSessionRef.current) return;
-    if (userMapInteractedRef.current || selectedRef.current) return;
+    if (selectedRef.current) return;
+    // Allow the very first programmatic center to override user interaction, so we don't get stuck in space
+    if (userMapInteractedRef.current && !opts?.fly) return;
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
@@ -445,6 +447,7 @@ export const PassportMapModal = memo(() => {
 
     if (opts?.fly) {
       cinematicFlyTo(map, center, zoom, {
+        duration: duration || FLY_DURATION_OPEN_MS,
         pitch,
       });
       return;
@@ -494,7 +497,7 @@ export const PassportMapModal = memo(() => {
 
     const runCenter = (target: { lat: number; lng: number }, duration = FLY_DURATION_OPEN_MS) => {
       if (cancelled || session !== mapOpenSessionRef.current) return;
-      if (selectedRef.current || userMapInteractedRef.current || initialCenterDoneRef.current) return;
+      if (initialCenterDoneRef.current) return;
       centerMapOnTargetRef.current(target, session, { fly: true, duration });
       initialCenterDoneRef.current = true;
     };
@@ -578,10 +581,11 @@ export const PassportMapModal = memo(() => {
       const hub = deviceFix ?? (storeLat != null && storeLng != null
         ? { lat: storeLat, lng: storeLng }
         : MAP_SEARCH_HUB);
-      const initialLng = hub.lng;
-      const initialLat = hub.lat;
+      // Always start zoomed out and slightly offset to guarantee a dramatic "Google Earth" cinematic fly-in
+      const initialLng = (hub?.lng ?? MAP_SEARCH_HUB.lng) + 0.15;
+      const initialLat = (hub?.lat ?? MAP_SEARCH_HUB.lat) - 0.15;
       const storeRadius = useFilterStore.getState().radiusKm;
-      const initialZoom = 2.2; // Always start zoomed out to guarantee a dramatic "Google Earth" cinematic fly-in to the user's street
+      const initialZoom = 2.2; 
 
       try {
         const { mapboxgl } = await warmMapboxModules();
@@ -603,7 +607,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
-          doubleClickZoom: false,
+          doubleClickZoom: true,
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
@@ -662,50 +666,8 @@ export const PassportMapModal = memo(() => {
           }
         });
 
-        // Double-tap zoom: use raw touchend on the map container for mobile
-        // (canvas touch-action can suppress events on iOS PWA) + dblclick for desktop.
-        let lastTapTime = 0;
-        let lastTapX = 0;
-        let lastTapY = 0;
-        const mapContainer = map.getContainer();
-        const handleDoubleTapZoom = (lngLat: [number, number]) => {
-          if (!useModalStore.getState().showPassportMapModal) return;
-          const now = Date.now();
-          if (now - lastDoubleTapZoomAtRef.current < 150) return;
-          if (incrementalDoubleTapZoom(map, lngLat)) {
-            lastDoubleTapZoomAtRef.current = now;
-            markUserMapControlRef.current();
-            triggerHaptic('light');
-          }
-        };
-
-        // Mobile: detect double-tap via touchend pairs on the container
-        mapContainer.addEventListener('touchend', (e) => {
-          if (e.touches.length > 0) return; // multi-finger
-          const touch = e.changedTouches[0];
-          if (!touch) return;
-          const now = Date.now();
-          const dx = Math.abs(touch.clientX - lastTapX);
-          const dy = Math.abs(touch.clientY - lastTapY);
-          if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
-            e.preventDefault();
-            e.stopPropagation();
-            const rect = canvas.getBoundingClientRect();
-            const point = map.unproject([touch.clientX - rect.left, touch.clientY - rect.top]);
-            handleDoubleTapZoom([point.lng, point.lat]);
-            lastTapTime = 0; // reset so triple-tap doesn't fire again
-          } else {
-            lastTapTime = now;
-            lastTapX = touch.clientX;
-            lastTapY = touch.clientY;
-          }
-        }, { passive: false, capture: true });
-
-        // Desktop: native dblclick
-        map.on('dblclick', (e) => {
-          e.preventDefault();
-          handleDoubleTapZoom([e.lngLat.lng, e.lngLat.lat]);
-        });
+        // Desktop: native dblclick (Mapbox also natively handles touch double-tap via doubleClickZoom)
+        // No custom listener needed for double-tap zoom anymore!
 
         unbindLongPressRef.current?.();
         unbindLongPressRef.current = bindMapLongPress(map, {
@@ -1199,12 +1161,12 @@ export const PassportMapModal = memo(() => {
                       type="button"
                       data-no-cinematic
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
-                      className="map-hud-btn shrink-0 w-[32px] h-[32px] flex items-center justify-center text-white z-20 hover:text-white transition-all"
+                      className="absolute left-[1px] top-[1px] w-[32px] h-[32px] flex items-center justify-center text-white z-20 hover:text-white transition-all"
                       aria-label="Search location"
                     >
                       <Search className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.5} />
                     </button>
-                    <div className={cn('flex-1 h-full relative flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+                    <div className={cn('flex-1 h-full relative flex items-center transition-opacity duration-200 z-10', isSearchOpen ? 'opacity-100 pl-[34px]' : 'opacity-0 pointer-events-none')}>
                       <div
                         ref={geocoderContainerRef}
                         className={cn(
