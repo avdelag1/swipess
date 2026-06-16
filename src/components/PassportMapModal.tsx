@@ -96,6 +96,8 @@ export const PassportMapModal = memo(() => {
     marker: import('mapbox-gl').Marker;
     el: HTMLDivElement;
     cleanup: () => void;
+    pinType: 'listing' | 'profile';
+    pinId: string;
   }>>(new Map());
   const unbindMapDoubleTapRef = useRef<(() => void) | null>(null);
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
@@ -105,11 +107,16 @@ export const PassportMapModal = memo(() => {
   const initialFlyDoneRef = useRef(false);
   const openedOnceRef = useRef(false);
   const lastDoubleTapZoomAtRef = useRef(0);
+  const markerSyncRafRef = useRef<number | null>(null);
+  const deviceGpsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const lastGpsStateAtRef = useRef(0);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
 
   const [deviceGps, setDeviceGps] = useState<{ lat: number; lng: number } | null>(null);
   const [selected, setSelected] = useState<SelectedPin | null>(null);
+  const selectedRef = useRef<SelectedPin | null>(null);
+  selectedRef.current = selected;
   const [layerFilter, setLayerFilter] = useState<MapLayerFilter>('all');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [mapReady, setMapReady] = useState(false);
@@ -204,7 +211,7 @@ export const PassportMapModal = memo(() => {
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setPassportLocation(newLat, newLng, label);
     if (mapRef.current) {
-      cinematicFlyTo(mapRef.current, [newLng, newLat], zoom, { duration: 900, pitch: 62, bearing: 28 });
+      cinematicEaseTo(mapRef.current, [newLng, newLat], zoom, { duration: 300, pitch: 62, bearing: 28 });
     }
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
@@ -308,11 +315,11 @@ export const PassportMapModal = memo(() => {
 
         if (!fix || !mapRef.current) return;
 
-        cinematicFlyTo(
+        cinematicEaseTo(
           mapRef.current,
           [fix.lng, fix.lat],
           opts?.zoom ?? zoomForRadiusKm(radiusKm),
-          { duration: 1100, pitch: CINEMATIC_PITCH },
+          { duration: 320, pitch: CINEMATIC_PITCH },
         );
         if (opts?.announce) appToast.success('Centered on your location');
       } catch {
@@ -341,7 +348,9 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!isOpen || deviceGps) return;
     if (lat != null && lng != null && !passportMode) {
-      setDeviceGps({ lat, lng });
+      const fix = { lat, lng };
+      deviceGpsRef.current = fix;
+      setDeviceGps(fix);
     }
   }, [isOpen, lat, lng, passportMode, deviceGps]);
 
@@ -366,6 +375,7 @@ export const PassportMapModal = memo(() => {
         });
         if (cancelled) return;
         const fix = { lat: latitude, lng: longitude };
+        deviceGpsRef.current = fix;
         setDeviceGps(fix);
         setUserLocation(latitude, longitude);
       } catch {
@@ -380,37 +390,40 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen, passportMode, setUserLocation]);
 
-  // Fly the camera once per open — passport destination or your GPS.
+  // Snap camera once on first open — reopen is instant (map stays warm).
   useEffect(() => {
-    if (!isOpen) {
-      initialFlyDoneRef.current = false;
+    if (!isOpen || !mapReady || !mapRef.current) return;
+    if (initialFlyDoneRef.current) {
+      resizeMap();
       return;
     }
-    if (!mapReady || !mapRef.current || initialFlyDoneRef.current) return;
+
+    const map = mapRef.current;
+    const zoom = zoomForRadiusKm(radiusKm);
 
     if (passportMode && lat != null && lng != null) {
       cinematicFlyTo(
-        mapRef.current,
+        map,
         [lng, lat],
-        zoomForRadiusKm(radiusKm),
-        { duration: 3500, pitch: CINEMATIC_PITCH },
+        zoom,
+        { duration: 4000, pitch: CINEMATIC_PITCH },
       );
       initialFlyDoneRef.current = true;
       return;
     }
 
-    const target = deviceGps
+    const target = deviceGpsRef.current ?? deviceGps
       ?? (lat != null && lng != null ? { lat, lng } : null);
     if (!target) return;
 
     cinematicFlyTo(
-      mapRef.current,
+      map,
       [target.lng, target.lat],
-      zoomForRadiusKm(radiusKm),
-      { duration: 3500, pitch: CINEMATIC_PITCH },
+      zoom,
+      { duration: 4000, pitch: CINEMATIC_PITCH },
     );
     initialFlyDoneRef.current = true;
-  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps]);
+  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps, resizeMap]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -455,18 +468,22 @@ export const PassportMapModal = memo(() => {
         mapboxRef.current = mapboxgl;
         mapboxgl.accessToken = token;
 
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,
-          pitch: CINEMATIC_PITCH,
-          bearing: CINEMATIC_BEARING,
+          pitch: isMobile ? 0 : CINEMATIC_PITCH,
+          bearing: isMobile ? 0 : CINEMATIC_BEARING,
           attributionControl: false,
           fadeDuration: 0,
-          antialias: true,
-          projection: 'globe' as any,
+          antialias: !isMobile,
+          projection: 'mercator',
           doubleClickZoom: true,
+          maxPitch: isMobile ? 50 : 65,
+          refreshExpiredTiles: false,
+          trackResize: true,
         });
 
         map.touchZoomRotate.enableRotation();
@@ -475,22 +492,18 @@ export const PassportMapModal = memo(() => {
         map.on('load', () => {
           if (cancelled) return;
 
-          applyCinematicFog(map, isLightRef.current);
-          addCinematic3DBuildings(map, isLightRef.current);
+          try {
+            applyCinematicFog(map, isLightRef.current);
+            if (!isMobile) addCinematic3DBuildings(map, isLightRef.current);
+          } catch {
+            // Style layers can race on slow devices — map still usable without extras
+          }
 
           requestAnimationFrame(() => {
             resizeMap();
             setMapReady(true);
             setMapLoading(false);
 
-            // Trigger beautiful initial world-to-GPS swoop
-            if (canGeolocate() && useFilterStore.getState().userLatitude != null) {
-              setTimeout(() => {
-                const mapInstance = mapRef.current;
-                if (!mapInstance) return;
-                cinematicFlyTo(mapInstance, [initialLng, initialLat], zoomForRadiusKm(useFilterStore.getState().radiusKm), { duration: 5500, pitch: CINEMATIC_PITCH, bearing: CINEMATIC_BEARING });
-              }, 400);
-            }
           });
         });
 
@@ -592,30 +605,44 @@ export const PassportMapModal = memo(() => {
   }, []);
 
   useEffect(() => {
-    if (!isOpen) {
-      openedOnceRef.current = false;
-      return;
-    }
-    if (!mapRef.current) return;
-    resizeMap();
-    requestAnimationFrame(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) return;
+
+    const canvas = map.getCanvas();
+    if (isOpen) {
+      canvas.style.visibility = 'visible';
       resizeMap();
-      requestAnimationFrame(resizeMap);
-    });
-    const t = window.setTimeout(resizeMap, 120);
-    if (!openedOnceRef.current) openedOnceRef.current = true;
-    return () => window.clearTimeout(t);
+      requestAnimationFrame(() => {
+        resizeMap();
+        requestAnimationFrame(resizeMap);
+      });
+      const t = window.setTimeout(resizeMap, 80);
+      if (!openedOnceRef.current) openedOnceRef.current = true;
+      return () => window.clearTimeout(t);
+    }
+
+    canvas.style.visibility = 'hidden';
+    setSelected(null);
+    openedOnceRef.current = false;
+    return undefined;
   }, [isOpen, resizeMap, mapReady]);
 
-  // Live GPS dot — tracks your real device position
-  useEffect(() => {
+  const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {
     const map = mapRef.current;
-    if (!map || !mapReady || !deviceGps) return;
+    if (!map || !mapReady || !map.isStyleLoaded()) return;
+    try {
+      syncUserGpsDotOnMap(map, fix.lng, fix.lat);
+    } catch {
+      // Map can be mid-style-load during rapid open/close
+    }
+  }, [mapReady]);
 
-    const apply = () => syncUserGpsDotOnMap(map, deviceGps.lng, deviceGps.lat);
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
-  }, [mapReady, deviceGps]);
+  // Live GPS dot — tracks your real device position (ref-driven for smooth updates)
+  useEffect(() => {
+    if (!deviceGps) return;
+    deviceGpsRef.current = deviceGps;
+    applyDeviceGpsToMap(deviceGps);
+  }, [deviceGps, applyDeviceGpsToMap]);
 
   // Keep GPS fresh while the map is open
   useEffect(() => {
@@ -627,8 +654,16 @@ export const PassportMapModal = memo(() => {
 
     const applyFix = (latitude: number, longitude: number) => {
       if (cleared) return;
-      setDeviceGps({ lat: latitude, lng: longitude });
-      if (!passportMode) setUserLocation(latitude, longitude);
+      const fix = { lat: latitude, lng: longitude };
+      deviceGpsRef.current = fix;
+      applyDeviceGpsToMap(fix);
+
+      const now = Date.now();
+      if (now - lastGpsStateAtRef.current > 2500) {
+        lastGpsStateAtRef.current = now;
+        setDeviceGps(fix);
+        if (!passportMode) setUserLocation(latitude, longitude);
+      }
     };
 
     if (Capacitor.isNativePlatform()) {
@@ -652,36 +687,45 @@ export const PassportMapModal = memo(() => {
       if (webWatchId != null) navigator.geolocation.clearWatch(webWatchId);
       if (nativeWatchId != null) void Geolocation.clearWatch({ id: nativeWatchId });
     };
-  }, [isOpen, passportMode, setUserLocation]);
+  }, [isOpen, passportMode, setUserLocation, applyDeviceGpsToMap]);
 
   // Live radius circle around you (or passport explore target)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady || !radiusCenter) return;
+    if (!map || !mapReady || !radiusCenter || !isOpen) return;
 
-    const apply = () => syncRadiusCircleOnMap(
-      map,
-      radiusCenter.lng,
-      radiusCenter.lat,
-      radiusKm,
-      { showCenterDot: false },
-    );
+    const apply = () => {
+      if (!map.isStyleLoaded()) return;
+      try {
+        syncRadiusCircleOnMap(
+          map,
+          radiusCenter.lng,
+          radiusCenter.lat,
+          radiusKm,
+          { showCenterDot: false },
+        );
+      } catch {
+        // Style can still be loading on first paint
+      }
+    };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [mapReady, radiusCenter, radiusKm]);
+  }, [mapReady, radiusCenter, radiusKm, isOpen]);
 
-  useEffect(() => {
+  const syncMarkers = useCallback(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
+    if (!mapRef.current.isStyleLoaded()) return;
 
     const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
     const registry = markersRef.current;
     const nextKeys = new Set<string>();
+    const sel = selectedRef.current;
 
     const upsertListing = (l: (typeof visibleListings)[number]) => {
       const key = `listing:${l.id}`;
       nextKeys.add(key);
-      const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
+      const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
       const existing = registry.get(key);
 
       if (existing) {
@@ -710,13 +754,13 @@ export const PassportMapModal = memo(() => {
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([l.lng, l.lat])
         .addTo(map);
-      registry.set(key, { marker, el, cleanup });
+      registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
     };
 
     const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
       const key = `profile:${p.id}`;
       nextKeys.add(key);
-      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
+      const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
       const existing = registry.get(key);
 
       if (existing) {
@@ -745,7 +789,7 @@ export const PassportMapModal = memo(() => {
       const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([p.lng, p.lat])
         .addTo(map);
-      registry.set(key, { marker, el, cleanup });
+      registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
     };
 
     visibleListings.forEach(upsertListing);
@@ -758,7 +802,38 @@ export const PassportMapModal = memo(() => {
         registry.delete(key);
       }
     }
-  }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
+  }, [visibleListings, visibleProfiles, mapReady, isOpen, focusPin]);
+
+  useEffect(() => {
+    if (!isOpen || !mapReady) return;
+    if (markerSyncRafRef.current != null) cancelAnimationFrame(markerSyncRafRef.current);
+    markerSyncRafRef.current = requestAnimationFrame(() => {
+      markerSyncRafRef.current = null;
+      syncMarkers();
+    });
+    return () => {
+      if (markerSyncRafRef.current != null) cancelAnimationFrame(markerSyncRafRef.current);
+    };
+  }, [syncMarkers, isOpen, mapReady]);
+
+  // Selection highlight only — avoids rebuilding every marker on tap
+  useEffect(() => {
+    if (!mapReady || !isOpen) return;
+    const registry = markersRef.current;
+    const listingsById = new Map(visibleListings.map(l => [l.id, l]));
+    const profilesById = new Map(visibleProfiles.map(p => [p.id, p]));
+
+    for (const entry of registry.values()) {
+      const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
+      if (entry.pinType === 'listing') {
+        const listing = listingsById.get(entry.pinId);
+        if (listing) updateListingMarkerEl(entry.el, listing, isSelected);
+      } else {
+        const profile = profilesById.get(entry.pinId);
+        if (profile) updateProfileMarkerEl(entry.el, profile, isSelected);
+      }
+    }
+  }, [selected, mapReady, isOpen, visibleListings, visibleProfiles]);
 
   const mapboxReady = tokenReady;
 
@@ -1017,11 +1092,11 @@ export const PassportMapModal = memo(() => {
                             setPassportLocation(city.lat, city.lng, `${city.name}`);
                             setRadiusKm(20);
                             if (mapRef.current) {
-                              cinematicFlyTo(
+                              cinematicEaseTo(
                                 mapRef.current,
                                 [city.lng, city.lat],
                                 zoomForRadiusKm(20),
-                                { duration: 520, pitch: CINEMATIC_PITCH },
+                                { duration: 280, pitch: CINEMATIC_PITCH },
                               );
                             }
                             appToast.success(`Flying to ${city.name}`);
