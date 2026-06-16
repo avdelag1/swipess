@@ -127,6 +127,7 @@ export const PassportMapModal = memo(() => {
   const initStartedRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
   const userMapInteractedRef = useRef(false);
+  const suppressMapInteractionRef = useRef(false);
   const unbindLongPressRef = useRef<(() => void) | null>(null);
   const unbindInteractionRef = useRef<(() => void) | null>(null);
   const openedOnceRef = useRef(false);
@@ -462,6 +463,11 @@ export const PassportMapModal = memo(() => {
 
     const duration = opts?.duration ?? OPEN_CENTER_MS;
 
+    suppressMapInteractionRef.current = true;
+    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
+    map.once('moveend', releaseSuppress);
+    window.setTimeout(releaseSuppress, (duration || FLY_DURATION_OPEN_MS) + 120);
+
     if (opts?.fly) {
       cinematicFlyTo(map, center, zoom, {
         duration: duration || FLY_DURATION_OPEN_MS,
@@ -472,6 +478,7 @@ export const PassportMapModal = memo(() => {
 
     if (duration <= 0) {
       map.jumpTo({ center, zoom, pitch, bearing: map.getBearing() });
+      releaseSuppress();
       return;
     }
 
@@ -497,12 +504,6 @@ export const PassportMapModal = memo(() => {
       return () => { cancelled = true; };
     }
 
-    const anchor = searchAnchor;
-    if (anchor) {
-      if (mapReady) runCenter(anchor, OPEN_CENTER_MS, true);
-      return () => { cancelled = true; };
-    }
-
     if (!canGeolocate()) return () => { cancelled = true; };
 
     setGpsLoading(true);
@@ -512,24 +513,20 @@ export const PassportMapModal = memo(() => {
       ? { lat: userLatitude, lng: userLongitude }
       : null;
     const initial = cached ?? storeFix;
-    if (initial && mapReady) runCenter(initial, 0, true);
+    if (initial && mapReady) runCenter(initial, OPEN_CENTER_MS, true);
 
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || passportMode) return;
       applyGpsFix(fix);
-      if (!userMapInteractedRef.current && !useFilterStore.getState().passportMode) {
-        runCenter(fix, OPEN_CENTER_MS, true);
-      }
+      runCenter(fix, OPEN_CENTER_MS, true);
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
 
     return () => { cancelled = true; };
-    // Only re-run when the map opens — not when searchAnchor/GPS updates mid-session.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, passportMode, centerMapOnTarget, applyGpsFix, mapReady]);
+  }, [isOpen, passportMode, lat, lng, centerMapOnTarget, applyGpsFix, mapReady]);
 
-  // Map becomes ready while open — one-time snap only at open.
+  // Map becomes ready while open — fly to GPS immediately (handles warm-start race).
   useEffect(() => {
     if (!isOpen || !mapReady || userMapInteractedRef.current) return;
     const session = mapOpenSessionRef.current;
@@ -537,13 +534,9 @@ export const PassportMapModal = memo(() => {
       centerMapOnTarget({ lat, lng }, session, { fly: true, duration: FLY_DURATION_OPEN_MS, force: true });
       return;
     }
-    if (searchAnchor) {
-      centerMapOnTarget(searchAnchor, session, { duration: 0, force: true });
-      return;
-    }
     const fix = deviceGpsRef.current ?? getCachedGpsFix();
-    if (fix) centerMapOnTarget(fix, session, { duration: 0, force: true });
-  }, [mapReady]);
+    if (fix) centerMapOnTarget(fix, session, { duration: OPEN_CENTER_MS, force: true });
+  }, [mapReady, isOpen, passportMode, lat, lng, centerMapOnTarget]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -648,13 +641,16 @@ export const PassportMapModal = memo(() => {
             if (fix && mapOpen && !pm) {
               try {
                 syncUserGpsDotOnMap(map, fix.lng, fix.lat);
+                suppressMapInteractionRef.current = true;
                 map.jumpTo({
                   center: [fix.lng, fix.lat],
                   zoom: zoomForRadiusKm(rKm),
                   pitch: cinematicPitchForViewport(),
                   bearing: CINEMATIC_BEARING,
                 });
+                suppressMapInteractionRef.current = false;
               } catch {
+                suppressMapInteractionRef.current = false;
                 // Style layers can race on slow devices
               }
             }
@@ -689,6 +685,7 @@ export const PassportMapModal = memo(() => {
 
         unbindInteractionRef.current?.();
         unbindInteractionRef.current = bindMapInteractionTracking(map, () => {
+          if (suppressMapInteractionRef.current) return;
           userMapInteractedRef.current = true;
         });
 
@@ -1241,17 +1238,16 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
-        {/* Slim km pill — right side, lifts when city strip is open */}
+        {/* Floating km radius pill — bottom left, lifts when city strip is open */}
         {isOpen && !selected && (
           <div
-            className="absolute right-3 z-[45] pointer-events-auto max-w-[calc(100%-1.5rem)]"
+            className="absolute left-3 z-[45] pointer-events-auto"
             style={{
               bottom: `calc(env(safe-area-inset-bottom, 0px) + ${hudExpanded && activeDrawer === 'cities' ? 92 : 20}px)`,
             }}
           >
             <LocationRadiusSelector
               surface="map"
-              compact
               radiusKm={radiusKm}
               onRadiusChange={setRadiusKm}
               onDetectLocation={handleGPS}
@@ -1278,11 +1274,11 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full pointer-events-auto mb-4 pr-24"
+                className="w-full pointer-events-auto mb-4"
               >
-                {/* City quick-filter strip — pr-24 keeps clear of km pill on the right */}
+                {/* City quick-filter strip */}
                 <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-                  <div className="flex items-center gap-2.5 pl-4 pr-2 py-1.5">
+                  <div className="flex items-center gap-2.5 px-4 py-1.5">
                     {PASSPORT_QUICK_CITIES.map((city) => {
                       const isActive = passportMode && passportLabel?.includes(city.name);
                       return (
