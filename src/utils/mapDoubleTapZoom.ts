@@ -3,6 +3,8 @@ import { incrementalDoubleTapZoom } from '@/utils/mapCinematicCamera';
 
 export const MAP_DOUBLE_TAP_WINDOW_MS = 450;
 export const MAP_DOUBLE_TAP_SLOP_PX = 72;
+export const MAP_LONG_PRESS_MS = 1000;
+export const MAP_LONG_PRESS_MOVE_SLOP = 14;
 
 export type MapTapPoint = { time: number; x: number; y: number };
 
@@ -100,6 +102,80 @@ export function bindMapDoubleTapZoom(
   return () => {
     clearSingleTap();
     canvas.removeEventListener('pointerup', onPointerUp, { capture: true });
+  };
+}
+
+/** 1s press on empty map → relocate search center to that point. */
+export function bindMapLongPress(
+  map: MapboxMap,
+  opts: {
+    isActive: () => boolean;
+    onLongPress: (lng: number, lat: number) => void;
+    durationMs?: number;
+  },
+): () => void {
+  const canvas = map.getCanvas();
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let startX = 0;
+  let startY = 0;
+
+  const clearTimer = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+
+  const onPointerDown = (e: PointerEvent) => {
+    if (!opts.isActive() || e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    clearTimer();
+    timer = setTimeout(() => {
+      timer = null;
+      const [lng, lat] = lngLatFromMapClientPoint(map, e.clientX, e.clientY);
+      opts.onLongPress(lng, lat);
+    }, opts.durationMs ?? MAP_LONG_PRESS_MS);
+  };
+
+  const onPointerMove = (e: PointerEvent) => {
+    if (Math.hypot(e.clientX - startX, e.clientY - startY) > MAP_LONG_PRESS_MOVE_SLOP) {
+      clearTimer();
+    }
+  };
+
+  const onPointerUp = () => clearTimer();
+
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('pointercancel', onPointerUp);
+
+  return () => {
+    clearTimer();
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('pointermove', onPointerMove);
+    canvas.removeEventListener('pointerup', onPointerUp);
+    canvas.removeEventListener('pointercancel', onPointerUp);
+  };
+}
+
+export function bindMapInteractionTracking(
+  map: MapboxMap,
+  onUserInteract: () => void,
+): () => void {
+  const mark = () => onUserInteract();
+  map.on('dragstart', mark);
+  map.on('zoomstart', mark);
+  map.on('rotatestart', mark);
+  map.on('pitchstart', mark);
+  map.on('wheel', mark);
+  return () => {
+    map.off('dragstart', mark);
+    map.off('zoomstart', mark);
+    map.off('rotatestart', mark);
+    map.off('pitchstart', mark);
+    map.off('wheel', mark);
   };
 }
 

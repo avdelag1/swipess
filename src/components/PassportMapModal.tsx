@@ -35,7 +35,12 @@ import {
   type MapLayerFilter,
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
-import { bindMapDoubleTapZoom, bindMarkerGestures } from '@/utils/mapDoubleTapZoom';
+import {
+  bindMapDoubleTapZoom,
+  bindMapInteractionTracking,
+  bindMapLongPress,
+  bindMarkerGestures,
+} from '@/utils/mapDoubleTapZoom';
 import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { useAuth } from '@/hooks/useAuth';
 import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
@@ -121,6 +126,9 @@ export const PassportMapModal = memo(() => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
+  const userMapInteractedRef = useRef(false);
+  const unbindLongPressRef = useRef<(() => void) | null>(null);
+  const unbindInteractionRef = useRef<(() => void) | null>(null);
   const openedOnceRef = useRef(false);
   const lastDoubleTapZoomAtRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
@@ -144,6 +152,7 @@ export const PassportMapModal = memo(() => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [hudExpanded, setHudExpanded] = useState(false);
   const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
+  const [searchAnchor, setSearchAnchor] = useState<{ lat: number; lng: number } | null>(null);
   const [previewPlacement, setPreviewPlacement] = useState<MapPinPreviewPlacement | null>(null);
   const mapHudRef = useRef<HTMLDivElement>(null);
 
@@ -156,6 +165,10 @@ export const PassportMapModal = memo(() => {
   }, [isOpen]);
 
   useEffect(() => {
+    if (activeDrawer === 'cities') setRadiusHudExpanded(false);
+  }, [activeDrawer]);
+
+  useEffect(() => {
     if (!isOpen) return;
     if (passportMapShowCities) {
       setActiveDrawer('cities');
@@ -163,13 +176,14 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, passportMapShowCities, clearPassportMapFlags]);
 
-  /** Search zone center — never fall back to Tulum for the circle (only API uses hub). */
+  /** Search zone center — long-press anchor beats GPS for the radius circle. */
   const radiusCenter = useMemo(() => {
     if (passportMode && lat != null && lng != null) return { lat, lng };
+    if (searchAnchor) return searchAnchor;
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
     return null;
-  }, [passportMode, lat, lng, deviceGps]);
+  }, [passportMode, lat, lng, deviceGps, searchAnchor]);
 
   const searchCoords = useMemo(() => {
     if (!isOpen) return null;
@@ -220,19 +234,20 @@ export const PassportMapModal = memo(() => {
   radiusCenterRef.current = radiusCenter;
   const prevRadiusKmRef = useRef(radiusKm);
 
-  // Frame circle only when user changes radius — keeps 3D pitch, never fights GPS pan/zoom
+  // Frame circle when user changes radius slider — preserve their pan if they moved the map.
   useEffect(() => {
     if (!isOpen || !mapReady || !mapRef.current) return;
     if (prevRadiusKmRef.current === radiusKm) return;
     prevRadiusKmRef.current = radiusKm;
+    const map = mapRef.current;
+    if (userMapInteractedRef.current) {
+      const c = map.getCenter();
+      cinematicEaseTo(map, [c.lng, c.lat], zoomForRadiusKm(radiusKm), { duration: 200 });
+      return;
+    }
     const center = radiusCenterRef.current;
     if (!center) return;
-    cinematicEaseTo(
-      mapRef.current,
-      [center.lng, center.lat],
-      zoomForRadiusKm(radiusKm),
-      { duration: 200 },
-    );
+    cinematicEaseTo(map, [center.lng, center.lat], zoomForRadiusKm(radiusKm), { duration: 200 });
   }, [radiusKm, isOpen, mapReady]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
@@ -375,9 +390,32 @@ export const PassportMapModal = memo(() => {
 
   const handleGPS = useCallback(() => {
     triggerHaptic('medium');
+    setSearchAnchor(null);
     clearPassportLocation();
+    userMapInteractedRef.current = false;
     centerOnDeviceGps({ zoom: zoomForRadiusKm(radiusKm), refresh: true, announce: true });
   }, [centerOnDeviceGps, radiusKm, clearPassportLocation]);
+
+  const relocateSearchTo = useCallback((lng: number, lat: number) => {
+    triggerHaptic('heavy');
+    setSearchAnchor({ lat, lng });
+    clearPassportLocation();
+    setUserLocation(lat, lng);
+    userMapInteractedRef.current = false;
+    const map = mapRef.current;
+    if (map?.isStyleLoaded()) {
+      cinematicEaseTo(
+        map,
+        [lng, lat],
+        zoomForRadiusKm(radiusKm),
+        { duration: OPEN_CENTER_MS, pitch: cinematicPitchForViewport() },
+      );
+    }
+    appToast.success('Search area moved here — 1s press anywhere');
+  }, [clearPassportLocation, setUserLocation, radiusKm]);
+
+  const relocateSearchRef = useRef(relocateSearchTo);
+  relocateSearchRef.current = relocateSearchTo;
 
   const resizeMap = useCallback(() => {
     requestAnimationFrame(() => mapRef.current?.resize());
@@ -411,9 +449,10 @@ export const PassportMapModal = memo(() => {
   const centerMapOnTarget = useCallback((
     target: { lat: number; lng: number },
     session: number,
-    opts?: { duration?: number; fly?: boolean },
+    opts?: { duration?: number; fly?: boolean; force?: boolean },
   ) => {
     if (session !== mapOpenSessionRef.current) return;
+    if (!opts?.force && userMapInteractedRef.current) return;
     const map = mapRef.current;
     if (!map || !mapReady) return;
 
@@ -439,21 +478,28 @@ export const PassportMapModal = memo(() => {
     cinematicEaseTo(map, center, zoom, { duration, pitch });
   }, [mapReady, radiusKm]);
 
-  // Every map open: fast center on user + fresh GPS (session-guarded, no stale races).
+  // Every map open: center once on user — never fight pan/zoom after that.
   useEffect(() => {
     if (!isOpen) return;
 
     mapOpenSessionRef.current += 1;
+    userMapInteractedRef.current = false;
     const session = mapOpenSessionRef.current;
     let cancelled = false;
 
-    const runCenter = (target: { lat: number; lng: number }, duration = OPEN_CENTER_MS) => {
+    const runCenter = (target: { lat: number; lng: number }, duration = OPEN_CENTER_MS, force = false) => {
       if (cancelled || session !== mapOpenSessionRef.current) return;
-      centerMapOnTarget(target, session, { duration });
+      centerMapOnTarget(target, session, { duration, force });
     };
 
     if (passportMode && lat != null && lng != null) {
-      if (mapReady) runCenter({ lat, lng }, FLY_DURATION_OPEN_MS);
+      if (mapReady) runCenter({ lat, lng }, FLY_DURATION_OPEN_MS, true);
+      return () => { cancelled = true; };
+    }
+
+    const anchor = searchAnchor;
+    if (anchor) {
+      if (mapReady) runCenter(anchor, OPEN_CENTER_MS, true);
       return () => { cancelled = true; };
     }
 
@@ -461,31 +507,43 @@ export const PassportMapModal = memo(() => {
 
     setGpsLoading(true);
     const cached = getCachedGpsFix();
-    if (cached) runCenter(cached, 0);
-    else if (lat != null && lng != null) runCenter({ lat, lng }, 0);
+    const { userLatitude, userLongitude } = useFilterStore.getState();
+    const storeFix = userLatitude != null && userLongitude != null
+      ? { lat: userLatitude, lng: userLongitude }
+      : null;
+    const initial = cached ?? storeFix;
+    if (initial && mapReady) runCenter(initial, 0, true);
 
     void prefetchUserGps({ maximumAge: 5_000 }).then((fix) => {
       if (cancelled || !fix || passportMode) return;
       applyGpsFix(fix);
-      runCenter(fix, OPEN_CENTER_MS);
+      if (!userMapInteractedRef.current && !useFilterStore.getState().passportMode) {
+        runCenter(fix, OPEN_CENTER_MS, true);
+      }
     }).finally(() => {
       if (!cancelled) setGpsLoading(false);
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, passportMode, centerMapOnTarget, applyGpsFix]);
+    // Only re-run when the map opens — not when searchAnchor/GPS updates mid-session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, passportMode, centerMapOnTarget, applyGpsFix, mapReady]);
 
-  // Map becomes ready while open — snap immediately (no waiting for another interaction).
+  // Map becomes ready while open — one-time snap only at open.
   useEffect(() => {
-    if (!isOpen || !mapReady) return;
+    if (!isOpen || !mapReady || userMapInteractedRef.current) return;
     const session = mapOpenSessionRef.current;
     if (passportMode && lat != null && lng != null) {
-      centerMapOnTarget({ lat, lng }, session, { fly: true, duration: FLY_DURATION_OPEN_MS });
+      centerMapOnTarget({ lat, lng }, session, { fly: true, duration: FLY_DURATION_OPEN_MS, force: true });
+      return;
+    }
+    if (searchAnchor) {
+      centerMapOnTarget(searchAnchor, session, { duration: 0, force: true });
       return;
     }
     const fix = deviceGpsRef.current ?? getCachedGpsFix();
-    if (fix) centerMapOnTarget(fix, session, { duration: 0 });
-  }, [mapReady, isOpen, passportMode, lat, lng, centerMapOnTarget]);
+    if (fix) centerMapOnTarget(fix, session, { duration: 0, force: true });
+  }, [mapReady]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -623,6 +681,22 @@ export const PassportMapModal = memo(() => {
           onZoom: () => triggerHaptic('light'),
         });
 
+        unbindLongPressRef.current?.();
+        unbindLongPressRef.current = bindMapLongPress(map, {
+          isActive: () => useModalStore.getState().showPassportMapModal,
+          onLongPress: (lng, lat) => relocateSearchRef.current(lng, lat),
+        });
+
+        unbindInteractionRef.current?.();
+        unbindInteractionRef.current = bindMapInteractionTracking(map, () => {
+          userMapInteractedRef.current = true;
+        });
+
+        map.scrollZoom.enable();
+        map.dragPan.enable();
+        map.touchZoomRotate.enable();
+        map.touchPitch.enable();
+
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
@@ -701,6 +775,10 @@ export const PassportMapModal = memo(() => {
   }, [isOpen, mapReady, deviceGps, lat, lng]);
 
   useEffect(() => () => {
+    unbindLongPressRef.current?.();
+    unbindLongPressRef.current = null;
+    unbindInteractionRef.current?.();
+    unbindInteractionRef.current = null;
     unbindMapDoubleTapRef.current?.();
     unbindMapDoubleTapRef.current = null;
     resizeObserverRef.current?.disconnect();
@@ -731,14 +809,6 @@ export const PassportMapModal = memo(() => {
       });
       const t = window.setTimeout(resizeMap, 80);
       if (!openedOnceRef.current) openedOnceRef.current = true;
-
-      if (!passportMode) {
-        const fix = deviceGpsRef.current ?? getCachedGpsFix();
-        if (fix) {
-          centerMapOnTarget(fix, mapOpenSessionRef.current, { duration: 0 });
-        }
-      }
-
       return () => window.clearTimeout(t);
     }
 
@@ -746,7 +816,7 @@ export const PassportMapModal = memo(() => {
     clearPinPreview();
     openedOnceRef.current = false;
     return undefined;
-  }, [isOpen, resizeMap, mapReady, passportMode, centerMapOnTarget]);
+  }, [isOpen, resizeMap, mapReady]);
 
   const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {
     const map = mapRef.current;
@@ -976,14 +1046,14 @@ export const PassportMapModal = memo(() => {
     >
       <div
         data-map-surface
-        className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden select-none touch-none"
-        style={{ touchAction: 'none', overscrollBehavior: 'none' }}
+        className="absolute inset-0 w-full h-full bg-[#0a0a12] overflow-hidden select-none"
+        style={{ overscrollBehavior: 'none' }}
       >
         <div
           ref={mapContainerRef}
           data-map-surface
-          className="absolute inset-0 w-full h-full select-none touch-none"
-          style={{ touchAction: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
+          className="absolute inset-0 w-full h-full select-none"
+          style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
         />
 
         {isOpen && (
@@ -1171,14 +1241,17 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
-        {/* Floating km radius pill — always visible, tap to expand slider */}
+        {/* Slim km pill — right side, lifts when city strip is open */}
         {isOpen && !selected && (
           <div
-            className="absolute left-3 z-[45] pointer-events-auto"
-            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
+            className="absolute right-3 z-[45] pointer-events-auto max-w-[calc(100%-1.5rem)]"
+            style={{
+              bottom: `calc(env(safe-area-inset-bottom, 0px) + ${hudExpanded && activeDrawer === 'cities' ? 92 : 20}px)`,
+            }}
           >
             <LocationRadiusSelector
               surface="map"
+              compact
               radiusKm={radiusKm}
               onRadiusChange={setRadiusKm}
               onDetectLocation={handleGPS}
@@ -1205,11 +1278,11 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full pointer-events-auto mb-4"
+                className="w-full pointer-events-auto mb-4 pr-24"
               >
-                {/* City quick-filter strip */}
+                {/* City quick-filter strip — pr-24 keeps clear of km pill on the right */}
                 <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-                  <div className="flex items-center gap-2.5 px-4 py-1.5">
+                  <div className="flex items-center gap-2.5 pl-4 pr-2 py-1.5">
                     {PASSPORT_QUICK_CITIES.map((city) => {
                       const isActive = passportMode && passportLabel?.includes(city.name);
                       return (

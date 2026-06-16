@@ -21,6 +21,8 @@ interface LocationRadiusSelectorProps {
   orientation?: 'horizontal' | 'vertical';
   /** `map` raises z-index and anchors the slider panel above the floater. */
   surface?: 'dashboard' | 'map';
+  /** Slim single-row pill for map HUD (avoids overlapping city strip). */
+  compact?: boolean;
 }
 
 /**
@@ -45,10 +47,12 @@ export const LocationRadiusSelector = memo(({
   onExpandedChange,
   orientation = 'horizontal',
   surface = 'dashboard',
+  compact = false,
 }: LocationRadiusSelectorProps) => {
   const { isLight } = useAppTheme();
   const [internalExpanded, setInternalExpanded] = useState(false);
   const isMap = surface === 'map';
+  const isMapCompact = isMap && compact;
 
   const isControlled = expandedProp !== undefined;
   const expanded = isControlled ? expandedProp : internalExpanded;
@@ -67,21 +71,27 @@ export const LocationRadiusSelector = memo(({
     else setInternalExpanded(false);
   }, [isControlled, onExpandedChange]);
 
-  const panelStyle: CSSProperties = isMap
-    ? {
-        pointerEvents: 'auto',
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
-      }
-    : {
-        pointerEvents: 'auto',
-        top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
-      };
+  const panelStyle: CSSProperties = isMapCompact
+    ? { pointerEvents: 'auto' }
+    : isMap
+      ? {
+          pointerEvents: 'auto',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
+        }
+      : {
+          pointerEvents: 'auto',
+          top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
+        };
 
   const panelClass = cn(
-    'fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]',
-    isMap
-      ? 'z-[10030] bg-[#1A202C]/92 border-white/12 backdrop-blur-xl text-white'
-      : cn('z-[10009] chrome-solid', isLight ? 'bg-white/95 border-black/10' : 'bg-[#0d0d0d]/95 border-white/10'),
+    isMapCompact
+      ? 'absolute bottom-full left-0 mb-2 w-[min(280px,calc(100vw-2rem))] rounded-2xl border p-4 shadow-[0_16px_48px_rgba(0,0,0,0.55)] z-[10030] bg-[#1A202C]/95 border-white/12 text-white'
+      : cn(
+          'rounded-[2.5rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]',
+          isMap
+            ? 'fixed left-4 right-4 mx-auto max-w-sm z-[10030] bg-[#1A202C]/92 border-white/12 backdrop-blur-xl text-white'
+            : cn('fixed left-4 right-4 mx-auto max-w-sm z-[10009] chrome-solid', isLight ? 'bg-white/95 border-black/10' : 'bg-[#0d0d0d]/95 border-white/10'),
+        ),
   );
 
   const renderExpandedPanel = () => (
@@ -95,14 +105,19 @@ export const LocationRadiusSelector = memo(({
           style={panelStyle}
           className={panelClass}
         >
-          <div className="mb-5">
-            <h4 className={cn('text-[10px] font-black uppercase tracking-[0.3em] mb-1', isMap ? 'text-white/40' : 'opacity-40')}>
-              Search Radius
-            </h4>
-            <p className={cn('text-sm font-black italic', isMap ? 'text-white/90' : 'opacity-90')}>
-              {title ? `Searching ${title}` : 'Adjust search distance'}
-            </p>
-          </div>
+          {!isMapCompact && (
+            <div className="mb-5">
+              <h4 className={cn('text-[10px] font-black uppercase tracking-[0.3em] mb-1', isMap ? 'text-white/40' : 'opacity-40')}>
+                Search Radius
+              </h4>
+              <p className={cn('text-sm font-black italic', isMap ? 'text-white/90' : 'opacity-90')}>
+                {title ? `Searching ${title}` : 'Adjust search distance'}
+              </p>
+            </div>
+          )}
+          {isMapCompact && (
+            <p className="text-[9px] font-bold uppercase tracking-widest text-white/45 mb-3">Search radius</p>
+          )}
           <DistanceSlider
             radiusKm={radiusKm}
             onRadiusChange={onRadiusChange}
@@ -154,10 +169,11 @@ export const LocationRadiusSelector = memo(({
       <div
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          'flex items-center gap-2 p-2 transition-transform flex-row rounded-full border shadow-[0_8px_28px_rgba(0,0,0,0.45)]',
-          isMap
+          'flex items-center transition-transform flex-row rounded-full border shadow-[0_4px_16px_rgba(0,0,0,0.4)]',
+          isMapCompact ? 'gap-1 px-1 py-0.5 h-8 bg-[#1A202C]/90 border-white/12' : 'gap-2 p-2',
+          !isMapCompact && (isMap
             ? 'bg-[#1A202C]/88 border-white/12 backdrop-blur-xl'
-            : cn('glass-pill chrome-solid', isLight ? 'glass-light-surface' : 'glass-dark'),
+            : cn('glass-pill chrome-solid', isLight ? 'glass-light-surface' : 'glass-dark')),
         )}
       >
         {/* GPS QUICK-DETECT */}
@@ -168,7 +184,8 @@ export const LocationRadiusSelector = memo(({
           disabled={detecting}
           style={{ pointerEvents: 'auto' }}
           className={cn(
-            'tap-css-only w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0',
+            'tap-css-only flex items-center justify-center rounded-full flex-shrink-0',
+            isMapCompact ? 'w-7 h-7' : 'w-10 h-10',
             detected
               ? isMap
                 ? 'bg-[#00C6FF]/25 text-[#00C6FF] shadow-[0_0_16px_rgba(0,198,255,0.35)]'
@@ -181,7 +198,7 @@ export const LocationRadiusSelector = memo(({
           )}
           title="Detect GPS location"
         >
-          <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
+          <Navigation className={cn(isMapCompact ? 'w-3 h-3' : 'w-4 h-4', detecting && 'animate-spin')} />
         </button>
 
         {/* RADIUS TOGGLE */}
@@ -191,23 +208,30 @@ export const LocationRadiusSelector = memo(({
           onClick={toggleExpand}
           style={{ pointerEvents: 'auto' }}
           className={cn(
-            "tap-css-only flex items-center gap-2 h-10 px-4 rounded-full flex-shrink-0",
-            isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
+            'tap-css-only flex items-center rounded-full flex-shrink-0',
+            isMapCompact ? 'gap-1 h-7 px-2' : 'gap-2 h-10 px-4',
+            isLight ? 'hover:bg-slate-100' : 'hover:bg-white/10',
           )}
         >
-          <MapPin className={cn(
-            'w-4 h-4',
-            detected ? (isMap ? 'text-[#00C6FF]' : 'text-primary') : 'opacity-50',
-          )} />
-          <span className={cn('text-[12px] font-black uppercase italic tracking-wider', isMap && 'text-white')}>
+          {!isMapCompact && (
+            <MapPin className={cn(
+              'w-4 h-4',
+              detected ? (isMap ? 'text-[#00C6FF]' : 'text-primary') : 'opacity-50',
+            )} />
+          )}
+          <span className={cn(
+            'font-black uppercase tracking-wider',
+            isMapCompact ? 'text-[10px] text-white' : 'text-[12px] italic',
+            isMap && !isMapCompact && 'text-white',
+          )}>
             <span className={isMap ? 'text-[#00C6FF]' : undefined}>{radiusKm}</span>
-            <span className="text-[10px] opacity-50 lowercase ml-1">km</span>
+            <span className={cn('opacity-50 lowercase', isMapCompact ? 'text-[8px] ml-0.5' : 'text-[10px] ml-1')}>km</span>
           </span>
           <motion.div
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           >
-            <ChevronDown className="w-3 h-3 opacity-30" />
+            <ChevronDown className={cn(isMapCompact ? 'w-2.5 h-2.5' : 'w-3 h-3', 'opacity-30')} />
           </motion.div>
         </button>
       </div>
