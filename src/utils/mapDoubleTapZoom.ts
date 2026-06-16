@@ -124,43 +124,74 @@ export function bindMapDoubleTapZoom(
   };
 }
 
-/** Double-tap on HTML marker elements (map click never fires through markers). */
-export function bindMarkerDoubleTapZoom(
+/** Handle tap, long-press, and double-tap on HTML marker elements. */
+export function bindMarkerGestures(
   el: HTMLElement,
   getCenter: () => [number, number],
   mapRef: { current: MapboxMap | null },
   lastZoomAtRef: { current: number },
-  onSingleTap: () => void,
+  onTap: () => void,
+  onLongPress: () => void,
   isActive: () => boolean,
   onZoom?: () => void,
 ): () => void {
   let lastTap: MapTapPoint | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let isLongPress = false;
+  let startX = 0;
+  let startY = 0;
+
+  const start = (e: PointerEvent) => {
+    if (!isActive()) return;
+    isLongPress = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    timer = setTimeout(() => {
+      isLongPress = true;
+      onLongPress();
+    }, 400);
+  };
+
+  const move = (e: PointerEvent) => {
+    if (!isActive()) return;
+    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+      if (timer) clearTimeout(timer);
+    }
+  };
 
   const onPointerUp = (e: PointerEvent) => {
     if (!isActive()) return;
     e.stopPropagation();
+    if (timer) clearTimeout(timer);
 
     const now = Date.now();
     const x = e.clientX;
     const y = e.clientY;
     const map = mapRef.current;
 
-    onSingleTap();
+    if (!isLongPress) {
+      onTap();
 
-    if (map && isMapDoubleTap(lastTap, now, x, y)) {
-      e.preventDefault();
-      if (tryMapDoubleTapZoom(map, getCenter(), lastZoomAtRef)) {
-        lastTap = null;
-        onZoom?.();
-        return;
+      if (map && isMapDoubleTap(lastTap, now, x, y)) {
+        e.preventDefault();
+        if (tryMapDoubleTapZoom(map, getCenter(), lastZoomAtRef)) {
+          lastTap = null;
+          onZoom?.();
+          return;
+        }
       }
-    }
 
-    lastTap = { time: now, x, y };
+      lastTap = { time: now, x, y };
+    }
   };
 
+  el.addEventListener('pointerdown', start);
+  el.addEventListener('pointermove', move);
   el.addEventListener('pointerup', onPointerUp);
   return () => {
+    if (timer) clearTimeout(timer);
+    el.removeEventListener('pointerdown', start);
+    el.removeEventListener('pointermove', move);
     el.removeEventListener('pointerup', onPointerUp);
   };
 }

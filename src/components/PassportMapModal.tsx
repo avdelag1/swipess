@@ -34,7 +34,7 @@ import {
   type MapLayerFilter,
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
-import { bindMapDoubleTapZoom, bindMarkerDoubleTapZoom } from '@/utils/mapDoubleTapZoom';
+import { bindMapDoubleTapZoom, bindMarkerGestures } from '@/utils/mapDoubleTapZoom';
 import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
@@ -691,11 +691,15 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createListingMarkerEl(l, isSelected);
-      const cleanup = bindMarkerDoubleTapZoom(
+      const cleanup = bindMarkerGestures(
         el,
         () => [l.lng, l.lat],
         mapRef,
         lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('light');
+          openInsightsFor({ type: 'listing', data: l });
+        },
         () => {
           triggerHaptic('medium');
           focusPin({ type: 'listing', data: l });
@@ -722,11 +726,15 @@ export const PassportMapModal = memo(() => {
       }
 
       const el = createProfileMarkerEl(p, isSelected);
-      const cleanup = bindMarkerDoubleTapZoom(
+      const cleanup = bindMarkerGestures(
         el,
         () => [p.lng, p.lat],
         mapRef,
         lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('light');
+          openInsightsFor({ type: 'profile', data: p });
+        },
         () => {
           triggerHaptic('medium');
           focusPin({ type: 'profile', data: p });
