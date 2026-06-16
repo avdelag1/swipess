@@ -180,6 +180,8 @@ export function syncRadiusCircleOnMap(
     map.setPaintProperty(GLOW_ID, 'line-opacity', 0.32 + sizeFactor * 0.12);
     map.setPaintProperty(GLOW_OUTER_ID, 'line-opacity', 0.12 + sizeFactor * 0.08);
   }
+
+  map.triggerRepaint();
 }
 
 export const RADIUS_LAYER_IDS = [

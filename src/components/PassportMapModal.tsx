@@ -173,13 +173,10 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen]);
 
-  // Show all layers by default — user filters via the HUD menu.
+  // Layer filter resets on open — hub seeding happens in the open-session effect below.
   useEffect(() => {
-    if (isOpen) {
-      setLayerFilter('all');
-      if (!passportMode && !searchAnchor) setHubSearchOnOpen(true);
-    }
-  }, [isOpen, passportMode, searchAnchor]);
+    if (isOpen) setLayerFilter('all');
+  }, [isOpen]);
 
   useEffect(() => {
     if (activeDrawer === 'cities') {
@@ -251,6 +248,8 @@ export const PassportMapModal = memo(() => {
 
   const radiusCenterRef = useRef(radiusCenter);
   radiusCenterRef.current = radiusCenter;
+  const radiusKmRef = useRef(radiusKm);
+  radiusKmRef.current = radiusKm;
   const prevRadiusKmRef = useRef(radiusKm);
 
   const applyRadiusCircleNow = useCallback(() => {
@@ -259,29 +258,26 @@ export const PassportMapModal = memo(() => {
     if (!map || !center) return;
 
     const paint = () => {
-      if (!map.isStyleLoaded()) return;
+      if (!map.isStyleLoaded()) {
+        map.once('idle', paint);
+        return;
+      }
       try {
         syncRadiusCircleOnMap(
           map,
           center.lng,
           center.lat,
-          radiusKm,
+          radiusKmRef.current,
           { showCenterDot: true },
         );
+        map.triggerRepaint();
       } catch {
         // Style can still be loading on first paint
       }
     };
 
-    if (map.isStyleLoaded()) {
-      paint();
-      return;
-    }
-    const onReady = () => paint();
-    map.once('load', onReady);
-    map.once('style.load', onReady);
-    map.once('idle', onReady);
-  }, [radiusKm]);
+    paint();
+  }, []);
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.
   useEffect(() => {
@@ -301,19 +297,24 @@ export const PassportMapModal = memo(() => {
     const center = radiusCenterRef.current;
     if (!center) return;
     cinematicEaseTo(map, [center.lng, center.lat], zoomForRadiusKm(radiusKm), { duration: 200 });
+    map.once('moveend', () => refreshMapVisualsRef.current());
+    refreshMapVisualsRef.current();
   }, [radiusKm, isOpen, mapReady]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setHubSearchOnOpen(false);
     setPassportLocation(newLat, newLng, label);
-    if (mapRef.current) {
+    const map = mapRef.current;
+    if (map) {
       cinematicEaseTo(
-        mapRef.current,
+        map,
         [newLng, newLat],
         zoom,
         { duration: 300, pitch: cinematicPitchForViewport(), bearing: CINEMATIC_BEARING },
       );
+      map.once('moveend', () => refreshMapVisualsRef.current());
     }
+    refreshMapVisualsRef.current();
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
   }, [setPassportLocation]);
@@ -386,6 +387,8 @@ export const PassportMapModal = memo(() => {
           opts?.zoom ?? zoomForRadiusKm(radiusKm),
           { duration: 320, pitch: cinematicPitchForViewport() },
         );
+        mapRef.current.once('moveend', () => refreshMapVisualsRef.current());
+        refreshMapVisualsRef.current();
         if (opts?.announce) appToast.success('Centered on your location');
       } catch {
         appToast.error('Could not detect location');
@@ -428,7 +431,9 @@ export const PassportMapModal = memo(() => {
         zoomForRadiusKm(radiusKm),
         { duration: OPEN_CENTER_MS, pitch: cinematicPitchForViewport() },
       );
+      map.once('moveend', () => refreshMapVisualsRef.current());
     }
+    refreshMapVisualsRef.current();
     appToast.success('Search area moved here — hold 1s on empty map');
   }, [clearPassportLocation, radiusKm, setUserLocation]);
 
@@ -514,18 +519,22 @@ export const PassportMapModal = memo(() => {
   const applyGpsFixRef = useRef(applyGpsFix);
   applyGpsFixRef.current = applyGpsFix;
 
-  // New open session — reset interaction flags once per open (not on GPS/radius churn).
+  // New open session — reset flags once per open; seed hub only on open edge.
   useEffect(() => {
-    if (isOpen && !prevMapOpenRef.current) {
+    const justOpened = isOpen && !prevMapOpenRef.current;
+    if (justOpened) {
       mapOpenSessionRef.current += 1;
       userMapInteractedRef.current = false;
       initialCenterDoneRef.current = false;
+      framedOpenSessionRef.current = -1;
+      if (!passportMode && !searchAnchor) setHubSearchOnOpen(true);
     }
     if (!isOpen) {
       initialCenterDoneRef.current = false;
+      framedOpenSessionRef.current = -1;
     }
     prevMapOpenRef.current = isOpen;
-  }, [isOpen]);
+  }, [isOpen, passportMode, searchAnchor]);
 
   // Re-allow auto-center when switching passport explore ↔ GPS while map stays open.
   useEffect(() => {
@@ -867,12 +876,6 @@ export const PassportMapModal = memo(() => {
     return () => stopGpsWatch();
   }, [isOpen]);
 
-  // Live radius circle — paint immediately on warm-start and every hub/radius change.
-  useEffect(() => {
-    if (!shouldLoadMapPins) return;
-    applyRadiusCircleNow();
-  }, [shouldLoadMapPins, applyRadiusCircleNow, radiusCenter, radiusKm]);
-
   const syncMarkers = useCallback(() => {
     const map = mapRef.current;
     if (!map || !mapboxRef.current || !shouldLoadMapPins) return;
@@ -983,11 +986,17 @@ export const PassportMapModal = memo(() => {
     };
   }, [syncMarkers, shouldLoadMapPins, mapReady]);
 
-  // Re-sync when prefetched data lands while the sheet is still closed.
+  // Live sync while map stays open — radius, location, and pins update without close/reopen.
   useEffect(() => {
-    if (!data || !shouldLoadMapPins || !mapReady) return;
+    if (!isOpen || !mapReady) return;
     refreshMapVisuals();
-  }, [data, shouldLoadMapPins, mapReady, refreshMapVisuals]);
+    const t1 = window.setTimeout(refreshMapVisuals, 60);
+    const t2 = window.setTimeout(refreshMapVisuals, 280);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [isOpen, mapReady, radiusCenter, radiusKm, data, refreshMapVisuals]);
 
   // First paint each open session — hub center, circle, pins (no async GPS yank).
   useEffect(() => {
@@ -1127,16 +1136,20 @@ export const PassportMapModal = memo(() => {
                             type="button"
                             onClick={() => {
                               triggerHaptic('medium');
+                              setHubSearchOnOpen(false);
                               setPassportLocation(city.lat, city.lng, `${city.name}`);
                               setRadiusKm(20);
-                              if (mapRef.current) {
+                              const map = mapRef.current;
+                              if (map) {
                                 cinematicEaseTo(
-                                  mapRef.current,
+                                  map,
                                   [city.lng, city.lat],
                                   zoomForRadiusKm(20),
                                   { duration: 280, pitch: cinematicPitchForViewport() },
                                 );
+                                map.once('moveend', () => refreshMapVisualsRef.current());
                               }
+                              refreshMapVisualsRef.current();
                               appToast.success(`Flying to ${city.name}`);
                             }}
                             className={cn(
