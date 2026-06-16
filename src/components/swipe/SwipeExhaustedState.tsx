@@ -17,6 +17,7 @@ interface SwipeExhaustedStateProps {
   onCategoryChange?: (category: string) => void;
   onOpenFilters?: () => void;
   onOpenMap?: () => void;
+  onBack?: () => void;
   role?: 'client' | 'owner';
   [key: string]: any;
 }
@@ -33,6 +34,7 @@ export const SwipeExhaustedState = ({
   onCategoryChange,
   onOpenFilters,
   onOpenMap,
+  onBack,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
@@ -69,8 +71,24 @@ export const SwipeExhaustedState = ({
       className={cn(
         'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden',
         isLight ? 'bg-white' : 'bg-[#0a0a0c]'
-      )}
     >
+      {/* Top Left Back Button */}
+      {onBack && (
+        <button
+          onClick={() => {
+            triggerHaptic('light');
+            onBack();
+          }}
+          className={cn(
+            "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-50 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90",
+            isLight ? "bg-black/5 text-black hover:bg-black/10" : "bg-white/10 text-white hover:bg-white/20"
+          )}
+          aria-label="Go back to dashboard"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 opacity-90"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+      )}
+
       <div className="flex flex-col items-center text-center w-full max-w-md gap-7 relative z-10">
         {/* Headline */}
         <div className="space-y-2">

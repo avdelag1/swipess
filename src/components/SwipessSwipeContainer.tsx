@@ -1075,6 +1075,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     prefetchPassportMapImmediate();
                     useModalStore.getState().openPassportMap();
                   }}
+                  onBack={() => navigate(`/${activeMode}/dashboard`)}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
                 )}

@@ -1043,6 +1043,7 @@ const ClientSwipeContainerComponent = ({
                   onOpenFilters={() => {
                     navigate('/owner/filters');
                   }}
+                  onBack={() => navigate(`/${activeMode}/dashboard`)}
                   role="owner"
                 />
                 )}
