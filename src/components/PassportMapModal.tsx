@@ -482,7 +482,7 @@ export const PassportMapModal = memo(() => {
           fadeDuration: 0,
           antialias: !isMobile,
           projection: 'mercator',
-          doubleClickZoom: true,
+          doubleClickZoom: false,
           maxPitch: isMobile ? 50 : 65,
           refreshExpiredTiles: false,
           trackResize: true,

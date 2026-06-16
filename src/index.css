@@ -31,6 +31,11 @@ html, body, #root {
   touch-action: pan-y;
 }
 
+/* Force disable tap highlights everywhere to avoid grey flashes */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
 /* 📷 NO TAP SQUARE OVER PHOTOS
    The story-style image tap-zones (insights modal, event hero, carousels) are
    large invisible <button>s layered over the photo. On touch they would flash
