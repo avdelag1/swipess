@@ -538,7 +538,14 @@
     "filterPeople": "Personas",
     "liveMap": "Mapa en vivo",
     "globalPassport": "Pasaporte global",
-    "exploreCities": "Explora ciudades del mundo"
+    "exploreCities": "Explora ciudades del mundo",
+    "myLocation": "Mi ubicación",
+    "cities": "Ciudades",
+    "results": "Resultados",
+    "youAreHere": "Estás aquí",
+    "findingYou": "Buscándote…",
+    "scanningArea": "Escaneando zona…",
+    "doubleTapHint": "Toca dos veces el mapa para acercar"
   },
   "tokens": {
     "outOfTokens": "Sin tokens de mensajes",

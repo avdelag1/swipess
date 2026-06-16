@@ -586,7 +586,14 @@
     "filterPeople": "People",
     "liveMap": "Live Map",
     "globalPassport": "Global Passport",
-    "exploreCities": "Explore cities worldwide"
+    "exploreCities": "Explore cities worldwide",
+    "myLocation": "My location",
+    "cities": "Cities",
+    "results": "Results",
+    "youAreHere": "You are here",
+    "findingYou": "Finding you…",
+    "scanningArea": "Scanning area…",
+    "doubleTapHint": "Double-tap map to zoom in"
   },
   "tokens": {
     "outOfTokens": "Out of message tokens",

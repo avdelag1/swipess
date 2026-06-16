@@ -277,7 +277,14 @@
     "filterPeople": "Люди",
     "liveMap": "Живая карта",
     "globalPassport": "Глобальный паспорт",
-    "exploreCities": "Исследуйте города мира"
+    "exploreCities": "Исследуйте города мира",
+    "myLocation": "Моё место",
+    "cities": "Города",
+    "results": "Результаты",
+    "youAreHere": "Вы здесь",
+    "findingYou": "Ищем вас…",
+    "scanningArea": "Сканируем район…",
+    "doubleTapHint": "Двойной тап по карте — приблизить"
   },
   "tokens": {
     "outOfTokens": "Нет токенов сообщений",
