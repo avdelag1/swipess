@@ -6,10 +6,11 @@ const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ def
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useListings } from '@/hooks/useListings';
+import { type Listing, useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
+import { supabase } from '@/integrations/supabase/client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { applyAdvancedFiltersToStore } from '@/utils/applyAdvancedFilters';
 import { DeferredDialog } from './DeferredDialog';
 
@@ -94,7 +95,29 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
     enabled: store.showClientInsights
   });
 
-  const selectedListing = store.selectedListingId ? listings.find(l => l.id === store.selectedListingId) : null;
+  // Map pins come from a different RPC than the swipe deck, so the tapped
+  // listing usually isn't in `listings`. Fetch it by id directly so Insights
+  // (and Details) always have data — otherwise the modal opened blank/no-op.
+  const deckListing = store.selectedListingId
+    ? listings.find(l => l.id === store.selectedListingId)
+    : null;
+  const { data: listingById } = useQuery({
+    queryKey: ['listing-by-id', store.selectedListingId],
+    enabled: store.showPropertyInsights && !!store.selectedListingId && !deckListing,
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!store.selectedListingId) return null;
+      const { data, error } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('id', store.selectedListingId)
+        .single();
+      if (error) throw error;
+      return (data ?? null) as Listing | null;
+    },
+  });
+
+  const selectedListing = deckListing ?? listingById ?? null;
   const selectedProfile = store.selectedProfileId ? profiles.find(p => p.user_id === store.selectedProfileId) : null;
 
   return (
@@ -147,14 +170,6 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
                 store.setModal('showPropertyDetails', false);
               }}
               onMessageClick={() => store.openSubscription('Unlock Messaging!')}
-            />
-          </DeferredDialog>
-
-          <DeferredDialog when={store.showPropertyInsights}>
-            <SwipeInsightsModal
-              open={store.showPropertyInsights}
-              onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}
-              listing={selectedListing || null}
             />
           </DeferredDialog>
 
@@ -233,6 +248,16 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           </DeferredDialog>
         </>
       )}
+
+      {/* Property insights — shared across roles so map listing taps always open
+          (the map's pins exist for clients and owners alike). */}
+      <DeferredDialog when={store.showPropertyInsights}>
+        <SwipeInsightsModal
+          open={store.showPropertyInsights}
+          onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}
+          listing={selectedListing || null}
+        />
+      </DeferredDialog>
 
       <DeferredDialog when={store.showSupport}>
         <SupportDialog
