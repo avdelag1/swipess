@@ -980,6 +980,13 @@ export const PassportMapModal = memo(() => {
 
     for (const entry of registry.values()) {
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
+      const isHiddenBySelection = selected != null && !isSelected;
+      
+      entry.el.style.opacity = isHiddenBySelection ? '0' : '1';
+      entry.el.style.pointerEvents = isHiddenBySelection ? 'none' : 'auto';
+      // Use standard CSS transition for a clean fade effect
+      entry.el.style.transition = 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+
       if (entry.pinType === 'listing') {
         const listing = listingsById.get(entry.pinId);
         if (listing) updateListingMarkerEl(entry.el, listing, isSelected);
