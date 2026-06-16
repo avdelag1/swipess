@@ -17,6 +17,7 @@ import {
   CINEMATIC_BEARING,
   CINEMATIC_PITCH,
   cinematicEaseTo,
+  cinematicFlyTo,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
