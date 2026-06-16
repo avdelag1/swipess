@@ -43,7 +43,7 @@ import {
   MAP_DOUBLE_TAP_WINDOW_MS,
 } from '@/utils/mapDoubleTapZoom';
 
-import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
+import { computeMapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';

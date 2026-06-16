@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import {
-  Bed, Briefcase, Car, Eye, Footprints, Heart, MapPin, Sparkles, Star, User, X
+  Bed, Briefcase, Car, Eye, Footprints, MapPin, Sparkles, User, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SelectedPin } from './passportMapMarkers';
@@ -25,7 +25,6 @@ export const PassportMapPinPreview = memo(({
   onClose,
   onInsights,
   onDetails,
-  variant = 'anchored',
 }: PassportMapPinPreviewProps) => {
   const isListing = selected.type === 'listing';
   const data = selected.data;
