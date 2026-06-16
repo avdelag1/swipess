@@ -35,8 +35,9 @@ import {
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
 import { bindMapDoubleTapZoom, bindMarkerDoubleTapZoom } from '@/utils/mapDoubleTapZoom';
+import { computeMapPinPreviewPlacement, type MapPinPreviewPlacement } from '@/utils/mapPinPreviewPlacement';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
-import { gradientForRadius, PASSPORT_GRADIENTS, RADIUS_GRADIENTS } from '@/components/passport/passportMapTheme';
+import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
 import {
   GENIE_FULLSCREEN_EXIT,
@@ -44,7 +45,6 @@ import {
   GENIE_FULLSCREEN_VISIBLE,
   GENIE_ORIGIN_BOTTOM,
   GENIE_SPRING_CLOSE,
-  GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
 
@@ -57,7 +57,7 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
-const RADIUS_PRESETS = [5, 20, 40, 80] as const;
+const PIN_PREVIEW_CARD = { width: 280, height: 260 };
 
 const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -69,11 +69,9 @@ export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const { t } = useTranslation();
   const isOpen = useModalStore(s => s.showPassportMapModal);
-  const passportSheetOpen = useModalStore(s => s.showPassportModal);
-  const passportMapHandoff = useModalStore(s => s.passportMapHandoff);
   const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
   const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
-  const shouldWarmMap = isOpen || passportSheetOpen;
+  const shouldWarmMap = isOpen;
   const setModal = useModalStore(s => s.setModal);
   const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const openPropertyInsights = useModalStore(s => s.openPropertyInsights);
@@ -118,6 +116,8 @@ export const PassportMapModal = memo(() => {
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [previewPlacement, setPreviewPlacement] = useState<MapPinPreviewPlacement | null>(null);
+  const mapHudRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -211,10 +211,49 @@ export const PassportMapModal = memo(() => {
 
   const focusPin = useCallback((pin: SelectedPin) => {
     setSelected(pin);
-    if (mapRef.current) {
-      cinematicFlyTo(mapRef.current, [pin.data.lng, pin.data.lat], 14.5, { duration: 550, pitch: 52 });
-    }
   }, []);
+
+  const updatePreviewPlacement = useCallback(() => {
+    const map = mapRef.current;
+    const hud = mapHudRef.current;
+    if (!map || !hud || !selected) {
+      setPreviewPlacement(null);
+      return;
+    }
+
+    const point = map.project([selected.data.lng, selected.data.lat]);
+    const hudRect = hud.getBoundingClientRect();
+    setPreviewPlacement(computeMapPinPreviewPlacement(
+      point.x,
+      point.y,
+      { width: hudRect.width, height: hudRect.height },
+      PIN_PREVIEW_CARD,
+    ));
+  }, [selected]);
+
+  useEffect(() => {
+    if (!selected || !mapReady || !mapRef.current) {
+      setPreviewPlacement(null);
+      return;
+    }
+
+    const map = mapRef.current;
+    const sync = () => updatePreviewPlacement();
+    sync();
+    map.on('move', sync);
+    map.on('zoom', sync);
+    map.on('resize', sync);
+    map.on('pitch', sync);
+    map.on('rotate', sync);
+
+    return () => {
+      map.off('move', sync);
+      map.off('zoom', sync);
+      map.off('resize', sync);
+      map.off('pitch', sync);
+      map.off('rotate', sync);
+    };
+  }, [selected, mapReady, updatePreviewPlacement]);
 
   const openInsightsFor = useCallback((pin: SelectedPin) => {
     triggerHaptic('medium');
@@ -406,7 +445,7 @@ export const PassportMapModal = memo(() => {
       const initialZoom = 1.5;
 
       try {
-        const { mapboxgl, MapboxGeocoder } = await warmMapboxModules();
+        const { mapboxgl } = await warmMapboxModules();
         if (cancelled || !mapContainerRef.current) return;
 
         mapboxRef.current = mapboxgl;
@@ -697,7 +736,6 @@ export const PassportMapModal = memo(() => {
                 : t('map.scanningArea');
 
   const mapHostVisible = isOpen;
-  const instantOpen = isOpen && passportMapHandoff;
 
   return (
     <motion.div
@@ -708,24 +746,17 @@ export const PassportMapModal = memo(() => {
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
-      initial={instantOpen ? GENIE_FULLSCREEN_VISIBLE : GENIE_FULLSCREEN_OPEN}
+      initial={GENIE_FULLSCREEN_OPEN}
       animate={
         isOpen
           ? GENIE_FULLSCREEN_VISIBLE
-          : passportSheetOpen
-            ? { ...GENIE_FULLSCREEN_OPEN, opacity: 0, pointerEvents: 'none' as const }
-            : { ...GENIE_FULLSCREEN_EXIT, transition: GENIE_SPRING_CLOSE }
+          : { ...GENIE_FULLSCREEN_EXIT, transition: GENIE_SPRING_CLOSE }
       }
       transition={
-        instantOpen
-          ? { duration: 0 }
-          : isOpen
-            ? { type: 'tween', duration: 0.1, ease: 'easeOut' }
-            : { type: 'tween', duration: 0.1 }
+        isOpen
+          ? { type: 'tween', duration: 0.1, ease: 'easeOut' }
+          : { type: 'tween', duration: 0.1 }
       }
-      onAnimationComplete={() => {
-        if (isOpen && passportMapHandoff) clearPassportMapFlags();
-      }}
       style={{
         ...GENIE_ORIGIN_BOTTOM,
         visibility: mapHostVisible ? 'visible' : 'hidden',
@@ -735,7 +766,7 @@ export const PassportMapModal = memo(() => {
         <div ref={mapContainerRef} className="absolute inset-0 w-full h-full" />
 
         {isOpen && (
-        <div data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
+        <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
@@ -755,7 +786,7 @@ export const PassportMapModal = memo(() => {
 
         {/* SLEEK MAP CONTROLS (Top Left & Top Right) */}
         <AnimatePresence>
-          {isOpen && !selected && (
+          {isOpen && (
             <>
               {/* Top Left: Close & Search */}
               <motion.div
@@ -1010,13 +1041,16 @@ export const PassportMapModal = memo(() => {
 
           {/* Bottom Dock Control Bar */}
           <AnimatePresence>
-            {isOpen && !selected && (
+            {isOpen && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.2 }}
-                className="px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-2"
+                className={cn(
+                  'px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-2',
+                  selected && 'opacity-90',
+                )}
               >
                 <p className="text-[10px] font-semibold text-white/45 tracking-wide pointer-events-none">
                   {t('map.doubleTapHint')}
@@ -1099,12 +1133,22 @@ export const PassportMapModal = memo(() => {
 
 
         <AnimatePresence>
-          {selected && (
-            <div className="absolute inset-x-0 bottom-0 z-40 pointer-events-auto">
+          {selected && previewPlacement && (
+            <div
+              key={`${selected.type}-${selected.data.id}`}
+              className="absolute z-50 pointer-events-auto"
+              style={{
+                left: previewPlacement.left,
+                top: previewPlacement.top,
+                transform: previewPlacement.transform,
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
               <PassportMapPinPreview
-                key={`${selected.type}-${selected.data.id}`}
                 selected={selected}
                 isLight={isLight}
+                variant="anchored"
                 onClose={() => setSelected(null)}
                 onInsights={() => openInsightsFor(selected)}
                 onDetails={selected.type === 'listing' ? () => openDetailsFor(selected.data.id) : undefined}

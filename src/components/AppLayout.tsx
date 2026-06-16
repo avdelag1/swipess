@@ -19,7 +19,6 @@ const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.To
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
 const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
-const PassportModal = lazyWithRetry(() => import('./PassportModal').then(m => ({ default: m.PassportModal })));
 const PassportMapModal = lazyWithRetry(() => import('./PassportMapModal').then(m => ({ default: m.PassportMapModal })));
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
@@ -323,11 +322,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         <GlobalDialogs userRole={userRole} />
       </Suspense>
 
-      {(modalStore.showPassportModal || modalStore.showPassportMapModal) && (
-        <Suspense fallback={null}>
-          {modalStore.showPassportModal && <PassportModal />}
-        </Suspense>
-      )}
       {modalStore.showPassportMapModal && (
         <Suspense fallback={null}>
           <PassportMapModal />

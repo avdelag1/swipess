@@ -135,7 +135,6 @@ export function bindMarkerDoubleTapZoom(
   onZoom?: () => void,
 ): () => void {
   let lastTap: MapTapPoint | null = null;
-  let singleTapTimer: ReturnType<typeof setTimeout> | null = null;
 
   const onPointerUp = (e: PointerEvent) => {
     if (!isActive()) return;
@@ -146,34 +145,22 @@ export function bindMarkerDoubleTapZoom(
     const y = e.clientY;
     const map = mapRef.current;
 
+    onSingleTap();
+
     if (map && isMapDoubleTap(lastTap, now, x, y)) {
       e.preventDefault();
-      if (singleTapTimer) {
-        clearTimeout(singleTapTimer);
-        singleTapTimer = null;
-      }
       if (tryMapDoubleTapZoom(map, getCenter(), lastZoomAtRef)) {
         lastTap = null;
         onZoom?.();
+        return;
       }
-      return;
     }
 
     lastTap = { time: now, x, y };
-    if (singleTapTimer) clearTimeout(singleTapTimer);
-    const tapTime = now;
-    singleTapTimer = setTimeout(() => {
-      if (lastTap?.time === tapTime) {
-        onSingleTap();
-        lastTap = null;
-      }
-      singleTapTimer = null;
-    }, MAP_DOUBLE_TAP_WINDOW_MS);
   };
 
   el.addEventListener('pointerup', onPointerUp);
   return () => {
-    if (singleTapTimer) clearTimeout(singleTapTimer);
     el.removeEventListener('pointerup', onPointerUp);
   };
 }

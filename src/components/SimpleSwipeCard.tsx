@@ -29,7 +29,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -346,15 +346,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const preventDrag = useCallback((e: React.DragEvent) => e.preventDefault(), []);
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
-
-  const actionButtons = useMemo(() => [
-    { icon: Map, onClick: () => useModalStore.getState().openPassportMap(), label: 'Map' },
-    { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
-    { icon: Share2, onClick: onShare, label: 'Share' },
-    { icon: MessageCircle, onClick: onMessage, label: 'Message' },
-    { icon: BarChart3, onClick: onInsights, label: 'Insights' },
-    { icon: Flag, onClick: onReport, label: 'Report' },
-  ], [onShare, onMessage, onInsights, onReport]);
 
   return (
     <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>

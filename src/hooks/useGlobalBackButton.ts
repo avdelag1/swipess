@@ -41,7 +41,7 @@ export function useGlobalBackButton() {
           'showClientInsights', 'showSubscriptionPackages', 'showSupport',
           'showMessageActivations', 'showFilters', 'showAIChat',
           'showAIListing', 'showAIProfile', 'showVapId', 'showTokensModal',
-          'showPassportModal', 'showPassportMapModal',
+          'showPassportMapModal',
         ];
         if (modalKeys.some((key) => (state as any)[key] === true)) {
           state.closeAll();

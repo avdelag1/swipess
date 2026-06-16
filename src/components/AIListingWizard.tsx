@@ -128,7 +128,7 @@ export function AIListingWizard() {
   const [progressPhase, setProgressPhase] = useState<ProgressPhase>('upload');
   const [progressPct, setProgressPct] = useState(0);
   const [micVolume, setMicVolume] = useState(0);
-  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
+  const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setPrompt(prev => prev ? `${prev} ${text}` : text);
       setMicVolume(0);

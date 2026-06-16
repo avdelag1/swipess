@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   Briefcase, Camera, ChevronRight, Coins,
   Crown, LogOut, Megaphone, MessageSquare, Radio, Scale as ScaleIcon, Settings,
-  Sparkles, ThumbsUp, User, Users, Zap, Globe
+  Map, Sparkles, ThumbsUp, User, Users, Zap
 } from "lucide-react";
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
@@ -252,15 +252,15 @@ const ClientProfile = () => {
               <span>Seekers</span>
             </motion.button>
 
-            {/* Global Passport */}
+            {/* Live Map */}
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); useModalStore.getState().openPassport(); }}
+              onClick={() => { triggerHaptic('medium'); useModalStore.getState().openPassportMap({ showCities: true }); }}
               className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #6366F1, #A855F7)' }}
+              style={{ background: 'linear-gradient(135deg, #0072FF, #00C6FF)' }}
             >
-              <Globe className="w-7 h-7 text-white" />
-              <span>Global Passport</span>
+              <Map className="w-7 h-7 text-white" />
+              <span>Live Map</span>
             </motion.button>
 
             {/* Premium */}

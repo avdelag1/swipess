@@ -201,7 +201,9 @@ export function MapboxLocationSelector({
       if (autocompleteRef.current) {
         try {
             autocompleteRef.current.onRemove();
-        } catch(e) {}
+        } catch (_err) {
+          autocompleteRef.current = null;
+        }
       }
     };
   }, [selectionMode, selectedTab]);

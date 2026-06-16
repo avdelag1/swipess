@@ -152,9 +152,6 @@ const ClientSwipeContainerComponent = ({
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const userLatitude = useFilterStore(s => s.userLatitude);
   const userLongitude = useFilterStore(s => s.userLongitude);
-  const passportLabel = useFilterStore(s => s.passportLabel);
-  const kmHudExpanded = useFilterStore(s => s.kmHudExpanded);
-  const setKmHudExpanded = useFilterStore(s => s.setKmHudExpanded);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   
   const [locationDetecting, setLocationDetecting] = useState(false);
