@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { ChevronLeft, Crown, Sparkles, UserRound, Map } from 'lucide-react';
+import { ChevronLeft, Crown, Sparkles, UserRound, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -254,7 +254,7 @@ function TopBarComponent({
               style={glassPillStyle}
               aria-label={t('map.liveMap')}
             >
-              <Map
+              <Globe
                 className={HEADER_ICON}
                 style={{
                   color: iconColor,
