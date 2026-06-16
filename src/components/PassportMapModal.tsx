@@ -8,8 +8,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTranslation } from 'react-i18next';
-import { Capacitor } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import {
   addCinematic3DBuildings,
@@ -61,9 +59,12 @@ const MAP_SEARCH_HUB = PASSPORT_QUICK_CITIES.find(c => c.name === 'Tulum') ?? {
 };
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
+  coordsNearFix,
   getCachedGpsFix,
   prefetchUserGps,
   seedGpsCache,
+  startGpsWatch,
+  stopGpsWatch,
   subscribeGpsFix,
   type GpsFix,
 } from '@/utils/mapGpsCache';
@@ -384,22 +385,28 @@ export const PassportMapModal = memo(() => {
 
   const applyGpsFix = useCallback((fix: GpsFix | { lat: number; lng: number }) => {
     const next = { lat: fix.lat, lng: fix.lng };
+    if (coordsNearFix(deviceGpsRef.current, next)) return;
     deviceGpsRef.current = next;
     setDeviceGps(next);
     if (!passportMode) setUserLocation(next.lat, next.lng);
   }, [passportMode, setUserLocation]);
 
-  // Global GPS cache — survives map close/open; updates dot without remounting.
+  // Seed + subscribe once — never depend on lat/lng (that caused infinite re-render loops).
   useEffect(() => {
+    if (passportMode) return undefined;
+
     const cached = getCachedGpsFix();
-    if (cached && !passportMode) applyGpsFix(cached);
-    else if (lat != null && lng != null && !passportMode) seedGpsCache(lat, lng);
+    if (cached) applyGpsFix(cached);
+    else {
+      const { userLatitude, userLongitude } = useFilterStore.getState();
+      if (userLatitude != null && userLongitude != null) seedGpsCache(userLatitude, userLongitude);
+    }
 
     return subscribeGpsFix((fix) => {
-      if (passportMode) return;
+      if (useFilterStore.getState().passportMode) return;
       applyGpsFix(fix);
     });
-  }, [passportMode, lat, lng, applyGpsFix]);
+  }, [passportMode, applyGpsFix]);
 
   const centerMapOnTarget = useCallback((
     target: { lat: number; lng: number },
@@ -466,7 +473,7 @@ export const PassportMapModal = memo(() => {
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, passportMode, lat, lng, centerMapOnTarget, applyGpsFix]);
+  }, [isOpen, passportMode, centerMapOnTarget, applyGpsFix]);
 
   // Map becomes ready while open — snap immediately (no waiting for another interaction).
   useEffect(() => {
@@ -639,8 +646,17 @@ export const PassportMapModal = memo(() => {
     })();
     };
 
-    // Always init immediately — map stays warm on dashboard; idle defer caused open delays.
-    beginInit();
+    // Init immediately when open; defer warm-start so WebGL doesn't crash iOS on boot.
+    if (isOpen) {
+      beginInit();
+    } else {
+      const deferMs = 900;
+      const handle = setTimeout(beginInit, deferMs);
+      return () => {
+        cancelled = true;
+        clearTimeout(handle);
+      };
+    }
 
     return () => { cancelled = true; };
   }, [isOpen, resizeMap]);
@@ -749,53 +765,23 @@ export const PassportMapModal = memo(() => {
     applyDeviceGpsToMap(deviceGps);
   }, [deviceGps, applyDeviceGpsToMap]);
 
-  // Keep GPS fresh while the map is open
+  // GPS watch only while map is visible — never on app boot.
   useEffect(() => {
-    if (!isOpen || !canGeolocate()) return;
-
-    let cleared = false;
-    let webWatchId: number | null = null;
-    let nativeWatchId: string | null = null;
-
-    const applyFix = (latitude: number, longitude: number) => {
-      if (cleared) return;
-      const fix = { lat: latitude, lng: longitude };
-      deviceGpsRef.current = fix;
-      applyDeviceGpsToMap(fix);
-
-      const now = Date.now();
-      if (now - lastGpsStateAtRef.current > 2500) {
-        lastGpsStateAtRef.current = now;
-        setDeviceGps(fix);
-        if (!passportMode) {
-          setUserLocation(latitude, longitude);
-          if (user?.id) void persistClientProfileGps(user.id, latitude, longitude);
-        }
-      }
-    };
-
-    if (Capacitor.isNativePlatform()) {
-      void Geolocation.watchPosition(
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 },
-        (pos, err) => {
-          if (err || !pos) return;
-          applyFix(pos.coords.latitude, pos.coords.longitude);
-        },
-      ).then((id) => { nativeWatchId = id; });
-    } else if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
-      webWatchId = navigator.geolocation.watchPosition(
-        (pos) => applyFix(pos.coords.latitude, pos.coords.longitude),
-        () => undefined,
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 },
-      );
+    if (!isOpen || !canGeolocate()) {
+      stopGpsWatch();
+      return undefined;
     }
+    startGpsWatch();
+    return () => stopGpsWatch();
+  }, [isOpen]);
 
-    return () => {
-      cleared = true;
-      if (webWatchId != null) navigator.geolocation.clearWatch(webWatchId);
-      if (nativeWatchId != null) void Geolocation.clearWatch({ id: nativeWatchId });
-    };
-  }, [isOpen, passportMode, setUserLocation, applyDeviceGpsToMap, user?.id]);
+  useEffect(() => {
+    if (!deviceGps || !user?.id || passportMode) return;
+    const now = Date.now();
+    if (now - lastGpsStateAtRef.current < 2500) return;
+    lastGpsStateAtRef.current = now;
+    void persistClientProfileGps(user.id, deviceGps.lat, deviceGps.lng);
+  }, [deviceGps, user?.id, passportMode]);
 
   // Live radius circle around you (or passport explore target)
   useEffect(() => {

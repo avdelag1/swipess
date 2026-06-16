@@ -29,7 +29,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
-import { prefetchUserGps, seedGpsCache, startGpsWatch } from '@/utils/mapGpsCache';
+import { seedGpsCache } from '@/utils/mapGpsCache';
 
 
 const NotificationSystem = lazyWithRetry(() =>
@@ -64,12 +64,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       setKeepMapMounted(true);
       if (isSwipeDashboard) prefetchPassportMapImmediate();
 
+      // Seed GPS cache from store only — no geolocation API on boot (caused iOS crashes).
       const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
       if (!passportMode && userLatitude != null && userLongitude != null) {
         seedGpsCache(userLatitude, userLongitude);
       }
-      startGpsWatch();
-      void prefetchUserGps();
     }
   }, [showPassportMapModal, isSwipeDashboard]);
 
