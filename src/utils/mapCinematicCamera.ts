@@ -124,9 +124,9 @@ export function cinematicEaseTo(
 
 /** Zoom step per double-tap — one natural "notch" in, like Google/Apple Maps.
  *  (A large step felt like a teleport and made repeat double-taps unusable.) */
-export const DOUBLE_TAP_ZOOM_STEP = 1.5;
+export const DOUBLE_TAP_ZOOM_STEP = 2.0;
 export const DOUBLE_TAP_MAX_ZOOM = 18.5;
-const DOUBLE_TAP_ZOOM_MS = 300;
+const DOUBLE_TAP_ZOOM_MS = 380;
 
 /** Quick ease-in at the tap point; repeat double-taps stack for gradual zoom. */
 export function incrementalDoubleTapZoom(
@@ -138,7 +138,7 @@ export function incrementalDoubleTapZoom(
   if (next <= current + 0.01) return false;
 
   map.easeTo({
-    center,
+    around: center,
     zoom: next,
     pitch: cinematicPitchForViewport(),
     bearing: map.getBearing(),

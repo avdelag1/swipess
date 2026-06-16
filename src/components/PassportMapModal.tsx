@@ -581,7 +581,7 @@ export const PassportMapModal = memo(() => {
       const initialLng = hub.lng;
       const initialLat = hub.lat;
       const storeRadius = useFilterStore.getState().radiusKm;
-      const initialZoom = hasUserHub ? zoomForRadiusKm(storeRadius) : 2.2;
+      const initialZoom = 2.2; // Always start zoomed out to guarantee a dramatic "Google Earth" cinematic fly-in to the user's street
 
       try {
         const { mapboxgl } = await warmMapboxModules();
