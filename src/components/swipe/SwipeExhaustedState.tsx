@@ -71,6 +71,7 @@ export const SwipeExhaustedState = ({
       className={cn(
         'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden',
         isLight ? 'bg-white' : 'bg-[#0a0a0c]'
+      )}
     >
       {/* Top Left Back Button */}
       {onBack && (
