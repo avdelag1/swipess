@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Globe2, Layers, LayoutList, Loader2, MapPin, Minimize2, Navigation, Search, Users, X } from 'lucide-react';
+import { Building2, Globe2, LayoutList, Loader2, MapPin, Navigation, Search, Users, X, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -1022,8 +1022,8 @@ export const PassportMapModal = memo(() => {
                 >
                   <div className="absolute inset-0 rounded-full bg-[#1A202C]/75 backdrop-blur-[8px]" />
                   {hudExpanded
-                    ? <Minimize2 className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
-                    : <Layers className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
+                    ? <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
+                    : <Menu className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />}
                 </button>
 
                 {hudExpanded && (
