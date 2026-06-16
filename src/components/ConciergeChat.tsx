@@ -60,14 +60,6 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
 
   const hasPlayedOpenSound = useRef(false);
-  useEffect(() => {
-    if (isOpen && !hasPlayedOpenSound.current) {
-      uiSounds.playWelcome();
-      hasPlayedOpenSound.current = true;
-    } else if (!isOpen) {
-      hasPlayedOpenSound.current = false;
-    }
-  }, [isOpen]);
 
   const handleSpeak = (msgId: string, text: string) => {
     if (speakingMsgId === msgId && isSpeaking) {
@@ -105,12 +97,23 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   }, [activeCharacter]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
+      hasPlayedOpenSound.current = false;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!hasPlayedOpenSound.current) {
+        uiSounds.playWelcome();
+        hasPlayedOpenSound.current = true;
+      }
       const lastActivity = parseInt(localStorage.getItem(LAST_ACTIVITY_KEY) || '0', 10);
       const now = Date.now();
       if (now - lastActivity > 600000) createConversation();
       localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
-    }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [isOpen, createConversation]);
 
   useEffect(() => {
@@ -261,18 +264,19 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6 } }}
+          animate={{ opacity: 1, transition: { duration: 0.12 } }}
+          exit={{ opacity: 0, transition: { duration: 0.2 } }}
           className={cn("fixed inset-0 z-[10010] flex items-center justify-center p-2 sm:p-6 modal-scrim", isLight && !isSwipess && "modal-scrim--lux")}
         >
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={triggerGenieClose} className="absolute inset-0" />
+          <motion.div initial={false} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={triggerGenieClose} className="absolute inset-0" />
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0 }}
-            animate={{ 
-              scaleX: 1, scaleY: 1, y: 0, opacity: 1,
-              transition: { type: 'spring', damping: 22, stiffness: 280, mass: 0.7 }
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              transition: { duration: 0.14, ease: [0.22, 1, 0.36, 1] },
             }}
             exit={{ 
               scale: 0.04,
@@ -288,7 +292,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               }
             }}
             className={cn(
-               "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)] transition-colors duration-700",
+               "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)]",
                isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
              )}
             style={{

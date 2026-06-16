@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import { useFilterStore } from '@/state/filterStore';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
+import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
+import { useGuidedTourActive } from '@/state/guidedTourStore';
 
 /**
  * SWIPESS GLOBAL MODAL STORE
@@ -60,6 +62,7 @@ interface ModalState {
   openClientInsights: (id: string) => void;
   openSubscription: (reason: string) => void;
   openPassportMap: (opts?: { showCities?: boolean }) => void;
+  openAIChat: () => void;
   clearPassportMapFlags: () => void;
   closeAll: () => void;
 }
@@ -119,6 +122,12 @@ export const useModalStore = create<ModalState>((set) => ({
       showPassportMapModal: true,
       passportMapShowCities: opts?.showCities ?? false,
     });
+  },
+
+  openAIChat: () => {
+    if (useGuidedTourActive.getState().isActive) return;
+    prefetchConciergeChatModule();
+    set({ showAIChat: true });
   },
 
   clearPassportMapFlags: () => set({
