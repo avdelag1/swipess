@@ -1421,18 +1421,6 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        {showInitialDataLoad && (
-          <div
-            className="map-hud-panel absolute left-4 z-20 rounded-full px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
-          >
-            <Loader2 className="w-3 h-3 animate-spin" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white">{t('map.scanningArea')}</span>
-          </div>
-        )}
-
-
-
         <AnimatePresence>
           {selected && previewMode === 'anchored' && previewPlacement && (
             <div

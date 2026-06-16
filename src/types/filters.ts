@@ -1,7 +1,7 @@
 /**
  * UNIFIED FILTER TYPES
  * Single source of truth for all filter-related types
- * Used by: QuickFilterBar, QuickFilterDropdown, CascadeFilterButton, CollapsibleFilterButton
+ * Used by: BentoCategoryDashboard, SwipessSwipeContainer, filterStore, DiscoveryFilters
  */
 
 /**

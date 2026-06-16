@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { cn } from '@/lib/utils';
 // import { } from '@/state/modalStore';
@@ -387,17 +387,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { logger.warn('session storage error', _err); }
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
-  if (filterSignature !== prevFilterSignatureRef.current) {
-    filterChangedRef.current = true;
+  // Clear deck refs before paint when filters change — avoids old card photo flash.
+  useLayoutEffect(() => {
+    if (filterSignature === prevFilterSignatureRef.current) return;
     prevFilterSignatureRef.current = filterSignature;
-    // Clear deck synchronously during render so the previous category's
-    // top card photo doesn't flash before the new query resolves.
+    filterChangedRef.current = true;
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
-  }
+  }, [filterSignature]);
 
   useEffect(() => {
     if (!filterChangedRef.current) return;
@@ -418,7 +418,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setDeckLength(0);
 
     return () => clearTimeout(settledTimer);
-  }, [filterSignature, resetClientDeck]);
+  }, [filterSignature, resetClientDeck, deckCategory]);
 
   const dataType = useMemo(() => {
     if (['buyers', 'renters', 'leads', 'hire'].includes(deckCategory || '')) return 'people';
