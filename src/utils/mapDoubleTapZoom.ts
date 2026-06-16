@@ -64,27 +64,6 @@ export function bindMapDoubleTapZoom(
   };
 
   const onPointerUp = (e: PointerEvent) => {
-    if (!opts.isActive() || e.pointerType === 'mouse') return;
-    const now = Date.now();
-    const x = e.clientX;
-    const y = e.clientY;
-
-    if (isMapDoubleTap(lastTap, now, x, y)) {
-      e.preventDefault();
-      e.stopPropagation();
-      handleDoubleTapAt(x, y);
-      return;
-    }
-
-    lastTap = { time: now, x, y };
-    clearSingleTap();
-    singleTapTimer = setTimeout(() => {
-      lastTap = null;
-      singleTapTimer = null;
-    }, MAP_DOUBLE_TAP_WINDOW_MS);
-  };
-
-  const onClick = (e: MouseEvent) => {
     if (!opts.isActive()) return;
     const now = Date.now();
     const x = e.clientX;
@@ -103,24 +82,13 @@ export function bindMapDoubleTapZoom(
       lastTap = null;
       singleTapTimer = null;
     }, MAP_DOUBLE_TAP_WINDOW_MS);
-  };
-
-  const onDblClick = (e: MouseEvent) => {
-    if (!opts.isActive()) return;
-    e.preventDefault();
-    e.stopPropagation();
-    handleDoubleTapAt(e.clientX, e.clientY);
   };
 
   canvas.addEventListener('pointerup', onPointerUp, { capture: true });
-  canvas.addEventListener('click', onClick, { capture: true });
-  canvas.addEventListener('dblclick', onDblClick, { capture: true });
 
   return () => {
     clearSingleTap();
     canvas.removeEventListener('pointerup', onPointerUp, { capture: true });
-    canvas.removeEventListener('click', onClick, { capture: true });
-    canvas.removeEventListener('dblclick', onDblClick, { capture: true });
   };
 }
 
