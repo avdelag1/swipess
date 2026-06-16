@@ -155,12 +155,12 @@ export const PassportMapModal = memo(() => {
     if (passportMode && lat != null && lng != null) return { lat, lng };
     if (deviceGps) return deviceGps;
     if (lat != null && lng != null) return { lat, lng };
-    return null;
+    return MAP_SEARCH_HUB;
   }, [passportMode, lat, lng, deviceGps]);
 
   const searchCoords = useMemo(() => {
     if (!isOpen) return null;
-    return radiusCenter ?? MAP_SEARCH_HUB;
+    return radiusCenter;
   }, [isOpen, radiusCenter]);
 
   const usingSearchFallback = isOpen && radiusCenter == null;

@@ -154,7 +154,7 @@ export const useFilterStore = create<FilterState>()(
     clientAgeRange: null,
     clientBudgetRange: null,
     clientNationalities: [],
-    radiusKm: 10,
+    radiusKm: 3,
     userLatitude: null,
     userLongitude: null,
     passportMode: false,
