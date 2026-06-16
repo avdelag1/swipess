@@ -39,7 +39,7 @@ const BENTO_ITEMS = [
   { id: 'motorcycle', label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',   size: 'normal', imageId: 'motorcycle', icon: Bike,         delay: '20s' },
   { id: 'seekers',    label: 'SEEKERS',     description: 'People looking for workers',     size: 'normal', imageId: 'seekers',    icon: Search,       delay: '24s' },
   { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',     size: 'big',    imageId: 'roommates',  icon: Users,        delay: '28s' },
-  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',      size: 'normal', imageId: 'seekers',    icon: Crown,        delay: '32s' },
+  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',      size: 'normal', imageId: 'premium',    icon: Crown,        delay: '32s' },
   { id: 'events',     label: 'EVENTS',      description: 'Discover local events',          size: 'big',    imageId: 'events',     icon: Calendar,     delay: '36s' },
 ] as const;
 
