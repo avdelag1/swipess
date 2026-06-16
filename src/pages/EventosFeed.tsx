@@ -170,9 +170,7 @@ export default function EventosFeed() {
   const allEvents = useMemo(() => {
     const dbEvents = rawEvents || [];
     const seen = new Set(dbEvents.map(e => e.id));
-    const validMocks = import.meta.env.DEV
-      ? (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id))
-      : [];
+    const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
     
     const combined = [...dbEvents, ...validMocks];
     
@@ -264,7 +262,7 @@ export default function EventosFeed() {
 
   return (
     <div
-      className="absolute inset-0 w-full h-full flex flex-col items-center justify-start bg-[#0a0a0b]"
+      className="fixed inset-0 z-0 w-full h-[100dvh] flex flex-col items-center justify-start bg-[#0a0a0b]"
     >
       {/* Atmospheric layer extends behind the fixed chrome so the photo
           content shows through transparent TopBar / BottomNavigation. */}

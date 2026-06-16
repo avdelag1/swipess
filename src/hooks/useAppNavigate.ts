@@ -36,7 +36,7 @@ export function useAppNavigate() {
     };
 
     const useInstantNav = typeof to === 'string'
-      && (isRoutePrefetched(to) || to.endsWith('/dashboard') || to === '/messages' || to === '/notifications');
+      && (isRoutePrefetched(to) || to.endsWith('/dashboard') || to === '/messages' || to === '/notifications' || to === '/explore/events');
 
     // Skip view transitions for prefetched / tab routes — feels instant
     try {

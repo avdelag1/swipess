@@ -8,8 +8,7 @@ import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
-import { EventSwipeCard, EventSwipeCardRef } from '@/components/events/EventSwipeCard';
-import { useEventsDeck, useEventLikes } from '@/hooks/useEventsDeck';
+import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeErrorState } from './swipe/SwipeErrorState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
@@ -55,7 +54,7 @@ import { logger } from '@/utils/prodLogger';
 const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+
 import { BentoCategoryDashboard } from './swipe/BentoCategoryDashboard';
 
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
@@ -68,7 +67,7 @@ const ReportDialog = lazyWithRetry(() => import('./ReportDialog').then(m => ({ d
 // them in the main chunk guarantees they always open.
 const SwipeInsightsModal = lazyWithRetry(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
 const ShareDialog = lazyWithRetry(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
-const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
+
 const _CATEGORY_ICON_MAP: Record<string, any> = {
   property: Home,
   motorcycle: MotorcycleIcon,
@@ -129,9 +128,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  const [eventShareOpen, setEventShareOpen] = useState(false);
-  const [shareEventData, setShareEventData] = useState<import('@/types/events').EventItem | null>(null);
-
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
 
@@ -219,7 +215,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   );
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDecks[storeActiveCategory || 'all']?.swipedIds || []));
 
-  const cardRef = useRef<SimpleSwipeCardRef | EventSwipeCardRef>(null);
+  const cardRef = useRef<SimpleSwipeCardRef>(null);
+
+  // Events live on the vertical Reels feed — never in the swipe deck.
+  useEffect(() => {
+    if (storeActiveCategory !== 'events') return;
+    setCategories([]);
+    setActiveCategory(null);
+    navigate(EVENTS_FEED_PATH);
+  }, [storeActiveCategory, navigate, setCategories, setActiveCategory]);
 
   useEffect(() => {
     setCurrentIndex(currentIndexRef.current);
@@ -419,7 +423,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const dataType = useMemo(() => {
     if (['buyers', 'renters', 'leads', 'hire'].includes(storeActiveCategory || '')) return 'people';
-    if (storeActiveCategory === 'events') return 'events';
     return 'listing';
   }, [storeActiveCategory]);
 
@@ -448,17 +451,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const selectedCategoryDb = useMemo(() => (storeActiveCategory ? normalizeCategoryName(storeActiveCategory) : undefined), [storeActiveCategory]);
 
-  const eventsEnabled = !!storeActiveCategory && dataType === 'events';
-  const {
-    data: eventsDeck = [],
-    isLoading: eventsLoading,
-    isFetching: eventsFetching,
-    error: eventsError,
-  } = useEventsDeck(eventsEnabled);
-  const { data: likedEventIds = new Set<string>() } = useEventLikes(user?.id);
-
   const smartData = useMemo(() => {
-    if (dataType === 'events') return eventsDeck;
     const rawData = dataType === 'people' ? smartClients : smartListings;
 
     // React Query keeps previous data while fetching. Never let that stale
@@ -480,10 +473,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     return rawData;
-  }, [dataType, smartClients, smartListings, selectedCategoryDb, storeActiveCategory, eventsDeck]);
-  const isLoading = dataType === 'events' ? eventsLoading : dataType === 'people' ? smartClientsLoading : smartListingsLoading;
-  const isFetching = dataType === 'events' ? eventsFetching : dataType === 'people' ? smartClientsFetching : smartListingsFetching;
-  const error = dataType === 'events' ? eventsError : dataType === 'people' ? smartClientsError : smartListingsError;
+  }, [dataType, smartClients, smartListings, selectedCategoryDb, storeActiveCategory]);
+  const isLoading = dataType === 'people' ? smartClientsLoading : smartListingsLoading;
+  const isFetching = dataType === 'people' ? smartClientsFetching : smartListingsFetching;
+  const error = dataType === 'people' ? smartClientsError : smartListingsError;
 
   // Release the transition guard once the new category's query has settled
   // (or errored). Until then the loader stays up ÔÇö no exhausted-state flash.
@@ -633,40 +626,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setCurrentIndex(newIndex);
     markClientSwiped(storeActiveCategory || 'all', listing.id);
 
-    if (dataType === 'events') {
-      if (direction === 'right' && user?.id) {
-        void supabase.from('likes').upsert({
-          user_id: user.id,
-          target_id: listing.id,
-          target_type: 'event',
-          direction: 'right',
-        }, { onConflict: 'user_id,target_id,target_type' }).then(({ error: likeError }) => {
-          if (!likeError) {
-            queryClient.invalidateQueries({ queryKey: ['event-likes', user.id] });
-          }
-        });
-      }
-    } else {
-      recordSwipe(listing.id, 'listing', direction);
+    recordSwipe(listing.id, 'listing', direction);
 
-      swipeMutation.mutate({
-        targetId: listing.id,
-        direction,
-        targetType: dataType === 'people' ? 'profile' : 'listing',
-      });
+    swipeMutation.mutate({
+      targetId: listing.id,
+      direction,
+      targetType: dataType === 'people' ? 'profile' : 'listing',
+    });
 
-      if (direction === 'left') {
-        dismissTarget(listing.id).catch(() => { });
-      }
-
-      queueMicrotask(() => {
-        recordProfileView.mutateAsync({
-          profileId: listing.id,
-          viewType: dataType === 'people' ? 'profile' : 'listing',
-          action: direction === 'right' ? 'like' : 'pass'
-        }).catch(() => { });
-      });
+    if (direction === 'left') {
+      dismissTarget(listing.id).catch(() => { });
     }
+
+    queueMicrotask(() => {
+      recordProfileView.mutateAsync({
+        profileId: listing.id,
+        viewType: dataType === 'people' ? 'profile' : 'listing',
+        action: direction === 'right' ? 'like' : 'pass'
+      }).catch(() => { });
+    });
 
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(() => {
@@ -767,60 +745,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   };
 
   const handleShare = () => {
-    if (dataType === 'events') {
-      const ev = deckQueueRef.current[currentIndexRef.current];
-      if (ev) {
-        setShareEventData(ev);
-        setEventShareOpen(true);
-      }
-    } else {
-      setShareDialogOpen(true);
-    }
+    setShareDialogOpen(true);
     triggerHaptic('light');
   };
-
-  const handleEventLike = useCallback(async () => {
-    const ev = deckQueueRef.current[currentIndexRef.current];
-    if (!ev || !user?.id) {
-      appToast.error('Sign in to save events');
-      return;
-    }
-    const isLiked = likedEventIds.has(ev.id);
-    const { error: likeError } = isLiked
-      ? await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', ev.id).eq('target_type', 'event')
-      : await supabase.from('likes').upsert({
-          user_id: user.id,
-          target_id: ev.id,
-          target_type: 'event',
-          direction: 'right',
-        }, { onConflict: 'user_id,target_id,target_type' });
-    if (likeError) {
-      appToast.error('Could not update like');
-      return;
-    }
-    queryClient.invalidateQueries({ queryKey: ['event-likes', user.id] });
-    triggerHaptic('medium');
-  }, [user?.id, likedEventIds, queryClient]);
-
-  const handleEventChat = useCallback(() => {
-    const ev = deckQueueRef.current[currentIndexRef.current];
-    if (!ev) return;
-    triggerHaptic('heavy');
-    const clean = (ev.organizer_whatsapp || '').replace(/[^+\d]/g, '');
-    if (!clean) {
-      appToast.error('No WhatsApp number for this event');
-      return;
-    }
-    const msg = encodeURIComponent(`Hi! I'm interested in "${ev.title}" — I found it on Swipess`);
-    window.open(`https://wa.me/${clean}?text=${msg}`, '_system');
-  }, []);
-
-  const handleEventDetails = useCallback(() => {
-    const ev = deckQueueRef.current[currentIndexRef.current];
-    if (!ev) return;
-    triggerHaptic('light');
-    navigate(`/explore/events/${ev.id}`, { state: { eventData: ev } });
-  }, [navigate]);
 
   const handleSoon = () => {
     appToast.success('Saved for later');
@@ -928,6 +855,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               setListingType('sale');
               return;
             }
+            if (cat === 'events') {
+              navigate(EVENTS_FEED_PATH);
+              return;
+            }
             setActiveCategory(cat as any);
             setCategories([cat] as any);
             setListingType('both');
@@ -1029,26 +960,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           exit={{ opacity: 0, transition: { duration: 0.15 } }}
                           className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                         >
-                        {dataType === 'events' ? (
-                          <EventSwipeCard
-                            ref={isTopCard ? cardRef as React.RefObject<EventSwipeCardRef> : undefined}
-                            event={listing}
-                            liked={likedEventIds.has(listing.id)}
-                            isTop={isTopCard}
-                            onSwipe={isTopCard ? handleSwipe : () => {}}
-                            onLike={isTopCard ? handleEventLike : () => {}}
-                            onChat={isTopCard ? handleEventChat : () => {}}
-                            onShare={isTopCard ? handleShare : () => {}}
-                            onReport={isTopCard ? () => {
-                              setSelectedListing(listing);
-                              setReportDialogOpen(true);
-                              triggerHaptic('medium');
-                            } : () => {}}
-                            onDetails={isTopCard ? handleEventDetails : () => {}}
-                            onExit={isTopCard ? handleBack : undefined}
-                            onDragStart={isTopCard ? handleDragStart : undefined}
-                          />
-                        ) : dataType === 'people' ? (
+                        {dataType === 'people' ? (
                           <SimpleOwnerSwipeCard
                             ref={isTopCard ? cardRef as any : undefined}
                             profile={listing}
@@ -1135,12 +1047,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   <SwipeErrorState
                     isRetrying={isLoading || isFetching}
                     onRetry={() => {
-                      if (dataType === 'events') {
-                        queryClient.invalidateQueries({ queryKey: ['eventos', 'swipe-deck', 'v1'] });
-                      } else {
-                        const key = dataType === 'people' ? 'smart-clients' : 'smart-listings';
-                        queryClient.invalidateQueries({ queryKey: [key] });
-                      }
+                      const key = dataType === 'people' ? 'smart-clients' : 'smart-listings';
+                      queryClient.invalidateQueries({ queryKey: [key] });
                     }}
                   />
                 ) : (
@@ -1158,6 +1066,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   activeCategory={storeActiveCategory}
                   onCategoryChange={(cat) => {
                     triggerHaptic('medium');
+                    if (cat === 'events') {
+                      navigate(EVENTS_FEED_PATH);
+                      return;
+                    }
                     setActiveCategory(cat as any);
                     setCategories([cat] as any);
                   }}
@@ -1206,7 +1118,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onReport={() => { setSelectedListing(topCard); setReportDialogOpen(true); }}
           /></Suspense>
         )}
-        {shareDialogOpen && topCard && dataType !== 'events' && (
+        {shareDialogOpen && topCard && (
           <Suspense fallback={null}><ShareDialog
             open={shareDialogOpen}
             onOpenChange={setShareDialogOpen}
@@ -1218,15 +1130,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               ? (Array.isArray((topCard as any).profile_images) && (topCard as any).profile_images[0]) || null
               : (Array.isArray((topCard as any).images) && (topCard as any).images[0]) || (topCard as any).image_url || null}
           /></Suspense>
-        )}
-        {eventShareOpen && shareEventData && (
-          <Suspense fallback={null}>
-            <ShareModal
-              open={eventShareOpen}
-              onClose={() => setEventShareOpen(false)}
-              event={shareEventData}
-            />
-          </Suspense>
         )}
         {reportDialogOpen && selectedListing && (
           <Suspense fallback={null}><ReportDialog

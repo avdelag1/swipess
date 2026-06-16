@@ -7,6 +7,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { cn } from '@/lib/utils';
 import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { POKER_CARD_PHOTOS } from './SwipeConstants';
+import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import {
   Bike,
   Calendar,
@@ -70,6 +71,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     uiSounds.playCategorySelect();
     
     if (id === 'premium') navigate('/subscription/packages');
+    else if (id === 'events') navigate(EVENTS_FEED_PATH);
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 

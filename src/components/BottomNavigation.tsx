@@ -41,6 +41,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
+import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 
 const ICON_SIZE = 26;
 
@@ -135,7 +136,7 @@ export const BottomNavigation = memo(({
     { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
-    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: '/explore/events' },
+    { id: 'events', icon: PartyPopper, label: t('nav.events'), path: EVENTS_FEED_PATH },
   ], [t, openAIChat, openVapId, onFilterClick]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -151,29 +152,36 @@ export const BottomNavigation = memo(({
     }
   }, [location.pathname]);
 
-  const isDraggingRef = useRef(false);
-  const touchState = useRef<{ x: number; y: number } | null>(null);
+  const pointerTravelRef = useRef(0);
+  const activePointerIdRef = useRef<number | null>(null);
+  const pointerOriginRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    activePointerIdRef.current = e.pointerId;
+    pointerOriginRef.current = { x: e.clientX, y: e.clientY };
+    pointerTravelRef.current = 0;
+  }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!touchState.current) return;
-    const dx = Math.abs(e.clientX - touchState.current.x);
-    const dy = Math.abs(e.clientY - touchState.current.y);
-    // Only a clear scroll/drag (not minor tap drift) should suppress the tap.
-    if (dx > 24 || dy > 24) isDraggingRef.current = true;
+    if (activePointerIdRef.current !== e.pointerId || !pointerOriginRef.current) return;
+    const dx = e.clientX - pointerOriginRef.current.x;
+    const dy = e.clientY - pointerOriginRef.current.y;
+    pointerTravelRef.current = Math.max(pointerTravelRef.current, Math.hypot(dx, dy));
   }, []);
 
   const handlePointerUp = useCallback(() => {
-    touchState.current = null;
+    activePointerIdRef.current = null;
+    pointerOriginRef.current = null;
   }, []);
 
-  // Primary navigation handler — fires after pointer events, checks drag state
+  // Primary navigation handler — ignore only real drags on this button (dock scroll drifts included).
   const handleNavClick = useCallback(
     (item: NavItem, _event?: React.MouseEvent | React.PointerEvent) => {
-      if (isDraggingRef.current) {
-        isDraggingRef.current = false;
+      if (pointerTravelRef.current > 42) {
+        pointerTravelRef.current = 0;
         return;
       }
-      isDraggingRef.current = false;
+      pointerTravelRef.current = 0;
 
       haptics.tap();
 
@@ -328,8 +336,7 @@ export const BottomNavigation = memo(({
                 onPointerDown={(e) => {
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'ai') prefetchConciergeChatModule();
-                  isDraggingRef.current = false;
-                  touchState.current = { x: e.clientX, y: e.clientY };
+                  handlePointerDown(e);
                 }}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}

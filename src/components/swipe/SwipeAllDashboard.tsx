@@ -13,6 +13,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore } from '@/state/filterStore';
+import { useNavigate } from 'react-router-dom';
+import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 
 const preloadedImages = new Set<string>();
 
@@ -21,6 +23,7 @@ export interface SwipeAllDashboardProps {
 }
 
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
+  const navigate = useNavigate();
   const setPokerCardOrder = useFilterStore((s) => s.setPokerCardOrder);
   // Read persisted card order from localStorage directly (more reliable than
   // depending on zustand persist hydration timing for component re-mount).
@@ -66,8 +69,9 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
     if (id === 'vap') setShowVapModal(true);
+    else if (id === 'events') navigate(EVENTS_FEED_PATH);
     else setCategories(id as QuickFilterCategory);
-  }, [setCategories]);
+  }, [setCategories, navigate]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
