@@ -1,4 +1,5 @@
 ﻿import { create } from 'zustand';
+import { useFilterStore } from '@/state/filterStore';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
@@ -129,6 +130,9 @@ export const useModalStore = create<ModalState>((set) => ({
 
   openPassportMap: (opts) => {
     const handoff = opts?.handoff ?? false;
+    if (!handoff) {
+      useFilterStore.getState().clearPassportLocation();
+    }
     prefetchPassportMapImmediate();
     prefetchCityPhotosImmediate();
     void resolveMapboxAccessToken();

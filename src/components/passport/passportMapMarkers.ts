@@ -32,11 +32,12 @@ const injectMarkerStyles = () => {
       100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
     }
     .passport-map-marker {
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease !important;
-      will-change: transform, box-shadow;
+      transition: box-shadow 0.15s ease, filter 0.15s ease !important;
+      transform-origin: center bottom;
     }
     .passport-map-marker:hover {
-      transform: scale(1.18) translateY(-5px) !important;
+      filter: brightness(1.08);
+      box-shadow: 0 6px 18px rgba(0,114,255,0.35) !important;
       z-index: 1000 !important;
     }
     .passport-map-marker--listing[data-selected="true"] {
@@ -51,6 +52,21 @@ const injectMarkerStyles = () => {
   document.head.appendChild(style);
 };
 
+function listingMarkerStyle(isSelected: boolean) {
+  return `
+    display: flex; align-items: center; justify-content: center;
+    min-width: ${isSelected ? '56px' : '46px'}; height: ${isSelected ? '36px' : '32px'};
+    padding: 0 12px; border-radius: 999px;
+    background: ${isSelected ? PASSPORT_GRADIENTS.listings : '#ffffff'};
+    color: ${isSelected ? '#ffffff' : '#0F172A'};
+    font-size: 11px; font-weight: 900; letter-spacing: 0.03em;
+    border: 2px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
+    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,114,255,${isSelected ? '0.3' : '0.15'});
+    cursor: pointer;
+    white-space: nowrap;
+  `;
+}
+
 export function createListingMarkerEl(
   listing: MapListingPin,
   isSelected: boolean,
@@ -61,24 +77,36 @@ export function createListingMarkerEl(
   const price = formatPinPrice(listing.price);
   const label = price ?? 'View';
 
-  el.style.cssText = `
-    display: flex; align-items: center; justify-content: center;
-    min-width: ${isSelected ? '56px' : '46px'}; height: ${isSelected ? '36px' : '32px'};
-    padding: 0 12px; border-radius: 999px;
-    background: ${isSelected ? PASSPORT_GRADIENTS.listings : '#ffffff'};
-    color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: 11px; font-weight: 900; letter-spacing: 0.03em;
-    border: 2px solid ${isSelected ? '#BAE6FD' : '#E0F2FE'};
-    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,114,255,${isSelected ? '0.3' : '0.15'});
-    cursor: pointer;
-    transform: scale(${isSelected ? '1.1' : '1'});
-    white-space: nowrap;
-  `;
+  el.style.cssText = listingMarkerStyle(isSelected);
   el.textContent = label;
   el.dataset.pinId = listing.id;
   el.dataset.pinType = 'listing';
   el.dataset.selected = isSelected.toString();
   return el;
+}
+
+export function updateListingMarkerEl(
+  el: HTMLDivElement,
+  listing: MapListingPin,
+  isSelected: boolean,
+): void {
+  const price = formatPinPrice(listing.price);
+  el.style.cssText = listingMarkerStyle(isSelected);
+  el.textContent = price ?? 'View';
+  el.dataset.selected = isSelected.toString();
+}
+
+function profileMarkerStyle(isSelected: boolean) {
+  const size = isSelected ? 48 : 42;
+  return `
+    width: ${size}px; height: ${size}px; border-radius: 50%;
+    border: 3px solid ${isSelected ? '#A5B4FC' : '#6366F1'};
+    background: #111;
+    box-shadow: 0 ${isSelected ? '10' : '5'}px ${isSelected ? '24' : '14'}px rgba(99,102,241,${isSelected ? '0.55' : '0.4'});
+    overflow: visible; cursor: pointer;
+    background-size: cover; background-position: center;
+    position: relative;
+  `;
 }
 
 export function createProfileMarkerEl(
@@ -88,18 +116,7 @@ export function createProfileMarkerEl(
   injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--profile';
-  const size = isSelected ? 48 : 42;
-
-  el.style.cssText = `
-    width: ${size}px; height: ${size}px; border-radius: 50%;
-    border: 3px solid ${isSelected ? '#A5B4FC' : '#6366F1'};
-    background: #111;
-    box-shadow: 0 ${isSelected ? '10' : '5'}px ${isSelected ? '24' : '14'}px rgba(99,102,241,${isSelected ? '0.55' : '0.4'});
-    overflow: visible; cursor: pointer;
-    background-size: cover; background-position: center;
-    transform: scale(${isSelected ? '1.12' : '1'});
-    position: relative;
-  `;
+  el.style.cssText = profileMarkerStyle(isSelected);
 
   if (profile.imageUrl) {
     el.style.backgroundImage = `url(${profile.imageUrl})`;
@@ -116,6 +133,7 @@ export function createProfileMarkerEl(
 
   if (profile.recentlyActive) {
     const dot = document.createElement('span');
+    dot.className = 'passport-map-marker-active-dot';
     dot.style.cssText = `
       position: absolute; bottom: -1px; right: -1px;
       width: 12px; height: 12px; border-radius: 50%;
@@ -130,6 +148,45 @@ export function createProfileMarkerEl(
   el.dataset.pinType = 'profile';
   el.dataset.selected = isSelected.toString();
   return el;
+}
+
+export function updateProfileMarkerEl(
+  el: HTMLDivElement,
+  profile: MapProfilePin,
+  isSelected: boolean,
+): void {
+  el.style.cssText = profileMarkerStyle(isSelected);
+  el.dataset.selected = isSelected.toString();
+
+  if (profile.imageUrl) {
+    el.style.backgroundImage = `url(${profile.imageUrl})`;
+    el.textContent = '';
+  } else {
+    el.style.background = PASSPORT_GRADIENTS.people;
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+    el.style.color = '#fff';
+    el.style.fontSize = '14px';
+    el.style.fontWeight = '900';
+    el.textContent = (profile.name?.[0] ?? '?').toUpperCase();
+  }
+
+  const hasDot = !!el.querySelector('.passport-map-marker-active-dot');
+  if (profile.recentlyActive && !hasDot) {
+    const dot = document.createElement('span');
+    dot.className = 'passport-map-marker-active-dot';
+    dot.style.cssText = `
+      position: absolute; bottom: -1px; right: -1px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: linear-gradient(135deg, #10B981, #06B6D4);
+      border: 2px solid #fff;
+      box-shadow: 0 0 8px rgba(16,185,129,0.8);
+    `;
+    el.appendChild(dot);
+  } else if (!profile.recentlyActive && hasDot) {
+    el.querySelector('.passport-map-marker-active-dot')?.remove();
+  }
 }
 
 export function formatDistanceKm(km?: number): string | null {

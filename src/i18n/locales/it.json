@@ -535,7 +535,34 @@
   "map": {
     "filterAll": "Tutto",
     "filterListings": "Annunci",
-    "filterPeople": "Persone"
+    "filterPeople": "Persone",
+    "liveMap": "Mappa live",
+    "globalPassport": "Passaporto globale",
+    "exploreCities": "Esplora città nel mondo",
+    "myLocation": "La mia posizione",
+    "cities": "Città",
+    "results": "Risultati",
+    "youAreHere": "Sei qui",
+    "findingYou": "Ti sto cercando…",
+    "scanningArea": "Scansione area…",
+    "noResults": "Nessun annuncio entro {{radius}} km",
+    "loadError": "Impossibile caricare i dati della mappa",
+    "doubleTapHint": "Tocca due volte la mappa per ingrandire"
+  },
+  "tokens": {
+    "outOfTokens": "Token messaggi esauriti",
+    "noTokensError": "Servono token messaggi o un piano premium per avviare una nuova conversazione."
+  },
+  "listings": {
+    "locationRequired": "Seleziona una città nel selettore di posizione così il tuo annuncio appare sulla mappa.",
+    "cityRequiredTitle": "Posizione richiesta",
+    "cityRequired": "Scegli paese e città così il tuo annuncio appare sulla mappa.",
+    "cityRequiredAi": "Aggiungi una città così il tuo annuncio può apparire sulla mappa.",
+    "gpsMissingTitle": "Pin mappa mancante",
+    "gpsMissingBanner": "Questo annuncio non ha ancora un pin sulla mappa. Aggiorna la posizione qui sotto così i clienti possono trovarti.",
+    "quickCitySearch": "Ricerca rapida: digita una città…",
+    "locationStep": "Posizione",
+    "locationHint": "Solo area generale — nessun indirizzo esatto"
   },
   "errors": {
     "generic": "Qualcosa è andato storto",

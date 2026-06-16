@@ -53,9 +53,11 @@ function TopBarComponent({
   const location = useLocation();
   const { isLight } = useAppTheme();
   const setModal = useModalStore(s => s.setModal);
+  const openPassport = useModalStore(s => s.openPassport);
   const openPassportMap = useModalStore(s => s.openPassportMap);
   const openPassport = useModalStore(s => s.openPassport);
   const { tokens } = useTokens();
+  const { t } = useTranslation();
 
   const isActuallyVisible = true;
   const isDashboard = location.pathname.includes('/dashboard');
@@ -243,6 +245,23 @@ function TopBarComponent({
                     : 'bg-brand-primary',
                 )}
                 aria-hidden
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { haptics.tap(); openPassport(); }}
+              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
+              style={glassPillStyle}
+              aria-label={t('map.globalPassport')}
+            >
+              <Globe
+                className={HEADER_ICON}
+                style={{
+                  color: iconColor,
+                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(99,102,241,0.65))' : 'none',
+                }}
+                strokeWidth={1.9}
               />
             </button>
 

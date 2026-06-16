@@ -13,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
-import { Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
+import { AlertCircle, Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -32,6 +33,7 @@ import { ListingVideoUpload } from './video/ListingVideoUpload';
 import { uiSounds } from '@/utils/uiSounds';
 import { saveListingWithSchemaRetry } from '@/utils/listingSave';
 import {
+  isValidListingCoordinates,
   LISTING_LOCATION_REQUIRED_MSG,
   resolveListingCoordinates,
 } from '@/utils/listingLocation';
@@ -118,6 +120,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const { user } = useAuth();
   const { saveListingDraft } = useAnonymousDrafts();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const getMaxPhotos = () => {
     switch (selectedCategory) {
@@ -554,7 +557,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     const currentFormData = formDataRef.current;
 
     if (!(currentFormData.city as string)?.trim()) {
-      appToast.error('Location required', 'Pick a country and city so your listing shows on the map.');
+      appToast.error(t('listings.cityRequiredTitle'), t('listings.cityRequired'));
       return;
     }
 
@@ -585,6 +588,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   };
 
   if (!isOpen) return null;
+
+  const currentLat = (formData.latitude as number | undefined) ?? location.lat;
+  const currentLng = (formData.longitude as number | undefined) ?? location.lng;
+  const needsGpsFix = !!editingId && !isValidListingCoordinates(currentLat, currentLng);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !createListingMutation.isPending) handleClose(); }}>
@@ -627,6 +634,19 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             variants={stagger}
             className="px-6 py-6 space-y-8 pb-32"
           >
+            {needsGpsFix && (
+              <motion.div
+                variants={itemFadeScale}
+                className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-4"
+              >
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-amber-200">{t('listings.gpsMissingTitle')}</p>
+                  <p className="text-xs leading-relaxed text-amber-100/80">{t('listings.gpsMissingBanner')}</p>
+                </div>
+              </motion.div>
+            )}
+
             {/* Photo Section with premium cards - RELOCATED TO FRONT */}
             <motion.div variants={itemFadeScale}>
               <div className="space-y-4">

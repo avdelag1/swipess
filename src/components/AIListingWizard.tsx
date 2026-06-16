@@ -23,8 +23,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { saveListingWithSchemaRetry } from '@/utils/listingSave';
-import { resolveListingCoordinates, LISTING_LOCATION_REQUIRED_MSG } from '@/utils/listingLocation';
+import { QuickCityPicker } from '@/components/location/QuickCityPicker';
+import { resolveListingCoordinates } from '@/utils/listingLocation';
 import { logger } from '@/utils/prodLogger';
+import { useTranslation } from 'react-i18next';
 
 type WizardStep = 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
@@ -98,6 +100,7 @@ export function AIListingWizard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
+  const { t } = useTranslation();
 
   const modalBg = isLight 
     ? 'bg-white chrome-solid saturate-150 border-black/10' 
@@ -117,6 +120,8 @@ export function AIListingWizard() {
   const [prompt, setPrompt] = useState('');
   const [price, setPrice] = useState('');
   const [cityLocation, setCityLocation] = useState('');
+  const [locationCountry, setLocationCountry] = useState('');
+  const [locationCoords, setLocationCoords] = useState<{ lat?: number; lng?: number }>({});
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [extras, setExtras] = useState<Record<string, unknown>>({});
@@ -193,6 +198,8 @@ export function AIListingWizard() {
       setPrompt('');
       setPrice('');
       setCityLocation('');
+      setLocationCountry('');
+      setLocationCoords({});
       setImageFiles([]);
       setExtras({});
       setProgressPct(0);
@@ -239,7 +246,11 @@ export function AIListingWizard() {
       appToast.error('At least 1 photo is required.');
       return;
     }
-    
+    if (!cityLocation?.trim()) {
+      appToast.error(t('listings.cityRequiredTitle'), t('listings.cityRequiredAi'));
+      return;
+    }
+
     const effectivePrompt = prompt.trim() || buildFallbackPrompt({
       category,
       cityLocation,
@@ -298,15 +309,17 @@ export function AIListingWizard() {
 
       const finalCity = (parsed.city as string) || cityLocation?.trim();
       if (!finalCity) {
-        throw new Error('Add a city so your listing can appear on the map.');
+        throw new Error(t('listings.cityRequiredAi'));
       }
 
       const mapCoords = await resolveListingCoordinates({
         city: finalCity,
-        country: (parsed.country as string) || 'Mexico',
+        country: (parsed.country as string) || locationCountry || 'Mexico',
+        latitude: locationCoords.lat,
+        longitude: locationCoords.lng,
       });
       if (!mapCoords) {
-        throw new Error(LISTING_LOCATION_REQUIRED_MSG);
+        throw new Error(t('listings.locationRequired'));
       }
 
       // Trust the AI-detected category when valid — the user may describe a
@@ -328,7 +341,7 @@ export function AIListingWizard() {
         description: (parsed.description as string) || effectivePrompt,
         price: numericPrice,
         currency: 'USD',
-        country: 'Mexico',
+        country: (parsed.country as string) || locationCountry || 'Mexico',
         state: finalCity,
         city: finalCity,
         location: finalCity,
@@ -552,8 +565,30 @@ export function AIListingWizard() {
 
 
                       <div className="space-y-4">
+                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>
+                          3. {t('listings.locationStep')}
+                        </label>
+                        <QuickCityPicker
+                          value={cityLocation}
+                          placeholder={t('listings.quickCitySearch')}
+                          inputClassName={inputCls}
+                          onSelect={({ city, country, latitude, longitude }) => {
+                            setCityLocation(city);
+                            setLocationCountry(country);
+                            setLocationCoords({
+                              lat: latitude,
+                              lng: longitude,
+                            });
+                          }}
+                        />
+                        <p className={cn("text-[10px] font-bold uppercase tracking-widest ml-2", textMuted)}>
+                          {t('listings.locationHint')}
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between ml-2">
-                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>3. Description</label>
+                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>4. Description</label>
                            <button
                              type="button"
                              onClick={handleEnhance}
@@ -674,7 +709,7 @@ export function AIListingWizard() {
                       <div className="pt-4 px-1 pb-10">
                         <Button
                           onClick={handleProcess}
-                          disabled={isProcessing || imageFiles.length === 0}
+                          disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
                           className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-30"
                         >
                           {isProcessing ? (

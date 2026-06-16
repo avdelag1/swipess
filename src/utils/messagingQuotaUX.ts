@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { appToast } from '@/utils/appNotification';
 import { NO_TOKENS_ERROR } from '@/utils/messagingEntitlements';
 import { useModalStore } from '@/state/modalStore';
@@ -9,7 +10,7 @@ export function openTokensModal(): void {
 /** Pre-flight gate before opening a new-conversation flow. Returns false when blocked. */
 export function guardNewConversation(canStart: boolean): boolean {
   if (canStart) return true;
-  appToast.error('Out of message tokens', NO_TOKENS_ERROR);
+  appToast.error(i18n.t('tokens.outOfTokens'), i18n.t('tokens.noTokensError'));
   openTokensModal();
   return false;
 }
@@ -21,7 +22,7 @@ export function isNoTokensError(err: unknown): boolean {
 
 export function handleStartConversationError(err: unknown, fallbackTitle = 'Could not start conversation'): void {
   if (isNoTokensError(err)) {
-    appToast.error('Out of message tokens', NO_TOKENS_ERROR);
+    appToast.error(i18n.t('tokens.outOfTokens'), i18n.t('tokens.noTokensError'));
     openTokensModal();
     return;
   }

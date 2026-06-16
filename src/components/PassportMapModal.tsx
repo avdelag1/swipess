@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Globe2, Loader2, MapPin, Navigation, Radar, Search, Users, X, Zap } from 'lucide-react';
+import { Building2, Globe2, LayoutList, Loader2, MapPin, Navigation, Search, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -29,9 +29,12 @@ import { PassportMapResultsRail } from '@/components/passport/PassportMapResults
 import {
   createListingMarkerEl,
   createProfileMarkerEl,
+  updateListingMarkerEl,
+  updateProfileMarkerEl,
   type MapLayerFilter,
   type SelectedPin,
 } from '@/components/passport/passportMapMarkers';
+import { bindMapDoubleTapZoom, bindMarkerDoubleTapZoom } from '@/utils/mapDoubleTapZoom';
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { gradientForRadius, PASSPORT_GRADIENTS, RADIUS_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
@@ -44,13 +47,17 @@ import {
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
+
+/** Default search hub when GPS is still warming up — matches prod listing cluster. */
+const MAP_SEARCH_HUB = PASSPORT_QUICK_CITIES.find(c => c.name === 'Tulum') ?? {
+  lat: 20.2114,
+  lng: -87.4654,
+};
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 
 const RADIUS_PRESETS = [5, 20, 40, 80] as const;
-const DOUBLE_TAP_WINDOW_MS = 300;
-const DOUBLE_TAP_SLOP_PX = 40;
 
 const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building2; gradient: string }[] = [
   { id: 'all', labelKey: 'map.filterAll', icon: Globe2, gradient: PASSPORT_GRADIENTS.all },
@@ -85,13 +92,18 @@ export const PassportMapModal = memo(() => {
   const geocoderContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import('mapbox-gl').Map | null>(null);
   const mapboxRef = useRef<MapboxGL | null>(null);
-  const markersRef = useRef<import('mapbox-gl').Marker[]>([]);
+  const markersRef = useRef<Map<string, {
+    marker: import('mapbox-gl').Marker;
+    el: HTMLDivElement;
+    cleanup: () => void;
+  }>>(new Map());
+  const unbindMapDoubleTapRef = useRef<(() => void) | null>(null);
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
   const autoGpsAttemptedRef = useRef(false);
+  const initialFlyDoneRef = useRef(false);
   const openedOnceRef = useRef(false);
-  const lastTouchTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
   const lastDoubleTapZoomAtRef = useRef(0);
   const isLightRef = useRef(isLight);
   isLightRef.current = isLight;
@@ -119,7 +131,27 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, passportMapShowCities, clearPassportMapFlags]);
 
-  const { data, isLoading } = usePassportMapData(isOpen ? lat : null, isOpen ? lng : null, radiusKm, isOpen);
+  /** Search zone center — your GPS when local, passport target when exploring */
+  const radiusCenter = useMemo(() => {
+    if (passportMode && lat != null && lng != null) return { lat, lng };
+    if (deviceGps) return deviceGps;
+    if (lat != null && lng != null) return { lat, lng };
+    return null;
+  }, [passportMode, lat, lng, deviceGps]);
+
+  const searchCoords = useMemo(() => {
+    if (!isOpen) return null;
+    return radiusCenter ?? MAP_SEARCH_HUB;
+  }, [isOpen, radiusCenter]);
+
+  const usingSearchFallback = isOpen && radiusCenter == null;
+
+  const { data, isFetching, isError, isFetched } = usePassportMapData(
+    searchCoords?.lat ?? null,
+    searchCoords?.lng ?? null,
+    radiusKm,
+    isOpen,
+  );
   const activePeopleCount = data?.activePeopleCount ?? 0;
 
   const visibleListings = useMemo(() => {
@@ -133,14 +165,7 @@ export const PassportMapModal = memo(() => {
   }, [data, layerFilter]);
 
   const nearbyCount = (visibleListings.length + visibleProfiles.length);
-
-  /** Search zone center — your GPS when local, passport target when exploring */
-  const radiusCenter = useMemo(() => {
-    if (passportMode && lat != null && lng != null) return { lat, lng };
-    if (deviceGps) return deviceGps;
-    if (lat != null && lng != null) return { lat, lng };
-    return null;
-  }, [passportMode, lat, lng, deviceGps]);
+  const showInitialDataLoad = isFetching && !data;
 
   const selectedId = selected
     ? (selected.type === 'listing' ? selected.data.id : selected.data.id)
@@ -277,31 +302,72 @@ export const PassportMapModal = memo(() => {
     }
   }, [isOpen, lat, lng, passportMode, deviceGps]);
 
-  // Auto-detect GPS when opening map (unless exploring via passport teleport)
+  // Request device GPS as soon as the map opens (before Mapbox finishes loading).
   useEffect(() => {
     if (!isOpen) {
       autoGpsAttemptedRef.current = false;
       return;
     }
-    if (!mapReady || autoGpsAttemptedRef.current) return;
+    if (passportMode || autoGpsAttemptedRef.current || !canGeolocate()) return;
 
     autoGpsAttemptedRef.current = true;
+    let cancelled = false;
+    setGpsLoading(true);
 
-    // Passport mode — fly to the teleported city
+    void (async () => {
+      try {
+        const { latitude, longitude } = await getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 30000,
+        });
+        if (cancelled) return;
+        const fix = { lat: latitude, lng: longitude };
+        setDeviceGps(fix);
+        setUserLocation(latitude, longitude);
+      } catch {
+        if (!cancelled) {
+          appToast.info('Enable location', 'Allow location access to see where you are on the map.');
+        }
+      } finally {
+        if (!cancelled) setGpsLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [isOpen, passportMode, setUserLocation]);
+
+  // Fly the camera once per open — passport destination or your GPS.
+  useEffect(() => {
+    if (!isOpen) {
+      initialFlyDoneRef.current = false;
+      return;
+    }
+    if (!mapReady || !mapRef.current || initialFlyDoneRef.current) return;
+
     if (passportMode && lat != null && lng != null) {
       cinematicFlyTo(
-        mapRef.current!,
+        mapRef.current,
         [lng, lat],
         zoomForRadiusKm(radiusKm),
         { duration: 1400, pitch: CINEMATIC_PITCH },
       );
+      initialFlyDoneRef.current = true;
       return;
     }
 
-    // Normal mode — center on device GPS
-    if (!canGeolocate()) return;
-    centerOnDeviceGpsRef.current({ zoom: zoomForRadiusKm(radiusKm), refresh: true });
-  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng]);
+    const target = deviceGps
+      ?? (lat != null && lng != null ? { lat, lng } : null);
+    if (!target) return;
+
+    cinematicFlyTo(
+      mapRef.current,
+      [target.lng, target.lat],
+      zoomForRadiusKm(radiusKm),
+      { duration: 1100, pitch: CINEMATIC_PITCH },
+    );
+    initialFlyDoneRef.current = true;
+  }, [isOpen, mapReady, passportMode, radiusKm, lat, lng, deviceGps]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
@@ -312,8 +378,11 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
+  // Create the Mapbox instance only when the live map is visible — initializing
+  // while the genie sheet scales the host to ~0.35× (passport warm-behind) yields
+  // a blank/broken canvas that never recovers on some devices.
   useEffect(() => {
-    if (!shouldWarmMap || initStartedRef.current || !mapContainerRef.current) return;
+    if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
 
     let cancelled = false;
     setMapLoading(true);
@@ -394,6 +463,13 @@ export const PassportMapModal = memo(() => {
           }
         });
 
+        unbindMapDoubleTapRef.current?.();
+        unbindMapDoubleTapRef.current = bindMapDoubleTapZoom(map, {
+          isActive: () => useModalStore.getState().showPassportMapModal,
+          lastZoomAtRef: lastDoubleTapZoomAtRef,
+          onZoom: () => triggerHaptic('light'),
+        });
+
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           setSelected(null);
@@ -415,7 +491,7 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
-  }, [shouldWarmMap, resizeMap]);
+  }, [isOpen, resizeMap]);
 
   // Geocoder mounts after map is ready — keeps first paint fast
   useEffect(() => {
@@ -430,11 +506,18 @@ export const PassportMapModal = memo(() => {
       const { MapboxGeocoder } = await warmMapboxModules();
       if (cancelled || !mapRef.current) return;
 
+      const proximity = deviceGps
+        ? [deviceGps.lng, deviceGps.lat] as [number, number]
+        : lat != null && lng != null
+          ? [lng, lat] as [number, number]
+          : undefined;
+
       const geocoder = new MapboxGeocoder({
         accessToken: token,
         mapboxgl: mapboxRef.current as any,
         marker: false,
-        placeholder: 'Search cities worldwide...',
+        placeholder: 'Search near you or worldwide…',
+        ...(proximity ? { proximity } : {}),
       });
       geocoder.on('result', (ev: any) => {
         const [newLng, newLat] = ev.result.center;
@@ -447,11 +530,17 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
-  }, [isOpen, mapReady]);
+  }, [isOpen, mapReady, deviceGps, lat, lng]);
 
   useEffect(() => () => {
+    unbindMapDoubleTapRef.current?.();
+    unbindMapDoubleTapRef.current = null;
     resizeObserverRef.current?.disconnect();
-    markersRef.current.forEach(m => m.remove());
+    markersRef.current.forEach(entry => {
+      entry.cleanup();
+      entry.marker.remove();
+    });
+    markersRef.current.clear();
     geocoderRef.current?.onRemove();
     if (mapRef.current) removeUserGpsDotFromMap(mapRef.current);
     mapRef.current?.remove();
@@ -467,8 +556,14 @@ export const PassportMapModal = memo(() => {
     }
     if (!mapRef.current) return;
     resizeMap();
+    requestAnimationFrame(() => {
+      resizeMap();
+      requestAnimationFrame(resizeMap);
+    });
+    const t = window.setTimeout(resizeMap, 120);
     if (!openedOnceRef.current) openedOnceRef.current = true;
-  }, [isOpen, resizeMap]);
+    return () => window.clearTimeout(t);
+  }, [isOpen, resizeMap, mapReady]);
 
   // Live GPS dot — tracks your real device position
   useEffect(() => {
@@ -536,9 +631,7 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!mapRef.current || !mapReady || !mapboxRef.current || !isOpen) return;
 
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
-
+    const map = mapRef.current;
     const mapboxgl = mapboxRef.current;
     const locationCounts = new Map<string, number>();
 
@@ -552,7 +645,9 @@ export const PassportMapModal = memo(() => {
       return { lat: lat + r * Math.cos(theta), lng: lng + r * Math.sin(theta) };
     };
 
-    visibleListings.forEach((l) => {
+    const upsertListing = (l: (typeof visibleListings)[number]) => {
+      const key = `listing:${l.id}`;
+      nextKeys.add(key);
       const isSelected = selected?.type === 'listing' && selected.data.id === l.id;
       const el = createListingMarkerEl(l, isSelected);
       el.addEventListener('click', (e) => {
@@ -582,16 +677,72 @@ export const PassportMapModal = memo(() => {
           .setLngLat([coords.lng, coords.lat])
           .addTo(mapRef.current!),
       );
-    });
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([l.lng, l.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
+    };
+
+    const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
+      const key = `profile:${p.id}`;
+      nextKeys.add(key);
+      const isSelected = selected?.type === 'profile' && selected.data.id === p.id;
+      const existing = registry.get(key);
+
+      if (existing) {
+        existing.marker.setLngLat([p.lng, p.lat]);
+        updateProfileMarkerEl(existing.el, p, isSelected);
+        return;
+      }
+
+      const el = createProfileMarkerEl(p, isSelected);
+      const cleanup = bindMarkerDoubleTapZoom(
+        el,
+        () => [p.lng, p.lat],
+        mapRef,
+        lastDoubleTapZoomAtRef,
+        () => {
+          triggerHaptic('medium');
+          focusPin({ type: 'profile', data: p });
+        },
+        () => useModalStore.getState().showPassportMapModal,
+        () => triggerHaptic('light'),
+      );
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([p.lng, p.lat])
+        .addTo(map);
+      registry.set(key, { marker, el, cleanup });
+    };
+
+    visibleListings.forEach(upsertListing);
+    visibleProfiles.forEach(upsertProfile);
+
+    for (const [key, entry] of registry) {
+      if (!nextKeys.has(key)) {
+        entry.cleanup();
+        entry.marker.remove();
+        registry.delete(key);
+      }
+    }
   }, [visibleListings, visibleProfiles, mapReady, isOpen, selected, focusPin]);
 
   const mapboxReady = tokenReady;
 
-  const statusLine = gpsLoading
-    ? 'Finding you…'
-    : nearbyCount > 0
-      ? `${nearbyCount} in ${radiusKm}km`
-      : 'Scanning area…';
+  const statusLine = isError
+    ? t('map.loadError')
+    : gpsLoading && !radiusCenter
+      ? t('map.findingYou')
+      : showInitialDataLoad
+        ? t('map.scanningArea')
+        : !passportMode && deviceGps && !gpsLoading
+          ? t('map.youAreHere')
+          : nearbyCount > 0
+            ? `${nearbyCount} in ${radiusKm}km`
+            : isFetched
+              ? t('map.noResults', { radius: radiusKm })
+              : usingSearchFallback
+                ? t('map.scanningArea')
+                : t('map.scanningArea');
 
   const mapHostVisible = isOpen;
   const instantOpen = isOpen && passportMapHandoff;
@@ -635,6 +786,20 @@ export const PassportMapModal = memo(() => {
         <div data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-x-0 top-0 h-36 pointer-events-none z-[5] bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 pointer-events-none z-[5] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+
+        {/* Status pill — GPS / nearby count */}
+        {isOpen && !selected && (
+          <div
+            className="map-hud-panel absolute left-1/2 -translate-x-1/2 z-30 rounded-full px-4 py-2 flex items-center gap-2 pointer-events-none shadow-lg"
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 72px)' }}
+          >
+            {!passportMode && deviceGps && !gpsLoading && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.9)] shrink-0" />
+            )}
+            {gpsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00C6FF] shrink-0" />}
+            <span className="text-[11px] font-bold text-white tracking-wide whitespace-nowrap">{statusLine}</span>
+          </div>
+        )}
 
         {/* SLEEK MAP CONTROLS (Top Left & Top Right) */}
         <AnimatePresence>
@@ -705,16 +870,25 @@ export const PassportMapModal = memo(() => {
                 className="absolute right-[16px] z-40 flex flex-col gap-[12px] items-center pointer-events-auto"
                 style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
               >
-                <button
-                  type="button"
-                  onClick={handleGPS}
-                  disabled={gpsLoading}
-                  className="relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-lg overflow-hidden transition-all duration-200 text-white/80 hover:bg-white/10 disabled:opacity-60"
-                  title="My Location"
-                >
-                  <div className="absolute inset-0 bg-[#1A202C]/60 backdrop-blur-[10px]" />
-                  {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin relative z-10" /> : <Navigation className="w-5 h-5 relative z-10" strokeWidth={2.0} />}
-                </button>
+                <div className="relative flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleGPS}
+                    disabled={gpsLoading}
+                    className="relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border border-white/10 shadow-lg transition-all duration-200 text-white/80 hover:bg-white/10 disabled:opacity-60"
+                    aria-label={t('map.myLocation')}
+                    title={t('map.myLocation')}
+                  >
+                    <div className="absolute inset-0 rounded-full bg-[#1A202C]/60 backdrop-blur-[10px]" />
+                    {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin relative z-10" /> : <Navigation className="w-5 h-5 relative z-10" strokeWidth={2.0} />}
+                  </button>
+                  {!passportMode && deviceGps && (
+                    <span className="absolute -top-1.5 -right-2.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[#0a0a12] shadow-[0_0_10px_rgba(16,185,129,0.8)] z-30" aria-hidden />
+                  )}
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
+                    {t('map.myLocation')}
+                  </span>
+                </div>
 
                 {FILTER_TABS.map(({ id, labelKey, icon, gradient }) => (
                   <PassportMapChunkyButton
@@ -737,45 +911,61 @@ export const PassportMapModal = memo(() => {
                 ))}
 
                 {/* Cities vertical button */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
-                  }}
-                  className={cn(
-                    "relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg overflow-hidden",
-                    activeDrawer === 'cities' 
-                      ? "border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
-                      : "border-white/10 text-white/80 hover:bg-white/10"
-                  )}
-                  title="Cities"
-                >
-                  <div className={cn("absolute inset-0 backdrop-blur-[10px]", activeDrawer === 'cities' ? "bg-white/20" : "bg-[#1A202C]/90")} />
-                  <Globe2 className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-                </button>
+                <div className="relative flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setActiveDrawer(prev => prev === 'cities' ? null : 'cities');
+                    }}
+                    className={cn(
+                      'relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg',
+                      activeDrawer === 'cities'
+                        ? 'border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
+                        : 'border-white/10 text-white/80 hover:bg-white/10',
+                    )}
+                    aria-label={t('map.cities')}
+                    title={t('map.cities')}
+                  >
+                    <div className={cn('absolute inset-0 rounded-full backdrop-blur-[10px]', activeDrawer === 'cities' ? 'bg-white/20' : 'bg-[#1A202C]/90')} />
+                    <Globe2 className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                  </button>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
+                    {t('map.cities')}
+                  </span>
+                </div>
 
                 {/* Results vertical button */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic('light');
-                    setActiveDrawer(prev => prev === 'results' ? null : 'results');
-                  }}
-                  className={cn(
-                    "relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg overflow-hidden",
-                    activeDrawer === 'results' 
-                      ? "border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
-                      : "border-white/10 text-white/80 hover:bg-white/10"
-                  )}
-                  title="Results"
-                >
-                  <div className={cn("absolute inset-0 backdrop-blur-[10px]", activeDrawer === 'results' ? "bg-white/20" : "bg-[#1A202C]/90")} />
-                  <LayoutList className="w-5 h-5 relative z-10" strokeWidth={2.0} />
-                  <div className="absolute -top-1 -right-1 bg-[#00C6FF] text-black text-[9px] font-black px-1.5 py-0.5 rounded-full z-20 shadow-md min-w-[18px] text-center border border-black/20">
-                    {nearbyCount}
+                <div className="relative flex flex-col items-center gap-1">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setActiveDrawer(prev => prev === 'results' ? null : 'results');
+                      }}
+                      className={cn(
+                        'relative w-[44px] h-[44px] flex items-center justify-center shrink-0 rounded-full border transition-all duration-200 shadow-lg',
+                        activeDrawer === 'results'
+                          ? 'border-white/40 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
+                          : 'border-white/10 text-white/80 hover:bg-white/10',
+                      )}
+                      aria-label={`${t('map.results')}, ${nearbyCount} nearby`}
+                      title={t('map.results')}
+                    >
+                      <div className={cn('absolute inset-0 rounded-full backdrop-blur-[10px]', activeDrawer === 'results' ? 'bg-white/20' : 'bg-[#1A202C]/90')} />
+                      <LayoutList className="w-5 h-5 relative z-10" strokeWidth={2.0} />
+                    </button>
+                    {nearbyCount > 0 && (
+                      <span className="absolute -top-1.5 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#00C6FF] text-[10px] font-black text-[#0B0E14] flex items-center justify-center shadow-[0_2px_8px_rgba(0,229,255,0.45)] z-30 ring-2 ring-[#0a0a12]">
+                        {nearbyCount > 99 ? '99+' : nearbyCount}
+                      </span>
+                    )}
                   </div>
-                </button>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/55 text-center leading-tight">
+                    {t('map.results')}
+                  </span>
+                </div>
               </motion.div>
             </>
           )}
@@ -874,8 +1064,11 @@ export const PassportMapModal = memo(() => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.2 }}
-                className="px-4 w-full flex items-center justify-center pointer-events-auto"
+                className="px-4 w-full flex flex-col items-center justify-center pointer-events-auto gap-2"
               >
+                <p className="text-[10px] font-semibold text-white/45 tracking-wide pointer-events-none">
+                  {t('map.doubleTapHint')}
+                </p>
                 {/* Center Sleek Radius Slider */}
                 <div className="w-full max-w-[280px] bg-[#1A202C]/90 backdrop-blur-[10px] border border-white/10 shadow-2xl rounded-full px-5 py-2.5 flex flex-col gap-2 relative">
                   <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-white/50 px-1">
@@ -941,13 +1134,13 @@ export const PassportMapModal = memo(() => {
           </div>
         )}
 
-        {isLoading && (
+        {showInitialDataLoad && (
           <div
             className="map-hud-panel absolute left-4 z-20 rounded-full px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-none"
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 120px)' }}
           >
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white">Updating</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white">{t('map.scanningArea')}</span>
           </div>
         )}
 
