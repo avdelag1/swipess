@@ -39,8 +39,16 @@ workflows:
     scripts:
       - name: Install JS dependencies
         script: npm ci || npm install
-      - name: Build web + sync Capacitor iOS (+ Info.plist patch)
+      - name: Log build source (verify correct commit + version)
+        script: |
+          echo "Branch: ${CM_BRANCH:-unknown}"
+          echo "Commit: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
+          echo "App version (package.json): $(node -p "require('./package.json').version")"
+      - name: Build web + sync Capacitor iOS (+ Info.plist patch + version sync)
         script: npm run ios:sync
+      - name: Confirm Xcode marketing version
+        script: |
+          grep MARKETING_VERSION ios/App/App.xcodeproj/project.pbxproj | head -2
       - name: Install CocoaPods dependencies
         script: |
           cd ios/App

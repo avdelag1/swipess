@@ -21,7 +21,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "ios:add": "npx cap add ios",
-    "ios:sync": "npm run build && cross-env LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx cap sync ios && node scripts/patch-ios-plist.cjs",
+    "ios:sync": "npm run build && cross-env LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx cap sync ios && node scripts/patch-ios-plist.cjs && node scripts/sync-ios-version.cjs",
     "ios:open": "npx cap open ios",
     "ios:build": "npm run build && cross-env LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 npx cap sync ios && node scripts/patch-ios-plist.cjs && npx cap open ios",
     "ios:patch-plist": "node scripts/patch-ios-plist.cjs",
