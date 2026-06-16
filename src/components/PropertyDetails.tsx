@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bath, Bed, Heart, MapPin, MessageCircle, Share2, Square, Zap } from 'lucide-react';
-import { useSwipe } from '@/hooks/useSwipe';
 import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';
 import { triggerHaptic } from '@/utils/haptics';
@@ -22,7 +21,6 @@ interface PropertyDetailsProps {
 }
 
 export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: PropertyDetailsProps) {
-  const swipeMutation = useSwipe();
   const hasPremiumMessaging = useHasPremiumFeature('messaging');
   const [isLiked, setIsLiked] = useState(false);
 
@@ -70,18 +68,6 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     },
     enabled: !!listingId && isOpen,
   });
-
-  const handleSwipe = useCallback((direction: 'left' | 'right') => {
-    if (!listingId) return;
-    
-    swipeMutation.mutate({
-      targetId: listingId,
-      direction,
-      targetType: 'listing'
-    });
-    
-    onClose();
-  }, [listingId, swipeMutation, onClose]);
 
   const handleLikeToggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

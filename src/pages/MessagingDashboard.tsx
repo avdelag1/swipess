@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 // import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useActiveMode } from '@/hooks/useActiveMode';
+
 import {
   type Conversation,
   useConversations,
@@ -64,7 +64,6 @@ export function MessagingDashboard() {
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
-  const { activeMode } = useActiveMode();
   const { _theme, isLight } = useAppTheme();
   const { t } = useTranslation();
 

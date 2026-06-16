@@ -47,8 +47,6 @@ interface ModalState {
   showVapId: boolean;
   showTokensModal: boolean;
   showPassportMapModal: boolean;
-  /** Instant fullscreen map when switching from passport sheet (no profile flash). */
-  passportMapHandoff: boolean;
   /** Open map with city quick-filter drawer expanded. */
   passportMapShowCities: boolean;
   showInviteFriends: boolean;
@@ -61,7 +59,7 @@ interface ModalState {
   openPropertyInsights: (id: string) => void;
   openClientInsights: (id: string) => void;
   openSubscription: (reason: string) => void;
-  openPassportMap: (opts?: { handoff?: boolean; showCities?: boolean }) => void;
+  openPassportMap: (opts?: { showCities?: boolean }) => void;
   clearPassportMapFlags: () => void;
   closeAll: () => void;
 }
@@ -96,7 +94,6 @@ export const useModalStore = create<ModalState>((set) => ({
   showVapId: false,
   showTokensModal: false,
   showPassportMapModal: false,
-  passportMapHandoff: false,
   passportMapShowCities: false,
   showInviteFriends: false,
 
@@ -114,22 +111,17 @@ export const useModalStore = create<ModalState>((set) => ({
   openSubscription: (reason) => set({ subscriptionReason: reason, showSubscriptionPackages: true }),
 
   openPassportMap: (opts) => {
-    const handoff = opts?.handoff ?? false;
-    if (!handoff) {
-      useFilterStore.getState().clearPassportLocation();
-    }
+    useFilterStore.getState().clearPassportLocation();
     prefetchPassportMapImmediate();
     prefetchCityPhotosImmediate();
     void resolveMapboxAccessToken();
     set({
       showPassportMapModal: true,
-      passportMapHandoff: handoff,
       passportMapShowCities: opts?.showCities ?? false,
     });
   },
 
   clearPassportMapFlags: () => set({
-    passportMapHandoff: false,
     passportMapShowCities: false,
   }),
 
@@ -159,7 +151,6 @@ export const useModalStore = create<ModalState>((set) => ({
     showTokensModal: false,
   showInviteFriends: false,
     showPassportMapModal: false,
-    passportMapHandoff: false,
     passportMapShowCities: false,
   }),
 }));

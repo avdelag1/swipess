@@ -23,7 +23,7 @@ export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {
   });
 }
 
-export function addCinematic3DBuildings(map: MapboxMap, isLight: boolean): void {
+export function addCinematic3DBuildings(map: MapboxMap, _isLight: boolean): void {
   if (map.getLayer('add-3d-buildings')) return;
 
   const layers = map.getStyle()?.layers;

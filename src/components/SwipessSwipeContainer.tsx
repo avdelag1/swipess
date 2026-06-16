@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
-import { prefetchPassportMapImmediate, prefetchPassportMapModule } from '@/utils/prefetchMapModule';
+import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeErrorState } from './swipe/SwipeErrorState';
@@ -40,7 +40,7 @@ import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore'
 import { useFilterActions, useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Bike, Briefcase, Home, Map } from 'lucide-react';
+import { Bike, Briefcase, Home } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
@@ -134,9 +134,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
-  const passportLabel = useFilterStore((s) => s.passportLabel);
-  const kmHudExpanded = useFilterStore((s) => s.kmHudExpanded);
-  const setKmHudExpanded = useFilterStore((s) => s.setKmHudExpanded);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const { setCategories, setListingType } = useFilterActions();
   const listingType = useFilterStore((state) => state.listingType);

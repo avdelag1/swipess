@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye, EyeOff, Images, Pencil, Plus, Scale, Trash2, Upload, X } from 'lucide-react';
+import { Eye, EyeOff, Images, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';

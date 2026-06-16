@@ -547,7 +547,9 @@
     "scanningArea": "Scansione area…",
     "noResults": "Nessun annuncio entro {{radius}} km",
     "loadError": "Impossibile caricare i dati della mappa",
-    "doubleTapHint": "Tocca due volte la mappa per ingrandire"
+    "doubleTapHint": "Tocca due volte la mappa per ingrandire",
+    "expandControls": "Mostra controlli",
+    "collapseControls": "Nascondi controlli"
   },
   "tokens": {
     "outOfTokens": "Token messaggi esauriti",

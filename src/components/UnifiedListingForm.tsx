@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
+import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 import { AlertCircle, Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -252,7 +253,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       let uploadedImageUrls: string[] = [];
       if (currentImageFiles.length > 0) {
-        appToast.info('Uploading photos…', `Sending ${currentImageFiles.length} photo${currentImageFiles.length > 1 ? 's' : ''}.`);
         setUploadProgress(2);
         // Normalize HEIC + shrink large photos before upload so storage never rejects them.
         const prepared = await compressImages(currentImageFiles, LISTING_COMPRESSION);
@@ -452,7 +452,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         queryClient.setQueryData(['listing-detail', listing.id], listing);
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.refetchQueries({ queryKey: ['owner-listings'], type: 'active' });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
       // Revoke object URLs and reset state without triggering onClose navigate.
       // The route change below will unmount this component anyway.
@@ -548,6 +547,13 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     });
   };
 
+  const handleClearAllPhotos = () => {
+    if (photoList.length === 0) return;
+    revokePhotos();
+    setPhotoList([]);
+    triggerHaptic('medium');
+  };
+
   const handleSubmit = () => {
     if (photoList.length < 1) {
       appToast.error('Photo Required');
@@ -609,7 +615,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10 flex flex-row items-center justify-between">
           <div>
             <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
-              {editingId ? 'Update Asset' : 'Deploy New Asset'}
+              {editingId ? 'Edit listing' : 'New listing'}
             </DialogTitle>
             <p className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
               {editingId ? 'Modify configuration parameters' : 'Configure manual parameters'}
@@ -650,18 +656,29 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {/* Photo Section with premium cards - RELOCATED TO FRONT */}
             <motion.div variants={itemFadeScale}>
               <div className="space-y-4">
-                <div className="flex items-start justify-between px-2">
-                  <div className="flex flex-col gap-1.5">
+                <div className="flex items-start justify-between px-2 gap-3">
+                  <div className="flex flex-col gap-1.5 min-w-0">
                     <h3 className="text-[14px] font-black uppercase tracking-widest italic text-foreground flex items-center gap-2">
                        <Upload className="w-4 h-4 text-rose-500" />
-                       Media Upload 
+                       Photos
                        <span className="text-[10px] font-bold text-muted-foreground ml-2 opacity-60">({photoList.length}/{maxPhotos})</span>
                     </h3>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/80">💡 Vertical/Portrait photos recommended</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/80">Portrait photos work best</p>
                   </div>
-                  {photoList.length < 1 && (
-                    <Badge variant="destructive" className="bg-rose-500 text-white font-black uppercase tracking-widest text-[9px] border-none shadow-[0_4px_12px_rgba(225,29,72,0.3)]">Required</Badge>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {photoList.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleClearAllPhotos}
+                        className="text-[9px] font-black uppercase tracking-widest text-rose-400/90 hover:text-rose-300 px-2 py-1 rounded-lg border border-rose-500/25 bg-rose-500/5"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                    {photoList.length < 1 && (
+                      <Badge variant="destructive" className="bg-rose-500 text-white font-black uppercase tracking-widest text-[9px] border-none shadow-[0_4px_12px_rgba(225,29,72,0.3)]">Required</Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 shadow-inner">
                   {/* Stable Sortable Grid */}
@@ -682,11 +699,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                                   alt={`Photo ${index + 1}`}
                                   className="w-full h-full object-cover pointer-events-none"
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto">
+                                <div className="absolute inset-0 bg-black/35 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto">
                                   <Button
                                     variant="destructive"
                                     size="icon"
-                                    className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
+                                    className="h-9 w-9 rounded-full shadow-xl active:scale-90"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleImageRemove(photo.id);
@@ -731,7 +748,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   </div>
 
                   <p className="text-xs text-center text-muted-foreground opacity-60">
-                    Press & hold (400ms) with finger to drag and reorder. Max 10MB per file.
+                    Hold briefly to drag and reorder. Max 10MB per file.
                   </p>
                 </div>
               </div>
@@ -842,7 +859,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             onClick={handleClose}
             className="text-muted-foreground hover:text-foreground hover:bg-secondary px-6 rounded-2xl h-12 font-black uppercase tracking-widest italic text-[11px] transition-all"
           >
-            Abort
+            Cancel
           </motion.button>
 
           <div className="flex items-center gap-3">
@@ -857,11 +874,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 {createListingMutation.isPending ? (
                   <>
                     <WaterDropLoader size="sm" />
-                    <span>Synchronizing...</span>
+                    <span>Publishing…</span>
                   </>
                 ) : (
                   <>
-                    <span className="tracking-widest">{editingId ? 'Update Asset' : 'Deploy Asset'}</span>
+                    <span className="tracking-widest">{editingId ? 'Save changes' : 'Publish listing'}</span>
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}

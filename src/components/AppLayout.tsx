@@ -322,7 +322,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         <GlobalDialogs userRole={userRole} />
       </Suspense>
 
-
       {modalStore.showPassportMapModal && (
         <Suspense fallback={null}>
           <PassportMapModal />

@@ -43,7 +43,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
-  const [isExiting, setIsExiting] = useState(false); // Aladdin/genie minimize effect
+  const [, setIsExiting] = useState(false); // Aladdin/genie minimize effect
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

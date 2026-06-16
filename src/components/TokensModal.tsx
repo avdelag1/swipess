@@ -65,8 +65,6 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
   const [isPurchasing, setIsPurchasing] = useState(false);
 
-  const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
-
   const handlePurchase = async (pkg: AppleTokenPackage) => {
     setIsPurchasing(true);
 

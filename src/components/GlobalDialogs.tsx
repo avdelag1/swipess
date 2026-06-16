@@ -8,7 +8,6 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
-import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyAdvancedFiltersToStore } from '@/utils/applyAdvancedFilters';
 import { DeferredDialog } from './DeferredDialog';

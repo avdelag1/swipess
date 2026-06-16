@@ -86,11 +86,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
     setImageIndex(i => (i + 1) % images.length);
   };
 
-  const openGallery = () => {
-    if (images.length === 0) return;
-    triggerHaptic('light');
-    setGalleryOpen(true);
-  };
+
 
   const handleReport = () => {
     triggerHaptic('medium');

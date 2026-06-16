@@ -32,7 +32,7 @@ export function AIProfileWizard() {
   const { showAIProfile, aiProfileMode, setModal } = useModalStore();
   const { isLight } = useAppTheme();
   const { user } = useAuth();
-  const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
+  const { isOnboardingActive } = useOnboardingStore();
   const { openAIListing } = useModalStore();
   const mode: Mode = (aiProfileMode || 'client');
   const queryClient = useQueryClient();
@@ -45,7 +45,7 @@ export function AIProfileWizard() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
   const [micVolume, setMicVolume] = useState(0);
-  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
+  const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setNarrative(prev => prev ? `${prev} ${text}` : text);
       setMicVolume(0);

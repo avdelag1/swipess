@@ -18,7 +18,7 @@ import { haptics } from '@/utils/microPolish';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useAdminUserIds } from '@/hooks/useAdminUserIds';
+
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
@@ -178,9 +178,6 @@ const LegalHub = () => {
 
   // Admins get a direct link from here into the review screen where every
   // submitted service request and smart contract lands.
-  const { data: adminIds } = useAdminUserIds();
-  const isAdmin = !!user && !!adminIds?.has(user.id);
-  
   const [searchParams, setSearchParams] = useSearchParams();
   const docParam = searchParams.get('doc') as 'privacy' | 'terms' | 'agl' | null;
   const currentDoc = docParam || 'hub';

@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, Share2, Undo2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
+import { BarChart3, Flag, MessageCircle, Share2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -104,7 +104,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onUndo,
   canUndo = false,
-  onSoon,
+  onSoon: _onSoon,
   onBack,
   disableDrag,
   fullScreen = false,
@@ -310,15 +310,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const preventDrag = useCallback((e: React.DragEvent) => e.preventDefault(), []);
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
-
-  const actionButtons = useMemo(() => [
-    { icon: Map, onClick: () => useModalStore.getState().openPassportMap(), label: 'Map' },
-    { icon: Mic, onClick: () => useModalStore.getState().setModal('showAIChat', true), label: 'Voice' },
-    { icon: Share2, onClick: onShare, label: 'Share' },
-    { icon: MessageCircle, onClick: onMessage, label: 'Message' },
-    { icon: BarChart3, onClick: onInsights, label: 'Insights' },
-    { icon: Flag, onClick: onReport, label: 'Report' },
-  ], [onShare, onMessage, onInsights, onReport]);
 
   if (!profile?.user_id) return null;
 
