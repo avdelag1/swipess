@@ -29,6 +29,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
+import { prefetchUserGps, seedGpsCache, startGpsWatch } from '@/utils/mapGpsCache';
 
 
 const NotificationSystem = lazyWithRetry(() =>
@@ -58,10 +59,17 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   useEffect(() => {
-    // Warm Mapbox on dashboard so first map open is instant (not after first visit).
+    // Warm Mapbox + GPS on dashboard so map open snaps to you instantly.
     if (showPassportMapModal || isSwipeDashboard) {
       setKeepMapMounted(true);
       if (isSwipeDashboard) prefetchPassportMapImmediate();
+
+      const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
+      if (!passportMode && userLatitude != null && userLongitude != null) {
+        seedGpsCache(userLatitude, userLongitude);
+      }
+      startGpsWatch();
+      void prefetchUserGps();
     }
   }, [showPassportMapModal, isSwipeDashboard]);
 

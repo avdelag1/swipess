@@ -10,6 +10,8 @@ export const FLY_CURVE = 1.68;
 export const FLY_SPEED = 1.55;
 export const FLY_DURATION_MS = 2400;
 export const FLY_DURATION_OPEN_MS = 2000;
+/** Fast snap when map opens — user expects immediate centering, not a 2s flight. */
+export const OPEN_CENTER_MS = 380;
 export const CINEMATIC_MAX_PITCH_MOBILE = 58;
 export const CINEMATIC_MAX_PITCH_DESKTOP = 65;
 
