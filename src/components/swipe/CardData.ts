@@ -180,9 +180,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/renters_keys_1780637395685.png',
   ],
   roommates: [
-    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=90',
+    '/images/filters/roommates_1_1781629882697.png',
+    '/images/filters/roommates_2_1781629891721.png',
+    '/images/filters/roommates_3_1781629901014.png',
   ],
   leads: [
     '/images/filters/leads_handshake_1780637383311.png',
@@ -191,10 +191,9 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&w=800&q=90',
   ],
   seekers: [
-    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=800&q=90',
-    'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=90',
-    '/images/filters/leads_handshake_1780637383311.png',
-    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=90',
+    '/images/filters/seekers_1_1781629913233.png',
+    '/images/filters/seekers_2_1781629923310.png',
+    '/images/filters/seekers_3_1781629933812.png',
   ],
   events: [
     '/images/filters/events_card.jpg',
