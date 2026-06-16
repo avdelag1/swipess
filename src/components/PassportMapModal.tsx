@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Globe2, Loader2, MapPin, Navigation, Radar, Search, Users, X, Zap } from 'lucide-react';
+import { Building2, Globe2, LayoutList, Loader2, MapPin, Navigation, Search, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -313,8 +313,11 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
+  // Create the Mapbox instance only when the live map is visible — initializing
+  // while the genie sheet scales the host to ~0.35× (passport warm-behind) yields
+  // a blank/broken canvas that never recovers on some devices.
   useEffect(() => {
-    if (!shouldWarmMap || initStartedRef.current || !mapContainerRef.current) return;
+    if (!isOpen || initStartedRef.current || !mapContainerRef.current) return;
 
     let cancelled = false;
     setMapLoading(true);
@@ -442,7 +445,7 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
-  }, [shouldWarmMap, resizeMap]);
+  }, [isOpen, resizeMap]);
 
   // Geocoder mounts after map is ready — keeps first paint fast
   useEffect(() => {
@@ -494,8 +497,14 @@ export const PassportMapModal = memo(() => {
     }
     if (!mapRef.current) return;
     resizeMap();
+    requestAnimationFrame(() => {
+      resizeMap();
+      requestAnimationFrame(resizeMap);
+    });
+    const t = window.setTimeout(resizeMap, 120);
     if (!openedOnceRef.current) openedOnceRef.current = true;
-  }, [isOpen, resizeMap]);
+    return () => window.clearTimeout(t);
+  }, [isOpen, resizeMap, mapReady]);
 
   // Live GPS dot — tracks your real device position
   useEffect(() => {
