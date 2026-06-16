@@ -258,6 +258,8 @@ export const PassportMapModal = memo(() => {
 
   const radiusCenterRef = useRef(radiusCenter);
   radiusCenterRef.current = radiusCenter;
+  const radiusKmRef = useRef(radiusKm);
+  radiusKmRef.current = radiusKm;
   const prevRadiusKmRef = useRef(radiusKm);
 
   const applyRadiusCircleNow = useCallback(() => {
@@ -545,7 +547,7 @@ export const PassportMapModal = memo(() => {
     prevPassportModeRef.current = passportMode;
   }, [isOpen, passportMode]);
 
-  // Warm GPS dot on open — never yank camera away from the listing cluster on first paint.
+  // Warm GPS dot on open — updates the blue location dot without moving the camera.
   useEffect(() => {
     if (!isOpen || !mapReady) return;
 
@@ -562,6 +564,33 @@ export const PassportMapModal = memo(() => {
 
     return () => { cancelled = true; };
   }, [isOpen, mapReady]);
+
+  // Cinematic open — fires exactly once per open. Always lands on the listing hub
+  // (Tulum) so pins are visible immediately; passport-explore mode lands on its target.
+  // GPS centering is intentionally NOT done here — user taps the GPS button for that.
+  useEffect(() => {
+    if (!isOpen || !mapReady || initialCenterDoneRef.current) return;
+    if (selectedRef.current || userMapInteractedRef.current) return;
+
+    const map = mapRef.current;
+    if (!map) return;
+
+    const { passportMode: pm, userLatitude, userLongitude } = useFilterStore.getState();
+    const target = (pm && userLatitude != null && userLongitude != null)
+      ? { lat: userLatitude, lng: userLongitude }
+      : MAP_SEARCH_HUB;
+
+    const zoom = zoomForRadiusKm(radiusKmRef.current);
+    const pitch = cinematicPitchForViewport();
+
+    suppressMapInteractionRef.current = true;
+    const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
+    map.once('moveend', releaseSuppress);
+    window.setTimeout(releaseSuppress, FLY_DURATION_OPEN_MS + 120);
+
+    cinematicOpenGlide(map, [target.lng, target.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
+    initialCenterDoneRef.current = true;
+  }, [isOpen, mapReady, passportMode]);
 
   useEffect(() => {
     if (!shouldWarmMap) return;
