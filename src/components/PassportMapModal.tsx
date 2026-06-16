@@ -51,6 +51,7 @@ import {
   GENIE_SPRING_CLOSE,
 } from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
+import { LocationRadiusSelector } from '@/components/swipe/LocationRadiusSelector';
 
 /** Default search hub when GPS is still warming up — matches prod listing cluster. */
 const MAP_SEARCH_HUB = PASSPORT_QUICK_CITIES.find(c => c.name === 'Tulum') ?? {
@@ -135,12 +136,16 @@ export const PassportMapModal = memo(() => {
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [hudExpanded, setHudExpanded] = useState(false);
+  const [radiusHudExpanded, setRadiusHudExpanded] = useState(false);
   const [previewPlacement, setPreviewPlacement] = useState<MapPinPreviewPlacement | null>(null);
   const mapHudRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
-    if (!isOpen) setHudExpanded(false);
+    if (!isOpen) {
+      setHudExpanded(false);
+      setRadiusHudExpanded(false);
+    }
   }, [isOpen]);
 
   useEffect(() => {
@@ -1171,6 +1176,28 @@ export const PassportMapModal = memo(() => {
           )}
         </AnimatePresence>
 
+        {/* Floating km radius pill — always visible, tap to expand slider */}
+        {isOpen && !selected && (
+          <div
+            className="absolute left-3 z-[45] pointer-events-auto"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
+          >
+            <LocationRadiusSelector
+              surface="map"
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={handleGPS}
+              detecting={gpsLoading}
+              detected={!passportMode && !!deviceGps}
+              lat={radiusCenter?.lat}
+              lng={radiusCenter?.lng}
+              title={passportLabel ?? undefined}
+              expanded={radiusHudExpanded}
+              onExpandedChange={setRadiusHudExpanded}
+            />
+          </div>
+        )}
+
         {/* Bottom HUD - Collapsible Drawers & Dock */}
         <div className="absolute inset-x-0 bottom-0 z-40 pointer-events-none flex flex-col justify-end" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
           
@@ -1256,59 +1283,17 @@ export const PassportMapModal = memo(() => {
             )}
           </AnimatePresence>
 
-          {/* Bottom Dock Control Bar */}
+          {/* Double-tap hint when expanded controls are open */}
           <AnimatePresence>
             {isOpen && hudExpanded && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 12 }}
-                transition={{ duration: 0.2 }}
-                className={cn(
-                  'px-4 w-full flex flex-col items-start justify-start pointer-events-auto gap-1.5',
-                  selected && 'opacity-90',
-                )}
+                exit={{ opacity: 0, y: 8 }}
+                className="px-4 pb-2 text-[9px] font-semibold text-white/40 tracking-wide pointer-events-none text-center w-full"
               >
-                <p className="text-[9px] font-semibold text-white/40 tracking-wide pointer-events-none">
-                  {t('map.doubleTapHint')}
-                </p>
-                <div className="w-full max-w-[240px] bg-[#1A202C]/85 backdrop-blur-[8px] border border-white/10 shadow-xl rounded-full px-4 py-2 flex flex-col gap-1.5 relative">
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-white/50 px-1">
-                    <span>5km</span>
-                    <span className="text-[#00C6FF]">{radiusKm}km Radius</span>
-                    <span>80km</span>
-                  </div>
-                  <div className="relative w-full flex items-center h-[14px]">
-                    <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/10" />
-                    <div
-                      className="absolute left-0 h-1.5 rounded-full transition-all duration-100 ease-out"
-                      style={{ 
-                        width: `${((radiusKm - 3) / 77) * 100}%`,
-                        background: 'linear-gradient(135deg, #00C6FF, #0072FF)' 
-                      }}
-                    />
-                    <input
-                      type="range"
-                      min={3}
-                      max={80}
-                      step={1}
-                      value={radiusKm}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        if (val % 5 === 0) triggerHaptic('light');
-                        setRadiusKm(val);
-                      }}
-                      className="absolute inset-0 w-full opacity-0 cursor-grab active:cursor-grabbing z-20"
-                    />
-                    <div 
-                      className="absolute w-4 h-4 rounded-full bg-[#00C6FF] border-2 border-[#0B0E14] shadow-md z-10 pointer-events-none transition-transform duration-100 ease-out"
-                      style={{
-                        left: `calc(${((radiusKm - 3) / 77) * 100}% - 8px)`
-                      }}
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                {t('map.doubleTapHint')}
+              </motion.p>
             )}
           </AnimatePresence>
         </div>

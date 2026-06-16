@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, MapPin, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ interface LocationRadiusSelectorProps {
   expanded?: boolean;
   onExpandedChange?: (v: boolean) => void;
   orientation?: 'horizontal' | 'vertical';
+  /** `map` raises z-index and anchors the slider panel above the floater. */
+  surface?: 'dashboard' | 'map';
 }
 
 /**
@@ -42,9 +44,11 @@ export const LocationRadiusSelector = memo(({
   expanded: expandedProp,
   onExpandedChange,
   orientation = 'horizontal',
+  surface = 'dashboard',
 }: LocationRadiusSelectorProps) => {
   const { isLight } = useAppTheme();
   const [internalExpanded, setInternalExpanded] = useState(false);
+  const isMap = surface === 'map';
 
   const isControlled = expandedProp !== undefined;
   const expanded = isControlled ? expandedProp : internalExpanded;
@@ -57,6 +61,72 @@ export const LocationRadiusSelector = memo(({
       setInternalExpanded(next);
     }
   }, [expanded, isControlled, onExpandedChange]);
+
+  const closePanel = useCallback(() => {
+    if (isControlled) onExpandedChange?.(false);
+    else setInternalExpanded(false);
+  }, [isControlled, onExpandedChange]);
+
+  const panelStyle: CSSProperties = isMap
+    ? {
+        pointerEvents: 'auto',
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 88px)',
+      }
+    : {
+        pointerEvents: 'auto',
+        top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
+      };
+
+  const panelClass = cn(
+    'fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]',
+    isMap
+      ? 'z-[10030] bg-[#1A202C]/92 border-white/12 backdrop-blur-xl text-white'
+      : cn('z-[10009] chrome-solid', isLight ? 'bg-white/95 border-black/10' : 'bg-[#0d0d0d]/95 border-white/10'),
+  );
+
+  const renderExpandedPanel = () => (
+    <AnimatePresence>
+      {expanded && (
+        <motion.div
+          initial={{ opacity: 0, y: isMap ? 12 : -10, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: isMap ? 12 : -10, scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+          style={panelStyle}
+          className={panelClass}
+        >
+          <div className="mb-5">
+            <h4 className={cn('text-[10px] font-black uppercase tracking-[0.3em] mb-1', isMap ? 'text-white/40' : 'opacity-40')}>
+              Search Radius
+            </h4>
+            <p className={cn('text-sm font-black italic', isMap ? 'text-white/90' : 'opacity-90')}>
+              {title ? `Searching ${title}` : 'Adjust search distance'}
+            </p>
+          </div>
+          <DistanceSlider
+            radiusKm={radiusKm}
+            onRadiusChange={onRadiusChange}
+            onDetectLocation={onDetectLocation}
+            detecting={detecting}
+            detected={detected}
+          />
+          <div className={cn('mt-5 pt-5 border-t', isMap ? 'border-white/10' : isLight ? 'border-black/10' : 'border-white/10')}>
+            <button
+              type="button"
+              data-skip-press-engine
+              onClick={closePanel}
+              className={cn(
+                'tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors',
+                isMap ? 'bg-white/10 hover:bg-white/15 text-white' : isLight ? 'bg-black/5 hover:bg-black/10' : 'bg-white/8 hover:bg-white/15',
+              )}
+            >
+              Done
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   if (orientation === 'vertical') {
     return (
@@ -74,47 +144,7 @@ export const LocationRadiusSelector = memo(({
           <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">{radiusKm}km</span>
         </button>
         
-        {/* Expanded Slider Panel */}
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
-              className={cn(
-                "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border chrome-solid p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
-                isLight ? "bg-white/95 border-black/10" : "bg-[#0d0d0d]/95 border-white/10"
-              )}
-            >
-              <div className="mb-5">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Search Radius</h4>
-                <p className="text-sm font-black italic opacity-90">{title ? `Searching ${title}` : 'Adjust search distance'}</p>
-              </div>
-              <DistanceSlider
-                radiusKm={radiusKm}
-                onRadiusChange={onRadiusChange}
-                onDetectLocation={onDetectLocation}
-                detecting={detecting}
-                detected={detected}
-              />
-              <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
-                <button
-                  type="button"
-                  data-skip-press-engine
-                  onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
-                  className={cn(
-                    "tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
-                    isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/8 hover:bg-white/15"
-                  )}
-                >
-                  Done
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {renderExpandedPanel()}
       </div>
     );
   }
@@ -124,8 +154,10 @@ export const LocationRadiusSelector = memo(({
       <div
         style={{ pointerEvents: 'auto' }}
         className={cn(
-          "flex items-center gap-2 p-2 glass-pill chrome-solid transition-transform flex-row",
-          isLight ? "glass-light-surface" : "glass-dark",
+          'flex items-center gap-2 p-2 transition-transform flex-row rounded-full border shadow-[0_8px_28px_rgba(0,0,0,0.45)]',
+          isMap
+            ? 'bg-[#1A202C]/88 border-white/12 backdrop-blur-xl'
+            : cn('glass-pill chrome-solid', isLight ? 'glass-light-surface' : 'glass-dark'),
         )}
       >
         {/* GPS QUICK-DETECT */}
@@ -136,12 +168,16 @@ export const LocationRadiusSelector = memo(({
           disabled={detecting}
           style={{ pointerEvents: 'auto' }}
           className={cn(
-            "tap-css-only w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0",
+            'tap-css-only w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0',
             detected
-              ? cn("bg-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]", isLight ? "text-black" : "text-white")
-              : isLight
-                ? "bg-slate-100 text-slate-900 hover:bg-slate-200"
-                : "bg-white/15 text-white hover:bg-white/25"
+              ? isMap
+                ? 'bg-[#00C6FF]/25 text-[#00C6FF] shadow-[0_0_16px_rgba(0,198,255,0.35)]'
+                : cn('bg-primary shadow-[0_0_20px_rgba(236,72,153,0.5)]', isLight ? 'text-black' : 'text-white')
+              : isMap
+                ? 'bg-white/10 text-white/80 hover:bg-white/15'
+                : isLight
+                  ? 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                  : 'bg-white/15 text-white hover:bg-white/25',
           )}
           title="Detect GPS location"
         >
@@ -160,11 +196,12 @@ export const LocationRadiusSelector = memo(({
           )}
         >
           <MapPin className={cn(
-            "w-4 h-4",
-            detected ? "text-primary" : "opacity-50"
+            'w-4 h-4',
+            detected ? (isMap ? 'text-[#00C6FF]' : 'text-primary') : 'opacity-50',
           )} />
-          <span className="text-[12px] font-black uppercase italic tracking-wider">
-            {radiusKm}<span className="text-[10px] opacity-50 lowercase ml-1">km</span>
+          <span className={cn('text-[12px] font-black uppercase italic tracking-wider', isMap && 'text-white')}>
+            <span className={isMap ? 'text-[#00C6FF]' : undefined}>{radiusKm}</span>
+            <span className="text-[10px] opacity-50 lowercase ml-1">km</span>
           </span>
           <motion.div
             animate={{ rotate: expanded ? 180 : 0 }}
@@ -175,51 +212,7 @@ export const LocationRadiusSelector = memo(({
         </button>
       </div>
 
-      {/* Expanded Slider Panel — fixed to viewport, full-width below top bar */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            style={{ pointerEvents: 'auto', top: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)' }}
-            className={cn(
-              "fixed left-4 right-4 mx-auto max-w-sm rounded-[2.5rem] border chrome-solid p-6 z-[10009] shadow-[0_30px_80px_rgba(0,0,0,0.6)]",
-              isLight
-                ? "bg-white/95 border-black/10"
-                : "bg-[#0d0d0d]/95 border-white/10"
-            )}
-          >
-            <div className="mb-5">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-1">Search Radius</h4>
-              <p className="text-sm font-black italic opacity-90">{title ? `Searching ${title}` : 'Adjust search distance'}</p>
-            </div>
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={onRadiusChange}
-              onDetectLocation={onDetectLocation}
-              detecting={detecting}
-              detected={detected}
-            />
-            <div className={cn("mt-5 pt-5 border-t", isLight ? "border-black/10" : "border-white/10")}>
-              <button
-                type="button"
-                data-skip-press-engine
-                onClick={() => isControlled ? onExpandedChange?.(false) : setInternalExpanded(false)}
-                className={cn(
-                  "tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors",
-                  isLight
-                    ? "bg-black/5 hover:bg-black/10"
-                    : "bg-white/8 hover:bg-white/15"
-                )}
-              >
-                Done
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {renderExpandedPanel()}
     </div>
   );
 });
