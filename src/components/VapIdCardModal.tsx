@@ -188,9 +188,9 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
             }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[92vw] max-w-[400px] h-auto max-h-full flex flex-col pt-8 pb-4"
+            className="relative w-[98vw] max-w-none h-full flex flex-col pb-2"
           >
-            <div className="flex items-center justify-between mb-4 px-1 gap-2">
+            <div className="flex items-center justify-between mb-3 px-1 gap-2 mt-12 sm:mt-16">
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
