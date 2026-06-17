@@ -259,7 +259,7 @@ export function MessagingDashboard() {
               placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border surface-inset",
-                isLight ? "text-black placeholder:text-black/30 focus:ring-2 focus:ring-[#EB4898]/30 focus:border-[#EB4898]/40" : "text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "text-black placeholder:text-black/50 focus:ring-2 focus:ring-[#EB4898]/30 focus:border-[#EB4898]/40" : "text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -410,7 +410,7 @@ export function MessagingDashboard() {
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, category: 'user_profile' } })); }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
-                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); setBlockTarget({ userId: conversation.other_user!.id, name: conversation.other_user?.full_name || 'this user' }); }}>
+                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); if (conversation.other_user) setBlockTarget({ userId: conversation.other_user.id, name: conversation.other_user.full_name || 'this user' }); }}>
                               <Ban className="w-4 h-4 mr-3" /> Block Entity
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); deleteConversation.mutate(conversation.id); }}>

@@ -835,7 +835,7 @@ const LegalHub = () => {
                                 className={cn(
                                   "rounded-[2.5rem] border p-10 text-[16px] font-bold tracking-tight transition-all focus:ring-4 outline-none resize-none",
                                   isOwner ? "focus:ring-purple-500/20 border-purple-500/10 shadow-purple-500/5" : "focus:ring-rose-500/20 border-rose-500/10 shadow-rose-500/5",
-                                  isLight ? "bg-white border-black/10 text-black placeholder:opacity-40" : "bg-black/60 border-white/5 text-white placeholder:opacity-20"
+                                  isLight ? "bg-white border-slate-200 text-black placeholder:opacity-60" : "bg-black/60 border-white/5 text-white placeholder:opacity-20"
                                 )}
                               />
                               <div className="absolute bottom-6 right-8 opacity-20 group-hover:opacity-100 transition-opacity">

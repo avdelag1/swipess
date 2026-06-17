@@ -183,7 +183,7 @@ export default function EventosLikes() {
               className={cn(
                 "w-full rounded-2xl py-3.5 pl-11 pr-4 text-xs font-bold focus:outline-none transition-all border",
                 isLight 
-                  ? "bg-zinc-50/50 border-black/[0.03] text-black placeholder:text-zinc-300" 
+                  ? "bg-zinc-50/50 border-slate-200 text-black placeholder:text-zinc-400"
                   : "bg-zinc-900/40 border-white/[0.03] text-white placeholder:text-zinc-600"
               )}
             />
