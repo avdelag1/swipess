@@ -71,3 +71,4 @@ create_android_screenshots.cjs
 create_chromebook_screenshots.cjs
 generate_all_play_store_assets.cjs
 generate_typography_screens.cjs
+.claude/
