@@ -210,8 +210,6 @@ function WarpPrefetcher() {
 }
 
 export function RootProviders({ children, authPromise }: RootProvidersProps) {
-  const content = React.useMemo(() => children, [children]);
-
   return (
     <>
       <BootSplashFailsafe />
@@ -239,7 +237,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
                         <RadioProvider>
                           <ResponsiveProvider>
                             <AppLifecycleManager>
-                              {content}
+                              {children}
                             </AppLifecycleManager>
                           </ResponsiveProvider>
                         </RadioProvider>

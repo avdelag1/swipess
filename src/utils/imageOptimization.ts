@@ -348,6 +348,8 @@ export const priorityImageProps = {
 export class PWAImagePreloader {
   private decodedCache = new Map<string, HTMLImageElement>();
   private decoding = new Set<string>();
+  // Resolve callbacks for callers waiting on an in-flight decode (replaces setInterval polling)
+  private pending = new Map<string, Array<(img: HTMLImageElement | null) => void>>();
   // Scale cache based on device memory: 40 images on 4GB+ devices, 15 on lower-end
   private maxCached = (navigator as Navigator & { deviceMemory?: number }).deviceMemory && (navigator as Navigator & { deviceMemory?: number }).deviceMemory! >= 4 ? 40 : 15;
 
@@ -358,26 +360,13 @@ export class PWAImagePreloader {
   async preloadAndDecode(url: string): Promise<HTMLImageElement | null> {
     if (!url) return null;
 
-    // Already decoded and cached
-    if (this.decodedCache.has(url)) {
-      return this.decodedCache.get(url)!;
-    }
+    if (this.decodedCache.has(url)) return this.decodedCache.get(url)!;
 
-    // Already being decoded
+    // Another call is already decoding this URL — queue onto it instead of polling
     if (this.decoding.has(url)) {
-      // Wait for existing decode
-      return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
-          if (this.decodedCache.has(url)) {
-            clearInterval(checkInterval);
-            resolve(this.decodedCache.get(url)!);
-          }
-        }, 50);
-        // Timeout after 3s
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          resolve(null);
-        }, 3000);
+      return new Promise<HTMLImageElement | null>((resolve) => {
+        if (!this.pending.has(url)) this.pending.set(url, []);
+        this.pending.get(url)!.push(resolve);
       });
     }
 
@@ -394,24 +383,28 @@ export class PWAImagePreloader {
         img.src = url;
       });
 
-      // Force decode
-      if ('decode' in img) {
-        await img.decode();
-      }
+      if ('decode' in img) await img.decode();
 
-      // Cache the decoded image
       this.decodedCache.set(url, img);
       this.decoding.delete(url);
 
-      // Evict old entries if cache is full
+      // Evict LRU entry if cache is full
       if (this.decodedCache.size > this.maxCached) {
         const firstKey = this.decodedCache.keys().next().value;
         if (firstKey) this.decodedCache.delete(firstKey);
       }
 
+      // Resolve all waiters
+      const waiters = this.pending.get(url) ?? [];
+      this.pending.delete(url);
+      for (const resolve of waiters) resolve(img);
+
       return img;
     } catch {
       this.decoding.delete(url);
+      const waiters = this.pending.get(url) ?? [];
+      this.pending.delete(url);
+      for (const resolve of waiters) resolve(null);
       return null;
     }
   }
