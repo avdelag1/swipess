@@ -666,34 +666,38 @@ const LegalHub = () => {
                   <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
                 </div>
 
-                <div className={cn(
-                  "rounded-[3.5rem] overflow-hidden border shadow-2xl transition-all duration-500",
-                  isLight ? "bg-white border-slate-200 shadow-md" : "bg-white/[0.02] border-white/5 shadow-2xl"
-                )}>
-                  <div className={cn("divide-y", isLight ? "divide-slate-100" : "divide-white/5")}>
+                <div className="space-y-3">
                     {categories.map((category) => (
-                      <div key={category.id} className="group">
+                      <div
+                        key={category.id}
+                        className={cn(
+                          "group rounded-[2rem] border overflow-hidden transition-all duration-300",
+                          expandedCategory === category.id
+                            ? (isLight ? "bg-white border-slate-300 shadow-lg" : "bg-white/[0.06] border-white/15 shadow-xl")
+                            : (isLight ? "bg-slate-50 border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md" : "bg-white/[0.02] border-white/8 hover:border-white/15")
+                        )}
+                      >
                         <button
                           onClick={() => { haptics.tap(); handleCategoryClick(category.id); }}
-                          className={cn(
-                            "w-full p-10 flex items-center gap-8 transition-all text-left",
-                            expandedCategory === category.id 
-                              ? (isLight ? "bg-black/[0.03]" : "bg-white/[0.06]") 
-                              : (isLight ? "hover:bg-black/[0.01]" : "hover:bg-white/[0.02]")
-                          )}
+                          className="w-full p-6 flex items-center gap-5 transition-all text-left"
                         >
                           <div className={cn(
-                            "w-16 h-16 rounded-[1.5rem] flex items-center justify-center shrink-0 border shadow-xl transition-all duration-500 group-hover:scale-110",
+                            "w-12 h-12 rounded-[1.1rem] flex items-center justify-center shrink-0 border transition-all duration-300 group-hover:scale-110",
                             isOwner ? "bg-purple-500/10 text-purple-500 border-purple-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"
                           )}>
                             {category.icon}
                           </div>
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <h4 className={cn("text-xl font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{category.title}</h4>
-                            <p className={cn("text-[12px] font-bold uppercase tracking-widest opacity-30 truncate", isLight ? "text-black" : "text-white")}>{category.description}</p>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={cn("text-[15px] font-black uppercase italic tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>{category.title}</h4>
+                            <p className={cn("text-[11px] font-bold uppercase tracking-widest opacity-40 truncate mt-0.5", isLight ? "text-black" : "text-white")}>{category.description}</p>
                           </div>
-                          <div className={cn("w-10 h-10 rounded-full flex items-center justify-center border transition-all", isLight ? "border-black/5" : "border-white/5", expandedCategory === category.id && "rotate-180 bg-primary/10 border-primary/20")}>
-                             <ChevronDown className={cn("w-5 h-5 opacity-40", expandedCategory === category.id && "opacity-100 text-primary")} />
+                          <div className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center border transition-all shrink-0",
+                            expandedCategory === category.id
+                              ? "rotate-180 bg-primary/10 border-primary/30"
+                              : (isLight ? "border-slate-200" : "border-white/10")
+                          )}>
+                            <ChevronDown className={cn("w-4 h-4", expandedCategory === category.id ? "text-primary opacity-100" : "opacity-40")} />
                           </div>
                         </button>
 
@@ -703,44 +707,44 @@ const LegalHub = () => {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                               className="overflow-hidden"
                             >
-                              <div className={cn("p-6 space-y-4", isLight ? "bg-slate-50" : "bg-black/20")}>
-                                {category.subcategories.map((sub) => (
-                                  <button
-                                    key={sub.id}
-                                    onClick={() => { haptics.tap(); handleSubcategorySelect(category.id, sub.id); }}
-                                    className={cn(
-                                      "w-full p-8 rounded-[2.5rem] flex items-center gap-6 transition-all text-left border shadow-sm group/sub",
-                                      selectedIssue?.subcategory === sub.id 
-                                        ? (isOwner ? "bg-purple-500/10 border-purple-500/30 shadow-xl" : "bg-rose-500/10 border-rose-500/30 shadow-xl")
-                                        : (isLight ? "bg-slate-50 hover:bg-slate-100 border-slate-200" : "bg-white/[0.03] hover:bg-white/[0.08] border-white/5")
-                                    )}
-                                  >
-                                    <div className={cn(
-                                      "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-500",
-                                      selectedIssue?.subcategory === sub.id
-                                        ? (isOwner ? "border-purple-500 bg-purple-500" : "border-rose-500 bg-rose-500")
-                                        : "border-white/10 group-hover/sub:border-white/30"
-                                    )}>
-                                      {selectedIssue?.subcategory === sub.id && (
-                                        <div className="w-2.5 h-2.5 bg-white rounded-full shadow-[0_0_10px_white]" />
+                              <div className={cn("px-4 pb-4 pt-1 space-y-2", isLight ? "bg-white" : "bg-black/10")}>
+                                {category.subcategories.map((sub) => {
+                                  const isSelected = selectedIssue?.subcategory === sub.id;
+                                  return (
+                                    <button
+                                      key={sub.id}
+                                      onClick={() => { haptics.tap(); handleSubcategorySelect(category.id, sub.id); }}
+                                      className={cn(
+                                        "w-full px-5 py-4 rounded-[1.4rem] flex items-center gap-4 transition-all text-left border",
+                                        isSelected
+                                          ? (isOwner ? "bg-purple-500/10 border-purple-500/40" : "bg-rose-500/10 border-rose-500/40")
+                                          : (isLight ? "bg-slate-50 hover:bg-slate-100 border-slate-200" : "bg-white/[0.03] hover:bg-white/[0.07] border-white/8")
                                       )}
-                                    </div>
-                                    <div className="flex-1 min-w-0 space-y-1">
-                                      <h5 className={cn("text-[15px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{sub.title}</h5>
-                                      <p className={cn("text-[11px] font-bold uppercase tracking-widest opacity-30", isLight ? "text-black" : "text-white")}>{sub.description}</p>
-                                    </div>
-                                  </button>
-                                ))}
+                                    >
+                                      <div className={cn(
+                                        "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                                        isSelected
+                                          ? (isOwner ? "border-purple-500 bg-purple-500" : "border-rose-500 bg-rose-500")
+                                          : (isLight ? "border-slate-300" : "border-white/20")
+                                      )}>
+                                        {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <h5 className={cn("text-[13px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{sub.title}</h5>
+                                        <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40 mt-0.5", isLight ? "text-black" : "text-white")}>{sub.description}</p>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
                     ))}
-                  </div>
                 </div>
               </div>
 
