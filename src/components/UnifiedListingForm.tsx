@@ -624,15 +624,15 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     createListingMutation.mutate();
   };
 
-  if (!isOpen) return null;
-
   const currentLat = (formData.latitude as number | undefined) ?? location.lat;
   const currentLng = (formData.longitude as number | undefined) ?? location.lng;
   const needsGpsFix = !!editingId && !isValidListingCoordinates(currentLat, currentLng);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !createListingMutation.isPending) handleClose(); }}>
-      <DialogContent className={cn(
+      <DialogContent
+        hideCloseButton
+        className={cn(
         // Mobile: full screen
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         // Desktop (sm+): restore centered modal with rounded corners
@@ -656,9 +656,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             <button
               type="button"
               onClick={handleClose}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-all active:scale-90 hover:bg-secondary"
+              aria-label="Close"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 press-snappy shrink-0"
             >
-              <X className="w-4.5 h-4.5" />
+              <X className="w-5 h-5" />
             </button>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -714,7 +715,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
               className="px-6 py-6 space-y-8 pb-32"
             >
             {currentStep === 3 && needsGpsFix && (

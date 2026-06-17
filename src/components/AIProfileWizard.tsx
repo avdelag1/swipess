@@ -114,8 +114,6 @@ export function AIProfileWizard() {
     };
   }, [imagePreview]);
 
-  if (!showAIProfile) return null;
-
   const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0a0a0b] border-white/[0.08]';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
@@ -129,7 +127,7 @@ export function AIProfileWizard() {
   const handleClose = () => {
     setModal('showAIProfile', false);
     if (isOnboardingActive) {
-      openAIListing('property');
+      requestAnimationFrame(() => openAIListing('property'));
     }
     setTimeout(() => {
       setStep('compose');
@@ -331,8 +329,11 @@ export function AIProfileWizard() {
 
   return (
     <AnimatePresence>
+      {showAIProfile && (
       <motion.div
+        key="ai-profile-wizard"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        transition={{ duration: 0.1 }}
         className={cn(
           "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
           isLight ? "bg-white/40" : "bg-black/80"
@@ -340,9 +341,10 @@ export function AIProfileWizard() {
         style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
       >
         <motion.div
-          initial={{ scale: 0.95, opacity: 0, y: 30 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 6 }}
+          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
           className={cn(
             "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
@@ -366,7 +368,7 @@ export function AIProfileWizard() {
                 <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-[#8B5CF6]">One-Step Setup</span>
               </div>
             </div>
-            <button onClick={handleClose} className={cn("w-11 h-11 flex items-center justify-center rounded-2xl", closeBtnCls)}>
+            <button onClick={handleClose} aria-label="Close" className={cn("w-11 h-11 flex items-center justify-center rounded-2xl press-snappy", closeBtnCls)}>
               <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
             </button>
           </div>
@@ -628,6 +630,7 @@ export function AIProfileWizard() {
           </ScrollArea>
         </motion.div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }

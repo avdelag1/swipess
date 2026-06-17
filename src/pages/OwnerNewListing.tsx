@@ -102,15 +102,13 @@ const OwnerNewListing = () => {
         onAIOpen={handleAIOpen}
       /></Suspense>
       
-      {initialData && (
-        <Suspense fallback={null}>
-          <UnifiedListingForm
-            isOpen={isFormOpen}
-            onClose={handleCloseForm}
-            editingProperty={editingProperty}
-          />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <UnifiedListingForm
+          isOpen={isFormOpen && !!initialData}
+          onClose={handleCloseForm}
+          editingProperty={editingProperty}
+        />
+      </Suspense>
     </>
   );
 };

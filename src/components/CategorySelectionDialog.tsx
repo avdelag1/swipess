@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Bike, Briefcase, Building2, Key, Repeat, Sparkles, Tag } from "lucide-react";
+import { ArrowRight, Bike, Briefcase, Building2, Key, Repeat, Sparkles, Tag, X } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -181,7 +181,9 @@ export function CategorySelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className={cn(
+      <DialogContent
+        hideCloseButton
+        className={cn(
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         "sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
         "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
@@ -192,15 +194,25 @@ export function CategorySelectionDialog({
         </div>
         
         <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10">
-          <div>
-            <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
-              {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
-            </DialogTitle>
-            <DialogDescription className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
-              {step === 'category'
-                ? 'Select the type of listing you want to create'
-                : 'Choose how you want to list this item'}
-            </DialogDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
+                {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
+              </DialogTitle>
+              <DialogDescription className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
+                {step === 'category'
+                  ? 'Select the type of listing you want to create'
+                  : 'Choose how you want to list this item'}
+              </DialogDescription>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleClose(false)}
+              aria-label="Close"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/80 press-snappy shrink-0"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </DialogHeader>
 

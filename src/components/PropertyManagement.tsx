@@ -569,18 +569,16 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         onAIOpen={() => useModalStore.getState().openAIListing()}
       /></Suspense>
 
-      {isFormOpen && (
-        <Suspense fallback={null}>
-          <UnifiedListingForm
-            isOpen={isFormOpen}
-            onClose={() => {
-              setIsFormOpen(false);
-              setEditingProperty(null);
-            }}
-            editingProperty={editingProperty as any ?? undefined}
-          />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <UnifiedListingForm
+          isOpen={isFormOpen}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingProperty(null);
+          }}
+          editingProperty={editingProperty as any ?? undefined}
+        />
+      </Suspense>
 
       <Suspense fallback={null}><ShareDialog
         open={showShareDialog}

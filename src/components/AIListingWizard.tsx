@@ -473,24 +473,25 @@ export function AIListingWizard() {
     }
   };
 
-  if (!showAIListing) return null;
-
   return (
-    <>
       <AnimatePresence>
+        {showAIListing && (
         <motion.div
+          key="ai-listing-wizard"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
           className={cn(
             "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-0 sm:p-6",
             isLight && "modal-scrim--lux"
           )}
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 30 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
@@ -519,8 +520,9 @@ export function AIListingWizard() {
                 </div>
               </div>
               <button 
-                onClick={handleClose} 
-                className={cn("w-11 h-11 flex items-center justify-center", closeBtnCls)}
+                onClick={handleClose}
+                aria-label="Close"
+                className={cn("w-11 h-11 flex items-center justify-center press-snappy", closeBtnCls)}
               >
                 <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
               </button>
@@ -851,7 +853,7 @@ export function AIListingWizard() {
             </ScrollArea>
           </motion.div>
         </motion.div>
+        )}
       </AnimatePresence>
-    </>
   );
 }

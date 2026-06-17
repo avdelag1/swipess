@@ -251,7 +251,7 @@ export function SeekerAdSection() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={v => { if (!v) closeModal(); }}>
-        <DialogContent className="p-0 overflow-hidden rounded-[2rem] border-border bg-background max-w-sm w-full max-h-[92vh] flex flex-col">
+        <DialogContent hideCloseButton className="p-0 overflow-hidden rounded-[2rem] border-border bg-background max-w-sm w-full max-h-[92vh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
             <div>
@@ -262,7 +262,7 @@ export function SeekerAdSection() {
                 {step === 0 ? 'What do you need?' : `${activeCat?.label ?? 'Details'} request`}
               </h2>
             </div>
-            <button onClick={closeModal} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
+            <button onClick={closeModal} aria-label="Close" className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground press-snappy shrink-0">
               <X className="w-4 h-4" />
             </button>
           </div>

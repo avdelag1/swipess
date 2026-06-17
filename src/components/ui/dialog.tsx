@@ -45,7 +45,7 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, any>(({ className, ...pro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.12 }}
+      transition={{ duration: 0.1 }}
       onClick={() => onOpenChange(false)}
       className={cn("fixed inset-0 z-[10001] modal-scrim", className)}
       {...props}
@@ -71,10 +71,10 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          initial={{ opacity: 0, scale: 0.98, y: 6 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ type: "spring", damping: 30, stiffness: 480 }}
+          exit={{ opacity: 0, scale: 0.98, y: 4 }}
+          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
           className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
         >
           <div
@@ -87,7 +87,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
           >
           {children}
           {!hideCloseButton && (
-            <button onClick={() => onOpenChange(false)} className="absolute right-3 top-3 sm:right-5 sm:top-5 h-10 w-10 flex items-center justify-center rounded-full opacity-100 transition-all focus:outline-none hover:bg-secondary/50 active:scale-90 z-[10010] bg-black/10 dark:bg-white/10 text-foreground/70">
+            <button onClick={() => onOpenChange(false)} className="absolute right-3 top-3 sm:right-5 sm:top-5 h-10 w-10 flex items-center justify-center rounded-full opacity-100 focus:outline-none hover:bg-secondary/50 press-snappy z-[10010] bg-black/10 dark:bg-white/10 text-foreground/70">
               <X className="h-5 w-5" />
               <span className="sr-only">Close</span>
             </button>
