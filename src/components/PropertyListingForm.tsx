@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { AITextarea } from '@/components/ui/AITextarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
@@ -219,8 +220,40 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
     setValue(field, next);
   };
 
+  const titleValue = watch('title') ?? '';
+  const descValue = watch('description') ?? '';
+  const autoTitle = buildTitleFromChips({
+    adjective: adjectives?.[0],
+    size: size?.[0],
+    beds: beds as any,
+    propertyType: propertyType,
+    city: city,
+  });
+
   return (
     <div className="space-y-5">
+
+      {/* ── Title + Description (always editable) ── */}
+      <Section title="Your Listing" accent="emerald">
+        <FormLabel>Title</FormLabel>
+        <Input
+          {...register('title')}
+          placeholder={autoTitle || 'e.g. Bright 2-bedroom loft in Tulum…'}
+          className="h-12 text-base"
+        />
+        <p className="text-[10px] text-muted-foreground/50 -mt-1 ml-1">Leave blank to auto-generate from your chips below.</p>
+
+        <FormLabel className="mt-3">Description</FormLabel>
+        <AITextarea
+          value={descValue}
+          onChange={(v) => setValue('description', v)}
+          enhanceType="listing"
+          placeholder="Describe the property — views, feel, what makes it special. The AI Enhance button will polish it for you."
+          maxLength={800}
+          rows={5}
+        />
+      </Section>
+
       <Section title="Describe Your Place" accent="emerald">
         <FormLabel>Pick a vibe word</FormLabel>
         <ChipMultiSelect
@@ -391,16 +424,13 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={houseRules} onChange={(v) => setArr('house_rules', v)} />
       </Section>
 
-      {/* Live preview of the auto-built description */}
-      <div className="rounded-2xl bg-secondary/40 border border-border px-4 py-3 text-xs text-muted-foreground italic">
-        {buildTitleFromChips({
-          adjective: adjectives?.[0],
-          size: size?.[0],
-          beds: beds as any,
-          propertyType: propertyType,
-          city: city,
-        }) || 'Pick chips above to auto-build your listing description.'}
-      </div>
+      {/* Auto-title preview — only when no manual title entered */}
+      {!titleValue && autoTitle && (
+        <div className="flex items-center gap-3 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3">
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Auto title</span>
+          <span className="text-sm text-foreground/70 italic flex-1">{autoTitle}</span>
+        </div>
+      )}
     </div>
   );
 }

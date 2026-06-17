@@ -9,12 +9,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
-import { AlertCircle, Bike, ChevronRight, Shield, Upload, X } from 'lucide-react';
+import { AlertCircle, Bike, ChevronRight, Film, Shield, Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +95,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [showVideoPanel, setShowVideoPanel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
@@ -660,12 +660,28 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <div className="flex flex-col gap-1.5 min-w-0">
                     <h3 className="text-[14px] font-black uppercase tracking-widest italic text-foreground flex items-center gap-2">
                        <Upload className="w-4 h-4 text-rose-500" />
-                       Photos
+                       Media
                        <span className="text-[10px] font-bold text-muted-foreground ml-2 opacity-60">({photoList.length}/{maxPhotos})</span>
                     </h3>
                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/80">Portrait photos work best</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {/* Video toggle pill */}
+                    <button
+                      type="button"
+                      onClick={() => setShowVideoPanel(v => !v)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all active:scale-95",
+                        videoUrl
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                          : showVideoPanel
+                            ? "bg-primary/15 border-primary/40 text-primary"
+                            : "bg-white/5 border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground",
+                      )}
+                    >
+                      <Film className="w-3 h-3" />
+                      {videoUrl ? 'Video ✓' : 'Video'}
+                    </button>
                     {photoList.length > 0 && (
                       <button
                         type="button"
@@ -750,6 +766,30 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <p className="text-xs text-center text-muted-foreground opacity-60">
                     Hold briefly to drag and reorder. Max 10MB per file.
                   </p>
+
+                  {/* Inline video panel — toggled by the Video pill above */}
+                  {showVideoPanel && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                      className="mt-5 overflow-hidden"
+                    >
+                      <div className="border-t border-white/5 pt-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/70 mb-3 flex items-center gap-2">
+                          <Film className="w-3 h-3 text-primary/70" />
+                          10-second loop video <span className="text-muted-foreground/40">(optional)</span>
+                        </p>
+                        <ListingVideoUpload
+                          userId={user?.id || ''}
+                          videoUrl={videoUrl}
+                          onUploadSuccess={setVideoUrl}
+                          onRemove={() => setVideoUrl(null)}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -805,25 +845,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             </motion.div>
 
 
-
-            {/* Video Looper Section */}
-            <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center justify-between text-base">
-                    <span>10-Second Loop Video <span className="text-xs font-normal text-muted-foreground ml-2">(Optional)</span></span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <ListingVideoUpload
-                    userId={user?.id || ''}
-                    videoUrl={videoUrl}
-                    onUploadSuccess={setVideoUrl}
-                    onRemove={() => setVideoUrl(null)}
-                  />
-                </CardContent>
-              </Card>
-            </motion.div>
 
             {/* Legal / Verification Section */}
             <motion.div variants={itemFadeScale}>

@@ -1,10 +1,10 @@
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAutoResizeTextarea } from '@/hooks/useAutoResizeTextarea';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AITextarea } from '@/components/ui/AITextarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -14,8 +14,7 @@ import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile
 import { appToast } from '@/utils/appNotification';
 import { supabase } from '@/integrations/supabase/client';
 import { useModalStore } from '@/state/modalStore';
-import { Badge } from '@/components/ui/badge';
-import { Check, Compass, LifeBuoy, MapPin, Save, Sparkles, Target, User, X } from 'lucide-react';
+import { Camera, Check, Compass, MapPin, Save, Sparkles, User, X } from 'lucide-react';
 import {
   getCitiesInCountry,
   getCityByName,
@@ -41,18 +40,32 @@ type Props = {
   onOpenChange: (v: boolean) => void;
 };
 
+const STEPS = [
+  { id: 1, label: 'Photos', icon: Camera },
+  { id: 2, label: 'About', icon: User },
+  { id: 3, label: 'Location', icon: MapPin },
+  { id: 4, label: 'Lifestyle', icon: Sparkles },
+] as const;
+
+const stepVariants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
+};
+
 function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const { isLight } = useAppTheme();
   const { data } = useClientProfile();
   const saveMutation = useSaveClientProfile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const savedScrollRef = useRef(0);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [stepDir, setStepDir] = useState(1);
 
   const [name, setName] = useState<string>('');
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<string>('');
   const [bio, setBio] = useState<string>('');
-  const bioRef = useAutoResizeTextarea(bio);
   const [interests, setInterests] = useState<string[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [profileImages, setProfileImages] = useState<string[]>([]);
@@ -231,10 +244,23 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     ((name ? 20 : 0) + (age ? 10 : 0) + (profileImages.length > 0 ? 30 : 0) + (intentions.length > 0 ? 20 : 0) + (city ? 20 : 0))
   );
 
+  const goNext = useCallback(() => {
+    triggerHaptic('light');
+    setStepDir(1);
+    setCurrentStep(s => Math.min(s + 1, STEPS.length));
+  }, []);
+
+  const goBack = useCallback(() => {
+    triggerHaptic('light');
+    setStepDir(-1);
+    setCurrentStep(s => Math.max(s - 1, 1));
+  }, []);
+
   const handleOpenChange = useCallback((v: boolean) => {
     if (!v && scrollContainerRef.current) {
       savedScrollRef.current = scrollContainerRef.current.scrollTop;
     }
+    if (!v) setCurrentStep(1);
     triggerHaptic('light');
     onOpenChange(v);
   }, [onOpenChange]);
@@ -242,9 +268,9 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   useEffect(() => {
     if (open && scrollContainerRef.current) {
       const el = scrollContainerRef.current;
-      requestAnimationFrame(() => { el.scrollTop = savedScrollRef.current; });
+      requestAnimationFrame(() => { el.scrollTop = 0; });
     }
-  }, [open]);
+  }, [open, currentStep]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -264,258 +290,337 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           />
         </div>
 
-        {/* ðŸ›¸ Swipes HEADER */}
-        <div className={cn("relative px-8 pt-8 pb-6 border-b z-10", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
-           <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                 <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic">Swipes Identity Terminal</span>
-                 </div>
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground drop-shadow-sm">Identity Profile</h2>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                  <div className="h-2 w-32 bg-foreground/5 rounded-full overflow-hidden border border-border shadow-inner">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00]" 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${completionPercentage}%` }}
-                      transition={{ type: 'spring', damping: 20 }}
-                    />
-                 </div>
-                 <span className="text-[9px] font-black uppercase tracking-widest text-[#EB4898] italic">{completionPercentage}% Parity</span>
-              </div>
-           </div>
-           
-           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full flex items-center justify-center text-foreground/55 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/5">
-             <X className="w-5 h-5" />
-           </button>
-        </div>
+        {/* Header with step indicator */}
+        <div className={cn("relative px-6 pt-6 pb-4 border-b z-10 shrink-0", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+                Step {currentStep} of {STEPS.length}
+              </p>
+              <h2 className="text-2xl font-black italic uppercase tracking-tighter text-foreground mt-0.5">
+                {STEPS[currentStep - 1].label}
+              </h2>
+            </div>
+            <button
+              onClick={() => handleOpenChange(false)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/50 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/8"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+          </div>
 
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain relative z-10"
-          style={{ WebkitOverflowScrolling: 'touch' as any }}
-        >
-          <div className="space-y-12 pb-24">
-            
-            {/* 📸 ASSET REPOSITORY */}
-            <section className="space-y-6">
-               <div className="flex flex-col gap-1.5">
-                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Visual Assets</h3>
-                  <p className={cn("text-[10px] font-black uppercase tracking-[0.1em] italic", isLight ? "text-rose-600" : "text-indigo-400")}>💡 TIP: Vertical/Portrait photos look best on mobile</p>
-                  <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-700" : "text-white/90")}>High-fidelity primary and lifestyle imagery</p>
-               </div>
-               <PhotoUploadManager
-                 maxPhotos={6}
-                 currentPhotos={profileImages}
-                 onPhotosChange={setProfileImages}
-                 uploadType="profile"
-                 onUpload={handleImageUpload}
-                 showCameraButton={true}
-                 replaceOnFull={false}
-               />
-               {data?.user_id && (
-                 <div className="space-y-2">
-                   <p className={cn("text-[10px] uppercase tracking-widest italic", isLight ? "text-slate-700" : "text-white/90")}>Optional 6s silent video loop — plays first on your card</p>
-                   <ListingVideoUpload
-                     userId={data.user_id}
-                     videoUrl={videoUrl}
-                     onUploadSuccess={setVideoUrl}
-                     onRemove={() => setVideoUrl(null)}
-                   />
-                 </div>
-               )}
-            </section>
+          {/* Step pills */}
+          <div className="flex items-center gap-2">
+            {STEPS.map((step) => {
+              const done = step.id < currentStep;
+              const active = step.id === currentStep;
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => { setStepDir(step.id > currentStep ? 1 : -1); setCurrentStep(step.id); }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all",
+                    active
+                      ? "bg-primary text-white border-primary shadow-[0_4px_12px_rgba(from_var(--primary)_r_g_b_/_0.35)]"
+                      : done
+                        ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                        : "bg-foreground/5 text-muted-foreground border-border/50",
+                  )}
+                >
+                  {done ? <Check className="w-2.5 h-2.5" /> : <step.icon className="w-2.5 h-2.5" />}
+                  {step.label}
+                </button>
+              );
+            })}
+          </div>
 
-            {/* ðŸ‘¤ IDENTITY CORE */}
-            <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
-                      <User className="w-4 h-4" />
-                   </div>
-                   <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Identity Core</h3>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                   <div className="space-y-2">
-                      <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>Identity Display Name</Label>
-                      <Input value={name} onChange={(e) => setName(e.target.value)} className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")} />
-                   </div>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>Cycle (Age)</Label>
-                        <Input type="number" value={age} onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')} className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 text-center shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>Spectrum</Label>
-                        <Select value={gender} onValueChange={setGender}>
-                          <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 shadow-sm", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
-                            <SelectValue placeholder="Gender" />
-                          </SelectTrigger>
-                          <SelectContent className={isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]"}>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="non-binary">Spectrum</SelectItem>
-                            <SelectItem value="prefer-not-to-say">Private</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                   </div>
-                </div>
-
-                <div className="space-y-2">
-                   <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>About You — shown on your card</Label>
-                   <textarea
-                     ref={bioRef}
-                     value={bio}
-                     onChange={(e) => setBio(e.target.value)}
-                     maxLength={500}
-                     rows={4}
-                     placeholder="Tell owners who you are, what you're looking for, and what makes you a great match…"
-                     className={cn(
-                       "w-full rounded-2xl bg-white/[0.03] font-medium focus:border-[#EB4898]/50 focus:bg-white/[0.05] transition-all px-6 py-4 shadow-sm border resize-none focus:outline-none text-sm leading-relaxed",
-                       isLight ? "text-slate-900 border-slate-200 placeholder:text-slate-600" : "text-white border-white/10 placeholder:text-white/70"
-                     )}
-                   />
-                   <p className={cn("text-[9px] uppercase tracking-widest italic text-right", isLight ? "text-slate-600" : "text-white/70")}>{bio.length}/500</p>
-                </div>
-            </section>
-
-            {/* ðŸŽ¯ OBJECTIVE TERMINAL */}
-            <section className="space-y-6">
-               <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
-                     <Target className="w-4 h-4" />
-                  </div>
-                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Objective Terminal</h3>
-               </div>
-               
-               <div className="grid grid-cols-1 gap-4">
-                 {INTENTION_OPTIONS.map((opt) => {
-                   const active = intentions.includes(opt.id);
-                   return (
-                     <motion.button
-                       key={opt.id}
-                       onClick={() => toggleIntention(opt.id)}
-                       whileTap={{ scale: 0.98 }}
-                       className={cn(
-                         "flex items-center gap-4 p-5 rounded-[2rem] border-2 transition-all text-left group",
-                         active ? "bg-[#FF4D00]/10 border-[#FF4D00] shadow-[0_10px_30px_rgba(255,77,0,0.1)]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/10"
-                       )}
-                     >
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-inner", active ? "bg-[#FF4D00] text-white shadow-[0_0_15px_rgba(255,77,0,0.4)]" : "bg-white/5 text-white/50")}>
-                           <Compass className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                           <div className="flex items-center gap-2">
-                              <span className={cn("font-black italic uppercase tracking-tighter group-hover:text-[#FF4D00] transition-colors", isLight ? "text-slate-900" : "text-white")}>{opt.label}</span>
-                              {active && <Badge className={cn("bg-[#FF4D00] text-[8px] font-black uppercase italic", isLight ? "text-slate-900" : "text-white")}>Active</Badge>}
-                           </div>
-                           <p className={cn("text-[10px] font-medium uppercase tracking-widest italic", isLight ? "text-slate-700" : "text-white/90")}>{opt.description}</p>
-                        </div>
-                        <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", active ? "border-[#FF4D00] bg-[#FF4D00]" : "border-white/10")}>
-                           {active && <Check className={cn("w-3 h-3", isLight ? "text-slate-900" : "text-white")} />}
-                        </div>
-                     </motion.button>
-                   )
-                 })}
-               </div>
-            </section>
-
-            {/* ðŸ“ GEOLOCATION SYNC */}
-            <section className="space-y-6">
-               <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
-                     <MapPin className="w-4 h-4" />
-                  </div>
-                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Geolocation Sync</h3>
-               </div>
-
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                     <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>Region Control</Label>
-                     <Select value={country} onValueChange={handleCountryChange}>
-                        <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
-                           <SelectValue placeholder="Station Country" />
-                        </SelectTrigger>
-                        <SelectContent className={cn("max-h-72", isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]")}>
-                           <div className="p-3 border-b border-white/5">
-                              <Input placeholder="Filter..." value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className={cn("h-10 shadow-inner", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")} />
-                           </div>
-                           {filteredCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                        </SelectContent>
-                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                     <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>Sector (City)</Label>
-                     <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-                        <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-6 uppercase tracking-widest shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
-                           <SelectValue placeholder="City ID" />
-                        </SelectTrigger>
-                        <SelectContent className={cn("max-h-72", isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]")}>
-                           {filteredCities.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                     </Select>
-                  </div>
-               </div>
-            </section>
-
-            {/* HABIT PARITY */}
-            <section className="space-y-6">
-               <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center text-[#FF4D00]">
-                     <LifeBuoy className="w-4 h-4" />
-                  </div>
-                  <h3 className={cn("text-sm font-black uppercase italic tracking-widest", isLight ? "text-slate-900" : "text-white")}>Habit Parity</h3>
-               </div>
-               
-               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {[
-                    { label: 'Smke', val: smokingHabit, set: setSmokingHabit, opts: SMOKING_HABIT_OPTIONS },
-                    { label: 'Drnk', val: drinkingHabit, set: setDrinkingHabit, opts: DRINKING_HABIT_OPTIONS },
-                    { label: 'Clen', val: cleanlinessLevel, set: setCleanlinessLevel, opts: CLEANLINESS_OPTIONS }
-                  ].map((group) => (
-                    <div key={group.label} className="space-y-2">
-                       <Label className={cn("text-[10px] font-black uppercase tracking-widest italic ml-1", isLight ? "text-slate-700" : "text-white/90")}>{group.label}</Label>
-                       <Select value={group.val} onValueChange={group.set}>
-                          <SelectTrigger className={cn("h-14 rounded-2xl bg-white/[0.03] font-bold italic px-4 uppercase tracking-tighter shadow-sm hover:bg-white/[0.05] transition-all", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/10")}>
-                             <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className={isLight ? "text-slate-900 border-slate-200 bg-white" : "text-white border-white/10 bg-[#0d0d0f]"}>
-                             {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                          </SelectContent>
-                       </Select>
-                    </div>
-                  ))}
-               </div>
-            </section>
-
+          {/* Progress bar */}
+          <div className="mt-3 h-0.5 w-full bg-foreground/5 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00]"
+              initial={false}
+              animate={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+              transition={{ type: 'spring', damping: 24, stiffness: 200 }}
+            />
           </div>
         </div>
 
-        {/* ðŸ›¸ Swipes FOOTER ACTIONS */}
-        <div className={cn("px-8 py-6 border-t flex items-center justify-between gap-4 z-10 relative", isLight ? "border-border bg-gradient-to-t from-muted/50 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
-           <Button 
-             variant="ghost" 
-             onClick={() => onOpenChange(false)}
-              className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-foreground/55 hover:text-foreground hover:bg-foreground/5"
-           >
-              Cancel
-           </Button>
-           
-            <Button 
+        {/* Step content */}
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain relative z-10"
+          style={{ WebkitOverflowScrolling: 'touch' as any }}
+        >
+          <AnimatePresence mode="wait" custom={stepDir}>
+            <motion.div
+              key={currentStep}
+              custom={stepDir}
+              variants={stepVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="px-6 py-6 space-y-6 pb-28"
+            >
+
+              {/* Step 1: Photos */}
+              {currentStep === 1 && (
+                <>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Portrait photos (vertical) look best on mobile. Add up to 6 — your first photo is your cover.
+                  </p>
+                  <PhotoUploadManager
+                    maxPhotos={6}
+                    currentPhotos={profileImages}
+                    onPhotosChange={setProfileImages}
+                    uploadType="profile"
+                    onUpload={handleImageUpload}
+                    showCameraButton={true}
+                    replaceOnFull={false}
+                  />
+                  {data?.user_id && (
+                    <div className="space-y-2 pt-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                        Optional — 10s video loop
+                      </Label>
+                      <p className="text-xs text-muted-foreground/60 ml-1 mb-3">Plays silently on your swipe card before photos.</p>
+                      <ListingVideoUpload
+                        userId={data.user_id}
+                        videoUrl={videoUrl}
+                        onUploadSuccess={setVideoUrl}
+                        onRemove={() => setVideoUrl(null)}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Step 2: About You */}
+              {currentStep === 2 && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Your name</Label>
+                      <Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. Alex Rivera"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Age</Label>
+                        <Input
+                          type="number"
+                          value={age}
+                          onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')}
+                          placeholder="25"
+                          className="text-center"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Gender</Label>
+                        <Select value={gender} onValueChange={setGender}>
+                          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="non-binary">Non-binary</SelectItem>
+                            <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Occupation</Label>
+                      <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="e.g. Designer, Developer…" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Years in this city</Label>
+                      <Input type="number" value={yearsInCity} onChange={(e) => setYearsInCity(e.target.value ? Number(e.target.value) : '')} placeholder="2" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>
+                      About you — shown on your card
+                    </Label>
+                    <AITextarea
+                      value={bio}
+                      onChange={setBio}
+                      enhanceType="profile"
+                      placeholder="Tell owners who you are, what you're looking for, and what makes you a great match…"
+                      maxLength={500}
+                      rows={5}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Step 3: Location & Intentions */}
+              {currentStep === 3 && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Country</Label>
+                      <Select value={country} onValueChange={handleCountryChange}>
+                        <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          <div className="p-2 border-b border-border/50">
+                            <Input placeholder="Search countries…" value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="h-9" />
+                          </div>
+                          {filteredCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>City</Label>
+                      <Select value={city} onValueChange={handleCityChange} disabled={!country}>
+                        <SelectTrigger><SelectValue placeholder={country ? 'Select city' : 'Pick country first'} /></SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          {filteredCities.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>
+                      What are you looking for?
+                    </Label>
+                    <div className="grid grid-cols-1 gap-3">
+                      {INTENTION_OPTIONS.map((opt) => {
+                        const active = intentions.includes(opt.id);
+                        return (
+                          <motion.button
+                            key={opt.id}
+                            onClick={() => toggleIntention(opt.id)}
+                            whileTap={{ scale: 0.98 }}
+                            className={cn(
+                              "flex items-center gap-4 p-4 rounded-2xl border transition-all text-left",
+                              active
+                                ? "bg-[#FF4D00]/10 border-[#FF4D00]/60 shadow-[0_4px_16px_rgba(255,77,0,0.08)]"
+                                : cn("border-border/60 hover:border-border", isLight ? "bg-muted/30" : "bg-white/[0.02]"),
+                            )}
+                          >
+                            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors", active ? "bg-[#FF4D00] text-white" : "bg-foreground/8 text-foreground/40")}>
+                              <Compass className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn("font-bold text-sm", active ? "text-[#FF4D00]" : "text-foreground")}>{opt.label}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
+                            </div>
+                            <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all", active ? "border-[#FF4D00] bg-[#FF4D00]" : "border-border/50")}>
+                              {active && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 4: Lifestyle */}
+              {currentStep === 4 && (
+                <>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Owners use these to match you with the right space. Honest answers get better matches.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                      { label: 'Smoking', val: smokingHabit, set: setSmokingHabit, opts: SMOKING_HABIT_OPTIONS },
+                      { label: 'Drinking', val: drinkingHabit, set: setDrinkingHabit, opts: DRINKING_HABIT_OPTIONS },
+                      { label: 'Cleanliness', val: cleanlinessLevel, set: setCleanlinessLevel, opts: CLEANLINESS_OPTIONS },
+                    ].map((group) => (
+                      <div key={group.label} className="space-y-2">
+                        <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>{group.label}</Label>
+                        <Select value={group.val} onValueChange={group.set}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Work schedule</Label>
+                      <Select value={workSchedule} onValueChange={setWorkSchedule}>
+                        <SelectTrigger><SelectValue placeholder="Select schedule" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="remote">Remote (work from home)</SelectItem>
+                          <SelectItem value="office">Office (9–5)</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
+                          <SelectItem value="night">Night shift</SelectItem>
+                          <SelectItem value="freelance">Freelance / flexible</SelectItem>
+                          <SelectItem value="student">Student</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Noise tolerance</Label>
+                      <div className="flex gap-2">
+                        {['quiet', 'medium', 'lively'].map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setNoiseTolerance(level)}
+                            className={cn(
+                              "flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all capitalize",
+                              noiseTolerance === level
+                                ? "bg-primary text-white border-primary"
+                                : "border-border/50 text-muted-foreground hover:border-border",
+                            )}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Footer — step navigation */}
+        <div className={cn("px-6 py-4 border-t flex items-center justify-between gap-3 z-10 relative shrink-0", isLight ? "border-border bg-gradient-to-t from-muted/40 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
+          <Button
+            variant="ghost"
+            onClick={currentStep === 1 ? () => handleOpenChange(false) : goBack}
+            className="h-12 px-6 rounded-2xl font-bold text-foreground/60 hover:text-foreground hover:bg-foreground/5"
+          >
+            {currentStep === 1 ? 'Cancel' : '← Back'}
+          </Button>
+
+          {currentStep < STEPS.length ? (
+            <Button
+              onClick={goNext}
+              className="h-12 px-8 rounded-2xl font-black uppercase tracking-wider text-white border-none"
+              style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
+            >
+              Next →
+            </Button>
+          ) : (
+            <Button
               onClick={handleSave}
               disabled={saveMutation.isPending}
-               className={cn("keep-white h-14 pl-8 pr-10 rounded-2xl font-black italic uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all group border-none overflow-hidden relative", isLight ? "text-slate-900" : "text-white")}
+              className="keep-white h-12 px-8 rounded-2xl font-black uppercase tracking-wider text-white border-none"
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
-           >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.2),transparent_70%)] pointer-events-none" />
-              <div className="relative z-10 flex items-center">
-                <Save className={cn("w-4 h-4 mr-2 group-hover:rotate-12 transition-transform", isLight ? "text-slate-900" : "text-white")} />
-                <span className={isLight ? "text-slate-900" : "text-white"}>{saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}</span>
-              </div>
-           </Button>
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {saveMutation.isPending ? 'Saving…' : 'Save Profile'}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
