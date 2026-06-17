@@ -299,7 +299,7 @@ export default function EventosFeed() {
             }}
             className={cn(
               "shrink-0 w-11 h-11 mt-1 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent",
-              isLight ? "bg-white/90 border border-black/5 text-black" : "bg-black/60 border border-white/10 text-white"
+              isLight ? "bg-white/90 border border-slate-200 text-black" : "bg-black/60 border border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px) saturate(1.6)', WebkitBackdropFilter: 'blur(20px) saturate(1.6)' }}
             aria-label="Back"

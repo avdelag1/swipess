@@ -84,7 +84,7 @@ export default function AboutPage() {
         >
           <Card className={cn(
             "rounded-[3rem] overflow-hidden border relative group",
-            isLight ? "bg-white border-black/5 shadow-xl" : "bg-white/[0.03] border-white/5 shadow-2xl"
+            isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.03] border-white/5 shadow-2xl"
           )}>
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
             <CardContent className="p-10 relative z-10">
@@ -119,7 +119,7 @@ export default function AboutPage() {
               {ownerBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "border-violet-500/15"
+                  isLight ? "bg-white border-slate-200" : "border-violet-500/15"
                 )}
                   style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(139,92,246,0.08)' } : undefined}
                 >
@@ -152,7 +152,7 @@ export default function AboutPage() {
               {clientBenefits.map((benefit, index) => (
                 <Card key={index} className={cn(
                   "rounded-3xl border transition-all hover:scale-[1.02]",
-                  isLight ? "bg-white border-black/5" : "border-rose-500/15"
+                  isLight ? "bg-white border-slate-200" : "border-rose-500/15"
                 )}
                   style={!isLight ? { background: 'rgba(255,255,255,0.02)', boxShadow: 'inset 0 0 24px rgba(244,63,94,0.07)' } : undefined}
                 >

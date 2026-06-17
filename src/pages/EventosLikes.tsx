@@ -110,7 +110,7 @@ export default function EventosLikes() {
       <div
         className={cn(
           "sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300",
-          isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/5"
+          isLight ? "bg-white/80 border-slate-200" : "bg-black/60 border-white/5"
         )}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
@@ -119,7 +119,7 @@ export default function EventosLikes() {
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
               "shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg border",
-              isLight ? "bg-white/90 border-black/5 text-black" : "bg-black/60 border-white/10 text-white"
+              isLight ? "bg-white/90 border-slate-200 text-black" : "bg-black/60 border-white/10 text-white"
             )}
             style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
             aria-label="Back"

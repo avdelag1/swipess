@@ -259,7 +259,7 @@ export function MessagingDashboard() {
               placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border surface-inset",
-                isLight ? "text-black placeholder:text-black/30" : "text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "text-black placeholder:text-black/30 focus:ring-2 focus:ring-[#EB4898]/30 focus:border-[#EB4898]/40" : "text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 

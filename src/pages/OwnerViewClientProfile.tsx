@@ -220,7 +220,7 @@ export default function OwnerViewClientProfile() {
               <div className="flex flex-col items-end gap-3">
                 <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
                   {Array.isArray((client as any).images) && (client as any).images[0] ? (
-                    <img src={(client as any).images[0]} alt="" className="w-full h-full object-cover" />
+                    <img src={(client as any).images[0]} alt={(client as any).full_name || 'Client profile photo'} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-white/[0.02]">
                       <User className="w-8 h-8 text-white/10" />

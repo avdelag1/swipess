@@ -138,7 +138,7 @@ export default function FAQClientPage() {
                         >
                           <div className={cn(
                             "px-6 pb-6 text-sm font-medium leading-relaxed italic border-t pt-4",
-                            isLight ? "text-black/60 border-black/5" : "text-white/60 border-white/5"
+                            isLight ? "text-black/60 border-slate-200" : "text-white/60 border-white/5"
                           )}>
                             {item.answer}
                           </div>

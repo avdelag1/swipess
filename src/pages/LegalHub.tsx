@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  BookOpen, Building2,
+  Bike, BookOpen, Briefcase, Building2, Car,
   CheckCircle2, ChevronDown, ChevronRight,
-  DollarSign, FileText, Gavel, Home, Lock,
-  MessageSquare, Scale as ScaleIcon, Send, Shield, Users, UserX
+  DollarSign, FileSignature, FileText, Gavel, Home, Lock,
+  MessageSquare, Scale as ScaleIcon, Send, Shield, ShoppingCart, Users, UserX
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -24,6 +24,7 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { ownerTemplates, clientTemplates } from '@/data/contractTemplates';
 
 interface LegalIssueCategory {
   id: string;
@@ -86,6 +87,18 @@ const clientLegalCategories: LegalIssueCategory[] = [
       { id: 'privacy-violation', title: 'Privacy Violations', description: 'Your privacy being invaded' },
       { id: 'accessibility', title: 'Accessibility Issues', description: 'Disability accommodation problems' }
     ]
+  },
+  {
+    id: 'services-rights',
+    title: 'Service Provider Rights',
+    icon: <Briefcase className="w-5 h-5" />,
+    description: 'Your rights as a contractor or service worker',
+    subcategories: [
+      { id: 'unpaid-work', title: 'Unpaid Work Dispute', description: 'Not been paid for completed work' },
+      { id: 'unfair-service-contract', title: 'Unfair Contract Terms', description: 'One-sided or illegal clauses in your contract' },
+      { id: 'wrongful-termination', title: 'Wrongful Contract End', description: 'Agreement ended without valid cause' },
+      { id: 'liability-claim', title: 'Liability & Claims', description: 'Being held responsible for damages unfairly' }
+    ]
   }
 ];
 
@@ -134,10 +147,33 @@ const ownerLegalCategories: LegalIssueCategory[] = [
       { id: 'rent-collection', title: 'Rent Collection', description: 'Legal collection methods' },
       { id: 'tax-compliance', title: 'Tax Compliance', description: 'Rental income tax questions' }
     ]
+  },
+  {
+    id: 'services-legal',
+    title: 'Services & Work Contracts',
+    icon: <Briefcase className="w-5 h-5" />,
+    description: 'Hire and manage cleaners, guards, managers & more',
+    subcategories: [
+      { id: 'service-contract', title: 'Service Contract Creation', description: 'Draft contracts for cleaners, guards, managers' },
+      { id: 'worker-agreement', title: 'Worker Agreements', description: 'Formal employment and task agreements' },
+      { id: 'vendor-contract', title: 'Vendor & Supplier Contracts', description: 'Agreements with external vendors' },
+      { id: 'service-dispute', title: 'Service Provider Dispute', description: 'Resolve issues with contracted workers' }
+    ]
   }
 ];
 
 // Service packages are now fetched dynamically from legal_service_packages
+
+const TEMPLATE_CATEGORY_META: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  lease:            { label: 'Lease Agreements',    color: 'bg-blue-500',    icon: <Home className="w-3.5 h-3.5" /> },
+  purchase:         { label: 'Purchase Contracts',  color: 'bg-purple-500',  icon: <ShoppingCart className="w-3.5 h-3.5" /> },
+  service:          { label: 'Service Contracts',   color: 'bg-orange-500',  icon: <Briefcase className="w-3.5 h-3.5" /> },
+  bicycle:          { label: 'Bicycle Contracts',   color: 'bg-cyan-500',    icon: <Bike className="w-3.5 h-3.5" /> },
+  moto:             { label: 'Vehicle Contracts',   color: 'bg-red-500',     icon: <Car className="w-3.5 h-3.5" /> },
+  promise:          { label: 'Promissory Notes',    color: 'bg-amber-500',   icon: <FileSignature className="w-3.5 h-3.5" /> },
+  rental_agreement: { label: 'Rental Agreements',   color: 'bg-rose-500',    icon: <Home className="w-3.5 h-3.5" /> },
+  rental:           { label: 'Rental Contracts',    color: 'bg-rose-500',    icon: <Home className="w-3.5 h-3.5" /> },
+};
 
 const CATEGORY_LABELS: Record<string, string> = {
   house_sale: 'House Sale',
@@ -857,6 +893,68 @@ const LegalHub = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+            </div>
+
+            {/* 🛸 TEMPLATE LIBRARY */}
+            <div className="space-y-10">
+              <div className="px-2 flex items-center gap-6">
+                <span className={cn("text-[12px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Template Library</span>
+                <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
+                <button
+                  onClick={() => { haptics.tap(); navigate(isOwner ? '/owner/contracts' : '/client/contracts'); }}
+                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary hover:opacity-70 transition-opacity"
+                >
+                  Open Builder <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                {Object.entries(
+                  (isOwner ? ownerTemplates : clientTemplates).reduce<Record<string, typeof ownerTemplates>>((acc, t) => {
+                    if (!acc[t.category]) acc[t.category] = [];
+                    acc[t.category].push(t);
+                    return acc;
+                  }, {})
+                ).map(([category, templates]) => {
+                  const meta = TEMPLATE_CATEGORY_META[category];
+                  return (
+                    <div key={category} className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0", meta?.color || 'bg-primary')}>
+                          {meta?.icon || <FileText className="w-3.5 h-3.5" />}
+                        </div>
+                        <span className={cn("text-[11px] font-black uppercase tracking-[0.35em]", isLight ? "text-black/60" : "text-white/50")}>
+                          {meta?.label || category}
+                        </span>
+                        <span className={cn("text-[9px] font-black px-2.5 py-1 rounded-full", isLight ? "bg-black/5 text-black/40" : "bg-white/5 text-white/30")}>
+                          {templates.length}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {templates.map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => { haptics.tap(); navigate(isOwner ? '/owner/contracts' : '/client/contracts'); }}
+                            className={cn(
+                              "text-left p-5 rounded-[1.75rem] border transition-all group hover:translate-y-[-2px] active:scale-[0.97]",
+                              isLight
+                                ? "bg-white border-slate-200 hover:border-slate-300 hover:shadow-md shadow-sm"
+                                : "bg-white/[0.03] border-white/[0.08] hover:border-white/15 hover:bg-white/[0.06]"
+                            )}
+                          >
+                            <p className={cn("text-[13px] font-black uppercase italic tracking-tight leading-tight mb-1.5 group-hover:text-primary transition-colors", isLight ? "text-black" : "text-white")}>
+                              {t.name}
+                            </p>
+                            <p className={cn("text-[10px] font-bold opacity-40 leading-relaxed line-clamp-2", isLight ? "text-black" : "text-white")}>
+                              {t.description}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
