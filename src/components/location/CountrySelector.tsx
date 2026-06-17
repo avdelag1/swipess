@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,9 +41,9 @@ interface CountrySelectorProps {
 export function CountrySelector({ value, onChange, required = true }: CountrySelectorProps) {
   const [searchValue, setSearchValue] = useState('');
 
-  const filteredCountries = COUNTRIES.filter(country =>
+  const filteredCountries = useMemo(() => COUNTRIES.filter(country =>
     country.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  ), [searchValue]);
 
   return (
     <div className="space-y-2">

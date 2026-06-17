@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -253,16 +253,16 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
   }, [isOpen, unreadCount, markAllAsRead]);
 
   // Filter notifications based on active tab
-  const filteredNotifications = notifications.filter(n => {
+  const filteredNotifications = useMemo(() => notifications.filter(n => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'unread') return !n.read;
     return n.type === activeFilter;
-  });
+  }), [notifications, activeFilter]);
 
   // Count notifications by type
-  const _likesCount = notifications.filter(n => n.type === 'like' || n.type === 'super_like').length;
-  const _messagesCount = notifications.filter(n => n.type === 'message').length;
-  const _matchesCount = notifications.filter(n => n.type === 'match').length;
+  const _likesCount = useMemo(() => notifications.filter(n => n.type === 'like' || n.type === 'super_like').length, [notifications]);
+  const _messagesCount = useMemo(() => notifications.filter(n => n.type === 'message').length, [notifications]);
+  const _matchesCount = useMemo(() => notifications.filter(n => n.type === 'match').length, [notifications]);
 
   const handleNotificationAction = useCallback((notification: any) => {
     // Mark as read if not already

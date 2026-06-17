@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
@@ -207,11 +207,11 @@ export default function DocumentVault() {
     if (file) handleFileSelected(file);
   }, []);
 
-  const filteredDocs = documents.filter(doc => {
+  const filteredDocs = useMemo(() => documents.filter(doc => {
     const matchesTab = activeTab === 'all' || (DOC_TYPE_MAP[doc.document_type] || 'other') === activeTab;
     const matchesSearch = !searchQuery || doc.file_name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
-  });
+  }), [documents, activeTab, searchQuery]);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes}B`;

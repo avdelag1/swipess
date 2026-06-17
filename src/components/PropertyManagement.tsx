@@ -124,7 +124,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     setAvailabilityStatus(statusMap);
   }, [listings]);
 
-  const filteredListings = listings.filter(listing => {
+  const filteredListings = useMemo(() => listings.filter(listing => {
     const matchesSearch = listing.title?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
       listing.description?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
       listing.address?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
@@ -144,7 +144,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     else if (activeTab === 'maintenance') matchesCategory = listing.status === 'maintenance';
 
     return matchesSearch && matchesCategory;
-  });
+  }), [listings, searchTerm, activeTab, likeCountMap]);
 
   const handleAddProperty = () => {
     triggerHaptic('medium');

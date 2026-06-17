@@ -8,7 +8,7 @@ import { Bell, CheckCheck, Crown, Eye, Flame, MessageCircle, MessageSquare, Spar
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -84,13 +84,13 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
     }
   }, [isOpen, markAllAsRead]);
 
-  const filteredNotifications = notifications.filter(n => {
+  const filteredNotifications = useMemo(() => notifications.filter(n => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'unread') return !n.read;
     return n.type === activeFilter;
-  });
+  }), [notifications, activeFilter]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
 
   const handleViewAll = () => {
     onClose();
