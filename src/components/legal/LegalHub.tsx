@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight, ChevronDown, ChevronRight, ChevronUp, Clock,
@@ -58,6 +59,7 @@ function Badge({ children, className, variant = "secondary" }: { children: React
 export function ContractsVault() {
   const { user } = useAuth();
   const { isLight } = useAppTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<HubView>('dashboard');
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,18 @@ export function ContractsVault() {
     if (!user) return;
     fetchContracts();
   }, [user]);
+
+  useEffect(() => {
+    const docId = searchParams.get('doc');
+    if (!docId || contracts.length === 0) return;
+    const match = contracts.find((c) => c.id === docId);
+    if (!match) return;
+    handleOpenContract(match);
+    const next = new URLSearchParams(searchParams);
+    next.delete('doc');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, contracts.length]);
 
   // Re-tapping the Legal nav button (bottom bar) returns the hub to its home
   // view instead of leaving the user stranded in the editor/signing screens.

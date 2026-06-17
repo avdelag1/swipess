@@ -346,7 +346,7 @@ export function useConversationMessages(conversationId: string) {
     queryFn: async () => {
       const { data: messages, error } = await supabase
         .from('conversation_messages')
-        .select('id, conversation_id, sender_id, content, message_type, is_read, read_at, created_at')
+        .select('id, conversation_id, sender_id, content, message_type, attachments, is_read, read_at, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 

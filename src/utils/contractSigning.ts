@@ -104,3 +104,127 @@ export async function notifyContractEvent(opts: {
     },
   }).catch(() => {});
 }
+
+export interface ShareContractResult {
+  contract: Record<string, unknown>;
+  attachment: {
+    type: 'digital_contract';
+    id: string;
+    title: string;
+    status: ContractSignStatus;
+    template_type?: string;
+  };
+  content: string;
+  notify: boolean;
+}
+
+/** Assign, clone, or reuse a vault lease for a chat counterparty. */
+export async function shareContractInConversation(opts: {
+  contract: Record<string, unknown>;
+  senderId: string;
+  recipientId: string;
+  recipientRole: 'client' | 'owner';
+}): Promise<ShareContractResult> {
+  const contract = opts.contract;
+  const contractId = contract.id as string;
+  const ownerId = contract.owner_id as string;
+  const clientId = contract.client_id as string;
+  const title = (contract.title as string) || 'Lease';
+  const templateType = contract.template_type as string | undefined;
+
+  if (opts.senderId !== ownerId && opts.senderId !== clientId) {
+    throw new Error('You are not a party on this document.');
+  }
+
+  const linkPath = opts.recipientRole === 'client' ? '/client/contracts' : '/owner/contracts';
+  let saved = contract;
+
+  if (clientId === opts.recipientId) {
+    const status = computeContractStatus({
+      owner_id: ownerId,
+      client_id: clientId,
+      owner_signature: contract.owner_signature as string | null | undefined,
+      client_signature: contract.client_signature as string | null | undefined,
+    });
+    return {
+      contract: saved,
+      attachment: { type: 'digital_contract', id: contractId, title, status, template_type: templateType },
+      content: status === 'signed'
+        ? `Fully signed lease: "${title}"`
+        : `Lease ready for you: "${title}"`,
+      notify: status !== 'signed' && userNeedsSignature(saved as any, opts.recipientId),
+    };
+  }
+
+  if (clientId === ownerId) {
+    const { data, error } = await supabase
+      .from('digital_contracts')
+      .update({
+        client_id: opts.recipientId,
+        status: 'sent',
+        updated_at: new Date().toISOString(),
+      } as any)
+      .eq('id', contractId)
+      .select('*')
+      .single();
+    if (error) throw error;
+    saved = data as Record<string, unknown>;
+
+    await notifyContractEvent({
+      recipientId: opts.recipientId,
+      senderId: opts.senderId,
+      contractId,
+      title: 'Lease Ready to Sign',
+      type: 'contract_pending',
+      linkPath,
+      message: `"${title}" is waiting for your signature.`,
+    });
+
+    return {
+      contract: saved,
+      attachment: { type: 'digital_contract', id: contractId, title, status: 'sent', template_type: templateType },
+      content: `Sent lease for signature: "${title}"`,
+      notify: false,
+    };
+  }
+
+  const { data: cloned, error: cloneError } = await supabase
+    .from('digital_contracts')
+    .insert({
+      owner_id: ownerId,
+      client_id: opts.recipientId,
+      listing_id: contract.listing_id ?? null,
+      template_type: templateType || 'rental',
+      title,
+      content: contract.content,
+      status: 'sent',
+      metadata: contract.metadata ?? {},
+    } as any)
+    .select('*')
+    .single();
+  if (cloneError) throw cloneError;
+  saved = cloned as Record<string, unknown>;
+
+  await notifyContractEvent({
+    recipientId: opts.recipientId,
+    senderId: opts.senderId,
+    contractId: saved.id as string,
+    title: 'Lease Ready to Sign',
+    type: 'contract_pending',
+    linkPath,
+    message: `"${title}" is waiting for your signature.`,
+  });
+
+  return {
+    contract: saved,
+    attachment: {
+      type: 'digital_contract',
+      id: saved.id as string,
+      title,
+      status: 'sent',
+      template_type: templateType,
+    },
+    content: `Sent lease for signature: "${title}"`,
+    notify: false,
+  };
+}

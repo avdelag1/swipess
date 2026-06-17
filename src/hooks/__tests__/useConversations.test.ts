@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 describe('Conversation messages SELECT columns', () => {
-  it('should NOT include message_text or attachments', () => {
-    const select = 'id, conversation_id, sender_id, content, message_type, is_read, read_at, created_at';
+  it('should include attachments for document messages', () => {
+    const select = 'id, conversation_id, sender_id, content, message_type, attachments, is_read, read_at, created_at';
     expect(select).not.toContain('message_text');
-    expect(select).not.toContain('attachments');
+    expect(select).toContain('attachments');
     expect(select).toContain('content');
     expect(select).toContain('is_read');
   });

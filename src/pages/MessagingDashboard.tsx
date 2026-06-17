@@ -7,8 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   _ChevronLeft, _CircleDot,
   _Layers, _Navigation, Archive, Ban, Check,
-  Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
+  FolderLock, Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
 } from 'lucide-react';
+import { MessagesDocumentsLibrary } from '@/components/messaging/MessagesDocumentsLibrary';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 // import { } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
@@ -59,6 +60,7 @@ export function MessagingDashboard() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
+  const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
@@ -275,28 +277,52 @@ export function MessagingDashboard() {
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
             {[
-              { id: 'all', label: getText('page_title', 'Inbox'), icon: Inbox },
-              { id: 'unread', label: getText('free_messages_remaining', 'Priority'), icon: Sparkles },
-              { id: 'archived', label: getText('empty_state_text', 'Archive'), icon: Archive }
-            ].map((filter) => (
+              { id: 'chats' as const, label: 'Chats', icon: Inbox },
+              { id: 'documents' as const, label: 'Documents', icon: FolderLock },
+            ].map((section) => (
               <button
-                key={filter.id}
-                onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
+                key={section.id}
+                onClick={() => { setInboxSection(section.id); triggerHaptic('light'); }}
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
-                  activeFilter === filter.id
-                    ? "border-0"
-                    : "surface-2 text-foreground/50 hover:shadow-[var(--elev-3)]"
+                  inboxSection === section.id ? "border-0" : "surface-2 text-foreground/50 hover:shadow-[var(--elev-3)]",
                 )}
-                style={activeFilter === filter.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
+                style={inboxSection === section.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
               >
-                <filter.icon className={cn("w-3.5 h-3.5", activeFilter === filter.id ? "text-white" : "text-[#EB4898]")} />
-                {filter.label}
+                <section.icon className={cn("w-3.5 h-3.5", inboxSection === section.id ? "text-white" : "text-[#EB4898]")} />
+                {section.label}
               </button>
             ))}
           </div>
+
+          {inboxSection === 'chats' && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+              {[
+                { id: 'all', label: getText('page_title', 'Inbox'), icon: Inbox },
+                { id: 'unread', label: getText('free_messages_remaining', 'Priority'), icon: Sparkles },
+                { id: 'archived', label: getText('empty_state_text', 'Archive'), icon: Archive },
+              ].map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
+                  className={cn(
+                    "flex items-center gap-2.5 px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
+                    activeFilter === filter.id
+                      ? "border-rose-500/30 bg-rose-500/10 text-rose-400"
+                      : "surface-2 text-foreground/40",
+                  )}
+                >
+                  <filter.icon className="w-3 h-3" />
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
+        {inboxSection === 'documents' ? (
+          <MessagesDocumentsLibrary />
+        ) : (
         <div className="space-y-4">
           {isError && conversations.length === 0 ? (
             <div className="py-24 flex flex-col items-center justify-center gap-4">
@@ -451,6 +477,7 @@ export function MessagingDashboard() {
             </motion.div>
           )}
         </div>
+        )}
 
         <div className="h-20" />
       </div>

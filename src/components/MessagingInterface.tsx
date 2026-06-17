@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -69,9 +70,10 @@ const QUICK_EMOJIS = [
   '\u{1F4AA}', '\u{1F44F}', '\u{1F973}', '\u{1F607}', '\u{1F917}', '\u{1F601}', '\u{1F31F}', '\u{1F4EC}',
 ];
 
-export const MessagingInterface = memo(({ conversationId, otherUser, listing, _currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
+export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showDocumentsPanel, setShowDocumentsPanel] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -395,6 +397,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               messages={messages}
               currentUserId={user?.id || ''}
               otherUserRole={otherUser.role}
+              currentUserRole={currentUserRole}
               typingUsers={typingUsers}
             />
           )}
@@ -423,6 +426,20 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
           </AnimatePresence>
 
           <form onSubmit={handleSendMessage} className="flex gap-3 items-end relative w-full">
+            <button
+              type="button"
+              onClick={() => { setShowDocumentsPanel(true); triggerHaptic('light'); }}
+              aria-label="Send documents"
+              className={cn(
+                "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm",
+                showDocumentsPanel
+                  ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500"
+                  : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"),
+              )}
+            >
+              <FileText className="z-[10000] w-5 h-5 stroke-[1.5]" />
+            </button>
+
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
@@ -531,6 +548,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             bio: partnerProfile?.bio ?? undefined,
           } as any}
         /></Suspense>
+
+        <MessageDocumentsPanel
+          open={showDocumentsPanel}
+          onClose={() => setShowDocumentsPanel(false)}
+          conversationId={conversationId}
+          otherUser={otherUser}
+          currentUserRole={currentUserRole}
+        />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
           <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>

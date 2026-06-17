@@ -3,6 +3,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
+import { DocumentMessageCard } from '@/components/messaging/DocumentMessageCard';
+import { isDocumentMessage, parseDocumentAttachments } from '@/utils/messageDocuments';
 
 interface MessageType {
   id: string;
@@ -11,6 +13,7 @@ interface MessageType {
   sender_id: string;
   content?: string | null;
   message_type: string;
+  attachments?: unknown;
   created_at: string;
   is_read?: boolean;
   sender?: {
@@ -29,6 +32,7 @@ interface VirtualizedMessageListProps {
   messages: MessageType[];
   currentUserId: string;
   otherUserRole: string;
+  currentUserRole?: 'client' | 'owner';
   typingUsers: TypingUser[];
 }
 
@@ -36,13 +40,19 @@ const MessageBubble = memo(({
   message,
   isMyMessage,
   _otherUserRole,
-  isThemeLight
+  isThemeLight,
+  currentUserRole,
 }: {
   message: MessageType;
   isMyMessage: boolean;
   otherUserRole: string;
   isThemeLight: boolean;
+  currentUserRole?: 'client' | 'owner';
 }) => {
+  const docAttachments = isDocumentMessage(message.message_type)
+    ? parseDocumentAttachments(message.attachments)
+    : [];
+
   return (
     <motion.div
       layout="position"
@@ -51,28 +61,52 @@ const MessageBubble = memo(({
       transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
       className={cn("flex mb-2.5 px-4", isMyMessage ? 'justify-end' : 'justify-start')}
     >
-      <div
-        className={cn(
-          "max-w-[78%] px-4 py-3 transition-all duration-200",
-          isMyMessage
-            ? "bg-gradient-to-br from-[#EB4898] to-[#c0392b] text-white rounded-[1.5rem] rounded-br-[0.35rem] shadow-[0_4px_20px_rgba(235,72,152,0.3)]"
-            : cn(
-                "border rounded-[1.5rem] rounded-bl-[0.35rem]",
-                isThemeLight
-                  ? "bg-white border-black/[0.07] text-black shadow-sm"
-                  : "bg-secondary border-white/[0.08] text-white shadow-md backdrop-blur-xl"
-              )
+      <div className={cn("max-w-[78%] flex flex-col gap-2", isMyMessage ? 'items-end' : 'items-start')}>
+        {docAttachments.length > 0 ? (
+          docAttachments.map((att) => (
+            <DocumentMessageCard
+              key={att.id}
+              attachment={att}
+              isMyMessage={isMyMessage}
+              isThemeLight={isThemeLight}
+              currentUserRole={currentUserRole}
+            />
+          ))
+        ) : (
+          <div
+            className={cn(
+              "px-4 py-3 transition-all duration-200",
+              isMyMessage
+                ? "bg-gradient-to-br from-[#EB4898] to-[#c0392b] text-white rounded-[1.5rem] rounded-br-[0.35rem] shadow-[0_4px_20px_rgba(235,72,152,0.3)]"
+                : cn(
+                    "border rounded-[1.5rem] rounded-bl-[0.35rem]",
+                    isThemeLight
+                      ? "bg-white border-black/[0.07] text-black shadow-sm"
+                      : "bg-secondary border-white/[0.08] text-white shadow-md backdrop-blur-xl"
+                  )
+            )}
+          >
+            <p className={cn(
+              "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
+              isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
+            )}>
+              {message.content || ''}
+            </p>
+          </div>
         )}
-      >
-        <p className={cn(
-          "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
-          isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
-        )}>
-          {message.content || ''}
-        </p>
+        {docAttachments.length > 0 && message.content && (
+          <p className={cn(
+            "text-[12px] font-medium px-1 max-w-[260px]",
+            isMyMessage
+              ? "text-white/70 text-right"
+              : (isThemeLight ? "text-black/50" : "text-white/50"),
+          )}>
+            {message.content}
+          </p>
+        )}
         <div className={cn(
-          "text-[9px] mt-1.5 font-semibold text-right",
-          isMyMessage ? "text-white/60" : (isThemeLight ? "text-black/30" : "text-white/30")
+          "text-[9px] font-semibold px-1",
+          isMyMessage ? "text-white/40 text-right" : (isThemeLight ? "text-black/30" : "text-white/30")
         )}>
           {formatDistanceToNow(new Date(message.created_at), { addSuffix: false })}
         </div>
@@ -110,6 +144,7 @@ export const VirtualizedMessageList = memo(({
   messages,
   currentUserId,
   otherUserRole,
+  currentUserRole,
   typingUsers,
 }: VirtualizedMessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -147,6 +182,7 @@ export const VirtualizedMessageList = memo(({
               isMyMessage={isMyMessage}
               otherUserRole={otherUserRole}
               isThemeLight={isThemeLight}
+              currentUserRole={currentUserRole}
             />
           </div>
         );
