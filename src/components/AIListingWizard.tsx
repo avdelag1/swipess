@@ -116,18 +116,30 @@ export function AIListingWizard() {
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
   const { t } = useTranslation();
 
-  const modalBg = isLight 
-    ? 'surface-5 chrome-solid saturate-150' 
-    : 'bg-[#050505]/95 chrome-solid saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
-  const headerBorder = isLight ? 'border-border' : 'border-white/10';
+  const modalBg = isLight
+    ? 'surface-5 chrome-solid saturate-150 border-border'
+    : 'surface-5 border border-white/12 shadow-[0_40px_100px_rgba(0,0,0,0.85)]';
+  const headerBorder = isLight ? 'border-border' : 'border-white/12';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/80' : 'text-white/80';
+  const textMuted = isLight ? 'text-black/80' : 'text-white/75';
+  const chipIdleCls = isLight
+    ? 'bg-black/5 border-black/10 hover:border-rose-500/30'
+    : 'bg-[#141418] border-white/12 hover:border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]';
   const inputCls = isLight
     ? 'surface-inset focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium'
-    : 'bg-black/60 border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
+    : 'bg-[#141418] border border-white/12 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/45 font-medium shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)]';
   const closeBtnCls = isLight
     ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
-    : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
+    : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-2xl transition-all border border-white/15 shadow-lg';
+  const photoAddCls = isLight
+    ? 'border-black/15 bg-black/5'
+    : 'border-white/20 bg-[#141418]';
+  const photoAddInnerCls = isLight
+    ? 'bg-black/5 border-black/5'
+    : 'bg-[#1c1c22] border-white/10';
+  const enhanceDisabledCls = isLight
+    ? 'opacity-50 bg-black/5 border-black/10 text-black/50'
+    : 'opacity-60 bg-[#141418] border-white/12 text-white/70';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -493,8 +505,8 @@ export function AIListingWizard() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.08, ease: 'easeOut' }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative",
-            isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
+              "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative isolate",
+            isLight && "shadow-[0_40px_100px_rgba(0,0,0,0.2)]",
             modalBg
             )}
           >
@@ -507,9 +519,9 @@ export function AIListingWizard() {
                   </MotionIcon>
                 </div>
                 <div>
-                  <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Uploading. Listing.</h2>
+                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", isLight ? "bg-clip-text text-transparent" : "text-white")} style={isLight ? { backgroundImage: NEXUS_GRADIENTS.ai } : undefined}>AI Uploading. Listing.</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
+                    <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", textMuted)}>One-Step Builder</span>
                     <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
                   </div>
                 </div>
@@ -562,7 +574,7 @@ export function AIListingWizard() {
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
                                   ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
-                                  : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/5 border border-t-white/30 border-l-white/10 border-r-white/5 border-b-transparent hover:border-white/40 shadow-inner"
+                                  : chipIdleCls
                               )}
                             >
                               <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-white" : textMuted)} />
@@ -612,9 +624,9 @@ export function AIListingWizard() {
                           <button
                             type="button"
                             onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15 bg-black/5" : "border-white/20 bg-white/5")}
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", photoAddCls)}
                           >
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
+                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", photoAddInnerCls)}>
                               <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
                             </div>
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photos</span>
@@ -657,7 +669,7 @@ export function AIListingWizard() {
                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                                prompt.trim() && !isEnhancing
                                  ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
-                                 : "opacity-40 bg-white/5 border-white/10 text-white/70 cursor-not-allowed"
+                                 : cn("cursor-not-allowed", enhanceDisabledCls)
                              )}
                            >
                              {isEnhancing ? (
@@ -689,7 +701,9 @@ export function AIListingWizard() {
                                     "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                     isRecording 
                                       ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
-                                      : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
+                                      : isLight
+                                        ? "bg-black/5 hover:bg-black/10 border border-black/15 hover:scale-105"
+                                        : "bg-[#1c1c22] hover:bg-[#26262e] border border-white/15 hover:scale-105"
                                   )}
                                 >
                                   {!isRecording && (
@@ -698,7 +712,7 @@ export function AIListingWizard() {
                                   {isRecording ? (
                                     <Mic className="w-5 h-5 relative z-10 text-white animate-pulse" />
                                   ) : (
-                                    <Mic className="w-5 h-5 relative z-10 text-white" />
+                                    <Mic className={cn("w-5 h-5 relative z-10", isLight ? "text-black/70" : "text-white")} />
                                   )}
                                 </button>
                               </div>
@@ -706,14 +720,17 @@ export function AIListingWizard() {
                             <PopoverContent
                               side="top"
                               sideOffset={12}
-                              className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl chrome-solid"
+                              className={cn(
+                                "w-72 p-4 rounded-2xl border border-rose-500/30 text-white shadow-2xl",
+                                isLight ? "bg-white text-black chrome-solid border-rose-500/20" : "bg-[#141418] border-white/12"
+                              )}
                             >
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                   <AudioLines className="w-4 h-4 text-rose-400" />
                                   <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
                                 </div>
-                                <p className="text-[12px] leading-relaxed text-white">
+                                <p className={cn("text-[12px] leading-relaxed", isLight ? "text-black/80" : "text-white/90")}>
                                   Tap to describe your listing out loud. The visualizer reacts to your voice!
                                 </p>
                               </div>
@@ -770,7 +787,10 @@ export function AIListingWizard() {
                         <Button
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
-                          className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-30"
+                          className={cn(
+                            "w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)]",
+                            "disabled:opacity-40 disabled:saturate-50 disabled:shadow-none disabled:cursor-not-allowed"
+                          )}
                         >
                           {isProcessing ? (
                             <>
