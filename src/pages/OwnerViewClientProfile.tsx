@@ -150,7 +150,7 @@ export default function OwnerViewClientProfile() {
   if (!client) {
     return (
       <div className={cn("min-h-screen flex flex-col items-center justify-center p-6 text-center", isLight ? "bg-background" : "bg-black")}>
-        <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-6 border", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
+        <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center mb-6 border", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
            <User className={cn("w-10 h-10", isLight ? "text-black/20" : "text-white/20")} />
         </div>
         <h2 className="text-2xl font-black uppercase tracking-tight mb-2 text-foreground">Client Not Found</h2>
@@ -177,7 +177,7 @@ export default function OwnerViewClientProfile() {
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/5 border border-slate-200 text-black/40 hover:bg-black/10 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
+            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-slate-50 border border-slate-200 text-black/40 hover:bg-slate-100 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -189,7 +189,7 @@ export default function OwnerViewClientProfile() {
 
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/5 border border-slate-200 text-black/40 hover:bg-black/10 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
+            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-slate-50 border border-slate-200 text-black/40 hover:bg-slate-100 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -218,11 +218,11 @@ export default function OwnerViewClientProfile() {
               </div>
               
               <div className="flex flex-col items-end gap-3">
-                <div className={cn("w-20 h-20 rounded-[28px] overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer border", isLight ? "bg-black/5 border-slate-200" : "bg-white/5 border-white/10")}>
+                <div className={cn("w-20 h-20 rounded-[28px] overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer border", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
                   {Array.isArray((client as any).images) && (client as any).images[0] ? (
                     <img src={(client as any).images[0]} alt={(client as any).full_name || 'Client profile photo'} className="w-full h-full object-cover" />
                   ) : (
-                    <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/5" : "bg-white/[0.02]")}>
+                    <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-slate-50" : "bg-white/[0.02]")}>
                       <User className={cn("w-8 h-8", isLight ? "text-black/20" : "text-white/10")} />
                     </div>
                   )}
@@ -234,7 +234,7 @@ export default function OwnerViewClientProfile() {
             </div>
 
             <div className="flex items-center gap-3">
-               <div className={cn("px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-lg", isLight ? "bg-black/5 border border-slate-200" : "bg-black/60 border border-white/10 backdrop-blur-xl")}>
+               <div className={cn("px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-lg", isLight ? "bg-slate-50 border border-slate-200" : "bg-black/60 border border-white/10 backdrop-blur-xl")}>
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
                 {(client as any).verified && (
@@ -314,7 +314,7 @@ export default function OwnerViewClientProfile() {
 
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-slate-50 border-slate-200" : "bg-black/60 border-white/10")}>
                      <ShieldCheck className="w-6 h-6 text-[#FF4D00]" />
                   </div>
                   <div>
@@ -336,7 +336,7 @@ export default function OwnerViewClientProfile() {
             <div className={cn("p-6 rounded-[32px] shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-slate-50 border-slate-200" : "bg-black/60 border-white/10")}>
                      <Clock className="w-6 h-6 text-[#EB4898]" />
                   </div>
                   <div>
@@ -405,7 +405,7 @@ export default function OwnerViewClientProfile() {
                   
                   <div className="flex flex-wrap gap-2.5">
                     {preferences.moto_types?.map(type => (
-                      <div key={type} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md italic border", isLight ? "bg-black/5 border-slate-200 text-black/70" : "bg-black/60 border-white/10 text-white/70 backdrop-blur-md")}>
+                      <div key={type} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md italic border", isLight ? "bg-slate-50 border-slate-200 text-black/70" : "bg-black/60 border-white/10 text-white/70 backdrop-blur-md")}>
                         {type}
                       </div>
                     ))}
@@ -427,7 +427,7 @@ export default function OwnerViewClientProfile() {
                     </div>
                   </div>
                   
-                  <div className={cn("p-4 rounded-2xl shadow-inner border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/5 backdrop-blur-md")}>
+                  <div className={cn("p-4 rounded-2xl shadow-inner border", isLight ? "bg-slate-50 border-slate-200" : "bg-black/60 border-white/5 backdrop-blur-md")}>
                     <p className={cn("text-[11px] font-bold uppercase tracking-widest leading-relaxed italic", isLight ? "text-black/50" : "text-white/60")}>
                       Seeking vessels <span className={isLight ? "text-black" : "text-white"}>{preferences.yacht_length_min || 0}ft+</span> in <span className={isLight ? "text-black" : "text-white"}>{preferences.yacht_condition?.[0] || 'Premium'}</span> condition.
                     </p>
@@ -473,7 +473,7 @@ export default function OwnerViewClientProfile() {
            <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] ml-2 italic", isLight ? "text-black/40" : "text-white/30")}>Profile Analytics</h3>
            <div className="grid grid-cols-2 gap-3">
               <div className={cn("p-5 rounded-[28px] flex items-center gap-4 shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-slate-50 border-slate-200" : "bg-black/60 border-white/10")}>
                    <Award className="w-5 h-5 text-[#FF4D00]" />
                 </div>
                 <div>
@@ -482,7 +482,7 @@ export default function OwnerViewClientProfile() {
                 </div>
               </div>
               <div className={cn("p-5 rounded-[28px] flex items-center gap-4 shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-slate-50 border-slate-200" : "bg-black/60 border-white/10")}>
                    <Shield className="w-5 h-5 text-[#EB4898]" />
                 </div>
                 <div>

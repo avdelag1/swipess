@@ -297,7 +297,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   </div>
                 </div>
 
-                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.03] border-white/5")}>
+                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/5")}>
                    <AlertCircle className="w-6 h-6 text-amber-500 shrink-0 mt-1" />
                    <div className="space-y-2">
                        <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Identity Compliance Review</h4>

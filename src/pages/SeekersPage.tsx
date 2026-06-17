@@ -295,7 +295,7 @@ export default function SeekersPage() {
           </div>
         ) : visible.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-8">
-            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center ${isLight ? 'bg-black/5' : 'bg-white/5'}`}>
+            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center ${isLight ? 'bg-slate-100' : 'bg-white/5'}`}>
               <Users className={`w-8 h-8 ${isLight ? 'text-black/20' : 'text-white/20'}`} />
             </div>
             <div>

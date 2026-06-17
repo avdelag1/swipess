@@ -577,7 +577,7 @@ export function ContractsVault() {
                       )}
                     >
                       <div className="flex items-center gap-6">
-                        <div className={cn("w-16 h-16 rounded-[1.2rem] border flex items-center justify-center transition-colors", isLight ? "bg-black/5 border-slate-200 group-hover:bg-primary/10 group-hover:border-primary/20" : "bg-white/5 border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20")}>
+                        <div className={cn("w-16 h-16 rounded-[1.2rem] border flex items-center justify-center transition-colors", isLight ? "bg-slate-100 border-slate-200 group-hover:bg-primary/10 group-hover:border-primary/20" : "bg-white/5 border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20")}>
                           <FileText className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/40" : "text-white/70")} />
                         </div>
                         <div className="space-y-1.5">

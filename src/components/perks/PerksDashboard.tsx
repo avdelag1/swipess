@@ -168,7 +168,7 @@ export function PerksDashboard() {
               {/* Quick offers list */}
               <div className="mt-4 space-y-3">
                 {offers.length === 0 ? (
-                   <div className={cn("py-12 flex flex-col items-center justify-center rounded-[24px] border border-dashed", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/5 border-white/5")}>
+                   <div className={cn("py-12 flex flex-col items-center justify-center rounded-[24px] border border-dashed", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5")}>
                       <Store size={32} className={cn("mb-4", isLight ? "text-black/10" : "text-white/10")} />
                       <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/20" : "text-white/20")}>Checking for local offers...</p>
                    </div>

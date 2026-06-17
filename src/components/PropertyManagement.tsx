@@ -370,7 +370,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       : 'bg-white/[0.03] border-white/5 hover:border-white/10'
                   )}>
                     {/* 🛸 ASSET MEDIA */}
-                    <div className={cn("relative aspect-[16/10] overflow-hidden", isLight ? 'bg-black/5' : 'bg-white/5')}>
+                    <div className={cn("relative aspect-[16/10] overflow-hidden", isLight ? 'bg-slate-50' : 'bg-white/5')}>
                       {listing.images && listing.images.length > 0 ? (
                         <img
                           src={getCardImageUrl(listing.images[0])}
@@ -537,7 +537,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             <div
               className={cn(
                 "flex flex-col items-center justify-center py-32 text-center backdrop-blur-3xl",
-                isLight ? "bg-black/[0.01]" : "bg-white/[0.01]"
+                isLight ? "bg-slate-50/50" : "bg-white/[0.01]"
               )}
             >
               <div className={cn(

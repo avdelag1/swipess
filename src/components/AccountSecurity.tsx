@@ -111,7 +111,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
   const SettingRow = ({ icon: Icon, title, description, checked, onToggle, disabled }: any) => (
     <div className={cn(
       "flex items-center justify-between p-6 rounded-[1.8rem] transition-all border",
-      isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.02] border-white/5"
+      isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.02] border-white/5"
     )}>
       <div className="flex items-center gap-5">
         <div className={cn(
@@ -151,7 +151,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
            </span>
         </div>
         
-        <div className={cn("w-full h-1.5 rounded-full overflow-hidden", isLight ? "bg-black/5" : "bg-white/5")}>
+        <div className={cn("w-full h-1.5 rounded-full overflow-hidden", isLight ? "bg-slate-200" : "bg-white/5")}>
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${securityScore()}%` }}

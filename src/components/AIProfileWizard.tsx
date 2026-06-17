@@ -448,7 +448,7 @@ export function AIProfileWizard() {
                         ) : (
                           <button onClick={handleImageAdd}
                             className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-black/15" : "border-white/10")}>
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
+                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5")}>
                               <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
                             </div>
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photo</span>
