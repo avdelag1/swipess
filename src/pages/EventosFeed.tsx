@@ -366,7 +366,7 @@ export default function EventosFeed() {
             {[1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="h-[72vh] max-h-[640px] rounded-[28px] border border-white/10 bg-white/5 animate-pulse"
+                className={cn("h-[72vh] max-h-[640px] rounded-[28px] border animate-pulse", isLight ? "border-slate-200 bg-black/5" : "border-white/10 bg-white/5")}
                 style={{ opacity: 1 - (n - 1) * 0.2 }}
               />
             ))}

@@ -192,7 +192,7 @@ const OwnerSettings = () => {
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
-            <div className={cn('rounded-[2.8rem] overflow-hidden border shadow-2xl p-8', isLight ? 'bg-white border-black/5' : 'bg-background border-white/5')}>
+            <div className={cn('rounded-[2.8rem] overflow-hidden border shadow-2xl p-8', isLight ? 'bg-white border-slate-200' : 'bg-background border-white/5')}>
               <FeedbackSection />
             </div>
           </motion.div>

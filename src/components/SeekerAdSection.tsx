@@ -181,7 +181,7 @@ export function SeekerAdSection() {
   if (!user) return null;
 
   return (
-    <div className={cn('rounded-3xl p-6 border shadow-xl relative overflow-hidden', isLight ? 'bg-white border-black/5' : 'bg-black/40 border-white/10')}>
+    <div className={cn('rounded-3xl p-6 border shadow-xl relative overflow-hidden', isLight ? 'bg-white border-slate-200' : 'bg-black/40 border-white/10')}>
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-fuchsia-500/5 to-transparent pointer-events-none" />
 
       <div className="flex items-center justify-between mb-6 relative z-10">
@@ -211,7 +211,7 @@ export function SeekerAdSection() {
             const cat = WORKER_CATEGORIES.find(c => c.id === req.category);
             const Icon = cat?.Icon ?? Search;
             return (
-              <div key={req.id} className={cn('p-4 rounded-2xl border flex items-center justify-between transition-all', isLight ? 'bg-slate-50 border-black/5' : 'bg-white/5 border-white/5', !req.is_active && 'opacity-50')}>
+              <div key={req.id} className={cn('p-4 rounded-2xl border flex items-center justify-between transition-all', isLight ? 'bg-slate-50 border-slate-200' : 'bg-white/5 border-white/5', !req.is_active && 'opacity-50')}>
                 <div className="flex items-center gap-3 flex-1 min-w-0 pr-3">
                   <div className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center" style={{ background: `${cat?.color ?? '#94a3b8'}22` }}>
                     <Icon className="w-4 h-4" style={{ color: cat?.color ?? '#94a3b8' }} />

@@ -61,7 +61,7 @@ export const PassportMapPinPreview = memo(({
         // On tablet/desktop: acts as a tall side panel
         'w-full max-w-[420px] shrink-0 mx-3 mb-[calc(env(safe-area-inset-bottom,0px)+12px)] rounded-[2.5rem]',
         'md:w-[380px] md:h-auto md:max-h-[80vh] md:mx-0 md:mb-0 md:rounded-3xl',
-        isLight ? 'bg-white border border-black/8' : 'bg-[#111827] border border-white/10 text-white',
+        isLight ? 'bg-white border border-slate-200' : 'bg-[#111827] border border-white/10 text-white',
       )}
     >
       <div className="relative w-full bg-slate-900 h-48 md:h-56">

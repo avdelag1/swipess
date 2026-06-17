@@ -120,7 +120,7 @@ const NotificationsPage = () => {
               variant="ghost" 
               size="sm" 
               onClick={() => { triggerHaptic('medium'); markAllAsRead(); }}
-              className="font-black uppercase italic text-[10px] tracking-widest hover:bg-white/5"
+              className={cn("font-black uppercase italic text-[10px] tracking-widest", isLight ? "hover:bg-black/5" : "hover:bg-white/5")}
             >
               {getText('mark_all_read', 'Clear Unread')}
             </Button>

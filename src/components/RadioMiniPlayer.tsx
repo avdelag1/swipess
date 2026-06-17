@@ -93,7 +93,7 @@ function RadioMiniPlayerInner() {
           >
             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
               {station.albumArt ? (
-                <img src={station.albumArt} alt="" className="w-full h-full object-cover" />
+                <img src={station.albumArt} alt={station.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-primary/20">
                   <Radio className="w-4 h-4 text-primary" />
@@ -169,7 +169,7 @@ function RadioMiniPlayerInner() {
             <button onClick={handleNavigate} className="flex items-center gap-4 px-4 pb-4 w-full text-left active:opacity-80">
               <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl flex-shrink-0">
                 {station.albumArt ? (
-                  <img src={station.albumArt} alt="" className="w-full h-full object-cover" />
+                  <img src={station.albumArt} alt={station.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/[0.03]" : "bg-primary/20")}>
                     <Radio className="w-6 h-6 text-primary" />
@@ -200,7 +200,7 @@ function RadioMiniPlayerInner() {
                 </button>
                 
                 <div className="flex items-center gap-2">
-                  <button onClick={handlePrev} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
+                  <button onClick={handlePrev} aria-label="Previous station" className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
                     <SkipBack className="w-5 h-5 fill-current" />
                   </button>
                   <button
@@ -213,7 +213,7 @@ function RadioMiniPlayerInner() {
                   >
                     {state.isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
                   </button>
-                  <button onClick={handleNext} className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
+                  <button onClick={handleNext} aria-label="Next station" className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90", isLight ? "text-black/80" : "text-white/90")}>
                     <SkipForward className="w-5 h-5 fill-current" />
                   </button>
                 </div>

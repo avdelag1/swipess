@@ -117,7 +117,7 @@ export const WorkerCard = memo(({ worker, onContact, priority = false }: WorkerC
           {worker.owner?.full_name && (
             <Badge variant="outline" className="text-[10px] font-bold py-1 px-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full flex items-center gap-1.5 whitespace-nowrap">
               {worker.owner.avatar_url ? (
-                 <img src={worker.owner.avatar_url} alt="" className="w-4 h-4 rounded-full" />
+                 <img src={worker.owner.avatar_url} alt={worker.owner.full_name} className="w-4 h-4 rounded-full" />
               ) : (
                  <div className="w-4 h-4 rounded-full bg-primary/40" />
               )}
