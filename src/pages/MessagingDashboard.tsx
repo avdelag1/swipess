@@ -268,7 +268,7 @@ export function MessagingDashboard() {
               <button
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search"
-                className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-[#EB4898] transition-all"
+                className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-[#EB4898] transition-all"
               >
                 <X className="w-4 h-4" />
               </button>

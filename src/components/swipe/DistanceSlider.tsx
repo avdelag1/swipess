@@ -102,7 +102,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
               "relative w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90 border",
               dark
                 ? "bg-white/[0.04] border-white/10 backdrop-blur-xl hover:bg-white/[0.08]"
-                : "bg-white border-black/8 shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]",
+                : "bg-white border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.08)]",
               detected && "ring-2 ring-primary/40"
             )}
           >

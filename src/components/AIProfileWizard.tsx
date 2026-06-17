@@ -121,7 +121,7 @@ export function AIProfileWizard() {
     ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium'
     : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-black/5 border border-black/20'
+    ? 'bg-white hover:bg-slate-50 border border-slate-200'
     : 'bg-white/10 hover:bg-white/20 border border-white/20';
 
   const handleClose = () => {
@@ -416,7 +416,7 @@ export function AIProfileWizard() {
                                   active
                                     ? 'border-[#8B5CF6]/50 bg-[#8B5CF6]/10 shadow-[0_0_24px_rgba(139,92,246,0.2)]'
                                     : isLight
-                                      ? 'border-black/10 bg-black/[0.02] hover:border-black/20'
+                                      ? 'border-slate-200 bg-slate-50 hover:border-slate-300'
                                       : 'border-white/10 bg-white/[0.03] hover:border-white/20',
                                 )}
                               >

@@ -99,7 +99,7 @@ export function DeleteAccountSection() {
             className={cn(
               "h-16 rounded-[1.2rem] text-center font-black uppercase tracking-[0.3em]",
               isLight
-                ? "bg-black/[0.03] border-slate-200 text-black placeholder:opacity-40"
+                ? "bg-slate-50 border-slate-200 text-black placeholder:text-slate-400"
                 : "bg-white/5 border-white/10 placeholder:opacity-20"
             )}
           />

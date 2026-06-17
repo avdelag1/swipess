@@ -142,7 +142,7 @@ export function CameraSettingsPanel({
                       className={cn('px-4 py-2 rounded-full text-sm font-medium transition-all',
                         settings.aspectRatio === option.value
                           ? 'bg-red-500 text-white'
-                          : isLight ? 'bg-black/5 text-black/70 hover:bg-black/10' : 'bg-white/10 text-white/70 hover:bg-white/20'
+                          : isLight ? 'bg-slate-50 text-black/70 hover:bg-slate-100' : 'bg-white/10 text-white/70 hover:bg-white/20'
                       )}
                     >
                       {option.label}
@@ -244,7 +244,7 @@ export function CameraSettingsPanel({
                 <Button
                   variant="outline"
                   onClick={() => onSettingsChange(DEFAULT_CAMERA_SETTINGS)}
-                  className={cn('w-full bg-transparent', isLight ? 'border-black/20 text-black/70 hover:bg-black/5' : 'border-white/20 text-white/70 hover:bg-white/10')}
+                  className={cn('w-full bg-transparent', isLight ? 'border-slate-300 text-black/70 hover:bg-slate-50' : 'border-white/20 text-white/70 hover:bg-white/10')}
                 >
                   Reset to Defaults
                 </Button>

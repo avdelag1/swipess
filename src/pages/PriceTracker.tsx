@@ -125,7 +125,7 @@ export default function PriceTracker() {
               'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
               selectedZone === 'all' 
                 ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
+                : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-slate-50 dark:hover:bg-zinc-800'
             )}
           >All Zones</motion.button>
           {neighborhoods.map(zone => (
@@ -137,7 +137,7 @@ export default function PriceTracker() {
                 'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
                 selectedZone === zone 
                   ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                  : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
+                  : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-slate-50 dark:hover:bg-zinc-800'
               )}
             >{zone}</motion.button>
           ))}
@@ -260,7 +260,7 @@ export default function PriceTracker() {
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ZONE_COLORS[zone] || '#ec4899' }} />
                     <h4 className="text-[10px] font-black text-black dark:text-white uppercase tracking-[0.15em]">{zone}</h4>
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10">
+                  <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10">
                     <MapPin className="w-2.5 h-2.5 text-black/30" />
                     <span className="text-[9px] font-black text-black/40 dark:text-white/40">{count} Active</span>
                   </div>

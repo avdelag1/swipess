@@ -633,7 +633,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         "sm:!w-[calc(100%-24px)] sm:!max-w-5xl sm:!h-[90vh] sm:!max-h-[90vh] sm:!rounded-[3rem]",
         "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
-        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 border-b dark:border-white/5 border-black/5 relative z-10">
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 border-b dark:border-white/5 border-slate-200 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">

@@ -123,7 +123,7 @@ export default function FAQClientPage() {
                       </span>
                       <div className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center transition-all",
-                        expandedIndex === index ? "bg-rose-500 text-white rotate-180" : "bg-black/5 text-muted-foreground"
+                        expandedIndex === index ? "bg-rose-500 text-white rotate-180" : "bg-slate-100 text-muted-foreground"
                       )}>
                         <ChevronDown className="w-4 h-4" />
                       </div>
