@@ -1,5 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useModalStore } from '@/state/modalStore';
 
 interface ChatListingData {
   id: string;
@@ -27,15 +28,17 @@ interface ChatListingCardProps {
 export const ChatListingCard = memo(function ChatListingCard({
   listing,
   isSwipess,
-  onNavigate,
 }: ChatListingCardProps) {
   const [imgError, setImgError] = useState(false);
+  const openPropertyDetails = useModalStore(s => s.openPropertyDetails);
   const imageUrl = listing.image || (listing.images?.[0]) || '';
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    onNavigate?.(`/listing/${listing.id}`);
-  }, [listing.id, onNavigate]);
+    // Open the real listing card (same PropertyDetails overlay the map/deck use),
+    // fetched by id — layers over the chat instead of navigating away.
+    openPropertyDetails(listing.id);
+  }, [listing.id, openPropertyDetails]);
 
   const handleImgError = useCallback(() => {
     setImgError(true);

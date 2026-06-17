@@ -6,7 +6,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
-import { hideChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { hideChrome, revealChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 
 function formatDate(str: string | null): string {
@@ -33,8 +33,10 @@ export const EventCard = memo(({
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
-  const { isRailVisible } = useChromeReveal();
-  const showActions = isActive && isRailVisible;
+  // Action buttons (like, insights, share…) stay visible on the active card —
+  // they used to be gated behind the auto-hiding chrome rail, so they only
+  // appeared for a few seconds after tapping the card center.
+  const showActions = isActive;
   const [likeAnim, setLikeAnim] = useState(false);
   const lastTapRef = useRef(0);
 
