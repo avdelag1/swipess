@@ -62,7 +62,7 @@ export function DiscountHistory({ redemptions }: DiscountHistoryProps) {
             transition={{ duration: 0.15 }}
             className={cn(
               "flex items-start gap-3 py-3 border-b last:border-0",
-              isLight ? "border-black/[0.05]" : "border-border/30"
+              isLight ? "border-slate-200" : "border-border/30"
             )}
           >
             <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">

@@ -140,7 +140,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
         exit={{ scale: 0.95, opacity: 0, y: 20 }}
         className={cn(
           "w-full max-w-2xl backdrop-blur-[40px] rounded-[3rem] shadow-3xl overflow-hidden border transition-all duration-700",
-          isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/5"
+          isLight ? "bg-white/90 border-slate-200" : "bg-black/90 border-white/5"
         )}
       >
         <div className="p-10 pb-6">
@@ -182,11 +182,11 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 >
                   <SelectTrigger className={cn(
                     "h-14 rounded-2xl px-5 font-bold uppercase text-[11px] tracking-widest transition-all",
-                    isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                   )}>
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
-                  <SelectContent className={cn("rounded-2xl backdrop-blur-xl", isLight ? "bg-white/95 border-black/10" : "bg-black/95 border-white/10")}>
+                  <SelectContent className={cn("rounded-2xl backdrop-blur-xl", isLight ? "bg-white/95 border-slate-200" : "bg-black/95 border-white/10")}>
                     <SelectItem value="general">General</SelectItem>
                     <SelectItem value="technical">Technical</SelectItem>
                     <SelectItem value="billing">Billing</SelectItem>
@@ -202,11 +202,11 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 >
                   <SelectTrigger className={cn(
                     "h-14 rounded-2xl px-5 font-bold uppercase text-[11px] tracking-widest transition-all",
-                    isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                   )}>
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
-                  <SelectContent className={cn("rounded-2xl backdrop-blur-xl", isLight ? "bg-white/95 border-black/10" : "bg-black/95 border-white/10")}>
+                  <SelectContent className={cn("rounded-2xl backdrop-blur-xl", isLight ? "bg-white/95 border-slate-200" : "bg-black/95 border-white/10")}>
                     <SelectItem value="low">Low</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="high">High</SelectItem>
@@ -221,7 +221,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
                 className={cn(
                   "h-16 rounded-[1.5rem] px-6 font-bold text-sm placeholder:opacity-20 transition-all",
-                  isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                  isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                 )}
               />
               
@@ -231,7 +231,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 onChange={(e) => setNewTicket(prev => ({ ...prev, message: e.target.value }))}
                 className={cn(
                   "min-h-[160px] rounded-[1.5rem] p-6 font-medium placeholder:opacity-20 resize-none transition-all",
-                  isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                  isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                 )}
               />
               
@@ -268,12 +268,12 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                   return (
                     <div key={ticket.id} className={cn(
                       "p-6 rounded-[1.8rem] border transition-all group",
-                      isLight ? "bg-black/[0.03] border-black/5 hover:bg-black/[0.06]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
+                      isLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
                     )}>
                       <div className="flex items-start gap-5">
                         <div className={cn(
                           "w-12 h-12 rounded-[1rem] border flex items-center justify-center flex-shrink-0 transition-all",
-                          isLight ? "bg-white/50 border-black/5" : "bg-black/50 border-white/5"
+                          isLight ? "bg-white/50 border-slate-200" : "bg-black/50 border-white/5"
                         )}>
                            <CategoryIcon className="h-5 w-5 text-purple-500" />
                         </div>
@@ -295,7 +295,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                             )}>
                               {ticket.priority}
                             </div>
-                            <div className={cn("flex-1 h-px", isLight ? "bg-black/5" : "bg-white/5")} />
+                            <div className={cn("flex-1 h-px", isLight ? "bg-slate-200" : "bg-white/5")} />
                             <span className="text-[8px] font-black uppercase tracking-widest opacity-20 italic">
                               {new Date(ticket.created_at).toLocaleDateString()}
                             </span>
@@ -312,7 +312,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
           {/* Contact Info */}
           <div className={cn(
             "p-8 rounded-[2rem] border relative overflow-hidden transition-all",
-            isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/5"
+            isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.02] border-white/5"
           )}>
              <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-purple-500/10 blur-[40px] rounded-full pointer-events-none" />
              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] mb-3 italic">Emergency Relay</h4>
@@ -321,7 +321,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
              </p>
              <div className="space-y-2">
                <div className="flex items-center gap-3">
-                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", isLight ? "bg-black/5" : "bg-white/5")}>
+                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-all", isLight ? "bg-slate-100" : "bg-white/5")}>
                      <MessageCircle className="w-3.5 h-3.5 opacity-70" />
                   </div>
                   <p className={cn("text-[13px] font-black italic tracking-tight", isLight ? "text-black" : "text-white")}>admin@swipess.com</p>

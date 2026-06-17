@@ -108,7 +108,7 @@ export function FeedbackSection() {
           onChange={e => setMessage(e.target.value)}
           placeholder="Tell us what's on your mind…"
           rows={4}
-          className={cn('w-full rounded-2xl border text-sm font-medium p-4 resize-none focus:outline-none transition-colors placeholder:text-muted-foreground/40', isLight ? 'bg-slate-50 border-black/8 focus:border-black/20' : 'bg-white/5 border-white/8 focus:border-white/20 text-white')}
+          className={cn('w-full rounded-2xl border text-sm font-medium p-4 resize-none focus:outline-none transition-colors placeholder:text-muted-foreground/40', isLight ? 'bg-slate-50 border-slate-200 focus:border-black/20' : 'bg-white/5 border-white/8 focus:border-white/20 text-white')}
         />
       </div>
 

@@ -75,7 +75,7 @@ export function CameraSettingsPanel({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={cn('absolute bottom-0 left-0 right-0 rounded-t-3xl z-50 max-h-[80vh] overflow-hidden', isLight ? 'bg-white border border-black/10' : 'bg-gray-900')}
+            className={cn('absolute bottom-0 left-0 right-0 rounded-t-3xl z-50 max-h-[80vh] overflow-hidden', isLight ? 'bg-white border border-slate-200' : 'bg-gray-900')}
           >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-2">
@@ -83,7 +83,7 @@ export function CameraSettingsPanel({
             </div>
 
             {/* Header */}
-            <div className={cn('flex items-center justify-between px-6 pb-4 border-b', isLight ? 'border-black/10' : 'border-white/10')}>
+            <div className={cn('flex items-center justify-between px-6 pb-4 border-b', isLight ? 'border-slate-200' : 'border-white/10')}>
               <div className="flex items-center gap-3">
                 <Settings2 className={cn('w-5 h-5', isLight ? 'text-black' : 'text-white')} />
                 <h3 className={cn('text-lg font-semibold', isLight ? 'text-black' : 'text-white')}>Camera Settings</h3>
@@ -101,7 +101,7 @@ export function CameraSettingsPanel({
             {/* Content */}
             <div className="overflow-y-auto max-h-[calc(80vh-100px)] pb-safe">
               {/* Quality Section */}
-              <div className={cn('px-6 py-4 border-b', isLight ? 'border-black/10' : 'border-white/10')}>
+              <div className={cn('px-6 py-4 border-b', isLight ? 'border-slate-200' : 'border-white/10')}>
                 <div className="flex items-center gap-2 mb-3">
                   <ImagePlus className={cn('w-4 h-4', isLight ? 'text-black/60' : 'text-white/60')} />
                   <Label className={cn('text-sm font-medium', isLight ? 'text-black/80' : 'text-white/80')}>Photo Quality</Label>
@@ -114,7 +114,7 @@ export function CameraSettingsPanel({
                       className={cn('p-3 rounded-xl border text-left transition-all',
                         settings.quality === option.value
                           ? 'border-red-500 bg-red-500/10'
-                          : isLight ? 'border-black/10 hover:border-black/30' : 'border-white/10 hover:border-white/30'
+                          : isLight ? 'border-slate-200 hover:border-slate-400' : 'border-white/10 hover:border-white/30'
                       )}
                     >
                       <span className={cn('text-sm font-medium',
@@ -129,7 +129,7 @@ export function CameraSettingsPanel({
               </div>
 
               {/* Aspect Ratio Section */}
-              <div className={cn('px-6 py-4 border-b', isLight ? 'border-black/10' : 'border-white/10')}>
+              <div className={cn('px-6 py-4 border-b', isLight ? 'border-slate-200' : 'border-white/10')}>
                 <div className="flex items-center gap-2 mb-3">
                   <Ratio className={cn('w-4 h-4', isLight ? 'text-black/60' : 'text-white/60')} />
                   <Label className={cn('text-sm font-medium', isLight ? 'text-black/80' : 'text-white/80')}>Aspect Ratio</Label>

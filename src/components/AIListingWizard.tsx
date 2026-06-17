@@ -123,7 +123,7 @@ export function AIListingWizard() {
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/75';
   const chipIdleCls = isLight
-    ? 'bg-black/5 border-black/10 hover:border-rose-500/30'
+    ? 'bg-slate-50 border-slate-200 hover:border-rose-500/30'
     : 'bg-[#141418] border-white/12 hover:border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]';
   const inputCls = isLight
     ? 'surface-inset focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium'
@@ -132,13 +132,13 @@ export function AIListingWizard() {
     ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
     : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-2xl transition-all border border-white/15 shadow-lg';
   const photoAddCls = isLight
-    ? 'border-black/15 bg-black/5'
+    ? 'border-slate-300 bg-slate-50'
     : 'border-white/20 bg-[#141418]';
   const photoAddInnerCls = isLight
-    ? 'bg-black/5 border-black/5'
+    ? 'bg-slate-50 border-slate-200'
     : 'bg-[#1c1c22] border-white/10';
   const enhanceDisabledCls = isLight
-    ? 'opacity-50 bg-black/5 border-black/10 text-black/50'
+    ? 'opacity-50 bg-slate-50 border-slate-200 text-black/50'
     : 'opacity-60 bg-[#141418] border-white/12 text-white/70';
   
   const [step, setStep] = useState<WizardStep>('compose');
@@ -606,7 +606,7 @@ export function AIListingWizard() {
                                 key={photoFileKey(file)}
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-black/10" : "border-white/10")}
+                                className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-slate-200" : "border-white/10")}
                               >
                                 <img src={previewUrls[i]} alt="" className="w-full h-full object-cover" />
                                 <button
@@ -702,7 +702,7 @@ export function AIListingWizard() {
                                     isRecording 
                                       ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
                                       : isLight
-                                        ? "bg-black/5 hover:bg-black/10 border border-black/15 hover:scale-105"
+                                        ? "bg-slate-50 hover:bg-slate-100 border border-slate-300 hover:scale-105"
                                         : "bg-[#1c1c22] hover:bg-[#26262e] border border-white/15 hover:scale-105"
                                   )}
                                 >
@@ -854,7 +854,7 @@ export function AIListingWizard() {
                                 'text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border',
                                 progressPhase === p
                                   ? 'bg-rose-600 text-white border-transparent'
-                                  : isLight ? 'border-black/10 text-black/60' : 'border-white/10 text-white/80'
+                                  : isLight ? 'border-slate-200 text-black/60' : 'border-white/10 text-white/80'
                               )}
                             >
                               {p}

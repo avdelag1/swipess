@@ -295,7 +295,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
             }}
             className={cn(
                "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)]",
-               isLight && !isSwipess ? "bg-white border-black/10" : "bg-black border-white/10"
+               isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black border-white/10"
              )}
             style={{
               transformOrigin: 'bottom center',

@@ -184,7 +184,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
           variant="ghost" 
           className={cn(
             "w-full h-20 rounded-[2rem] px-6 justify-between transition-all border",
-            isLight ? "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]" : "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]"
+            isLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]"
           )}
           onClick={() => setShowPasswordDialog(true)}
         >
@@ -225,7 +225,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     className={cn(
                       "h-16 rounded-2xl px-6 font-bold text-sm transition-all",
-                      isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                      isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                     )}
                   />
                   <Button
@@ -246,7 +246,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                   onChange={(e) => setNewPassword(e.target.value)}
                   className={cn(
                     "h-16 rounded-2xl px-6 font-bold text-sm transition-all",
-                    isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                   )}
                 />
 
@@ -257,7 +257,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={cn(
                     "h-16 rounded-2xl px-6 font-bold text-sm transition-all",
-                    isLight ? "bg-black/[0.03] border-black/10" : "bg-white/[0.03] border-white/10"
+                    isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
                   )}
                 />
               </div>
@@ -266,7 +266,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowPasswordDialog(false)}
-                  className={cn("h-14 rounded-xl font-bold uppercase tracking-widest opacity-60", isLight ? "border-black/10" : "border-white/10")}
+                  className={cn("h-14 rounded-xl font-bold uppercase tracking-widest opacity-60", isLight ? "border-slate-200" : "border-white/10")}
                 >
                   Abort
                 </Button>

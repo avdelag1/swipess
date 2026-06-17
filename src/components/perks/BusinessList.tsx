@@ -51,7 +51,7 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
               'shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all',
                 category === cat
                   ? 'bg-primary text-primary-foreground'
-                  : isLight ? 'bg-black/[0.05] text-black/60' : 'bg-muted/60 text-muted-foreground'
+                  : isLight ? 'bg-slate-100 text-black/60' : 'bg-muted/60 text-muted-foreground'
             )}
           >
             {cat}
@@ -66,7 +66,7 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
             key={partner.id}
             className={cn(
               "flex items-center gap-3 p-3 rounded-xl transition-all shadow-sm",
-              isLight ? "bg-white border-black/[0.05]" : "bg-card border-border/40"
+              isLight ? "bg-white border-slate-200" : "bg-card border-border/40"
             )}
             whileTap={{ scale: 0.98 }}
           >
