@@ -42,7 +42,7 @@ const SECTION_ROOTS: string[] = [
   '/messages',
   '/notifications',
   '/radio',
-  '/subscription',
+  '/subscription/packages',
   '/documents',
   '/escrow',
   '/explore/events',

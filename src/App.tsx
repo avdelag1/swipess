@@ -198,7 +198,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/messages" element={<MessagingDashboard />} />
               <Route path="/messages/:conversationId" element={<MessagesRedirect />} />
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/subscription/packages" element={<SubscriptionPackagesPage />} />
+              <Route path="/subscription/packages" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback />}><SubscriptionPackagesPage /></Suspense></ChunkErrorBoundary>} />
               <Route path="/radio" element={<DJTurntableRadio />} />
               <Route path="/radio/directory" element={<WorldRadioDirectory />} />
 

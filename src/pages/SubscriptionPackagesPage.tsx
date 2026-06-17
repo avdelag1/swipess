@@ -1,6 +1,6 @@
-import { useAuth } from "@/hooks/useAuth";
 import { useActiveMode } from "@/hooks/useActiveMode";
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronLeft, Crown, RefreshCcw, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -124,9 +124,8 @@ const accentStyles = {
 };
 
 export default function SubscriptionPackagesPage() {
-  const { user: _user } = useAuth();
   const navigate = useNavigate();
-  const { activeMode, isLoading: roleLoading } = useActiveMode();
+  const { activeMode } = useActiveMode();
   const userRole = activeMode;
 
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -157,18 +156,9 @@ export default function SubscriptionPackagesPage() {
     await PaymentOrchestrator.restore();
   };
 
-  if (roleLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="animate-pulse text-white/60 font-black uppercase tracking-widest text-xs text-center">Resonating with Hub...</div>
-      </div>
-    );
-  }
-
-  return (
+  const content = (
     <PaymentErrorBoundary>
-      {/* fixed inset-0 z-[100] forces it to cover the entire screen, ignoring any top/bottom nav spacing from layouts */}
-      <div className="fixed inset-0 z-[100] bg-black flex flex-col pb-safe-bottom overflow-x-hidden overflow-y-auto" style={{ contain: 'layout' }}>
+      <div className="fixed inset-0 z-[9999] w-full h-[100dvh] bg-black flex flex-col pb-safe-bottom overflow-x-hidden overflow-y-auto">
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />
@@ -350,6 +340,12 @@ export default function SubscriptionPackagesPage() {
     </div>
     </PaymentErrorBoundary>
   );
+
+  if (typeof document === 'undefined' || !document.body) {
+    return content;
+  }
+
+  return createPortal(content, document.body);
 }
 
 

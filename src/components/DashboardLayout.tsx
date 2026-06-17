@@ -117,6 +117,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path === '/explore/events') return true;
     // Roommate swipe deck only (not /likes sub-pages).
     if (path === '/explore/roommates') return true;
+    // Premium packages owns its own scroll surface (portaled fullscreen).
+    if (path.startsWith('/subscription')) return true;
     return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
 
