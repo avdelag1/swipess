@@ -181,7 +181,7 @@ export default function AboutPage() {
           <Card
             className={cn(
               "rounded-[3rem] border overflow-hidden",
-              isLight ? "bg-black/[0.02] border-black/5" : "border-primary/15"
+              isLight ? "bg-slate-50 border-slate-200" : "border-primary/15"
             )}
             style={!isLight ? { background: 'rgba(255,255,255,0.015)', boxShadow: 'inset 0 0 40px rgba(var(--color-primary-rgb),0.07)' } : undefined}
           >
@@ -214,7 +214,7 @@ export default function AboutPage() {
 
         {/* App Version */}
         <div className="text-center mt-16 pb-12">
-          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5")}>
+          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border", isLight ? "bg-slate-100 border-slate-200" : "bg-white/5 border-white/5")}>
              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 italic">System Protocol v4.0.0 — Swipes</span>
           </div>

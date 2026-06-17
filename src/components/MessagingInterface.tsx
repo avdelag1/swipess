@@ -458,7 +458,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 style={{ resize: 'none' }}
                 className={cn(
                   "flex-1 min-h-[48px] max-h-[120px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10 no-scrollbar",
-                  isThemeLight ? "surface-inset text-black placeholder:text-black/30" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
+                  isThemeLight ? "surface-inset text-black placeholder:text-slate-400" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
                 )}
                 disabled={sendMessage.isPending}
               />

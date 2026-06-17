@@ -117,7 +117,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
         {/* 🛸 MATTE CONTAINER */}
         <div className={cn(
           "relative h-72 w-full backdrop-blur-3xl border rounded-[2.5rem] overflow-hidden shadow-2xl transition-colors duration-500",
-          isLight ? "bg-black/[0.04] border-black/5" : "bg-white/[0.04] border-white/10"
+          isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.04] border-white/10"
         )}>
           <canvas
             ref={canvasRef}
@@ -153,7 +153,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-10 text-center"
               >
-                <div className={cn("w-20 h-20 rounded-full border flex items-center justify-center mb-6 animate-pulse", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+                <div className={cn("w-20 h-20 rounded-full border flex items-center justify-center mb-6 animate-pulse", isLight ? "bg-slate-100 border-slate-200" : "bg-white/5 border-white/10")}>
                   <Fingerprint className="w-10 h-10 text-primary/60" />
                 </div>
                 <h4 className={cn("text-base font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/70" : "text-white/70")}>Hold and sign here</h4>

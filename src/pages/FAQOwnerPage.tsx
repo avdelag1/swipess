@@ -117,7 +117,7 @@ export default function FAQOwnerPage() {
                     "overflow-hidden cursor-pointer transition-all duration-300 border",
                     expandedIndex === index
                       ? (isLight ? "bg-white border-purple-500/20 shadow-xl shadow-purple-500/5" : "bg-purple-500/5 border-purple-500/25 shadow-2xl shadow-purple-500/10")
-                      : (isLight ? "bg-transparent border-black/8 hover:bg-black/[0.02]" : "bg-transparent border-white/[0.07] hover:bg-white/[0.03]")
+                      : (isLight ? "bg-transparent border-slate-200 hover:bg-slate-50" : "bg-transparent border-white/[0.07] hover:bg-white/[0.03]")
                   )}
                   onClick={() => toggleExpand(index)}
                 >

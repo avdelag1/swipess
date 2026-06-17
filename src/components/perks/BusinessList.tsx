@@ -36,7 +36,7 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
           onChange={e => setSearch(e.target.value)}
           className={cn(
             "w-full pl-8 pr-3 py-2.5 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/30",
-            isLight ? "bg-black/[0.03] border-black/[0.05] text-black placeholder:text-black/30" : "bg-muted/50 border border-border/50 text-foreground placeholder:text-muted-foreground"
+            isLight ? "bg-slate-50 border-slate-200 text-black placeholder:text-slate-400" : "bg-muted/50 border border-border/50 text-foreground placeholder:text-muted-foreground"
           )}
         />
       </div>

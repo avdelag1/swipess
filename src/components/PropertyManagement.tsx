@@ -291,7 +291,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       <div className="pb-32 space-y-12 w-full relative z-10">
         
         {/* 🛸 ASSET TERMINAL HEADER */}
-        <div className={cn("flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b", isLight ? "border-black/[0.08]" : "border-white/5")}>
+        <div className={cn("flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b", isLight ? "border-slate-200" : "border-white/5")}>
           <div className="flex items-center gap-6">
             <div className="p-5 rounded-[1.4rem] bg-indigo-500/10 border border-indigo-500/20 shadow-2xl">
               <Zap className="w-8 h-8 text-indigo-500" />
@@ -326,7 +326,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
                         "h-18 pl-14 pr-6 rounded-[2.2rem] font-black uppercase tracking-widest text-[12px] transition-all border outline-none ring-0",
-                        isLight ? 'bg-black/[0.04] text-black placeholder:text-black/20 focus:bg-black/5 border-black/[0.08]' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10 border-transparent'
+                        isLight ? 'bg-slate-50 text-black placeholder:text-slate-400 focus:bg-white border-slate-200' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10 border-transparent'
                     )}
                 />
             </div>
@@ -366,7 +366,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                   <div className={cn(
                     "overflow-hidden rounded-[3rem] transition-all border shadow-2xl hover:shadow-3xl group-hover:-translate-y-2",
                     isLight
-                      ? 'bg-white border-black/5'
+                      ? 'bg-white border-slate-200'
                       : 'bg-white/[0.03] border-white/5 hover:border-white/10'
                   )}>
                     {/* 🛸 ASSET MEDIA */}
@@ -433,7 +433,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* 🛸 STATUS TERMINAL */}
-                      <div className={cn("pt-4 border-t", isLight ? 'border-black/5' : 'border-white/5')}>
+                      <div className={cn("pt-4 border-t", isLight ? 'border-slate-200' : 'border-white/5')}>
                         <p className={cn("text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-3 ml-1", isLight ? "text-black" : "text-white")}>Operational Status</p>
                         <div className="relative group/select">
                           <div className={cn(
@@ -447,7 +447,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                             className={cn(
                               "w-full pl-9 pr-10 h-14 text-[10px] font-black uppercase tracking-[0.25em] rounded-2xl border transition-all cursor-pointer outline-none ring-0 appearance-none italic",
                               isLight 
-                                ? 'bg-black/[0.03] text-black border-black/5 hover:bg-black/[0.06] hover:border-black/10' 
+                                ? 'bg-slate-50 text-black border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                                 : 'bg-white/[0.04] text-white border-white/5 hover:bg-white/[0.08] hover:border-white/10'
                             )}
                           >
@@ -463,13 +463,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* 🛸 ACTION TERMINAL */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-black/5 dark:border-white/5">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
                         <button
                           type="button"
                           className={cn(
                             "press-snappy flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border group/btn shadow-sm",
                             isLight 
-                              ? "bg-white border-black/5 text-black hover:bg-black/[0.02]" 
+                              ? "bg-white border-slate-200 text-black hover:bg-slate-50"
                               : "bg-white/5 border-white/5 text-white hover:bg-white/8"
                           )}
                           onClick={() => handleViewProperty(listing)}
@@ -508,7 +508,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           </AlertDialogTrigger>
                           <AlertDialogContent className={cn(
                             "rounded-[3rem] border shadow-3xl p-10 backdrop-blur-3xl",
-                            isLight ? 'bg-white border-black/5' : 'bg-black border-white/10'
+                            isLight ? 'bg-white border-slate-200' : 'bg-black border-white/10'
                           )}>
                             <AlertDialogHeader>
                               <AlertDialogTitle className={cn("text-3xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Purge Listing?</AlertDialogTitle>

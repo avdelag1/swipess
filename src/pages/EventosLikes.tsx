@@ -215,7 +215,7 @@ export default function EventosLikes() {
                   transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
                     "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-all duration-200 shadow-sm press-snappy",
-                    isLight ? "bg-zinc-100 border-black/[0.04]" : "bg-zinc-900 border-white/[0.04]"
+                    isLight ? "bg-zinc-100 border-slate-200" : "bg-zinc-900 border-white/[0.04]"
                   )}
                   onClick={() => navigate(`/explore/events/${ev.id}`, { state: { eventData: ev } })}
                 >
@@ -247,7 +247,7 @@ export default function EventosLikes() {
                     aria-label={`Remove ${ev.title} from favorites`}
                     className={cn(
                       "absolute top-4 right-4 w-9 h-9 rounded-xl backdrop-blur-md border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all active:scale-90",
-                      isLight ? "bg-white/40 border-black/10" : "bg-black/40 border-white/10"
+                      isLight ? "bg-white/40 border-slate-200" : "bg-black/40 border-white/10"
                     )}
                   >
                     <Trash2 className="w-4 h-4 text-rose-500" />
@@ -271,7 +271,7 @@ export default function EventosLikes() {
           <div className="flex flex-col items-center justify-center py-24 text-center px-8">
             <div className={cn(
               "w-24 h-24 rounded-[2.5rem] border flex items-center justify-center mb-8 relative",
-              isLight ? "bg-zinc-50 border-black/[0.04]" : "bg-zinc-900/40 border-white/[0.04]"
+              isLight ? "bg-zinc-50 border-slate-200" : "bg-zinc-900/40 border-white/[0.04]"
             )}>
               <div className="absolute inset-0 blur-2xl bg-orange-500/10 rounded-full" />
               <Sparkles className={cn("w-10 h-10 relative z-10", isLight ? "text-zinc-200" : "text-zinc-800")} />
