@@ -7,20 +7,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-const DirectMessageDialog = lazyWithRetry(() => import('@/components/DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import {
   Anchor, ArrowRight, Bath, Bed, Bike, ChevronLeft,
   Home, LogIn, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, Square, UserPlus,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { triggerHaptic } from '@/utils/haptics';
 import { SEO } from '@/components/SEO';
-const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
@@ -28,6 +25,9 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
+
+const DirectMessageDialog = lazyWithRetry(() => import('@/components/DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 
 function formatPrice(price?: number | null): string {
   if (price == null || Number.isNaN(price)) return '—';
@@ -61,7 +61,7 @@ export default function PublicListingPreview() {
     }
   }, [refCode, id, user?.id]);
 
-  const { data: listing, isLoading, error } = useQuery({
+  const { data: listing, isLoading, isError, refetch } = useQuery({
     queryKey: ['public-listing', id],
     queryFn: async () => {
       if (!id) throw new Error('No listing ID');
@@ -154,7 +154,17 @@ export default function PublicListingPreview() {
     );
   }
 
-  if (error || !listing) {
+  if (isError && !listing) {
+    return (
+      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+        <p className="text-sm font-semibold text-white/50 relative z-10">Could not load listing.</p>
+        <Button onClick={() => refetch()} className="relative z-10 rounded-2xl">Try again</Button>
+      </div>
+    );
+  }
+
+  if (!listing) {
     return (
       <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
         <AtmosphericLayer variant="Swipes" opacity={0.15} />

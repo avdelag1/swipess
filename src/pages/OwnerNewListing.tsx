@@ -1,9 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { useModalStore } from "@/state/modalStore";
+
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 const UnifiedListingForm = lazyWithRetry(() => import('@/components/UnifiedListingForm').then(m => ({ default: m.UnifiedListingForm })));
-import { useModalStore } from "@/state/modalStore";
 
 const OwnerNewListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();

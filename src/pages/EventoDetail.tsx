@@ -13,6 +13,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { canNativeShare, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { appToast } from '@/utils/appNotification';
+import { Button } from '@/components/ui/button';
 
 interface EventDetail {
   id: string;
@@ -122,7 +123,7 @@ export default function EventoDetail() {
 
 
   // 🚀 SPEED OF LIGHT: Unified Event Data Query
-  const { data: event, isLoading } = useQuery({
+  const { data: event, isLoading, isError, refetch } = useQuery({
     queryKey: ['evento', id],
     queryFn: async () => {
       const { MOCK_EVENTS } = await import('@/data/eventsData');
@@ -279,6 +280,15 @@ export default function EventoDetail() {
           <div className="h-10 bg-slate-200 dark:bg-zinc-900 animate-pulse rounded-2xl w-3/4" />
           <div className="h-6 bg-slate-200 dark:bg-zinc-900 animate-pulse rounded-2xl w-1/2" />
         </div>
+      </div>
+    );
+  }
+
+  if (isError && !event) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center gap-4">
+        <p className="text-sm font-semibold text-muted-foreground">Could not load event.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
       </div>
     );
   }

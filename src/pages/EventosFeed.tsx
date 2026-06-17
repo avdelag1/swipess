@@ -23,10 +23,10 @@ import { EventCard } from '@/components/events/EventCard';
 import { EventCategoryCircle } from '@/components/events/EventCategoryCircle';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { PromoteCTACard } from '@/components/events/PromoteCTACard';
-const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
-// Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
+
+const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 
 function pickEventImage(ev: Partial<EventItem>): string | null {
   if (typeof ev.image_url === 'string' && ev.image_url.trim()) return ev.image_url;

@@ -4,13 +4,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Award, ChevronRight, History, QrCode, Sparkles, Store, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-const ResidentQRModal = lazyWithRetry(() => import('@/components/perks/ResidentQRModal').then(m => ({ default: m.ResidentQRModal })));
 import { BusinessList } from './BusinessList';
 import { DiscountHistory } from './DiscountHistory';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-
 import useAppTheme from '@/hooks/useAppTheme';
+
+const ResidentQRModal = lazyWithRetry(() => import('@/components/perks/ResidentQRModal').then(m => ({ default: m.ResidentQRModal })));
 
 type Tab = 'home' | 'businesses' | 'history';
 

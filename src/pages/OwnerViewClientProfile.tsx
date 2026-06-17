@@ -37,7 +37,7 @@ export default function OwnerViewClientProfile() {
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
   const { isLight } = useAppTheme();
 
-  const { data: client, isLoading, error: _error } = useQuery({
+  const { data: client, isLoading, isError, refetch } = useQuery({
     queryKey: ['client-profile', clientId],
     queryFn: async () => {
       if (!clientId) throw new Error('No client ID provided');
@@ -134,6 +134,15 @@ export default function OwnerViewClientProfile() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <ProfileCardSkeleton />
+      </div>
+    );
+  }
+
+  if (isError && !client) {
+    return (
+      <div className={cn("min-h-screen flex flex-col items-center justify-center p-6 text-center gap-4", isLight ? "bg-background" : "bg-black")}>
+        <p className="text-sm font-semibold text-muted-foreground">Could not load client profile.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
       </div>
     );
   }

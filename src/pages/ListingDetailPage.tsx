@@ -7,9 +7,12 @@ import { SimpleSwipeCard } from '@/components/SimpleSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
 import { Suspense, useEffect, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { Button } from '@/components/ui/button';
+
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
+
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -19,7 +22,7 @@ export default function ListingDetailPage() {
   const [showShare, setShowShare] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
 
-  const { data: listing, isLoading } = useQuery({
+  const { data: listing, isLoading, isError, refetch } = useQuery({
     queryKey: ['listing-detail', id],
     queryFn: async () => {
       if (!id) return null;
@@ -54,6 +57,15 @@ export default function ListingDetailPage() {
             <div className="h-9 w-20 rounded-full bg-white/10 animate-pulse" />
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (isError && !listing) {
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6">
+        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load listing.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
       </div>
     );
   }

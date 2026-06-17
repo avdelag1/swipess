@@ -14,10 +14,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 // import { } from '@/components/SwipeActionButtonBar';
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
-const MessageConfirmationDialog = lazyWithRetry(() => import('@/components/MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-// import { } from '@/integrations/supabase/client';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useFilterActions } from '@/state/filterStore';
 import { MatchOverlay } from '@/components/native/MatchOverlay';
@@ -30,6 +28,8 @@ import { useNavigate } from 'react-router-dom';
 import { appToast } from '@/utils/appNotification';
 import { useChromeReveal } from '@/hooks/useChromeReveal';
 import { useModalStore } from '@/state/modalStore';
+
+const MessageConfirmationDialog = lazyWithRetry(() => import('@/components/MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 
 const InfoPill = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => {
   const { isLight } = useAppTheme();

@@ -28,10 +28,6 @@ import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 // import { } from '@/integrations/supabase/client';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-const MessageActivationPackages = lazyWithRetry(() =>
-  import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages }))
-);
-// import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
@@ -52,6 +48,10 @@ import { useTranslation } from 'react-i18next';
 import { appToast } from '@/utils/appNotification';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
+const MessageActivationPackages = lazyWithRetry(() =>
+  import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages }))
+);
+
 export function MessagingDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export function MessagingDashboard() {
   const { _theme, isLight } = useAppTheme();
   const { t } = useTranslation();
 
-  const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
+  const { data: conversations = [], isLoading, isError, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
   const updateStatus = useUpdateConversationStatus();
   const markChatAsRead = useMarkConversationAsRead();
@@ -299,7 +299,12 @@ export function MessagingDashboard() {
         </div>
 
         <div className="space-y-4">
-          {isLoading ? (
+          {isError && conversations.length === 0 ? (
+            <div className="py-24 flex flex-col items-center justify-center gap-4">
+              <p className="text-sm font-semibold text-muted-foreground text-center">Could not load messages.</p>
+              <Button onClick={() => refetch()}>Try again</Button>
+            </div>
+          ) : isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
             <AnimatePresence initial={false}>

@@ -2,7 +2,6 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { memo, Suspense, useEffect, useState } from 'react';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
-const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -14,6 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { applyAdvancedFiltersToStore } from '@/utils/applyAdvancedFilters';
 import { DeferredDialog } from './DeferredDialog';
 
+const TokensModal = lazyWithRetry(() => import('./TokensModal').then(m => ({ default: m.TokensModal })));
 
 // 🚀 SPEED OF LIGHT: LAZY WITH RETRY HARDENING
 const AdvancedFiltersDialog = lazyWithRetry(() => import('@/components/AdvancedFiltersDialog'));

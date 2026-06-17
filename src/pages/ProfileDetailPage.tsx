@@ -7,9 +7,12 @@ import { triggerHaptic } from '@/utils/haptics';
 import { Suspense, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { ProfileCardSkeleton } from '@/components/ui/ContentSkeleton';
+import { Button } from '@/components/ui/button';
+
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
+
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ export default function ProfileDetailPage() {
   const [showShare, setShowShare] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ['profile-detail', id],
     queryFn: async () => {
       if (!id) return null;
@@ -71,6 +74,15 @@ export default function ProfileDetailPage() {
   }, [profile]);
 
   if (isLoading) return <div className="w-full h-screen flex items-center justify-center bg-background p-6"><ProfileCardSkeleton /></div>;
+
+  if (isError && !profile) {
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6">
+        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load profile.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
+      </div>
+    );
+  }
 
   if (!profile) return <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6"><p className="text-muted-foreground">Profile not found</p><button onClick={() => navigate(-1)} className="text-sm text-primary underline">Go back</button></div>;
 

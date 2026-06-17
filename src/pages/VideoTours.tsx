@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 import { canNativeShare, shareViaNavigator } from '@/hooks/useSharing';
+import { Button } from '@/components/ui/button';
 
 
 interface VideoListing {
@@ -25,27 +26,32 @@ export default function VideoTours() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchVideoListings = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('listings')
-          .select('id, title, location, price, currency, images, category')
-          .eq('is_active', true)
-          .not('images', 'is', null)
-          .limit(20);
-        if (error) throw error;
-        setListings((data || []) as VideoListing[]);
-      } catch (e) {
-        logger.error('[VideoTours] fetch error:', e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchVideoListings();
+  const fetchVideoListings = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(false);
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('id, title, location, price, currency, images, category')
+        .eq('is_active', true)
+        .not('images', 'is', null)
+        .limit(20);
+      if (error) throw error;
+      setListings((data || []) as VideoListing[]);
+    } catch (e) {
+      logger.error('[VideoTours] fetch error:', e);
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchVideoListings();
+  }, [fetchVideoListings]);
 
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
@@ -73,6 +79,15 @@ export default function VideoTours() {
             <div key={i} className="h-[70dvh] rounded-[2rem] bg-white/5 border border-white/10 animate-pulse" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="h-[100dvh] bg-black flex flex-col items-center justify-center gap-4 p-10 text-center">
+        <p className="text-sm font-semibold text-white/50">Could not load video tours.</p>
+        <Button onClick={fetchVideoListings} className="rounded-2xl">Try again</Button>
       </div>
     );
   }
