@@ -26,6 +26,7 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
+import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 function formatPrice(price?: number | null): string {
   if (price == null || Number.isNaN(price)) return '—';
@@ -214,7 +215,7 @@ export default function PublicListingPreview() {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-40 mx-4 mb-2 shrink-0"
         >
-          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#EB4898]/15 via-black/40 to-[#FF4D00]/15 backdrop-blur-xl px-4 py-3 flex items-start gap-3">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#8B5CF6]/15 via-black/40 to-[#6366F1]/15 backdrop-blur-xl px-4 py-3 flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#EB4898]/20 flex items-center justify-center shrink-0 mt-0.5">
               <Sparkles className="w-4 h-4 text-[#EB4898]" />
             </div>
@@ -268,7 +269,7 @@ export default function PublicListingPreview() {
                   {listing.title || 'Swipess Listing'}
                 </h1>
                 <div className="flex items-center gap-2 text-white/85">
-                  <MapPin className="w-4 h-4 text-[#FF4D00] shrink-0" />
+                  <MapPin className="w-4 h-4 text-[#8B5CF6] shrink-0" />
                   <span className="text-[11px] font-bold uppercase tracking-wider truncate">{locationLabel}</span>
                 </div>
                 <div className="flex items-end justify-between pt-1 gap-3">
@@ -314,7 +315,7 @@ export default function PublicListingPreview() {
           )}
 
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/25 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#6366F1]/15 border border-[#8B5CF6]/25 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#C4B5FD]">
               <ShieldCheck className="w-3 h-3" />
               Verified on Swipess
             </span>
@@ -342,7 +343,8 @@ export default function PublicListingPreview() {
                   if (!guardNewConversation(canStartNewConversation)) return;
                   setShowDirectMessageDialog(true);
                 }}
-                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#EB4898] to-[#FF4D00] text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(235,72,152,0.35)] active:scale-[0.98] transition-transform"
+                className="w-full h-12 rounded-2xl text-white font-bold uppercase tracking-wider shadow-[0_10px_30px_rgba(139,92,246,0.35)] active:scale-[0.98] transition-transform"
+                style={{ background: NEXUS_GRADIENTS.cta }}
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Message Owner
@@ -351,7 +353,8 @@ export default function PublicListingPreview() {
               <>
                 <Button
                   onClick={handleCreateAccount}
-                  className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(224,30,42,0.45)] border border-white/15"
+                  className="w-full h-12 rounded-2xl text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(99,102,241,0.4)] border border-white/15"
+                  style={{ background: NEXUS_GRADIENTS.ai }}
                 >
                   <UserPlus className="w-5 h-5 mr-2" />
                   Join Free to Contact Owner

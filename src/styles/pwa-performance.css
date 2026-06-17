@@ -716,3 +716,22 @@ body.hw-mid .animate-pulse {
 .app-bottom-bar button:active {
   transform: scale(0.90) !important;
 }
+
+/* Nexus scroll surfaces — VAPID card, legal hub, wizard modals */
+.nexus-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
+  contain: layout style;
+}
+
+html.pwa-mode .nexus-scroll {
+  scroll-behavior: auto;
+}
+
+/* Lighter glass on PWA — faster compositing, still premium */
+html.pwa-mode .nexus-glass-lite {
+  -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+  backdrop-filter: blur(16px) saturate(1.4) !important;
+}

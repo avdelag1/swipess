@@ -28,6 +28,7 @@ import { resolveListingCoordinates } from '@/utils/listingLocation';
 import { logger } from '@/utils/prodLogger';
 import { useTranslation } from 'react-i18next';
 import { validateImageFile } from '@/utils/fileValidation';
+import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 const AI_MAX_PHOTOS: Record<string, number> = {
   property: 30,
@@ -507,7 +508,7 @@ export function AIListingWizard() {
                   <Sparkles className="w-6 h-6 text-rose-400" />
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-500", textPrimary)}>AI Uploading. Listing.</h2>
+                  <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Uploading. Listing.</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest leading-none">One-Step Builder</span>
                     <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
@@ -557,7 +558,7 @@ export function AIListingWizard() {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
-                                  ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
+                                  ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
                                   : isLight ? "bg-black/5 border-black/10 hover:border-rose-500/30" : "bg-white/5 border border-t-white/30 border-l-white/10 border-r-white/5 border-b-transparent hover:border-white/40 shadow-inner"
                               )}
                             >
@@ -684,7 +685,7 @@ export function AIListingWizard() {
                                   className={cn(
                                     "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                     isRecording 
-                                      ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                      ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
                                       : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
                                   )}
                                 >
@@ -766,7 +767,7 @@ export function AIListingWizard() {
                         <Button
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
-                          className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-30"
+                          className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-30"
                         >
                           {isProcessing ? (
                             <>

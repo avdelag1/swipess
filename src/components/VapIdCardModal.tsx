@@ -2,7 +2,8 @@ import React, { Suspense, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Droplets, Languages, MapPin, Pencil, ShieldCheck, X } from 'lucide-react';
+import { CheckCircle2, Clock, Droplets, FileText, Languages, MapPin, Pencil, ShieldCheck, X } from 'lucide-react';
+import { DocumentPreviewDialog, type VapDocumentPreview } from '@/components/nexus/DocumentPreviewDialog';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,6 +34,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     } catch { return 0; }
   });
   const [editOpen, setEditOpen] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<VapDocumentPreview | null>(null);
   const [isExiting, setIsExiting] = useState(false); // For Aladdin/genie minimize effect
   const theme = CARD_THEMES[themeIndex];
   const isOwner = role === 'owner';
@@ -145,6 +147,29 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
     return [...new Set(tags)].slice(0, 8);
   }, [ext]);
 
+  const { data: documents = [] } = useQuery({
+    queryKey: ['vap-documents', user?.id],
+    enabled: !!user?.id && isOpen,
+    staleTime: 1000 * 60 * 2,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('legal_documents')
+        .select('id, document_type, file_name, status, file_path, mime_type, created_at')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as VapDocumentPreview[];
+    },
+  });
+
+  const DOC_TYPE_LABELS: Record<string, string> = {
+    passport: 'Passport',
+    government_id: 'Gov. ID',
+    drivers_license: 'License',
+    six_month_lease: '6-Month Lease',
+    recommendation: 'Recommendation',
+  };
+
   const validationUrl = "https://swipess.com/vap-validate/" + (user?.id || 'unknown');
   const idNumber = "NX-" + (user?.id || 'resident').slice(0, 8).toUpperCase();
   const location = [city, country].filter(Boolean).join(', ');
@@ -188,7 +213,8 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
             }}
             style={{ transformOrigin: 'bottom center' }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[98vw] max-w-none h-full flex flex-col pb-2"
+            className="relative w-[98vw] max-w-none flex flex-col pb-2 min-h-0"
+            style={{ maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 80px)' }}
           >
             <div className="flex items-center justify-between mb-3 px-1 gap-2 mt-12 sm:mt-16">
               <button
@@ -221,10 +247,13 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               key={themeIndex}
               initial={{ opacity: 0.7 }}
               animate={{ opacity: 1 }}
-              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex-1 flex flex-col"
+              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex-1 flex flex-col min-h-0"
               style={{ background: theme.background }}
             >
-              <div className="relative z-10 p-6 sm:p-8 flex-1 flex flex-col">
+              <div
+                className="relative z-10 p-6 sm:p-8 flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-smooth nexus-scroll"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
                 <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
                     <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
@@ -268,7 +297,57 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-6 border-t mt-auto" style={{ borderTopColor: theme.tagBorder }}>
+                  {/* Authorized documents vault */}
+                  <div
+                    className="mt-6 rounded-[1.75rem] border p-4 space-y-3"
+                    style={{ borderColor: theme.tagBorder, background: `${theme.tagBg}66` }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: theme.accentColor }}>
+                          Authorized Vault
+                        </p>
+                        <p className="text-[11px] font-bold mt-0.5" style={{ color: theme.textSecondary }}>
+                          Verification documents
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full border" style={{ borderColor: theme.tagBorder, color: theme.tagText }}>
+                        {documents.filter(d => d.status === 'verified').length}✓
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {(['passport', 'government_id', 'drivers_license', 'six_month_lease', 'recommendation'] as const).map((key) => {
+                        const doc = documents.find(d => d.document_type === key);
+                        const hasFile = !!doc?.file_name;
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            disabled={!hasFile}
+                            onClick={() => doc && setPreviewDoc(doc)}
+                            className="w-full flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-left active:scale-[0.99] transition-transform disabled:opacity-40"
+                            style={{ borderColor: theme.tagBorder, background: theme.tagBg }}
+                          >
+                            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border" style={{ borderColor: theme.tagBorder }}>
+                              {doc?.status === 'verified' ? <CheckCircle2 className="w-4 h-4" style={{ color: theme.accentColor }} />
+                                : doc?.status === 'pending' ? <Clock className="w-4 h-4" style={{ color: theme.textSecondary }} />
+                                : <FileText className="w-4 h-4" style={{ color: theme.textTertiary }} />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-black uppercase tracking-wider truncate" style={{ color: theme.textPrimary }}>
+                                {DOC_TYPE_LABELS[key]}
+                              </p>
+                              <p className="text-[9px] truncate" style={{ color: theme.textTertiary }}>
+                                {hasFile ? 'Tap for authorized preview' : 'Not uploaded'}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t mt-6" style={{ borderTopColor: theme.tagBorder }}>
                      <div className="flex flex-col">
                         <span className="text-[12px] font-black uppercase tracking-[0.3em] opacity-90" style={{ color: theme.textPrimary }}>SWIPESS</span>
                         <span className="text-[8px] font-bold uppercase tracking-[0.15em] opacity-70" style={{ color: theme.textTertiary }}>Virtual ID Card</span>
@@ -285,6 +364,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
       )}
     </AnimatePresence>
     <Suspense fallback={null}><VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchVapCard(); }} role={role} /></Suspense>
+    <DocumentPreviewDialog open={!!previewDoc} document={previewDoc} onClose={() => setPreviewDoc(null)} />
     </>,
     document.body
   );

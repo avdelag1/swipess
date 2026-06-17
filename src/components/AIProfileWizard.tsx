@@ -24,6 +24,7 @@ import {
   intentionsForClientType,
   type SeekerClientType,
 } from '@/utils/clientType';
+import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 type Step = 'compose' | 'processing';
 type Mode = 'client' | 'owner';
@@ -114,7 +115,7 @@ export function AIProfileWizard() {
 
   if (!showAIProfile) return null;
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0f0f13] border-white/20';
+  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0a0a0b] border-white/[0.08]';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
@@ -348,18 +349,18 @@ export function AIProfileWizard() {
           )}
         >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-rose-500/20 to-orange-500/10 blur-[120px] rounded-full mix-blend-screen" />
-             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-pink-500/20 to-purple-500/10 blur-[100px] rounded-full mix-blend-screen" />
+             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
+             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#EB4898]/10 blur-[100px] rounded-full mix-blend-screen" />
           </div>
 
           <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-black/8" : "border-white/5")}>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
-                <Sparkles className="w-6 h-6 text-rose-400" />
+              <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25">
+                <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
               </div>
               <div>
-                <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-500", textPrimary)}>Magic Profile</h2>
-                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-rose-500">One-Step Setup</span>
+                <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>Magic Profile</h2>
+                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-[#8B5CF6]">One-Step Setup</span>
               </div>
             </div>
             <button onClick={handleClose} className={cn("w-11 h-11 flex items-center justify-center rounded-2xl", closeBtnCls)}>
@@ -406,7 +407,7 @@ export function AIProfileWizard() {
                                 className={cn(
                                   'flex items-center gap-4 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
                                   active
-                                    ? 'border-rose-500/50 bg-rose-500/10 shadow-[0_0_24px_rgba(244,63,94,0.15)]'
+                                    ? 'border-[#8B5CF6]/50 bg-[#8B5CF6]/10 shadow-[0_0_24px_rgba(139,92,246,0.2)]'
                                     : isLight
                                       ? 'border-black/10 bg-black/[0.02] hover:border-black/20'
                                       : 'border-white/10 bg-white/[0.03] hover:border-white/20',
@@ -493,9 +494,10 @@ export function AIProfileWizard() {
                                 className={cn(
                                   "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                   isRecording 
-                                    ? "bg-gradient-to-br from-[#FF4D00] to-[#EB4898] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                    ? "text-white shadow-[0_0_30px_rgba(99,102,241,0.55)] scale-110" 
                                     : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
                                 )}
+                                style={isRecording ? { background: NEXUS_GRADIENTS.ai } : undefined}
                               >
                                 {!isRecording && (
                                   <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -575,7 +577,8 @@ export function AIProfileWizard() {
                       <Button
                         onClick={handleProcess}
                         disabled={!narrative.trim() || isProcessing || imageFiles.length === 0}
-                        className="w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#FF4D00] to-[#EB4898] hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(255,77,0,0.3)] disabled:opacity-20"
+                        className="w-full h-16 rounded-[2.5rem] hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(99,102,241,0.35)] disabled:opacity-20"
+                        style={{ background: NEXUS_GRADIENTS.ai }}
                       >
                         {isProcessing ? <PremiumSpinner className="w-5 h-5 mr-3" /> : <Wand2 className="w-5 h-5 mr-3" />}
                         Create Profile
@@ -592,7 +595,7 @@ export function AIProfileWizard() {
                           <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
                           <motion.circle
                             cx="50" cy="50" r="44"
-                            stroke="#e11d48" strokeWidth="6" fill="none"
+                            stroke="#6366F1" strokeWidth="6" fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 44}
                             initial={{ strokeDashoffset: 2 * Math.PI * 44 }}

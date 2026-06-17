@@ -15,6 +15,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
+import { DocumentPreviewDialog, type VapDocumentPreview } from '@/components/nexus/DocumentPreviewDialog';
+import { NEXUS_GRADIENTS, nexusGlassCard, nexusSectionLabel } from '@/utils/nexusTheme';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface Props {
   isOpen: boolean;
@@ -56,6 +59,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const [age, setAge] = useState<string>('');
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<VapDocumentPreview | null>(null);
 
   const profileTable = 'client_profiles';
   const profileQueryKey = 'vap-id-client-profile';
@@ -104,7 +108,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     queryFn: async () => {
       const { data, error } = await supabase
         .from('legal_documents')
-        .select('id, document_type, file_name, status, created_at')
+        .select('id, document_type, file_name, status, file_path, mime_type, created_at')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -264,6 +268,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
 
   return createPortal(
+    <>
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -271,23 +276,26 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10002] flex flex-col bg-background/80 backdrop-blur-3xl saturate-150 overflow-hidden"
+          className="fixed inset-0 z-[10002] flex flex-col bg-[#0a0a0b]/90 backdrop-blur-3xl saturate-150 overflow-hidden"
         >
-          <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
+          <div
+            className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4 shrink-0"
+            style={{ background: role === 'owner' ? NEXUS_GRADIENTS.owner : NEXUS_GRADIENTS.cta }}
+          >
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Edit</p>
-              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">{role === 'owner' ? 'Asset Card Settings' : 'Resident Card Settings'}</h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/75">Edit Identity</p>
+              <h2 className="mt-0.5 text-base font-black uppercase italic tracking-tight text-white">{role === 'owner' ? 'Asset Card' : 'Resident Card'}</h2>
             </div>
-            <button onClick={handleClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground" aria-label="Close">
+            <button onClick={handleClose} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white hover:bg-black/35" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth nexus-scroll">
             {/* Photo */}
-            <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(nexusGlassCard, 'p-4 shadow-lg')}>
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Photo</p>
+                <p className={nexusSectionLabel}>Photo</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">Card photo</h3>
                 <p className="mt-1 text-[11px] text-muted-foreground">This photo appears on your identity card.</p>
               </div>
@@ -314,9 +322,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
             </section>
 
             {/* About / Bio */}
-            <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(nexusGlassCard, 'p-4 shadow-lg')}>
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">{role === 'owner' ? 'Business' : 'About Me'}</p>
+                <p className={nexusSectionLabel}>{role === 'owner' ? 'Business' : 'About Me'}</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">Description</h3>
                 <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
               </div>
@@ -333,9 +341,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
             </section>
 
             {/* Details */}
-            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(nexusGlassCard, 'mt-5 p-4 shadow-lg')}>
               <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Details</p>
+                <p className={nexusSectionLabel}>Details</p>
                 <h3 className="mt-1 text-sm font-black text-foreground">{role === 'owner' ? 'Business info' : 'Personal info'}</h3>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -384,14 +392,14 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
             </section>
 
             {/* Documents */}
-            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
+            <section className={cn(nexusGlassCard, 'mt-5 p-4 shadow-lg')}>
               <div className="mb-4 flex items-start justify-between">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
-                  <h3 className="mt-1 text-sm font-black text-foreground">Verification files</h3>
+                  <p className={nexusSectionLabel}>Documents</p>
+                  <h3 className="mt-1 text-sm font-black text-foreground">Authorized verification vault</h3>
                 </div>
-                <div className="rounded-xl border border-border bg-muted/40 px-3 py-1.5 text-right">
-                  <p className="text-xs font-black text-foreground">{documentSummary.verified}✓ · {documentSummary.pending} pending</p>
+                <div className="rounded-xl border border-[#8B5CF6]/25 bg-[#8B5CF6]/10 px-3 py-1.5 text-right">
+                  <p className="text-xs font-black text-[#C4B5FD]">{documentSummary.verified}✓ · {documentSummary.pending} pending</p>
                 </div>
               </div>
               <div className="space-y-2.5">
@@ -399,7 +407,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                   const status = getDocStatus(key);
                   const doc = getDocMeta(key);
                   return (
-                    <div key={key} className="flex items-center gap-3 rounded-[18px] border border-border bg-muted/40 p-3">
+                    <div key={key} className="flex items-center gap-3 rounded-[18px] border border-white/[0.06] bg-white/[0.03] p-3">
                       <div className={cn(
                         'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border',
                         status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
@@ -411,17 +419,32 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                           : status === 'pending' ? <FileText className="h-4 w-4" />
                           : <Upload className="h-4 w-4" />}
                       </div>
-                      <div className="min-w-0 flex-1">
+                      <button
+                        type="button"
+                        disabled={!doc?.file_name}
+                        onClick={() => {
+                          if (doc) {
+                            triggerHaptic('light');
+                            setPreviewDoc(doc as VapDocumentPreview);
+                          }
+                        }}
+                        className="min-w-0 flex-1 text-left disabled:opacity-60"
+                      >
                         <p className="text-sm font-black text-foreground">{label}</p>
-                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{doc?.file_name || 'Not uploaded'}</p>
-                      </div>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {doc?.file_name ? 'Tap for authorized preview' : 'Not uploaded'}
+                        </p>
+                      </button>
                       <button
                         onClick={() => status !== 'verified' && handleDocUpload(key)}
                         disabled={uploading === key || status === 'verified'}
                         className={cn(
-                          'rounded-xl px-3 py-1.5 text-[11px] font-black active:scale-95',
-                          status === 'verified' ? 'bg-secondary text-muted-foreground cursor-default' : 'bg-primary text-primary-foreground'
+                          'rounded-xl px-3 py-1.5 text-[11px] font-black active:scale-95 shrink-0',
+                          status === 'verified'
+                            ? 'bg-white/10 text-white/50 cursor-default'
+                            : 'text-white shadow-lg',
                         )}
+                        style={status !== 'verified' ? { background: NEXUS_GRADIENTS.ai } : undefined}
                       >
                         {status === 'verified' ? 'Done' : status === 'pending' ? 'Replace' : 'Upload'}
                       </button>
@@ -433,11 +456,12 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           </div>
 
           {/* Sticky save bar */}
-          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)] space-y-2">
+          <div className="sticky bottom-0 border-t border-white/[0.06] bg-[#0a0a0b]/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.35)] space-y-2">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#FF3D00] text-white hover:bg-[#E03600] active:scale-[0.98] disabled:opacity-60 transition-colors font-black uppercase tracking-[0.2em] shadow-[0_4px_20px_rgba(255,61,0,0.3)]"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-white active:scale-[0.98] disabled:opacity-60 transition-transform font-black uppercase tracking-[0.2em] shadow-[0_8px_32px_rgba(99,102,241,0.35)]"
+              style={{ background: NEXUS_GRADIENTS.ai }}
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving…' : 'Save card'}
@@ -445,7 +469,9 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           </div>
         </motion.div>
       )}
-    </AnimatePresence>,
+    </AnimatePresence>
+    <DocumentPreviewDialog open={!!previewDoc} document={previewDoc} onClose={() => setPreviewDoc(null)} />
+    </>,
     document.body
   );
 }
