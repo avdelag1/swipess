@@ -303,19 +303,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
         
-        {/* ðŸ›¸ Swipes ATMOSPHERIC LAYER */}
-        <div className={cn("absolute inset-0 pointer-events-none overflow-hidden", isLight ? "opacity-[0.04]" : "opacity-20")}>
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(255,77,0,0.4) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,77,0,0.4) 1px, transparent 1px)
-              `,
-              backgroundSize: '32px 32px',
-            }}
-          />
-        </div>
+        <div
+          aria-hidden
+          className={cn(
+            'ambient-page-bg pointer-events-none absolute inset-0',
+            isLight ? 'ambient-page-bg--light' : 'ambient-page-bg--dark',
+          )}
+        />
 
         {/* Header with step indicator */}
         <div className={cn("relative px-6 pt-6 pb-4 border-b z-10 shrink-0", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>

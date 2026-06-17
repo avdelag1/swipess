@@ -1,6 +1,7 @@
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 
 import { Button } from "@/components/ui/button";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
@@ -22,7 +23,7 @@ const OwnerProfile = () => {
   const { isLight } = useAppTheme();
   const { user, signOut } = useAuth();
   const { data: stats } = useOwnerStats();
-  const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
+  const { data: ownerProfile, isLoading: profileLoading, isError: profileError, refetch: refetchProfile } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
@@ -34,26 +35,18 @@ const OwnerProfile = () => {
     return <ProfileSkeleton />;
   }
 
-  return (
-    <div className={cn("w-full relative min-h-full", "bg-background text-foreground")}>
-
-      {/* ðŸ›¸ SWIPES ATMOSPHERIC LAYER */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className={cn("absolute inset-0", isLight ? "opacity-[0.02]" : "opacity-[0.04]")}
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,77,0,0.8) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,77,0,0.8) 1px, transparent 1px)
-            `,
-            backgroundSize: '48px 48px',
-          }}
-        />
-        <div className={cn("absolute top-[-20%] left-[-10%] w-[70%] h-[60%] rounded-full blur-[140px]", isLight ? "bg-[#FF4D00]/[0.04]" : "bg-[#FF4D00]/10")} />
-        <div className={cn("absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px]", isLight ? "bg-[#EB4898]/[0.03]" : "bg-[#EB4898]/8")} />
+  if (profileError && !ownerProfile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-6">
+        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load your profile.</p>
+        <Button onClick={() => refetchProfile()}>Try again</Button>
       </div>
+    );
+  }
 
-      <div className="w-full px-6 layout-padding-top pb-32 space-y-10 relative z-10">
+  return (
+    <AmbientPageBackground className={cn("w-full min-h-full text-foreground")}>
+      <div className="w-full px-6 layout-padding-top pb-32 space-y-10">
 
         {/* SWIPESS OPERATOR BADGE */}
         <div className="flex items-center justify-center">
@@ -253,7 +246,7 @@ const OwnerProfile = () => {
 
         <div className="h-24" />
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 };
 

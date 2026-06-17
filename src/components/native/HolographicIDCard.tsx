@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useMemo } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Briefcase, Clock, Fingerprint, Globe, MapPin, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -7,7 +7,14 @@ import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
 
 export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const { isLight } = useAppTheme();
-  
+  const prefersReducedMotion = useReducedMotion();
+
+  const disableTilt = useMemo(() => {
+    if (prefersReducedMotion) return true;
+    if (typeof navigator === 'undefined') return false;
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }, [prefersReducedMotion]);
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -15,18 +22,20 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
   const rotateY = useSpring(useTransform(x, [-100, 100], [-10, 10]), { stiffness: 300, damping: 30 });
 
   function handleMouse(event: React.MouseEvent | React.TouchEvent) {
+    if (disableTilt) return;
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
     const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-    
+
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     x.set(clientX - centerX);
     y.set(clientY - centerY);
   }
 
   function handleMouseLeave() {
+    if (disableTilt) return;
     x.set(0);
     y.set(0);
   }
@@ -43,20 +52,13 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
 
   return (
     <motion.div
-      style={{
-        perspective: 1000,
-        touchAction: 'pan-y',
-      }}
+      style={disableTilt ? { touchAction: 'pan-y' } : { perspective: 1000, touchAction: 'pan-y' }}
       onMouseMove={handleMouse}
       onMouseLeave={handleMouseLeave}
       className="relative w-full group"
     >
       <motion.div
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
+        style={disableTilt ? undefined : { rotateX, rotateY, transformStyle: 'preserve-3d' }}
         className={cn(
           "relative w-full rounded-[2.5rem] overflow-hidden border transition-all duration-500",
           isLight ? "bg-white border-slate-200 shadow-xl" : "bg-[#0A0F1A] border-white/10 shadow-2xl shadow-primary/10"
@@ -105,7 +107,7 @@ export const HolographicIDCard = ({ profile }: { profile: any }) => {
           {/* Identity Row */}
           <div className="flex gap-3 items-center">
             <div className="relative shrink-0">
-              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30">
                 {avatar ? (
                   <img 
                     src={ensureAbsoluteSupabaseUrl(avatar)} 

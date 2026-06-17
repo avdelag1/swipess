@@ -1,4 +1,3 @@
-const ClientProfileDialog = lazyWithRetry(() => import('@/components/ClientProfileDialog').then(m => ({ default: m.ClientProfileDialog })));
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { Suspense, useCallback, useState } from "react";
@@ -6,29 +5,29 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { 
-  Camera, 
-  ChevronRight, 
-  Coins, 
-  Crown, 
-  LogOut, 
-  Megaphone, 
-  MessageSquare, 
-  Radio, 
-  Settings, 
-  Sparkles, 
-  ThumbsUp, 
-  User, 
-  Zap 
+import {
+  Camera,
+  ChevronRight,
+  Coins,
+  Crown,
+  LogOut,
+  Megaphone,
+  MessageSquare,
+  Radio,
+  Settings,
+  Sparkles,
+  ThumbsUp,
+  User,
+  Zap,
 } from 'lucide-react';
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
-const VapIdCardModal = lazyWithRetry(() => import('@/components/VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
-const VapIdEditModal = lazyWithRetry(() => import('@/components/VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -36,6 +35,10 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { useTranslation } from 'react-i18next';
 import { HolographicIDCard } from "@/components/native/HolographicIDCard";
 import { useModalStore } from "@/state/modalStore";
+
+const ClientProfileDialog = lazyWithRetry(() => import('@/components/ClientProfileDialog').then(m => ({ default: m.ClientProfileDialog })));
+const VapIdCardModal = lazyWithRetry(() => import('@/components/VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
+const VapIdEditModal = lazyWithRetry(() => import('@/components/VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 
 const ClientProfile = () => {
   const { isLight } = useAppTheme();
@@ -45,7 +48,7 @@ const ClientProfile = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [showVapCard, setShowVapCard] = useState(false);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
-  const { data: profile, isLoading, refetch: refetchProfile } = useClientProfile();
+  const { data: profile, isLoading, isError, refetch: refetchProfile } = useClientProfile();
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -75,26 +78,18 @@ const ClientProfile = () => {
     return <ProfileSkeleton />;
   }
 
-  return (
-    <div className={cn("w-full relative min-h-full", "bg-background text-foreground")}>
-
-      {/* 🛸 SWIPES ATMOSPHERIC LAYER */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className={cn("absolute inset-0", isLight ? "opacity-[0.02]" : "opacity-[0.04]")}
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,77,0,0.8) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,77,0,0.8) 1px, transparent 1px)
-            `,
-            backgroundSize: '48px 48px',
-          }}
-        />
-        <div className={cn("absolute top-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full blur-[140px]", isLight ? "bg-[#FF4D00]/[0.04]" : "bg-[#FF4D00]/10")} />
-        <div className={cn("absolute bottom-[10%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px]", isLight ? "bg-[#EB4898]/[0.03]" : "bg-[#EB4898]/8")} />
+  if (isError && !profile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-6">
+        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load your profile.</p>
+        <Button onClick={() => refetchProfile()}>Try again</Button>
       </div>
+    );
+  }
 
-      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10 relative z-10">
+  return (
+    <AmbientPageBackground className={cn("w-full min-h-full text-foreground")}>
+      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10">
 
         {/* SWIPESS MEMBER BADGE */}
         <div className="flex items-center justify-center">
@@ -110,7 +105,7 @@ const ClientProfile = () => {
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-36 h-36 p-[2px] shadow-[0_0_60px_rgba(235,72,152,0.25)]"
+              className="w-36 h-36 p-[2px]"
               style={{
                 borderRadius: '3rem',
                 background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
@@ -128,14 +123,6 @@ const ClientProfile = () => {
                 )}
               </div>
             </motion.div>
-
-            {/* Scan ring */}
-            <motion.div
-              className="absolute inset-[-6px] border border-[#FF4D00]/20 pointer-events-none"
-              style={{ borderRadius: '4rem' }}
-              animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.02, 1] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
 
             <button
               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
@@ -352,9 +339,11 @@ const ClientProfile = () => {
 
       <Suspense fallback={null}><ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} /></Suspense>
       <PhotoPreview photos={profile?.profile_images || []} isOpen={showPhotoPreview} onClose={() => setShowPhotoPreview(false)} initialIndex={selectedPhotoIndex} />
-      <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user?.id] }); }} role="client" />
-      <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
-    </div>
+      <Suspense fallback={null}>
+        <VapIdEditModal isOpen={isVapModalOpen} onClose={() => setIsVapModalOpen(false)} onSaved={() => { refetchProfile(); queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user?.id] }); }} role="client" />
+        <VapIdCardModal isOpen={showVapCard} onClose={() => setShowVapCard(false)} role="client" />
+      </Suspense>
+    </AmbientPageBackground>
   );
 };
 
