@@ -28,15 +28,15 @@ const DOC_LABELS: Record<string, string> = {
 interface DocumentPreviewDialogProps {
   open: boolean;
   onClose: () => void;
-  document: VapDocumentPreview | null;
+  vaultDocument: VapDocumentPreview | null;
 }
 
-export const DocumentPreviewDialog = memo(({ open, onClose, document }: DocumentPreviewDialogProps) => {
+export const DocumentPreviewDialog = memo(({ open, onClose, vaultDocument }: DocumentPreviewDialogProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!open || !document?.file_path) {
+    if (!open || !vaultDocument?.file_path) {
       setPreviewUrl(null);
       return;
     }
@@ -46,7 +46,7 @@ export const DocumentPreviewDialog = memo(({ open, onClose, document }: Document
       try {
         const { data, error } = await supabase.storage
           .from('legal-documents')
-          .createSignedUrl(document.file_path!, 120);
+          .createSignedUrl(vaultDocument.file_path!, 120);
         if (!cancelled && !error && data?.signedUrl) {
           setPreviewUrl(data.signedUrl);
         }
@@ -57,16 +57,21 @@ export const DocumentPreviewDialog = memo(({ open, onClose, document }: Document
       }
     })();
     return () => { cancelled = true; };
-  }, [open, document?.file_path]);
+  }, [open, vaultDocument?.file_path]);
 
-  const label = document ? (DOC_LABELS[document.document_type] || document.document_type) : '';
-  const isImage = document?.mime_type?.startsWith('image/') ?? /\.(jpe?g|png|webp|gif)$/i.test(document?.file_name || '');
-  const isVerified = document?.status === 'verified';
-  const isPending = document?.status === 'pending';
+  if (!open || !vaultDocument) return null;
+
+  const portalRoot = typeof document !== 'undefined' ? document.body : null;
+  if (!portalRoot) return null;
+
+  const label = DOC_LABELS[vaultDocument.document_type] || vaultDocument.document_type;
+  const isImage = vaultDocument.mime_type?.startsWith('image/') ?? /\.(jpe?g|png|webp|gif)$/i.test(vaultDocument.file_name || '');
+  const isVerified = vaultDocument.status === 'verified';
+  const isPending = vaultDocument.status === 'pending';
 
   return createPortal(
     <AnimatePresence>
-      {open && document && (
+      {open && vaultDocument && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -102,7 +107,7 @@ export const DocumentPreviewDialog = memo(({ open, onClose, document }: Document
                 <h3 className="text-lg font-black uppercase italic tracking-tight text-white truncate">
                   {label}
                 </h3>
-                <p className="text-[11px] text-white/70 truncate mt-0.5">{document.file_name}</p>
+                <p className="text-[11px] text-white/70 truncate mt-0.5">{vaultDocument.file_name}</p>
               </div>
               <button
                 type="button"
@@ -171,12 +176,12 @@ export const DocumentPreviewDialog = memo(({ open, onClose, document }: Document
                     <FileText className="w-4 h-4 text-white/40" />
                   )}
                   <span className="text-[11px] font-black uppercase tracking-wider text-white/80">
-                    {isVerified ? 'Verified' : isPending ? 'Pending review' : document.status}
+                    {isVerified ? 'Verified' : isPending ? 'Pending review' : vaultDocument.status}
                   </span>
                 </div>
-                {document.created_at && (
+                {vaultDocument.created_at && (
                   <span className="text-[9px] font-bold text-white/35 uppercase tracking-widest">
-                    {new Date(document.created_at).toLocaleDateString()}
+                    {new Date(vaultDocument.created_at).toLocaleDateString()}
                   </span>
                 )}
               </div>
@@ -185,7 +190,7 @@ export const DocumentPreviewDialog = memo(({ open, onClose, document }: Document
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body,
+    portalRoot,
   );
 });
 

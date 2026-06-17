@@ -470,7 +470,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         </motion.div>
       )}
     </AnimatePresence>
-    <DocumentPreviewDialog open={!!previewDoc} document={previewDoc} onClose={() => setPreviewDoc(null)} />
+    <DocumentPreviewDialog open={!!previewDoc} vaultDocument={previewDoc} onClose={() => setPreviewDoc(null)} />
     </>,
     document.body
   );

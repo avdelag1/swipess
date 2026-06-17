@@ -364,7 +364,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
       )}
     </AnimatePresence>
     <Suspense fallback={null}><VapIdEditModal isOpen={editOpen} onClose={() => setEditOpen(false)} onSaved={() => { refetchVapCard(); }} role={role} /></Suspense>
-    <DocumentPreviewDialog open={!!previewDoc} document={previewDoc} onClose={() => setPreviewDoc(null)} />
+    <DocumentPreviewDialog open={!!previewDoc} vaultDocument={previewDoc} onClose={() => setPreviewDoc(null)} />
     </>,
     document.body
   );
