@@ -1,5 +1,6 @@
 from PIL import Image
 import os
+from pathlib import Path
 
 def resize_icon(input_path, output_dir, size):
     img = Image.open(input_path)
@@ -22,5 +23,7 @@ def resize_icon(input_path, output_dir, size):
     print(f"Saved {output_path}")
 
 if __name__ == "__main__":
-    for s in [192, 512]:
-        resize_icon("public/icons/swipess-logo-transparent.png", "public/icons", s)
+    # Delegate to the wordmark-based generator (matches main page logo)
+    import subprocess
+    import sys
+    subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "generate-favicon-from-wordmark.py")], check=True)
