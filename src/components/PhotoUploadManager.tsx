@@ -157,7 +157,7 @@ export function PhotoUploadManager({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <img src={photo} alt="" className="w-full h-full object-cover" />
+                    <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
                     {/* 🛸 MAIN ASSET INDICATOR */}

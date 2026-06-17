@@ -303,7 +303,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                 {profileImages.map((img, i) => (
                   <div key={i} className="relative shrink-0">
                     <div className="w-24 h-28 rounded-2xl overflow-hidden border border-border">
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt={`Profile photo ${i + 1}`} className="w-full h-full object-cover" />
                     </div>
                     <button onClick={() => removePhoto(i)} className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow-lg">
                       <X className="w-3 h-3" />

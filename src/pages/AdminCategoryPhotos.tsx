@@ -206,7 +206,7 @@ export default function AdminCategoryPhotos() {
         )}
         {!loading && photos.map(p => (
           <div key={p.id} className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted group">
-            <img src={p.image_url} alt="" className="w-full h-full object-cover" />
+            <img src={p.image_url} alt={p.category || 'Category photo'} className="w-full h-full object-cover" />
             <button
               onClick={() => remove(p)}
               disabled={deletingId === p.id}

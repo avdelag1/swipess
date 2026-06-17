@@ -488,7 +488,7 @@ export default function AdminPhotos() {
                         disabled={assigningId === selectedPhoto.id}
                       >
                         {ev.image_url ? (
-                          <img src={ev.image_url} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                          <img src={ev.image_url} alt={ev.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                         ) : (
                           <div className="w-8 h-8 rounded-lg bg-muted flex-shrink-0" />
                         )}

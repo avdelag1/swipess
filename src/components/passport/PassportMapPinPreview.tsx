@@ -66,7 +66,7 @@ export const PassportMapPinPreview = memo(({
     >
       <div className="relative w-full bg-slate-900 h-48 md:h-56">
         {data.imageUrl ? (
-          <img src={data.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={data.imageUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className={cn(
             'absolute inset-0 flex items-center justify-center',

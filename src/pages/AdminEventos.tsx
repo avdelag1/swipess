@@ -404,7 +404,7 @@ export default function AdminEventos() {
             {/* Image */}
             <div className="space-y-2">
               {form.image_url && (
-                <img src={form.image_url} alt="" className="w-full h-40 object-cover rounded-xl" />
+                <img src={form.image_url} alt="Event image preview" className="w-full h-40 object-cover rounded-xl" />
               )}
               <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-border/50 cursor-pointer hover:bg-card/80 transition-colors">
                 <Upload className="w-4 h-4 text-muted-foreground" />
@@ -474,7 +474,7 @@ export default function AdminEventos() {
             events.map(ev => (
               <div key={ev.id} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/30">
                 {ev.image_url ? (
-                  <img src={ev.image_url} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                  <img src={ev.image_url} alt={ev.title} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
                 ) : (
                   <div className="w-14 h-14 rounded-xl bg-muted flex-shrink-0" />
                 )}

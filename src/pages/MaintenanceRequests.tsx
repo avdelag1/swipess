@@ -173,7 +173,7 @@ const MaintenanceRequests = () => {
                         {photoUrls.length > 0 && (
                           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
                             {photoUrls.map((url, j) => (
-                              <img key={j} src={url} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-border" />
+                              <img key={j} src={url} alt={`Attachment ${j + 1}`} className="w-16 h-16 rounded-lg object-cover flex-shrink-0 border border-border" />
                             ))}
                           </div>
                         )}

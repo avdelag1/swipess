@@ -28,7 +28,7 @@ export function CityQuickChip({ name, lat, lng, selected, onClick, className }: 
       <span className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-black/10">
         <img
           src={photo}
-          alt=""
+          alt={name}
           loading="eager"
           decoding="async"
           className="w-full h-full object-cover"

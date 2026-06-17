@@ -202,7 +202,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="relative w-20 h-20 rounded-xl overflow-hidden border border-border"
               >
-                <img src={url} alt="" className="w-full h-full object-cover" />
+                <img src={url} alt={`Attachment ${i + 1}`} className="w-full h-full object-cover" />
                 <button
                   onClick={() => removePhoto(i)}
                   className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center"
