@@ -200,7 +200,7 @@ export function SubscriptionPackages({
               key={pkg.id}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
               className={cn(
                 'flex-1 flex flex-col rounded-[2rem] border bg-background p-6 relative overflow-hidden',
                 style.border,

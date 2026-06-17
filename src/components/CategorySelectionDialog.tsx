@@ -242,7 +242,7 @@ export function CategorySelectionDialog({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="font-black uppercase italic tracking-tighter text-foreground text-lg">Magic AI Listing</h3>
-                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none shadow-[0_0_10px_rgba(99,102,241,0.5)]">Fastest</Badge>
+                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none">Fastest</Badge>
                       </div>
                       <p className="text-xs font-medium text-muted-foreground mt-0.5 line-clamp-2">
                         Upload photos & describe your asset. AI generates the entire listing in seconds.
@@ -278,7 +278,7 @@ export function CategorySelectionDialog({
                       )}
                     >
                       {category.popular && (
-                        <Badge className="absolute -top-3 right-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 z-10 shadow-[0_0_15px_rgba(225,29,72,0.5)] border-none">
+                        <Badge className="absolute -top-3 right-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 z-10 border-none">
                           Popular
                         </Badge>
                       )}
@@ -355,10 +355,10 @@ export function CategorySelectionDialog({
                       >
                         <div className={cn(
                           "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-inner",
-                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.2)]' :
-                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' :
-                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.2)]' :
-                          'bg-amber-500/20 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500' :
+                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500' :
+                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500' :
+                          'bg-amber-500/20 text-amber-500'
                         )}>
                           {mode.icon}
                         </div>

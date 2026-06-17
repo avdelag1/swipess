@@ -238,12 +238,7 @@ export function MessageActivationPackages({
                 key={pkg.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: index * 0.15,
-                  type: 'spring',
-                  stiffness: 100,
-                  damping: 20
-                }}
+                transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                 className="h-full"
               >
                 <Card

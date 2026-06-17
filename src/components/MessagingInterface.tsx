@@ -276,7 +276,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2",
                   isThemeLight ? "border-white" : "border-[#050505]",
                   isOnline
-                    ? "bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)]"
+                    ? "bg-violet-400"
                     : "bg-slate-500"
                 )} />
               </div>
@@ -448,7 +448,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
                   {(isListening || isVoiceRecording) ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>

@@ -52,15 +52,12 @@ const SIZE_CLASS: Record<'big' | 'normal', string> = {
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.02 }
-  }
+  show: { opacity: 1, transition: { duration: 0.12 } },
 };
 
 const columnVariants = {
   hidden: { opacity: 1 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } }
+  show: { opacity: 1 },
 };
 
 const itemVariants = {

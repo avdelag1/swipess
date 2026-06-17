@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
-const stagger = { staggerChildren: 0.04 };
 const itemVariant = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: fastSpring },
@@ -224,7 +223,7 @@ const OwnerSettings = () => {
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={{ visible: { transition: stagger } }}
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
           className="space-y-12"
         >
           {settingsGroups.map((group) => (

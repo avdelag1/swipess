@@ -331,7 +331,7 @@ export function MessagingDashboard() {
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
                     {/* Unread Indicator Glow */}
-                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
+                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
 
                     <div className="relative shrink-0">
                        <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-black/10" : "border-white/10")}>
@@ -339,7 +339,7 @@ export function MessagingDashboard() {
                           <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         {isUnread && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background shadow-[0_0_10px_#EB4898] flex items-center justify-center">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background flex items-center justify-center">
                             <div className="w-1 h-1 bg-white rounded-full" />
                           </div>
                         )}

@@ -71,7 +71,7 @@ const stepVariants = {
 };
 
 const fastSpring = { type: "spring" as const, stiffness: 600, damping: 35, mass: 0.6 };
-const stagger = { visible: { transition: { staggerChildren: 0.05, delayChildren: 0.02 } } };
+
 const itemFadeScale = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
