@@ -13,7 +13,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
+
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
@@ -212,12 +212,12 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         <div className="flex items-center justify-between gap-4 mb-8">
           <div className="flex-1 flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map(({ id, label, icon: Icon }) => (
-              <motion.button
+              <button
                 key={id}
+                type="button"
                 onClick={() => handleCategoryChange(id)}
-                whileTap={{ scale: 0.96 }}
                 className={cn(
-                  "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border-2",
+                  "tab-snappy flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap flex-shrink-0 border-2",
                   selectedCategory === id
                     ? "border-transparent shadow-[0_8px_24px_rgba(255,77,0,0.3)] text-white"
                     : "bg-card border-border text-foreground hover:bg-secondary shadow-sm"
@@ -226,7 +226,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
               >
                 <Icon className="w-4 h-4" />
                 {label}
-              </motion.button>
+              </button>
             ))}
           </div>
 
@@ -302,22 +302,16 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         {isLoading ? (
           <LikesSkeleton />
         ) : filteredAndSorted.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {filteredAndSorted.map((property, index) => (
-              <motion.div
-                key={property.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, type: 'spring', stiffness: 200, damping: 25 }}
-                className="rounded-[2rem]"
-              >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 stagger-enter">
+            {filteredAndSorted.map((property) => (
+              <div key={property.id} className="rounded-[2rem]">
                 <PremiumLikedCard
                   type={property.target_type === 'profile' ? 'profile' : 'listing'}
                   isLight={isLight}
                   data={property}
                   onAction={(action) => handleAction(action, property)}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         ) : (

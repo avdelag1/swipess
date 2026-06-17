@@ -1,6 +1,5 @@
 import { Activity, Bike, Car, DollarSign, Eye, Home, TrendingUp } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface OwnerListingsStatsProps {
@@ -72,15 +71,9 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
   return (
     <div className="space-y-4">
       {/* Main Stats Grid */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.4 }}
-          >
-            <div className="relative rounded-[2.2rem] transition-all duration-300 overflow-hidden">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 stagger-enter">
+        {stats.map((stat) => (
+            <div key={stat.title} className="relative rounded-[2.2rem] overflow-hidden">
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -110,18 +103,12 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                 </div>
               </div>
             </div>
-          </motion.div>
         ))}
       </div>
 
       {/* Category Breakdown - Only show if there are listings */}
       {totalListings > 0 && categoryBreakdown.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.4 }}
-        >
-          <div className="rounded-[2.5rem] relative overflow-hidden">
+        <div className="rounded-[2.5rem] relative overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-4">
                 <h4 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? 'text-black opacity-50' : 'text-white opacity-50')}>Asset Breakdown</h4>
@@ -133,14 +120,11 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
 
               {/* Progress bar showing category distribution */}
               <div className={cn("h-1 rounded-full overflow-hidden flex", isLight ? 'bg-black/5' : 'bg-white/5')}>
-                {categoryBreakdown.map((cat, i) => (
-                  <motion.div
+                {categoryBreakdown.map((cat) => (
+                  <div
                     key={cat.name}
-                    className="h-full"
-                    style={{ backgroundColor: cat.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(cat.count / totalListings) * 100}%` }}
-                    transition={{ delay: 0.4 + i * 0.05, duration: 0.5 }}
+                    className="h-full transition-[width] duration-300 ease-out"
+                    style={{ backgroundColor: cat.color, width: `${(cat.count / totalListings) * 100}%` }}
                   />
                 ))}
               </div>
@@ -163,7 +147,6 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
               </div>
             </div>
           </div>
-        </motion.div>
       )}
     </div>
   );

@@ -1,9 +1,8 @@
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
-import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { useModalStore } from '@/state/modalStore';
@@ -29,13 +28,18 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, []);
 
   useEffect(() => {
-    if (user && !hasSeenOnboarding) {
-      setTimeout(() => {
-        setOnboardingActive(true);
-        setModal('showAIProfile', true);
-        markOnboardingSeen();
-      }, 1000);
+    if (!user || hasSeenOnboarding) return;
+    const run = () => {
+      setOnboardingActive(true);
+      setModal('showAIProfile', true);
+      markOnboardingSeen();
+    };
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(run, { timeout: 800 });
+      return () => window.cancelIdleCallback(id);
     }
+    const t = setTimeout(run, 400);
+    return () => clearTimeout(t);
   }, [user, hasSeenOnboarding, setOnboardingActive, setModal, markOnboardingSeen]);
 
   useEffect(() => {
@@ -43,23 +47,11 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     revealChrome();
   }, []);
 
-  const filterVersion = useFilterStore(s => s.filterVersion);
-  const filters = useMemo(
-    () => useFilterStore.getState().getListingFilters(),
-    [filterVersion]
-  );
-
-  // Pre-fetch listing data so the swipe deck is ready instantly
-  useSmartListingMatching(user?.id, [], filters, 0, 20, false);
-
   return (
     <div
       className={cn(
         "flex-1 flex flex-col relative w-full min-h-0 bg-swipe-frame"
       )}
-      style={{
-        willChange: 'transform',
-      }}
     >
       <AtmosphericLayer variant="Swipes" />
 

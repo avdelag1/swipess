@@ -706,6 +706,33 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  10b. SNAPPY PRESS — GPU-only tap feedback (no Framer Motion)         */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.press-snappy {
+  touch-action: manipulation;
+  transition: transform 70ms cubic-bezier(0.2, 0, 0, 1);
+  transform: translateZ(0);
+}
+
+.press-snappy:active {
+  transform: scale(0.96) translateZ(0);
+}
+
+.press-snappy-subtle:active {
+  transform: scale(0.98) translateZ(0);
+}
+
+.tab-snappy {
+  touch-action: manipulation;
+  transition: transform 70ms cubic-bezier(0.2, 0, 0, 1), background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.tab-snappy:active {
+  transform: scale(0.97);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  11. 2026 PAGE SPRING TRANSITIONS — STAGGER CHILDREN                 */
 /*                                                                       */
 /*  CSS-only stagger utility. Apply .stagger-enter to a container and   */

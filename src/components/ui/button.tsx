@@ -67,23 +67,21 @@ const buttonVariants = cva(
 );
 
 // ── SPRING ANIMATION CONFIGS ──────────────────────────────────────────────────
-// Elastic (wobbly) — for CTAs and primary actions
+// Snappy tween taps — faster perceived response than spring wobble
 const elasticTap = {
   scale: 0.94,
-  transition: { type: 'spring' as const, stiffness: 850, damping: 45, mass: 0.45 },
+  transition: { type: 'tween' as const, duration: 0.07, ease: [0.2, 0, 0, 1] as const },
 };
 
-// Subtle — for secondary / utility buttons
 const subtleTap = {
   scale: 0.96,
-  transition: { type: 'spring' as const, stiffness: 600, damping: 20, mass: 0.4 },
+  transition: { type: 'tween' as const, duration: 0.06, ease: [0.2, 0, 0, 1] as const },
 };
 
-// Hover lift — desktop only, adds energy to glass buttons
 const hoverLift = {
-  scale: 1.03,
+  scale: 1.02,
   y: -1,
-  transition: { type: 'spring' as const, stiffness: 400, damping: 18, mass: 0.5 },
+  transition: { type: 'tween' as const, duration: 0.12, ease: [0.2, 0, 0, 1] as const },
 };
 
 // ── RIPPLE TYPES ─────────────────────────────────────────────────────────

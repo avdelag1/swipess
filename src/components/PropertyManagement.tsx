@@ -1,4 +1,4 @@
-import { memo, Suspense, useEffect, useState } from 'react';
+import { memo, Suspense, useEffect, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,15 +15,36 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Bike, Briefcase, CheckCircle, ChevronRight, Edit, Eye, Home, ImageIcon, MapPin, Plus, Search, Share2, Sparkles, ThumbsUp, Trash2, Zap } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 const ListingPreviewDialog = lazyWithRetry(() => import('@/components/ListingPreviewDialog').then(m => ({ default: m.ListingPreviewDialog })));
-import { UnifiedListingForm } from '@/components/UnifiedListingForm';
+const UnifiedListingForm = lazyWithRetry(() => import('@/components/UnifiedListingForm').then(m => ({ default: m.UnifiedListingForm })));
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
+import { getCardImageUrl } from '@/utils/imageOptimization';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { useModalStore } from '@/state/modalStore';
 import { triggerHaptic } from '@/utils/haptics';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
+function ListingGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-[3rem] overflow-hidden border border-border/30 animate-pulse">
+          <div className="aspect-[16/10] bg-muted/30" />
+          <div className="p-8 space-y-4">
+            <div className="h-6 bg-muted/30 rounded-xl w-3/4" />
+            <div className="h-4 bg-muted/20 rounded-lg w-1/2" />
+            <div className="grid grid-cols-4 gap-3 pt-4">
+              {Array.from({ length: 4 }).map((__, j) => (
+                <div key={j} className="h-20 bg-muted/20 rounded-2xl" />
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface PropertyManagementProps {
   initialCategory?: string | null;
@@ -43,8 +64,17 @@ const getCategoryColor = (category: string) => {
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user: _user } = useAuth();
   const { isLight } = useAppTheme();
-  const { data: listings = [], isLoading } = useOwnerListings();
+  const { data: listings = [], isLoading, isFetching } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
+  const showSkeleton = isLoading && listings.length === 0;
+
+  const likeCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of listingsWithLikes) {
+      map.set(item.id, item.likeCount ?? 0);
+    }
+    return map;
+  }, [listingsWithLikes]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState(initialCategory || 'all');
   const [viewingProperty, setViewingProperty] = useState<Listing | null>(null);
@@ -88,8 +118,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     else if (activeTab === 'bicycle') matchesCategory = listing.category === 'bicycle';
     else if (activeTab === 'worker') matchesCategory = listing.category === 'worker' || listing.category === 'services';
     else if (activeTab === 'liked') {
-      const likedListing = listingsWithLikes.find(l => l.id === listing.id);
-      matchesCategory = !!(likedListing && likedListing.likeCount > 0);
+      matchesCategory = (likeCountMap.get(listing.id) ?? 0) > 0;
     }
     else if (activeTab === 'active') matchesCategory = listing.status === 'active';
     else if (activeTab === 'rented') matchesCategory = listing.status === 'rented';
@@ -227,15 +256,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     { id: 'rented', label: 'Rented', icon: Home, count: listings.filter(l => l.status === 'rented').length },
   ];
 
-  if (isLoading) {
-    return (
-      <div className={cn("w-full transition-colors duration-500 min-h-[50vh] flex flex-col items-center justify-center gap-6", isLight ? "bg-white" : "bg-black")}>
-          <div className="w-16 h-16 border-t-2 border-indigo-500 rounded-full animate-spin shadow-2xl" />
-          <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-70", isLight ? "text-black" : "text-white")}>Synchronizing Listings...</p>
-      </div>
-    );
-  }
-
   return (
     <div className={cn("w-full transition-colors duration-500", "bg-background")}>
       
@@ -248,11 +268,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       <div className="pb-32 space-y-12 w-full relative z-10">
         
         {/* 🛸 ASSET TERMINAL HEADER */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b border-white/5"
-        >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
           <div className="flex items-center gap-6">
             <div className="p-5 rounded-[1.4rem] bg-indigo-500/10 border border-indigo-500/20 shadow-2xl">
               <Zap className="w-8 h-8 text-indigo-500" />
@@ -265,12 +281,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
           <button
             onClick={handleAddProperty}
-            className="h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] active:scale-95 transition-all text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
+            className="press-snappy h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
           >
             <Plus className="w-5 h-5 mr-2" />
             Deploy Asset
           </button>
-        </motion.div>
+        </div>
 
         {/* 🛸 STATISTICS HUD */}
         <div className="px-6">
@@ -298,7 +314,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         <button
                             key={tab.id}
                             onClick={() => { triggerHaptic('light'); setActiveTab(tab.id); }}
-                            className="flex-none flex items-center gap-2 px-5 h-11 rounded-[2rem] transition-all whitespace-nowrap font-black uppercase tracking-widest italic text-[11px]"
+                            className="tab-snappy flex-none flex items-center gap-2 px-5 h-11 rounded-[2rem] whitespace-nowrap font-black uppercase tracking-widest italic text-[11px]"
                             style={activeTab === tab.id ? {
                             backgroundColor: '#E4007C',
                             color: 'white',
@@ -318,23 +334,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </div>
 
         {/* 🛸 LISTINGS GRID */}
-        <AnimatePresence mode="wait">
-          {filteredListings.length > 0 ? (
-            <motion.div
-              key="listings"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-6"
-            >
-              {filteredListings.map((listing, index) => (
-                <motion.div
-                  key={listing.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="group"
-                >
+        {showSkeleton ? (
+          <ListingGridSkeleton />
+        ) : filteredListings.length > 0 ? (
+            <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-6 stagger-enter">
+              {filteredListings.map((listing) => (
+                <div key={listing.id} className="group">
                   <div className={cn(
                     "overflow-hidden rounded-[3rem] transition-all border shadow-2xl hover:shadow-3xl group-hover:-translate-y-2",
                     isLight
@@ -345,9 +350,11 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     <div className={cn("relative aspect-[16/10] overflow-hidden", isLight ? 'bg-black/5' : 'bg-white/5')}>
                       {listing.images && listing.images.length > 0 ? (
                         <img
-                          src={listing.images[0]}
+                          src={getCardImageUrl(listing.images[0])}
                           alt={listing.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
@@ -366,20 +373,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* 🛸 LIKE TELEMETRY */}
-                      {(() => {
-                        const likedListing = listingsWithLikes.find(l => l.id === listing.id);
-                        if (likedListing && likedListing.likeCount > 0) {
-                          return (
+                      {(likeCountMap.get(listing.id) ?? 0) > 0 && (
                             <div className="absolute top-6 right-6">
                               <Badge className="bg-indigo-500/90 text-white text-[9px] font-black uppercase tracking-widest gap-2 px-3 py-1 backdrop-blur-xl">
                                 <ThumbsUp className="w-3 h-3 fill-current" />
-                                {likedListing.likeCount} LIKES
+                                {likeCountMap.get(listing.id)} LIKES
                               </Badge>
                             </div>
-                          );
-                        }
-                        return null;
-                      })()}
+                      )}
 
                       {/* 🛸 VALUATION */}
                       <div className="absolute bottom-6 left-6">
@@ -440,10 +441,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
                       {/* 🛸 ACTION TERMINAL */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-black/5 dark:border-white/5">
-                        <motion.button
-                          whileTap={{ scale: 0.94 }}
+                        <button
+                          type="button"
                           className={cn(
-                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl transition-all border group/btn shadow-sm",
+                            "press-snappy flex flex-col items-center justify-center gap-2 h-20 rounded-2xl border group/btn shadow-sm",
                             isLight 
                               ? "bg-white border-black/5 text-black hover:bg-black/[0.02]" 
                               : "bg-white/5 border-white/5 text-white hover:bg-white/8"
@@ -452,41 +453,35 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         >
                           <Eye className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 group-hover/btn:opacity-60">View</span>
-                        </motion.button>
+                        </button>
 
-                        <motion.button
-                          whileTap={{ scale: 0.94 }}
-                          className={cn(
-                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-white/5 border border-white/10 text-foreground transition-all hover:bg-white/10 group/btn"
-                          )}
+                        <button
+                          type="button"
+                          className="press-snappy flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-white/5 border border-white/10 text-foreground hover:bg-white/10 group/btn"
                           onClick={() => handleShareListing(listing)}
                         >
                           <Share2 className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Share</span>
-                        </motion.button>
+                        </button>
 
-                        <motion.button
-                          whileTap={{ scale: 0.94 }}
-                          className={cn(
-                            "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/10 text-[#EB4898] transition-all hover:bg-[#EB4898]/10 group/btn"
-                          )}
+                        <button
+                          type="button"
+                          className="press-snappy flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-[#EB4898]/5 border border-[#EB4898]/10 text-[#EB4898] hover:bg-[#EB4898]/10 group/btn"
                           onClick={() => handleEditProperty(listing)}
                         >
                           <Edit className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
                           <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Edit</span>
-                        </motion.button>
+                        </button>
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <motion.button
-                              whileTap={{ scale: 0.94 }}
-                              className={cn(
-                                "flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-rose-500/5 border border-rose-500/10 text-rose-500 transition-all hover:bg-rose-500/10 group/btn"
-                              )}
+                            <button
+                              type="button"
+                              className="press-snappy flex flex-col items-center justify-center gap-2 h-20 rounded-2xl bg-rose-500/5 border border-rose-500/10 text-rose-500 hover:bg-rose-500/10 group/btn"
                             >
                               <Trash2 className="w-6 h-6 opacity-60 group-hover/btn:opacity-100" />
                               <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Purge</span>
-                            </motion.button>
+                            </button>
                           </AlertDialogTrigger>
                           <AlertDialogContent className={cn(
                             "rounded-[3rem] border shadow-3xl p-10 backdrop-blur-3xl",
@@ -512,14 +507,11 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
                     </CardContent>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <div
               className={cn(
                 "flex flex-col items-center justify-center py-32 text-center backdrop-blur-3xl",
                 isLight ? "bg-black/[0.01]" : "bg-white/[0.01]"
@@ -546,7 +538,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               {!searchTerm && (
                 <button
                   onClick={handleAddProperty}
-                  className="h-18 px-12 rounded-[2rem] bg-rose-600 hover:bg-rose-700 font-black uppercase italic tracking-[0.2em] text-white transition-all active:scale-95 shadow-[0_20px_60px_rgba(225,29,72,0.4)]"
+                  className="press-snappy h-18 px-12 rounded-[2rem] bg-rose-600 hover:bg-rose-700 font-black uppercase italic tracking-[0.2em] text-white shadow-[0_20px_60px_rgba(225,29,72,0.4)]"
                 >
                   <span className="flex items-center gap-3">
                     <Plus className="w-6 h-6" />
@@ -554,9 +546,11 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                   </span>
                 </button>
               )}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        {isFetching && !showSkeleton && (
+          <p className="text-center text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/50 px-6">Refreshing…</p>
+        )}
       </div>
 
       {/* 🛸 DIALOGS */}
@@ -575,14 +569,18 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         onAIOpen={() => useModalStore.getState().openAIListing()}
       /></Suspense>
 
-      <UnifiedListingForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingProperty(null);
-        }}
-        editingProperty={editingProperty as any ?? undefined}
-      />
+      {isFormOpen && (
+        <Suspense fallback={null}>
+          <UnifiedListingForm
+            isOpen={isFormOpen}
+            onClose={() => {
+              setIsFormOpen(false);
+              setEditingProperty(null);
+            }}
+            editingProperty={editingProperty as any ?? undefined}
+          />
+        </Suspense>
+      )}
 
       <Suspense fallback={null}><ShareDialog
         open={showShareDialog}
