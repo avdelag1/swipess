@@ -5,6 +5,7 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
+import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 

@@ -6,6 +6,8 @@ import { ThemeContext } from '@/hooks/useAppTheme';
 import { useContext } from 'react';
 
 import { triggerHaptic } from '@/utils/haptics';
+import { useLocation } from 'react-router-dom';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 type Theme = 'light' | 'dark';
 
@@ -22,8 +24,8 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
     const setTheme = themeContext?.setTheme ?? (() => {});
 
     const isLight = theme === 'light';
-    // Follow theme globally
-    const iconColor = !isLight ? '#FFFFFF' : '#0A0A0A';
+    const location = useLocation();
+    const { iconColor, iconShadow } = getHeaderChrome(isLight, isDashboardPath(location.pathname) || isLight);
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -35,9 +37,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor }} />
+            <Sun strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor, filter: iconShadow }} />
         ) : (
-            <Moon strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor }} />
+            <Moon strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor, filter: iconShadow }} />
         );
 
 

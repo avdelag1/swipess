@@ -18,7 +18,7 @@ import { guardNewConversation, handleStartConversationError } from '@/utils/mess
 import { useMemo, useState } from 'react';
 import useAppTheme from '@/hooks/useAppTheme';
 // import { } from '@/utils/prodLogger';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -164,18 +164,15 @@ export default function OwnerViewClientProfile() {
 
 
   return (
-    <div
+    <AmbientPageBackground
       className={cn(
         "min-h-screen overflow-x-hidden relative selection:bg-primary/30",
         isLight ? "bg-background text-foreground" : "bg-[#020202] text-white",
       )}
     >
-      {!isLight && <AtmosphericLayer variant="Swipes" opacity={0.15} />}
-      
-      {/* ðŸ›¸ Swipes HEADER */}
       <div className={cn(
-        "sticky top-[var(--top-bar-height)] z-50 backdrop-blur-3xl border-b",
-        isLight ? "bg-background/70 border-border/60" : "bg-black/40 border-white/5",
+        "sticky top-[var(--top-bar-height)] z-50 border-b",
+        isLight ? "bg-background/80 border-border/60" : "bg-black/40 border-white/5",
       )}>
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
@@ -202,9 +199,10 @@ export default function OwnerViewClientProfile() {
       <div className="container max-w-[440px] mx-auto px-4 pt-6 pb-40 space-y-6 relative z-10">
         
         {/* ðŸ’Ž PROFILE HERO CARD */}
-        <div className="p-6 rounded-[2.5rem] bg-zinc-950/40 backdrop-blur-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF4D00]/10 rounded-full blur-3xl -translate-y-32 translate-x-32" />
-          
+        <div className={cn(
+          "p-6 rounded-[2.5rem] border relative overflow-hidden group",
+          isLight ? "surface-section" : "bg-zinc-950/40 border-white/10 shadow-xl",
+        )}>
           <div className="space-y-6 relative z-10">
             <div className="flex items-start justify-between">
               <div className="space-y-1.5">
@@ -313,7 +311,7 @@ export default function OwnerViewClientProfile() {
           
           <div className="space-y-3">
             <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4D00]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shadow-lg">
@@ -363,7 +361,7 @@ export default function OwnerViewClientProfile() {
               {/* Property Intent */}
               {preferences.interested_in_properties && (
                 <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#EB4898]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
                       <Home className="w-7 h-7 text-[#EB4898]" />
@@ -394,7 +392,7 @@ export default function OwnerViewClientProfile() {
               {/* Vehicle Intent */}
               {preferences.interested_in_motorcycles && (
                 <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4D00]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+    
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20 shadow-lg">
                       <Car className="w-7 h-7 text-[#FF4D00]" />
@@ -418,7 +416,7 @@ export default function OwnerViewClientProfile() {
               {/* Yacht Intent */}
               {preferences.interested_in_yachts && (
                 <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#EB4898]/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
+
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
                       <Ship className="w-7 h-7 text-[#EB4898]" />
@@ -449,7 +447,7 @@ export default function OwnerViewClientProfile() {
                ? "bg-[#FF4D00]/10 border-[#FF4D00]/20"
                : "bg-zinc-950/40 border-white/10"
            )}>
-              <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] -translate-y-24 translate-x-12" />
+
               <div className="flex items-center gap-5 mb-5 relative z-10">
                 <div className={cn(
                   "w-14 h-14 rounded-[24px] flex items-center justify-center shadow-2xl transform -rotate-3 transition-colors",
@@ -521,6 +519,6 @@ export default function OwnerViewClientProfile() {
         isOpen={isConnecting}
         recipientName={client.full_name || 'Client'}
       />
-    </div>
+    </AmbientPageBackground>
   );
 }

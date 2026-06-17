@@ -17,6 +17,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { PageHeader } from '@/components/PageHeader';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { NotificationListSkeleton } from '@/components/ui/ContentSkeleton';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 
 const TYPE_MAP: Record<string, string> = {
   new_like: 'like',
@@ -103,7 +104,7 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className={cn(
+    <AmbientPageBackground className={cn(
       "w-full pb-20 min-h-screen page-canvas",
       isDark ? "bg-[#0a0a0c]" : "bg-background"
     )}>
@@ -193,7 +194,7 @@ const NotificationsPage = () => {
           )}
         </div>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 };
 

@@ -23,6 +23,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 // Notification type configurations for visual consistency
 
@@ -285,9 +286,8 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
     navigate('/notifications');
   }, [navigate]);
 
-  // Follow theme globally
-  const _isDashboard = /^\/(client|owner|admin)\/dashboard\/?/.test(_location.pathname);
-  const _bellColor = !isLight ? '#FFFFFF' : '#0A0A0A';
+  const isDashboard = isDashboardPath(_location.pathname);
+  const { iconColor: bellColor, iconShadow } = getHeaderChrome(isLight, isDashboard || isLight);
   const triggerButton = children || (
     <Button
       variant="ghost"
@@ -311,7 +311,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
             "h-[20px] w-[20px] transition-colors duration-150",
             "opacity-90 group-hover:opacity-100"
           )}
-          style={{ color: _bellColor }}
+          style={{ color: bellColor, filter: iconShadow }}
         />
         {/* Notification badge */}
         <AnimatePresence>

@@ -3,6 +3,7 @@ import { memo, Suspense, useEffect, useState } from 'react';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
+import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { AIListingWizard } from '@/components/AIListingWizard';
 import { useModalStore } from '@/state/modalStore';
@@ -80,6 +81,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   useEffect(() => {
     let cancelled = false;
     prefetchListingFlowModule();
+    prefetchCommonModalsModule();
     prefetchConciergeChatModule().then(() => {
       if (!cancelled) setConciergeChunkReady(true);
     });
@@ -124,7 +126,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
   return (
     <>
-      <DeferredDialog when={store.showFilters}>
+      <DeferredDialog when={store.showFilters} keepMounted threshold={0}>
         <AdvancedFiltersDialog
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
@@ -254,7 +256,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
       {/* Property insights — shared across roles so map listing taps always open
           (the map's pins exist for clients and owners alike). */}
-      <DeferredDialog when={store.showPropertyInsights}>
+      <DeferredDialog when={store.showPropertyInsights} keepMounted threshold={0}>
         <SwipeInsightsModal
           open={store.showPropertyInsights}
           onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}

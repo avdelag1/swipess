@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
+import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +46,7 @@ import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { getNavMotionId, MotionIcon } from '@/components/ui/MotionIcon';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 const ICON_SIZE = 26;
 
@@ -261,9 +263,8 @@ export const BottomNavigation = memo(({
 
 
 
-  const isDashboard = location.pathname.includes('/dashboard');
-  const useLightIcons = isDashboard || true;
-  const baseColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
+  const isDashboard = isDashboardPath(location.pathname);
+  const { useLightIcons, iconColor: baseColor, inactiveIconColor } = getHeaderChrome(isLight, isDashboard || isLight);
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
     : 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))';
@@ -341,6 +342,7 @@ export const BottomNavigation = memo(({
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   if (item.id === 'add') prefetchListingFlowModule();
+                  if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
                   handlePointerDown(e);
                 }}
                 onPointerMove={handlePointerMove}
@@ -405,7 +407,7 @@ export const BottomNavigation = memo(({
                         style={{
                           width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : 'rgba(255,255,255,0.6)'),
+                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                           fill: 'none',
                           strokeWidth: active ? 2.0 : 1.4,
                           filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
@@ -434,7 +436,7 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[12px]' : 'text-[10px]',
                       )}
                       style={{
-                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : 'rgba(255,255,255,0.6)'),
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                         textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : undefined,
                         transition: 'color 120ms ease-out',
                         zIndex: 1,

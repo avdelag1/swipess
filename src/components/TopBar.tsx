@@ -15,6 +15,7 @@ import { useModalStore } from '@/state/modalStore';
 import { useTokens } from '@/hooks/useTokens';
 import { useFilterStore } from '@/state/filterStore';
 import { getParentRoute } from '@/utils/sectionNavigation';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -59,9 +60,8 @@ function TopBarComponent({
   const { t } = useTranslation();
 
   const isActuallyVisible = true;
-  const isDashboard = location.pathname.includes('/dashboard');
-  const useLightIcons = isDashboard || !isLight;
-  const iconColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
+  const isDashboard = isDashboardPath(location.pathname);
+  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getHeaderChrome(isLight, isDashboard || isLight);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
@@ -71,26 +71,6 @@ function TopBarComponent({
       ? () => { useFilterStore.getState().setActiveCategory(null as any); navigate('/client/dashboard'); }
       : (showBack ? () => navigate(getParentRoute(location.pathname) ?? '/client/dashboard') : undefined)
   );
-
-  const glassPillStyle: React.CSSProperties = {
-    background: isLight ? (isDashboard ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') : 'transparent',
-    border: 'none',
-    boxShadow: 'none',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
-    borderRadius: '9999px',
-    pointerEvents: 'auto',
-    color: 'hsl(var(--foreground))',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1)',
-    overflow: 'visible',
-  };
-
-  const iconShadow = useLightIcons
-    ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))'
-    : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))';
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],

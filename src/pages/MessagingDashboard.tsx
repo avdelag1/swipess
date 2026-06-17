@@ -42,7 +42,7 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { appToast } from '@/utils/appNotification';
@@ -231,9 +231,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className="w-full min-h-[100dvh] bg-background transition-colors duration-200 relative">
-      <AtmosphericLayer variant="rose" />
-
+    <AmbientPageBackground className="w-full min-h-[100dvh] bg-background transition-colors duration-200">
       <div 
         className="w-full max-w-7xl mx-auto px-6 pb-24 relative z-10 space-y-6"
         style={{
@@ -445,6 +443,6 @@ export function MessagingDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AmbientPageBackground>
   );
 }

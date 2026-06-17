@@ -243,6 +243,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const showAppChrome = !isSubscriptionRoute && !isAuthRoute && !isRadioRoute && !isCameraRoute && !showAIListing && !showAIProfile && !isEventsRoute && !isDirectChat && (!isPublicPreview || !!user);
 
   const handleFilterClick = () => {
+    import('@/utils/prefetchCommonModals').then((m) => m.prefetchCommonModalsModule());
     if (isRoommatesRoute) {
       useModalStore.getState().setModal('showFilters', true);
     } else {

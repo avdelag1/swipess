@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { PropertyManagement } from "@/components/PropertyManagement";
 import { useLocation, useSearchParams } from "react-router-dom";
 // import { } from "framer-motion";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 
 const OwnerProperties = () => {
   const [searchParams] = useSearchParams();
@@ -29,10 +29,9 @@ const OwnerProperties = () => {
   }, [searchParams, location.hash]);
 
   return (
-    <div className="w-full bg-background pb-32 min-h-screen">
-      <AtmosphericLayer variant="primary" />
+    <AmbientPageBackground className="w-full bg-background pb-32 min-h-screen">
       <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
-    </div>
+    </AmbientPageBackground>
   );
 };
 
