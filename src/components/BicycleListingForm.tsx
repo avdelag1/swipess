@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
+import { AITextarea } from '@/components/ui/AITextarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -124,7 +124,23 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
           <FormLabel>Listing Title</FormLabel>
           <Input {...register('title')} placeholder="e.g., 2022 Specialized Turbo Levo" />
         </div>
-        {/* Description is auto-generated from selected attributes — no freeform text. */}
+        <div>
+          <FormLabel>Description</FormLabel>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <AITextarea
+                value={field.value || ''}
+                onChange={field.onChange}
+                enhanceType="listing"
+                placeholder="Condition, upgrades, size fit, what it's great for. Tap AI to polish it."
+                maxLength={800}
+                rows={4}
+              />
+            )}
+          />
+        </div>
         <div>
           <FormLabel>Bicycle Type</FormLabel>
           <Controller

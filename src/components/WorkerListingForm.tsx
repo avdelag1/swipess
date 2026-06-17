@@ -2,6 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { AITextarea } from '@/components/ui/AITextarea';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -279,6 +280,24 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         <div>
           <FormLabel>Service Title</FormLabel>
           <Input {...register('title')} placeholder="e.g., Experienced Yoga Instructor" />
+        </div>
+
+        <div>
+          <FormLabel>About your service</FormLabel>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <AITextarea
+                value={field.value || ''}
+                onChange={field.onChange}
+                enhanceType="listing"
+                placeholder="Describe your experience, what you offer, and why clients should pick you. Tap AI to polish it."
+                maxLength={800}
+                rows={4}
+              />
+            )}
+          />
         </div>
       </Section>
 

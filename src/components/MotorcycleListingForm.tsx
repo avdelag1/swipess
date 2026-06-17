@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// import { } from '@/components/ui/textarea';
+import { AITextarea } from '@/components/ui/AITextarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -104,7 +104,23 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
           <FormLabel>Listing Title</FormLabel>
           <Input id="title" {...register('title')} placeholder="e.g., 2021 Yamaha MT-07" />
         </div>
-        {/* Description is auto-generated from selected attributes — no freeform text. */}
+        <div>
+          <FormLabel>Description</FormLabel>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <AITextarea
+                value={field.value || ''}
+                onChange={field.onChange}
+                enhanceType="listing"
+                placeholder="Condition, service history, mods, why riders will love it. Tap AI to polish it."
+                maxLength={800}
+                rows={4}
+              />
+            )}
+          />
+        </div>
         <div>
           <FormLabel>Motorcycle Type</FormLabel>
           <Controller
