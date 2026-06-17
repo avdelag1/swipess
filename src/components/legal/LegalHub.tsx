@@ -489,16 +489,16 @@ export function ContractsVault() {
   return (
     <div className={cn(
       "relative w-full backdrop-blur-3xl rounded-[3rem] border shadow-2xl transition-colors duration-500",
-      isLight ? "bg-white/80 border-black/5" : "bg-black/50 border-white/10"
+      isLight ? "bg-white/80 border-slate-200" : "bg-black/50 border-white/10"
     )}>
       {/* 🛸 BACKGROUND DECOR */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
       {/* 🛸 HEADER */}
-      <div className={cn("relative z-10 p-8 flex items-center justify-between border-b", isLight ? "border-black/5" : "border-white/5")}>
+      <div className={cn("relative z-10 p-8 flex items-center justify-between border-b", isLight ? "border-slate-200" : "border-white/5")}>
         <div className="flex items-center gap-4">
-          <div className={cn("w-12 h-12 rounded-2xl border flex items-center justify-center", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+          <div className={cn("w-12 h-12 rounded-2xl border flex items-center justify-center", isLight ? "bg-black/5 border-slate-200" : "bg-white/5 border-white/10")}>
             <ShieldCheck className="w-6 h-6 text-primary" />
           </div>
           <div>
@@ -536,7 +536,7 @@ export function ContractsVault() {
                   <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">New Lease / Contract</span>
                 </Button>
 
-                <div className={cn("p-10 rounded-[2.5rem] border flex flex-col justify-between", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/5 border-white/10")}>
+                <div className={cn("p-10 rounded-[2.5rem] border flex flex-col justify-between", isLight ? "bg-black/[0.03] border-slate-200" : "bg-white/5 border-white/10")}>
                   <div>
                     <h4 className={cn("text-[10px] font-black uppercase tracking-widest opacity-70 mb-2", isLight ? "text-black" : "text-white")}>Awaiting Signature</h4>
                     <p className={cn("text-5xl font-black italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
@@ -573,11 +573,11 @@ export function ContractsVault() {
                       transition={{ delay: i * 0.1 }}
                       className={cn(
                         "group p-6 rounded-[2.5rem] border transition-all flex items-center justify-between",
-                        isLight ? "bg-black/[0.03] border-black/5 hover:bg-black/[0.05]" : "bg-white/[0.03] border-white/5 hover:border-primary/20"
+                        isLight ? "bg-black/[0.03] border-slate-200 hover:bg-black/[0.05]" : "bg-white/[0.03] border-white/5 hover:border-primary/20"
                       )}
                     >
                       <div className="flex items-center gap-6">
-                        <div className={cn("w-16 h-16 rounded-[1.2rem] border flex items-center justify-center transition-colors", isLight ? "bg-black/5 border-black/5 group-hover:bg-primary/10 group-hover:border-primary/20" : "bg-white/5 border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20")}>
+                        <div className={cn("w-16 h-16 rounded-[1.2rem] border flex items-center justify-center transition-colors", isLight ? "bg-black/5 border-slate-200 group-hover:bg-primary/10 group-hover:border-primary/20" : "bg-white/5 border-white/10 group-hover:bg-primary/10 group-hover:border-primary/20")}>
                           <FileText className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/40" : "text-white/70")} />
                         </div>
                         <div className="space-y-1.5">
@@ -601,7 +601,7 @@ export function ContractsVault() {
                           type="button"
                           onClick={() => handleDownloadContractPDF(contract)}
                           title="Download PDF"
-                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
+                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-slate-200 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
                         >
                           <Printer className="w-4 h-4" />
                         </button>
@@ -609,7 +609,7 @@ export function ContractsVault() {
                           type="button"
                           onClick={() => handleDownloadContractWord(contract)}
                           title="Download Word"
-                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
+                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-slate-200 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
                         >
                           <FileDown className="w-4 h-4" />
                         </button>
@@ -692,11 +692,11 @@ export function ContractsVault() {
                         onClick={() => handleSelectTemplate(template)}
                         className={cn(
                           "group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden active:scale-[0.98]",
-                          isLight ? "bg-black/[0.03] border-black/5 hover:border-primary/40" : "bg-white/[0.03] border-white/5 hover:border-primary/40",
+                          isLight ? "bg-black/[0.03] border-slate-200 hover:border-primary/40" : "bg-white/[0.03] border-white/5 hover:border-primary/40",
                         )}
                       >
                         <div className="relative flex items-center gap-6">
-                          <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+                          <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-black/5 border-slate-200" : "bg-white/5 border-white/10")}>
                             <PenTool className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/10" : "text-white/20")} />
                           </div>
                           <div className="flex-1 space-y-1">
@@ -721,7 +721,7 @@ export function ContractsVault() {
               className="space-y-6"
             >
               {/* Document meta */}
-              <div className={cn("p-8 rounded-[2.5rem] border space-y-8", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+              <div className={cn("p-8 rounded-[2.5rem] border space-y-8", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                 <div className="flex items-center gap-3">
                   <PenLine className="w-5 h-5 text-primary" />
                   <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Document Details</span>
@@ -734,25 +734,25 @@ export function ContractsVault() {
                       type="text"
                       value={draftTitle}
                       onChange={(e) => setDraftTitle(e.target.value)}
-                      className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none transition-all font-black uppercase tracking-widest", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")}
+                      className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none transition-all font-black uppercase tracking-widest", isLight ? "bg-black/[0.04] border-slate-200 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")}
                     />
                   </div>
 
                   <div className="space-y-3">
                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Effective Date</label>
-                    <input type="date" value={draftEffectiveDate} onChange={(e) => setDraftEffectiveDate(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                    <input type="date" value={draftEffectiveDate} onChange={(e) => setDraftEffectiveDate(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-slate-200 text-black" : "bg-white/5 border-white/10 text-white")} />
                   </div>
 
                   {selectedTemplate?.category === 'lease' && (
                     <div className="space-y-3">
                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Monthly Value</label>
-                      <input type="number" placeholder="$0.00" value={draftMonthlyValue} onChange={(e) => setDraftMonthlyValue(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                      <input type="number" placeholder="$0.00" value={draftMonthlyValue} onChange={(e) => setDraftMonthlyValue(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-slate-200 text-black" : "bg-white/5 border-white/10 text-white")} />
                     </div>
                   )}
 
                   <div className="space-y-3 col-span-full">
                     <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Other Party — name or email <span className="opacity-50">(optional)</span></label>
-                    <input type="text" placeholder="e.g. Jane Doe or jane@email.com" value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")} />
+                    <input type="text" placeholder="e.g. Jane Doe or jane@email.com" value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-slate-200 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")} />
                   </div>
                 </div>
 
@@ -765,7 +765,7 @@ export function ContractsVault() {
               </div>
 
               {/* Quick Fill — pre-populate document blanks */}
-              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                 <button
                   type="button"
                   onClick={() => setQuickFillOpen(o => !o)}
@@ -792,7 +792,7 @@ export function ContractsVault() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className={cn("px-8 pb-8 space-y-6 border-t", isLight ? "border-black/5" : "border-white/5")}>
+                      <div className={cn("px-8 pb-8 space-y-6 border-t", isLight ? "border-slate-200" : "border-white/5")}>
                         <p className={cn("text-[10px] font-bold italic opacity-50 pt-5", isLight ? "text-black" : "text-white")}>
                           Fill the fields below then tap "Apply to Document" — blanks in the template will be populated automatically. You can still edit freely afterward.
                         </p>
@@ -806,7 +806,7 @@ export function ContractsVault() {
                                 placeholder={variable.placeholder}
                                 value={quickFillValues[variable.key] ?? ''}
                                 onChange={(e) => setQuickFillValues(prev => ({ ...prev, [variable.key]: e.target.value }))}
-                                className={cn("w-full h-12 rounded-xl border px-4 text-sm outline-none transition-all", isLight ? "bg-black/[0.04] border-black/5 text-black placeholder:opacity-30 focus:border-primary" : "bg-white/5 border-white/10 text-white placeholder:opacity-30 focus:border-primary")}
+                                className={cn("w-full h-12 rounded-xl border px-4 text-sm outline-none transition-all", isLight ? "bg-black/[0.04] border-slate-200 text-black placeholder:opacity-30 focus:border-primary" : "bg-white/5 border-white/10 text-white placeholder:opacity-30 focus:border-primary")}
                               />
                             </div>
                           ))}
@@ -827,9 +827,9 @@ export function ContractsVault() {
               </div>
 
               {/* Editable document */}
-              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                 {/* Toolbar row 1: formatting */}
-                <div className={cn("px-5 py-3.5 border-b space-y-3", isLight ? "border-black/5" : "border-white/5")}>
+                <div className={cn("px-5 py-3.5 border-b space-y-3", isLight ? "border-slate-200" : "border-white/5")}>
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
                     <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Document editor — tap anywhere to edit</span>
@@ -905,7 +905,7 @@ export function ContractsVault() {
                 <button
                   type="button"
                   onClick={handleDownloadPDF}
-                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-black/5 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
+                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-slate-200 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
                 >
                   <Printer className="w-4 h-4" />
                   Download PDF
@@ -913,7 +913,7 @@ export function ContractsVault() {
                 <button
                   type="button"
                   onClick={handleDownloadWord}
-                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-black/5 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
+                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-slate-200 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
                 >
                   <FileDown className="w-4 h-4" />
                   Download Word
@@ -930,7 +930,7 @@ export function ContractsVault() {
               className="space-y-10"
             >
               {/* Document preview */}
-              <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[360px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+              <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[360px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-slate-200" : "bg-white/5 border-white/10")}>
                 <div className={cn("prose max-w-none font-medium italic text-[13px] leading-relaxed", isLight ? "prose-slate" : "prose-invert")}>
                   <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(activeContract?.content || selectedTemplate?.content || '') }} />
                 </div>
@@ -947,7 +947,7 @@ export function ContractsVault() {
                     downloadAsPDF(sanitizeHTML(content), title);
                     triggerHaptic('light');
                   }}
-                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
+                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-slate-200 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
                 >
                   <Printer className="w-3.5 h-3.5" />Download PDF
                 </button>
@@ -959,7 +959,7 @@ export function ContractsVault() {
                     downloadAsWord(sanitizeHTML(content), title);
                     triggerHaptic('light');
                   }}
-                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
+                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-slate-200 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
                 >
                   <FileDown className="w-3.5 h-3.5" />Download Word
                 </button>
@@ -973,13 +973,13 @@ export function ContractsVault() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 px-2">
-                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                   <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-50 mb-1", isLight ? "text-black" : "text-white")}>Landlord</p>
                   <p className={cn("text-xs font-bold", activeContract?.owner_signature ? "text-primary" : "opacity-40", isLight ? "text-black" : "text-white")}>
                     {activeContract?.owner_signature ? 'Signed ✓' : 'Pending'}
                   </p>
                 </div>
-                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                   <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-50 mb-1", isLight ? "text-black" : "text-white")}>Tenant</p>
                   <p className={cn("text-xs font-bold", activeContract?.client_signature ? "text-primary" : "opacity-40", isLight ? "text-black" : "text-white")}>
                     {activeContract?.client_signature ? 'Signed ✓' : 'Pending'}

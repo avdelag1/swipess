@@ -177,7 +177,7 @@ export default function OwnerViewClientProfile() {
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all active:scale-90"
+            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/5 border border-slate-200 text-black/40 hover:bg-black/10 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -189,7 +189,7 @@ export default function OwnerViewClientProfile() {
 
           <button 
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all active:scale-90"
+            className={cn("w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90", isLight ? "bg-black/5 border border-slate-200 text-black/40 hover:bg-black/10 hover:text-black" : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white")}
           >
             <X className="w-5 h-5" />
           </button>
@@ -211,19 +211,19 @@ export default function OwnerViewClientProfile() {
                 </h1>
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#FF4D00]" />
-                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">
+                  <p className={cn("text-[11px] font-bold uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/40")}>
                     {client.age ? `${client.age} · ` : ''}{client.city || 'Swipes Sector'}
                   </p>
                 </div>
               </div>
               
               <div className="flex flex-col items-end gap-3">
-                <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                <div className={cn("w-20 h-20 rounded-[28px] overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform cursor-pointer border", isLight ? "bg-black/5 border-slate-200" : "bg-white/5 border-white/10")}>
                   {Array.isArray((client as any).images) && (client as any).images[0] ? (
                     <img src={(client as any).images[0]} alt={(client as any).full_name || 'Client profile photo'} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-white/[0.02]">
-                      <User className="w-8 h-8 text-white/10" />
+                    <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/5" : "bg-white/[0.02]")}>
+                      <User className={cn("w-8 h-8", isLight ? "text-black/20" : "text-white/10")} />
                     </div>
                   )}
                 </div>
@@ -234,7 +234,7 @@ export default function OwnerViewClientProfile() {
             </div>
 
             <div className="flex items-center gap-3">
-               <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-white/10 flex items-center gap-2 shadow-lg backdrop-blur-xl">
+               <div className={cn("px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-lg", isLight ? "bg-black/5 border border-slate-200" : "bg-black/60 border border-white/10 backdrop-blur-xl")}>
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
                 {(client as any).verified && (
@@ -249,16 +249,16 @@ export default function OwnerViewClientProfile() {
 
         {/* 📝 ABOUT + LOOKING FOR — what the client wrote and what they want */}
         {((client as any).bio || (Array.isArray((client as any).intentions) && (client as any).intentions.length > 0)) && (
-          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl space-y-4">
+          <div className={cn("p-6 rounded-[32px] shadow-xl space-y-4", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
             {(client as any).bio && (
               <div className="space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">About</span>
-                <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{(client as any).bio}</p>
+                <span className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>About</span>
+                <p className={cn("text-sm leading-relaxed whitespace-pre-wrap", isLight ? "text-black/80" : "text-white/80")}>{(client as any).bio}</p>
               </div>
             )}
             {Array.isArray((client as any).intentions) && (client as any).intentions.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Looking For</span>
+                <span className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>Looking For</span>
                 <div className="flex flex-wrap gap-2">
                   {((client as any).intentions as string[]).map((intentionId) => {
                     const option = CLIENT_INTENTION_OPTIONS.find(o => o.id === intentionId);
@@ -276,28 +276,28 @@ export default function OwnerViewClientProfile() {
 
         {/* ðŸ“Š HERO STATS GRID */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl group hover:bg-zinc-900/60 transition-all cursor-default">
+          <div className={cn("p-6 rounded-[32px] shadow-xl group transition-all cursor-default", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10 hover:bg-zinc-900/60")}>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-xl bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20">
                 <Eye className="w-4 h-4 text-[#FF4D00]" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Engagement</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>Engagement</span>
             </div>
-            <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.views}</div>
+            <div className={cn("text-3xl font-black tabular-nums tracking-tighter", isLight ? "text-black" : "text-white")}>{insights?.views}</div>
             <div className="flex items-center gap-1 mt-2 text-[#FF4D00]">
               <TrendingUp className="w-3 h-3" />
               <span className="text-[9px] font-black uppercase italic">+{insights?.weeklyGrowth} Velocity</span>
             </div>
           </div>
 
-          <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl group hover:bg-zinc-900/60 transition-all cursor-default">
+          <div className={cn("p-6 rounded-[32px] shadow-xl group transition-all cursor-default", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10 hover:bg-zinc-900/60")}>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
                 <Zap className="w-4 h-4 text-[#EB4898] fill-current" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30 italic">Swipes Parity</span>
+              <span className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>Swipes Parity</span>
             </div>
-            <div className="text-3xl font-black text-white tabular-nums tracking-tighter">{insights?.qualityScore}/10</div>
+            <div className={cn("text-3xl font-black tabular-nums tracking-tighter", isLight ? "text-black" : "text-white")}>{insights?.qualityScore}/10</div>
             <div className="flex items-center gap-1 mt-2 text-[#EB4898]">
               <Sparkles className="w-3 h-3" />
               <span className="text-[9px] font-black uppercase italic">Platinum</span>
@@ -307,24 +307,24 @@ export default function OwnerViewClientProfile() {
 
         {/* ðŸŽ¯ ANALYTICS SECTION */}
         <div className="space-y-4">
-          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Reliability Profile</h3>
+          <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] ml-2 italic", isLight ? "text-black/40" : "text-white/30")}>Reliability Profile</h3>
           
           <div className="space-y-3">
-            <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+            <div className={cn("p-6 rounded-[32px] shadow-2xl relative overflow-hidden group", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
 
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shadow-lg">
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
                      <ShieldCheck className="w-6 h-6 text-[#FF4D00]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Response Integrity</p>
-                    <p className="text-xl font-black text-white uppercase tracking-tight italic">Active Communicator</p>
+                    <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/40")}>Response Integrity</p>
+                    <p className={cn("text-xl font-black uppercase tracking-tight italic", isLight ? "text-black" : "text-white")}>Active Communicator</p>
                   </div>
                 </div>
                 <div className="text-3xl font-black text-[#FF4D00] tabular-nums italic">{insights?.responseRate}%</div>
               </div>
-              <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
+              <div className={cn("w-full h-2.5 rounded-full overflow-hidden shadow-inner border", isLight ? "bg-black/10 border-black/5" : "bg-black/40 border-white/5")}>
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${insights?.responseRate}%` }}
@@ -333,15 +333,15 @@ export default function OwnerViewClientProfile() {
               </div>
             </div>
 
-            <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-xl">
+            <div className={cn("p-6 rounded-[32px] shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shadow-lg">
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
                      <Clock className="w-6 h-6 text-[#EB4898]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Average Response</p>
-                    <p className="text-xl font-black text-white uppercase tracking-tight italic">Instant Sync</p>
+                    <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/40")}>Average Response</p>
+                    <p className={cn("text-xl font-black uppercase tracking-tight italic", isLight ? "text-black" : "text-white")}>Instant Sync</p>
                   </div>
                 </div>
                 <div className="px-4 py-2 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/20">
@@ -355,33 +355,33 @@ export default function OwnerViewClientProfile() {
         {/* ðŸ“¦ PREFERENCES / INTENT */}
         {preferences && (
           <div className="space-y-4">
-            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Demand</h3>
+            <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] ml-2 italic", isLight ? "text-black/40" : "text-white/30")}>Market Demand</h3>
             
             <div className="space-y-3">
               {/* Property Intent */}
               {preferences.interested_in_properties && (
-                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className={cn("p-6 rounded-[32px] shadow-2xl relative overflow-hidden group", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
 
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
                       <Home className="w-7 h-7 text-[#EB4898]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Sector Focus</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Luxury Residential</p>
+                      <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/40")}>Sector Focus</p>
+                      <p className={cn("text-2xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Luxury Residential</p>
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+                  <div className={cn("grid grid-cols-2 gap-6 pt-6 border-t", isLight ? "border-slate-200" : "border-white/5")}>
                     <div className="space-y-1">
-                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Target Budget</p>
-                       <p className="text-lg font-black text-white tracking-tighter tabular-nums">
+                       <p className={cn("text-[9px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>Target Budget</p>
+                       <p className={cn("text-lg font-black tracking-tighter tabular-nums", isLight ? "text-black" : "text-white")}>
                          ${preferences.min_price?.toLocaleString() || '0'} - ${preferences.max_price?.toLocaleString() || 'âˆž'}
                        </p>
                     </div>
                     <div className="space-y-1">
-                       <p className="text-[9px] font-black text-white/30 uppercase tracking-widest italic">Specifications</p>
-                       <p className="text-lg font-black text-white tracking-tighter uppercase italic">
+                       <p className={cn("text-[9px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>Specifications</p>
+                       <p className={cn("text-lg font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>
                          {preferences.min_bedrooms || 0}+ BR · {preferences.min_bathrooms || 0}+ BA
                        </p>
                     </div>
@@ -391,21 +391,21 @@ export default function OwnerViewClientProfile() {
 
               {/* Vehicle Intent */}
               {preferences.interested_in_motorcycles && (
-                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className={cn("p-6 rounded-[32px] shadow-2xl relative overflow-hidden group", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
     
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20 shadow-lg">
                       <Car className="w-7 h-7 text-[#FF4D00]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Asset Interest</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Premium Automotive</p>
+                      <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/40")}>Asset Interest</p>
+                      <p className={cn("text-2xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Premium Automotive</p>
                     </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2.5">
                     {preferences.moto_types?.map(type => (
-                      <div key={type} className="px-4 py-2 rounded-xl bg-black/60 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/70 shadow-md backdrop-blur-md italic">
+                      <div key={type} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md italic border", isLight ? "bg-black/5 border-slate-200 text-black/70" : "bg-black/60 border-white/10 text-white/70 backdrop-blur-md")}>
                         {type}
                       </div>
                     ))}
@@ -415,21 +415,21 @@ export default function OwnerViewClientProfile() {
 
               {/* Yacht Intent */}
               {preferences.interested_in_yachts && (
-                <div className="p-6 rounded-[32px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group">
+                <div className={cn("p-6 rounded-[32px] shadow-2xl relative overflow-hidden group", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
 
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-[22px] bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20 shadow-lg">
                       <Ship className="w-7 h-7 text-[#EB4898]" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5 italic">Maritime Profile</p>
-                      <p className="text-2xl font-black text-white uppercase tracking-tighter italic">Luxury Vessels</p>
+                      <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/40")}>Maritime Profile</p>
+                      <p className={cn("text-2xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Luxury Vessels</p>
                     </div>
                   </div>
                   
-                  <div className="p-4 rounded-2xl bg-black/60 border border-white/5 shadow-inner backdrop-blur-md">
-                    <p className="text-[11px] text-white/60 font-bold uppercase tracking-widest leading-relaxed italic">
-                      Seeking vessels <span className="text-white">{preferences.yacht_length_min || 0}ft+</span> in <span className="text-white">{preferences.yacht_condition?.[0] || 'Premium'}</span> condition.
+                  <div className={cn("p-4 rounded-2xl shadow-inner border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/5 backdrop-blur-md")}>
+                    <p className={cn("text-[11px] font-bold uppercase tracking-widest leading-relaxed italic", isLight ? "text-black/50" : "text-white/60")}>
+                      Seeking vessels <span className={isLight ? "text-black" : "text-white"}>{preferences.yacht_length_min || 0}ft+</span> in <span className={isLight ? "text-black" : "text-white"}>{preferences.yacht_condition?.[0] || 'Premium'}</span> condition.
                     </p>
                   </div>
                 </div>
@@ -440,12 +440,12 @@ export default function OwnerViewClientProfile() {
 
         {/* ðŸŽ¯ MARKET SENTIMENT */}
         <div className="space-y-4">
-           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Market Sentiment</h3>
+           <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] ml-2 italic", isLight ? "text-black/40" : "text-white/30")}>Market Sentiment</h3>
            <div className={cn(
              "p-8 rounded-[40px] border shadow-2xl relative overflow-hidden backdrop-blur-2xl transition-all",
-             insights?.demandLevel === 'high' 
+             insights?.demandLevel === 'high'
                ? "bg-[#FF4D00]/10 border-[#FF4D00]/20"
-               : "bg-zinc-950/40 border-white/10"
+               : isLight ? "bg-white/80 border-slate-200" : "bg-zinc-950/40 border-white/10"
            )}>
 
               <div className="flex items-center gap-5 mb-5 relative z-10">
@@ -456,11 +456,11 @@ export default function OwnerViewClientProfile() {
                   {insights?.demandLevel === 'high' ? <Flame className="w-7 h-7 fill-current" /> : <TrendingUp className="w-7 h-7" />}
                 </div>
                 <div>
-                  <p className="text-[12px] font-black text-white/50 uppercase tracking-widest leading-none mb-2 italic">Discovery Velocity</p>
-                  <p className="text-2xl font-black text-white uppercase tracking-tighter leading-none italic">{insights?.demandLevel === 'high' ? 'High Traction' : 'Steady Growth'}</p>
+                  <p className={cn("text-[12px] font-black uppercase tracking-widest leading-none mb-2 italic", isLight ? "text-black/50" : "text-white/50")}>Discovery Velocity</p>
+                  <p className={cn("text-2xl font-black uppercase tracking-tighter leading-none italic", isLight ? "text-black" : "text-white")}>{insights?.demandLevel === 'high' ? 'High Traction' : 'Steady Growth'}</p>
                 </div>
               </div>
-              <p className="text-[12px] text-white/50 font-bold leading-relaxed uppercase tracking-wide italic relative z-10">
+              <p className={cn("text-[12px] font-bold leading-relaxed uppercase tracking-wide italic relative z-10", isLight ? "text-black/50" : "text-white/50")}>
                 {insights?.demandLevel === 'high' 
                   ? 'This profile is currently receiving peak engagement from elite owners. Secure a connection before availability shifts.' 
                   : 'A reliable prospect with consistent platform presence. Ideal for owners seeking stable, high-value connections.'}
@@ -470,24 +470,24 @@ export default function OwnerViewClientProfile() {
 
         {/* ðŸ“¦ CONFIG DETAILS */}
         <div className="space-y-4 pb-8">
-           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white/30 ml-2 italic">Profile Analytics</h3>
+           <h3 className={cn("text-[11px] font-black uppercase tracking-[0.2em] ml-2 italic", isLight ? "text-black/40" : "text-white/30")}>Profile Analytics</h3>
            <div className="grid grid-cols-2 gap-3">
-              <div className="p-5 rounded-[28px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 flex items-center gap-4 shadow-xl">
-                <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center shadow-md">
+              <div className={cn("p-5 rounded-[28px] flex items-center gap-4 shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
                    <Award className="w-5 h-5 text-[#FF4D00]" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5 italic">Tier</p>
-                   <p className="text-base font-black text-white uppercase tracking-tight italic">Top 1%</p>
+                   <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/30")}>Tier</p>
+                   <p className={cn("text-base font-black uppercase tracking-tight italic", isLight ? "text-black" : "text-white")}>Top 1%</p>
                 </div>
               </div>
-              <div className="p-5 rounded-[28px] bg-zinc-950/40 backdrop-blur-xl border border-white/10 flex items-center gap-4 shadow-xl">
-                <div className="w-10 h-10 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center shadow-md">
+              <div className={cn("p-5 rounded-[28px] flex items-center gap-4 shadow-xl", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-md border", isLight ? "bg-black/5 border-slate-200" : "bg-black/60 border-white/10")}>
                    <Shield className="w-5 h-5 text-[#EB4898]" />
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5 italic">Health</p>
-                   <p className="text-base font-black text-white uppercase tracking-tight italic">Prime</p>
+                   <p className={cn("text-[10px] font-black uppercase tracking-widest leading-none mb-1.5 italic", isLight ? "text-black/40" : "text-white/30")}>Health</p>
+                   <p className={cn("text-base font-black uppercase tracking-tight italic", isLight ? "text-black" : "text-white")}>Prime</p>
                 </div>
               </div>
            </div>
