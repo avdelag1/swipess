@@ -45,6 +45,7 @@ interface PropertyCardInfoProps extends CardInfoProps {
   beds?: number;
   baths?: number;
   location?: string;
+  snippet?: string;
   isVerified?: boolean;
   rating?: number;
   photoIndex?: number;
@@ -58,6 +59,7 @@ export const PropertyCardInfo = memo(({
   beds,
   baths,
   location,
+  snippet,
   isVerified,
   rating,
   className,
@@ -122,6 +124,9 @@ export const PropertyCardInfo = memo(({
               <span className="font-medium">{location}</span>
             </div>
           )}
+          {snippet && (
+            <div className="text-white/75 truncate" style={{ fontSize: FONT.meta }}>{snippet}</div>
+          )}
         </>
       )}
 
@@ -146,6 +151,7 @@ interface VehicleCardInfoProps extends CardInfoProps {
   model?: string;
   year?: number;
   location?: string;
+  snippet?: string;
   isVerified?: boolean;
   rating?: number;
   photoIndex?: number;
@@ -159,6 +165,7 @@ export const VehicleCardInfo = memo(({
   model,
   year,
   location,
+  snippet,
   isVerified,
   rating,
   className,
@@ -206,6 +213,9 @@ export const VehicleCardInfo = memo(({
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
+          )}
+          {snippet && (
+            <div className="text-white/75 truncate" style={{ fontSize: FONT.meta }}>{snippet}</div>
           )}
         </>
       )}
@@ -280,6 +290,7 @@ interface ServiceCardInfoProps extends CardInfoProps {
   serviceName: string;
   name?: string;
   location?: string;
+  snippet?: string;
   isVerified?: boolean;
   rating?: number;
   reviewCount?: number;
@@ -293,6 +304,7 @@ export const ServiceCardInfo = memo(({
   serviceName,
   name,
   location,
+  snippet,
   isVerified,
   rating,
   reviewCount,
@@ -345,6 +357,9 @@ export const ServiceCardInfo = memo(({
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
+          )}
+          {snippet && (
+            <div className="text-white/75 truncate" style={{ fontSize: FONT.meta }}>{snippet}</div>
           )}
         </>
       )}

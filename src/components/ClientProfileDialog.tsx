@@ -7,6 +7,17 @@ import { Input } from '@/components/ui/input';
 import { AITextarea } from '@/components/ui/AITextarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SmartSelector } from '@/components/listing/SmartSelector';
+import { ChipMultiSelect } from '@/components/listing/ChipMultiSelect';
+import { DescriptionPreview } from '@/components/listing/DescriptionPreview';
+import { PredictiveInput } from '@/components/listing/PredictiveInput';
+import { usePolishedDescription } from '@/hooks/usePolishedDescription';
+import {
+  buildClientBioFromChips,
+  CLIENT_BIO_PHRASES,
+  LANGUAGES as PROFILE_LANGUAGES,
+  OCCUPATION_SUGGESTIONS,
+} from '@/constants/listingTaxonomies';
 
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { ListingVideoUpload } from '@/components/video/ListingVideoUpload';
@@ -31,7 +42,11 @@ import {
   CLEANLINESS_OPTIONS,
   DRINKING_HABIT_OPTIONS,
   CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS,
-  SMOKING_HABIT_OPTIONS
+  INTEREST_OPTIONS,
+  NOISE_TOLERANCE_OPTIONS,
+  PERSONALITY_OPTIONS,
+  SMOKING_HABIT_OPTIONS,
+  WORK_SCHEDULE_OPTIONS,
 } from '@/constants/profileConstants';
 import { cn } from '@/lib/utils';
 
@@ -92,12 +107,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [countrySearch, setCountrySearch] = useState('');
-  const [citySearch, setCitySearch] = useState('');
 
   // Client intentions
   const [intentions, setIntentions] = useState<string[]>([]);
   const [occupation, setOccupation] = useState<string>('');
   const [yearsInCity, setYearsInCity] = useState<number | ''>('');
+  const [personalityTraits, setPersonalityTraits] = useState<string[]>([]);
+  const [bioPhrases, setBioPhrases] = useState<string[]>([]);
 
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
@@ -109,22 +125,20 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     return Array.from(countries).sort();
   }, []);
 
-  const filteredCountries = useMemo(() =>
-    allCountries.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())),
-    [allCountries, countrySearch]
-  );
-
   const availableCities = useMemo(() => {
     if (!country || !selectedRegion) return [];
     return getCitiesInCountry(selectedRegion, country);
   }, [country, selectedRegion]);
 
-  const filteredCities = useMemo(() =>
-    availableCities.filter(c => c.name.toLowerCase().includes(citySearch.toLowerCase())),
-    [availableCities, citySearch]
+  const filteredCountries = useMemo(
+    () => allCountries.filter((c) => c.toLowerCase().includes(countrySearch.toLowerCase())),
+    [allCountries, countrySearch],
   );
 
-
+  const filteredCities = useMemo(
+    () => availableCities,
+    [availableCities],
+  );
 
   const findRegionForCountry = (countryName: string): string => {
     const regions = getRegions();
@@ -137,10 +151,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   const handleCountryChange = (newCountry: string) => {
     setCountry(newCountry);
-    setCountrySearch('');
     setCity('');
     setNeighborhood('');
-    setCitySearch('');
     setLatitude(null);
     setLongitude(null);
     const region = findRegionForCountry(newCountry);
@@ -149,7 +161,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   const handleCityChange = (newCity: string) => {
     setCity(newCity);
-    setCitySearch('');
     setNeighborhood('');
     const cityData = getCityByName(newCity);
     if (cityData?.city.coordinates) {
@@ -157,6 +168,18 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       setLongitude(cityData.city.coordinates.lng);
     }
   };
+
+  const autoBio = buildClientBioFromChips({
+    phrases: bioPhrases,
+    interests,
+    personality: personalityTraits,
+    intentions: intentions.map((id) => INTENTION_OPTIONS.find((o) => o.id === id)?.label ?? id),
+    occupation,
+    city,
+    customBio: bio,
+  });
+  const bioPolishResetKey = JSON.stringify({ bioPhrases, interests, personalityTraits, intentions, occupation, city, bio });
+  const { polishedDescription: polishedBio, setPolishedDescription: setPolishedBio } = usePolishedDescription(bioPolishResetKey);
 
   const aiProfileDraft = useModalStore(s => s.aiProfileDraft);
 
@@ -191,6 +214,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setIntentions(merged.intentions ?? []);
     setOccupation(merged.occupation ?? '');
     setYearsInCity(merged.years_in_city ?? '');
+    setPersonalityTraits(merged.personality_traits ?? []);
     if (loadedCountry) setSelectedRegion(findRegionForCountry(loadedCountry));
   }, [data, aiProfileDraft]);
 
@@ -212,13 +236,14 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       appToast.error('Content Blocked');
       return;
     }
-    if (bio && !validateContent(bio).isClean) {
+    const bioToSave = polishedBio ?? (bio.trim() || autoBio || null);
+    if (bioToSave && !validateContent(bioToSave).isClean) {
       appToast.error('Content Blocked');
       return;
     }
     try {
       await saveMutation.mutateAsync({
-        name, age: age === '' ? null : Number(age), gender, bio,
+        name, age: age === '' ? null : Number(age), gender,
         interests, preferred_activities: activities, profile_images: profileImages,
         video_url: videoUrl,
         nationality, languages, relationship_status: relationshipStatus, has_children: hasChildren,
@@ -226,6 +251,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         noise_tolerance: noiseTolerance, work_schedule: workSchedule,
         country, city, neighborhood, latitude, longitude,
         intentions, occupation, years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
+        personality_traits: personalityTraits,
+        bio: bioToSave,
       });
       appToast.success('Identity Updated');
       onOpenChange(false);
@@ -434,30 +461,55 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     </div>
                   </div>
 
+                  <ChipMultiSelect
+                    label="Bio phrases"
+                    accent="rose"
+                    options={CLIENT_BIO_PHRASES}
+                    value={bioPhrases}
+                    onChange={setBioPhrases}
+                  />
+
+                  <PredictiveInput
+                    label="Occupation"
+                    value={occupation}
+                    onChange={setOccupation}
+                    suggestions={OCCUPATION_SUGGESTIONS}
+                    placeholder="Designer, Developer…"
+                  />
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Occupation</Label>
-                      <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="e.g. Designer, Developer…" />
-                    </div>
                     <div className="space-y-2">
                       <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Years in this city</Label>
                       <Input type="number" value={yearsInCity} onChange={(e) => setYearsInCity(e.target.value ? Number(e.target.value) : '')} placeholder="2" />
                     </div>
                   </div>
 
+                  <ChipMultiSelect label="Interests" accent="rose" options={INTEREST_OPTIONS} value={interests} onChange={setInterests} />
+                  <ChipMultiSelect label="Personality" accent="rose" options={PERSONALITY_OPTIONS} value={personalityTraits} onChange={setPersonalityTraits} />
+                  <ChipMultiSelect label="Languages" accent="rose" options={PROFILE_LANGUAGES} value={languages} onChange={setLanguages} />
+
                   <div className="space-y-2">
                     <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>
-                      About you — shown on your card
+                      Custom bio (optional)
                     </Label>
                     <AITextarea
                       value={bio}
                       onChange={setBio}
                       enhanceType="profile"
-                      placeholder="Tell owners who you are, what you're looking for, and what makes you a great match…"
+                      placeholder="Override or add a personal line…"
                       maxLength={500}
-                      rows={5}
+                      rows={4}
                     />
                   </div>
+
+                  <DescriptionPreview
+                    accent="rose"
+                    enhanceType="profile"
+                    description={autoBio}
+                    polishedDescription={polishedBio}
+                    onPolished={setPolishedBio}
+                    placeholder="Phrases and selections above build your swipe-card bio."
+                  />
                 </>
               )}
 

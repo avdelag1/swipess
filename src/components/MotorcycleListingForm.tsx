@@ -1,12 +1,28 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AITextarea } from '@/components/ui/AITextarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
+import { ChipMultiSelect } from './listing/ChipMultiSelect';
+import { SmartSelector } from './listing/SmartSelector';
+import { FormFieldLabel, FormSection } from './listing/FormSection';
+import {
+  buildMotoDescription,
+  buildVehicleTitleFromChips,
+  getModelsForBrand,
+  MOTORCYCLE_BRANDS,
+  MOTORCYCLE_MODELS,
+  MOTO_CONDITION,
+  MOTO_CONDITION_DB,
+  MOTO_FEATURES,
+  MOTO_FUEL,
+  MOTO_INCLUDED,
+  MOTO_TRANSMISSION,
+  MOTO_TYPE,
+  PROPERTY_ADJECTIVES,
+} from '@/constants/listingTaxonomies';
+import { DescriptionPreview } from './listing/DescriptionPreview';
+import { PredictiveInput } from './listing/PredictiveInput';
+import { usePolishedDescription } from '@/hooks/usePolishedDescription';
 
 export interface MotorcycleFormData {
   id?: string;
@@ -30,6 +46,8 @@ export interface MotorcycleFormData {
   country?: string;
   city?: string;
   neighborhood?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   has_abs?: boolean;
   has_traction_control?: boolean;
   has_heated_grips?: boolean;
@@ -37,6 +55,7 @@ export interface MotorcycleFormData {
   has_luggage_rack?: boolean;
   includes_helmet?: boolean;
   includes_gear?: boolean;
+  adjectives?: string[];
 }
 
 interface MotorcycleListingFormProps {
@@ -44,99 +63,162 @@ interface MotorcycleListingFormProps {
   initialData?: Partial<MotorcycleFormData>;
 }
 
-const MOTORCYCLE_TYPES = ['Sport Bike', 'Cruiser', 'Touring', 'Adventure', 'Dual-Sport', 'Dirt Bike', 'Standard', 'Cafe Racer', 'Chopper', 'Scooter', 'Electric', 'Other'];
-const TRANSMISSIONS = [
-  { value: 'manual', label: 'Manual' },
-  { value: 'automatic', label: 'Automatic' },
-  { value: 'semi-automatic', label: 'Semi-Auto' },
-];
-const FUEL_TYPES = [
-  { value: 'gasoline', label: 'Gasoline' },
-  { value: 'electric', label: 'Electric' },
-  { value: 'hybrid', label: 'Hybrid' },
-];
-const CONDITIONS = [
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Needs Work' },
-];
+const FEATURE_FIELDS: Record<string, keyof MotorcycleFormData> = {
+  ABS: 'has_abs',
+  ESC: 'has_esc',
+  'Traction control': 'has_traction_control',
+  'Heated grips': 'has_heated_grips',
+  'Luggage rack': 'has_luggage_rack',
+};
 
-// Premium section wrapper
-const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
-  <div className={cn("rounded-3xl bg-card border border-border shadow-md overflow-hidden", className)}>
-    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
-      <div className="w-2 h-2 rounded-full bg-orange-500" />
-      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
-    </div>
-    <div className="px-5 pb-5 space-y-4">{children}</div>
-  </div>
-);
+const INCLUDED_FIELDS: Record<string, keyof MotorcycleFormData> = {
+  Helmet: 'includes_helmet',
+  'Riding gear': 'includes_gear',
+};
 
-const FormLabel = ({ children }: { children: React.ReactNode }) => (
-  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
-);
+function featuresFromBooleans(data: Partial<MotorcycleFormData>): string[] {
+  return MOTO_FEATURES.filter((f) => {
+    const key = FEATURE_FIELDS[f];
+    return key && !!data[key];
+  }) as string[];
+}
 
-const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
-  <div className="flex items-center space-x-3 p-3 rounded-xl bg-secondary border border-border hover:bg-secondary/80 transition-colors cursor-pointer">
-    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg border-2 border-foreground/40" />
-    <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
-  </div>
-);
+function includedFromBooleans(data: Partial<MotorcycleFormData>): string[] {
+  return MOTO_INCLUDED.filter((f) => {
+    const key = INCLUDED_FIELDS[f];
+    return key && !!data[key];
+  }) as string[];
+}
 
 export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleListingFormProps) {
-  const { register, control, watch } = useForm<MotorcycleFormData>({
-    defaultValues: initialData || { mode: 'rent' }
+  const { register, watch, setValue } = useForm<MotorcycleFormData>({
+    defaultValues: {
+      mode: 'rent',
+      adjectives: [],
+      ...initialData,
+      condition: initialData?.condition
+        ? (Object.entries(MOTO_CONDITION_DB).find(([, v]) => v === initialData.condition)?.[0] ?? initialData.condition)
+        : undefined,
+    },
   });
 
-  // Decouple data synchronization from react renders for instant touch / snap performance
+  const formSnapshot = watch();
+  const features = featuresFromBooleans(formSnapshot);
+  const included = includedFromBooleans(formSnapshot);
+  const polishResetKey = JSON.stringify({
+    adjectives: formSnapshot.adjectives,
+    motorcycle_type: formSnapshot.motorcycle_type,
+    condition: formSnapshot.condition,
+    transmission: formSnapshot.transmission,
+    fuel_type: formSnapshot.fuel_type,
+    brand: formSnapshot.brand,
+    model: formSnapshot.model,
+    mileage: formSnapshot.mileage,
+    engine_cc: formSnapshot.engine_cc,
+    city: formSnapshot.city,
+    features,
+    included,
+  });
+  const { polishedDescription, setPolishedDescription } = usePolishedDescription(polishResetKey);
+
   useEffect(() => {
     const subscription = watch((value) => {
-      onDataChange(value);
+      const dbCondition = value.condition
+        ? (MOTO_CONDITION_DB[value.condition] ?? value.condition.toLowerCase())
+        : undefined;
+      const autoTitle = buildVehicleTitleFromChips({
+        adjective: value.adjectives?.[0],
+        type: value.motorcycle_type,
+        brand: value.brand,
+        model: value.model,
+        year: value.year,
+        city: value.city,
+      });
+      const autoDescription = buildMotoDescription({
+        adjectives: value.adjectives,
+        motorcycleType: value.motorcycle_type,
+        condition: value.condition,
+        transmission: value.transmission ? MOTO_TRANSMISSION.find((t) => t.value === value.transmission)?.label : undefined,
+        fuel: value.fuel_type ? MOTO_FUEL.find((f) => f.value === value.fuel_type)?.label : undefined,
+        features: featuresFromBooleans(value),
+        included: includedFromBooleans(value),
+        mileage: value.mileage,
+        engineCc: value.engine_cc,
+        city: value.city,
+      });
+      onDataChange({
+        ...value,
+        condition: dbCondition,
+        title: value.title || autoTitle,
+        description: polishedDescription ?? (value.description?.trim() || autoDescription),
+      });
     });
     return () => subscription.unsubscribe();
-  }, [watch, onDataChange]);
+  }, [watch, onDataChange, polishedDescription]);
+
+  const adjectives = watch('adjectives') || [];
+  const motoType = watch('motorcycle_type') ? [watch('motorcycle_type')!] : [];
+  const condition = watch('condition') ? [watch('condition')!] : [];
+  const transmission = watch('transmission') ? [watch('transmission')!] : [];
+  const fuel = watch('fuel_type') ? [watch('fuel_type')!] : [];
+
+  const syncFeatures = (selected: string[]) => {
+    for (const [label, key] of Object.entries(FEATURE_FIELDS)) {
+      setValue(key, selected.includes(label));
+    }
+  };
+
+  const syncIncluded = (selected: string[]) => {
+    for (const [label, key] of Object.entries(INCLUDED_FIELDS)) {
+      setValue(key, selected.includes(label));
+    }
+  };
 
   return (
     <div className="space-y-5">
-      <Section title="Basic Information">
-        <div>
-          <FormLabel>Listing Title</FormLabel>
-          <Input id="title" {...register('title')} placeholder="e.g., 2021 Yamaha MT-07" />
+      <FormSection title="Describe Your Ride" accent="orange">
+        <FormFieldLabel>Pick a vibe word</FormFieldLabel>
+        <ChipMultiSelect
+          accent="orange"
+          single
+          options={PROPERTY_ADJECTIVES}
+          value={adjectives}
+          onChange={(v) => setValue('adjectives', v)}
+        />
+        <SmartSelector
+          label="Motorcycle Type"
+          accent="orange"
+          single
+          options={[...MOTO_TYPE]}
+          value={motoType}
+          onChange={(v) => setValue('motorcycle_type', v[0] ?? '')}
+        />
+        <SmartSelector
+          label="Condition"
+          accent="orange"
+          single
+          options={[...MOTO_CONDITION]}
+          value={condition}
+          onChange={(v) => setValue('condition', v[0] ?? '')}
+        />
+      </FormSection>
+
+      <FormSection title="Pricing" accent="orange">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <FormFieldLabel>Sale Price (USD)</FormFieldLabel>
+            <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="8500" />
+          </div>
+          <div>
+            <FormFieldLabel>Daily Rental (USD)</FormFieldLabel>
+            <Input
+              type="number"
+              {...register('rental_rates.per_day', { valueAsNumber: true })}
+              placeholder="45"
+            />
+          </div>
         </div>
-        <div>
-          <FormLabel>Description</FormLabel>
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <AITextarea
-                value={field.value || ''}
-                onChange={field.onChange}
-                enhanceType="listing"
-                placeholder="Condition, service history, mods, why riders will love it. Tap AI to polish it."
-                maxLength={800}
-                rows={4}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <FormLabel>Motorcycle Type</FormLabel>
-          <Controller
-            name="motorcycle_type"
-            control={control}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                <SelectContent>
-                  {MOTORCYCLE_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      </Section>
+      </FormSection>
 
       <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
         <OwnerLocationSelector
@@ -145,110 +227,114 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
           neighborhood={watch('neighborhood')}
           latitude={(watch('latitude') as number | undefined) ?? undefined}
           longitude={(watch('longitude') as number | undefined) ?? undefined}
-          onCountryChange={(c) => onDataChange({ country: c })}
-          onCityChange={(c) => onDataChange({ city: c })}
-          onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
-          onCoordinatesChange={(lat, lng) => onDataChange({ latitude: lat, longitude: lng })}
+          onCountryChange={(c) => setValue('country', c)}
+          onCityChange={(c) => setValue('city', c)}
+          onNeighborhoodChange={(n) => setValue('neighborhood', n)}
+          onCoordinatesChange={(lat, lng) => {
+            setValue('latitude', lat);
+            setValue('longitude', lng);
+          }}
         />
       </div>
 
-      <Section title="Specifications">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FormSection title="Specifications" accent="orange">
+        <div>
+          <FormFieldLabel>Listing Title (optional)</FormFieldLabel>
+          <Input {...register('title')} placeholder="Auto-built from chips above" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <FormLabel>Brand</FormLabel>
-            <Input {...register('brand')} placeholder="Yamaha, Honda, KTM..." />
+            <PredictiveInput
+              label="Brand"
+              value={watch('brand') || ''}
+              onChange={(v) => setValue('brand', v)}
+              suggestions={MOTORCYCLE_BRANDS}
+              placeholder="Start typing: Yam…"
+            />
           </div>
           <div>
-            <FormLabel>Model</FormLabel>
-            <Input {...register('model')} placeholder="MT-07" />
+            <PredictiveInput
+              label="Model"
+              value={watch('model') || ''}
+              onChange={(v) => setValue('model', v)}
+              suggestions={getModelsForBrand(watch('brand'), MOTORCYCLE_MODELS)}
+              placeholder={watch('brand') ? 'Pick or type a model' : 'Select brand first'}
+            />
           </div>
           <div>
-            <FormLabel>Year</FormLabel>
+            <FormFieldLabel>Year</FormFieldLabel>
             <Input type="number" {...register('year', { valueAsNumber: true })} placeholder="2021" />
           </div>
           <div>
-            <FormLabel>Mileage (km)</FormLabel>
-            <Input type="number" {...register('mileage', { valueAsNumber: true })} placeholder="e.g., 12,000" />
+            <FormFieldLabel>Mileage (km)</FormFieldLabel>
+            <Input type="number" {...register('mileage', { valueAsNumber: true })} placeholder="12000" />
           </div>
           <div>
-            <FormLabel>Engine (cc)</FormLabel>
+            <FormFieldLabel>Engine (cc)</FormFieldLabel>
             <Input type="number" {...register('engine_cc', { valueAsNumber: true })} placeholder="689" />
           </div>
-          <div>
-            <FormLabel>Transmission</FormLabel>
-            <Controller
-              name="transmission"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select transmission" /></SelectTrigger>
-                  <SelectContent>
-                    {TRANSMISSIONS.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <div>
-            <FormLabel>Fuel Type</FormLabel>
-            <Controller
-              name="fuel_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select fuel type" /></SelectTrigger>
-                  <SelectContent>
-                    {FUEL_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <div>
-            <FormLabel>Condition</FormLabel>
-            <Controller
-              name="condition"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger>
-                  <SelectContent>
-                    {CONDITIONS.map(cond => <SelectItem key={cond.value} value={cond.value}>{cond.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
         </div>
-      </Section>
+        <SmartSelector
+          label="Transmission"
+          accent="orange"
+          single
+          options={[...MOTO_TRANSMISSION]}
+          value={transmission}
+          onChange={(v) => setValue('transmission', v[0] ?? '')}
+        />
+        <SmartSelector
+          label="Fuel Type"
+          accent="orange"
+          single
+          options={[...MOTO_FUEL]}
+          value={fuel}
+          onChange={(v) => setValue('fuel_type', v[0] ?? '')}
+        />
+      </FormSection>
 
-      <Section title="Features">
-        <div className="grid grid-cols-2 gap-2">
-          <Controller name="has_abs" control={control} render={({ field }) => (
-            <CheckboxRow id="has_abs" checked={!!field.value} onCheckedChange={field.onChange} label="ABS" />
-          )} />
-          <Controller name="has_traction_control" control={control} render={({ field }) => (
-            <CheckboxRow id="has_traction_control" checked={!!field.value} onCheckedChange={field.onChange} label="Traction Control" />
-          )} />
-          <Controller name="has_esc" control={control} render={({ field }) => (
-            <CheckboxRow id="has_esc" checked={!!field.value} onCheckedChange={field.onChange} label="Electronic Stability" />
-          )} />
-          <Controller name="has_heated_grips" control={control} render={({ field }) => (
-            <CheckboxRow id="has_heated_grips" checked={!!field.value} onCheckedChange={field.onChange} label="Heated Grips" />
-          )} />
-          <Controller name="has_luggage_rack" control={control} render={({ field }) => (
-            <CheckboxRow id="has_luggage_rack" checked={!!field.value} onCheckedChange={field.onChange} label="Luggage Rack" />
-          )} />
-          <Controller name="includes_helmet" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_helmet" checked={!!field.value} onCheckedChange={field.onChange} label="Helmet Included" />
-          )} />
-          <Controller name="includes_gear" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_gear" checked={!!field.value} onCheckedChange={field.onChange} label="Riding Gear Included" />
-          )} />
-        </div>
-      </Section>
+      <FormSection title="Features" accent="orange">
+        <ChipMultiSelect
+          accent="orange"
+          options={[...MOTO_FEATURES]}
+          value={features}
+          onChange={syncFeatures}
+        />
+      </FormSection>
+
+      <FormSection title="Included" accent="orange">
+        <ChipMultiSelect
+          accent="orange"
+          options={[...MOTO_INCLUDED]}
+          value={included}
+          onChange={syncIncluded}
+        />
+      </FormSection>
+
+      <DescriptionPreview
+        accent="orange"
+        title={buildVehicleTitleFromChips({
+          adjective: adjectives[0],
+          type: motoType[0],
+          brand: watch('brand'),
+          model: watch('model'),
+          year: watch('year'),
+          city: watch('city'),
+        })}
+        description={buildMotoDescription({
+          adjectives,
+          motorcycleType: motoType[0],
+          condition: condition[0],
+          transmission: transmission[0] ? MOTO_TRANSMISSION.find((t) => t.value === transmission[0])?.label : undefined,
+          fuel: fuel[0] ? MOTO_FUEL.find((f) => f.value === fuel[0])?.label : undefined,
+          features,
+          included,
+          mileage: watch('mileage'),
+          engineCc: watch('engine_cc'),
+          city: watch('city'),
+        })}
+        polishedDescription={polishedDescription}
+        onPolished={setPolishedDescription}
+      />
     </div>
   );
 }
-
-

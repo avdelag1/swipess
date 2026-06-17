@@ -1,22 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, MapPin, Move, Search } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { AlertCircle, MapPin, Move } from 'lucide-react';
 import {
   getCitiesInCountry,
   getCityByName,
   getCountriesInRegion,
   getRegions,
-  searchCities,
 } from '@/data/worldLocations';
-import type { CityLocation } from '@/data/worldLocations';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getMapboxAccessToken, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { triggerHaptic } from '@/utils/haptics';
+import { SmartSelector } from '@/components/listing/SmartSelector';
+import { QuickCityPicker } from './QuickCityPicker';
+import { POPULAR_CITIES, POPULAR_COUNTRIES } from '@/constants/listingTaxonomies';
+import { cn } from '@/lib/utils';
 
 interface OwnerLocationSelectorProps {
   region?: string;
@@ -32,7 +31,11 @@ interface OwnerLocationSelectorProps {
   onCityChange: (city: string) => void;
   onNeighborhoodChange: (neighborhood: string) => void;
   onCoordinatesChange?: (lat: number | null, lng: number | null) => void;
+  /** Visual accent for selectors — defaults to emerald (property). */
+  accent?: 'rose' | 'amber' | 'orange' | 'cyan' | 'emerald' | 'purple';
 }
+
+const MAP_HEIGHT = 'h-56';
 
 export function OwnerLocationSelector({
   country = '',
@@ -44,118 +47,83 @@ export function OwnerLocationSelector({
   onCoordinatesChange,
   latitude,
   longitude,
+  accent = 'emerald',
 }: OwnerLocationSelectorProps) {
   const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const [countrySearch, setCountrySearch] = useState('');
-  const [citySearch, setCitySearch] = useState('');
-  const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
-  const [quickSearch, setQuickSearch] = useState('');
-  const [quickSearchOpen, setQuickSearchOpen] = useState(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const lastSyncedRef = useRef<{ lat: number; lng: number } | null>(null);
+  const [mapToken, setMapToken] = useState<string>(() => getMapboxAccessToken());
 
-  // Global city quick-search results (type any city name directly)
-  const quickSearchResults = useMemo(
-    () => quickSearch.length >= 2 ? searchCities(quickSearch).slice(0, 8) : [],
-    [quickSearch]
-  );
-
-  const handleQuickSearchSelect = (result: { region: string; country: string; city: CityLocation }) => {
-    setSelectedRegion(result.region);
-    onCountryChange(result.country);
-    onCityChange(result.city.name);
-    if (onCoordinatesChange && result.city.coordinates) {
-      onCoordinatesChange(result.city.coordinates.lat, result.city.coordinates.lng);
-    }
-    setQuickSearch('');
-    setQuickSearchOpen(false);
-  };
-
-  // Get all unique countries across all regions
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
-    const regions = getRegions();
-    for (const region of regions) {
-      const regionCountries = getCountriesInRegion(region);
-      regionCountries.forEach(c => countries.add(c));
+    for (const region of getRegions()) {
+      getCountriesInRegion(region).forEach((c) => countries.add(c));
     }
     return Array.from(countries).sort();
   }, []);
 
-  // Filtered countries based on search
-  const filteredCountries = useMemo(() =>
-    allCountries.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())),
-    [allCountries, countrySearch]
+  const countryGroups = useMemo(
+    () => [
+      {
+        label: 'Quick Access',
+        options: POPULAR_COUNTRIES.filter((c) => allCountries.includes(c)),
+      },
+      { label: 'All Countries', options: allCountries },
+    ],
+    [allCountries],
   );
 
-  // Find the region for the current country
   useEffect(() => {
-    if (country) {
-      const regions = getRegions();
-      for (const region of regions) {
-        const countriesInRegion = getCountriesInRegion(region);
-        if (countriesInRegion.includes(country)) {
-          setSelectedRegion(region);
-          break;
-        }
+    if (!country) return;
+    for (const region of getRegions()) {
+      if (getCountriesInRegion(region).includes(country)) {
+        setSelectedRegion(region);
+        break;
       }
     }
   }, [country]);
 
-  // Get cities for the selected country
   const availableCities = useMemo(() => {
     if (!country || !selectedRegion) return [];
     return getCitiesInCountry(selectedRegion, country);
   }, [country, selectedRegion]);
 
-  // Get neighborhoods for the selected city
+  const cityGroups = useMemo(() => {
+    if (!availableCities.length) return undefined;
+    const names = availableCities.map((c) => c.name);
+    const quick = names.filter((n) =>
+      POPULAR_CITIES.some((p) => p.toLowerCase() === n.toLowerCase() || n.toLowerCase().includes(p.toLowerCase())),
+    ).slice(0, 12);
+    const rest = names.filter((n) => !quick.includes(n));
+    return [
+      ...(quick.length ? [{ label: 'Quick Access', options: quick }] : []),
+      { label: 'All Cities', options: rest.length ? rest : names },
+    ];
+  }, [availableCities]);
+
   const availableNeighborhoods = useMemo(() => {
     if (!city) return [];
-    const cityData = getCityByName(city);
-    return cityData?.city.neighborhoods || [];
+    return getCityByName(city)?.city.neighborhoods ?? [];
   }, [city]);
 
-  // Filtered cities based on search
-  const filteredCities = useMemo(() =>
-    availableCities.filter(c => c.name.toLowerCase().includes(citySearch.toLowerCase())),
-    [availableCities, citySearch]
-  );
-
-  // Filtered neighborhoods based on search
-  const filteredNeighborhoods = useMemo(() =>
-    availableNeighborhoods.filter(n => n.toLowerCase().includes(neighborhoodSearch.toLowerCase())),
-    [availableNeighborhoods, neighborhoodSearch]
-  );
-
-  // Handle country change
   const handleCountryChange = (newCountry: string) => {
     onCountryChange(newCountry);
-    setCountrySearch('');
-    // Clear city and neighborhood when country changes
     onCityChange('');
     onNeighborhoodChange('');
-    setCitySearch('');
-    setNeighborhoodSearch('');
     onCoordinatesChange?.(null, null);
-
-    // Find the region for this country
-    const regions = getRegions();
-    for (const region of regions) {
-      const countriesInRegion = getCountriesInRegion(region);
-      if (countriesInRegion.includes(newCountry)) {
+    for (const region of getRegions()) {
+      if (getCountriesInRegion(region).includes(newCountry)) {
         setSelectedRegion(region);
         break;
       }
     }
   };
 
-  // Handle city change
   const handleCityChange = (newCity: string) => {
     onCityChange(newCity);
-    setCitySearch('');
-    // Clear neighborhood when city changes
     onNeighborhoodChange('');
-    setNeighborhoodSearch('');
-
-    // Update coordinates if available
     if (newCity && onCoordinatesChange) {
       const cityData = getCityByName(newCity);
       if (cityData?.city.coordinates) {
@@ -164,27 +132,8 @@ export function OwnerLocationSelector({
     }
   };
 
-  // Handle neighborhood change
-  const handleNeighborhoodChange = (newNeighborhood: string) => {
-    onNeighborhoodChange(newNeighborhood);
-    setNeighborhoodSearch('');
-  };
-
-  // ---------------------------------------------------------------------------
-  // Interactive map — lets the owner drag the pin or tap to set the EXACT spot.
-  // Until now the pin was silently inferred from the selected city's center with
-  // no way to move it; this gives a real, touchable control.
-  // ---------------------------------------------------------------------------
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
-  // Tracks the last coordinate WE pushed, so prop-sync doesn't fight a drag/tap.
-  const lastSyncedRef = useRef<{ lat: number; lng: number } | null>(null);
-  const [mapToken, setMapToken] = useState<string>(() => getMapboxAccessToken());
-
   const hasCoords = latitude != null && longitude != null;
 
-  // Resolve the token at runtime if it wasn't baked into the bundle.
   useEffect(() => {
     if (mapToken) return;
     let active = true;
@@ -194,7 +143,6 @@ export function OwnerLocationSelector({
     return () => { active = false; };
   }, [mapToken]);
 
-  // Initialise the map once we have both a token and a coordinate to center on.
   useEffect(() => {
     if (!mapToken || !hasCoords || !mapContainerRef.current || mapRef.current) return;
 
@@ -226,7 +174,7 @@ export function OwnerLocationSelector({
       commit(ll.lat, ll.lng);
     });
 
-    map.on('click', (e: any) => {
+    map.on('click', (e) => {
       const { lng, lat } = e.lngLat;
       marker.setLngLat([lng, lat]);
       commit(lat, lng);
@@ -240,12 +188,11 @@ export function OwnerLocationSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapToken, hasCoords]);
 
-  // Keep the pin in sync when coords change from elsewhere (e.g. city selected).
   useEffect(() => {
     if (!mapRef.current || !markerRef.current || !hasCoords) return;
     const last = lastSyncedRef.current;
     if (last && Math.abs(last.lat - (latitude as number)) < 1e-6 && Math.abs(last.lng - (longitude as number)) < 1e-6) {
-      return; // This change came from our own drag/tap — don't fight it.
+      return;
     }
     markerRef.current.setLngLat([longitude as number, latitude as number]);
     mapRef.current.flyTo({ center: [longitude as number, latitude as number], zoom: 13, duration: 600 });
@@ -253,351 +200,143 @@ export function OwnerLocationSelector({
   }, [latitude, longitude, hasCoords]);
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-4">
-          <CardTitle className="text-foreground text-lg flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            Property Location
-          </CardTitle>
-          <div className="flex flex-col items-end gap-1">
-            {latitude != null && longitude != null ? (
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs">
-                <MapPin className="w-3 h-3 mr-1" />
-                Map pin set
-              </Badge>
-            ) : city ? (
-              <Badge variant="outline" className="bg-amber-500/10 text-amber-300 border-amber-500/30 text-xs">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                Confirm city for map pin
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-rose-500/10 text-rose-300 border-rose-500/30 text-xs">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                Required for map
-              </Badge>
-            )}
-            <span className="text-[10px] text-muted-foreground">General area only — no exact address</span>
-          </div>
+    <div className="bg-card border-border rounded-3xl border shadow-md overflow-hidden">
+      <div className="px-5 pt-5 pb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-emerald-500" />
+          <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">Location</h3>
         </div>
-      </CardHeader>
+        {hasCoords ? (
+          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-xs">
+            <MapPin className="w-3 h-3 mr-1" />
+            Pin set
+          </Badge>
+        ) : city ? (
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-300 border-amber-500/30 text-xs">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Confirm pin
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="bg-rose-500/10 text-rose-300 border-rose-500/30 text-xs">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Required
+          </Badge>
+        )}
+      </div>
 
-      <CardContent className="space-y-4">
-        {/* Quick city search — type a city name to skip the cascade */}
-        <div className="relative">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Quick search: type any city or place…"
-              value={quickSearch}
-              onChange={(e) => {
-                setQuickSearch(e.target.value);
-                setQuickSearchOpen(e.target.value.length >= 2);
-              }}
-              onFocus={() => quickSearch.length >= 2 && setQuickSearchOpen(true)}
-              onBlur={() => setTimeout(() => setQuickSearchOpen(false), 150)}
-              className="pl-9 h-10 text-sm"
-            />
-            {quickSearch && (
-              <button
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => { setQuickSearch(''); setQuickSearchOpen(false); }}
-              >
-                ×
-              </button>
-            )}
-          </div>
-          {quickSearchOpen && quickSearchResults.length > 0 && (
-            <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-xl shadow-xl overflow-hidden">
-              {quickSearchResults.map((r) => (
-                <button
-                  key={`${r.country}-${r.city.name}`}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => handleQuickSearchSelect(r)}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
-                >
-                  <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                  <span className="font-semibold text-foreground">{r.city.name}</span>
-                  <span className="text-muted-foreground text-xs">{r.country}</span>
-                </button>
-              ))}
+      <div className="px-5 pb-5 space-y-4">
+        <QuickCityPicker
+          value={city}
+          placeholder="Quick search: Cancún, Playa del Carmen…"
+          onSelect={(sel) => {
+            if (sel.country) handleCountryChange(sel.country);
+            if (sel.city) handleCityChange(sel.city);
+            if (sel.latitude != null && sel.longitude != null) {
+              onCoordinatesChange?.(sel.latitude, sel.longitude);
+            }
+          }}
+          inputClassName="bg-secondary/50 border-border text-foreground"
+        />
+
+        <SmartSelector
+          label="Country"
+          accent={accent}
+          single
+          forceSheet
+          groups={countryGroups}
+          value={country ? [country] : []}
+          onChange={(v) => handleCountryChange(v[0] ?? '')}
+          placeholder="Search country…"
+          searchPlaceholder="Mexico, USA, Spain…"
+        />
+
+        <SmartSelector
+          label="City"
+          accent={accent}
+          single
+          forceSheet
+          groups={cityGroups}
+          value={city ? [city] : []}
+          onChange={(v) => handleCityChange(v[0] ?? '')}
+          placeholder={country ? 'Search city…' : 'Select country first'}
+          searchPlaceholder="Cancún, Tulum, CDMX…"
+          disabled={!country}
+        />
+
+        {availableNeighborhoods.length > 0 ? (
+          <SmartSelector
+            label="Neighborhood (optional)"
+            accent={accent}
+            single
+            forceSheet
+            options={availableNeighborhoods}
+            value={neighborhood ? [neighborhood] : []}
+            onChange={(v) => onNeighborhoodChange(v[0] ?? '')}
+            placeholder="Search neighborhood…"
+            searchPlaceholder="Hotel Zone, Centro…"
+            disabled={!city}
+          />
+        ) : (
+          <div>
+            <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">Neighborhood (optional)</Label>
+            <div className="h-12 px-4 rounded-2xl border border-border bg-secondary/30 flex items-center text-sm text-muted-foreground">
+              {!city ? 'Select city first' : 'No neighborhoods for this city'}
             </div>
-          )}
-        </div>
-
-        {/* Cascading Location Selects */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Country Select */}
-          <div className="space-y-2">
-            <Label className="text-foreground text-sm">Country *</Label>
-            <Select value={country} onValueChange={handleCountryChange}>
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder="Select a country" />
-              </SelectTrigger>
-              <SelectContent className="max-h-72">
-                <div className="p-2 sticky top-0 bg-popover border-b border-border z-10">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                    <Input
-                      placeholder="Search countries..."
-                      value={countrySearch}
-                      onChange={(e) => setCountrySearch(e.target.value)}
-                      className="h-8 pl-8 text-sm"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => e.stopPropagation()}
-                      onKeyUp={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                </div>
-                <div className="max-h-48 overflow-y-auto">
-                  {filteredCountries.length > 0 ? (
-                    <>
-                      {(() => {
-                        const popular = ['Mexico', 'United States', 'Canada', 'France', 'Russia', 'Spain', 'Italy', 'United Kingdom', 'Germany', 'Argentina', 'Colombia', 'Venezuela'];
-                        const matchedPopular = popular.filter(p => p.toLowerCase().includes(countrySearch.toLowerCase()) && allCountries.includes(p));
-                        
-                        if (matchedPopular.length > 0) {
-                          return (
-                            <>
-                              <SelectGroup>
-                                <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">Quick Access</SelectLabel>
-                                {matchedPopular.map(c => (
-                                  <SelectItem key={`popular-${c}`} value={c}>{c}</SelectItem>
-                                ))}
-                              </SelectGroup>
-                              <SelectSeparator />
-                            </>
-                          );
-                        }
-                        return null;
-                      })()}
-                      
-                      <SelectGroup>
-                        <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">All Countries</SelectLabel>
-                        {filteredCountries.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </>
-                  ) : (
-                    <div className="p-2 text-center text-muted-foreground text-sm">
-                      No countries found
-                    </div>
-                  )}
-                </div>
-              </SelectContent>
-            </Select>
           </div>
+        )}
 
-          {/* City Select */}
-          <div className="space-y-2">
-            <Label className="text-foreground text-sm">City *</Label>
-            <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder={country ? 'Select a city' : 'Select country first'} />
-              </SelectTrigger>
-              <SelectContent className="max-h-72">
-                {availableCities.length > 0 && (
-                  <div className="p-2 sticky top-0 bg-popover border-b border-border z-10">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                      <Input
-                        placeholder="Search cities..."
-                        value={citySearch}
-                        onChange={(e) => setCitySearch(e.target.value)}
-                        className="h-8 pl-8 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                )}
-                <div className="max-h-48 overflow-y-auto">
-                  {filteredCities.length > 0 ? (
-                    <>
-                      {(() => {
-                        // Quick list of popular cities generally
-                        const popularCities = [
-                          'Mexico City', 'Guadalajara', 'Monterrey', 'Cancún', 'Mérida', 'Querétaro',
-                          'New York City', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'San Francisco', 'Las Vegas', 'Austin',
-                          'Toronto', 'Montreal', 'Vancouver', 'Calgary',
-                          'Paris', 'Marseille', 'Lyon', 'Nice',
-                          'Moscow', 'Saint Petersburg',
-                          'Madrid', 'Barcelona', 'Valencia', 'Seville',
-                          'Rome', 'Milan', 'Naples', 'Florence', 'Venice',
-                          'London', 'Manchester', 'Birmingham', 'Edinburgh',
-                          'Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza',
-                          'Bogotá', 'Medellín', 'Cali', 'Cartagena'
-                        ];
-                        
-                        const matchedPopular = filteredCities.filter(c => 
-                          popularCities.some(p => p.toLowerCase() === c.name.toLowerCase() || c.name.toLowerCase().includes(p.toLowerCase()))
-                        ).slice(0, 10);
-                        
-                        if (matchedPopular.length > 0) {
-                          return (
-                            <>
-                              <SelectGroup>
-                                <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">Quick Access</SelectLabel>
-                                {matchedPopular.map(c => (
-                                  <SelectItem key={`popular-${c.name}`} value={c.name}>{c.name}</SelectItem>
-                                ))}
-                              </SelectGroup>
-                              <SelectSeparator />
-                            </>
-                          );
-                        }
-                        return null;
-                      })()}
-                      <SelectGroup>
-                        <SelectLabel className="text-xs text-muted-foreground uppercase tracking-wider">All Cities</SelectLabel>
-                        {filteredCities.map((c) => (
-                          <SelectItem key={c.name} value={c.name}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </>
-                  ) : availableCities.length > 0 ? (
-                    <div className="p-2 text-center text-muted-foreground text-sm">
-                      No cities found
-                    </div>
-                  ) : null}
-                </div>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Neighborhood Select */}
-          <div className="space-y-2">
-            <Label className="text-foreground text-sm">Neighborhood</Label>
-            <Select
-              value={neighborhood}
-              onValueChange={handleNeighborhoodChange}
-              disabled={!city || availableNeighborhoods.length === 0}
-            >
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder={
-                  !city ? 'Select city first' :
-                  availableNeighborhoods.length === 0 ? 'No neighborhoods available' :
-                  'Select a neighborhood (optional)'
-                } />
-              </SelectTrigger>
-              <SelectContent className="max-h-72">
-                {availableNeighborhoods.length > 0 && (
-                  <div className="p-2 sticky top-0 bg-popover border-b border-border z-10">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                      <Input
-                        placeholder="Search neighborhoods..."
-                        value={neighborhoodSearch}
-                        onChange={(e) => setNeighborhoodSearch(e.target.value)}
-                        className="h-8 pl-8 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                  </div>
-                )}
-                <div className="max-h-48 overflow-y-auto">
-                  {filteredNeighborhoods.length > 0 ? (
-                    filteredNeighborhoods.map((n) => (
-                      <SelectItem key={n} value={n}>
-                        {n}
-                      </SelectItem>
-                    ))
-                  ) : availableNeighborhoods.length > 0 ? (
-                    <div className="p-2 text-center text-muted-foreground text-sm">
-                      No neighborhoods found
-                    </div>
-                  ) : null}
-                </div>
-              </SelectContent>
-            </Select>
-            <p className="text-[10px] text-muted-foreground">
-              Optional - helps clients find you
-            </p>
-          </div>
-        </div>
-
-        {/* Selected Location Tags */}
         {(city || country) && (
-          <div className="flex flex-wrap gap-1.5">
-            {country && (
-              <Badge variant="secondary" className="text-xs py-0.5">
-                {country}
-              </Badge>
-            )}
+          <div className="flex flex-wrap gap-1.5 min-h-[28px]">
+            {country && <Badge variant="secondary" className="text-xs py-0.5">{country}</Badge>}
             {city && (
               <Badge variant="default" className="text-xs py-0.5">
                 <MapPin className="w-3 h-3 mr-1" />
                 {city}
               </Badge>
             )}
-            {neighborhood && (
-              <Badge variant="outline" className="text-xs py-0.5">
-                {neighborhood}
-              </Badge>
-            )}
+            {neighborhood && <Badge variant="outline" className="text-xs py-0.5">{neighborhood}</Badge>}
           </div>
         )}
 
-        {/* Interactive map — drag / tap to set the exact spot */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label className="text-foreground text-sm flex items-center gap-1.5">
+            <Label className="text-sm font-semibold text-foreground/80 flex items-center gap-1.5">
               <Move className="w-3.5 h-3.5 text-primary" />
               Fine-tune your pin
             </Label>
             {hasCoords && (
-              <span className="text-[10px] text-muted-foreground">Drag the pin or tap the map</span>
+              <span className="text-[10px] text-muted-foreground">Drag pin or tap map</span>
             )}
           </div>
 
-          {hasCoords && mapToken ? (
-            <div className="relative">
-              <div
-                ref={mapContainerRef}
-                className="w-full h-56 rounded-xl border border-border overflow-hidden bg-muted"
-              />
-              <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex items-center gap-1.5 bg-background/85 backdrop-blur-md rounded-lg px-2.5 py-1.5 border border-border">
-                <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                <span className="text-[11px] text-foreground font-medium">
-                  Drag the green pin or tap anywhere to set your exact location
-                </span>
+          <div className={cn('relative w-full rounded-xl border border-border overflow-hidden bg-muted', MAP_HEIGHT)}>
+            {hasCoords && mapToken ? (
+              <>
+                <div ref={mapContainerRef} className="absolute inset-0" />
+                <div className="pointer-events-none absolute bottom-2 left-2 right-2 flex items-center gap-1.5 bg-background/85 backdrop-blur-md rounded-lg px-2.5 py-1.5 border border-border z-10">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="text-[11px] text-foreground font-medium">
+                    Drag the green pin or tap anywhere on the map
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-center px-4">
+                <MapPin className={cn('w-5 h-5', hasCoords ? 'text-emerald-400' : 'text-muted-foreground')} />
+                <p className="text-xs text-muted-foreground">
+                  {hasCoords
+                    ? 'Pin set from your city. Interactive map loading…'
+                    : 'Pick a city to drop a pin, then drag it to your exact spot.'}
+                </p>
               </div>
-            </div>
-          ) : hasCoords && !mapToken ? (
-            <div className="w-full h-32 rounded-xl border border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1.5 text-center px-4">
-              <MapPin className="w-5 h-5 text-emerald-400" />
-              <p className="text-xs text-muted-foreground">
-                Pin set from your city. Interactive map is unavailable right now.
-              </p>
-            </div>
-          ) : (
-            <div className="w-full h-32 rounded-xl border border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-1.5 text-center px-4">
-              <MapPin className="w-5 h-5 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">
-                Pick a city above to drop a pin, then drag it to your exact spot.
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Privacy Note - Compact */}
-        <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-          <p className="text-xs text-amber-200 font-medium mb-1">Privacy Note</p>
-          <p className="text-xs text-amber-200/80">Your city and neighborhood are visible to clients searching in your area</p>
-          <p className="text-xs text-amber-200/80">Your exact address is kept private until after a match</p>
+        <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+          <p className="text-xs text-amber-200/90">City and neighborhood are visible in search. Exact address stays private until after a match.</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-
-

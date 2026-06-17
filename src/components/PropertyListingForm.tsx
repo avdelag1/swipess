@@ -1,26 +1,32 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { AITextarea } from '@/components/ui/AITextarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
+import { SmartSelector } from './listing/SmartSelector';
+import { FormFieldLabel, FormSection } from './listing/FormSection';
 import {
   BATHROOM_COUNTS,
   BEDROOM_COUNTS,
+  buildPropertyDescription,
   buildTitleFromChips,
   chipsFromString,
+  MEXICO_STATES,
   PROPERTY_ADJECTIVES,
   PROPERTY_FEATURES,
   PROPERTY_INCLUDED,
   PROPERTY_RULES,
   PROPERTY_SIZE,
+  PROPERTY_TYPES,
   PROPERTY_VIBE,
+  RENTAL_DURATIONS,
 } from '@/constants/listingTaxonomies';
-import { cn } from '@/lib/utils';
+import { DescriptionPreview } from './listing/DescriptionPreview';
+import { usePolishedDescription } from '@/hooks/usePolishedDescription';
 
 interface PropertyFormData {
   title?: string;
@@ -77,46 +83,6 @@ interface PropertyListingFormProps {
   initialData?: Partial<PropertyFormData>;
 }
 
-const PROPERTY_TYPES = [
-  { value: 'penthouse', label: 'Penthouse' },
-  { value: 'house', label: 'House' },
-  { value: 'apartment', label: 'Apartment' },
-  { value: 'loft', label: 'Loft' },
-  { value: 'studio', label: 'Studio' },
-  { value: '2-bedroom apartment', label: '2-Bedroom Apartment' },
-  { value: '4-bedroom apartment', label: '4-Bedroom Apartment' },
-  { value: 'mobile_home', label: 'Mobile Home' },
-  { value: 'camper', label: 'Camper / RV' },
-  { value: 'land', label: 'Land' },
-  { value: 'building', label: 'Building' },
-  { value: 'glamping', label: 'Glamping' },
-  { value: 'bungalow', label: 'Bungalow' },
-  { value: 'mezzanine', label: 'Mezzanine (Mesanini)' },
-  { value: 'room', label: 'Room' },
-  { value: 'commercial', label: 'Commercial' },
-];
-const RENTAL_DURATIONS = [
-  { value: '3 months', label: '3 months' },
-  { value: '6 months', label: '6 months' },
-  { value: '1 year', label: '1 year' },
-];
-const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Mexico City', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
-
-// Premium section wrapper
-const Section = ({ title, accent = 'emerald', children, className }: { title: string; accent?: string; children: React.ReactNode; className?: string }) => (
-  <div className={cn("rounded-3xl bg-card border border-border shadow-md overflow-hidden", className)}>
-    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
-      <div className={cn("w-2 h-2 rounded-full", accent === 'emerald' ? 'bg-rose-500' : 'bg-primary')} />
-      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
-    </div>
-    <div className="px-5 pb-5 space-y-4">{children}</div>
-  </div>
-);
-
-const FormLabel = ({ children }: { children: React.ReactNode }) => (
-  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
-);
-
 const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
   <div className="flex items-center space-x-3 p-3 rounded-xl bg-secondary border border-border hover:bg-secondary/80 transition-colors cursor-pointer">
     <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg border-2 border-foreground/40" />
@@ -124,12 +90,6 @@ const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; chec
   </div>
 );
 
-/**
- * Normalize a raw listing record (as it comes back from the DB on Edit) into
- * the array-shaped fields this form expects. The DB stores some chip groups
- * as joined strings (`'No smoking · Quiet hours'`) so a strict zod parse
- * fails and the form blanks out — we round-trip those back to arrays here.
- */
 function normalizeInitialData(raw: any): Partial<PropertyFormData> {
   if (!raw || typeof raw !== 'object') return {};
   const num = (v: any) => {
@@ -167,7 +127,7 @@ function normalizeInitialData(raw: any): Partial<PropertyFormData> {
 export function PropertyListingForm({ onDataChange, initialData = {} }: PropertyListingFormProps) {
   const safeInitialData = normalizeInitialData(initialData);
 
-  const { register, control, watch, setValue } = useForm<PropertyFormData>({
+  const { register, watch, setValue } = useForm<PropertyFormData>({
     defaultValues: {
       adjectives: [],
       size: [],
@@ -177,11 +137,28 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
       vibe: [],
       furnished: false,
       pet_friendly: false,
-      ...safeInitialData
+      ...safeInitialData,
     },
   });
 
-  // Decouple data synchronization from react renders for instant touch / snap performance
+  const snapshot = watch();
+  const polishResetKey = JSON.stringify({
+    adjectives: snapshot.adjectives,
+    size: snapshot.size,
+    vibe: snapshot.vibe,
+    amenities: snapshot.amenities,
+    services_included: snapshot.services_included,
+    house_rules: snapshot.house_rules,
+    property_type: snapshot.property_type,
+    beds: snapshot.beds,
+    baths: snapshot.baths,
+    city: snapshot.city,
+    neighborhood: snapshot.neighborhood,
+    furnished: snapshot.furnished,
+    pet_friendly: snapshot.pet_friendly,
+  });
+  const { polishedDescription, setPolishedDescription } = usePolishedDescription(polishResetKey);
+
   useEffect(() => {
     const subscription = watch((value) => {
       const autoTitle = buildTitleFromChips({
@@ -191,19 +168,35 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         propertyType: value.property_type,
         city: value.city,
       });
-      onDataChange({ ...value, title: value.title || autoTitle });
+      const autoDescription = buildPropertyDescription({
+        adjectives: value.adjectives,
+        size: value.size,
+        vibe: value.vibe,
+        amenities: value.amenities,
+        servicesIncluded: value.services_included,
+        houseRules: value.house_rules,
+        city: value.city,
+        neighborhood: value.neighborhood,
+        beds: value.beds ?? null,
+        baths: value.baths ?? null,
+        furnished: value.furnished,
+        petFriendly: value.pet_friendly,
+      });
+      onDataChange({
+        ...value,
+        title: value.title || autoTitle,
+        description: polishedDescription ?? (value.description?.trim() || autoDescription),
+      });
     });
     return () => subscription.unsubscribe();
-  }, [watch, onDataChange]);
+  }, [watch, onDataChange, polishedDescription]);
 
-  // Read only the necessary values to selectively render UI updates
   const adjectives = watch('adjectives') || [];
   const size = watch('size') || [];
   const beds = watch('beds');
   const baths = watch('baths');
   const propertyType = watch('property_type');
   const city = watch('city') || '';
-  const _country = watch('country') || '';
   const state = watch('state') || '';
   const neighborhood = watch('neighborhood') || '';
   const latitude = watch('latitude');
@@ -212,10 +205,11 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const amenities = watch('amenities') || [];
   const servicesIncluded = watch('services_included') || [];
   const houseRules = watch('house_rules') || [];
+  const rentalDuration = watch('rental_duration_type') ? [watch('rental_duration_type')!] : [];
 
   const setArr = (
     field: 'amenities' | 'services_included' | 'house_rules' | 'vibe' | 'adjectives' | 'size',
-    next: string[]
+    next: string[],
   ) => {
     setValue(field, next);
   };
@@ -232,10 +226,8 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
 
   return (
     <div className="space-y-5">
-
-      {/* ── Title + Description (always editable) ── */}
-      <Section title="Your Listing" accent="emerald">
-        <FormLabel>Title</FormLabel>
+      <FormSection title="Your Listing" accent="rose">
+        <FormFieldLabel>Title</FormFieldLabel>
         <Input
           {...register('title')}
           placeholder={autoTitle || 'e.g. Bright 2-bedroom loft in Tulum…'}
@@ -243,19 +235,19 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         />
         <p className="text-[10px] text-muted-foreground/50 -mt-1 ml-1">Leave blank to auto-generate from your chips below.</p>
 
-        <FormLabel className="mt-3">Description</FormLabel>
+        <FormFieldLabel className="mt-3">Description override (optional)</FormFieldLabel>
         <AITextarea
           value={descValue}
           onChange={(v) => setValue('description', v)}
           enhanceType="listing"
-          placeholder="Describe the property — views, feel, what makes it special. The AI Enhance button will polish it for you."
+          placeholder="Optional — chips below build a description automatically."
           maxLength={800}
-          rows={5}
+          rows={4}
         />
-      </Section>
+      </FormSection>
 
-      <Section title="Describe Your Place" accent="emerald">
-        <FormLabel>Pick a vibe word</FormLabel>
+      <FormSection title="Describe Your Place" accent="rose">
+        <FormFieldLabel>Pick a vibe word</FormFieldLabel>
         <ChipMultiSelect
           accent="rose"
           single
@@ -263,7 +255,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
           value={adjectives}
           onChange={(v) => setArr('adjectives', v)}
         />
-        <FormLabel>Size</FormLabel>
+        <FormFieldLabel>Size</FormFieldLabel>
         <ChipMultiSelect
           accent="rose"
           single
@@ -271,168 +263,160 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
           value={size}
           onChange={(v) => setArr('size', v)}
         />
-      </Section>
+      </FormSection>
 
-      <Section title="Pricing" accent="emerald">
+      <FormSection title="Pricing" accent="rose">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <FormLabel>Price ($/month)</FormLabel>
+            <FormFieldLabel>Price ($/month)</FormFieldLabel>
             <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="2500" />
           </div>
           <div>
-            <FormLabel>Minimum Stay</FormLabel>
-            <Controller
-              name="rental_duration_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
-                  <SelectContent>
-                    {RENTAL_DURATIONS.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
+            <SmartSelector
+              label="Minimum Stay"
+              accent="rose"
+              single
+              options={[...RENTAL_DURATIONS]}
+              value={rentalDuration}
+              onChange={(v) => setValue('rental_duration_type', v[0] ?? '')}
             />
           </div>
         </div>
-      </Section>
+      </FormSection>
 
-      <Section title="Location" accent="emerald">
-        <Controller
-          name="country"
-          control={control}
-          render={({ field }) => (
-            <OwnerLocationSelector
-              country={field.value}
-              onCountryChange={field.onChange}
-              city={city}
-              onCityChange={(nextCity) => setValue('city', nextCity)}
-              neighborhood={neighborhood}
-              onNeighborhoodChange={(nextNeighborhood) => setValue('neighborhood', nextNeighborhood)}
-              latitude={latitude ?? undefined}
-              longitude={longitude ?? undefined}
-              onCoordinatesChange={(lat, lng) => {
-                setValue('latitude', lat);
-                setValue('longitude', lng);
-              }}
-            />
-          )}
+      <OwnerLocationSelector
+        accent="emerald"
+        country={watch('country')}
+        onCountryChange={(c) => setValue('country', c)}
+        city={city}
+        onCityChange={(nextCity) => setValue('city', nextCity)}
+        neighborhood={neighborhood}
+        onNeighborhoodChange={(nextNeighborhood) => setValue('neighborhood', nextNeighborhood)}
+        latitude={latitude ?? undefined}
+        longitude={longitude ?? undefined}
+        onCoordinatesChange={(lat, lng) => {
+          setValue('latitude', lat);
+          setValue('longitude', lng);
+        }}
+      />
+
+      <FormSection title="State / Region" accent="rose">
+        <SmartSelector
+          label="State (Mexico)"
+          accent="rose"
+          single
+          forceSheet
+          options={[...MEXICO_STATES]}
+          value={state ? [state] : []}
+          onChange={(v) => setValue('state', v[0] ?? '')}
+          placeholder="Search state…"
+          searchPlaceholder="Quintana Roo, Jalisco…"
         />
-        <div className="mt-3">
-          <FormLabel>State</FormLabel>
-          <Controller
-            name="state"
-            control={control}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={state || ''}>
-                <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
-                <SelectContent>
-                  <div className="max-h-48 overflow-y-auto">
-                    {STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </div>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      </Section>
+      </FormSection>
 
-      <Section title="Property Details" accent="emerald">
-        <div>
-          <FormLabel>Property Type</FormLabel>
-          <Controller
-            name="property_type"
-            control={control}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                <SelectContent>
-                  {PROPERTY_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
+      <FormSection title="Property Details" accent="rose">
+        <SmartSelector
+          label="Property Type"
+          accent="rose"
+          single
+          forceSheet
+          options={[...PROPERTY_TYPES]}
+          value={propertyType ? [propertyType] : []}
+          onChange={(v) => setValue('property_type', v[0] ?? '')}
+          placeholder="Search type…"
+          searchPlaceholder="Apartment, penthouse, studio…"
+        />
+
+        <FormFieldLabel>Bedrooms</FormFieldLabel>
+        <ChipMultiSelect
+          accent="rose"
+          single
+          options={BEDROOM_COUNTS}
+          value={
+            beds === undefined || beds === null
+              ? []
+              : [String(beds) === '0' ? 'Studio' : String(beds)]
+          }
+          onChange={(v) => {
+            const pick = v[0];
+            if (!pick) return setValue('beds', undefined as any);
+            if (pick === 'Studio') return setValue('beds', 0);
+            if (pick === '6+') return setValue('beds', 6);
+            setValue('beds', Number(pick));
+          }}
+        />
+
+        <FormFieldLabel>Bathrooms</FormFieldLabel>
+        <ChipMultiSelect
+          accent="rose"
+          single
+          options={BATHROOM_COUNTS}
+          value={
+            baths === undefined || baths === null
+              ? []
+              : [String(baths)]
+          }
+          onChange={(v) => {
+            const pick = v[0];
+            if (!pick) return setValue('baths', undefined as any);
+            if (pick === '4+') return setValue('baths', 4);
+            setValue('baths', Number(pick));
+          }}
+        />
 
         <div>
-          <FormLabel>Bedrooms</FormLabel>
-          <ChipMultiSelect
-            accent="rose"
-            single
-            options={BEDROOM_COUNTS}
-            value={
-              beds === undefined || beds === null
-                ? []
-                : [String(beds) === '0' ? 'Studio' : String(beds)]
-            }
-            onChange={(v) => {
-              const pick = v[0];
-              if (!pick) return setValue('beds', undefined as any);
-              if (pick === 'Studio') return setValue('beds', 0);
-              if (pick === '6+') return setValue('beds', 6);
-              setValue('beds', Number(pick));
-            }}
-          />
-        </div>
-        <div>
-          <FormLabel>Bathrooms</FormLabel>
-          <ChipMultiSelect
-            accent="rose"
-            single
-            options={BATHROOM_COUNTS}
-            value={
-              baths === undefined || baths === null
-                ? []
-                : [String(baths)]
-            }
-            onChange={(v) => {
-              const pick = v[0];
-              if (!pick) return setValue('baths', undefined as any);
-              if (pick === '4+') return setValue('baths', 4);
-              setValue('baths', Number(pick));
-            }}
-          />
-        </div>
-        <div>
-          <FormLabel>Sq. Ft. (optional)</FormLabel>
+          <FormFieldLabel>Sq. Ft. (optional)</FormFieldLabel>
           <Input type="number" {...register('square_footage', { valueAsNumber: true })} placeholder="1200" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Controller name="furnished" control={control} render={({ field }) => (
-            <CheckboxRow id="furnished" checked={!!field.value} onCheckedChange={field.onChange} label="Furnished" />
-          )} />
-          <Controller name="pet_friendly" control={control} render={({ field }) => (
-            <CheckboxRow id="pet_friendly" checked={!!field.value} onCheckedChange={field.onChange} label="Pet Friendly" />
-          )} />
+          <CheckboxRow id="furnished" checked={!!watch('furnished')} onCheckedChange={(v) => setValue('furnished', v)} label="Furnished" />
+          <CheckboxRow id="pet_friendly" checked={!!watch('pet_friendly')} onCheckedChange={(v) => setValue('pet_friendly', v)} label="Pet Friendly" />
         </div>
-      </Section>
+      </FormSection>
 
-      <Section title="Vibe" accent="emerald">
+      <FormSection title="Vibe" accent="rose">
         <ChipMultiSelect accent="rose" options={PROPERTY_VIBE} value={vibe} onChange={(v) => setArr('vibe', v)} />
-      </Section>
+      </FormSection>
 
-      <Section title="Amenities" accent="emerald">
-        <ChipMultiSelect accent="rose" options={PROPERTY_FEATURES} value={amenities} onChange={(v) => setArr('amenities', v)} />
-      </Section>
+      <FormSection title="Amenities" accent="rose">
+        <SmartSelector
+          accent="rose"
+          options={[...PROPERTY_FEATURES]}
+          value={amenities}
+          onChange={(v) => setArr('amenities', v)}
+          searchPlaceholder="Pool, WiFi, ocean view…"
+        />
+      </FormSection>
 
-      <Section title="Services Included" accent="emerald">
+      <FormSection title="Services Included" accent="rose">
         <ChipMultiSelect accent="rose" options={PROPERTY_INCLUDED} value={servicesIncluded} onChange={(v) => setArr('services_included', v)} />
-      </Section>
+      </FormSection>
 
-      <Section title="House Rules" accent="emerald">
+      <FormSection title="House Rules" accent="rose">
         <ChipMultiSelect accent="rose" options={PROPERTY_RULES} value={houseRules} onChange={(v) => setArr('house_rules', v)} />
-      </Section>
+      </FormSection>
 
-      {/* Auto-title preview — only when no manual title entered */}
-      {!titleValue && autoTitle && (
-        <div className="flex items-center gap-3 rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Auto title</span>
-          <span className="text-sm text-foreground/70 italic flex-1">{autoTitle}</span>
-        </div>
-      )}
+      <DescriptionPreview
+        accent="rose"
+        title={titleValue || autoTitle}
+        description={descValue || buildPropertyDescription({
+          adjectives,
+          size,
+          vibe,
+          amenities,
+          servicesIncluded,
+          houseRules,
+          city,
+          neighborhood,
+          beds: beds ?? null,
+          baths: baths ?? null,
+          furnished: watch('furnished'),
+          petFriendly: watch('pet_friendly'),
+        })}
+        polishedDescription={polishedDescription}
+        onPolished={setPolishedDescription}
+      />
     </div>
   );
 }
-
-

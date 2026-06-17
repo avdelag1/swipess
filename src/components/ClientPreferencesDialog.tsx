@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ChipMultiSelect } from '@/components/listing/ChipMultiSelect'
+import { SmartSelector } from '@/components/listing/SmartSelector'
+import { BIKE_TYPE, MOTO_TYPE, PROPERTY_TYPES } from '@/constants/listingTaxonomies'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
@@ -192,17 +194,54 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
     }
   }
 
-  const propertyTypeOptions = [
-    'Apartment', 'House', 'Villa', 'Studio', 'Loft', 'Penthouse', 'Condo'
-  ]
+  const propertyTypeOptions = PROPERTY_TYPES.map((t) => t.label)
 
   const locationOptions = [
     'Miami Centro', 'Zona Hotelera', 'Aldea Zama', 'La Veleta', 'Región 15'
   ]
 
-  const motoTypeOptions = [
-    'Sport', 'Cruiser', 'Touring', 'Adventure', 'Naked', 'Scooter', 'Off-Road', 'Cafe Racer'
-  ]
+  const listingTypeOptions = [
+    { value: 'rent', label: 'For Rent' },
+    { value: 'buy', label: 'For Sale' },
+  ] as const
+
+  const rentalDurationOptions = [
+    { value: 'daily', label: 'Daily' },
+    { value: 'weekly', label: 'Weekly' },
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'yearly', label: 'Yearly' },
+  ] as const
+
+  const amenityOptions = [
+    'Furnished', 'Pet Friendly', 'Gym', 'Balcony', 'Elevator', 'Jacuzzi', 'Coworking Space', 'Solar Panels',
+  ] as const
+
+  const selectedAmenities = [
+    formData.furnished_required && 'Furnished',
+    formData.pet_friendly_required && 'Pet Friendly',
+    formData.requires_gym && 'Gym',
+    formData.requires_balcony && 'Balcony',
+    formData.requires_elevator && 'Elevator',
+    formData.requires_jacuzzi && 'Jacuzzi',
+    formData.requires_coworking_space && 'Coworking Space',
+    formData.requires_solar_panels && 'Solar Panels',
+  ].filter(Boolean) as string[]
+
+  const setAmenities = (selected: string[]) => {
+    setFormData({
+      ...formData,
+      furnished_required: selected.includes('Furnished'),
+      pet_friendly_required: selected.includes('Pet Friendly'),
+      requires_gym: selected.includes('Gym'),
+      requires_balcony: selected.includes('Balcony'),
+      requires_elevator: selected.includes('Elevator'),
+      requires_jacuzzi: selected.includes('Jacuzzi'),
+      requires_coworking_space: selected.includes('Coworking Space'),
+      requires_solar_panels: selected.includes('Solar Panels'),
+    })
+  }
+
+  const motoTypeOptions = [...MOTO_TYPE]
 
   const motoTransmissionOptions = ['Manual', 'Automatic', 'Semi-Automatic', 'CVT']
 
@@ -219,22 +258,13 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
     'Traction Control', 'Riding Modes', 'LED Lighting', 'USB Charging'
   ]
 
-  const bicycleTypeOptions = [
-    'Mountain', 'Road', 'Hybrid', 'Electric', 'BMX', 'Cruiser', 'Folding', 'Gravel'
-  ]
+  const bicycleTypeOptions = [...BIKE_TYPE]
 
   const bicycleWheelSizeOptions = ['20"', '24"', '26"', '27.5"', '29"', '700c', '650b']
 
   const bicycleSuspensionOptions = ['Rigid', 'Hardtail', 'Full Suspension']
 
   const bicycleMaterialOptions = ['Aluminum', 'Carbon Fiber', 'Steel', 'Titanium']
-
-  const toggleArrayValue = (array: string[], value: string) => {
-    if (array.includes(value)) {
-      return array.filter(v => v !== value)
-    }
-    return [...array, value]
-  }
 
   return (
     <AnimatePresence>
@@ -328,136 +358,49 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                   </div>
                 </div>
 
-                {/* Property Types */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Property Types</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {propertyTypeOptions.map((type) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`property-${type}`}
-                          checked={formData.property_types.includes(type)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              property_types: toggleArrayValue(formData.property_types, type)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`property-${type}`}>{type}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Listing Type"
+                  accent="rose"
+                  options={listingTypeOptions.map((t) => t.label)}
+                  value={formData.preferred_listing_types.map((v) => listingTypeOptions.find((t) => t.value === v)?.label ?? v)}
+                  onChange={(labels) => {
+                    const values = labels.map((l) => listingTypeOptions.find((t) => t.label === l)?.value ?? l)
+                    setFormData({ ...formData, preferred_listing_types: values })
+                  }}
+                />
 
-                {/* Location Zones */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Preferred Locations</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {locationOptions.map((location) => (
-                      <div key={location} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`location-${location}`}
-                          checked={formData.location_zones.includes(location)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              location_zones: toggleArrayValue(formData.location_zones, location)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`location-${location}`}>{location}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Property Types"
+                  accent="rose"
+                  options={propertyTypeOptions}
+                  value={formData.property_types}
+                  onChange={(v) => setFormData({ ...formData, property_types: v })}
+                />
 
-                {/* Amenities */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Required Amenities</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="furnished"
-                        checked={formData.furnished_required}
-                        onCheckedChange={(checked) => setFormData({ ...formData, furnished_required: !!checked })}
-                      />
-                      <Label htmlFor="furnished">Furnished</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="pet_friendly"
-                        checked={formData.pet_friendly_required}
-                        onCheckedChange={(checked) => setFormData({ ...formData, pet_friendly_required: !!checked })}
-                      />
-                      <Label htmlFor="pet_friendly">Pet Friendly</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="gym"
-                        checked={formData.requires_gym}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_gym: !!checked })}
-                      />
-                      <Label htmlFor="gym">Gym</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="balcony"
-                        checked={formData.requires_balcony}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_balcony: !!checked })}
-                      />
-                      <Label htmlFor="balcony">Balcony</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="elevator"
-                        checked={formData.requires_elevator}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_elevator: !!checked })}
-                      />
-                      <Label htmlFor="elevator">Elevator</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="jacuzzi"
-                        checked={formData.requires_jacuzzi}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_jacuzzi: !!checked })}
-                      />
-                      <Label htmlFor="jacuzzi">Jacuzzi</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="coworking"
-                        checked={formData.requires_coworking_space}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_coworking_space: !!checked })}
-                      />
-                      <Label htmlFor="coworking">Coworking Space</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="solar"
-                        checked={formData.requires_solar_panels}
-                        onCheckedChange={(checked) => setFormData({ ...formData, requires_solar_panels: !!checked })}
-                      />
-                      <Label htmlFor="solar">Solar Panels</Label>
-                    </div>
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Preferred Locations"
+                  accent="rose"
+                  options={locationOptions}
+                  value={formData.location_zones}
+                  onChange={(v) => setFormData({ ...formData, location_zones: v })}
+                />
 
-                {/* Rental Duration */}
-                <div className="space-y-4 pb-4">
-                  <h3 className="text-lg font-semibold">Rental Duration</h3>
-                  <Select value={formData.rental_duration} onValueChange={(value) => setFormData({ ...formData, rental_duration: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select rental duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="yearly">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <ChipMultiSelect
+                  label="Required Amenities"
+                  accent="rose"
+                  options={[...amenityOptions]}
+                  value={selectedAmenities}
+                  onChange={setAmenities}
+                />
+
+                <SmartSelector
+                  label="Rental Duration"
+                  accent="rose"
+                  single
+                  options={[...rentalDurationOptions]}
+                  value={formData.rental_duration ? [formData.rental_duration] : []}
+                  onChange={(v) => setFormData({ ...formData, rental_duration: v[0] ?? 'monthly' })}
+                />
               </div>
             </ScrollArea>
           </div>
@@ -467,27 +410,13 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
           <div className="flex-1 mt-0 min-h-0 flex flex-col">
             <ScrollArea className="h-full px-6">
               <div className="space-y-6 py-4">
-                {/* Motorcycle Types */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Motorcycle Types</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {motoTypeOptions.map((type) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-type-${type}`}
-                          checked={formData.moto_types.includes(type)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_types: toggleArrayValue(formData.moto_types, type)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-type-${type}`}>{type}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Motorcycle Types"
+                  accent="orange"
+                  options={motoTypeOptions}
+                  value={formData.moto_types}
+                  onChange={(v) => setFormData({ ...formData, moto_types: v })}
+                />
 
                 {/* Price Range */}
                 <div className="space-y-4">
@@ -574,137 +503,53 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                   />
                 </div>
 
-                {/* Transmission */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Transmission</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {motoTransmissionOptions.map((trans) => (
-                      <div key={trans} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-trans-${trans}`}
-                          checked={formData.moto_transmission.includes(trans)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_transmission: toggleArrayValue(formData.moto_transmission, trans)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-trans-${trans}`}>{trans}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Transmission"
+                  accent="orange"
+                  options={motoTransmissionOptions}
+                  value={formData.moto_transmission}
+                  onChange={(v) => setFormData({ ...formData, moto_transmission: v })}
+                />
 
-                {/* Condition */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Condition</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {conditionOptions.map((cond) => (
-                      <div key={cond} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-cond-${cond}`}
-                          checked={formData.moto_condition.includes(cond)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_condition: toggleArrayValue(formData.moto_condition, cond)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-cond-${cond}`}>{cond}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Condition"
+                  accent="orange"
+                  options={conditionOptions}
+                  value={formData.moto_condition}
+                  onChange={(v) => setFormData({ ...formData, moto_condition: v })}
+                />
 
-                {/* Fuel Types */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Fuel Type</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {motoFuelTypeOptions.map((fuel) => (
-                      <div key={fuel} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-fuel-${fuel}`}
-                          checked={formData.moto_fuel_types.includes(fuel)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_fuel_types: toggleArrayValue(formData.moto_fuel_types, fuel)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-fuel-${fuel}`}>{fuel}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Fuel Type"
+                  accent="orange"
+                  options={motoFuelTypeOptions}
+                  value={formData.moto_fuel_types}
+                  onChange={(v) => setFormData({ ...formData, moto_fuel_types: v })}
+                />
 
-                {/* Cylinders */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Cylinders</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {motoCylinderOptions.map((cyl) => (
-                      <div key={cyl} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-cyl-${cyl}`}
-                          checked={formData.moto_cylinders.includes(cyl)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_cylinders: toggleArrayValue(formData.moto_cylinders, cyl)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-cyl-${cyl}`}>{cyl}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Cylinders"
+                  accent="orange"
+                  options={motoCylinderOptions}
+                  value={formData.moto_cylinders}
+                  onChange={(v) => setFormData({ ...formData, moto_cylinders: v })}
+                />
 
-                {/* Cooling System */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Cooling System</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {motoCoolingOptions.map((cool) => (
-                      <div key={cool} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-cool-${cool}`}
-                          checked={formData.moto_cooling_system.includes(cool)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_cooling_system: toggleArrayValue(formData.moto_cooling_system, cool)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-cool-${cool}`}>{cool}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Cooling System"
+                  accent="orange"
+                  options={motoCoolingOptions}
+                  value={formData.moto_cooling_system}
+                  onChange={(v) => setFormData({ ...formData, moto_cooling_system: v })}
+                />
 
-                {/* Features */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Desired Features</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {motoFeatureOptions.map((feat) => (
-                      <div key={feat} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`moto-feat-${feat}`}
-                          checked={formData.moto_features.includes(feat)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              moto_features: toggleArrayValue(formData.moto_features, feat)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`moto-feat-${feat}`}>{feat}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Desired Features"
+                  accent="orange"
+                  options={motoFeatureOptions}
+                  value={formData.moto_features}
+                  onChange={(v) => setFormData({ ...formData, moto_features: v })}
+                />
 
                 {/* ABS & Electric */}
                 <div className="space-y-4 pb-4">
@@ -746,27 +591,13 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
           <div className="flex-1 mt-0 min-h-0 flex flex-col">
             <ScrollArea className="h-full px-6">
               <div className="space-y-6 py-4">
-                {/* Bicycle Types */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Bicycle Types</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {bicycleTypeOptions.map((type) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`bike-type-${type}`}
-                          checked={formData.bicycle_types.includes(type)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              bicycle_types: toggleArrayValue(formData.bicycle_types, type)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`bike-type-${type}`}>{type}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Bicycle Types"
+                  accent="purple"
+                  options={bicycleTypeOptions}
+                  value={formData.bicycle_types}
+                  onChange={(v) => setFormData({ ...formData, bicycle_types: v })}
+                />
 
                 {/* Price Range */}
                 <div className="space-y-4">
@@ -793,71 +624,29 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                   </div>
                 </div>
 
-                {/* Wheel Size */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Wheel Size</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {bicycleWheelSizeOptions.map((size) => (
-                      <div key={size} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`bike-wheel-${size}`}
-                          checked={formData.bicycle_wheel_sizes.includes(size)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              bicycle_wheel_sizes: toggleArrayValue(formData.bicycle_wheel_sizes, size)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`bike-wheel-${size}`}>{size}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Wheel Size"
+                  accent="purple"
+                  options={bicycleWheelSizeOptions}
+                  value={formData.bicycle_wheel_sizes}
+                  onChange={(v) => setFormData({ ...formData, bicycle_wheel_sizes: v })}
+                />
 
-                {/* Suspension Type */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Suspension Type</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {bicycleSuspensionOptions.map((susp) => (
-                      <div key={susp} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`bike-susp-${susp}`}
-                          checked={formData.bicycle_suspension_type.includes(susp)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              bicycle_suspension_type: toggleArrayValue(formData.bicycle_suspension_type, susp)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`bike-susp-${susp}`}>{susp}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Suspension Type"
+                  accent="purple"
+                  options={bicycleSuspensionOptions}
+                  value={formData.bicycle_suspension_type}
+                  onChange={(v) => setFormData({ ...formData, bicycle_suspension_type: v })}
+                />
 
-                {/* Material */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Frame Material</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {bicycleMaterialOptions.map((mat) => (
-                      <div key={mat} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`bike-mat-${mat}`}
-                          checked={formData.bicycle_material.includes(mat)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              bicycle_material: toggleArrayValue(formData.bicycle_material, mat)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`bike-mat-${mat}`}>{mat}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Frame Material"
+                  accent="purple"
+                  options={bicycleMaterialOptions}
+                  value={formData.bicycle_material}
+                  onChange={(v) => setFormData({ ...formData, bicycle_material: v })}
+                />
 
                 {/* Gears */}
                 <div className="space-y-4">
@@ -894,27 +683,13 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
                   />
                 </div>
 
-                {/* Condition */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Condition</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {conditionOptions.map((cond) => (
-                      <div key={cond} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`bike-cond-${cond}`}
-                          checked={formData.bicycle_condition.includes(cond)}
-                          onCheckedChange={() => {
-                            setFormData({
-                              ...formData,
-                              bicycle_condition: toggleArrayValue(formData.bicycle_condition, cond)
-                            })
-                          }}
-                        />
-                        <Label htmlFor={`bike-cond-${cond}`}>{cond}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ChipMultiSelect
+                  label="Condition"
+                  accent="purple"
+                  options={conditionOptions}
+                  value={formData.bicycle_condition}
+                  onChange={(v) => setFormData({ ...formData, bicycle_condition: v })}
+                />
 
                 {/* Electric */}
                 <div className="space-y-4 pb-4">

@@ -9,7 +9,8 @@ import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferenc
 import { appToast } from '@/utils/appNotification';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
-import { DAYS_OF_WEEK, EXPERIENCE_LEVELS, LOCATION_TYPES, SCHEDULE_TYPES, TIME_SLOTS, WORK_TYPES } from '../WorkerListingForm';
+import { DAYS_OF_WEEK, EXPERIENCE_LEVELS, LOCATION_TYPES, SCHEDULE_TYPES, WORK_TYPES } from '../WorkerListingForm';
+import { WORKER_AVAILABILITY } from '@/constants/listingTaxonomies';
 import { getGroupedCategories, SERVICE_GROUPS } from '@/data/serviceCategories';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -33,7 +34,7 @@ interface WorkerClientFiltersProps {
 export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount }: WorkerClientFiltersProps) {
   const _savePreferencesMutation = useSaveClientFilterPreferences();
   const { isLight } = useAppTheme();
-  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
+  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm ring-1 ring-primary/40';
   const inactivePill = isLight ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
   const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');
@@ -325,15 +326,15 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
           <ChevronDown className="h-3.5 w-3.5 opacity-50" />
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-2 space-y-2">
-          {TIME_SLOTS.map((slot) => (
-            <div key={slot.value} className="flex items-center space-x-2">
+          {WORKER_AVAILABILITY.map((slot) => (
+            <div key={slot} className="flex items-center space-x-2">
               <Checkbox
-                id={`time_${slot.value}`}
-                checked={timeSlotsAvailable.includes(slot.value)}
-                onCheckedChange={() => toggleArrayValue(timeSlotsAvailable, slot.value, setTimeSlotsAvailable)}
+                id={`time_${slot}`}
+                checked={timeSlotsAvailable.includes(slot)}
+                onCheckedChange={() => toggleArrayValue(timeSlotsAvailable, slot, setTimeSlotsAvailable)}
               />
-              <label htmlFor={`time_${slot.value}`} className="text-sm cursor-pointer">
-                {slot.label}
+              <label htmlFor={`time_${slot}`} className="text-sm cursor-pointer">
+                {slot}
               </label>
             </div>
           ))}

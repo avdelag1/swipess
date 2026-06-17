@@ -20,6 +20,7 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile, MatchedListing } from '@/hooks/useSmartMatching';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { ClientCardInfo, PropertyCardInfo, ServiceCardInfo, VehicleCardInfo } from '@/components/ui/CardInfoHierarchy';
+import { descriptionSnippet } from '@/constants/listingTaxonomies';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
@@ -539,6 +540,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   );
                 }
                 const cat = (listing as any).category;
+                const cardSnippet = descriptionSnippet((listing as any).description);
                 if (cat === 'vehicle' || cat === 'motorcycle' || cat === 'bicycle') {
                   return (
                     <VehicleCardInfo
@@ -549,6 +551,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                       model={(listing as any).vehicle_model}
                       year={(listing as any).year}
                       location={(listing as any).city}
+                      snippet={cardSnippet}
                       isVerified={(listing as any).has_verified_documents}
                       photoIndex={currentImageIndex}
                       className="!text-white !space-y-0"
@@ -564,6 +567,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                       serviceName={(listing as any).service_type || (listing as any).property_type || (listing as any).title || 'Service'}
                       name={(listing as any).name}
                       location={(listing as any).city}
+                      snippet={cardSnippet}
                       isVerified={(listing as any).has_verified_documents}
                       photoIndex={currentImageIndex}
                       className="!text-white !space-y-0"
@@ -579,6 +583,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     beds={(listing as any).beds}
                     baths={(listing as any).baths}
                     location={(listing as any).city}
+                    snippet={cardSnippet}
                     isVerified={(listing as any).has_verified_documents}
                     photoIndex={currentImageIndex}
                     className="!text-white !space-y-0"

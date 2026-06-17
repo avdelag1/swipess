@@ -13,14 +13,18 @@ import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { cn } from '@/lib/utils';
 import { useModalStore } from '@/state/modalStore';
 import { validateContent } from '@/utils/contactInfoValidation';
+import { SmartSelector } from '@/components/listing/SmartSelector';
+import { ChipMultiSelect } from '@/components/listing/ChipMultiSelect';
+import { DescriptionPreview } from '@/components/listing/DescriptionPreview';
+import { buildOwnerBusinessDescription, OWNER_TRAITS } from '@/constants/listingTaxonomies';
+import { usePolishedDescription } from '@/hooks/usePolishedDescription';
+import { OWNER_SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
 export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const { isLight } = useAppTheme();
   const { data } = useOwnerProfile();
   const saveMutation = useSaveOwnerProfile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // Draft integration for AI Magic Profile
   const aiProfileDraft = useModalStore((s) => s.aiProfileDraft);
 
   const [businessName, setBusinessName] = useState('');
@@ -29,9 +33,11 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [services, setServices] = useState<string[]>([]);
+  const [traits, setTraits] = useState<string[]>([]);
   const [profileImages, setProfileImages] = useState<string[]>([]);
 
-  // Load data
+  const serviceOptions = OWNER_SERVICE_OFFERING_OPTIONS.map((o) => ({ value: o.id, label: o.label }));
+
   useEffect(() => {
     const merged: any = { ...(data || {}), ...(aiProfileDraft || {}) };
     setBusinessName(merged.business_name ?? '');
@@ -65,7 +71,7 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
       if (!file) return;
       try {
         const url = await handleImageUpload(file);
-        setProfileImages(prev => [...prev, url]);
+        setProfileImages((prev) => [...prev, url]);
       } catch {
         appToast.error('Upload failed');
       }
@@ -75,8 +81,18 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
 
   const handleRemovePhoto = (idx: number) => {
     triggerHaptic('light');
-    setProfileImages(prev => prev.filter((_, i) => i !== idx));
+    setProfileImages((prev) => prev.filter((_, i) => i !== idx));
   };
+
+  const resolvedDescription = buildOwnerBusinessDescription({
+    businessName,
+    offerings: services.map((id) => serviceOptions.find((o) => o.value === id)?.label ?? id),
+    traits,
+    location,
+    customDesc: businessDesc,
+  });
+  const polishResetKey = JSON.stringify({ businessName, services, traits, location, businessDesc });
+  const { polishedDescription, setPolishedDescription } = usePolishedDescription(polishResetKey);
 
   const handleSave = async () => {
     triggerHaptic('medium');
@@ -84,14 +100,15 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
       appToast.error('Content Blocked');
       return;
     }
-    if (businessDesc && !validateContent(businessDesc).isClean) {
+    const descToSave = polishedDescription ?? (businessDesc.trim() || resolvedDescription);
+    if (descToSave && !validateContent(descToSave).isClean) {
       appToast.error('Content Blocked');
       return;
     }
     try {
       await saveMutation.mutateAsync({
         business_name: businessName,
-        business_description: businessDesc,
+        business_description: descToSave,
         business_location: location,
         contact_email: email,
         contact_phone: phone,
@@ -108,7 +125,6 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent hideCloseButton className={cn("sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "border-border bg-background text-foreground" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
-        {/* Header */}
         <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-border bg-background/95 backdrop-blur-xl z-20">
           <div>
             <h2 className="text-xl font-black tracking-tight text-foreground">Business Profile</h2>
@@ -119,11 +135,8 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
           </button>
         </div>
 
-        {/* Content */}
         <ScrollArea className="flex-1" viewportRef={scrollContainerRef}>
           <div className="p-6 space-y-10 pb-32">
-            
-            {/* Photos */}
             <section className="space-y-4">
               <div>
                 <h3 className="text-sm font-black text-foreground">Photos</h3>
@@ -132,7 +145,7 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
               <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
                 {profileImages.map((img, idx) => (
                   <div key={idx} className="relative shrink-0 snap-start">
-                    <img src={img} className="w-32 h-40 object-cover rounded-[1.5rem] border border-border shadow-md" />
+                    <img src={img} alt="" className="w-32 h-40 object-cover rounded-[1.5rem] border border-border shadow-md" />
                     <button onClick={() => handleRemovePhoto(idx)} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md">
                       <X className="w-4 h-4" />
                     </button>
@@ -147,27 +160,52 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
               </div>
             </section>
 
-            {/* Basic Info */}
             <section className="space-y-4">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Details</h3>
-              
+              <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Business</h3>
+
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Business Name</label>
                 <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="E.g. Sunrise Properties" className="h-12 rounded-2xl bg-muted/30" />
               </div>
 
+              <SmartSelector
+                label="What do you offer?"
+                accent="emerald"
+                options={serviceOptions}
+                value={services}
+                onChange={setServices}
+                placeholder="Property, motos, services…"
+              />
+
+              <ChipMultiSelect
+                label="Your style"
+                accent="emerald"
+                options={OWNER_TRAITS}
+                value={traits}
+                onChange={setTraits}
+              />
+
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</label>
-                <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, Country" className="h-12 rounded-2xl bg-muted/30" />
+                <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Cancún, Mexico" className="h-12 rounded-2xl bg-muted/30" />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Description</label>
-                <Textarea value={businessDesc} onChange={(e) => setBusinessDesc(e.target.value)} placeholder="Describe your business, listings, and what makes you stand out…" maxLength={1000} autoGrow showCount className="min-h-[100px] rounded-2xl bg-muted/30 p-4" />
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Custom line (optional)</label>
+                <Textarea value={businessDesc} onChange={(e) => setBusinessDesc(e.target.value)} placeholder="Add a personal touch, or let chips build it for you…" maxLength={1000} autoGrow showCount className="min-h-[80px] rounded-2xl bg-muted/30 p-4" />
               </div>
+
+              <DescriptionPreview
+                accent="emerald"
+                enhanceType="profile"
+                title={businessName}
+                description={resolvedDescription}
+                polishedDescription={polishedDescription}
+                onPolished={setPolishedDescription}
+                placeholder="Name, offerings, and traits build your business description."
+              />
             </section>
 
-            {/* Contact */}
             <section className="space-y-4">
               <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Contact</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -181,11 +219,9 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
                 </div>
               </div>
             </section>
-
           </div>
         </ScrollArea>
 
-        {/* Footer */}
         <div className="flex-none p-4 border-t border-border bg-background/95 backdrop-blur-xl z-20">
           <button
             onClick={handleSave}

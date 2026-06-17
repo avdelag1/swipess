@@ -1,12 +1,30 @@
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AITextarea } from '@/components/ui/AITextarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
+import { ChipMultiSelect } from './listing/ChipMultiSelect';
+import { SmartSelector } from './listing/SmartSelector';
+import { FormFieldLabel, FormSection } from './listing/FormSection';
+import {
+  BICYCLE_BRANDS,
+  BICYCLE_MODELS,
+  BIKE_BRAKE_TYPE,
+  BIKE_CONDITION,
+  BIKE_CONDITION_DB,
+  BIKE_FRAME_MATERIAL,
+  BIKE_FRAME_SIZE,
+  BIKE_INCLUDED,
+  BIKE_SUSPENSION,
+  BIKE_TYPE,
+  BIKE_WHEEL_SIZE,
+  buildBikeDescription,
+  buildVehicleTitleFromChips,
+  getModelsForBrand,
+  PROPERTY_ADJECTIVES,
+} from '@/constants/listingTaxonomies';
+import { DescriptionPreview } from './listing/DescriptionPreview';
+import { PredictiveInput } from './listing/PredictiveInput';
+import { usePolishedDescription } from '@/hooks/usePolishedDescription';
 
 export interface BicycleFormData {
   id?: string;
@@ -34,12 +52,15 @@ export interface BicycleFormData {
   country?: string;
   city?: string;
   neighborhood?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   includes_helmet?: boolean;
   includes_lock?: boolean;
   includes_lights?: boolean;
   includes_basket?: boolean;
   includes_pump?: boolean;
   suspension_type?: string;
+  adjectives?: string[];
 }
 
 interface BicycleListingFormProps {
@@ -47,116 +68,152 @@ interface BicycleListingFormProps {
   initialData?: Partial<BicycleFormData>;
 }
 
-const BICYCLE_TYPES = [
-  { value: 'road', label: 'Road Bike' },
-  { value: 'mountain', label: 'Mountain Bike' },
-  { value: 'hybrid', label: 'Hybrid' },
-  { value: 'electric', label: 'Electric (E-Bike)' },
-  { value: 'cruiser', label: 'Cruiser' },
-  { value: 'bmx', label: 'BMX' },
-];
-const FRAME_SIZES = ['XS (< 5\'2")', 'S (5\'2" - 5\'6")', 'M (5\'6" - 5\'10")', 'L (5\'10" - 6\'2")', 'XL (> 6\'2")'];
-const FRAME_MATERIALS = ['Aluminum', 'Carbon Fiber', 'Steel', 'Titanium', 'Chromoly'];
-const WHEEL_SIZES = ['20"', '24"', '26"', '27.5"', '29"', '700c'];
-const BRAKE_TYPES = [
-  { value: 'hydraulic', label: 'Disc (Hydraulic)' },
-  { value: 'disc', label: 'Disc (Mechanical)' },
-  { value: 'rim', label: 'Rim Brakes' },
-  { value: 'v-brake', label: 'V-Brake' },
-];
-const CONDITIONS = [
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Needs Work' },
-];
-const SUSPENSION_TYPES = [
-  { value: 'none', label: 'None (Rigid)' },
-  { value: 'front', label: 'Front Only (Hardtail)' },
-  { value: 'full', label: 'Full Suspension' },
-  { value: 'rear', label: 'Rear Suspension' },
-];
+const INCLUDED_FIELDS: Record<string, keyof BicycleFormData> = {
+  Helmet: 'includes_helmet',
+  Lock: 'includes_lock',
+  Lights: 'includes_lights',
+  Basket: 'includes_basket',
+  Pump: 'includes_pump',
+};
 
-const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
-  <div className={cn("rounded-3xl bg-card border border-border shadow-md overflow-hidden", className)}>
-    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
-      <div className="w-2 h-2 rounded-full bg-purple-500" />
-      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
-    </div>
-    <div className="px-5 pb-5 space-y-4">{children}</div>
-  </div>
-);
-
-const FormLabel = ({ children }: { children: React.ReactNode }) => (
-  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
-);
-
-const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
-  <div className="flex items-center space-x-3 p-3 rounded-xl bg-secondary border border-border hover:bg-secondary/80 transition-colors cursor-pointer">
-    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg border-2 border-foreground/40" />
-    <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
-  </div>
-);
+function includedFromBooleans(data: Partial<BicycleFormData>): string[] {
+  return BIKE_INCLUDED.filter((f) => {
+    const key = INCLUDED_FIELDS[f];
+    return key && !!data[key];
+  }) as string[];
+}
 
 export function BicycleListingForm({ onDataChange, initialData }: BicycleListingFormProps) {
-  const { register, control, watch, setValue } = useForm<BicycleFormData>({
-    defaultValues: initialData || { mode: 'rent', electric_assist: false }
+  const { register, watch, setValue } = useForm<BicycleFormData>({
+    defaultValues: {
+      mode: 'rent',
+      electric_assist: false,
+      adjectives: [],
+      ...initialData,
+      condition: initialData?.condition
+        ? (Object.entries(BIKE_CONDITION_DB).find(([, v]) => v === initialData.condition)?.[0] ?? initialData.condition)
+        : undefined,
+      bicycle_type: initialData?.bicycle_type
+        ? (BIKE_TYPE.find((t) => t.toLowerCase() === initialData.bicycle_type) ?? initialData.bicycle_type)
+        : undefined,
+    },
   });
 
-  // Decouple data synchronization from react renders for instant touch / snap performance
+  const formSnapshot = watch();
+  const included = includedFromBooleans(formSnapshot);
+  const polishResetKey = JSON.stringify({
+    adjectives: formSnapshot.adjectives,
+    bicycle_type: formSnapshot.bicycle_type,
+    condition: formSnapshot.condition,
+    frame_size: formSnapshot.frame_size,
+    frame_material: formSnapshot.frame_material,
+    wheel_size: formSnapshot.wheel_size,
+    brand: formSnapshot.brand,
+    model: formSnapshot.model,
+    electric_assist: formSnapshot.electric_assist,
+    battery_range: formSnapshot.battery_range,
+    city: formSnapshot.city,
+    included,
+  });
+  const { polishedDescription, setPolishedDescription } = usePolishedDescription(polishResetKey);
+
   useEffect(() => {
     const subscription = watch((value) => {
-      onDataChange(value);
+      const dbCondition = value.condition
+        ? (BIKE_CONDITION_DB[value.condition] ?? value.condition.toLowerCase())
+        : undefined;
+      const autoTitle = buildVehicleTitleFromChips({
+        adjective: value.adjectives?.[0],
+        type: value.bicycle_type,
+        brand: value.brand,
+        model: value.model,
+        year: value.year,
+        city: value.city,
+      });
+      const autoDescription = buildBikeDescription({
+        adjectives: value.adjectives,
+        bicycleType: value.bicycle_type,
+        condition: value.condition,
+        frameSize: value.frame_size,
+        frameMaterial: value.frame_material,
+        wheelSize: value.wheel_size,
+        electric: value.electric_assist,
+        batteryRange: value.battery_range,
+        included: includedFromBooleans(value),
+        city: value.city,
+      });
+      onDataChange({
+        ...value,
+        condition: dbCondition,
+        bicycle_type: value.bicycle_type?.toLowerCase(),
+        title: value.title || autoTitle,
+        description: polishedDescription ?? (value.description?.trim() || autoDescription),
+      });
     });
     return () => subscription.unsubscribe();
-  }, [watch, onDataChange]);
+  }, [watch, onDataChange, polishedDescription]);
 
+  const adjectives = watch('adjectives') || [];
+  const bikeType = watch('bicycle_type') ? [watch('bicycle_type')!] : [];
+  const condition = watch('condition') ? [watch('condition')!] : [];
+  const frameSize = watch('frame_size') ? [watch('frame_size')!] : [];
+  const frameMaterial = watch('frame_material') ? [watch('frame_material')!] : [];
+  const wheelSize = watch('wheel_size') ? [watch('wheel_size')!] : [];
+  const brakeType = watch('brake_type') ? [watch('brake_type')!] : [];
+  const suspension = watch('suspension_type') ? [watch('suspension_type')!] : [];
   const isElectric = watch('electric_assist');
 
-  const handleElectricToggle = (v: boolean) => {
-    setValue('electric_assist', v);
+  const syncIncluded = (selected: string[]) => {
+    for (const [label, key] of Object.entries(INCLUDED_FIELDS)) {
+      setValue(key, selected.includes(label));
+    }
   };
 
   return (
     <div className="space-y-5">
-      <Section title="Basic Information">
-        <div>
-          <FormLabel>Listing Title</FormLabel>
-          <Input {...register('title')} placeholder="e.g., 2022 Specialized Turbo Levo" />
+      <FormSection title="Describe Your Bike" accent="purple">
+        <FormFieldLabel>Pick a vibe word</FormFieldLabel>
+        <ChipMultiSelect
+          accent="purple"
+          single
+          options={PROPERTY_ADJECTIVES}
+          value={adjectives}
+          onChange={(v) => setValue('adjectives', v)}
+        />
+        <SmartSelector
+          label="Bicycle Type"
+          accent="purple"
+          single
+          options={[...BIKE_TYPE]}
+          value={bikeType}
+          onChange={(v) => setValue('bicycle_type', v[0] ?? '')}
+        />
+        <SmartSelector
+          label="Condition"
+          accent="purple"
+          single
+          options={[...BIKE_CONDITION]}
+          value={condition}
+          onChange={(v) => setValue('condition', v[0] ?? '')}
+        />
+      </FormSection>
+
+      <FormSection title="Pricing" accent="purple">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <FormFieldLabel>Sale Price (USD)</FormFieldLabel>
+            <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="1200" />
+          </div>
+          <div>
+            <FormFieldLabel>Daily Rental (USD)</FormFieldLabel>
+            <Input
+              type="number"
+              {...register('rental_rates.per_day', { valueAsNumber: true })}
+              placeholder="15"
+            />
+          </div>
         </div>
-        <div>
-          <FormLabel>Description</FormLabel>
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <AITextarea
-                value={field.value || ''}
-                onChange={field.onChange}
-                enhanceType="listing"
-                placeholder="Condition, upgrades, size fit, what it's great for. Tap AI to polish it."
-                maxLength={800}
-                rows={4}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <FormLabel>Bicycle Type</FormLabel>
-          <Controller
-            name="bicycle_type"
-            control={control}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                <SelectContent>
-                  {BICYCLE_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-      </Section>
+      </FormSection>
 
       <div className="rounded-3xl shadow-md overflow-hidden bg-card border border-border">
         <OwnerLocationSelector
@@ -165,124 +222,101 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
           neighborhood={watch('neighborhood')}
           latitude={(watch('latitude') as number | undefined) ?? undefined}
           longitude={(watch('longitude') as number | undefined) ?? undefined}
-          onCountryChange={(c) => onDataChange({ country: c })}
-          onCityChange={(c) => onDataChange({ city: c })}
-          onNeighborhoodChange={(n) => onDataChange({ neighborhood: n })}
-          onCoordinatesChange={(lat, lng) => onDataChange({ latitude: lat, longitude: lng })}
+          onCountryChange={(c) => setValue('country', c)}
+          onCityChange={(c) => setValue('city', c)}
+          onNeighborhoodChange={(n) => setValue('neighborhood', n)}
+          onCoordinatesChange={(lat, lng) => {
+            setValue('latitude', lat);
+            setValue('longitude', lng);
+          }}
         />
       </div>
 
-      <Section title="Specifications">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FormSection title="Specifications" accent="purple">
+        <div>
+          <FormFieldLabel>Listing Title (optional)</FormFieldLabel>
+          <Input {...register('title')} placeholder="Auto-built from chips above" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <FormLabel>Brand</FormLabel>
-            <Input {...register('brand')} placeholder="Specialized, Trek, Giant..." />
+            <PredictiveInput
+              label="Brand"
+              value={watch('brand') || ''}
+              onChange={(v) => setValue('brand', v)}
+              suggestions={BICYCLE_BRANDS}
+              placeholder="Start typing: Spec…"
+            />
           </div>
           <div>
-            <FormLabel>Model</FormLabel>
-            <Input {...register('model')} placeholder="Turbo Levo" />
+            <PredictiveInput
+              label="Model"
+              value={watch('model') || ''}
+              onChange={(v) => setValue('model', v)}
+              suggestions={getModelsForBrand(watch('brand'), BICYCLE_MODELS)}
+              placeholder={watch('brand') ? 'Pick or type a model' : 'Select brand first'}
+            />
           </div>
           <div>
-            <FormLabel>Year</FormLabel>
+            <FormFieldLabel>Year</FormFieldLabel>
             <Input type="number" {...register('year', { valueAsNumber: true })} placeholder="2022" />
           </div>
           <div>
-            <FormLabel>Condition</FormLabel>
-            <Controller name="condition" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger>
-                <SelectContent>{CONDITIONS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
-          <div>
-            <FormLabel>Frame Size</FormLabel>
-            <Controller name="frame_size" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select frame size" /></SelectTrigger>
-                <SelectContent>{FRAME_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
-          <div>
-            <FormLabel>Frame Material</FormLabel>
-            <Controller name="frame_material" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select material" /></SelectTrigger>
-                <SelectContent>{FRAME_MATERIALS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
-          <div>
-            <FormLabel>Wheel Size</FormLabel>
-            <Controller name="wheel_size" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select wheel size" /></SelectTrigger>
-                <SelectContent>{WHEEL_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
-          <div>
-            <FormLabel>Brake Type</FormLabel>
-            <Controller name="brake_type" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select brake type" /></SelectTrigger>
-                <SelectContent>{BRAKE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
-          <div>
-            <FormLabel>Number of Gears</FormLabel>
+            <FormFieldLabel>Number of Gears</FormFieldLabel>
             <Input type="number" {...register('number_of_gears', { valueAsNumber: true })} placeholder="21" />
           </div>
-          <div>
-            <FormLabel>Suspension</FormLabel>
-            <Controller name="suspension_type" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || ''}>
-                <SelectTrigger><SelectValue placeholder="Select suspension" /></SelectTrigger>
-                <SelectContent>{SUSPENSION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-          </div>
         </div>
-      </Section>
+        <SmartSelector label="Frame Size" accent="purple" single options={[...BIKE_FRAME_SIZE]} value={frameSize} onChange={(v) => setValue('frame_size', v[0] ?? '')} />
+        <SmartSelector label="Frame Material" accent="purple" single options={[...BIKE_FRAME_MATERIAL]} value={frameMaterial} onChange={(v) => setValue('frame_material', v[0] ?? '')} />
+        <SmartSelector label="Wheel Size" accent="purple" single options={[...BIKE_WHEEL_SIZE]} value={wheelSize} onChange={(v) => setValue('wheel_size', v[0] ?? '')} />
+        <SmartSelector label="Brake Type" accent="purple" single options={[...BIKE_BRAKE_TYPE]} value={brakeType} onChange={(v) => setValue('brake_type', v[0] ?? '')} />
+        <SmartSelector label="Suspension" accent="purple" single options={[...BIKE_SUSPENSION]} value={suspension} onChange={(v) => setValue('suspension_type', v[0] ?? '')} />
+      </FormSection>
 
-      <Section title="Electric Features">
-        <CheckboxRow
-          id="electric_assist"
-          checked={!!isElectric}
-          onCheckedChange={handleElectricToggle}
-          label="Electric Assist (E-Bike)"
+      <FormSection title="Electric" accent="purple">
+        <ChipMultiSelect
+          accent="purple"
+          single
+          options={['Electric assist (E-Bike)']}
+          value={isElectric ? ['Electric assist (E-Bike)'] : []}
+          onChange={(v) => setValue('electric_assist', v.includes('Electric assist (E-Bike)'))}
         />
         {isElectric && (
           <div>
-            <FormLabel>Battery Range (km)</FormLabel>
+            <FormFieldLabel>Battery Range (km)</FormFieldLabel>
             <Input type="number" {...register('battery_range', { valueAsNumber: true })} placeholder="80" />
           </div>
         )}
-      </Section>
+      </FormSection>
 
-      <Section title="Included Accessories">
-        <div className="grid grid-cols-2 gap-2">
-          <Controller name="includes_helmet" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_helmet" checked={!!field.value} onCheckedChange={field.onChange} label="Helmet" />
-          )} />
-          <Controller name="includes_lock" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_lock" checked={!!field.value} onCheckedChange={field.onChange} label="Lock" />
-          )} />
-          <Controller name="includes_lights" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_lights" checked={!!field.value} onCheckedChange={field.onChange} label="Lights" />
-          )} />
-          <Controller name="includes_basket" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_basket" checked={!!field.value} onCheckedChange={field.onChange} label="Basket/Rack" />
-          )} />
-          <Controller name="includes_pump" control={control} render={({ field }) => (
-            <CheckboxRow id="includes_pump" checked={!!field.value} onCheckedChange={field.onChange} label="Pump" />
-          )} />
-        </div>
-      </Section>
+      <FormSection title="Included Accessories" accent="purple">
+        <ChipMultiSelect accent="purple" options={[...BIKE_INCLUDED]} value={included} onChange={syncIncluded} />
+      </FormSection>
+
+      <DescriptionPreview
+        accent="purple"
+        title={buildVehicleTitleFromChips({
+          adjective: adjectives[0],
+          type: bikeType[0],
+          brand: watch('brand'),
+          model: watch('model'),
+          year: watch('year'),
+          city: watch('city'),
+        })}
+        description={buildBikeDescription({
+          adjectives,
+          bicycleType: bikeType[0],
+          condition: condition[0],
+          frameSize: frameSize[0],
+          frameMaterial: frameMaterial[0],
+          wheelSize: wheelSize[0],
+          electric: isElectric,
+          batteryRange: watch('battery_range'),
+          included,
+          city: watch('city'),
+        })}
+        polishedDescription={polishedDescription}
+        onPolished={setPolishedDescription}
+      />
     </div>
   );
 }
-
-

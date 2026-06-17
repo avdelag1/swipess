@@ -6,22 +6,16 @@ import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
+import { SmartSelector } from '@/components/listing/SmartSelector';
+import { ChipMultiSelect } from '@/components/listing/ChipMultiSelect';
+import { PROPERTY_TYPES } from '@/constants/listingTaxonomies';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-
-const PROPERTY_TYPES = [
-  { value: 'apartment', label: 'Apartment' },
-  { value: 'house', label: 'House' },
-  { value: 'studio', label: 'Studio' },
-  { value: 'room', label: 'Room' },
-  { value: 'penthouse', label: 'Penthouse' },
-  { value: 'loft', label: 'Loft' },
-];
 
 const LISTING_TYPES = [
   { value: 'rent', label: 'For Rent' },
   { value: 'sale', label: 'For Sale' },
-];
+] as const;
 
 const PRICE_RANGES = [
   { value: '0-500', label: '$0 - $500', min: 0, max: 500 },
@@ -29,7 +23,7 @@ const PRICE_RANGES = [
   { value: '1000-2000', label: '$1,000 - $2,000', min: 1000, max: 2000 },
   { value: '2000-5000', label: '$2,000 - $5,000', min: 2000, max: 5000 },
   { value: '5000+', label: '$5,000+', min: 5000, max: 100000 },
-];
+] as const;
 
 interface PropertyClientFiltersProps {
   onApply: (filters: Record<string, unknown>) => void;
@@ -39,12 +33,12 @@ interface PropertyClientFiltersProps {
 
 function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCount }: PropertyClientFiltersProps) {
   const { isLight } = useAppTheme();
-  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
-  const inactivePill = isLight
-    ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm'
-    : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
-  const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');
+  const triggerCls = cn(
+    'flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest min-h-10',
+    isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white',
+  );
+
   const [propertyTypes, setPropertyTypes] = useState<string[]>((initialFilters.property_types as string[]) || []);
   const [listingTypes, setListingTypes] = useState<string[]>((initialFilters.listing_types as string[]) || []);
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>((initialFilters.selected_price_range as string) || '');
@@ -59,7 +53,6 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
   const [furnished, setFurnished] = useState((initialFilters.furnished as boolean) ?? false);
   const [petFriendly, setPetFriendly] = useState((initialFilters.pet_friendly as boolean) ?? false);
 
-  // Demographics
   const [genderPreference, setGenderPreference] = useState<string>((initialFilters.gender_preference as string) || 'any');
   const [nationalities, setNationalities] = useState<string[]>((initialFilters.nationalities as string[]) || []);
   const [languages, setLanguages] = useState<string[]>((initialFilters.languages as string[]) || []);
@@ -67,11 +60,9 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
     (initialFilters.age_min as number) || 18,
     (initialFilters.age_max as number) || 65,
   ]);
-
   const [relationshipStatus, setRelationshipStatus] = useState<string[]>((initialFilters.relationship_status as string[]) || []);
   const [hasPetsFilter, setHasPetsFilter] = useState<string>((initialFilters.has_pets_filter as string) || 'any');
 
-  // Location
   const [locationCountry, setLocationCountry] = useState<string>((initialFilters.location_country as string) || '');
   const [locationCity, setLocationCity] = useState<string>((initialFilters.location_city as string) || '');
   const [locationNeighborhood, setLocationNeighborhood] = useState<string>((initialFilters.location_neighborhood as string) || '');
@@ -79,14 +70,18 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
   const [locationCities, setLocationCities] = useState<string[]>((initialFilters.location_cities as string[]) || []);
   const [locationNeighborhoods, setLocationNeighborhoods] = useState<string[]>((initialFilters.location_neighborhoods as string[]) || []);
 
-  const toggleArrayValue = (array: string[], value: string, setter: (arr: string[]) => void) => {
-    setter(array.includes(value) ? array.filter(v => v !== value) : [...array, value]);
-  };
+  const priceLabels = PRICE_RANGES.map((r) => r.label);
+  const priceChipValue = selectedPriceRange
+    ? [PRICE_RANGES.find((r) => r.value === selectedPriceRange)?.label ?? '']
+    : [];
+
+  const listingTypeLabels = LISTING_TYPES.map((t) => t.label);
+  const listingTypeChipValue = listingTypes.map((v) => LISTING_TYPES.find((t) => t.value === v)?.label ?? v);
 
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
-    const priceRange = PRICE_RANGES.find(r => r.value === selectedPriceRange);
+    const priceRange = PRICE_RANGES.find((r) => r.value === selectedPriceRange);
     onApply({
       property_types: propertyTypes,
       listing_types: listingTypes,
@@ -115,58 +110,51 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
     <div className="space-y-5 p-2">
       <div className="flex items-center justify-between px-1">
         <span className={cn('text-[10px] font-black uppercase tracking-widest', sectionLabel)}>Property Filters</span>
-        {activeCount > 0 && <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', isLight ? 'bg-primary/10 text-primary' : 'bg-primary/20 text-primary')}>{activeCount} active</span>}
+        {activeCount > 0 && (
+          <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', isLight ? 'bg-primary/10 text-primary' : 'bg-primary/20 text-primary')}>
+            {activeCount} active
+          </span>
+        )}
       </div>
 
-      {/* Price Range */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Price Range</span>
-        <div className="flex flex-wrap gap-2">
-          {PRICE_RANGES.map((range) => (
-            <button
-              key={range.value}
-              onClick={() => setSelectedPriceRange(selectedPriceRange === range.value ? '' : range.value)}
-              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', selectedPriceRange === range.value ? activePill : inactivePill)}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
+        <ChipMultiSelect
+          accent="rose"
+          single
+          options={priceLabels}
+          value={priceChipValue.filter(Boolean)}
+          onChange={(labels) => {
+            const hit = PRICE_RANGES.find((r) => r.label === labels[0]);
+            setSelectedPriceRange(hit?.value ?? '');
+          }}
+        />
       </div>
 
-      {/* Property Type */}
-      <div className="space-y-2.5">
-        <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Property Type</span>
-        <div className="flex flex-wrap gap-2">
-          {PROPERTY_TYPES.map((type) => (
-            <button
-              key={type.value}
-              onClick={() => toggleArrayValue(propertyTypes, type.value, setPropertyTypes)}
-              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', propertyTypes.includes(type.value) ? activePill : inactivePill)}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <SmartSelector
+        label="Property Type"
+        accent="rose"
+        forceSheet
+        options={[...PROPERTY_TYPES]}
+        value={propertyTypes}
+        onChange={setPropertyTypes}
+        placeholder="Apartment, house, penthouse…"
+        searchPlaceholder="Search property types…"
+      />
 
-      {/* Listing Type */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <span className={cn('text-[10px] font-black uppercase tracking-widest px-1', sectionLabel)}>Listing Type</span>
-        <div className="flex flex-wrap gap-2">
-          {LISTING_TYPES.map((type) => (
-            <button
-              key={type.value}
-              onClick={() => toggleArrayValue(listingTypes, type.value, setListingTypes)}
-              className={cn('rounded-2xl border text-[11px] font-black uppercase tracking-widest px-4 py-2 transition-all duration-200 active:scale-95', listingTypes.includes(type.value) ? activePill : inactivePill)}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
+        <ChipMultiSelect
+          accent="rose"
+          options={listingTypeLabels}
+          value={listingTypeChipValue}
+          onChange={(labels) => {
+            const next = labels.map((lbl) => LISTING_TYPES.find((t) => t.label === lbl)?.value ?? lbl);
+            setListingTypes(next);
+          }}
+        />
       </div>
 
-      {/* Bedrooms */}
       <Collapsible>
         <CollapsibleTrigger className={triggerCls}>
           <span>Bedrooms: {bedrooms[0]} – {bedrooms[1]}</span>
@@ -177,7 +165,6 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Bathrooms */}
       <Collapsible>
         <CollapsibleTrigger className={triggerCls}>
           <span>Bathrooms: {bathrooms[0]} – {bathrooms[1]}</span>
@@ -188,18 +175,17 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Toggles */}
-      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
         <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Furnished</Label>
         <Switch checked={furnished} onCheckedChange={setFurnished} />
       </div>
-      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
         <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Pet Friendly</Label>
         <Switch checked={petFriendly} onCheckedChange={setPetFriendly} />
       </div>
 
-      {/* Location */}
       <EmbeddedLocationFilter
+        accent="rose"
         country={locationCountry}
         setCountry={setLocationCountry}
         city={locationCity}
@@ -215,7 +201,6 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
         multiSelect
       />
 
-      {/* Demographics */}
       <ClientDemographicFilters
         genderPreference={genderPreference}
         setGenderPreference={setGenderPreference}
@@ -235,4 +220,3 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
 }
 
 export const PropertyClientFilters = memo(PropertyClientFiltersComponent);
-

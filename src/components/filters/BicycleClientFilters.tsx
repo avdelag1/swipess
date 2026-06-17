@@ -31,7 +31,7 @@ interface BicycleClientFiltersProps {
 
 function BicycleClientFiltersComponent({ onApply, initialFilters = {}, activeCount }: BicycleClientFiltersProps) {
   const { isLight } = useAppTheme();
-  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm scale-[1.03]';
+  const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm ring-1 ring-primary/40';
   const inactivePill = isLight ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
   const [bicycleTypes, setBicycleTypes] = useState<string[]>((initialFilters.bicycle_types as string[]) || []);
