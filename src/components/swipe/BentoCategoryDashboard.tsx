@@ -113,6 +113,10 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                 whileTap={{ opacity: 0.88 }}
                 transition={{ duration: 0.08 }}
                 onClick={() => handleSelect(item.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(item.id); } }}
+                role="button"
+                tabIndex={0}
+                aria-label={item.label}
                 data-quick-filter-card
                 data-skip-press-engine
                 className={cn(

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Activity, Bike, Car, DollarSign, Eye, Home, TrendingUp } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
@@ -8,23 +9,20 @@ interface OwnerListingsStatsProps {
 }
 
 export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsStatsProps) {
-  // Calculate statistics
-  const totalListings = listings.length;
-  const activeListings = listings.filter(l => l.status === 'active' && l.is_active).length;
-  const totalViews = listings.reduce((sum, l) => sum + (l.views || 0), 0);
-  const totalValue = listings.reduce((sum, l) => sum + (l.price || 0), 0);
+  const { stats, categoryBreakdown } = useMemo(() => {
+    const totalListings = listings.length;
+    const activeListings = listings.filter(l => l.status === 'active' && l.is_active).length;
+    const totalViews = listings.reduce((sum, l) => sum + (l.views || 0), 0);
+    const totalValue = listings.reduce((sum, l) => sum + (l.price || 0), 0);
+    const avgPrice = totalListings > 0 ? totalValue / totalListings : 0;
 
-  // Calculate average price
-  const avgPrice = totalListings > 0 ? totalValue / totalListings : 0;
+    const propertiesCount = listings.filter(l => !l.category || l.category === 'property').length;
+    const motorcyclesCount = listings.filter(l => l.category === 'motorcycle').length;
+    const bicyclesCount = listings.filter(l => l.category === 'bicycle').length;
+    const workersCount = listings.filter(l => l.category === 'worker' || l.category === 'services').length;
+    const vehiclesCount = listings.filter(l => l.category === 'vehicle').length;
 
-  // Count by category
-  const propertiesCount = listings.filter(l => !l.category || l.category === 'property').length;
-  const motorcyclesCount = listings.filter(l => l.category === 'motorcycle').length;
-  const bicyclesCount = listings.filter(l => l.category === 'bicycle').length;
-  const workersCount = listings.filter(l => l.category === 'worker' || l.category === 'services').length;
-  const vehiclesCount = listings.filter(l => l.category === 'vehicle').length;
-
-  const stats = [
+    const stats = [
     {
       title: 'Total Listings',
       value: totalListings,
@@ -57,16 +55,18 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       description: 'Active types',
       trend: ''
     },
-  ];
+    ];
 
-  // Category breakdown
-  const categoryBreakdown = [
-    { name: 'Properties', count: propertiesCount, icon: Home, color: '#f43f5e' },
-    { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: '#f97316' },
-    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#EB4898' },
-    { name: 'Services', count: workersCount, icon: Activity, color: '#3b82f6' },
-    { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
-  ].filter(c => c.count > 0);
+    const categoryBreakdown = [
+      { name: 'Properties', count: propertiesCount, icon: Home, color: '#f43f5e' },
+      { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: '#f97316' },
+      { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#EB4898' },
+      { name: 'Services', count: workersCount, icon: Activity, color: '#3b82f6' },
+      { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
+    ].filter(c => c.count > 0);
+
+    return { stats, categoryBreakdown };
+  }, [listings]);
 
   return (
     <div className="space-y-4">
