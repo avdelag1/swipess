@@ -325,7 +325,7 @@ export const BottomNavigation = memo(({
           "w-max max-w-[calc(100vw-24px)]",
           "px-1 py-1.5 border",
           isLight && !isDashboard
-            ? "glass-light-surface border-black/10"
+            ? "glass-light-surface border-black/20"
             : "glass-dark border-white/12",
         )}
       >

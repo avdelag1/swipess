@@ -1215,7 +1215,7 @@ export const PassportMapModal = memo(() => {
                             className={cn(
                               'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
                               isActive
-                                ? 'bg-white border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
+                                ? 'bg-white border-slate-200 text-slate-900 shadow-lg ring-1 ring-slate-200'
                                 : 'bg-[#1e2433] border-white/12 text-white hover:bg-[#2a3142]',
                             )}
                           >

@@ -288,7 +288,7 @@ export default function PriceTracker() {
         })}
       </div>
 
-      <div className="mt-8 p-6 rounded-[2rem] bg-black/5 dark:bg-white/5 border border-dashed border-black/10 dark:border-white/10 flex items-start gap-4">
+      <div className="mt-8 p-6 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-dashed border-slate-200 dark:border-white/10 flex items-start gap-4">
          <Info className="w-5 h-5 text-black/30 shrink-0 mt-0.5" />
          <div className="space-y-1">
             <h4 className="text-xs font-black text-black dark:text-white uppercase tracking-tight">Data Integrity</h4>

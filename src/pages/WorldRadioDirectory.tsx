@@ -140,7 +140,7 @@ export default function WorldRadioDirectory() {
               "w-full h-12 rounded-xl pl-12 pr-5 text-sm font-bold transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40",
               isDark
                 ? "bg-black/30 backdrop-blur-[24px] border border-white/15 placeholder:text-white/40 text-white"
-                : "bg-white/40 backdrop-blur-[24px] border border-black/10 placeholder:text-muted-foreground text-foreground"
+                : "bg-white/40 backdrop-blur-[24px] border border-black/20 placeholder:text-muted-foreground text-foreground"
             )}
           />
         </div>
@@ -341,7 +341,7 @@ export default function WorldRadioDirectory() {
                             ? "bg-primary text-primary-foreground shadow-primary/40 border border-primary/20"
                             : isDark
                               ? "bg-black/40 backdrop-blur-[24px] border border-white/20 text-white hover:bg-white/10"
-                              : "bg-white/60 backdrop-blur-[24px] border border-black/15 text-foreground hover:bg-black/5"
+                              : "bg-white/60 backdrop-blur-[24px] border border-black/20 text-foreground hover:bg-black/10"
                         )}
                       >
                         {isPlaying ? <Volume2 size={14} /> : <Play size={14} fill="currentColor" />}
@@ -358,7 +358,7 @@ export default function WorldRadioDirectory() {
                             ? "bg-[hsl(var(--brand-rose,346_85%_61%))] border border-white/20 text-white shadow-[hsl(var(--brand-rose,346_85%_61%))]/40"
                             : isDark 
                               ? "bg-black/40 backdrop-blur-[24px] border border-white/20 text-white/70 hover:text-white hover:bg-white/10" 
-                              : "bg-white/60 backdrop-blur-[24px] border border-black/15 text-foreground/70 hover:text-foreground hover:bg-black/5"
+                              : "bg-white/60 backdrop-blur-[24px] border border-black/20 text-foreground/70 hover:text-foreground hover:bg-black/10"
                         )}
                         aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
                       >

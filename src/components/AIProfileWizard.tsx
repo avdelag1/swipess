@@ -118,7 +118,7 @@ export function AIProfileWizard() {
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
-    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium'
+    ? 'bg-white border-2 border-slate-300 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium'
     : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-slate-50 border border-slate-200'

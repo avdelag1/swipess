@@ -61,7 +61,7 @@ export const DocumentMessageCard = memo(({
         isMyMessage
           ? 'bg-white/10 border-white/20 text-white'
           : isThemeLight
-            ? 'bg-white border-black/10 text-black shadow-sm'
+            ? 'bg-white border-slate-200 text-black shadow-sm'
             : 'bg-[#141418] border-white/12 text-white',
       )}
     >
