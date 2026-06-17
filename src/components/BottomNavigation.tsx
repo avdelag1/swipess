@@ -100,11 +100,6 @@ export const BottomNavigation = memo(({
 
   // Always visible on every page — no chrome-reveal hiding
   const isActuallyVisible = true;
-  // Theme rule:
-  //  - Dark theme (black filter): nav icons always WHITE everywhere.
-  //  - Light theme (white filter): BLACK everywhere, even on dashboard.
-
-
   const { t } = useTranslation();
 
   const openAIChat = useCallback(() => {
@@ -264,10 +259,32 @@ export const BottomNavigation = memo(({
 
 
   const isDashboard = isDashboardPath(location.pathname);
-  const { useLightIcons, iconColor: baseColor, inactiveIconColor } = getHeaderChrome(isLight, isDashboard || isLight);
+  const { useLightIcons, iconColor: baseColor, inactiveIconColor, iconShadow } = getHeaderChrome(
+    isLight,
+    isDashboard || isLight,
+  );
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
     : 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))';
+  const inactiveGlow = useLightIcons
+    ? 'drop-shadow(0 0 4px rgba(255,255,255,0.22))'
+    : undefined;
+
+  const getNavIconFilter = (itemId: string, active: boolean) => {
+    if (itemId === 'add') {
+      return `${iconShadow} drop-shadow(0 0 12px rgba(255,51,102,0.6))`;
+    }
+    if (!useLightIcons) {
+      return active ? activeGlow : undefined;
+    }
+    return active ? `${iconShadow} ${activeGlow}` : `${iconShadow} ${inactiveGlow}`;
+  };
+
+  const getNavLabelShadow = (itemId: string, active: boolean) => {
+    if (itemId === 'add') return '0 0 8px rgba(255,51,102,0.4)';
+    if (!useLightIcons) return undefined;
+    return active ? '0 0 6px rgba(255,255,255,0.35)' : '0 1px 3px rgba(0,0,0,0.35)';
+  };
   return (
     <nav
       role="navigation"
@@ -370,7 +387,6 @@ export const BottomNavigation = memo(({
                   transition: 'none',
                 }}
               >
-                {/* Active state is color-only: no nested pill/frame behind icons. */}
                 <div
                   className="relative z-10"
                   style={{
@@ -398,8 +414,6 @@ export const BottomNavigation = memo(({
                     )}
                   </AnimatePresence>
 
-                  {/* Icon: brand-colored when active, muted when inactive.
-                      No frame, no glow — just color. */}
                   {(() => {
                     const motionId = getNavMotionId(item.id);
                     const iconEl = (
@@ -410,7 +424,7 @@ export const BottomNavigation = memo(({
                           color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                           fill: 'none',
                           strokeWidth: active ? 2.0 : 1.4,
-                          filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
+                          filter: getNavIconFilter(item.id, active),
                           transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
@@ -420,7 +434,7 @@ export const BottomNavigation = memo(({
                       <MotionIcon
                         id={motionId}
                         active={pressedId === item.id}
-                        loop={active && (item.id === 'ai' || item.id === 'likes')}
+                        loop={active}
                       >
                         {iconEl}
                       </MotionIcon>
@@ -437,8 +451,8 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
-                        textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : undefined,
-                        transition: 'color 120ms ease-out',
+                        textShadow: getNavLabelShadow(item.id, active),
+                        transition: 'color 120ms ease-out, text-shadow 120ms ease-out',
                         zIndex: 1,
                         letterSpacing: '0.08em',
                       }}
