@@ -81,7 +81,7 @@ export default function WorldRadioDirectory() {
       <div
         className={cn(
           "sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-4 px-4 border-b",
-          isDark ? "bg-black/40 backdrop-blur-[24px] border-white/15 shadow-xl" : "bg-white/40 backdrop-blur-[24px] border-black/10 shadow-xl"
+          isDark ? "bg-black/40 backdrop-blur-[24px] border-white/15 shadow-xl" : "bg-white/40 backdrop-blur-[24px] border-black/20 shadow-xl"
         )}
       >
         <div className="flex items-center mb-4 gap-3">
@@ -315,7 +315,7 @@ export default function WorldRadioDirectory() {
                       <div className="flex items-center gap-2">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border shadow-sm",
-                          isDark ? "bg-black/30 text-white/80 border-white/15" : "bg-white/50 text-foreground/80 border-black/10"
+                          isDark ? "bg-black/30 text-white/80 border-white/15" : "bg-white/50 text-foreground/80 border-black/20"
                         )}>
                           {station.frequency}
                         </span>

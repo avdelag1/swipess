@@ -120,7 +120,7 @@ const NotificationsPage = () => {
               variant="ghost" 
               size="sm" 
               onClick={() => { triggerHaptic('medium'); markAllAsRead(); }}
-              className={cn("font-black uppercase italic text-[10px] tracking-widest", isLight ? "hover:bg-black/5" : "hover:bg-white/5")}
+              className={cn("font-black uppercase italic text-[10px] tracking-widest", isLight ? "hover:bg-slate-100" : "hover:bg-white/5")}
             >
               {getText('mark_all_read', 'Clear Unread')}
             </Button>
@@ -136,7 +136,7 @@ const NotificationsPage = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-32 text-center"
             >
-              <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mb-6 border", isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5")}>
+              <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mb-6 border", isDark ? "bg-white/5 border-white/5" : "bg-slate-100 border-slate-200")}>
                 <Bell className={cn("w-10 h-10", isDark ? "text-slate-600" : "text-slate-400")} />
               </div>
               <h2 className="text-lg font-black uppercase italic tracking-wider opacity-60">{getText('empty_state', 'Silence is Golden')}</h2>
@@ -162,7 +162,7 @@ const NotificationsPage = () => {
                 <div className="flex gap-4">
                   <div className={cn(
                     "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0",
-                    isDark ? "bg-white/[0.04]" : "bg-black/[0.04]"
+                    isDark ? "bg-white/[0.04]" : "bg-slate-50"
                   )}>
                     {getIcon(notif.type)}
                   </div>
