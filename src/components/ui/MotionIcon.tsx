@@ -14,7 +14,9 @@ export type MotionIconId =
   | 'profile'
   | 'pop'
   | 'map'
-  | 'send';
+  | 'send'
+  | 'radio'
+  | 'scale';
 
 const NAV_MOTION_MAP: Record<string, MotionIconId> = {
   dashboard: 'browse',
@@ -25,8 +27,8 @@ const NAV_MOTION_MAP: Record<string, MotionIconId> = {
   search: 'filter',
   add: 'pop',
   vapid: 'profile',
-  radio: 'pop',
-  legal: 'compass',
+  radio: 'radio',
+  legal: 'scale',
 };
 
 export function getNavMotionId(navId: string): MotionIconId | undefined {
