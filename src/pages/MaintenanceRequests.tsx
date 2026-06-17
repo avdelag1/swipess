@@ -1,4 +1,4 @@
-import { type ComponentType, useState } from 'react';
+import { type ComponentType, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,7 +56,10 @@ const MaintenanceRequests = () => {
     enabled: !!user,
   });
 
-  const filtered = requests?.filter(r => activeFilter === 'all' || r.status === activeFilter) || [];
+  const filtered = useMemo(
+    () => requests?.filter(r => activeFilter === 'all' || r.status === activeFilter) || [],
+    [requests, activeFilter],
+  );
 
   return (
     <AmbientPageBackground className="w-full min-h-screen px-4 pt-4 pb-32 scrollbar-hide">

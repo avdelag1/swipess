@@ -82,7 +82,7 @@ export const SwipeExhaustedState = ({
           }}
           className={cn(
             "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-50 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90",
-            isLight ? "bg-black/5 text-black hover:bg-black/10" : "bg-white/10 text-white hover:bg-white/20"
+            isLight ? "bg-slate-100 text-black hover:bg-slate-200" : "bg-white/10 text-white hover:bg-white/20"
           )}
           aria-label="Go back to dashboard"
         >

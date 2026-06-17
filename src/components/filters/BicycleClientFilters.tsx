@@ -133,7 +133,7 @@ function BicycleClientFiltersComponent({ onApply, initialFilters = {}, activeCou
         { label: 'Includes Helmet', checked: includesHelmet, onChange: setIncludesHelmet },
         { label: 'Includes Basket', checked: includesBasket, onChange: setIncludesBasket },
       ].map(({ label, checked, onChange }) => (
-        <div key={label} className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+        <div key={label} className={cn('flex items-center justify-between py-2 px-1 rounded-xl', isLight ? 'hover:bg-slate-50' : 'hover:bg-white/3')}>
           <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>{label}</Label>
           <Switch checked={checked} onCheckedChange={onChange} />
         </div>

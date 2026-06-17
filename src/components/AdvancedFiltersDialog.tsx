@@ -166,7 +166,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               variant="ghost"
               size="icon"
               onClick={handleReset}
-              className={cn("w-10 h-10 rounded-full border transition-all active:scale-90", isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-black/5 border-black/10 hover:bg-black/10")}
+              className={cn("w-10 h-10 rounded-full border transition-all active:scale-90", isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-slate-50 border-slate-200 hover:bg-slate-100")}
               title="Reset filters"
             >
               <RotateCcw className="w-4 h-4 opacity-60" />
@@ -176,12 +176,12 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
 
         <div className={cn(
           "shrink-0 px-10 py-5 border",
-          isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"
+          isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
               "w-full grid grid-cols-4 p-1.5 rounded-[2rem] backdrop-blur-xl h-16 border",
-              isDark ? "bg-white/5 border-white/10" : "bg-black/[0.04] border-black/10"
+              isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"
             )}>
               {categoryBase.map((cat) => {
                 const count = filterCounts[cat.id];

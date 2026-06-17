@@ -36,7 +36,7 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
   const triggerCls = cn(
     'flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest min-h-10',
-    isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white',
+    isLight ? 'hover:bg-slate-100 text-black' : 'hover:bg-white/5 text-white',
   );
 
   const [propertyTypes, setPropertyTypes] = useState<string[]>((initialFilters.property_types as string[]) || []);
@@ -175,11 +175,11 @@ function PropertyClientFiltersComponent({ onApply, initialFilters = {}, activeCo
         </CollapsibleContent>
       </Collapsible>
 
-      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-slate-50' : 'hover:bg-white/3')}>
         <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Furnished</Label>
         <Switch checked={furnished} onCheckedChange={setFurnished} />
       </div>
-      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-black/3' : 'hover:bg-white/3')}>
+      <div className={cn('flex items-center justify-between py-2 px-1 rounded-xl min-h-11', isLight ? 'hover:bg-slate-50' : 'hover:bg-white/3')}>
         <Label className={cn('text-[11px] font-black uppercase tracking-widest cursor-pointer', isLight ? 'text-black' : 'text-white')}>Pet Friendly</Label>
         <Switch checked={petFriendly} onCheckedChange={setPetFriendly} />
       </div>

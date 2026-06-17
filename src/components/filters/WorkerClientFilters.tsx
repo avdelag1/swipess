@@ -37,7 +37,7 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
   const activePill = 'bg-primary border-primary text-primary-foreground shadow-sm ring-1 ring-primary/40';
   const inactivePill = isLight ? 'bg-secondary border-border text-foreground hover:bg-secondary/80 shadow-sm' : 'bg-white/8 border-white/10 text-white hover:bg-white/12';
   const sectionLabel = isLight ? 'text-black/50' : 'text-white/40';
-  const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-black/5 text-black' : 'hover:bg-white/5 text-white');
+  const triggerCls = cn('flex items-center justify-between w-full py-2 px-1 rounded-xl transition-colors text-[11px] font-black uppercase tracking-widest', isLight ? 'hover:bg-slate-100 text-black' : 'hover:bg-white/5 text-white');
 
   // Service filters
   const [serviceCategories, setServiceCategories] = useState<string[]>(initialFilters.service_categories || []);

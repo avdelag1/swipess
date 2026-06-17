@@ -37,7 +37,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
                 variant="ghost" 
                 size="icon" 
                 onClick={() => onOpenChange(false)}
-                className={cn("w-12 h-12 rounded-2xl transition-all", isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10")}
+                className={cn("w-12 h-12 rounded-2xl transition-all", isLight ? "bg-slate-100 hover:bg-slate-200" : "bg-white/5 hover:bg-white/10")}
               >
                 <X className="h-5 w-5" />
               </Button>

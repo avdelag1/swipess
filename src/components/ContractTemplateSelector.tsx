@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -50,11 +50,15 @@ export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> =
 
   const templates = userRole === 'owner' ? ownerTemplates : clientTemplates;
 
-  const categories = ['all', ...Array.from(new Set(templates.map(t => t.category)))];
+  const categories = useMemo(
+    () => ['all', ...Array.from(new Set(templates.map(t => t.category)))],
+    [templates],
+  );
 
-  const filteredTemplates = selectedCategory === 'all'
-    ? templates
-    : templates.filter(t => t.category === selectedCategory);
+  const filteredTemplates = useMemo(
+    () => selectedCategory === 'all' ? templates : templates.filter(t => t.category === selectedCategory),
+    [templates, selectedCategory],
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

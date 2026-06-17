@@ -1,4 +1,4 @@
-import { type ComponentType, useEffect, useState } from 'react';
+import { type ComponentType, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Building, Calendar, ChevronLeft, Coffee, ExternalLink, MapPin, Newspaper, Share2, Shield, Utensils, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -56,9 +56,10 @@ export default function LocalIntel() {
     }
   };
 
-  const filteredPosts = selectedCategory === 'all'
-    ? posts
-    : posts.filter(p => p.category === selectedCategory);
+  const filteredPosts = useMemo(
+    () => selectedCategory === 'all' ? posts : posts.filter(p => p.category === selectedCategory),
+    [posts, selectedCategory],
+  );
 
   return (
     <AmbientPageBackground className="min-h-screen pb-28">

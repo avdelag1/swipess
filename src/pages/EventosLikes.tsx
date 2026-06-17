@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -85,12 +85,12 @@ export default function EventosLikes() {
     }
   });
 
-  const filtered = (likedEvents || []).filter(ev => {
-    const matchesSearch = ev.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filtered = useMemo(() => (likedEvents || []).filter(ev => {
+    const matchesSearch = ev.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (ev.location || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || ev.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }), [likedEvents, searchTerm, selectedCategory]);
 
   // Adaptive primary color for the ambient glow and active states
   const activeColor = CATEGORIES.find(c => c.key === selectedCategory)?.color || '#f97316';

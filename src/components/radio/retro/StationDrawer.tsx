@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRight, Globe, Heart, LayoutGrid, Music, Play, Shuffle, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -40,9 +41,10 @@ export const StationDrawer = ({
   const accentColor = theme.primaryColor;
 
   // Filter stations based on favorites view or current city
-  const filteredStations = isFavoritesView
+  const filteredStations = useMemo(() => isFavoritesView
     ? radioStations.filter(s => favorites.includes(s.id))
-    : radioStations.filter(s => s.city === currentCity);
+    : radioStations.filter(s => s.city === currentCity),
+  [isFavoritesView, favorites, currentCity]);
 
   const cities = Object.values(cityThemes);
 

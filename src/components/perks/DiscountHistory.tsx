@@ -44,7 +44,7 @@ export function DiscountHistory({ redemptions }: DiscountHistoryProps) {
             onClick={exportCSV}
             className={cn(
               "flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors",
-              isLight ? "bg-black/[0.03] text-black hover:bg-black/[0.06]" : "bg-muted/60 text-foreground hover:bg-muted"
+              isLight ? "bg-slate-50 text-black hover:bg-slate-100" : "bg-muted/60 text-foreground hover:bg-muted"
             )}
           >
             <Download size={12} /> Export

@@ -170,7 +170,7 @@ export const MessagesDocumentsLibrary = memo(() => {
                     onClick={() => handleExport(contract.content, contract.title, 'pdf')}
                     className={cn(
                       'flex-1 h-11 rounded-xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest',
-                      isLight ? 'border-black/10 text-black/70 hover:border-rose-500/30' : 'border-white/10 text-white/70 hover:border-rose-500/30',
+                      isLight ? 'border-slate-200 text-black/70 hover:border-rose-500/30' : 'border-white/10 text-white/70 hover:border-rose-500/30',
                     )}
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -181,7 +181,7 @@ export const MessagesDocumentsLibrary = memo(() => {
                     onClick={() => handleExport(contract.content, contract.title, 'word')}
                     className={cn(
                       'flex-1 h-11 rounded-xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest',
-                      isLight ? 'border-black/10 text-black/70 hover:border-rose-500/30' : 'border-white/10 text-white/70 hover:border-rose-500/30',
+                      isLight ? 'border-slate-200 text-black/70 hover:border-rose-500/30' : 'border-white/10 text-white/70 hover:border-rose-500/30',
                     )}
                   >
                     <Download className="w-3.5 h-3.5" />

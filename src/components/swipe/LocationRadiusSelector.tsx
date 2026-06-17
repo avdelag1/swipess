@@ -134,7 +134,7 @@ export const LocationRadiusSelector = memo(({
               onClick={closePanel}
               className={cn(
                 'tap-css-only w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors',
-                isMap ? 'bg-white/10 hover:bg-white/15 text-white' : isLight ? 'bg-black/5 hover:bg-black/10' : 'bg-white/8 hover:bg-white/15',
+                isMap ? 'bg-white/10 hover:bg-white/15 text-white' : isLight ? 'bg-slate-100 hover:bg-slate-200' : 'bg-white/8 hover:bg-white/15',
               )}
             >
               Done
