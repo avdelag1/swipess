@@ -1160,8 +1160,8 @@ export const PassportMapModal = memo(() => {
                   className="absolute z-40 left-0 right-[64px] pointer-events-none"
                   style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
                 >
-                  <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto">
-                    <div className="flex items-center gap-2 px-3 py-1.5">
+                  <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto bg-[#12151f] border-b border-white/[0.08] shadow-[0_6px_24px_rgba(0,0,0,0.5)]">
+                    <div className="flex items-center gap-2 px-3 py-2">
                       {PASSPORT_QUICK_CITIES.map((city) => {
                         const isActive = passportMode && passportLabel?.includes(city.name);
                         return (
@@ -1185,8 +1185,8 @@ export const PassportMapModal = memo(() => {
                             className={cn(
                               'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
                               isActive
-                                ? 'bg-white/95 border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
-                                : 'bg-[#1A202C]/85 backdrop-blur-[8px] border-white/10 text-white/90 hover:bg-white/20',
+                                ? 'bg-white border-black/10 text-slate-900 shadow-lg ring-1 ring-black/5'
+                                : 'bg-[#1e2433] border-white/12 text-white hover:bg-[#2a3142]',
                             )}
                           >
                             <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
