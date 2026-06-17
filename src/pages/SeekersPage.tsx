@@ -302,7 +302,7 @@ export default function SeekersPage() {
               <p className={`font-black text-xl mb-1 ${isLight ? 'text-black' : 'text-white'}`}>No requests right now</p>
               <p className={`text-sm ${isLight ? 'text-black/40' : 'text-white/40'}`}>Check back soon — new requests are posted daily.</p>
             </div>
-            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setDismissed(new Set())} className={`px-6 py-3 rounded-2xl font-bold text-sm border ${isLight ? 'bg-black/5 text-black border-black/10' : 'bg-white/10 text-white border-white/10'}`}>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => setDismissed(new Set())} className={`px-6 py-3 rounded-2xl font-bold text-sm border ${isLight ? 'bg-slate-50 text-black border-slate-200' : 'bg-white/10 text-white border-white/10'}`}>
               Refresh deck
             </motion.button>
           </div>

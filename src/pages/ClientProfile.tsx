@@ -190,7 +190,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
             >
               <User className="w-7 h-7 text-white" />
@@ -201,7 +201,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #FF8C00)' }}
             >
               <Megaphone className="w-7 h-7 text-white" />
@@ -212,7 +212,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/radio'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #F59E0B, #EF4444)' }}
             >
               <Radio className="w-7 h-7 text-white" />
@@ -223,7 +223,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); useModalStore.getState().setModal('showTokensModal', true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #10B981, #06B6D4)' }}
             >
               <Coins className="w-7 h-7 text-white" />
@@ -234,7 +234,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/client/settings'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #64748B, #334155)' }}
             >
               <Settings className="w-7 h-7 text-white" />
@@ -245,7 +245,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); signOut(); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #EF4444, #991B1B)' }}
             >
               <LogOut className="w-7 h-7 text-white" />
@@ -256,7 +256,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/subscription/packages'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-black/10" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }}
             >
               <Crown className="w-7 h-7 text-white" />
@@ -278,7 +278,7 @@ const ClientProfile = () => {
           
           {/* External hint for edit */}
           <div className="absolute top-4 right-4 z-20">
-            <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border", isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10")}>
+            <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border", isLight ? "bg-white/60 border-slate-200" : "bg-white/5 border-white/10")}>
               <span className={cn("text-[8px] font-black uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Sync Protocol</span>
               <ChevronRight className={cn("w-3 h-3", isLight ? "text-black/20" : "text-white/20")} />
             </div>

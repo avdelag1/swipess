@@ -382,7 +382,7 @@ const LegalHub = () => {
                           <div className="flex items-center gap-3">
                             <Badge variant="outline" className={cn(
                               "text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full",
-                              isLight ? "bg-black/5 border-black/10" : "bg-white/5 border-white/10"
+                              isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
                             )}>
                               {pkg.duration} days
                             </Badge>
@@ -883,7 +883,7 @@ const LegalHub = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       className="h-full flex flex-col items-center justify-center text-center space-y-8 p-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-1000"
                     >
-                       <div className={cn("w-32 h-32 rounded-[3.5rem] border-2 border-dashed flex items-center justify-center", isLight ? "border-black/10" : "border-white/10")}>
+                       <div className={cn("w-32 h-32 rounded-[3.5rem] border-2 border-dashed flex items-center justify-center", isLight ? "border-slate-200" : "border-white/10")}>
                           <ShieldCheck className="w-14 h-14" />
                        </div>
                        <div className="space-y-2">
