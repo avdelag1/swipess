@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -239,7 +239,7 @@ export default function SeekersPage() {
     },
   });
 
-  const visible = requests.filter(r => !dismissed.has(r.id));
+  const visible = useMemo(() => requests.filter(r => !dismissed.has(r.id)), [requests, dismissed]);
   const top3 = visible.slice(0, 3);
 
   const handleSwipe = (id: string, dir: 'left' | 'right') => {
