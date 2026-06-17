@@ -141,25 +141,25 @@ export function PerksDashboard() {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                <div className={cn("rounded-[24px] p-5 group transition-all", isLight ? "bg-card border border-border shadow-sm hover:shadow-md" : "bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10")}>
                   <div className="flex items-center gap-2 text-rose-500 mb-2">
                     <Zap size={16} className="fill-current" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Saved</span>
+                    <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/40" : "text-white/30")}>Total Saved</span>
                   </div>
-                  <div className="text-2xl font-black text-white tracking-tight">${stats.totalSaved.toLocaleString()}</div>
+                  <div className={cn("text-2xl font-black tracking-tight", isLight ? "text-black" : "text-white")}>${stats.totalSaved.toLocaleString()}</div>
                 </div>
-                <div className="rounded-[24px] bg-white/5 border border-white/10 p-5 backdrop-blur-xl group hover:bg-white/10 transition-all">
+                <div className={cn("rounded-[24px] p-5 group transition-all", isLight ? "bg-card border border-border shadow-sm hover:shadow-md" : "bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10")}>
                   <div className="flex items-center gap-2 text-violet-400 mb-2">
                     <Award size={16} />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Locations</span>
+                    <span className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/40" : "text-white/30")}>Locations</span>
                   </div>
-                  <div className="text-2xl font-black text-white tracking-tight">{stats.uniqueBiz} <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Places</span></div>
+                  <div className={cn("text-2xl font-black tracking-tight", isLight ? "text-black" : "text-white")}>{stats.uniqueBiz} <span className={cn("text-[10px] font-bold uppercase tracking-widest", isLight ? "text-black/20" : "text-white/20")}>Places</span></div>
                 </div>
               </div>
 
               {/* Recent Activity Mini Header */}
               <div className="mt-8 flex items-center justify-between">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Partner Offers</h3>
+                <h3 className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-black/40" : "text-white/30")}>Partner Offers</h3>
                 <button onClick={() => { triggerHaptic('light'); setTab('businesses'); }} className="text-[10px] font-black text-rose-400 flex items-center gap-1 hover:text-rose-300 transition-colors uppercase tracking-widest">
                   View All <ChevronRight size={12} />
                 </button>
@@ -168,9 +168,9 @@ export function PerksDashboard() {
               {/* Quick offers list */}
               <div className="mt-4 space-y-3">
                 {offers.length === 0 ? (
-                   <div className="py-12 flex flex-col items-center justify-center bg-white/5 rounded-[24px] border border-white/5 border-dashed">
-                      <Store size={32} className="text-white/10 mb-4" />
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Checking for local offers...</p>
+                   <div className={cn("py-12 flex flex-col items-center justify-center rounded-[24px] border border-dashed", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/5 border-white/5")}>
+                      <Store size={32} className={cn("mb-4", isLight ? "text-black/10" : "text-white/10")} />
+                      <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/20" : "text-white/20")}>Checking for local offers...</p>
                    </div>
                 ) : (
                   offers.slice(0, 3).map((offer, idx) => (
@@ -180,18 +180,18 @@ export function PerksDashboard() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.1 }}
                       onClick={() => triggerHaptic('light')}
-                      className="p-4 rounded-[24px] bg-white/5 border border-white/10 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      className={cn("p-4 rounded-[24px] flex items-center gap-4 transition-all cursor-pointer group border", isLight ? "bg-card border-border shadow-sm hover:shadow-md" : "bg-white/5 border-white/10 hover:bg-white/10")}
                     >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500/20 to-violet-600/20 flex items-center justify-center shrink-0 overflow-hidden border border-white/5 shadow-inner">
                         {offer.business_partners?.logo_url ? (
-                          <img src={offer.business_partners.logo_url} className="w-full h-full object-cover" />
+                          <img src={offer.business_partners.logo_url} className="w-full h-full object-cover" alt={offer.business_partners.name || 'Partner logo'} />
                         ) : (
-                          <Store size={20} className="text-white/50" />
+                          <Store size={20} className={isLight ? "text-black/30" : "text-white/50"} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[13px] font-black text-white leading-tight uppercase truncate">{offer.title}</h4>
-                        <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1.5">{offer.business_partners?.name}</p>
+                        <h4 className={cn("text-[13px] font-black leading-tight uppercase truncate", isLight ? "text-black" : "text-white")}>{offer.title}</h4>
+                        <p className={cn("text-[9px] font-black uppercase tracking-widest mt-1.5", isLight ? "text-black/30" : "text-white/30")}>{offer.business_partners?.name}</p>
                       </div>
                       <div className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-black text-xs uppercase tracking-widest group-hover:bg-rose-500 group-hover:text-white transition-all">
                         -{offer.discount_percentage}%

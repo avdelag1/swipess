@@ -153,7 +153,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   <StepIcon className={cn("w-6 h-6", isActive ? "text-primary" : "text-white/70")} style={isActive ? { color: s.color } : {}} />
                 )}
               </motion.div>
-              <span className={cn("text-[8px] font-black uppercase tracking-[0.2em]", isActive ? "text-white" : "text-white/20")}>
+              <span className={cn("text-[8px] font-black uppercase tracking-[0.2em]", isActive ? (isLight ? "text-black" : "text-white") : (isLight ? "text-black/30" : "text-white/20"))}>
                 {s.title}
               </span>
               {i < steps.length - 1 && (
@@ -236,7 +236,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                       {uploading ? 'Processing Image...' : (selfieUrl ? 'Change Photo' : 'Capture Selfie')}
                     </div>
                   </label>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Identity check active</p>
+                  <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/20" : "text-white/20")}>Identity check active</p>
                 </div>
               </div>
             )}
@@ -274,7 +274,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                       {uploading ? 'Scanning Docs...' : (documentUrl ? 'Replace ID' : 'Scan Document')}
                     </div>
                   </label>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Automatic OCR enabled</p>
+                  <p className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-black/20" : "text-white/20")}>Automatic OCR enabled</p>
                 </div>
               </div>
             )}
@@ -297,7 +297,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   </div>
                 </div>
 
-                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.03] border-white/5")}>
                    <AlertCircle className="w-6 h-6 text-amber-500 shrink-0 mt-1" />
                    <div className="space-y-2">
                        <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Identity Compliance Review</h4>
