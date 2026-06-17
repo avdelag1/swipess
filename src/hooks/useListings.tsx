@@ -123,15 +123,17 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        // Get current user's filter preferences for listing types
-        const { data: user } = await supabase.auth.getUser();
+        // getSession() reads from localStorage — zero network overhead.
+        // getUser() hits the Supabase API to revalidate the JWT; not needed here.
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData?.session?.user ?? null;
         let _preferredListingTypes = ['rent']; // Default to rent
 
-        if (user.user) {
+        if (sessionUser) {
           const { data: preferences, error: prefError } = await supabase
             .from('client_filter_preferences')
             .select('preferred_listing_types')
-            .eq('user_id', user.user.id)
+            .eq('user_id', sessionUser.id)
             .maybeSingle();
 
           if (prefError) {
@@ -148,7 +150,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         // This is the "Materialized View" strategy: DB handles exclusion in one pass.
         try {
           const { data: rpcListings, error: rpcError } = await supabase.rpc('get_smart_listings', {
-            p_user_id: user?.user?.id,
+            p_user_id: sessionUser?.id,
             p_category: category === 'all' ? null : category,
             p_limit: 30, // Increased limit for consistent feed
             p_offset: 0
@@ -184,8 +186,8 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         }
 
         // CRITICAL: Exclude own listings
-        if (user.user) {
-          query = query.neq('owner_id', user.user.id);
+        if (sessionUser) {
+          query = query.neq('owner_id', sessionUser.id);
         }
 
         // URL SAFETY: Apply excluded IDs (Fallback only)
@@ -223,26 +225,27 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
     retryDelay: 1000,
   });
 
-  // 🚀 SWIPESS: SHADOW PREFETCH
-  // Background-preloads the first 5 listing images and next 3 videos to eliminate discovery lag
+  // Shadow-prefetch the first 5 listing hero images. Video hints use <link rel="prefetch">
+  // instead of HTMLVideoElement to avoid unreleased media handles.
   useEffect(() => {
-    if (query.data && query.data.length > 0) {
-      const nextBatch = query.data.slice(0, 5);
-      nextBatch.forEach(listing => {
-        // Image prefetch
-        if (listing.images && listing.images.length > 0) {
-          const img = new Image();
-          img.src = listing.images[0];
-        }
-        
-        // Video pre-warming (limit to top 3 for bandwidth sanity)
-        if (listing.video_url) {
-          const vid = document.createElement('video');
-          vid.preload = 'auto'; // Browser will buffer first few KB
-          vid.muted = true;
-          vid.src = listing.video_url;
-        }
-      });
+    if (!query.data || query.data.length === 0) return;
+    const nextBatch = query.data.slice(0, 5);
+    let videoHintCount = 0;
+    for (const listing of nextBatch) {
+      if (listing.images?.[0]) {
+        const img = new Image();
+        img.decoding = 'async';
+        (img as any).fetchPriority = 'low';
+        img.src = listing.images[0];
+      }
+      if (listing.video_url && videoHintCount < 3) {
+        videoHintCount++;
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'video';
+        link.href = listing.video_url;
+        document.head.appendChild(link);
+      }
     }
   }, [query.data]);
 
@@ -344,14 +347,15 @@ export function useSwipedListings() {
     queryKey: ['swipes'],
     queryFn: async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) return [];
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData?.session?.user ?? null;
+        if (!sessionUser) return [];
 
         // Fetch ALL-TIME swiped listings - permanent exclusion, no time limit
         const { data: likes, error } = await supabase
           .from('likes')
           .select('target_id')
-          .eq('user_id', user.user.id)
+          .eq('user_id', sessionUser.id)
           .eq('target_type', 'listing');
 
         if (error) {

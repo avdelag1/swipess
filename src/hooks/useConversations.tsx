@@ -87,12 +87,27 @@ export function useConversations() {
           if (c.owner_id) userIds.add(c.owner_id);
         });
 
-        const [clientsResult, ownersResult, listingsResult] = await Promise.all([
+        const listingIds = data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id);
+
+        // Single round-trip: fetch profiles, listings, blocked users, and last messages in parallel.
+        // Last messages use a single IN query; JS deduplicates by conversation_id keeping
+        // the latest row (results come back ordered by created_at DESC globally).
+        const [clientsResult, ownersResult, listingsResult, blockedResult, messagesResult] = await Promise.all([
           supabase.from('client_profiles').select('user_id, name, age, profile_images').in('user_id', Array.from(userIds)),
           supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', Array.from(userIds)),
-          data.some((c: any) => c.listing_id)
-            ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
-            : Promise.resolve({ data: [] as any[], error: null })
+          listingIds.length > 0
+            ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', listingIds)
+            : Promise.resolve({ data: [] as any[], error: null }),
+          supabase.from('user_blocks' as any).select('blocked_id').eq('blocker_id', user.id),
+          supabase
+            .from('conversation_messages')
+            .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
+            .in('conversation_id', conversationIds)
+            .order('created_at', { ascending: false })
+            // Generous upper bound: latest message per conversation, interleaved globally by time.
+            // conversationIds.length * 3 covers cases where the top rows skew toward a
+            // single busy conversation before we see the quieter ones.
+            .limit(Math.min(conversationIds.length * 3, 150)),
         ]);
 
         if (clientsResult.error) {
@@ -117,35 +132,21 @@ export function useConversations() {
           id: p.user_id,
           full_name: p.business_name,
           avatar_url: p.profile_images?.[0],
-          age: undefined // Owners typically don't have age exposed in the same way
+          age: undefined
         }));
         const listingsMap = new Map<string, any>();
         ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 
-        // FETCH BLOCKED USERS
-        const { data: blockedData } = await supabase
-          .from('user_blocks' as any)
-          .select('blocked_id')
-          .eq('blocker_id', user.id);
-        const blockedUserIds = new Set((blockedData || []).map((b: any) => b.blocked_id));
+        const blockedUserIds = new Set(((blockedResult as any).data || []).map((b: any) => b.blocked_id));
 
-        // OPTIMIZED: Batch fetch only the latest message per conversation using Promise.all
+        // Build last-messages map: first occurrence per conversation_id is the latest
+        // because rows are globally sorted by created_at DESC.
         const lastMessagesMap = new Map<string, unknown>();
-        const messagePromises = conversationIds.map(convId =>
-          supabase
-            .from('conversation_messages')
-            .select('id, conversation_id, content, message_text, created_at, sender_id, is_read, message_type')
-            .eq('conversation_id', convId)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle()
-        );
-        const messageResults = await Promise.all(messagePromises);
-        messageResults.forEach((result, i) => {
-          if (result.data) {
-            lastMessagesMap.set(conversationIds[i], result.data);
+        for (const msg of ((messagesResult as any).data || [])) {
+          if (!lastMessagesMap.has(msg.conversation_id)) {
+            lastMessagesMap.set(msg.conversation_id, msg);
           }
-        });
+        }
 
         // Transform data to include other_user, last_message, and listing
         const conversationsWithProfiles = (data as any[]).map((conversation: any) => {
