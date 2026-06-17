@@ -337,9 +337,10 @@ export default function RoommateMatching() {
             <div className="relative h-[65dvh] w-full">
                <img src={topCard.profile_images?.[0]} className="w-full h-full object-cover" alt={topCard.name} />
                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/20 to-transparent" />
-               <motion.button 
+               <motion.button
                  onClick={() => setShowDetails(false)}
                  whileTap={{ scale: 0.9 }}
+                 aria-label="Close details"
                  className="absolute top-[var(--safe-top)] left-6 w-11 h-11 rounded-[1.25rem] bg-black/40 backdrop-blur-2xl border border-white/20 flex items-center justify-center text-white z-50"
                >
                  <X className="w-5 h-5" />

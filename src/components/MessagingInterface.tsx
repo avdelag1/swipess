@@ -388,7 +388,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <Sparkles className="z-[10000] w-10 h-10 text-white" />
               </div>
               <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Swipes Stream</h3>
-              <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[200px] leading-relaxed text-white/30")}>
+              <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[200px] leading-relaxed", isThemeLight ? "text-black/30" : "text-white/30")}>
                 Initialize the connection stream with a greeting
               </p>
             </div>

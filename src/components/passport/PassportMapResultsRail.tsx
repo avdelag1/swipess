@@ -82,7 +82,7 @@ export const PassportMapResultsRail = memo(({
             >
               <div className="relative h-24">
                 {item.data.imageUrl ? (
-                  <img src={item.data.imageUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                  <img src={item.data.imageUrl} alt={title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 ) : (
                   <div
                     className="w-full h-full flex items-center justify-center"

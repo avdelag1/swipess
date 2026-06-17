@@ -145,8 +145,8 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
               <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
                 {profileImages.map((img, idx) => (
                   <div key={idx} className="relative shrink-0 snap-start">
-                    <img src={img} alt="" className="w-32 h-40 object-cover rounded-[1.5rem] border border-border shadow-md" />
-                    <button onClick={() => handleRemovePhoto(idx)} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md">
+                    <img src={img} alt={`Profile photo ${idx + 1}`} className="w-32 h-40 object-cover rounded-[1.5rem] border border-border shadow-md" />
+                    <button onClick={() => handleRemovePhoto(idx)} aria-label={`Remove photo ${idx + 1}`} className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
