@@ -337,7 +337,7 @@ const LegalHub = () => {
                     {packages.map((pkg) => (
                       <Card key={pkg.id} className={cn(
                         "rounded-[2.5rem] border overflow-hidden transition-all hover:shadow-xl group",
-                        isLight ? "bg-white border-black/5" : "bg-white/[0.04] border-white/5"
+                        isLight ? "bg-slate-50 border-slate-200 hover:bg-white hover:shadow-2xl" : "bg-white/[0.04] border-white/5"
                       )}>
                         <div className="p-8 space-y-5">
                           <div className="flex items-start justify-between gap-4">
@@ -437,7 +437,7 @@ const LegalHub = () => {
                 </div>
               </div>
 
-              <Card className={cn("p-12 sm:p-20 rounded-[4rem] border shadow-[0_50px_100px_rgba(0,0,0,0.1)] backdrop-blur-3xl transition-all duration-700", isLight ? "bg-white border-black/5" : "bg-white/[0.03] border-white/5")}>
+              <Card className={cn("p-12 sm:p-20 rounded-[4rem] border shadow-[0_50px_100px_rgba(0,0,0,0.1)] backdrop-blur-3xl transition-all duration-700", isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.03] border-white/5")}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-16">
                   {currentDoc === 'privacy' && [
                     { id: '01', icon: Database, title: 'Telemetry Collection', content: 'We collect data you provide directly: Profile identities, search telemetry, secure messaging packets, and property metadata.' },
@@ -585,7 +585,7 @@ const LegalHub = () => {
             >
             <Card className={cn(
               "rounded-[4rem] overflow-hidden border shadow-[0_60px_120px_rgba(0,0,0,0.15)] text-center p-16 sm:p-24 relative backdrop-blur-3xl",
-              isLight ? "bg-white border-black/5" : "bg-black border-white/5"
+              isLight ? "bg-white border-slate-200 shadow-xl" : "bg-black border-white/5"
             )}>
               <div className={cn(
                 "absolute top-0 left-0 w-full h-2 bg-gradient-to-r",
@@ -638,7 +638,7 @@ const LegalHub = () => {
             {/* 🛸 PRIMARY FEATURE CARD */}
             <Card className={cn(
               "rounded-[4.5rem] overflow-hidden border shadow-3xl relative group transition-all duration-700",
-              isLight ? "bg-black/[0.02] border-black/5 shadow-sm" : "bg-white/[0.04] border-white/5 shadow-2xl"
+              isLight ? "bg-slate-50 border-slate-200 shadow-md" : "bg-white/[0.04] border-white/5 shadow-2xl"
             )}>
               <div className={cn(
                 "absolute -inset-1 blur-3xl opacity-20 transition duration-1000 group-hover:opacity-40",
@@ -673,9 +673,9 @@ const LegalHub = () => {
 
                 <div className={cn(
                   "rounded-[3.5rem] overflow-hidden border shadow-2xl transition-all duration-500",
-                  isLight ? "bg-white border-black/5 shadow-sm" : "bg-white/[0.02] border-white/5 shadow-2xl"
+                  isLight ? "bg-white border-slate-200 shadow-md" : "bg-white/[0.02] border-white/5 shadow-2xl"
                 )}>
-                  <div className={cn("divide-y", isLight ? "divide-black/5" : "divide-white/5")}>
+                  <div className={cn("divide-y", isLight ? "divide-slate-100" : "divide-white/5")}>
                     {categories.map((category) => (
                       <div key={category.id} className="group">
                         <button
@@ -711,7 +711,7 @@ const LegalHub = () => {
                               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                               className="overflow-hidden"
                             >
-                              <div className={cn("p-6 space-y-4", isLight ? "bg-black/[0.01]" : "bg-black/20")}>
+                              <div className={cn("p-6 space-y-4", isLight ? "bg-slate-50" : "bg-black/20")}>
                                 {category.subcategories.map((sub) => (
                                   <button
                                     key={sub.id}
@@ -720,7 +720,7 @@ const LegalHub = () => {
                                       "w-full p-8 rounded-[2.5rem] flex items-center gap-6 transition-all text-left border shadow-sm group/sub",
                                       selectedIssue?.subcategory === sub.id 
                                         ? (isOwner ? "bg-purple-500/10 border-purple-500/30 shadow-xl" : "bg-rose-500/10 border-rose-500/30 shadow-xl")
-                                        : (isLight ? "bg-white hover:bg-black/[0.02] border-black/5" : "bg-white/[0.03] hover:bg-white/[0.08] border-white/5")
+                                        : (isLight ? "bg-slate-50 hover:bg-slate-100 border-slate-200" : "bg-white/[0.03] hover:bg-white/[0.08] border-white/5")
                                     )}
                                   >
                                     <div className={cn(
@@ -768,9 +768,9 @@ const LegalHub = () => {
 
                       <Card className={cn(
                         "rounded-[3.5rem] overflow-hidden border shadow-3xl transition-all duration-500 relative",
-                        isLight ? "bg-white border-black/5" : "bg-white/[0.04] border-white/5"
+                        isLight ? "bg-white border-slate-200 shadow-md" : "bg-white/[0.04] border-white/5"
                       )}>
-                        <CardHeader className="p-10 pb-6 border-b border-white/5">
+                        <CardHeader className={cn("p-10 pb-6 border-b", isLight ? "border-slate-100" : "border-white/5")}>
                           <CardTitle className={cn("text-2xl font-black uppercase italic tracking-tighter flex items-center gap-5", isLight ? "text-black" : "text-white")}>
                             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl", isOwner ? "bg-purple-500/20 text-purple-400" : "bg-rose-500/20 text-rose-400")}>
                                <MessageSquare className="w-6 h-6" />
@@ -780,7 +780,7 @@ const LegalHub = () => {
                         </CardHeader>
                         <CardContent className="p-10 space-y-10">
                           <div className="space-y-6">
-                            <div className={cn("p-6 rounded-[2rem] flex items-center gap-6 border transition-all", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/10")}>
+                            <div className={cn("p-6 rounded-[2rem] flex items-center gap-6 border transition-all", isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10")}>
                                <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl", isOwner ? "bg-purple-500 text-white" : "bg-rose-500 text-white")}>
                                  {currentCategory?.icon}
                                </div>
@@ -890,7 +890,7 @@ const LegalHub = () => {
                       }}
                       className={cn(
                         "p-8 rounded-[3rem] border backdrop-blur-3xl flex flex-col items-start gap-8 transition-all group hover:translate-y-[-8px] active:scale-95 shadow-xl",
-                        isLight ? "bg-white border-black/5" : "bg-white/[0.04] border-white/5"
+                        isLight ? "bg-slate-50 border-slate-200 hover:bg-white hover:shadow-2xl" : "bg-white/[0.04] border-white/5"
                       )}
                    >
                       <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6", item.color)}>
@@ -900,7 +900,7 @@ const LegalHub = () => {
                          <h4 className={cn("text-lg font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{item.label}</h4>
                          <p className={cn("text-[10px] font-bold uppercase tracking-widest opacity-30", isLight ? "text-black" : "text-white")}>Authorized Protocol Node</p>
                       </div>
-                      <div className={cn("mt-auto w-full flex items-center justify-between pt-4 border-t", isLight ? "border-black/5" : "border-white/5")}>
+                      <div className={cn("mt-auto w-full flex items-center justify-between pt-4 border-t", isLight ? "border-slate-200" : "border-white/5")}>
                          <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-40 group-hover:opacity-100 transition-opacity", isLight ? "text-black" : "text-white")}>Open Document</span>
                          <ChevronRight className="w-4 h-4 opacity-20 group-hover:translate-x-1 transition-transform" />
                       </div>
