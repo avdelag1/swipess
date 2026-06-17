@@ -37,14 +37,67 @@ export const getVariablesForTemplate = (templateId: string): ContractVariable[] 
   return commonVariables;
 };
 
+// Fills template blanks (<u>___</u> underline patterns) with the supplied values.
+// Each replacement is contextual — it searches for the blank near its label text
+// so the correct field gets filled even when multiple blanks exist.
 export const applyVariablesToContent = (content: string, values: Record<string, string>): string => {
-  const processed = content;
-  // This is a naive replacement for now, real implementation would identify the <u> tags
-  // but for the AI demo we'll just inject them into the HTML structure.
-  Object.entries(values).forEach(([_key, _value]) => {
-    // Replace placeholders like {{key}} if they existed, or just append meta for now
-  });
-  return processed;
+  let r = content;
+  const B = '_{3,}';               // blank: 3+ underscores inside <u>
+  const fill = (v: string) => `<u>${v}</u>`;
+
+  const sub = (pattern: string, replacement: string, flags = 'i') => {
+    r = r.replace(new RegExp(pattern, flags), replacement);
+  };
+
+  if (values.effective_date) {
+    sub(`((?:as of|on|date[d]?)[:\\s]*)(<u>${B}<\\/u>)`, `$1${fill(values.effective_date)}`);
+    // Fallback: "Agreement Date: ___"
+    sub(`(Agreement\\s+Date[^<]*:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.effective_date)}`);
+  }
+
+  // Owner / landlord / seller — first "Name: ___" occurrence
+  if (values.landlord_name) {
+    sub(`((?:LANDLORD|SELLER|OWNER|RENTAL COMPANY\\/OWNER)[^<]*<br\\s*\\/?>[\\s\\S]*?Name:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.landlord_name)}`);
+  }
+
+  // Tenant / buyer / renter — second name block (search after "TENANT" / "BUYER" heading)
+  if (values.tenant_name) {
+    sub(`((?:TENANT|BUYER|RENTER|GUEST|CLIENT)[^<]*<br\\s*\\/?>[\\s\\S]*?Name:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.tenant_name)}`);
+  }
+
+  if (values.monthly_rent) {
+    sub(`(Monthly\\s+Rent:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.monthly_rent)}`);
+  }
+
+  if (values.security_deposit) {
+    sub(`(Security\\s+Deposit\\s*(?:Amount)?:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.security_deposit)}`);
+  }
+
+  if (values.lease_term) {
+    sub(`(minimum\\s+period\\s+of\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.lease_term)}`);
+  }
+
+  if (values.property_address) {
+    // "located at:" … next paragraph blank
+    sub(`((?:located\\s+at|Property\\s+Address)[^<]*:.*?<\\/p>[\\s\\S]*?<p[^>]*>)(<u>${B}<\\/u>)`, `$1${fill(values.property_address)}`, 'is');
+    // Fallback: "Address: ___" (first occurrence)
+    sub(`(Address:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.property_address)}`);
+  }
+
+  if (values.purchase_price) {
+    sub(`(Total\\s+Purchase\\s+Price:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.purchase_price)}`);
+    sub(`(total\\s+sum\\s+of\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.purchase_price)}`);
+  }
+
+  if (values.closing_date) {
+    sub(`(on\\s+or\\s+before\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.closing_date)}`);
+  }
+
+  if (values.earnest_money) {
+    sub(`(Earnest\\s+Money\\s+Deposit:\\s*)(<u>${B}<\\/u>)`, `$1${fill(values.earnest_money)}`);
+  }
+
+  return r;
 };
 
 

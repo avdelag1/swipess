@@ -16,5 +16,5 @@ export const buttonPress = {
 };
 
 export const staggerContainer = {
-  animate: { transition: { staggerChildren: 0.08 } }
+  animate: { transition: { duration: 0 } },
 };

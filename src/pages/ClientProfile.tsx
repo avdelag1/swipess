@@ -112,7 +112,7 @@ const ClientProfile = () => {
               }}
             >
               <div
-                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border", isLight ? "bg-white border-black/10" : "bg-[#080C14] border-white/5")}
+                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border", isLight ? "surface-2" : "bg-[#080C14] border-white/5")}
                 style={{ borderRadius: '3rem' }}
                 onClick={() => { triggerHaptic('light'); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
@@ -145,7 +145,7 @@ const ClientProfile = () => {
         </div>
 
         {/* HUD STATS GRID */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className={cn("grid grid-cols-3 gap-3", isLight && "surface-section !p-4")}>
           {[
             { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)', path: '/client/who-liked-you' },
             { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)', path: '/client/liked-properties' },
@@ -154,8 +154,11 @@ const ClientProfile = () => {
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center p-5 text-center rounded-3xl border shadow-sm backdrop-blur-xl cursor-pointer", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
-              style={{ boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              className={cn(
+                "flex flex-col items-center justify-center p-5 text-center rounded-3xl cursor-pointer transition-all",
+                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+              )}
+              style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${stat.glow}` }}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
@@ -168,7 +171,7 @@ const ClientProfile = () => {
         </div>
 
         {/* FEATURE HUB */}
-        <div className="space-y-3">
+        <div className={cn("space-y-3", isLight && "surface-section")}>
           {/* AI Profile — full-width hero button */}
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -264,7 +267,7 @@ const ClientProfile = () => {
 
         {/* SHARE AND EARN */}
         <div className="p-[1.5px] rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(255,77,0,0.2), rgba(235,72,152,0.2))' }}>
-          <div className={cn("rounded-3xl", isLight ? "bg-white" : "bg-[#020202]")}>
+          <div className={cn("rounded-3xl", isLight ? "surface-2" : "bg-[#020202]")}>
             <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
           </div>
         </div>
@@ -294,8 +297,11 @@ const ClientProfile = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className={cn("rounded-3xl p-7 space-y-5 border shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
-              style={{ boxShadow: 'inset 0 0 40px rgba(255,77,0,0.03)' }}
+              className={cn(
+                "rounded-3xl p-7 space-y-5",
+                isLight ? "surface-2" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+              )}
+              style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.03)' }}
             >
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-3">
@@ -305,7 +311,7 @@ const ClientProfile = () => {
                 <span className={cn("text-2xl font-black italic tracking-tighter", isLight ? "text-slate-900" : "text-white")}>{completionPercent}%</span>
               </div>
 
-              <div className={cn("h-3 w-full rounded-full overflow-hidden border", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/[0.06]")}>
+              <div className={cn("h-3 w-full rounded-full overflow-hidden border", isLight ? "surface-inset" : "bg-white/[0.04] border-white/[0.06]")}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${completionPercent}%` }}
@@ -321,7 +327,7 @@ const ClientProfile = () => {
         </AnimatePresence>
 
         {/* GLOBAL PULSE FEED */}
-        <div className="space-y-5">
+        <div className={cn("space-y-5", isLight && "surface-section")}>
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />

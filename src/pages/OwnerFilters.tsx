@@ -79,7 +79,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                 onClick={() => navigate('/owner/dashboard')}
                 className={cn(
                   "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border press-snappy shadow-xl",
-                  _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
+                  _isLight ? "surface-4 text-black hover:shadow-[var(--elev-5)]" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
                 )}
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -90,7 +90,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               onClick={handleReset}
               className={cn(
                 "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border press-snappy shadow-lg",
-                _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
+                _isLight ? "surface-4 text-black hover:shadow-[var(--elev-5)]" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
               )}
             >
               <RotateCcw className="w-5 h-5" />
@@ -103,7 +103,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
         "container mx-auto px-6 py-6 max-w-4xl",
         isEmbedded ? "px-0" : ""
       )}>
-        <div className="grid grid-cols-4 gap-2 p-1.5 rounded-[2.5rem] border border-border bg-card/80 backdrop-blur-xl shadow-sm">
+        <div className={cn("grid grid-cols-4 gap-2 p-1.5 rounded-[2.5rem]", _isLight ? "surface-section !p-2" : "border border-border bg-card/80 backdrop-blur-xl shadow-sm")}>
           {categories.map((cat) => {
             const Icon = cat.icon;
             const active = activeCategory === cat.id;

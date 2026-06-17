@@ -15,9 +15,10 @@ import { triggerHaptic } from '@/utils/haptics';
 import { STORAGE } from '@/constants/app';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SEO } from '@/components/SEO';
-const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
+
+const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +41,7 @@ export default function PublicProfilePreview() {
     }
   }, [refCode, id, user?.id]);
 
-  const { data: profile, isLoading, error } = useQuery({
+  const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ['public-profile', id],
     queryFn: async () => {
       if (!id) throw new Error('No profile ID');
@@ -100,7 +101,17 @@ export default function PublicProfilePreview() {
     );
   }
 
-  if (error || !profile) {
+  if (isError && !profile) {
+    return (
+      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
+        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+        <p className="text-sm font-semibold text-white/50 relative z-10">Could not load profile.</p>
+        <Button onClick={() => refetch()} className="relative z-10 rounded-2xl">Try again</Button>
+      </div>
+    );
+  }
+
+  if (!profile) {
     return (
       <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
         <AtmosphericLayer variant="Swipes" opacity={0.15} />

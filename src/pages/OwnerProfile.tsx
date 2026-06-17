@@ -59,7 +59,7 @@ const OwnerProfile = () => {
 
 
         {/* SWIPESS METRIC GRID */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className={cn("grid grid-cols-3 gap-3", isLight && "surface-section !p-4")}>
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#FF4D00]', border: 'border-[#FF4D00]/15', glow: 'rgba(255,77,0,0.15)', path: '/owner/liked-clients' },
             { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]', border: 'border-[#EB4898]/15', glow: 'rgba(235,72,152,0.15)', path: '/owner/interested-clients' },
@@ -68,8 +68,11 @@ const OwnerProfile = () => {
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn("flex flex-col items-center justify-center text-center p-5 rounded-3xl border shadow-sm backdrop-blur-xl cursor-pointer", isLight ? "border-black/10 bg-white" : "bg-white/[0.02]")}
-              style={{ borderColor: isLight ? undefined : `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              className={cn(
+                "flex flex-col items-center justify-center text-center p-5 rounded-3xl cursor-pointer transition-all",
+                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+              )}
+              style={isLight ? undefined : { borderColor: `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
               <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
@@ -85,8 +88,11 @@ const OwnerProfile = () => {
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className={cn("flex items-center justify-between p-6 rounded-3xl cursor-pointer border shadow-xl backdrop-blur-xl", isLight ? "border-black/10 bg-white" : "border-white/[0.06] bg-white/[0.02]")}
-          style={{ boxShadow: 'inset 0 0 40px rgba(255,77,0,0.06)' }}
+          className={cn(
+            "flex items-center justify-between p-6 rounded-3xl cursor-pointer transition-all",
+            isLight ? "surface-3" : "border border-white/[0.06] bg-white/[0.02] shadow-xl backdrop-blur-xl"
+          )}
+          style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.06)' }}
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
           <div className="flex items-center gap-5">
@@ -104,7 +110,7 @@ const OwnerProfile = () => {
         </motion.div>
 
         {/* PRIMARY ACTIONS */}
-        <div className="space-y-3">
+        <div className={cn("space-y-3", isLight && "surface-section")}>
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
             className="w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
@@ -136,7 +142,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); setModal('showOwnerProfile', true); }}
-            className={cn("w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-2 shadow-sm", isLight ? "border-slate-200 bg-white hover:border-slate-300" : "border-white/10 bg-black/40 hover:border-white/20")}
+            className={cn("w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95", isLight ? "surface-3 hover:shadow-[var(--elev-4)]" : "border-2 border-white/10 bg-black/40 hover:border-white/20 shadow-sm")}
           >
             <div className="relative z-10 flex items-center justify-center gap-3">
               <UserCircle className={cn("w-5 h-5", isLight ? "text-slate-700" : "text-white/80")} />
@@ -146,7 +152,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95 border shadow-sm bg-white/5", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/10 hover:border-white/20")}
+            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95", isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/10 bg-white/5 shadow-sm hover:border-white/20")}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
@@ -165,10 +171,13 @@ const OwnerProfile = () => {
               key={i}
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
-              className={cn("rounded-3xl p-7 flex flex-col gap-5 text-left border transition-all shadow-sm backdrop-blur-xl", isLight ? "border-black/10 bg-white hover:bg-black/[0.02]" : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]")}
-              style={{ boxShadow: `inset 0 0 30px ${nav.glow}` }}
+              className={cn(
+                "rounded-3xl p-7 flex flex-col gap-5 text-left transition-all",
+                isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] shadow-sm backdrop-blur-xl"
+              )}
+              style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${nav.glow}` }}
             >
-              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border", isLight ? "border-black/10 bg-white" : "border-white/[0.08] bg-white/[0.04]")}>
+              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border", isLight ? "surface-inset" : "border-white/[0.08] bg-white/[0.04]")}>
                 <nav.icon className={cn("w-6 h-6", nav.color)} />
               </div>
               <div>
@@ -180,7 +189,7 @@ const OwnerProfile = () => {
         </div>
 
         {/* ACTIVITY FEED */}
-        <div className="space-y-6">
+        <div className={cn("space-y-6", isLight && "surface-section")}>
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00] animate-pulse" />

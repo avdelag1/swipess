@@ -514,8 +514,12 @@ body.hw-high [data-map-hud] .glass-pill {
 
 .light .chrome-solid,
 .white-matte .chrome-solid {
-    background: rgba(255, 255, 255, 0.92) !important;
-    border-color: rgba(0, 0, 0, 0.08);
+    background: hsl(0 0% 100%) !important;
+    border-color: rgba(0, 0, 0, 0.10);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.06),
+        0 16px 40px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .deck-hud-solid {

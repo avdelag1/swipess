@@ -139,8 +139,8 @@ interface StaggerContainerProps {
 export function StaggerContainer({
   children,
   className = '',
-  staggerDelay = 0.045,
-  delayChildren = 0.03,
+  staggerDelay: _staggerDelay = 0,
+  delayChildren: _delayChildren = 0,
 }: StaggerContainerProps) {
   return (
     <motion.div
@@ -149,10 +149,7 @@ export function StaggerContainer({
       className={className}
       variants={{
         hidden:  { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: { staggerChildren: staggerDelay, delayChildren },
-        },
+        visible: { opacity: 1, transition: { duration: 0.12 } },
       }}
     >
       {children}

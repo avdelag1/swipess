@@ -53,52 +53,54 @@
     --overlay: rgba(0, 0, 0, 0.85);
 }
 
-/* THEME: LIGHT — Clean, high-contrast white */
+/* THEME: LIGHT — Premium matte white with layered surfaces */
 .light {
-    /* Page background is light gray so white cards/sections visually float above it */
-    --background: 220 16% 96%;
-    --foreground: 0 0% 0%; /* Absolute black for max contrast */
-    --card: 0 0% 100%; /* Pure white — lifts off the gray page */
-    --card-foreground: 0 0% 0%;
-    --primary: 18 100% 50%; /* Swipess Orange */
+    /* L0 canvas — warm gray, NOT pure white */
+    --background: 240 6% 96%;
+    --foreground: 0 0% 9%;
+    /* L2 cards — white floats on canvas */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --primary: 18 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 94%;
-    --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 20%; /* Darker muted text for legibility */
+    /* L1 section trays */
+    --secondary: 240 5% 98%;
+    --secondary-foreground: 0 0% 9%;
+    /* L1 inset / recessed */
+    --muted: 240 5% 93%;
+    --muted-foreground: 0 0% 38%;
     --accent: 330 81% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 82%; /* Stronger than before so card edges are visible */
-    --input: 0 0% 88%;
+    --border: 240 6% 88%;
+    --input: 240 6% 90%;
     --ring: 18 100% 50%;
 
-    /* Semantic UI Tokens */
     --btn-primary-bg: #FF4D00;
     --btn-primary-text: #FFFFFF;
-    --btn-secondary-bg: rgba(0, 0, 0, 0.08); /* Slightly darker for clear visibility */
-    --btn-secondary-text: #000000;
+    --btn-secondary-bg: rgba(0, 0, 0, 0.06);
+    --btn-secondary-text: #111111;
     --icon-active: #FF4D00;
-    --icon-inactive: rgba(0, 0, 0, 0.7); /* Darker inactive state for clear vision */
+    --icon-inactive: rgba(0, 0, 0, 0.55);
 
-    --bg-primary: 220 16% 96%; /* Same as --background */
-    --bg-secondary: 0 0% 100%; /* White panels/cards */
-    --bg-tertiary: 0 0% 98%;
-    --text-primary: 0 0% 0%; /* Absolute black */
-    --text-secondary: 0 0% 10%; /* Very deep black */
-    --text-tertiary: 0 0% 25%;
-    --border-primary: 0 0% 84%;
-    --border-secondary: 0 0% 78%;
+    --bg-primary: 240 6% 96%;
+    --bg-secondary: 0 0% 100%;
+    --bg-tertiary: 240 5% 98%;
+    --text-primary: 0 0% 9%;
+    --text-secondary: 0 0% 22%;
+    --text-tertiary: 0 0% 42%;
+    --border-primary: 240 6% 88%;
+    --border-secondary: 240 5% 84%;
     --accent-primary: 221 83% 50%;
     --accent-secondary: 221 83% 60%;
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.07);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-card: 0 20px 48px rgba(0, 0, 0, 0.16), 0 8px 24px rgba(0, 0, 0, 0.10);
-    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
-    --overlay: rgba(0, 0, 0, 0.65);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.05), 0 12px 32px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-glow: 0 4px 16px rgba(255, 77, 0, 0.12);
+    --overlay: rgba(0, 0, 0, 0.45);
 }
 
 /* Strengthen Tailwind's hardcoded shadow utilities so white cards/sections

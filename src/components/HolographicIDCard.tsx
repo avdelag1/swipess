@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useMemo, useRef } from 'react';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Briefcase, Globe, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { CardTheme } from './vap-id/cardThemes';
 import { cn } from '@/lib/utils';
@@ -27,23 +27,28 @@ export function HolographicIDCard({
   idNumber,
 }: HolographicIDCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  
-  // 3D Tilt Logic
+  const prefersReducedMotion = useReducedMotion();
+
+  const disableTilt = useMemo(() => {
+    if (prefersReducedMotion) return true;
+    if (typeof navigator === 'undefined') return false;
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }, [prefersReducedMotion]);
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  
+
   const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
   const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
-  
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
-  
-  // Shimmer Logic
-  const shimmerX = useTransform(mouseXSpring, [-0.5, 0.5], ["-100%", "100%"]);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['7deg', '-7deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-7deg', '7deg']);
+
+  const shimmerX = useTransform(mouseXSpring, [-0.5, 0.5], ['-100%', '100%']);
   const shimmerOpacity = useTransform(mouseXSpring, [-0.5, 0.5], [0.1, 0.3]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (disableTilt || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -58,22 +63,21 @@ export function HolographicIDCard({
   };
 
   const handleMouseLeave = () => {
+    if (disableTilt) return;
     x.set(0);
     y.set(0);
   };
 
   return (
-    <div 
-      className="perspective-1000 w-full h-full p-1"
+    <div
+      className={cn('w-full h-full p-1', !disableTilt && 'perspective-1000')}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       <motion.div
         ref={cardRef}
         style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
+          ...(disableTilt ? {} : { rotateX, rotateY, transformStyle: 'preserve-3d' }),
           background: theme.background,
         }}
         className={cn(
@@ -105,7 +109,7 @@ export function HolographicIDCard({
         <div className="relative z-10 flex flex-col h-full">
           {/* Header with Photo and Name */}
           <div className="flex gap-6 mb-6">
-            <div className="relative shrink-0" style={{ transform: "translateZ(40px)" }}>
+            <div className="relative shrink-0" style={disableTilt ? undefined : { transform: 'translateZ(40px)' }}>
               <div className="glass-surface w-[120px] h-[150px] sm:w-[140px] sm:h-[180px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/20">
                 {avatarUrl ? (
                   <img src={ensureAbsoluteSupabaseUrl(avatarUrl)} alt={name} className="w-full h-full object-cover" />
@@ -120,7 +124,7 @@ export function HolographicIDCard({
               </div>
             </div>
 
-            <div className="flex-1 min-w-0 pt-2 space-y-4" style={{ transform: "translateZ(30px)" }}>
+            <div className="flex-1 min-w-0 pt-2 space-y-4" style={disableTilt ? undefined : { transform: 'translateZ(30px)' }}>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-brand-accent-2 animate-pulse" />
@@ -156,7 +160,7 @@ export function HolographicIDCard({
           </div>
 
           {/* Tags / Interests Section */}
-          <div className="flex-1 flex flex-col" style={{ transform: "translateZ(20px)" }}>
+          <div className="flex-1 flex flex-col" style={disableTilt ? undefined : { transform: 'translateZ(20px)' }}>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {tags.map((tag, i) => (

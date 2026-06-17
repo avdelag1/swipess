@@ -1,5 +1,8 @@
-import { memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { memo, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
+import { ListingDialogShell } from '@/components/ListingDialogShell';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -16,7 +19,6 @@ import { Bike, Briefcase, CheckCircle, ChevronRight, Edit, Eye, Home, ImageIcon,
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 const ListingPreviewDialog = lazyWithRetry(() => import('@/components/ListingPreviewDialog').then(m => ({ default: m.ListingPreviewDialog })));
 const UnifiedListingForm = lazyWithRetry(() => import('@/components/UnifiedListingForm').then(m => ({ default: m.UnifiedListingForm })));
-const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -85,7 +87,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
+  const hasOpenedCategoryRef = useRef(false);
+  const hasOpenedFormRef = useRef(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    prefetchListingFlowModule();
+  }, []);
 
   // Auto-open form when category is provided via URL params
   useEffect(() => {
@@ -129,6 +137,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   const handleAddProperty = () => {
     triggerHaptic('medium');
+    prefetchListingFlowModule();
     setEditingProperty(null);
     setShowCategoryDialog(true);
   };
@@ -136,9 +145,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
     triggerHaptic('success');
     setEditingProperty({ category, mode });
-    setShowCategoryDialog(false);
     setIsFormOpen(true);
+    requestAnimationFrame(() => setShowCategoryDialog(false));
   };
+
+  if (showCategoryDialog) hasOpenedCategoryRef.current = true;
+  if (isFormOpen) hasOpenedFormRef.current = true;
 
   const handleEditProperty = (listing: any) => {
     triggerHaptic('light');
@@ -268,7 +280,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       <div className="pb-32 space-y-12 w-full relative z-10">
         
         {/* 🛸 ASSET TERMINAL HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+        <div className={cn("flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b", isLight ? "border-black/[0.08]" : "border-white/5")}>
           <div className="flex items-center gap-6">
             <div className="p-5 rounded-[1.4rem] bg-indigo-500/10 border border-indigo-500/20 shadow-2xl">
               <Zap className="w-8 h-8 text-indigo-500" />
@@ -284,7 +296,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             className="press-snappy h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Deploy Asset
+            Add Listing
           </button>
         </div>
 
@@ -302,8 +314,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
-                        "h-18 pl-14 pr-6 rounded-[2.2rem] font-black uppercase tracking-widest text-[12px] transition-all border-none outline-none ring-0", 
-                        isLight ? 'bg-black/[0.04] text-black placeholder:text-black/20 focus:bg-black/5' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10'
+                        "h-18 pl-14 pr-6 rounded-[2.2rem] font-black uppercase tracking-widest text-[12px] transition-all border outline-none ring-0",
+                        isLight ? 'bg-black/[0.04] text-black placeholder:text-black/20 focus:bg-black/5 border-black/[0.08]' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10 border-transparent'
                     )}
                 />
             </div>
@@ -562,23 +574,27 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         showEditButton={true}
       /></Suspense>
 
-      <Suspense fallback={null}><CategorySelectionDialog
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        onCategorySelect={handleCategorySelect}
-        onAIOpen={() => useModalStore.getState().openAIListing()}
-      /></Suspense>
-
-      <Suspense fallback={null}>
-        <UnifiedListingForm
-          isOpen={isFormOpen}
-          onClose={() => {
-            setIsFormOpen(false);
-            setEditingProperty(null);
-          }}
-          editingProperty={editingProperty as any ?? undefined}
+      {(hasOpenedCategoryRef.current || showCategoryDialog) && (
+        <CategorySelectionDialog
+          open={showCategoryDialog}
+          onOpenChange={setShowCategoryDialog}
+          onCategorySelect={handleCategorySelect}
+          onAIOpen={() => useModalStore.getState().openAIListing()}
         />
-      </Suspense>
+      )}
+
+      {(hasOpenedFormRef.current || isFormOpen) && (
+        <Suspense fallback={isFormOpen ? <ListingDialogShell /> : null}>
+          <UnifiedListingForm
+            isOpen={isFormOpen}
+            onClose={() => {
+              setIsFormOpen(false);
+              setEditingProperty(null);
+            }}
+            editingProperty={editingProperty as any ?? undefined}
+          />
+        </Suspense>
+      )}
 
       <Suspense fallback={null}><ShareDialog
         open={showShareDialog}

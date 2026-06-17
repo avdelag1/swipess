@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
+import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   Baby, Calendar, Car, ChefHat,
@@ -204,7 +205,7 @@ export default function SeekersPage() {
   const { isLight } = useAppTheme();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
-  const { data: requests = [], isLoading } = useQuery({
+  const { data: requests = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['seeker-requests-deck'],
     queryFn: async () => {
       const { data: reqs, error } = await supabase
@@ -217,7 +218,8 @@ export default function SeekersPage() {
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error || !reqs?.length) return [];
+      if (error) throw error;
+      if (!reqs?.length) return [];
 
       const ownerIds = [...new Set(reqs.map(r => r.owner_id).filter(Boolean))] as string[];
       const { data: profiles } = await supabase
@@ -280,7 +282,12 @@ export default function SeekersPage() {
 
       {/* Swipe deck */}
       <div className="flex-1 relative px-4" style={{ paddingBottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
-        {isLoading ? (
+        {isError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-8">
+            <p className="text-sm font-semibold text-muted-foreground text-center">Could not load seeker requests.</p>
+            <Button onClick={() => refetch()}>Try again</Button>
+          </div>
+        ) : isLoading ? (
           <div className="absolute inset-4 space-y-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="h-full max-h-[72vh] rounded-[2rem] bg-muted/20 border border-border/30 animate-pulse" style={{ opacity: 1 - i * 0.2 }} />

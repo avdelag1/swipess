@@ -234,13 +234,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     <>
       <div className={cn(
         "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-200",
-        isThemeLight ? "bg-[#ffffff]" : "bg-background"
+        isThemeLight ? "bg-background page-canvas" : "bg-background"
       )}>
 
         <div className={cn(
             "shrink-0 px-4 py-3 min-h-[72px] flex items-center z-20 backdrop-blur-3xl transition-all pt-safe",
             isThemeLight
-              ? "bg-[#ffffff]/90"
+              ? "surface-4 border-b-0"
               : "bg-background/90"
         )}>
           <div className="flex items-center w-full gap-4">
@@ -248,15 +248,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               onClick={onBack}
               className={cn(
                  "shrink-0 flex items-center justify-center w-12 h-12 rounded-full press-snappy",
-                 isThemeLight ? "bg-background/[0.04] text-black hover:bg-background/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
+                 isThemeLight ? "surface-2 text-black hover:shadow-[var(--elev-3)]" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
               )}
             >
               <ChevronLeft className="z-[10000] w-6 h-6 stroke-[2.5]" />
             </button>
 
-            <button 
+            <button
               onClick={() => navigate(`/profile/${otherUser.id}`)}
-              className="flex-1 flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
+              className="flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
             >
               <div className="relative shrink-0">
                 <div className={cn(
@@ -276,7 +276,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   "absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2",
                   isThemeLight ? "border-white" : "border-[#050505]",
                   isOnline
-                    ? "bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)]"
+                    ? "bg-violet-400"
                     : "bg-slate-500"
                 )} />
               </div>
@@ -304,6 +304,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               </div>
             </button>
 
+            <div className="flex-1" />
+
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => setShowRatingDialog(true)}
@@ -319,12 +321,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                   <button
                     aria-label="More options"
                     className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
-                    isThemeLight ? "bg-background/[0.04] text-black hover:bg-background/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
+                    isThemeLight ? "surface-2 text-black hover:shadow-[var(--elev-3)]" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>
                     <MoreVertical className="w-5 h-5" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-secondary text-white border-white/[0.08]")}>
+                <DropdownMenuContent align="end" sideOffset={8} className={cn("z-[10050] rounded-[1.5rem] p-2 shadow-2xl backdrop-blur-xl min-w-[200px]", isThemeLight ? "surface-5 text-slate-900" : "bg-secondary text-white border-white/[0.08]")}>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => { setMenuOpen(false); setShowInsightsModal(true); }}
@@ -373,7 +375,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div
           id="chat-scroll-container"
-          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-[#f5f5f7]" : "bg-background")}
+          className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-background surface-0" : "bg-background")}
           ref={messagesContainerRef}
         >
           {messages.length === 0 ? (
@@ -400,7 +402,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
         <div className={cn(
           "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl transition-all pb-safe relative z-20",
-          isThemeLight ? "bg-[#ffffff]/90" : "bg-background/90"
+          isThemeLight ? "surface-4 border-t-0" : "bg-background/90"
         )}>
 
           <AnimatePresence>
@@ -408,7 +410,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="absolute bottom-full left-0 right-0 p-4 overflow-hidden">
                 <div className={cn(
                   "flex flex-wrap gap-2 justify-center p-3 rounded-[2rem] shadow-2xl backdrop-blur-3xl border mx-auto max-w-sm",
-                  isThemeLight ? "bg-white/90 border-black/[0.06]" : "bg-[#121214]/90 border-white/[0.08]"
+                  isThemeLight ? "surface-5" : "bg-[#121214]/90 border-white/[0.08]"
                 )}>
                   {QUICK_EMOJIS.map(emoji => (
                     <button key={emoji} type="button" onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }} className={cn("w-10 h-10 flex items-center justify-center text-xl rounded-xl transition-all active:scale-90", isThemeLight ? "hover:bg-background/[0.06]" : "hover:bg-white/[0.07]")}>
@@ -424,7 +426,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "bg-background/[0.03] border-black/[0.06] text-black/50 hover:bg-background/[0.08]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
             >
               <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
             </button>
@@ -439,7 +441,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 style={{ resize: 'none' }}
                 className={cn(
                   "flex-1 min-h-[48px] max-h-[120px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10 no-scrollbar",
-                  isThemeLight ? "bg-background/[0.02] border-black/10 text-black placeholder:text-black/30" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
+                  isThemeLight ? "surface-inset text-black placeholder:text-black/30" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
                 )}
                 disabled={sendMessage.isPending}
               />
@@ -448,7 +450,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
                   {(isListening || isVoiceRecording) ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>
@@ -531,7 +533,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
         /></Suspense>
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
-          <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>
+          <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
             <AlertDialogHeader>
               <AlertDialogTitle className={cn("text-lg font-bold", isThemeLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
               <AlertDialogDescription className={cn(isThemeLight ? "text-slate-500" : "text-white/50")}>

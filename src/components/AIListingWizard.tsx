@@ -117,16 +117,16 @@ export function AIListingWizard() {
   const { t } = useTranslation();
 
   const modalBg = isLight 
-    ? 'bg-white chrome-solid saturate-150 border-black/10' 
+    ? 'surface-5 chrome-solid saturate-150' 
     : 'bg-[#050505]/95 chrome-solid saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
-  const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
+  const headerBorder = isLight ? 'border-border' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    ? 'surface-inset focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium'
     : 'bg-black/60 border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+    ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
     : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
   
   const [step, setStep] = useState<WizardStep>('compose');
@@ -481,28 +481,23 @@ export function AIListingWizard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.08 }}
           className={cn(
             "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-0 sm:p-6",
             isLight && "modal-scrim--lux"
           )}
         >
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.08, ease: 'easeOut' }}
             className={cn(
               "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative",
             isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
             modalBg
             )}
-            style={{ WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}
           >
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-rose-500/20 to-orange-500/10 blur-[120px] rounded-full mix-blend-screen" />
-               <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-pink-500/20 to-purple-500/10 blur-[100px] rounded-full mix-blend-screen" />
-            </div>
 
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
@@ -534,9 +529,10 @@ export function AIListingWizard() {
                   {step === 'compose' && (
                     <motion.div 
                       key="step-compose"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.08, ease: 'easeOut' }}
                       className="space-y-10"
                     >
                       {/* Onboarding Banner */}

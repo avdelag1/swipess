@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Briefcase, DollarSign, Flame, GripVertical, Home, ThumbsUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
@@ -55,7 +56,7 @@ const OwnerInterestedClients = () => {
 
   const storageKey = user?.id ? `interested-clients-order-${user.id}` : "";
 
-  const { data: interestedClients = [], isLoading } = useQuery({
+  const { data: interestedClients = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["owner-interested-clients", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -258,7 +259,7 @@ const OwnerInterestedClients = () => {
 
         {/* Count + drag hint */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
+          <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredClients.length} Potential Professionals
           </span>
@@ -270,7 +271,12 @@ const OwnerInterestedClients = () => {
           )}
         </div>
 
-        {isLoading ? (
+        {isError ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <p className="text-sm font-semibold text-muted-foreground text-center">Could not load interested clients.</p>
+            <Button onClick={() => refetch()}>Try again</Button>
+          </div>
+        ) : isLoading ? (
           <LikesSkeleton />
         ) : filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>

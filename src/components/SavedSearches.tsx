@@ -56,7 +56,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+    visible: { opacity: 1 },
   };
 
   const itemVariants = {

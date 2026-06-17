@@ -28,10 +28,6 @@ import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 // import { } from '@/integrations/supabase/client';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-const MessageActivationPackages = lazyWithRetry(() =>
-  import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages }))
-);
-// import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
@@ -52,6 +48,10 @@ import { useTranslation } from 'react-i18next';
 import { appToast } from '@/utils/appNotification';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
+const MessageActivationPackages = lazyWithRetry(() =>
+  import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages }))
+);
+
 export function MessagingDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export function MessagingDashboard() {
   const { _theme, isLight } = useAppTheme();
   const { t } = useTranslation();
 
-  const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
+  const { data: conversations = [], isLoading, isError, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
   const updateStatus = useUpdateConversationStatus();
   const markChatAsRead = useMarkConversationAsRead();
@@ -198,7 +198,7 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return createPortal(
-      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-200 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
+      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-200 overflow-hidden page-canvas", isLight ? "bg-background" : "bg-black")}>
         <AnimatePresence mode="sync">
           <motion.div
             key="interface"
@@ -208,7 +208,7 @@ export function MessagingDashboard() {
             transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
             className={cn(
               "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden",
-              isLight ? "bg-white" : "bg-[#0A0A0C]"
+              isLight ? "bg-background" : "bg-[#0A0A0C]"
             )}
           >
             <MessagingInterface
@@ -259,7 +259,7 @@ export function MessagingDashboard() {
               placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "surface-inset text-black placeholder:text-black/30" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -287,7 +287,7 @@ export function MessagingDashboard() {
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
                   activeFilter === filter.id 
                     ? "border-0" 
-                    : (isLight ? "bg-white border-black/10 text-black/50 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                    : (isLight ? "surface-2 text-black/50 hover:shadow-[var(--elev-3)]" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
                 )}
                 style={activeFilter === filter.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
               >
@@ -299,7 +299,12 @@ export function MessagingDashboard() {
         </div>
 
         <div className="space-y-4">
-          {isLoading ? (
+          {isError && conversations.length === 0 ? (
+            <div className="py-24 flex flex-col items-center justify-center gap-4">
+              <p className="text-sm font-semibold text-muted-foreground text-center">Could not load messages.</p>
+              <Button onClick={() => refetch()}>Try again</Button>
+            </div>
+          ) : isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
             <AnimatePresence initial={false}>
@@ -320,13 +325,13 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
-                        : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
+                        ? (isLight ? "surface-row surface-row--active" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
+                        : (isLight ? "surface-row hover:shadow-[var(--elev-3)]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
                     {/* Unread Indicator Glow */}
-                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
+                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
 
                     <div className="relative shrink-0">
                        <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-black/10" : "border-white/10")}>
@@ -334,7 +339,7 @@ export function MessagingDashboard() {
                           <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         {isUnread && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background shadow-[0_0_10px_#EB4898] flex items-center justify-center">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background flex items-center justify-center">
                             <div className="w-1 h-1 bg-white rounded-full" />
                           </div>
                         )}
@@ -400,7 +405,7 @@ export function MessagingDashboard() {
                animate={{ opacity: 1 }}
                className={cn(
                  "py-32 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
-                 isLight ? "bg-white/40 border-black/5 backdrop-blur-md" : "bg-white/[0.02] border-white/[0.05]"
+                 isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
                )}
             >
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
@@ -420,7 +425,7 @@ export function MessagingDashboard() {
       </Suspense>
 
       <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
-        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>
+        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
           <AlertDialogHeader>
             <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
             <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>

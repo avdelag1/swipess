@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 import { AtmosphericLayer } from "@/components/AtmosphericLayer";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
-const stagger = { staggerChildren: 0.04 };
 const itemVariant = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: fastSpring },
@@ -244,7 +243,7 @@ const ClientSettings = () => {
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={{ visible: { transition: stagger } }}
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
           className="space-y-10"
         >
           {settingsGroups.map((group) => (
@@ -265,9 +264,10 @@ const ClientSettings = () => {
                         else if (item.route) navigate(item.route);
                       }}
                       className={cn(
-                        "group w-full flex items-center gap-5 p-5 transition-all text-left",
-                        "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm rounded-[2rem]",
-                        "hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
+                        "group w-full flex items-center gap-5 p-5 transition-all text-left rounded-[2rem]",
+                        isLight
+                          ? "surface-row hover:shadow-[var(--elev-3)]"
+                          : "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
                       )}
                     >
                       <div
@@ -306,7 +306,7 @@ const ClientSettings = () => {
             viewport={{ once: true }}
             className="flex flex-col items-center gap-6"
           >
-            <div className={cn("w-16 h-16 rounded-[1.6rem] flex items-center justify-center shadow-2xl border transition-transform duration-500 hover:scale-110", isLight ? "bg-white border-black/5" : "bg-black border-white/10")}>
+            <div className={cn("w-16 h-16 rounded-[1.6rem] flex items-center justify-center transition-transform duration-500 hover:scale-110", isLight ? "surface-2" : "bg-black border border-white/10 shadow-2xl")}>
                <SwipessLogo size="sm" />
             </div>
             <div className="text-center space-y-2">

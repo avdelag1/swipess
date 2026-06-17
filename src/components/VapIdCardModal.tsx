@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -9,11 +9,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CARD_THEMES } from './vap-id/cardThemes';
-const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
-import { useEffect } from 'react';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
 import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
+
+const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -211,10 +211,12 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                 duration: 0.42 
               }
             }}
-            style={{ transformOrigin: 'bottom center' }}
+            style={{
+              transformOrigin: 'bottom center',
+              maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 80px)',
+            }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-[98vw] max-w-none flex flex-col pb-2 min-h-0"
-            style={{ maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 80px)' }}
           >
             <div className="flex items-center justify-between mb-3 px-1 gap-2 mt-12 sm:mt-16">
               <button

@@ -325,7 +325,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               userRole={userRole as any}
               onFilterClick={handleFilterClick}
               onListingsClick={handleListingsClick}
-              onAddListingClick={() => useModalStore.getState().setModal('showAIListing', true)}
+              onAddListingClick={() => useModalStore.getState().openAIListing()}
             />
           </SwipessHud>
         </Suspense>

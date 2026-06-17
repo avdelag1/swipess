@@ -41,7 +41,7 @@ const MaintenanceRequests = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
-  const { data: requests, refetch, isLoading } = useQuery({
+  const { data: requests, refetch, isLoading, isError } = useQuery({
     queryKey: ['maintenance-requests', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -110,7 +110,12 @@ const MaintenanceRequests = () => {
               </div>
 
               {/* Request cards */}
-              {isLoading ? (
+              {isError ? (
+                <div className="py-16 flex flex-col items-center justify-center gap-4">
+                  <p className="text-sm font-semibold text-muted-foreground text-center">Could not load maintenance requests.</p>
+                  <Button onClick={() => refetch()}>Try again</Button>
+                </div>
+              ) : isLoading ? (
                 <div className="space-y-4 py-4">
                   {[0, 1, 2].map((i) => (
                     <div key={i} className="h-28 rounded-2xl border border-border/40 bg-muted/20 animate-pulse" />

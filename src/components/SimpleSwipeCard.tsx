@@ -479,7 +479,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
-             <div className="px-5 py-2.5 rounded-xl border-3 border-orange-500 bg-orange-500/20 shadow-[0_0_20px_rgba(255,87,34,0.5)]">
+             <div className="px-5 py-2.5 rounded-xl border-3 border-orange-500 bg-orange-500/20">
                <span className="font-black text-4xl text-orange-500 tracking-tighter whitespace-nowrap">I LIKE IT</span>
              </div>
           </div>
@@ -487,7 +487,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity }}>
           <div className="flex flex-col items-center gap-1.5">
-             <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
+             <div className="px-5 py-2.5 rounded-xl border-3 border-rose-500 bg-rose-500/20">
                <span className="font-black text-4xl text-rose-500">NOPE</span>
              </div>
           </div>
@@ -608,7 +608,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {(listing as any).has_verified_documents && (
           <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 12px)', opacity: isZoomed ? 0 : 1 }}>
              <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,1)]" />
+               <div className="w-2 h-2 rounded-full bg-violet-500" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
              </div>
           </div>

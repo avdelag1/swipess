@@ -104,8 +104,8 @@ const NotificationsPage = () => {
 
   return (
     <div className={cn(
-      "w-full pb-20 min-h-screen",
-      isDark ? "bg-[#0a0a0c]" : "bg-white"
+      "w-full pb-20 min-h-screen page-canvas",
+      isDark ? "bg-[#0a0a0c]" : "bg-background"
     )}>
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <PageHeader 
@@ -152,8 +152,9 @@ const NotificationsPage = () => {
                   handleNotificationClick(notif);
                 }}
                 className={cn(
-                  "group relative py-4 px-1 transition-all cursor-pointer active:scale-[0.98]",
-                  notif.read ? "opacity-50" : ""
+                  "group relative transition-all cursor-pointer active:scale-[0.98] rounded-[1.5rem] p-4",
+                  isLight ? (notif.read ? "surface-row opacity-70" : "surface-row surface-row--active") : "",
+                  !isLight && notif.read ? "opacity-50" : ""
                 )}
               >
                 <div className="flex gap-4">

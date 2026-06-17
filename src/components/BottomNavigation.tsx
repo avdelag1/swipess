@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -261,7 +262,7 @@ export const BottomNavigation = memo(({
 
 
   const isDashboard = location.pathname.includes('/dashboard');
-  const useLightIcons = isDashboard || !isLight;
+  const useLightIcons = isDashboard || true;
   const baseColor = useLightIcons ? '#FFFFFF' : '#0A0A0A';
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
@@ -291,9 +292,7 @@ export const BottomNavigation = memo(({
           "pointer-events-auto floating-dock-nav",
           "w-max max-w-[calc(100vw-24px)]",
           "px-1 py-1.5 border",
-          isLight
-            ? "glass-light-surface border-black/8"
-            : "glass-dark border-white/12",
+          "glass-dark border-white/12",
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -341,6 +340,7 @@ export const BottomNavigation = memo(({
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
+                  if (item.id === 'add') prefetchListingFlowModule();
                   handlePointerDown(e);
                 }}
                 onPointerMove={handlePointerMove}
@@ -405,7 +405,7 @@ export const BottomNavigation = memo(({
                         style={{
                           width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
+                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : 'rgba(255,255,255,0.6)'),
                           fill: 'none',
                           strokeWidth: active ? 2.0 : 1.4,
                           filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
@@ -434,8 +434,8 @@ export const BottomNavigation = memo(({
                         isTablet ? 'text-[12px]' : 'text-[10px]',
                       )}
                       style={{
-                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
-                        textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : (active && isLight ? '0 0 4px rgba(0,0,0,0.1)' : undefined),
+                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : 'rgba(255,255,255,0.6)'),
+                        textShadow: item.id === 'add' ? '0 0 8px rgba(255,51,102,0.4)' : undefined,
                         transition: 'color 120ms ease-out',
                         zIndex: 1,
                         letterSpacing: '0.08em',

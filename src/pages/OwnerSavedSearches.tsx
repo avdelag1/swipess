@@ -3,12 +3,13 @@ import { Suspense, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { SavedSearches } from "@/components/SavedSearches";
 import { ArrowLeft, Settings, Users } from "lucide-react";
-const OwnerClientFilterDialog = lazyWithRetry(() => import('@/components/OwnerClientFilterDialog').then(m => ({ default: m.OwnerClientFilterDialog })));
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
+
+const OwnerClientFilterDialog = lazyWithRetry(() => import('@/components/OwnerClientFilterDialog').then(m => ({ default: m.OwnerClientFilterDialog })));
 
 const OwnerSavedSearches = () => {
   const [showFilterDialog, setShowFilterDialog] = useState(false);

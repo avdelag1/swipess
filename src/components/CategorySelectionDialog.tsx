@@ -171,10 +171,8 @@ export function CategorySelectionDialog({
   };
 
   const handleOpenAI = () => {
-    onOpenChange(false);
-    if (onAIOpen) {
-      onAIOpen();
-    }
+    if (onAIOpen) onAIOpen();
+    requestAnimationFrame(() => onOpenChange(false));
   };
 
   const modes = selectedCategory ? getModes(selectedCategory.id) : [];
@@ -183,15 +181,12 @@ export function CategorySelectionDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         hideCloseButton
+        motionPreset="fade"
         className={cn(
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         "sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
-        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
+        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
-        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-           <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
-           <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
-        </div>
         
         <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10">
           <div className="flex items-start justify-between gap-4">
@@ -242,7 +237,7 @@ export function CategorySelectionDialog({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="font-black uppercase italic tracking-tighter text-foreground text-lg">Magic AI Listing</h3>
-                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none shadow-[0_0_10px_rgba(99,102,241,0.5)]">Fastest</Badge>
+                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none">Fastest</Badge>
                       </div>
                       <p className="text-xs font-medium text-muted-foreground mt-0.5 line-clamp-2">
                         Upload photos & describe your asset. AI generates the entire listing in seconds.
@@ -260,10 +255,10 @@ export function CategorySelectionDialog({
 
                   <motion.div
                     key="category"
-                    initial={{ opacity: 0, x: -15 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 15 }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.08, ease: "easeOut" }}
                     className="grid grid-cols-1 gap-3"
                   >
                   {categories.map((category, index) => (
@@ -272,13 +267,13 @@ export function CategorySelectionDialog({
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
                         "group relative flex items-center gap-4 sm:gap-5 p-5 sm:p-6 rounded-[2rem] text-left transition-all duration-150 press-snappy",
-                        "bg-card/40 backdrop-blur-md border border-border/40",
+                        "bg-card/60 border border-border/40",
                         "hover:shadow-2xl hover:bg-card/80",
                         category.glowColor
                       )}
                     >
                       {category.popular && (
-                        <Badge className="absolute -top-3 right-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 z-10 shadow-[0_0_15px_rgba(225,29,72,0.5)] border-none">
+                        <Badge className="absolute -top-3 right-4 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 z-10 border-none">
                           Popular
                         </Badge>
                       )}
@@ -309,10 +304,10 @@ export function CategorySelectionDialog({
             ) : (
                 <motion.div
                   key="mode"
-                  initial={{ opacity: 0, x: 15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -15 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.08, ease: "easeOut" }}
                   className="space-y-3 sm:space-y-4"
                 >
                   <Button
@@ -349,16 +344,16 @@ export function CategorySelectionDialog({
                         onClick={() => handleModeSelect(mode.id)}
                         className={cn(
                           "group w-full flex items-center gap-5 p-5 rounded-[2rem] text-left transition-all duration-150 press-snappy",
-                          "bg-card/40 backdrop-blur-md border border-border/40",
+                          "bg-card/60 border border-border/40",
                           "hover:border-foreground/20 hover:shadow-2xl hover:bg-card/80"
                         )}
                       >
                         <div className={cn(
                           "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-inner",
-                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.2)]' :
-                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' :
-                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.2)]' :
-                          'bg-amber-500/20 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                          selectedCategory?.id === 'property' ? 'bg-rose-500/20 text-rose-500' :
+                          selectedCategory?.id === 'motorcycle' ? 'bg-orange-500/20 text-orange-500' :
+                          selectedCategory?.id === 'bicycle' ? 'bg-violet-500/20 text-violet-500' :
+                          'bg-amber-500/20 text-amber-500'
                         )}>
                           {mode.icon}
                         </div>

@@ -37,7 +37,7 @@ export default function OwnerViewClientProfile() {
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(clientId);
   const { isLight } = useAppTheme();
 
-  const { data: client, isLoading, error: _error } = useQuery({
+  const { data: client, isLoading, isError, refetch } = useQuery({
     queryKey: ['client-profile', clientId],
     queryFn: async () => {
       if (!clientId) throw new Error('No client ID provided');
@@ -138,6 +138,15 @@ export default function OwnerViewClientProfile() {
     );
   }
 
+  if (isError && !client) {
+    return (
+      <div className={cn("min-h-screen flex flex-col items-center justify-center p-6 text-center gap-4", isLight ? "bg-background" : "bg-black")}>
+        <p className="text-sm font-semibold text-muted-foreground">Could not load client profile.</p>
+        <Button onClick={() => refetch()}>Try again</Button>
+      </div>
+    );
+  }
+
   if (!client) {
     return (
       <div className={cn("min-h-screen flex flex-col items-center justify-center p-6 text-center", isLight ? "bg-background" : "bg-black")}>
@@ -220,7 +229,7 @@ export default function OwnerViewClientProfile() {
                     </div>
                   )}
                 </div>
-                <div className="px-2.5 py-1 rounded-lg bg-[#FF4D00]/20 border border-[#FF4D00]/30 shadow-[0_0_15px_rgba(255,77,0,0.2)]">
+                <div className="px-2.5 py-1 rounded-lg bg-[#FF4D00]/20 border border-[#FF4D00]/30">
                    <span className="text-[10px] font-black uppercase tracking-tighter text-[#FF4D00] italic">Elite Rank</span>
                 </div>
               </div>
@@ -231,7 +240,7 @@ export default function OwnerViewClientProfile() {
                   <CompactRatingDisplay aggregate={ratingAggregate || null} isLoading={isRatingLoading} showReviews={false} />
                </div>
                 {(client as any).verified && (
-                 <div className="px-4 py-2.5 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-2 shadow-[0_0_20px_rgba(235,72,152,0.1)]">
+                 <div className="px-4 py-2.5 rounded-2xl bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-[#EB4898]" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] italic">Verified</span>
                  </div>
@@ -321,7 +330,7 @@ export default function OwnerViewClientProfile() {
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${insights?.responseRate}%` }}
-                  className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] rounded-full shadow-[0_0_10px_rgba(255,77,0,0.3)]"
+                  className="h-full bg-gradient-to-r from-[#FF4D00] to-[#EB4898] rounded-full"
                 />
               </div>
             </div>
@@ -337,7 +346,7 @@ export default function OwnerViewClientProfile() {
                     <p className="text-xl font-black text-white uppercase tracking-tight italic">Instant Sync</p>
                   </div>
                 </div>
-                <div className="px-4 py-2 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/20 shadow-[0_0_15px_rgba(235,72,152,0.1)]">
+                <div className="px-4 py-2 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/20">
                   <span className="text-sm font-black text-[#EB4898] uppercase tracking-widest italic tabular-nums">&lt; {insights?.avgResponseTime}H</span>
                 </div>
               </div>
@@ -437,7 +446,7 @@ export default function OwnerViewClientProfile() {
            <div className={cn(
              "p-8 rounded-[40px] border shadow-2xl relative overflow-hidden backdrop-blur-2xl transition-all",
              insights?.demandLevel === 'high' 
-               ? "bg-[#FF4D00]/10 border-[#FF4D00]/20 shadow-[0_0_40px_rgba(255,77,0,0.1)]" 
+               ? "bg-[#FF4D00]/10 border-[#FF4D00]/20"
                : "bg-zinc-950/40 border-white/10"
            )}>
               <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-[80px] -translate-y-24 translate-x-12" />
