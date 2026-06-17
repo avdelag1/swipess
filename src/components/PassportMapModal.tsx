@@ -141,6 +141,9 @@ export const PassportMapModal = memo(() => {
   const unbindInteractionRef = useRef<(() => void) | null>(null);
   const lastDoubleTapZoomAtRef = useRef(0);
   const lastMapPointerUpAtRef = useRef(0);
+  // Timestamp of the last marker tap — the map's click handler checks this so a
+  // pin tap doesn't immediately clear the selection it just opened (mobile race).
+  const markerTapGuardRef = useRef(0);
   const markerSyncRafRef = useRef<number | null>(null);
   const syncMarkersRef = useRef<() => void>(() => {});
   const refreshMapVisualsRef = useRef<() => void>(() => {});
@@ -333,6 +336,8 @@ export const PassportMapModal = memo(() => {
   const focusPinSheet = useCallback((pin: SelectedPin) => {
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
+    // Guard the map 'click' that fires right after this tap from clearing it.
+    markerTapGuardRef.current = Date.now();
     setSelected(pin);
     setPreviewMode('sheet');
     setRadiusHudExpanded(false); // Close the km slider when a pin is clicked
@@ -736,6 +741,9 @@ export const PassportMapModal = memo(() => {
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
           const now = Date.now();
+          // Ignore the click that fires right after tapping a pin — otherwise it
+          // clears the selection the tap just opened (sheet flashed open/closed).
+          if (now - markerTapGuardRef.current < 500) return;
           // Ignore clicks while a double-tap sequence may still be in progress.
           if (now - lastMapPointerUpAtRef.current < MAP_DOUBLE_TAP_WINDOW_MS) return;
           // Ignore the stray click Mapbox emits right after our double-tap zoom.
