@@ -1,7 +1,9 @@
 import type { Map as MapboxMap } from 'mapbox-gl';
 import { incrementalDoubleTapZoom } from '@/utils/mapCinematicCamera';
 
-export const MAP_DOUBLE_TAP_WINDOW_MS = 450;
+// 520ms (was 450) — slower Android phones space the two taps further apart, so a
+// tighter window made many double-taps register as two singles (no zoom / tiny zoom).
+export const MAP_DOUBLE_TAP_WINDOW_MS = 520;
 /** Faster sheet open on markers — still leaves room for double-tap zoom on empty map. */
 export const MAP_MARKER_TAP_DELAY_MS = 220;
 export const MAP_DOUBLE_TAP_SLOP_PX = 72;

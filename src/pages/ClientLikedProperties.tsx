@@ -345,10 +345,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="rounded-[2rem] bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Remove from World?</AlertDialogTitle>
+            <AlertDialogTitle className="text-foreground font-black text-xl">Remove from likes?</AlertDialogTitle>
             <AlertDialogDescription>
               <p className="text-sm text-muted-foreground mt-2">
-                Are you sure you want to remove "{propertyToDelete?.title}" from the world?
+                Are you sure you want to remove "{propertyToDelete?.title}" from your likes?
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>

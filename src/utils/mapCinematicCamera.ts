@@ -204,9 +204,9 @@ export function fitMapToPins(
   return true;
 }
 
-/** Zoom step per double-tap — noticeable but not a teleport. */
-export const DOUBLE_TAP_ZOOM_STEP = 3.0;
-export const DOUBLE_TAP_MAX_ZOOM = 18.5;
+/** Zoom step per double-tap — punchy on phones (small screens felt under-zoomed at 3.0). */
+export const DOUBLE_TAP_ZOOM_STEP = 4.0;
+export const DOUBLE_TAP_MAX_ZOOM = 20;
 const DOUBLE_TAP_ZOOM_MS = 380;
 
 /** Quick ease-in at the tap point; repeat double-taps stack for gradual zoom. */

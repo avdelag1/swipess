@@ -172,6 +172,9 @@ export const PassportMapModal = memo(() => {
   /** First open: search the listing cluster hub — not stale profile GPS thousands of km away. */
   const [hubSearchOnOpen, setHubSearchOnOpen] = useState(true);
   const mapHudRef = useRef<HTMLDivElement>(null);
+  /** City-chip tap tracking — fire on pointerup with a move guard so the first tap
+   *  always lands (the horizontal scroller was swallowing the synthetic click). */
+  const cityTapRef = useRef<{ x: number; y: number; name: string } | null>(null);
 
   useEffect(() => {
     if (isOpen) prefetchCityPhotosImmediate();
@@ -644,6 +647,9 @@ export const PassportMapModal = memo(() => {
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
+          // Render CJK labels with a local font instead of downloading huge glyph
+          // ranges from the network — meaningfully faster first paint on mobile.
+          localIdeographFontFamily: "'Noto Sans', 'Inter', sans-serif",
         });
 
         map.touchZoomRotate.enableRotation();
@@ -1168,27 +1174,43 @@ export const PassportMapModal = memo(() => {
                   className="absolute z-40 left-0 right-[64px] pointer-events-none"
                   style={{ top: 'calc(env(safe-area-inset-top, 0px) + 64px)' }}
                 >
-                  <div className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto bg-[#12151f] border-b border-white/[0.08] shadow-[0_6px_24px_rgba(0,0,0,0.5)]">
-                    <div className="flex items-center gap-2 px-3 py-2">
+                  <div
+                    className="w-full overflow-x-auto no-scrollbar scroll-smooth pointer-events-auto"
+                    style={{ touchAction: 'pan-x' }}
+                  >
+                    <div className="flex items-center gap-2 px-3 py-1.5">
                       {PASSPORT_QUICK_CITIES.map((city) => {
                         const isActive = passportMode && passportLabel?.includes(city.name);
+                        const flyToCity = () => {
+                          triggerHaptic('medium');
+                          setPassportLocation(city.lat, city.lng, `${city.name}`);
+                          setRadiusKm(20);
+                          if (mapRef.current) {
+                            cinematicEaseTo(
+                              mapRef.current,
+                              [city.lng, city.lat],
+                              zoomForRadiusKm(20),
+                              { duration: 280, pitch: cinematicPitchForViewport() },
+                            );
+                          }
+                          appToast.success(`Flying to ${city.name}`);
+                        };
                         return (
                           <button
                             key={city.name}
                             type="button"
-                            onClick={() => {
-                              triggerHaptic('medium');
-                              setPassportLocation(city.lat, city.lng, `${city.name}`);
-                              setRadiusKm(20);
-                              if (mapRef.current) {
-                                cinematicEaseTo(
-                                  mapRef.current,
-                                  [city.lng, city.lat],
-                                  zoomForRadiusKm(20),
-                                  { duration: 280, pitch: cinematicPitchForViewport() },
-                                );
-                              }
-                              appToast.success(`Flying to ${city.name}`);
+                            // Tap handled on pointerup (not onClick): the horizontal
+                            // scroller was eating the first synthetic click, so cities
+                            // needed two taps. Move guard keeps real swipes as scrolls.
+                            onPointerDown={(e) => {
+                              cityTapRef.current = { x: e.clientX, y: e.clientY, name: city.name };
+                            }}
+                            onPointerUp={(e) => {
+                              const start = cityTapRef.current;
+                              cityTapRef.current = null;
+                              if (!start || start.name !== city.name) return;
+                              if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 12) return;
+                              flyToCity();
                             }}
                             className={cn(
                               'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
