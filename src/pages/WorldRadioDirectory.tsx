@@ -59,13 +59,13 @@ export default function WorldRadioDirectory() {
   };
 
   // Glassmorphism classes unified
-  const glassPanelClasses = isDark 
-    ? "bg-black/35 backdrop-blur-[24px] border border-white/15 shadow-2xl" 
-    : "bg-white/35 backdrop-blur-[24px] border border-black/10 shadow-2xl";
+  const glassPanelClasses = isDark
+    ? "bg-black/35 backdrop-blur-[24px] border border-white/15 shadow-2xl"
+    : "bg-white/35 backdrop-blur-[24px] border border-black/20 shadow-2xl";
 
   const glassButtonClasses = isDark
     ? "bg-black/30 backdrop-blur-[24px] border border-white/15 text-white hover:bg-white/20 shadow-xl"
-    : "bg-white/40 backdrop-blur-[24px] border border-black/10 text-foreground hover:bg-black/5 shadow-xl";
+    : "bg-white/40 backdrop-blur-[24px] border border-black/20 text-foreground hover:bg-black/10 shadow-xl";
 
   return (
     <div
