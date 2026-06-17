@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowRight, Bold, ChevronRight, Clock,
-  Download, FileText, PenLine, PenTool, Plus, Save, ShieldCheck,
-  Underline, Wand2, X
+  ArrowRight, Bold, ChevronDown, ChevronRight, ChevronUp, Clock,
+  Download, FileDown, FileText, PenLine, PenTool, Plus, Printer,
+  Save, ShieldCheck, Underline, Wand2, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contractTemplates';
@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { sanitizeHTML } from '@/utils/sanitizeHTML';
 import { SECTION_RESET_EVENT } from '@/utils/sectionNavigation';
+import { downloadAsPDF, downloadAsWord } from '@/utils/documentExport';
+import { applyVariablesToContent, getVariablesForTemplate } from '@/utils/contractUtils';
 
 // Plain text → simple, safe HTML paragraphs (used when the AI returns cleaned
 // plain text that we drop back into the contentEditable document).
@@ -61,6 +63,8 @@ export function ContractsVault() {
   const [draftContent, setDraftContent] = useState('');
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSavingSignature, setIsSavingSignature] = useState(false);
+  const [quickFillValues, setQuickFillValues] = useState<Record<string, string>>({});
+  const [quickFillOpen, setQuickFillOpen] = useState(false);
   const docRef = useRef<HTMLDivElement>(null);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
 
@@ -117,8 +121,47 @@ export function ContractsVault() {
     setDraftMonthlyValue('');
     setDraftCounterparty('');
     setDraftContent(template.content);
+    setQuickFillValues({});
+    setQuickFillOpen(true);
     setView('editor');
   };
+
+  // Apply Quick Fill values into the live document (replaces matching blank fields)
+  const handleApplyQuickFill = useCallback(() => {
+    const el = docRef.current;
+    if (!el || !selectedTemplate) return;
+    const filled = applyVariablesToContent(selectedTemplate.content, quickFillValues);
+    const safe = sanitizeHTML(filled);
+    el.innerHTML = safe;
+    setDraftContent(safe);
+    triggerHaptic('success');
+    appToast.success('Fields applied to document', 'Review the document and make any final edits.');
+  }, [quickFillValues, selectedTemplate]);
+
+  // Return the current document HTML (prefer live DOM content)
+  const getDocHTML = useCallback(() => {
+    return docRef.current?.innerHTML || draftContent || selectedTemplate?.content || '';
+  }, [draftContent, selectedTemplate]);
+
+  const handleDownloadPDF = useCallback(() => {
+    triggerHaptic('medium');
+    downloadAsPDF(sanitizeHTML(getDocHTML()), draftTitle || selectedTemplate?.name || 'Contract');
+  }, [getDocHTML, draftTitle, selectedTemplate]);
+
+  const handleDownloadWord = useCallback(() => {
+    triggerHaptic('medium');
+    downloadAsWord(sanitizeHTML(getDocHTML()), draftTitle || selectedTemplate?.name || 'Contract');
+  }, [getDocHTML, draftTitle, selectedTemplate]);
+
+  const handleDownloadContractPDF = useCallback((contract: any) => {
+    triggerHaptic('light');
+    downloadAsPDF(sanitizeHTML(contract.content || ''), contract.title || 'Contract');
+  }, []);
+
+  const handleDownloadContractWord = useCallback((contract: any) => {
+    triggerHaptic('light');
+    downloadAsWord(sanitizeHTML(contract.content || ''), contract.title || 'Contract');
+  }, []);
 
   // Rich-text formatting inside the editable document (works in the Android
   // WebView). execCommand is deprecated but remains the most reliable
@@ -356,15 +399,33 @@ export function ContractsVault() {
                         </div>
                       </div>
                       
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleStartSigning(contract)}
-                        className={cn("h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "bg-black text-white hover:bg-black/80" : "bg-white text-black hover:bg-white/80")}
-                      >
-                        {contract.status === 'signed' ? 'View' : 'Open'}
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadContractPDF(contract)}
+                          title="Download PDF"
+                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadContractWord(contract)}
+                          title="Download Word"
+                          className={cn("w-10 h-10 rounded-xl flex items-center justify-center border transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/50 hover:text-primary hover:border-primary/30")}
+                        >
+                          <FileDown className="w-4 h-4" />
+                        </button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleStartSigning(contract)}
+                          className={cn("h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "bg-black text-white hover:bg-black/80" : "bg-white text-black hover:bg-white/80")}
+                        >
+                          {contract.status === 'signed' ? 'View' : 'Open'}
+                          <ChevronRight className="w-4 h-4 ml-1.5" />
+                        </Button>
+                      </div>
                     </motion.div>
                   ))
                 )}
@@ -419,128 +480,250 @@ export function ContractsVault() {
           )}
 
           {view === 'editor' && (
-            <motion.div 
+            <motion.div
               key="editor"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
+              className="space-y-6"
             >
-               <div className={cn("p-10 rounded-[3rem] border space-y-10", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
-                  <div className="flex items-center gap-3">
-                    <PenLine className="w-5 h-5 text-primary" />
-                    <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Lease Details</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-3 col-span-full">
-                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Document Title</label>
-                       <input
-                         type="text"
-                         value={draftTitle}
-                         onChange={(e) => setDraftTitle(e.target.value)}
-                         className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none transition-all font-black uppercase tracking-widest", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")}
-                       />
-                    </div>
+              {/* Document meta */}
+              <div className={cn("p-8 rounded-[2.5rem] border space-y-8", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <div className="flex items-center gap-3">
+                  <PenLine className="w-5 h-5 text-primary" />
+                  <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Document Details</span>
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3 col-span-full">
+                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Document Title</label>
+                    <input
+                      type="text"
+                      value={draftTitle}
+                      onChange={(e) => setDraftTitle(e.target.value)}
+                      className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none transition-all font-black uppercase tracking-widest", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Effective Date</label>
+                    <input type="date" value={draftEffectiveDate} onChange={(e) => setDraftEffectiveDate(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                  </div>
+
+                  {selectedTemplate?.category === 'lease' && (
                     <div className="space-y-3">
-                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Effective Date</label>
-                       <input type="date" value={draftEffectiveDate} onChange={(e) => setDraftEffectiveDate(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                      <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Monthly Value</label>
+                      <input type="number" placeholder="$0.00" value={draftMonthlyValue} onChange={(e) => setDraftMonthlyValue(e.target.value)} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
                     </div>
+                  )}
 
-                    {selectedTemplate?.category === 'lease' && (
-                      <div className="space-y-3">
-                         <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Monthly Value</label>
-                         <input type="number" placeholder="$0.00" value={draftMonthlyValue} onChange={(e) => setDraftMonthlyValue(e.target.value)} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")} />
+                  <div className="space-y-3 col-span-full">
+                    <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Other Party — name or email <span className="opacity-50">(optional)</span></label>
+                    <input type="text" placeholder="e.g. Jane Doe or jane@email.com" value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-14 rounded-2xl border px-6 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")} />
+                  </div>
+                </div>
+
+                <div className={cn("p-6 rounded-2xl border flex items-start gap-4", isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20")}>
+                  <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <p className={cn("text-[11px] leading-relaxed font-black uppercase italic tracking-wider", isLight ? "text-primary/80" : "text-primary/90")}>
+                    Swipess Legal Trust v2.0 — this document is securely recorded once signed with a digital timestamp.
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Fill — pre-populate document blanks */}
+              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <button
+                  type="button"
+                  onClick={() => setQuickFillOpen(o => !o)}
+                  className={cn("w-full flex items-center justify-between px-8 py-5 transition-colors", isLight ? "hover:bg-black/[0.03]" : "hover:bg-white/[0.03]")}
+                >
+                  <div className="flex items-center gap-3">
+                    <Download className="w-4 h-4 text-primary" />
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black" : "text-white")}>Quick Fill — Pre-populate Blanks</span>
+                    <span className={cn("text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border", isLight ? "bg-primary/10 border-primary/20 text-primary" : "bg-primary/10 border-primary/20 text-primary")}>Auto-fill</span>
+                  </div>
+                  {quickFillOpen
+                    ? <ChevronUp className={cn("w-4 h-4 opacity-40", isLight ? "text-black" : "text-white")} />
+                    : <ChevronDown className={cn("w-4 h-4 opacity-40", isLight ? "text-black" : "text-white")} />
+                  }
+                </button>
+
+                <AnimatePresence>
+                  {quickFillOpen && selectedTemplate && (
+                    <motion.div
+                      key="qf"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className={cn("px-8 pb-8 space-y-6 border-t", isLight ? "border-black/5" : "border-white/5")}>
+                        <p className={cn("text-[10px] font-bold italic opacity-50 pt-5", isLight ? "text-black" : "text-white")}>
+                          Fill the fields below then tap "Apply to Document" — blanks in the template will be populated automatically. You can still edit freely afterward.
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {getVariablesForTemplate(selectedTemplate.id).map((variable) => (
+                            <div key={variable.key} className={cn("space-y-2", variable.key === 'property_address' && "col-span-full")}>
+                              <label className={cn("text-[9px] font-black uppercase tracking-[0.2em] ml-1 opacity-60", isLight ? "text-black" : "text-white")}>{variable.label}</label>
+                              <input
+                                type={variable.type === 'date' ? 'date' : variable.type === 'number' ? 'text' : 'text'}
+                                placeholder={variable.placeholder}
+                                value={quickFillValues[variable.key] ?? ''}
+                                onChange={(e) => setQuickFillValues(prev => ({ ...prev, [variable.key]: e.target.value }))}
+                                className={cn("w-full h-12 rounded-xl border px-4 text-sm outline-none transition-all", isLight ? "bg-black/[0.04] border-black/5 text-black placeholder:opacity-30 focus:border-primary" : "bg-white/5 border-white/10 text-white placeholder:opacity-30 focus:border-primary")}
+                              />
+                            </div>
+                          ))}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleApplyQuickFill}
+                          className="w-full h-12 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.3em] italic flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                        >
+                          <Download className="w-4 h-4" />
+                          Apply to Document
+                        </button>
                       </div>
-                    )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-                    <div className="space-y-3 col-span-full">
-                       <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2 opacity-70", isLight ? "text-black" : "text-white")}>Other Party — name or email <span className="opacity-50">(optional)</span></label>
-                       <input type="text" placeholder="e.g. Jane Doe or jane@email.com" value={draftCounterparty} onChange={(e) => setDraftCounterparty(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} className={cn("w-full h-16 rounded-2xl border px-8 text-sm outline-none", isLight ? "bg-black/[0.04] border-black/5 text-black focus:border-primary" : "bg-white/5 border-white/10 text-white focus:border-primary")} />
-                    </div>
+              {/* Editable document */}
+              <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                {/* Toolbar row 1: formatting */}
+                <div className={cn("flex items-center justify-between gap-2 px-5 py-3.5 border-b flex-wrap", isLight ? "border-black/5" : "border-white/5")}>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Document — tap to edit</span>
                   </div>
-                  
-                  <div className={cn("p-8 rounded-[2rem] border flex items-start gap-5", isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/20")}>
-                    <ShieldCheck className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                    <p className={cn("text-[12px] leading-relaxed font-black uppercase italic tracking-wider", isLight ? "text-primary/80" : "text-primary/90")}>
-                      Swipess Legal Trust v2.0 ensures this document is securely recorded once signed. 
-                      A digital signature timestamp will be attached to the final record.
-                    </p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" onClick={() => applyFormat('bold')} aria-label="Bold" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Bold className="w-3.5 h-3.5" /></button>
+                    <button type="button" onClick={() => applyFormat('underline')} aria-label="Underline" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Underline className="w-3.5 h-3.5" /></button>
+                    <button type="button" onClick={() => applyFormat('insertUnorderedList')} aria-label="Bullet list" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border text-[14px] font-black leading-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}>•</button>
+                    <div className={cn("w-px h-5 mx-0.5", isLight ? "bg-black/10" : "bg-white/10")} />
+                    <button type="button" onClick={handleImproveWithAI} disabled={isEnhancing} aria-label="Improve with AI" className="h-8 px-3 rounded-lg flex items-center gap-1.5 bg-primary text-white text-[9px] font-black uppercase tracking-widest disabled:opacity-60 active:scale-95 transition-transform">
+                      <Wand2 className="w-3.5 h-3.5" />{isEnhancing ? 'Polishing…' : 'AI Polish'}
+                    </button>
+                    <div className={cn("w-px h-5 mx-0.5", isLight ? "bg-black/10" : "bg-white/10")} />
+                    <button type="button" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download as PDF" className={cn("h-8 px-3 rounded-lg flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-widest transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/70 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/70 hover:text-primary hover:border-primary/30")}>
+                      <Printer className="w-3.5 h-3.5" />PDF
+                    </button>
+                    <button type="button" onClick={handleDownloadWord} aria-label="Download Word" title="Download as Word (.doc)" className={cn("h-8 px-3 rounded-lg flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-widest transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/70 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/70 hover:text-primary hover:border-primary/30")}>
+                      <FileDown className="w-3.5 h-3.5" />.DOC
+                    </button>
                   </div>
-               </div>
+                </div>
 
-               {/* ✍️ EDITABLE LEASE DOCUMENT — tap anywhere to fill blanks / edit */}
-               <div className={cn("rounded-[3rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
-                 <div className={cn("flex items-center justify-between gap-3 px-6 py-4 border-b flex-wrap", isLight ? "border-black/5" : "border-white/5")}>
-                   <div className="flex items-center gap-2">
-                     <FileText className="w-4 h-4 text-primary" />
-                     <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Lease Document — tap to edit</span>
-                   </div>
-                   <div className="flex items-center gap-1.5">
-                     <button type="button" onClick={() => applyFormat('bold')} aria-label="Bold" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Bold className="w-4 h-4" /></button>
-                     <button type="button" onClick={() => applyFormat('underline')} aria-label="Underline" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Underline className="w-4 h-4" /></button>
-                     <button type="button" onClick={() => applyFormat('insertUnorderedList')} aria-label="Bullet list" className={cn("w-9 h-9 rounded-xl flex items-center justify-center border text-[16px] font-black leading-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}>•</button>
-                     <button type="button" onClick={handleImproveWithAI} disabled={isEnhancing} aria-label="Improve with AI" className="h-9 px-3.5 rounded-xl flex items-center gap-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest disabled:opacity-60 active:scale-95 transition-transform">
-                       <Wand2 className="w-4 h-4" />{isEnhancing ? 'Polishing…' : 'Improve with AI'}
-                     </button>
-                   </div>
-                 </div>
-                 <div
-                   ref={docRef}
-                   contentEditable
-                   suppressContentEditableWarning
-                   role="textbox"
-                   aria-multiline="true"
-                   aria-label="Lease document editor"
-                   spellCheck
-                   className={cn(
-                     "prose max-w-none px-7 py-6 h-[420px] overflow-y-auto outline-none text-[13px] leading-relaxed focus:ring-0",
-                     "[&_h1]:text-lg [&_h2]:text-base [&_u]:underline",
-                     isLight ? "prose-slate text-black/90 bg-white/40" : "prose-invert text-white/90 bg-black/20"
-                   )}
-                   style={{ WebkitUserSelect: 'text', userSelect: 'text', touchAction: 'auto' }}
-                 />
-               </div>
+                <div
+                  ref={docRef}
+                  contentEditable
+                  suppressContentEditableWarning
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="Document editor"
+                  spellCheck
+                  className={cn(
+                    "prose max-w-none px-7 py-6 h-[480px] overflow-y-auto outline-none text-[13px] leading-relaxed focus:ring-0",
+                    "[&_h1]:text-lg [&_h2]:text-base [&_u]:underline",
+                    isLight ? "prose-slate text-black/90 bg-white/40" : "prose-invert text-white/90 bg-black/20"
+                  )}
+                  style={{ WebkitUserSelect: 'text', userSelect: 'text', touchAction: 'auto' }}
+                />
+              </div>
 
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <Button
-                   onClick={() => handleSaveDraft(false)}
-                   disabled={isSavingDraft}
-                   variant="ghost"
-                   className={cn("h-16 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-black/[0.04] border-black/10 text-black hover:bg-black/[0.07]" : "bg-white/5 border-white/10 text-white hover:bg-white/10")}
-                 >
-                   <Save className="w-4 h-4 mr-3" />
-                   {isSavingDraft ? 'Saving…' : 'Save to Vault'}
-                 </Button>
-                 <Button
-                   onClick={() => handleSaveDraft(true)}
-                   disabled={isSavingDraft}
-                   className="h-16 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
-                 >
-                   {isSavingDraft ? 'Saving…' : 'Save & Sign'}
-                   <PenTool className="w-4 h-4 ml-3" />
-                 </Button>
-               </div>
+              {/* Save / Sign actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Button
+                  onClick={() => handleSaveDraft(false)}
+                  disabled={isSavingDraft}
+                  variant="ghost"
+                  className={cn("h-14 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-black/[0.04] border-black/10 text-black hover:bg-black/[0.07]" : "bg-white/5 border-white/10 text-white hover:bg-white/10")}
+                >
+                  <Save className="w-4 h-4 mr-3" />
+                  {isSavingDraft ? 'Saving…' : 'Save to Vault'}
+                </Button>
+                <Button
+                  onClick={() => handleSaveDraft(true)}
+                  disabled={isSavingDraft}
+                  className="h-14 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
+                >
+                  {isSavingDraft ? 'Saving…' : 'Save & Sign'}
+                  <PenTool className="w-4 h-4 ml-3" />
+                </Button>
+              </div>
+
+              {/* Download row */}
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={handleDownloadPDF}
+                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-black/5 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
+                >
+                  <Printer className="w-4 h-4" />
+                  Download PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadWord}
+                  className={cn("h-12 rounded-2xl border flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-[0.98]", isLight ? "bg-black/[0.03] border-black/5 text-black/60 hover:border-primary/30 hover:text-primary" : "bg-white/[0.03] border-white/5 text-white/60 hover:border-primary/30 hover:text-primary")}
+                >
+                  <FileDown className="w-4 h-4" />
+                  Download Word
+                </button>
+              </div>
             </motion.div>
           )}
 
           {view === 'signing' && (
-            <motion.div 
+            <motion.div
               key="signing"
               initial={{ opacity: 0, scale: 1.1 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="space-y-12"
+              className="space-y-10"
             >
-              <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[400px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+              {/* Document preview */}
+              <div className={cn("relative p-10 rounded-[3rem] border shadow-inner h-[360px] overflow-y-auto no-scrollbar pointer-events-none opacity-80 blur-[0.5px] grayscale", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
                 <div className={cn("prose max-w-none font-medium italic text-[13px] leading-relaxed", isLight ? "prose-slate" : "prose-invert")}>
-                   <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(activeContract?.content || selectedTemplate?.content || '') }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(activeContract?.content || selectedTemplate?.content || '') }} />
                 </div>
                 <div className={cn("absolute inset-0 pointer-events-none bg-gradient-to-t via-transparent to-transparent", isLight ? "from-white" : "from-black")} />
               </div>
 
-              <div className="text-center space-y-4 px-6">
-                 <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>Signature Protocol</h3>
-                 <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Secure digital signature</p>
+              {/* Download before signing */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const content = activeContract?.content || selectedTemplate?.content || '';
+                    const title = activeContract?.title || draftTitle || 'Contract';
+                    downloadAsPDF(sanitizeHTML(content), title);
+                    triggerHaptic('light');
+                  }}
+                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
+                >
+                  <Printer className="w-3.5 h-3.5" />Download PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const content = activeContract?.content || selectedTemplate?.content || '';
+                    const title = activeContract?.title || draftTitle || 'Contract';
+                    downloadAsWord(sanitizeHTML(content), title);
+                    triggerHaptic('light');
+                  }}
+                  className={cn("h-11 rounded-2xl border flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-[0.97]", isLight ? "bg-black/[0.03] border-black/5 text-black/50 hover:text-primary hover:border-primary/30" : "bg-white/[0.03] border-white/5 text-white/50 hover:text-primary hover:border-primary/30")}
+                >
+                  <FileDown className="w-3.5 h-3.5" />Download Word
+                </button>
+              </div>
+
+              <div className="text-center space-y-3 px-6">
+                <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>Signature Protocol</h3>
+                <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Secure digital signature</p>
               </div>
 
               <DigitalSignaturePad
