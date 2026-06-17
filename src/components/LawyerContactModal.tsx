@@ -69,7 +69,7 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
                   <p className="text-xs text-muted-foreground uppercase tracking-widest">Personal Lawyer Contact</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-white/5">
+              <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close" className="rounded-full hover:bg-white/5">
                 <X className="w-5 h-5" />
               </Button>
             </div>

@@ -402,10 +402,10 @@ export default function DocumentVault() {
                     </p>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(doc)}>
+                    <Button variant="ghost" size="icon" aria-label="Download document" className="h-8 w-8" onClick={() => handleDownload(doc)}>
                       <Download className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(doc)}>
+                    <Button variant="ghost" size="icon" aria-label="Delete document" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(doc)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

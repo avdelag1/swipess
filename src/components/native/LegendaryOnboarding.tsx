@@ -61,7 +61,7 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
-          <img src={slide.image} className="w-full h-full object-cover opacity-60" alt="" />
+          <img src={slide.image} className="w-full h-full object-cover opacity-60" alt={slide.title} />
           
           {index === 3 && (
             <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none mb-32">

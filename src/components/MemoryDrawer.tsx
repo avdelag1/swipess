@@ -93,7 +93,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
             >
               <Plus className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className={cn("h-8 w-8 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-black/40 hover:bg-slate-100")}>
+            <Button variant="ghost" size="icon" aria-label="Close" onClick={() => onOpenChange(false)} className={cn("h-8 w-8 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-black/40 hover:bg-slate-100")}>
               <X className="w-4 h-4" />
             </Button>
           </div>
