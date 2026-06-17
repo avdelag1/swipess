@@ -324,7 +324,7 @@ export default function OwnerViewClientProfile() {
                 </div>
                 <div className="text-3xl font-black text-[#FF4D00] tabular-nums italic">{insights?.responseRate}%</div>
               </div>
-              <div className={cn("w-full h-2.5 rounded-full overflow-hidden shadow-inner border", isLight ? "bg-black/10 border-black/5" : "bg-black/40 border-white/5")}>
+              <div className={cn("w-full h-2.5 rounded-full overflow-hidden shadow-inner border", isLight ? "bg-slate-200 border-slate-200" : "bg-black/40 border-white/5")}>
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${insights?.responseRate}%` }}

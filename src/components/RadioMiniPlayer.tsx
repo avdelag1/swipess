@@ -88,7 +88,7 @@ function RadioMiniPlayerInner() {
             onClick={handleTogglePlay}
             className={cn(
               "flex items-center gap-2 h-12 px-4 rounded-full shadow-2xl border backdrop-blur-xl transition-all active:scale-95",
-              isLight ? "bg-white border-black/[0.05] text-black" : "bg-black/80 border-white/15 text-white"
+              isLight ? "bg-white border-slate-200 text-black" : "bg-black/80 border-white/15 text-white"
             )}
           >
             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
@@ -124,7 +124,7 @@ function RadioMiniPlayerInner() {
             onClick={() => { setExpanded(true); triggerHaptic('light'); }}
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center border shadow-xl backdrop-blur-xl active:scale-90 transition-all",
-              isLight ? "bg-white/90 border-black/[0.05] text-black/40" : "bg-black/60 border-white/15 text-white/60"
+              isLight ? "bg-white/90 border-slate-200 text-black/40" : "bg-black/60 border-white/15 text-white/60"
             )}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

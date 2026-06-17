@@ -53,7 +53,7 @@ function ToolButton({
         accent
           ? 'bg-primary text-white border-primary'
           : active
-            ? (isLight ? 'bg-black/10 border-black/15 text-black' : 'bg-white/15 border-white/20 text-white')
+            ? (isLight ? 'bg-slate-100 border-slate-300 text-black' : 'bg-white/15 border-white/20 text-white')
             : (isLight ? 'bg-slate-50 border-slate-200 text-black' : 'bg-white/5 border-white/10 text-white'),
       )}
     >
