@@ -281,8 +281,10 @@ export default function SeekersPage() {
       {/* Swipe deck */}
       <div className="flex-1 relative px-4" style={{ paddingBottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`w-10 h-10 rounded-full border-2 animate-spin ${isLight ? 'border-black/10 border-t-black/80' : 'border-white/20 border-t-white'}`} />
+          <div className="absolute inset-4 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-full max-h-[72vh] rounded-[2rem] bg-muted/20 border border-border/30 animate-pulse" style={{ opacity: 1 - i * 0.2 }} />
+            ))}
           </div>
         ) : visible.length === 0 ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-8">

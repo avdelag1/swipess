@@ -65,13 +65,12 @@ export default function LocalIntel() {
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-sm"
+              className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-sm press-snappy"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600 dark:text-white" />
-            </motion.button>
+            </button>
             <div className="flex flex-col">
               <h1 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tight leading-none uppercase">
                 Tulum Intel
@@ -82,23 +81,21 @@ export default function LocalIntel() {
             </div>
           </div>
           
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"
+          <button
+            className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary press-snappy"
           >
             <Share2 className="w-5 h-5" />
-          </motion.button>
+          </button>
         </div>
 
         {/* Category horizontal scroller */}
         <div className="flex gap-2.5 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
           {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
-            <motion.button
+            <button
               key={key}
-              whileTap={{ scale: 0.95 }}
               onClick={() => { triggerHaptic('light'); setSelectedCategory(key); }}
               className={cn(
-                'flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
+                'flex items-center gap-2 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all duration-150 border press-snappy tab-snappy',
                 selectedCategory === key
                   ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]'
                   : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-500 dark:text-white/40'
@@ -106,7 +103,7 @@ export default function LocalIntel() {
             >
               <config.icon className={cn("w-3.5 h-3.5", selectedCategory === key ? "text-white" : config.color)} />
               {config.label}
-            </motion.button>
+            </button>
           ))}
         </div>
       </div>
@@ -136,7 +133,7 @@ export default function LocalIntel() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: index * 0.05, type: 'spring', stiffness: 300, damping: 30 }}
+                  transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                   className="group relative bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 shadow-xl shadow-black/5 dark:shadow-none overflow-hidden backdrop-blur-xl"
                 >
                   {/* Decorative Gradient */}

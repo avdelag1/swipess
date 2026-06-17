@@ -152,7 +152,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   "font-black uppercase italic tracking-tight leading-none",
                   isMobile ? "text-3xl" : "text-2xl"
                 )}>
-                  Sector <span className="text-primary">Calibration</span>
+                  Sector <span className="text-primary">Filters</span>
                 </DialogTitle>
                 <p className={cn(
                   "text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1.5",
@@ -167,7 +167,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               size="icon"
               onClick={handleReset}
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/5 border border-white/10 transition-all active:scale-90"
-              title="Reset Calibration"
+              title="Reset filters"
             >
               <RotateCcw className="w-4 h-4 opacity-60" />
             </Button>

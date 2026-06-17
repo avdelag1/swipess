@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,10 @@ import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 // import { } from '@/integrations/supabase/client';
-import { MessageActivationPackages } from '@/components/MessageActivationPackages';
+import { lazyWithRetry } from '@/utils/lazyRetry';
+const MessageActivationPackages = lazyWithRetry(() =>
+  import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages }))
+);
 // import { } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
@@ -195,8 +198,8 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return createPortal(
-      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-500 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
-        <AnimatePresence mode="wait">
+      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-200 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
+        <AnimatePresence mode="sync">
           <motion.div
             key="interface"
             initial={{ opacity: 0, y: '10%' }}
@@ -412,7 +415,9 @@ export function MessagingDashboard() {
         <div className="h-20" />
       </div>
       
-      <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
+      <Suspense fallback={null}>
+        <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
+      </Suspense>
 
       <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
         <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>

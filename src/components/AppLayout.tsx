@@ -60,8 +60,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);
 
-  // Mount synchronously on first open — useEffect left a blank frame before.
-  const mountPassportMap = keepMapMounted || showPassportMapModal || isSwipeDashboard;
+  // Mount only when opened — dashboard prefetch warms modules without eager Mapbox init.
+  const mountPassportMap = keepMapMounted || showPassportMapModal;
 
   useLayoutEffect(() => {
     if (mountPassportMap && !keepMapMounted) {
@@ -356,8 +356,13 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Suspense
           fallback={
             showPassportMapModal ? (
-              <div className="fixed inset-0 z-[10025] bg-[#0a0a12] flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-[#00C6FF]/30 border-t-[#00C6FF] rounded-full animate-spin" />
+              <div className="fixed inset-0 z-[10025] bg-[#0a0a12] flex flex-col items-center justify-center gap-4 p-8">
+                <div className="w-full max-w-sm h-[55vh] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+                <div className="flex gap-2 w-full max-w-sm">
+                  <div className="h-10 flex-1 rounded-2xl bg-white/5 animate-pulse" />
+                  <div className="h-10 flex-1 rounded-2xl bg-white/5 animate-pulse" />
+                  <div className="h-10 w-10 rounded-2xl bg-white/5 animate-pulse shrink-0" />
+                </div>
               </div>
             ) : null
           }

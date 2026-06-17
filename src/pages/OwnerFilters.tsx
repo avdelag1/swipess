@@ -78,18 +78,18 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               <button
                 onClick={() => navigate('/owner/dashboard')}
                 className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-xl",
+                  "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border press-snappy shadow-xl",
                   _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
                 )}
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h1 className="text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none text-foreground">Radar</h1>
+              <h1 className="text-3xl sm:text-4xl font-black uppercase italic tracking-[-0.05em] leading-none text-foreground">Filters</h1>
             </div>
             <button
               onClick={handleReset}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-90 shadow-lg",
+                "w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-xl border press-snappy shadow-lg",
                 _isLight ? "bg-white/70 border-black/10 text-black hover:bg-white/90" : "bg-black/70 border-white/15 text-white hover:bg-black/90"
               )}
             >
@@ -112,7 +112,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
                 key={cat.id}
                 onClick={() => { haptics.tap(); setActiveCategory(cat.id as CategoryType); }}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] transition-all duration-300 relative overflow-hidden group",
+                  "flex flex-col items-center justify-center gap-1.5 py-4 rounded-[2rem] transition-all duration-150 press-snappy tab-snappy relative overflow-hidden group",
                   !active && "text-foreground"
                 )}
                 style={active ? {
@@ -150,7 +150,7 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
               key={id}
               onClick={() => { haptics.tap(); setClientType(id); }}
               className={cn(
-                "px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95",
+                "px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider press-snappy tab-snappy",
                 clientType === id
                   ? "bg-foreground text-background shadow-lg shadow-foreground/30"
                   : "bg-card border border-border text-muted-foreground hover:text-foreground"
@@ -163,18 +163,17 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
         </div>
       </div>
 
-      {/* 🛸 RADAR CALIBRATION GRID */}
       <main className={cn(
         "container mx-auto px-6 max-w-4xl flex-1 pb-32",
         isEmbedded ? "px-0" : ""
       )}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <motion.div
             key={activeCategory}
-            initial={{ opacity: 0, scale: 0.98, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: -10 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="p-6 md:p-10 rounded-[3rem] border border-border bg-card/70 backdrop-blur-3xl shadow-xl"
           >
             {(() => {
@@ -205,29 +204,27 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
         isEmbedded ? "mt-8 pb-12" : "mt-8 pb-8"
       )}>
         <div className="max-w-md mx-auto">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             onClick={() => {
               haptics.success();
-              appToast.success('Filters applied', 'Your radar is updating.');
+              appToast.success('Filters applied', 'Your deck is updating.');
               handleFinalApply();
             }}
-            className="w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl flex items-center justify-center gap-4 group transition-all"
+            className="w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl flex items-center justify-center gap-4 group press-snappy"
             style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff', boxShadow: '0 20px 50px rgba(255, 77, 0, 0.35)' }}
           >
-            <Sparkles className="w-6 h-6 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
+            <Sparkles className="w-6 h-6 md:w-7 md:h-7" />
             <span className="text-sm font-black uppercase italic tracking-[0.2em]">
               Apply Filters
             </span>
-          </motion.button>
+          </button>
 
           <button 
             onClick={handleReset}
-            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/70 hover:text-foreground transition-opacity"
+            className="w-full mt-4 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/70 hover:text-foreground press-snappy"
           >
             <RotateCcw className="w-3 h-3" />
-            Reset Radar
+            Reset Filters
           </button>
         </div>
       </div>

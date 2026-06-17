@@ -8,6 +8,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 import { canNativeShare, shareViaNavigator } from '@/hooks/useSharing';
 
+
 interface VideoListing {
   id: string;
   title: string;
@@ -65,9 +66,13 @@ export default function VideoTours() {
 
   if (isLoading) {
     return (
-      <div className="h-[100dvh] bg-black flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 rounded-full border-t-2 border-primary animate-spin" />
-        <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Buffering Tours...</span>
+      <div className="h-[100dvh] bg-black p-4 pt-safe">
+        <div className="h-12 w-32 rounded-2xl bg-white/5 animate-pulse mb-4" />
+        <div className="space-y-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="h-[70dvh] rounded-[2rem] bg-white/5 border border-white/10 animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }

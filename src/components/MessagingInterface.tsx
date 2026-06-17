@@ -38,6 +38,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { MessageListSkeleton } from '@/components/ui/ContentSkeleton';
 
 interface MessagingInterfaceProps {
   conversationId: string;
@@ -216,9 +217,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
-         <div className="z-[10000] w-12 h-12 rounded-xl border-4 border-rose-500/10 border-t-rose-500 animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-rose-500 mt-6 animate-pulse">Syncing Swipes...</p>
+      <div className="flex-1 flex flex-col bg-background min-h-0">
+        <div className="shrink-0 px-4 py-3 min-h-[72px] flex items-center gap-4 border-b border-border/40">
+          <div className="w-12 h-12 rounded-full bg-muted/30 animate-pulse shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-muted/30 rounded-lg w-32 animate-pulse" />
+            <div className="h-3 bg-muted/20 rounded w-20 animate-pulse" />
+          </div>
+        </div>
+        <MessageListSkeleton rows={8} />
       </div>
     );
   }
@@ -226,7 +233,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   return (
     <>
       <div className={cn(
-        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
+        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-200",
         isThemeLight ? "bg-[#ffffff]" : "bg-background"
       )}>
 
@@ -240,7 +247,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
             <button
               onClick={onBack}
               className={cn(
-                 "shrink-0 flex items-center justify-center w-12 h-12 rounded-full active:scale-90 transition-all",
+                 "shrink-0 flex items-center justify-center w-12 h-12 rounded-full press-snappy",
                  isThemeLight ? "bg-background/[0.04] text-black hover:bg-background/10" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
               )}
             >

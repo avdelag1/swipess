@@ -96,12 +96,12 @@ export default function EventosLikes() {
 
   return (
     <div className={cn(
-      "min-h-[101dvh] pb-24 transition-colors duration-700 relative overflow-x-hidden touch-pan-y",
+      "min-h-[101dvh] pb-24 transition-colors duration-200 relative overflow-x-hidden touch-pan-y",
       isLight ? "bg-white text-zinc-900" : "bg-[#0a0a0b] text-white"
     )} data-no-swipe-nav="true">
       {/* 🏎️ Adaptive Ambient Background: Shifts color based on filter */}
       <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[400px] blur-[120px] opacity-[0.12] pointer-events-none transition-colors duration-1000 z-0"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[400px] blur-[120px] opacity-[0.12] pointer-events-none transition-colors duration-300 z-0"
         style={{ background: `radial-gradient(circle, ${activeColor} 0%, transparent 70%)` }}
       />
 
@@ -206,9 +206,9 @@ export default function EventosLikes() {
                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ delay: idx * 0.05, type: 'spring', stiffness: 300, damping: 25 }}
+                  transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
-                    "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-all duration-500 shadow-sm active:scale-[0.98]",
+                    "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-all duration-200 shadow-sm press-snappy",
                     isLight ? "bg-zinc-100 border-black/[0.04]" : "bg-zinc-900 border-white/[0.04]"
                   )}
                   onClick={() => navigate(`/explore/events/${ev.id}`, { state: { eventData: ev } })}
@@ -221,7 +221,7 @@ export default function EventosLikes() {
                   
                   {/* Overlays */}
                   <div className={cn(
-                    "absolute inset-0 opacity-80 transition-opacity duration-700",
+                    "absolute inset-0 opacity-80 transition-opacity duration-200",
                     isLight ? "bg-gradient-to-t from-white via-white/20 to-transparent" : "bg-gradient-to-t from-black via-black/20 to-transparent"
                   )} />
                   

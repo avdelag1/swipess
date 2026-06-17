@@ -1421,7 +1421,7 @@ export const PassportMapModal = memo(() => {
           )}
 
           {/* Active Drawer Area (city strip / results carousel) */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {/* Cities drawer removed because they are now on top */}
             {isOpen && hudExpanded && !selected && activeDrawer === 'results' && data && (
               <motion.div
@@ -1471,8 +1471,9 @@ export const PassportMapModal = memo(() => {
         )}
 
         {mapboxReady && mapLoading && !mapError && (
-          <div className="absolute inset-0 z-[15] flex items-center justify-center pointer-events-none bg-black/30">
-            <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+          <div className="absolute inset-0 z-[15] pointer-events-none bg-black/40">
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-b from-[#1a1a2e]/60 to-[#0a0a12]/80" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#00C6FF]/60 shadow-[0_0_20px_#00C6FF]" />
           </div>
         )}
 

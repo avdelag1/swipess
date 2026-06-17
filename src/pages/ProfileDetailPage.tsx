@@ -6,6 +6,7 @@ import { SimpleOwnerSwipeCard } from '@/components/SimpleOwnerSwipeCard';
 import { triggerHaptic } from '@/utils/haptics';
 import { Suspense, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { ProfileCardSkeleton } from '@/components/ui/ContentSkeleton';
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -69,7 +70,7 @@ export default function ProfileDetailPage() {
     } as any;
   }, [profile]);
 
-  if (isLoading) return <div className="w-full h-screen flex items-center justify-center bg-background"><div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>;
+  if (isLoading) return <div className="w-full h-screen flex items-center justify-center bg-background p-6"><ProfileCardSkeleton /></div>;
 
   if (!profile) return <div className="w-full h-screen flex flex-col items-center justify-center bg-background gap-4 p-6"><p className="text-muted-foreground">Profile not found</p><button onClick={() => navigate(-1)} className="text-sm text-primary underline">Go back</button></div>;
 
@@ -78,7 +79,7 @@ export default function ProfileDetailPage() {
       className="relative w-full h-screen bg-black overflow-hidden"
       initial={{ opacity: 0.5, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 16, mass: 0.6 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="absolute inset-0">
         <SimpleOwnerSwipeCard

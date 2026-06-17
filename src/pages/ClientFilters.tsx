@@ -97,9 +97,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
         </div>
       )}
 
-      {/* 🛸 RADAR CALIBRATION GRID */}
       <div className="w-full max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-200 relative z-10">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {!activeCategory ? (
             <motion.div
               key="selector"
@@ -112,7 +111,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               {/* Back to previous page */}
               <button
                 onClick={() => { haptics.tap(); navigate(-1); }}
-                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90 w-fit text-foreground hover:bg-secondary"
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg press-snappy w-fit text-foreground hover:bg-secondary"
               >
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
@@ -153,7 +152,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
             >
               <button
                 onClick={() => { haptics.tap(); setActiveCategory(null); }}
-                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-90 text-foreground hover:bg-secondary"
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg press-snappy text-foreground hover:bg-secondary"
               >
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
@@ -164,7 +163,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border transition-all active:scale-95 whitespace-nowrap"
+                    className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border transition-all duration-150 press-snappy tab-snappy whitespace-nowrap"
                     style={activeCategory === cat.id ? {
                       background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
                       borderColor: 'transparent',
@@ -189,7 +188,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'buyers' && 'Buyers'}
                 {activeCategory === 'renters' && 'Renters'}
                 {activeCategory === 'leads' && 'Leads'}
-                <span className="text-primary block text-xl tracking-[0.2em] mt-2">Calibration</span>
+                <span className="text-primary block text-xl tracking-[0.2em] mt-2">Filters</span>
               </h2>
 
               <div className="rounded-[3rem] p-6 shadow-2xl bg-card border border-border backdrop-blur-3xl">
@@ -205,7 +204,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               <div className="flex flex-col gap-4 pt-6">
                 <button
                   onClick={handleScan}
-                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95"
+                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group press-snappy"
                   style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff' }}
                 >
                   <Search className="w-6 h-6" />

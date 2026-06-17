@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { PageHeader } from '@/components/PageHeader';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import { NotificationListSkeleton } from '@/components/ui/ContentSkeleton';
 
 const TYPE_MAP: Record<string, string> = {
   new_like: 'like',
@@ -86,9 +87,8 @@ const NotificationsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium animate-pulse">Loading notifications…</p>
+      <div className="w-full pb-20 min-h-screen pt-4">
+        <NotificationListSkeleton rows={6} />
       </div>
     );
   }
@@ -110,7 +110,7 @@ const NotificationsPage = () => {
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <PageHeader 
           title={getText('page_title', 'Pulse Feed')} 
-          subtitle={getText('page_subtitle', 'System Intelligence Updates')} 
+          subtitle={getText('page_subtitle', 'Your latest activity')} 
           showBack={false}
           actions={notifications.length > 0 ? (
             <Button 

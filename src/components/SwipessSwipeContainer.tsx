@@ -912,11 +912,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   return (
     <>
     <div className={cn(
-      "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
+      "absolute inset-0 w-full h-full flex flex-col transition-colors duration-200 overflow-hidden",
       "bg-swipe-frame"
     )}>
       <div className={cn(
-        "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
+        "absolute inset-0 pointer-events-none -z-10 transition-colors duration-200",
         "bg-swipe-frame"
       )} />
 
@@ -946,13 +946,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         >
           <motion.div
             className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
+            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)' }}
           >
             {/* Rounded backdrop matches card corners so deck blends into background */}
             <div
               aria-hidden
               className={cn(
-                "absolute inset-0 -z-10 transition-colors duration-500",
+                "absolute inset-0 -z-10 transition-colors duration-200",
                 "bg-swipe-frame"
               )}
               style={{ borderRadius: 48 }}
@@ -966,13 +966,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
                 >
-                  <AnimatePresence>
-                    {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                  {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
                       const isTopCard = listing.id === topCard?.id;
                       return (
-                        <motion.div
+                        <div
                           key={listing.id}
-                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
                           className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                         >
                         {dataType === 'people' ? (
@@ -1043,10 +1041,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             ) : undefined}
                           />
                       )}
-                    </motion.div>
+                    </div>
                   );
                 })}
-                </AnimatePresence>
               </motion.div>
             ) : (
               <motion.div
