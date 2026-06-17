@@ -54,7 +54,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
 
               <div className={cn(
                 "rounded-[2rem] p-6 backdrop-blur-2xl transition-all duration-500",
-                isLight ? "bg-black/[0.02]" : "bg-white/[0.02]"
+                isLight ? "bg-slate-50" : "bg-white/[0.02]"
               )}>
                 <AccountSecurity userRole="owner" />
               </div>
@@ -72,7 +72,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
                   variant="ghost" 
                   className={cn(
                     "justify-between h-16 rounded-[1.5rem] px-6 text-sm font-black uppercase italic tracking-tight transition-all",
-                    isLight ? "bg-black/[0.03] hover:bg-black/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.06]"
+                    isLight ? "bg-slate-50 hover:bg-slate-100" : "bg-white/[0.03] hover:bg-white/[0.06]"
                   )}
                   onClick={() => { onOpenChange(false); navigate('/legal?doc=terms'); }}
                 >
@@ -87,7 +87,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
                   variant="ghost"
                   className={cn(
                     "justify-between h-16 rounded-[1.5rem] px-6 text-sm font-black uppercase italic tracking-tight transition-all",
-                    isLight ? "bg-black/[0.03] hover:bg-black/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.06]"
+                    isLight ? "bg-slate-50 hover:bg-slate-100" : "bg-white/[0.03] hover:bg-white/[0.06]"
                   )}
                   onClick={() => { onOpenChange(false); navigate('/legal?doc=privacy'); }}
                 >

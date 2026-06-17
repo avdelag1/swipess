@@ -171,7 +171,7 @@ function RadioMiniPlayerInner() {
                 {station.albumArt ? (
                   <img src={station.albumArt} alt={station.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-black/[0.03]" : "bg-primary/20")}>
+                  <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-slate-50" : "bg-primary/20")}>
                     <Radio className="w-6 h-6 text-primary" />
                   </div>
                 )}
