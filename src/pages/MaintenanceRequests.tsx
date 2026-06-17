@@ -10,6 +10,7 @@ import { Building2, CheckCircle2, Clock, Cpu, MoreHorizontal, Plus, Wind, Wrench
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 
 const categoryIcons: Record<string, ComponentType<{ className?: string }>> = {
   plumbing: Wrench,
@@ -58,7 +59,7 @@ const MaintenanceRequests = () => {
   const filtered = requests?.filter(r => activeFilter === 'all' || r.status === activeFilter) || [];
 
   return (
-    <div className="w-full min-h-full px-4 pt-4 pb-32 scrollbar-hide bg-background">
+    <AmbientPageBackground className="w-full min-h-screen px-4 pt-4 pb-32 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <PageHeader title="Maintenance" subtitle="Report and track issues" showBack backTo="/client/settings" />
@@ -189,7 +190,7 @@ const MaintenanceRequests = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 };
 

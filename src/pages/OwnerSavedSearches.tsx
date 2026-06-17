@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 
 const OwnerClientFilterDialog = lazyWithRetry(() => import('@/components/OwnerClientFilterDialog').then(m => ({ default: m.OwnerClientFilterDialog })));
 
@@ -24,7 +25,7 @@ const OwnerSavedSearches = () => {
 
   return (
     <>
-      <div className="w-full p-4 pt-4 pb-32 bg-background min-h-full">
+      <AmbientPageBackground className="w-full p-4 pt-4 pb-32 min-h-screen">
         <div className="max-w-4xl mx-auto space-y-6">
 
           {/* Back nav */}
@@ -75,7 +76,7 @@ const OwnerSavedSearches = () => {
 
           <SavedSearches userRole="owner" onApplyFilter={handleApplyFilter} />
         </div>
-      </div>
+      </AmbientPageBackground>
 
       <Suspense fallback={null}><OwnerClientFilterDialog
         open={showFilterDialog}

@@ -256,8 +256,8 @@ export function MessagingDashboard() {
             <input 
               placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
-                "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "surface-inset text-black placeholder:text-black/30" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border surface-inset",
+                isLight ? "text-black placeholder:text-black/30" : "text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -322,9 +322,9 @@ export function MessagingDashboard() {
                   <button 
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
-                      isUnread 
-                        ? (isLight ? "surface-row surface-row--active" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
-                        : (isLight ? "surface-row hover:shadow-[var(--elev-3)]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
+                      isUnread
+                        ? "surface-row surface-row--active"
+                        : "surface-row hover:shadow-[var(--elev-3)]"
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >

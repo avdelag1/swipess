@@ -1,8 +1,8 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
-interface AmbientPageBackgroundProps {
+interface AmbientPageBackgroundProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -43,6 +43,7 @@ export function AmbientPageBackground({
   style,
   variant = 'default',
   layout = 'page',
+  ...rest
 }: AmbientPageBackgroundProps) {
   const { isLight } = useAppTheme();
   const isFill = layout === 'fill';
@@ -55,6 +56,7 @@ export function AmbientPageBackground({
         className,
       )}
       style={style}
+      {...rest}
     >
       <AmbientBackdrop tone={isLight ? 'light' : 'dark'} variant={variant} />
       <div

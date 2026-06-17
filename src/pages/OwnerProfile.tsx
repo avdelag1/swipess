@@ -45,7 +45,7 @@ const OwnerProfile = () => {
   }
 
   return (
-    <AmbientPageBackground className={cn("w-full min-h-full text-foreground")}>
+    <AmbientPageBackground className={cn("w-full min-h-screen text-foreground")}>
       <div className="w-full px-6 layout-padding-top pb-32 space-y-10">
 
         {/* SWIPESS OPERATOR BADGE */}

@@ -88,7 +88,7 @@ const ClientProfile = () => {
   }
 
   return (
-    <AmbientPageBackground className={cn("w-full min-h-full text-foreground")}>
+    <AmbientPageBackground className={cn("w-full min-h-screen text-foreground")}>
       <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10">
 
         {/* SWIPESS MEMBER BADGE */}

@@ -30,6 +30,7 @@ import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
 import { triggerHaptic } from "@/utils/haptics";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 
 interface InterestedOwner {
   id: string;
@@ -192,7 +193,7 @@ const ClientWhoLikedYou = () => {
   );
 
   return (
-    <div className="w-full relative flex flex-col min-h-full" data-no-swipe-nav="true">
+    <AmbientPageBackground className="w-full relative flex flex-col min-h-screen pb-32" data-no-swipe-nav="true">
       <div className="p-4 pt-4 sm:p-8 sm:pt-6 max-w-7xl mx-auto">
         <PageHeader title="Fan Base" subtitle="Interested Entities" showBack={true} />
 
@@ -303,7 +304,7 @@ const ClientWhoLikedYou = () => {
         isOpen={isConnecting}
         recipientName={connectingRecipient}
       />
-    </div>
+    </AmbientPageBackground>
   );
 };
 

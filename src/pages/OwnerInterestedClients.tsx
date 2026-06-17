@@ -31,6 +31,7 @@ import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 import useAppTheme from "@/hooks/useAppTheme";
 import { ConnectingOverlay } from "@/components/ConnectingOverlay";
 import { triggerHaptic } from "@/utils/haptics";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 
 const clientCategories = [
   { id: "all", label: "All", icon: Flame },
@@ -218,7 +219,7 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full relative flex flex-col min-h-full" data-no-swipe-nav="true">
+    <AmbientPageBackground className="w-full relative flex flex-col min-h-screen" data-no-swipe-nav="true">
       <div className="w-full px-6 pt-10 pb-32">
         <PageHeader title="Interested Clients" subtitle="Top Demand Entities" showBack={true} />
 
@@ -330,7 +331,7 @@ const OwnerInterestedClients = () => {
         isOpen={isConnecting}
         recipientName={connectingRecipient}
       />
-    </div>
+    </AmbientPageBackground>
   );
 };
 
