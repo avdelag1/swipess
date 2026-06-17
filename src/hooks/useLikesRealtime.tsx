@@ -19,20 +19,21 @@ export function useLikesRealtime(enabled = true) {
 
     logger.info('[useLikesRealtime] Subscribing to likes table for user:', user.id);
 
-    // Subscribe to ALL inserts and deletes on the likes table
-    // We filter in JS or just invalidate to be safe
+    // Debounce listing-like invalidations so bursts of likes don't thrash the cache
+    let listingDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const likesChannel = supabase
       .channel(`user-likes-realtime-${user.id}`)
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen for all changes (INSERT, DELETE, UPDATE)
+          event: '*',
           schema: 'public',
           table: 'likes'
         },
         async (payload) => {
           logger.info('[useLikesRealtime] Change detected in likes table:', payload.eventType);
-          
+
           const record = payload.new as any || payload.old as any;
           if (!record) return;
 
@@ -41,14 +42,13 @@ export function useLikesRealtime(enabled = true) {
             logger.info('[useLikesRealtime] New like on current user profile detected');
             queryClient.invalidateQueries({ queryKey: ['owner-interested-clients'] });
           }
-          
-          // Case 2: Someone liked one of the user's listings
-          // We don't have the list of listing IDs here, so we'll do a quick check
-          // or just invalidate if it's a listing-type like
+
+          // Case 2: Someone liked a listing — debounce to avoid cache thrash on bulk likes
           if (record.target_type === 'listing') {
-             // To be efficient, we could check if record.target_id is in user's listings
-             // but simple invalidation is safer for a "completely working" app
-             queryClient.invalidateQueries({ queryKey: ['owner-interested-clients'] });
+            if (listingDebounceTimer) clearTimeout(listingDebounceTimer);
+            listingDebounceTimer = setTimeout(() => {
+              queryClient.invalidateQueries({ queryKey: ['owner-interested-clients'] });
+            }, 1500);
           }
 
           // Case 3: The user themselves liked something (from another device)
@@ -65,6 +65,7 @@ export function useLikesRealtime(enabled = true) {
 
     return () => {
       logger.info('[useLikesRealtime] Unsubscribing from likes table');
+      if (listingDebounceTimer) clearTimeout(listingDebounceTimer);
       likesChannel.unsubscribe();
       supabase.removeChannel(likesChannel);
     };

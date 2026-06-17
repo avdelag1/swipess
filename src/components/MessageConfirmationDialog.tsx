@@ -66,7 +66,7 @@ export function MessageConfirmationDialog({
         <div className="absolute bottom-0 right-0 w-[60%] h-[60%] bg-violet-700/10 rounded-full blur-[80px] pointer-events-none" />
 
         {/* Header */}
-        <div className="shrink-0 relative px-6 pt-7 pb-5 border-b border-white/[0.06]">
+        <div className={cn("shrink-0 relative px-6 pt-7 pb-5 border-b", isLight ? "border-slate-200" : "border-white/[0.06]")}>
           <button
             onClick={handleCancel}
             className={cn("absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 border text-white/50 hover:text-white/80 active:scale-90 transition-all z-10", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")}
@@ -90,7 +90,7 @@ export function MessageConfirmationDialog({
           </div>
 
           {/* Premium badge */}
-          <div className="mt-4 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03]">
+          <div className={cn("mt-4 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border", isLight ? "border-slate-200 bg-slate-50" : "border-white/[0.07] bg-white/[0.03]")}>
             <div className="flex items-center gap-2.5">
               <div className="z-[10000] w-7 h-7 rounded-full flex items-center justify-center bg-rose-500/15 border border-rose-500/20">
                 <Sparkles className="z-[10000] w-3.5 h-3.5 text-rose-400" />
@@ -133,7 +133,7 @@ export function MessageConfirmationDialog({
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 flex flex-col gap-2 p-5 pt-3 border-t border-white/[0.06]">
+        <div className={cn("shrink-0 flex flex-col gap-2 p-5 pt-3 border-t", isLight ? "border-slate-200" : "border-white/[0.06]")}>
           <Button
             onClick={handleConfirm}
             disabled={isLoading || !message.trim() || !canStartNewConversation}

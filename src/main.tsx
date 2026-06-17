@@ -279,8 +279,11 @@ deferredInit(async () => {
     if ('serviceWorker' in navigator && !isPreviewHost && !isNativeApp) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => {
-          // Check for updates once per hour — not every 10s
+          // Check for updates once per hour + whenever the user comes back to the tab
           setInterval(() => reg.update(), 60 * 60 * 1000);
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) reg.update();
+          });
           
           // If a new worker was waiting, skip waiting immediately
           if (reg.waiting) {
