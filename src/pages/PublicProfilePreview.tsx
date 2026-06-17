@@ -15,7 +15,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { STORAGE } from '@/constants/app';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SEO } from '@/components/SEO';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { ImmersiveDarkShell } from '@/components/ui/AmbientPageBackground';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -90,31 +90,28 @@ export default function PublicProfilePreview() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col p-6 pt-safe relative z-10">
-        <AtmosphericLayer variant="Swipes" opacity={0.1} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col p-6 pt-safe z-10">
         <div className="relative z-10 max-w-md mx-auto w-full mt-8">
           <div className="aspect-[3/4] rounded-[2rem] bg-white/5 border border-white/10 animate-pulse mb-4" />
           <div className="h-6 bg-white/5 rounded-xl w-3/4 animate-pulse mb-2" />
           <div className="h-4 bg-white/5 rounded-lg w-1/2 animate-pulse" />
         </div>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   if (isError && !profile) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
         <p className="text-sm font-semibold text-white/50 relative z-10">Could not load profile.</p>
         <Button onClick={() => refetch()} className="relative z-10 rounded-2xl">Try again</Button>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   if (!profile) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
         <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
           <User className="w-10 h-10 text-white/20" />
         </div>
@@ -128,14 +125,14 @@ export default function PublicProfilePreview() {
         >
           Explore Swipess
         </Button>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   const seoDescription = `${profile.bio || 'Discover on Swipess.'}${profile.city ? ` — ${profile.city}.` : ''}`;
 
   return (
-    <div className="fixed inset-0 w-full bg-[#07070d] text-white flex flex-col overflow-hidden">
+    <ImmersiveDarkShell className="fixed inset-0 w-full bg-[#07070d] text-white flex flex-col overflow-hidden">
       <SEO
         title={`${profile.full_name || 'Profile'} on Swipess`}
         description={seoDescription}
@@ -143,8 +140,6 @@ export default function PublicProfilePreview() {
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/profile/${id}`}
         type="profile"
       />
-
-      <AtmosphericLayer variant="Swipes" opacity={0.07} />
 
       <div
         className="relative z-50 flex items-center justify-between px-4 pb-2 shrink-0"
@@ -343,6 +338,6 @@ export default function PublicProfilePreview() {
           description={`Discover ${profile.full_name || 'this profile'} on Swipess.`}
         />
       </Suspense>
-    </div>
+    </ImmersiveDarkShell>
   );
 }

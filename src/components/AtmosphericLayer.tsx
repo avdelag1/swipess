@@ -9,8 +9,8 @@ interface AtmosphericLayerProps {
 }
 
 /**
- * Soft ambient page depth — uses the same gradient system as AmbientPageBackground.
- * Variant prop kept for API compatibility; all variants share one cohesive look.
+ * @deprecated Use AmbientPageBackground or ImmersiveDarkShell instead.
+ * Kept for backward compatibility — all variants share one cohesive ambient look.
  */
 export const AtmosphericLayer = memo(({ opacity = 1 }: AtmosphericLayerProps) => {
   const { isLight } = useAppTheme();

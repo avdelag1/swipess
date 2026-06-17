@@ -191,6 +191,7 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes('recharts') || id.includes('d3-') || id.includes('/d3/')) return 'vendor-viz';
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
+            if (id.includes('heic2any')) return 'vendor-heic';
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('date-fns')) return 'vendor-dates';
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';

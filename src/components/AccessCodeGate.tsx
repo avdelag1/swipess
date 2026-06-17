@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
-import { AtmosphericLayer } from './AtmosphericLayer';
+
 import { triggerHaptic } from '@/utils/haptics';
 import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { supabase } from '@/integrations/supabase/client';
@@ -124,9 +124,10 @@ export function AccessCodeGate({ onGranted }: Props) {
           style={{ backgroundImage: `url(${bgImage})` }}
         />
       ) : (
-        <div className="fixed inset-0 pointer-events-none bg-black">
-          <AtmosphericLayer variant="Swipes" opacity={0.15} />
-        </div>
+        <div
+          aria-hidden
+          className="fixed inset-0 pointer-events-none ambient-page-bg ambient-page-bg--dark opacity-80"
+        />
       )}
       <LandingBackgroundEffects mode="off" />
       <div

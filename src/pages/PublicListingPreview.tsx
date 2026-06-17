@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { triggerHaptic } from '@/utils/haptics';
 import { SEO } from '@/components/SEO';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { ImmersiveDarkShell } from '@/components/ui/AmbientPageBackground';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -143,31 +143,28 @@ export default function PublicListingPreview() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col p-6 pt-safe relative z-10">
-        <AtmosphericLayer variant="Swipes" opacity={0.1} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col p-6 pt-safe z-10">
         <div className="relative z-10 max-w-md mx-auto w-full mt-8">
           <div className="aspect-[4/5] rounded-[2rem] bg-white/5 border border-white/10 animate-pulse mb-4" />
           <div className="h-6 bg-white/5 rounded-xl w-3/4 animate-pulse mb-2" />
           <div className="h-4 bg-white/5 rounded-lg w-1/2 animate-pulse" />
         </div>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   if (isError && !listing) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center gap-4">
         <p className="text-sm font-semibold text-white/50 relative z-10">Could not load listing.</p>
         <Button onClick={() => refetch()} className="relative z-10 rounded-2xl">Try again</Button>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   if (!listing) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
-        <AtmosphericLayer variant="Swipes" opacity={0.15} />
+      <ImmersiveDarkShell className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center p-8 text-center">
         <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center mb-8 border border-white/10 relative z-10">
           <Home className="w-10 h-10 text-white/20" />
         </div>
@@ -181,14 +178,14 @@ export default function PublicListingPreview() {
         >
           Explore Swipess
         </Button>
-      </div>
+      </ImmersiveDarkShell>
     );
   }
 
   const seoDescription = `${listing.beds || 0} beds · ${listing.baths || 0} baths · ${listing.city || 'Swipess'} — ${formatPrice(listing.price)}`;
 
   return (
-    <div className="fixed inset-0 w-full bg-[#07070d] text-white flex flex-col overflow-hidden">
+    <ImmersiveDarkShell className="fixed inset-0 w-full bg-[#07070d] text-white flex flex-col overflow-hidden">
       <SEO
         title={listing.title || 'Swipess Listing'}
         description={seoDescription}
@@ -196,8 +193,6 @@ export default function PublicListingPreview() {
         url={`${typeof window !== 'undefined' ? window.location.origin : 'https://swipess.com'}/listing/${id}`}
         type="website"
       />
-
-      <AtmosphericLayer variant="Swipes" opacity={0.07} />
 
       {/* Top nav */}
       <div
@@ -429,6 +424,6 @@ export default function PublicListingPreview() {
         isOpen={isConnecting}
         recipientName={listing?.title || 'Asset Owner'}
       />
-    </div>
+    </ImmersiveDarkShell>
   );
 }

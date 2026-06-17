@@ -88,18 +88,20 @@ const NotificationsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full pb-20 min-h-screen pt-4">
+      <AmbientPageBackground className="w-full pb-20 min-h-screen pt-4">
         <NotificationListSkeleton rows={6} />
-      </div>
+      </AmbientPageBackground>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-6">
-        <p className="text-sm font-semibold text-muted-foreground text-center">Could not load notifications.</p>
-        <Button onClick={() => refetch()}>Try again</Button>
-      </div>
+      <AmbientPageBackground className="w-full min-h-screen">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 px-6">
+          <p className="text-sm font-semibold text-muted-foreground text-center">Could not load notifications.</p>
+          <Button onClick={() => refetch()}>Try again</Button>
+        </div>
+      </AmbientPageBackground>
     );
   }
 
@@ -154,8 +156,7 @@ const NotificationsPage = () => {
                 }}
                 className={cn(
                   "group relative transition-all cursor-pointer active:scale-[0.98] rounded-[1.5rem] p-4",
-                  isLight ? (notif.read ? "surface-row opacity-70" : "surface-row surface-row--active") : "",
-                  !isLight && notif.read ? "opacity-50" : ""
+                  notif.read ? "surface-row opacity-70" : "surface-row surface-row--active",
                 )}
               >
                 <div className="flex gap-4">
