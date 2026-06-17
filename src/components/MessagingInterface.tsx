@@ -254,9 +254,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               <ChevronLeft className="z-[10000] w-6 h-6 stroke-[2.5]" />
             </button>
 
-            <button 
+            <button
               onClick={() => navigate(`/profile/${otherUser.id}`)}
-              className="flex-1 flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
+              className="flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
             >
               <div className="relative shrink-0">
                 <div className={cn(
@@ -303,6 +303,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
                 </div>
               </div>
             </button>
+
+            <div className="flex-1" />
 
             <div className="flex gap-2 shrink-0">
               <button

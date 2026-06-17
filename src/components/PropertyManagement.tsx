@@ -280,7 +280,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       <div className="pb-32 space-y-12 w-full relative z-10">
         
         {/* 🛸 ASSET TERMINAL HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+        <div className={cn("flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-12 pb-8 relative z-50 bg-background/80 backdrop-blur-xl border-b", isLight ? "border-black/[0.08]" : "border-white/5")}>
           <div className="flex items-center gap-6">
             <div className="p-5 rounded-[1.4rem] bg-indigo-500/10 border border-indigo-500/20 shadow-2xl">
               <Zap className="w-8 h-8 text-indigo-500" />
@@ -296,7 +296,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             className="press-snappy h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
           >
             <Plus className="w-5 h-5 mr-2" />
-            Deploy Asset
+            Add Listing
           </button>
         </div>
 
@@ -314,8 +314,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
-                        "h-18 pl-14 pr-6 rounded-[2.2rem] font-black uppercase tracking-widest text-[12px] transition-all border-none outline-none ring-0", 
-                        isLight ? 'bg-black/[0.04] text-black placeholder:text-black/20 focus:bg-black/5' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10'
+                        "h-18 pl-14 pr-6 rounded-[2.2rem] font-black uppercase tracking-widest text-[12px] transition-all border outline-none ring-0",
+                        isLight ? 'bg-black/[0.04] text-black placeholder:text-black/20 focus:bg-black/5 border-black/[0.08]' : 'bg-white/[0.06] text-white placeholder:text-white/20 focus:bg-white/10 border-transparent'
                     )}
                 />
             </div>
