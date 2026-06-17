@@ -55,9 +55,10 @@
 
 /* THEME: LIGHT — Clean, high-contrast white */
 .light {
-    --background: 0 0% 100%;
+    /* Page background is light gray so white cards/sections visually float above it */
+    --background: 220 16% 96%;
     --foreground: 0 0% 0%; /* Absolute black for max contrast */
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* Pure white — lifts off the gray page */
     --card-foreground: 0 0% 0%;
     --primary: 18 100% 50%; /* Swipess Orange */
     --primary-foreground: 0 0% 100%;
@@ -69,7 +70,7 @@
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
+    --border: 0 0% 82%; /* Stronger than before so card edges are visible */
     --input: 0 0% 88%;
     --ring: 18 100% 50%;
 
@@ -81,23 +82,42 @@
     --icon-active: #FF4D00;
     --icon-inactive: rgba(0, 0, 0, 0.7); /* Darker inactive state for clear vision */
 
-    --bg-primary: 0 0% 100%;
-    --bg-secondary: 0 0% 98%;
-    --bg-tertiary: 0 0% 96%;
+    --bg-primary: 220 16% 96%; /* Same as --background */
+    --bg-secondary: 0 0% 100%; /* White panels/cards */
+    --bg-tertiary: 0 0% 98%;
     --text-primary: 0 0% 0%; /* Absolute black */
     --text-secondary: 0 0% 10%; /* Very deep black */
     --text-tertiary: 0 0% 25%;
-    --border-primary: 0 0% 90%;
-    --border-secondary: 0 0% 85%;
+    --border-primary: 0 0% 84%;
+    --border-secondary: 0 0% 78%;
     --accent-primary: 221 83% 50%;
     --accent-secondary: 221 83% 60%;
 
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.12);
-    --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.15);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 20px 48px rgba(0, 0, 0, 0.16), 0 8px 24px rgba(0, 0, 0, 0.10);
     --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
     --overlay: rgba(0, 0, 0, 0.65);
+}
+
+/* Strengthen Tailwind's hardcoded shadow utilities so white cards/sections
+   visually separate from the gray page background in light mode.
+   No !important — higher specificity beats Tailwind without fighting inline styles. */
+.light .shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+.light .shadow {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+.light .shadow-md {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+.light .shadow-lg {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+.light .shadow-xl {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.16), 0 6px 24px rgba(0, 0, 0, 0.10);
 }
 
 
