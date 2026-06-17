@@ -213,8 +213,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const [isZoomed, setIsZoomed] = useState(false);
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
-    scale: 2.8,
-    holdDelay: 380,
+    scale: 3.2,        // deeper zoom — was 2.8
+    holdDelay: 240,    // quicker to trigger — was 380
     enabled: isTop,
     onActiveChange: setIsZoomed,
   });
