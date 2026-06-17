@@ -1,8 +1,8 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { appToast } from '@/utils/appNotification';
 
 interface DescriptionPreviewProps {
@@ -36,12 +36,15 @@ export function DescriptionPreview({
   onPolished,
 }: DescriptionPreviewProps) {
   const { enhanceText, isEnhancing } = useAIEnhanceText();
-  const displayDescription = polishedDescription ?? description;
-  const hasContent = !!(title?.trim() || displayDescription?.trim());
+  const debouncedTitle = useDebouncedValue(title, 150);
+  const debouncedDescription = useDebouncedValue(description, 150);
+  const displayTitle = polishedDescription ? title : debouncedTitle;
+  const displayDescription = polishedDescription ?? debouncedDescription;
+  const hasContent = !!(displayTitle?.trim() || displayDescription?.trim());
   const canPolish = !!onPolished && !!displayDescription?.trim();
 
   const handlePolish = async () => {
-    const raw = [title?.trim(), displayDescription?.trim()].filter(Boolean).join(' — ');
+    const raw = [displayTitle?.trim(), displayDescription?.trim()].filter(Boolean).join(' — ');
     const improved = await enhanceText(raw, enhanceType);
     if (improved) {
       onPolished?.(improved);
@@ -50,10 +53,9 @@ export function DescriptionPreview({
   };
 
   return (
-    <motion.div
-      layout
+    <div
       className={cn(
-        'rounded-2xl border backdrop-blur-sm px-4 py-3.5 space-y-1.5',
+        'rounded-2xl border backdrop-blur-sm px-4 py-3.5 space-y-1.5 transition-opacity duration-150',
         ACCENT_RING[accent],
         className,
       )}
@@ -81,44 +83,30 @@ export function DescriptionPreview({
           </Button>
         )}
       </div>
-      <AnimatePresence mode="wait">
-        {hasContent ? (
-          <motion.div
-            key={`${title}-${displayDescription}-${polishedDescription ? 'polished' : 'auto'}`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-1"
-          >
-            {title?.trim() && (
-              <p className="text-sm font-bold text-foreground leading-snug">{title}</p>
-            )}
-            {displayDescription?.trim() && (
-              <p className={cn(
-                'text-xs leading-relaxed',
-                polishedDescription ? 'text-foreground/90' : 'text-muted-foreground',
-              )}>
-                {displayDescription}
-              </p>
-            )}
-            {polishedDescription && (
-              <p className="text-[9px] font-bold uppercase tracking-widest text-primary/70">
-                AI polished
-              </p>
-            )}
-          </motion.div>
-        ) : (
-          <motion.p
-            key="placeholder"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-xs text-muted-foreground italic leading-relaxed"
-          >
-            {placeholder}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {hasContent ? (
+        <div className="space-y-1">
+          {displayTitle?.trim() && (
+            <p className="text-sm font-bold text-foreground leading-snug">{displayTitle}</p>
+          )}
+          {displayDescription?.trim() && (
+            <p className={cn(
+              'text-xs leading-relaxed',
+              polishedDescription ? 'text-foreground/90' : 'text-muted-foreground',
+            )}>
+              {displayDescription}
+            </p>
+          )}
+          {polishedDescription && (
+            <p className="text-[9px] font-bold uppercase tracking-widest text-primary/70">
+              AI polished
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground italic leading-relaxed">
+          {placeholder}
+        </p>
+      )}
+    </div>
   );
 }

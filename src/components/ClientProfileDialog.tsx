@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AITextarea } from '@/components/ui/AITextarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SmartSelector } from '@/components/listing/SmartSelector';
 import { ChipMultiSelect } from '@/components/listing/ChipMultiSelect';
 import { DescriptionPreview } from '@/components/listing/DescriptionPreview';
@@ -62,6 +61,13 @@ const STEPS = [
   { id: 4, label: 'Lifestyle', icon: Sparkles },
 ] as const;
 
+const GENDER_PROFILE_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'non-binary', label: 'Non-binary' },
+  { value: 'prefer-not-to-say', label: 'Prefer not to say' },
+] as const;
+
 const stepVariants = {
   enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),
   center: { opacity: 1, x: 0 },
@@ -106,7 +112,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const [countrySearch, setCountrySearch] = useState('');
 
   // Client intentions
   const [intentions, setIntentions] = useState<string[]>([]);
@@ -130,13 +135,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     return getCitiesInCountry(selectedRegion, country);
   }, [country, selectedRegion]);
 
-  const filteredCountries = useMemo(
-    () => allCountries.filter((c) => c.toLowerCase().includes(countrySearch.toLowerCase())),
-    [allCountries, countrySearch],
-  );
-
-  const filteredCities = useMemo(
-    () => availableCities,
+  const cityOptions = useMemo(
+    () => availableCities.map((c) => c.name),
     [availableCities],
   );
 
@@ -446,18 +446,15 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                           className="text-center"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Gender</Label>
-                        <Select value={gender} onValueChange={setGender}>
-                          <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="non-binary">Non-binary</SelectItem>
-                            <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <SmartSelector
+                        label="Gender"
+                        accent="rose"
+                        single
+                        options={GENDER_PROFILE_OPTIONS}
+                        value={gender ? [gender] : []}
+                        onChange={(v) => setGender(v[0] ?? '')}
+                        placeholder="Select"
+                      />
                     </div>
                   </div>
 
@@ -517,27 +514,29 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               {currentStep === 3 && (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Country</Label>
-                      <Select value={country} onValueChange={handleCountryChange}>
-                        <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
-                        <SelectContent className="max-h-72">
-                          <div className="p-2 border-b border-border/50">
-                            <Input placeholder="Search countries…" value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="h-9" />
-                          </div>
-                          {filteredCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>City</Label>
-                      <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-                        <SelectTrigger><SelectValue placeholder={country ? 'Select city' : 'Pick country first'} /></SelectTrigger>
-                        <SelectContent className="max-h-72">
-                          {filteredCities.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <SmartSelector
+                      label="Country"
+                      accent="rose"
+                      single
+                      forceSheet
+                      options={allCountries}
+                      value={country ? [country] : []}
+                      onChange={(v) => handleCountryChange(v[0] ?? '')}
+                      placeholder="Select country"
+                      searchPlaceholder="Search countries…"
+                    />
+                    <SmartSelector
+                      label="City"
+                      accent="rose"
+                      single
+                      forceSheet
+                      options={cityOptions}
+                      value={city ? [city] : []}
+                      onChange={(v) => handleCityChange(v[0] ?? '')}
+                      disabled={!country}
+                      placeholder={country ? 'Select city' : 'Pick country first'}
+                      searchPlaceholder="Search cities…"
+                    />
                   </div>
 
                   <div className="space-y-3">
@@ -584,38 +583,42 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     Owners use these to match you with the right space. Honest answers get better matches.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { label: 'Smoking', val: smokingHabit, set: setSmokingHabit, opts: SMOKING_HABIT_OPTIONS },
-                      { label: 'Drinking', val: drinkingHabit, set: setDrinkingHabit, opts: DRINKING_HABIT_OPTIONS },
-                      { label: 'Cleanliness', val: cleanlinessLevel, set: setCleanlinessLevel, opts: CLEANLINESS_OPTIONS },
-                    ].map((group) => (
-                      <div key={group.label} className="space-y-2">
-                        <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>{group.label}</Label>
-                        <Select value={group.val} onValueChange={group.set}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ))}
+                    <SmartSelector
+                      label="Smoking"
+                      accent="rose"
+                      single
+                      options={SMOKING_HABIT_OPTIONS}
+                      value={smokingHabit ? [smokingHabit] : []}
+                      onChange={(v) => setSmokingHabit(v[0] ?? 'never')}
+                    />
+                    <SmartSelector
+                      label="Drinking"
+                      accent="rose"
+                      single
+                      options={DRINKING_HABIT_OPTIONS}
+                      value={drinkingHabit ? [drinkingHabit] : []}
+                      onChange={(v) => setDrinkingHabit(v[0] ?? 'never')}
+                    />
+                    <SmartSelector
+                      label="Cleanliness"
+                      accent="rose"
+                      single
+                      options={CLEANLINESS_OPTIONS}
+                      value={cleanlinessLevel ? [cleanlinessLevel] : []}
+                      onChange={(v) => setCleanlinessLevel(v[0] ?? 'medium')}
+                    />
                   </div>
 
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Work schedule</Label>
-                      <Select value={workSchedule} onValueChange={setWorkSchedule}>
-                        <SelectTrigger><SelectValue placeholder="Select schedule" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="remote">Remote (work from home)</SelectItem>
-                          <SelectItem value="office">Office (9–5)</SelectItem>
-                          <SelectItem value="hybrid">Hybrid</SelectItem>
-                          <SelectItem value="night">Night shift</SelectItem>
-                          <SelectItem value="freelance">Freelance / flexible</SelectItem>
-                          <SelectItem value="student">Student</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <SmartSelector
+                      label="Work schedule"
+                      accent="rose"
+                      single
+                      options={WORK_SCHEDULE_OPTIONS}
+                      value={workSchedule ? [workSchedule] : []}
+                      onChange={(v) => setWorkSchedule(v[0] ?? '')}
+                      placeholder="Select schedule"
+                    />
                     <div className="space-y-2">
                       <Label className={cn("text-[10px] font-black uppercase tracking-widest ml-1", isLight ? "text-slate-700" : "text-white/70")}>Noise tolerance</Label>
                       <div className="flex gap-2">

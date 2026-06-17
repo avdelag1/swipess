@@ -4,6 +4,7 @@ import { Check, ChevronRight, Search, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { triggerHaptic } from '@/utils/haptics';
 import { filterOptions, FORM_FADE, normalizeOptions, type SelectOption } from './formUtils';
 
 type Accent = 'rose' | 'amber' | 'orange' | 'cyan' | 'emerald' | 'purple';
@@ -58,6 +59,7 @@ export function SelectorSheet({
   const filteredFlat = useMemo(() => filterOptions(query, flatOptions), [query, flatOptions]);
 
   const pick = (val: string) => {
+    triggerHaptic('light');
     if (single) {
       onChange(value.includes(val) ? [] : [val]);
       onOpenChange(false);

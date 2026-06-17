@@ -13,11 +13,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
-import { AlertCircle, Bike, ChevronRight, Film, Shield, Upload, X } from 'lucide-react';
+import { AlertCircle, Bike, Check, ChevronRight, FileText, Film, LayoutGrid, Shield, Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Category, CategorySelector, Mode } from './CategorySelector';
 import { MotorcycleFormData, MotorcycleListingForm } from './MotorcycleListingForm';
 import { BicycleFormData, BicycleListingForm } from './BicycleListingForm';
@@ -56,6 +56,19 @@ interface UnifiedListingFormProps {
   onClose: () => void;
   editingProperty?: EditingListing;
 }
+
+const LISTING_STEPS = [
+  { id: 1, label: 'Media', icon: Upload },
+  { id: 2, label: 'Category', icon: LayoutGrid },
+  { id: 3, label: 'Details', icon: FileText },
+  { id: 4, label: 'Publish', icon: Shield },
+] as const;
+
+const stepVariants = {
+  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),
+  center: { opacity: 1, x: 0 },
+  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
+};
 
 const fastSpring = { type: "spring" as const, stiffness: 600, damping: 35, mass: 0.6 };
 const stagger = { visible: { transition: { staggerChildren: 0.05, delayChildren: 0.02 } } };
@@ -97,6 +110,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [showVideoPanel, setShowVideoPanel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [stepDir, setStepDir] = useState(1);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const photoListRef = useRef(photoList);
@@ -134,6 +149,22 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   };
 
   const maxPhotos = getMaxPhotos();
+
+  useEffect(() => {
+    if (isOpen) setCurrentStep(1);
+  }, [isOpen]);
+
+  const goNext = useCallback(() => {
+    triggerHaptic('light');
+    setStepDir(1);
+    setCurrentStep((s) => Math.min(s + 1, LISTING_STEPS.length));
+  }, []);
+
+  const goBack = useCallback(() => {
+    triggerHaptic('light');
+    setStepDir(-1);
+    setCurrentStep((s) => Math.max(s - 1, 1));
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -612,14 +643,55 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
         </div>
-        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-black/5 relative z-10 flex flex-row items-center justify-between">
-          <div>
-            <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">
-              {editingId ? 'Edit listing' : 'New listing'}
-            </DialogTitle>
-            <p className="text-xs sm:text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-1 opacity-70">
-              {editingId ? 'Modify configuration parameters' : 'Configure manual parameters'}
-            </p>
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 border-b dark:border-white/5 border-black/5 relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+                Step {currentStep} of {LISTING_STEPS.length}
+              </p>
+              <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground mt-0.5">
+                {LISTING_STEPS[currentStep - 1].label}
+              </DialogTitle>
+            </div>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground transition-all active:scale-90 hover:bg-secondary"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {LISTING_STEPS.map((step) => {
+              const done = step.id < currentStep;
+              const active = step.id === currentStep;
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => { setStepDir(step.id > currentStep ? 1 : -1); setCurrentStep(step.id); }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border transition-all whitespace-nowrap shrink-0",
+                    active
+                      ? "bg-primary text-white border-primary shadow-[0_4px_12px_rgba(from_var(--primary)_r_g_b_/_0.35)]"
+                      : done
+                        ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                        : "bg-foreground/5 text-muted-foreground border-border/50",
+                  )}
+                >
+                  {done ? <Check className="w-2.5 h-2.5" /> : <step.icon className="w-2.5 h-2.5" />}
+                  {step.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-3 h-0.5 w-full bg-foreground/5 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#EB4898] to-[#FF4D00]"
+              initial={false}
+              animate={{ width: `${(currentStep / LISTING_STEPS.length) * 100}%` }}
+              transition={{ type: 'spring', damping: 24, stiffness: 200 }}
+            />
           </div>
         </DialogHeader>
         {(createListingMutation.isPending || uploadProgress !== null) && (
@@ -634,27 +706,29 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         )}
 
         <ScrollArea className="flex-1 h-0">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={stagger}
-            className="px-6 py-6 space-y-8 pb-32"
-          >
-            {needsGpsFix && (
-              <motion.div
-                variants={itemFadeScale}
-                className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-4"
-              >
+          <AnimatePresence mode="wait" custom={stepDir}>
+            <motion.div
+              key={currentStep}
+              custom={stepDir}
+              variants={stepVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="px-6 py-6 space-y-8 pb-32"
+            >
+            {currentStep === 3 && needsGpsFix && (
+              <div className="flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-4">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
                 <div className="space-y-1">
                   <p className="text-sm font-bold text-amber-200">{t('listings.gpsMissingTitle')}</p>
                   <p className="text-xs leading-relaxed text-amber-100/80">{t('listings.gpsMissingBanner')}</p>
                 </div>
-              </motion.div>
+              </div>
             )}
 
-            {/* Photo Section with premium cards - RELOCATED TO FRONT */}
-            <motion.div variants={itemFadeScale}>
+            {currentStep === 1 && (
+            <div>
               <div className="space-y-4">
                 <div className="flex items-start justify-between px-2 gap-3">
                   <div className="flex flex-col gap-1.5 min-w-0">
@@ -792,23 +866,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
+            )}
 
-            {/* Category selection with cascade */}
-            <motion.div variants={itemFadeScale}>
+            {currentStep === 2 && (
+            <div className="space-y-6">
               <CategorySelector
                 selectedCategory={selectedCategory}
                 selectedMode={selectedMode}
                 onCategoryChange={setSelectedCategory}
                 onModeChange={setSelectedMode}
               />
-            </motion.div>
 
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
-              <motion.div
-                variants={itemFadeScale}
-                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
-              >
+              <div className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl">
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
                   selectedCategory === 'motorcycle'
@@ -834,20 +905,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary px-3 py-1 rounded-full">
                   Verified
                 </Badge>
-              </motion.div>
+              </div>
+            )}
+            </div>
             )}
 
-            <motion.div variants={itemFadeScale} className="space-y-8">
+            {currentStep === 3 && (
+            <div className="space-y-8">
               {selectedCategory === 'property' && <PropertyListingForm onDataChange={handleDataChange} initialData={formData} />}
               {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as MotorcycleFormData} />}
               {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as BicycleFormData} />}
               {selectedCategory === 'worker' && <WorkerListingForm onDataChange={handleDataChange} initialData={formData as unknown as WorkerFormData} />}
-            </motion.div>
+            </div>
+            )}
 
-
-
-            {/* Legal / Verification Section */}
-            <motion.div variants={itemFadeScale}>
+            {currentStep === 4 && (
               <div
                 onClick={() => window.open('/documents', '_blank')}
                 className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5 cursor-pointer hover:border-blue-400/40 transition-colors active:scale-[0.98]"
@@ -870,42 +942,49 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <ChevronRight className="w-5 h-5 text-muted-foreground/40 self-center" />
                 </div>
               </div>
+            )}
             </motion.div>
-          </motion.div>
+          </AnimatePresence>
         </ScrollArea>
 
         <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.04] bg-background">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary px-6 rounded-2xl h-12 font-black uppercase tracking-widest italic text-[11px] transition-all"
+          <Button
+            variant="ghost"
+            onClick={currentStep === 1 ? handleClose : goBack}
+            className="h-12 px-6 rounded-2xl font-bold text-muted-foreground hover:text-foreground"
           >
-            Cancel
-          </motion.button>
+            {currentStep === 1 ? 'Cancel' : '← Back'}
+          </Button>
 
-          <div className="flex items-center gap-3">
-            <motion.div className="relative">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={handleSubmit}
-                disabled={createListingMutation.isPending}
-                className="bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_24px_rgba(225,29,72,0.35)] px-10 rounded-2xl h-12 font-black uppercase italic tracking-widest text-[11px] transition-all flex items-center gap-3 disabled:opacity-50 relative z-10"
-              >
-                {createListingMutation.isPending ? (
-                  <>
-                    <WaterDropLoader size="sm" />
-                    <span>Publishing…</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="tracking-widest">{editingId ? 'Save changes' : 'Publish listing'}</span>
-                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </>
-                )}
-              </motion.button>
-            </motion.div>
-          </div>
+          {currentStep < LISTING_STEPS.length ? (
+            <Button
+              onClick={goNext}
+              className="h-12 px-8 rounded-2xl font-black uppercase tracking-wider text-white border-none"
+              style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
+            >
+              Next →
+            </Button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={handleSubmit}
+              disabled={createListingMutation.isPending}
+              className="bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_24px_rgba(225,29,72,0.35)] px-10 rounded-2xl h-12 font-black uppercase italic tracking-widest text-[11px] transition-all flex items-center gap-3 disabled:opacity-50"
+            >
+              {createListingMutation.isPending ? (
+                <>
+                  <WaterDropLoader size="sm" />
+                  <span>Publishing…</span>
+                </>
+              ) : (
+                <>
+                  <span className="tracking-widest">{editingId ? 'Save changes' : 'Publish listing'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </motion.button>
+          )}
         </div>
 
       </DialogContent>

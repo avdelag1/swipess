@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
 import { useFilterStore } from '@/state/filterStore'
 import { appToast } from '@/utils/appNotification';
+import { triggerHaptic } from '@/utils/haptics';
 import { AnimatePresence, motion } from 'framer-motion'
 
 
@@ -23,7 +24,6 @@ interface ClientPreferencesDialogProps {
 
 export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreferencesDialogProps) {
   const { data: preferences, updatePreferences, isLoading } = useClientFilterPreferences()
-  const [isScanning, setIsScanning] = useState(false)
   const [activeTab, setActiveTab] = useState('properties')
 
 
@@ -154,8 +154,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
 
   const handleSave = async () => {
     try {
-      setIsScanning(true)
-      
+      triggerHaptic('medium')
       await updatePreferences(formData)
 
       const amenities: string[] = []
@@ -185,11 +184,10 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
         listingType,
       })
 
-      setIsScanning(false)
+      triggerHaptic('success')
       appToast.success('Preferences saved — deck updated')
       onOpenChange(false)
     } catch (_error) {
-      setIsScanning(false)
       appToast.error('Error')
     }
   }
@@ -739,94 +737,6 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
         </DialogFooter>
       </DialogContent>
     </Dialog>
-    )}
-
-    {/* 🛸 TARGETING SWIPESS: SCANNING OVERLAY */}
-    {isScanning && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 backdrop-blur-3xl overflow-hidden"
-      >
-        {/* Pulsing Grid Background */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-        </div>
-
-        {/* Scanning Line */}
-        <motion.div
-          initial={{ top: "-10%" }}
-          animate={{ top: "110%" }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-[2px] bg-primary/40 shadow-[0_0_15px_rgba(var(--color-brand-primary-rgb),0.8)] z-10"
-        />
-
-        <div className="relative flex flex-col items-center gap-12 text-center">
-          {/* Radar Circles */}
-          <div className="relative flex items-center justify-center">
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 2, opacity: [0, 0.5, 0] }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  delay: i * 0.6,
-                  ease: "easeOut" 
-                }}
-                className="absolute w-24 h-24 rounded-full border border-primary/30"
-              />
-            ))}
-            
-            <motion.div
-              animate={{ 
-                scale: [1, 1.1, 1],
-                rotate: [0, 90, 180, 270, 360]
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              className="z-[10000] w-32 h-32 rounded-full border-2 border-dashed border-primary/20 flex items-center justify-center"
-            >
-               <div className="z-[10000] w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center">
-                  <div className="z-[10000] w-2 h-2 bg-primary rounded-full shadow-[0_0_10px_#fff]" />
-               </div>
-            </motion.div>
-          </div>
-
-          <div className="flex flex-col items-center gap-3">
-            <motion.h2 
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="text-2xl font-black italic uppercase tracking-[0.3em] text-primary"
-            >
-              Radar Swipess
-            </motion.h2>
-            <div className="flex gap-2">
-               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Calibrating Intelligence</span>
-               <motion.span 
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity }}
-                className="text-[10px] text-primary"
-               >_</motion.span>
-            </div>
-          </div>
-
-          {/* Data Stream */}
-          <div className="absolute -bottom-24 w-64 overflow-hidden h-12 flex flex-col items-center justify-start opacity-70">
-            {[...Array(5)].map((_, i) => (
-              <motion.span 
-                key={i}
-                animate={{ y: [0, -100] }}
-                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: "linear" }}
-                className="text-[8px] font-mono text-primary leading-tight"
-              >
-                SYNC_SECTOR_{Math.floor(Math.random() * 9999)}_OK
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </motion.div>
     )}
   </AnimatePresence>
 )

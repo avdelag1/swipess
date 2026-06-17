@@ -3,8 +3,9 @@ import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  _Zap, Bike, Briefcase, ChevronLeft, Home, RotateCcw, Sparkles, Target
+  _Zap, Bike, Briefcase, ChevronLeft, Home, RotateCcw, Sparkles
 } from 'lucide-react';
+import { appToast } from '@/utils/appNotification';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useFilterStore } from '@/state/filterStore';
@@ -31,7 +32,6 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
   const setClientType = useFilterStore(s => s.setClientType);
   const resetOwnerFilters = useFilterStore(s => s.resetOwnerFilters);
   const [activeCategory, setActiveCategory] = useState<CategoryType>((storeActiveCategory as CategoryType) || 'property');
-  const [isScanning, setIsScanning] = useState(false);
 
   const _isFirstMount = useRef(true);
 
@@ -209,19 +209,16 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
-              setIsScanning(true);
-              setTimeout(() => {
-                handleFinalApply();
-                setIsScanning(false);
-              }, 2200);
+              haptics.success();
+              appToast.success('Filters applied', 'Your radar is updating.');
+              handleFinalApply();
             }}
-            disabled={isScanning}
-            className="w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl flex items-center justify-center gap-4 group transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-xl flex items-center justify-center gap-4 group transition-all"
             style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff', boxShadow: '0 20px 50px rgba(255, 77, 0, 0.35)' }}
           >
-            <Sparkles className={cn("w-6 h-6 md:w-7 md:h-7 animate-pulse group-hover:scale-110 transition-transform", isScanning && "animate-spin")} />
+            <Sparkles className="w-6 h-6 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-black uppercase italic tracking-[0.2em]">
-              {isScanning ? 'CALIBRATING...' : 'INITIATE RADAR SCAN'}
+              Apply Filters
             </span>
           </motion.button>
 
@@ -235,59 +232,6 @@ export default function OwnerFilters({ isEmbedded, onClose }: OwnerFiltersProps)
         </div>
       </div>
 
-      {/* 🛸 CINEMATIC SCANNING OVERLAY */}
-      <AnimatePresence>
-        {isScanning && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex flex-col items-center justify-center bg-black/80 backdrop-blur-2xl pointer-events-auto"
-          >
-            {/* Pulsing Core */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3]
-              }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="absolute w-[500px] h-[500px] rounded-full bg-primary/20 blur-[120px]"
-            />
-            
-            {/* Scanning Ring */}
-            <div className="relative w-64 h-64 flex items-center justify-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                className="absolute inset-0 border-2 border-dashed border-primary/40 rounded-full"
-              />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                className="absolute inset-4 border border-white/20 rounded-full"
-              />
-              <Target className="w-16 h-16 text-primary animate-pulse" strokeWidth={1} />
-            </div>
-
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mt-12 text-center"
-            >
-              <h2 className="text-2xl font-black uppercase italic tracking-[0.4em] text-white">Calibrating Radar</h2>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary mt-2">Accessing Global Node Matrix...</p>
-            </motion.div>
-
-            {/* Scanning Line */}
-            <motion.div 
-              animate={{ top: ['0%', '100%', '0%'] }}
-              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-              className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_20px_rgba(255,107,53,0.8)] z-10 opacity-40"
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
     </AmbientPageBackground>
   );
 

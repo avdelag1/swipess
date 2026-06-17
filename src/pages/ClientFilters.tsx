@@ -2,8 +2,9 @@ import { useCallback, useState } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  Bike, Briefcase, ChevronLeft, ChevronRight, Home, Key, Loader2, RotateCcw, Search, Tag, Users
+  Bike, Briefcase, ChevronLeft, ChevronRight, Home, Key, RotateCcw, Search, Tag, Users
 } from 'lucide-react';
+import { appToast } from '@/utils/appNotification';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
@@ -50,26 +51,20 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const resetClientFilters = useFilterStore(s => s.resetClientFilters);
 
   const [localFilters, setLocalFilters] = useState<Record<string, any>>(getListingFilters());
-  const [isScanning, setIsScanning] = useState(false);
-
   const handleFilterApply = useCallback((f: Record<string, unknown>) => {
     setLocalFilters(f);
   }, []);
 
   const handleScan = useCallback(() => {
     haptics.success();
-    setIsScanning(true);
     updateFilters(localFilters);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
-    
-    setTimeout(() => {
-      setIsScanning(false);
-      if (isEmbedded && onClose) {
-        onClose();
-      } else {
-        navigate('/client/dashboard');
-      }
-    }, 1000);
+    appToast.success('Filters applied', 'Your deck is updating.');
+    if (isEmbedded && onClose) {
+      onClose();
+    } else {
+      navigate('/client/dashboard');
+    }
   }, [navigate, queryClient, updateFilters, localFilters, isEmbedded, onClose]);
 
   const handleReset = useCallback(() => {
@@ -210,20 +205,12 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               <div className="flex flex-col gap-4 pt-6">
                 <button
                   onClick={handleScan}
-                  disabled={isScanning}
-                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95 disabled:opacity-50 overflow-hidden relative"
+                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group transition-all active:scale-95"
                   style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff' }}
                 >
-                  {isScanning && (
-                    <motion.div 
-                      className="absolute inset-0 bg-white/20"
-                      animate={{ x: ['-100%', '100%'] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                    />
-                  )}
-                  <Search className={cn("w-6 h-6", isScanning && "animate-pulse")} />
+                  <Search className="w-6 h-6" />
                   <span className="text-lg font-black uppercase italic tracking-widest">
-                    {isScanning ? getText('apply_button', 'Synchronizing...') : getText('apply_button', 'Initiate Scan')}
+                    {getText('apply_button', 'Apply Filters')}
                   </span>
                 </button>
 
@@ -239,22 +226,6 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {isScanning && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 backdrop-blur-3xl bg-black/80"
-            >
-              <div className="flex flex-col items-center text-center">
-                <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                <h2 className="text-xl font-black uppercase italic tracking-[0.3em] text-white">Synchronizing</h2>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.4em] mt-2">Updating your matches</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </AmbientPageBackground>
   );

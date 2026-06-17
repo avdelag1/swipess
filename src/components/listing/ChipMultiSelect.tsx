@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { triggerHaptic } from '@/utils/haptics';
 import { FORM_SPRING } from './formUtils';
 
 interface ChipMultiSelectProps {
@@ -26,6 +27,7 @@ export function ChipMultiSelect({ label, options, value, onChange, single, accen
   const a = ACCENT_MAP[accent];
 
   const toggle = (opt: string) => {
+    triggerHaptic('light');
     if (single) {
       onChange(value.includes(opt) ? [] : [opt]);
       return;
