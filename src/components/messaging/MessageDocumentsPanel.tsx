@@ -230,7 +230,7 @@ export const MessageDocumentsPanel = memo(({
                             onClick={() => handleExport(contract)}
                             className={cn(
                               'h-8 px-3 rounded-xl border flex items-center gap-1 text-[8px] font-black uppercase tracking-widest',
-                              isLight ? 'border-black/10 text-black/60' : 'border-white/10 text-white/60',
+                              isLight ? 'border-slate-200 text-black/60' : 'border-white/10 text-white/60',
                             )}
                           >
                             <Download className="w-3 h-3" />

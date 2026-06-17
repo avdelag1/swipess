@@ -114,7 +114,7 @@ export function AIProfileWizard() {
     };
   }, [imagePreview]);
 
-  const modalBg = isLight ? 'bg-white border-black/10' : 'bg-[#0a0a0b] border-white/[0.08]';
+  const modalBg = isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0b] border-white/[0.08]';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
@@ -439,7 +439,7 @@ export function AIProfileWizard() {
                       </label>
                       <div className="grid grid-cols-2 gap-4">
                         {imageFiles[0] && imagePreview ? (
-                          <div className={cn("aspect-square rounded-3xl overflow-hidden border relative shadow-2xl", isLight ? "border-black/10" : "border-white/10")}>
+                          <div className={cn("aspect-square rounded-3xl overflow-hidden border relative shadow-2xl", isLight ? "border-slate-200" : "border-white/10")}>
                             <img src={imagePreview} className="w-full h-full object-cover" />
                             <button onClick={() => setImageFiles([])} className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 rounded-full border border-white/10">
                               <X className="w-4 h-4 text-white" />

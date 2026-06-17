@@ -359,7 +359,7 @@ export function MessagingDashboard() {
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
 
                     <div className="relative shrink-0">
-                       <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-black/10" : "border-white/10")}>
+                       <Avatar className={cn("w-15 h-15 rounded-2xl border shadow-xl overflow-hidden", isLight ? "border-slate-200" : "border-white/10")}>
                           <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
                           <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
