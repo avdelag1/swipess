@@ -7,6 +7,7 @@ import {
   ArrowLeft, Calendar, Heart, 
   Search, Sparkles, Trash2
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { appToast } from '@/utils/appNotification';
@@ -44,7 +45,7 @@ export default function EventosLikes() {
     setAmbientColor(color);
   }, [selectedCategory, setAmbientColor]);
 
-  const { data: likedEvents, isLoading } = useQuery({
+  const { data: likedEvents, isLoading, isError, refetch } = useQuery({
     queryKey: ['event-likes-detailed', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -192,7 +193,12 @@ export default function EventosLikes() {
 
       {/* 🖼️ Grid Content */}
       <div className="p-4 pt-6 relative z-10">
-        {isLoading ? (
+        {isError ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <p className="text-sm font-semibold text-muted-foreground text-center">Could not load liked events.</p>
+            <Button onClick={() => refetch()}>Try again</Button>
+          </div>
+        ) : isLoading ? (
           <div className="grid grid-cols-2 gap-4">
             <DiscoverySkeleton count={6} />
           </div>

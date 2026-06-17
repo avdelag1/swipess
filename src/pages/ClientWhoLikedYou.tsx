@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Briefcase, DollarSign, Flame, GripVertical, Home, ThumbsUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
@@ -70,7 +71,7 @@ const ClientWhoLikedYou = () => {
 
   const storageKey = user?.id ? `who-liked-me-order-${user.id}` : "";
 
-  const { data: interestedOwners = [] as InterestedOwner[], isLoading } = useQuery({
+  const { data: interestedOwners = [] as InterestedOwner[], isLoading, isError, refetch } = useQuery({
     queryKey: ["client-who-liked-you", user?.id],
     queryFn: async (): Promise<InterestedOwner[]> => {
       if (!user?.id) return [];
@@ -244,7 +245,12 @@ const ClientWhoLikedYou = () => {
           )}
         </div>
 
-        {isLoading ? (
+        {isError ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <p className="text-sm font-semibold text-muted-foreground text-center">Could not load connections.</p>
+            <Button onClick={() => refetch()}>Try again</Button>
+          </div>
+        ) : isLoading ? (
           <LikesSkeleton />
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>

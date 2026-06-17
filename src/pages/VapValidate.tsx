@@ -5,28 +5,33 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 
 export default function VapValidate() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { _theme, isLight } = useAppTheme();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['vap-validate', id],
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('full_name, city, country, created_at')
         .eq('user_id', id!)
         .maybeSingle();
 
-      const { data: client } = await supabase
+      if (profileError) throw profileError;
+
+      const { data: client, error: clientError } = await supabase
         .from('client_profiles')
         .select('name, vap_city, country, vap_nationality, vap_occupation, nationality, created_at')
         .eq('user_id', id!)
         .maybeSingle();
+
+      if (clientError) throw clientError;
 
       if (!profile && !client) return null;
 
@@ -71,6 +76,11 @@ export default function VapValidate() {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className={cn("w-8 h-8 animate-spin", isLight ? "text-zinc-400" : "text-zinc-600")} />
+        </div>
+      ) : isError ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6">
+          <p className={cn("text-sm font-semibold text-center", isLight ? "text-zinc-500" : "text-zinc-400")}>Could not verify this ID.</p>
+          <Button onClick={() => refetch()}>Try again</Button>
         </div>
       ) : isValid ? (
         <motion.div

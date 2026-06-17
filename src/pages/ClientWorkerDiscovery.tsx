@@ -108,7 +108,7 @@ export default function ClientWorkerDiscovery() {
   const [connectingRecipient, setConnectingRecipient] = useState("");
 
   const parentRef = useRef<HTMLDivElement>(null);
-  const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
+  const { data: workers, isLoading, isError, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
   const startConversation = useStartConversation();
   const { canStartNewConversation } = useMessagingQuota();
 
@@ -230,7 +230,12 @@ export default function ClientWorkerDiscovery() {
         className="px-4 pt-6 pb-24" 
         ref={parentRef}
       >
-        {isLoading ? (
+        {isError ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <p className="text-sm font-semibold text-muted-foreground text-center">Could not load workers.</p>
+            <Button onClick={() => refetch()}>Try again</Button>
+          </div>
+        ) : isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DiscoverySkeleton count={6} />
           </div>
