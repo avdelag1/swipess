@@ -6,7 +6,7 @@ import {
   Save, ShieldCheck, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { clientTemplates, ContractTemplate, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
+import { clientTemplates, ContractTemplate, getTemplateById, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
 import { DocumentEditorToolbar, type DocumentFontId, getFontCss } from '@/components/legal/DocumentEditorToolbar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -97,7 +97,7 @@ export function ContractsVault() {
     // Only re-seed when entering the editor or switching template — NOT on each
     // keystroke (that would reset the caret).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, selectedTemplate?.id]);
+  }, [view, selectedTemplate?.id, activeContract?.id]);
 
   const fetchContracts = async () => {
     setLoading(true);
@@ -123,6 +123,7 @@ export function ContractsVault() {
 
   const handleSelectTemplate = (template: ContractTemplate) => {
     triggerHaptic('heavy');
+    setActiveContract(null);
     setSelectedTemplate(template);
     setDraftTitle(template.name);
     setDraftEffectiveDate('');
@@ -131,6 +132,39 @@ export function ContractsVault() {
     setDraftContent(template.content);
     setQuickFillValues({});
     setQuickFillOpen(true);
+    setView('editor');
+  };
+
+  const resolveTemplateFromContract = (contract: any): ContractTemplate => {
+    const known = contract.template_type ? getTemplateById(contract.template_type) : undefined;
+    if (known) return known;
+    return {
+      id: contract.template_type || 'saved-contract',
+      name: contract.title || 'Saved Document',
+      description: 'Saved document',
+      category: (contract.metadata?.template_category as ContractTemplate['category']) || 'lease',
+      forRole: 'both',
+      content: contract.content || '',
+    };
+  };
+
+  const handleOpenContract = (contract: any) => {
+    triggerHaptic('medium');
+    if (contract.status === 'signed') {
+      setActiveContract(contract);
+      setView('signing');
+      return;
+    }
+    const template = resolveTemplateFromContract(contract);
+    setActiveContract(contract);
+    setSelectedTemplate(template);
+    setDraftTitle(contract.title || template.name);
+    setDraftContent(contract.content || template.content);
+    setDraftEffectiveDate(contract.metadata?.effective_date || '');
+    setDraftMonthlyValue(contract.metadata?.monthly_value || '');
+    setDraftCounterparty(contract.metadata?.counterparty || '');
+    setQuickFillValues({});
+    setQuickFillOpen(false);
     setView('editor');
   };
 
@@ -212,35 +246,56 @@ export function ContractsVault() {
     if (!user || !selectedTemplate || isSavingDraft) return;
     setIsSavingDraft(true);
     try {
-      // Persist the document AS EDITED by the user (with their fill-ins and AI
-      // polish), not the blank template.
       const editedContent = sanitizeHTML(docRef.current?.innerHTML || draftContent || selectedTemplate.content);
+      const metadata = {
+        effective_date: draftEffectiveDate || null,
+        monthly_value: draftMonthlyValue || null,
+        counterparty: draftCounterparty.trim() || null,
+        template_category: selectedTemplate.category,
+      };
 
-      const { data, error } = await supabase.from('digital_contracts').insert({
-        title: draftTitle.trim() || selectedTemplate.name,
-        template_type: selectedTemplate.id,
-        content: editedContent,
-        owner_id: user.id,
-        client_id: user.id,
-        status: 'draft',
-        metadata: {
-          effective_date: draftEffectiveDate || null,
-          monthly_value: draftMonthlyValue || null,
-          counterparty: draftCounterparty.trim() || null,
-          template_category: selectedTemplate.category,
-        },
-      } as any).select('*').single();
-      if (error) throw error;
+      let saved = activeContract;
+
+      if (activeContract?.id) {
+        const { data, error } = await supabase
+          .from('digital_contracts')
+          .update({
+            title: draftTitle.trim() || selectedTemplate.name,
+            content: editedContent,
+            metadata,
+            updated_at: new Date().toISOString(),
+          } as any)
+          .eq('id', activeContract.id)
+          .select('*')
+          .single();
+        if (error) throw error;
+        saved = data;
+      } else {
+        const { data, error } = await supabase.from('digital_contracts').insert({
+          title: draftTitle.trim() || selectedTemplate.name,
+          template_type: selectedTemplate.id,
+          content: editedContent,
+          owner_id: user.id,
+          client_id: user.id,
+          status: 'draft',
+          metadata,
+        } as any).select('*').single();
+        if (error) throw error;
+        saved = data;
+      }
 
       triggerHaptic('success');
       await fetchContracts();
 
-      if (thenSign && data) {
+      if (thenSign && saved) {
         appToast.success('Lease saved', 'Add your signature to finalize.');
-        setActiveContract(data);
+        setActiveContract(saved);
         setView('signing');
       } else {
-        appToast.success('Lease saved to your vault', 'Open it any time to edit or sign.');
+        appToast.success(
+          activeContract?.id ? 'Document updated' : 'Lease saved to your vault',
+          'Open it any time to edit or sign.',
+        );
         handleClose();
       }
     } catch (err) {
@@ -424,10 +479,10 @@ export function ContractsVault() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleStartSigning(contract)}
+                          onClick={() => handleOpenContract(contract)}
                           className={cn("h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "bg-black text-white hover:bg-black/80" : "bg-white text-black hover:bg-white/80")}
                         >
-                          {contract.status === 'signed' ? 'View' : 'Open'}
+                          {contract.status === 'signed' ? 'View' : contract.status === 'draft' ? 'Edit' : 'Sign'}
                           <ChevronRight className="w-4 h-4 ml-1.5" />
                         </Button>
                       </div>
@@ -687,7 +742,7 @@ export function ContractsVault() {
                   className={cn("h-14 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-black/[0.04] border-black/10 text-black hover:bg-black/[0.07]" : "bg-white/5 border-white/10 text-white hover:bg-white/10")}
                 >
                   <Save className="w-4 h-4 mr-3" />
-                  {isSavingDraft ? 'Saving…' : 'Save to Vault'}
+                  {isSavingDraft ? 'Saving…' : activeContract?.id ? 'Update Vault' : 'Save to Vault'}
                 </Button>
                 <Button
                   onClick={() => handleSaveDraft(true)}

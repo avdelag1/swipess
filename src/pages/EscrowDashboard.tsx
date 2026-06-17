@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 interface EscrowDeposit {
   id: string;
   contract_id: string;
@@ -74,7 +75,8 @@ export default function EscrowDashboard() {
   const isOwner = (d: EscrowDeposit) => d.owner_id === user?.id;
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
+    <AmbientPageBackground className="min-h-screen pb-24">
+    <div className="p-4 max-w-2xl mx-auto relative z-10">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
           <Shield className="w-6 h-6 text-primary" />
@@ -149,6 +151,7 @@ export default function EscrowDashboard() {
         </div>
       )}
     </div>
+    </AmbientPageBackground>
   );
 }
 

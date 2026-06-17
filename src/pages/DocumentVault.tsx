@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { useAuth } from '@/hooks/useAuth';
+import { useActiveMode } from '@/hooks/useActiveMode';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
@@ -76,6 +79,9 @@ interface DocItem {
 
 export default function DocumentVault() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { activeMode } = useActiveMode();
+  const contractsPath = activeMode === 'owner' ? '/owner/contracts' : '/client/contracts';
   const [documents, setDocuments] = useState<DocItem[]>([]);
   const [contracts, setContracts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('all');
@@ -216,12 +222,13 @@ export default function DocumentVault() {
   const getDocTypeLabel = (type: string) => DOC_TYPES.find(d => d.value === type)?.label || 'Other';
 
   return (
-    <div
-      className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto"
+    <AmbientPageBackground
+      className="min-h-screen pb-24"
       onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
       onDragLeave={() => setIsDragOver(false)}
       onDrop={onDrop}
     >
+    <div className="p-4 max-w-2xl mx-auto relative z-10">
       {/* Drag overlay */}
       <AnimatePresence>
         {isDragOver && (
@@ -305,20 +312,31 @@ export default function DocumentVault() {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Document Vault</h1>
           <p className="text-sm text-muted-foreground mt-1">Securely store contracts, IDs & legal docs</p>
         </div>
-        <label className={cn(
-          'inline-flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all',
-          'bg-primary text-primary-foreground hover:bg-primary/90',
-          uploadState.uploading && 'opacity-50 pointer-events-none'
-        )}>
-          <Plus className="w-4 h-4" />
-          <span className="text-sm font-medium">Upload</span>
-          <input ref={fileInputRef} type="file" className="hidden" onChange={handleInputChange} disabled={uploadState.uploading} />
-        </label>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl gap-1.5"
+            onClick={() => navigate(contractsPath)}
+          >
+            <ScrollText className="w-4 h-4" />
+            Lease Builder
+          </Button>
+          <label className={cn(
+            'inline-flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all',
+            'bg-primary text-primary-foreground hover:bg-primary/90',
+            uploadState.uploading && 'opacity-50 pointer-events-none'
+          )}>
+            <Plus className="w-4 h-4" />
+            <span className="text-sm font-medium">Upload</span>
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleInputChange} disabled={uploadState.uploading} />
+          </label>
+        </div>
       </div>
 
       <div className="relative mb-4">
@@ -419,6 +437,7 @@ export default function DocumentVault() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </AmbientPageBackground>
   );
 }
 
