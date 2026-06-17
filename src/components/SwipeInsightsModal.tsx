@@ -221,8 +221,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     />
                     {images.length > 1 && (
                       <>
-                        <div className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" onClick={prevImage} />
-                        <div className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" onClick={nextImage} />
+                        <div className="absolute inset-y-0 left-0 w-1/3 z-20 cursor-pointer" role="button" aria-label="Previous image" tabIndex={0} onClick={prevImage} onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && prevImage()} />
+                        <div className="absolute inset-y-0 right-0 w-1/3 z-20 cursor-pointer" role="button" aria-label="Next image" tabIndex={0} onClick={nextImage} onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && nextImage()} />
                         <div className="absolute top-4 left-0 right-0 flex justify-center gap-1.5 z-30 px-4">
                           {images.map((_, idx) => (
                             <div key={idx} className={cn("h-1.5 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.5)]", idx === imageIndex ? "bg-white w-4" : "bg-white/40 w-1.5")} />
