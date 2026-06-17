@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AudioLines, Camera, Loader2, Search, Sparkles, Wand2, X, Mic } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
+import { MotionIcon } from '@/components/ui/MotionIcon';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -356,7 +357,9 @@ export function AIProfileWizard() {
           <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-black/8" : "border-white/5")}>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25">
-                <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
+                <MotionIcon id="ai-sparkle" loop={isProcessing}>
+                  <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
+                </MotionIcon>
               </div>
               <div>
                 <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>Magic Profile</h2>
@@ -379,7 +382,9 @@ export function AIProfileWizard() {
                       <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
                         <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
+                          <MotionIcon id="ai-sparkle" loop>
+                            <Sparkles className="w-4 h-4" />
+                          </MotionIcon>
                           Welcome! Let's get started.
                         </h3>
                         <p className={cn("text-xs font-bold leading-relaxed", textPrimary)}>
@@ -580,7 +585,15 @@ export function AIProfileWizard() {
                         className="w-full h-16 rounded-[2.5rem] hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(99,102,241,0.35)] disabled:opacity-20"
                         style={{ background: NEXUS_GRADIENTS.ai }}
                       >
-                        {isProcessing ? <PremiumSpinner className="w-5 h-5 mr-3" /> : <Wand2 className="w-5 h-5 mr-3" />}
+                        {isProcessing ? (
+                          <MotionIcon id="ai-sparkle" loop className="mr-3">
+                            <PremiumSpinner className="w-5 h-5" />
+                          </MotionIcon>
+                        ) : (
+                          <MotionIcon id="ai-sparkle" className="mr-3">
+                            <Wand2 className="w-5 h-5" />
+                          </MotionIcon>
+                        )}
                         Create Profile
                       </Button>
                     </div>

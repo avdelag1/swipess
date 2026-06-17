@@ -47,7 +47,7 @@ import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
-import { preloadLottieBundle } from '@/utils/preloadLottie';
+
 import { categoryToClientType, resolveClientType } from '@/utils/clientType';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -167,10 +167,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       setLocationDetected(true);
     }
   }, [userLatitude, userLongitude]);
-
-  useEffect(() => {
-    preloadLottieBundle();
-  }, []);
 
   // Location requested only on explicit user gesture (filter / slider).
   const { data: userRole } = useUserRole(user?.id);

@@ -733,6 +733,121 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  10c. MOTION ICONS — CSS replacements for Lottie micro-animations    */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes motion-heart-burst {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@keyframes motion-dislike-shake {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20% { transform: rotate(-14deg) scale(0.88); }
+  40% { transform: rotate(12deg) scale(0.92); }
+  60% { transform: rotate(-8deg) scale(0.9); }
+  80% { transform: rotate(6deg) scale(0.95); }
+}
+
+@keyframes motion-message-pop {
+  0% { transform: scale(1) translateY(0); }
+  45% { transform: scale(1.22) translateY(-4px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes motion-compass-swing {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(28deg) scale(1.12); }
+}
+
+@keyframes motion-filter-scan {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.14); opacity: 0.75; }
+}
+
+@keyframes motion-sparkle-burst {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  30% { transform: scale(1.2) rotate(-12deg); filter: brightness(1.4); }
+  60% { transform: scale(1.08) rotate(10deg); filter: brightness(1.25); }
+}
+
+@keyframes motion-sparkle-loop {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1.15) drop-shadow(0 0 4px rgba(255, 77, 0, 0.45)); }
+  50% { transform: scale(1.1) rotate(180deg); filter: brightness(1.45) drop-shadow(0 0 10px rgba(255, 77, 0, 0.7)); }
+}
+
+@keyframes motion-shout-pulse {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.28); }
+  65% { transform: scale(0.94); }
+}
+
+@keyframes motion-flame-flicker {
+  0%, 100% { transform: scale(1) translateY(0); }
+  40% { transform: scale(1.14) translateY(-3px); }
+  70% { transform: scale(1.06) translateY(1px); }
+}
+
+@keyframes motion-profile-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes motion-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+@keyframes motion-map-ping {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.55)); }
+}
+
+@keyframes motion-send-launch {
+  0% { transform: scale(1) translateY(0); }
+  40% { transform: scale(1.1) translateY(-6px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.motion-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  line-height: 0;
+}
+
+.motion-icon > * {
+  transform-origin: center center;
+}
+
+.motion-icon--heart.motion-icon--active > * { animation: motion-heart-burst 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+.motion-icon--dislike.motion-icon--active > * { animation: motion-dislike-shake 0.38s ease-out; }
+.motion-icon--messages.motion-icon--active > * { animation: motion-message-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.motion-icon--browse.motion-icon--active > *,
+.motion-icon--compass.motion-icon--active > * { animation: motion-compass-swing 0.4s ease-out; }
+.motion-icon--filter.motion-icon--active > * { animation: motion-filter-scan 0.35s ease-in-out; }
+.motion-icon--ai-sparkle.motion-icon--active > * { animation: motion-sparkle-burst 0.45s ease-out; }
+.motion-icon--ai-sparkle.motion-icon--loop > * { animation: motion-sparkle-loop 1.4s ease-in-out infinite; }
+.motion-icon--eventos.motion-icon--active > * { animation: motion-shout-pulse 0.38s ease-out; }
+.motion-icon--likes.motion-icon--active > * { animation: motion-flame-flicker 0.4s ease-out; }
+.motion-icon--likes.motion-icon--loop > * { animation: motion-flame-flicker 1.2s ease-in-out infinite; }
+.motion-icon--profile.motion-icon--active > * { animation: motion-profile-bounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.motion-icon--pop.motion-icon--active > * { animation: motion-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.motion-icon--map.motion-icon--active > * { animation: motion-map-ping 0.4s ease-out; }
+.motion-icon--map.motion-icon--loop > * { animation: motion-map-ping 1.6s ease-in-out infinite; }
+.motion-icon--send.motion-icon--active > * { animation: motion-send-launch 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-icon--active > *,
+  .motion-icon--loop > * {
+    animation: none !important;
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  11. 2026 PAGE SPRING TRANSITIONS — STAGGER CHILDREN                 */
 /*                                                                       */
 /*  CSS-only stagger utility. Apply .stagger-enter to a container and   */

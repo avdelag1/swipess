@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MotionIcon } from '@/components/ui/MotionIcon';
 
 interface PassportMapChunkyButtonProps {
   icon: LucideIcon;
@@ -25,6 +26,7 @@ export const PassportMapChunkyButton = memo(({
   compact = true,
   showLabel = true,
 }: PassportMapChunkyButtonProps) => {
+  const [pressed, setPressed] = useState(false);
   const size = compact ? 'w-[34px] h-[34px]' : 'w-[44px] h-[44px]';
   const iconSize = compact ? 'w-4 h-4' : 'w-5 h-5';
 
@@ -35,8 +37,12 @@ export const PassportMapChunkyButton = memo(({
           type="button"
           data-no-cinematic
           onClick={onClick}
+          onPointerDown={() => setPressed(true)}
+          onPointerUp={() => setPressed(false)}
+          onPointerLeave={() => setPressed(false)}
+          onPointerCancel={() => setPressed(false)}
           className={cn(
-            'map-hud-btn relative flex items-center justify-center shrink-0 rounded-full shadow-lg transition-all duration-300',
+            'map-hud-btn press-snappy relative flex items-center justify-center shrink-0 rounded-full shadow-lg transition-all duration-300',
             size,
             active
               ? 'text-white shadow-[0_8px_16px_rgba(0,0,0,0.15)] scale-105'
@@ -47,7 +53,9 @@ export const PassportMapChunkyButton = memo(({
           aria-label={badge != null && badge > 0 ? `${label}, ${badge} nearby` : label}
           title={label}
         >
-          <Icon className={cn(iconSize, 'shrink-0 relative z-10')} strokeWidth={active ? 2.5 : 2.0} />
+          <MotionIcon id="map" active={pressed} loop={active}>
+            <Icon className={cn(iconSize, 'shrink-0 relative z-10')} strokeWidth={active ? 2.5 : 2.0} />
+          </MotionIcon>
         </button>
         {badge != null && badge > 0 && (
           <span

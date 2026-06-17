@@ -180,7 +180,7 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes('react-router')) return 'vendor-router';
             // Merge ALL React-dependent packages and common utilities into vendor-react to prevent cycles
             // This includes any package with "react" in the name or path, plus common utilities
-            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign') || id.includes('js-tokens') || id.includes('react-is') || /\/react-/.test(id) || /@[^/]+\/react-/.test(id) || id.includes('@floating-ui') || id.includes('aria-hidden') || id.includes('react-remove-scroll') || id.includes('react-style-singleton') || id.includes('get-nonce') || id.includes('cmdk') || id.includes('lottie-react') || id.includes('qrcode.react') || id.includes('tiny-invariant') || id.includes('tiny-warning') || id.includes('classnames') || id.includes('tslib')) return 'vendor-react';
+            if (id.includes('zustand') || id.includes('use-sync-external-store') || id.includes('loose-envify') || id.includes('prop-types') || id.includes('object-assign') || id.includes('js-tokens') || id.includes('react-is') || /\/react-/.test(id) || /@[^/]+\/react-/.test(id) || id.includes('@floating-ui') || id.includes('aria-hidden') || id.includes('react-remove-scroll') || id.includes('react-style-singleton') || id.includes('get-nonce') || id.includes('cmdk') || id.includes('qrcode.react') || id.includes('tiny-invariant') || id.includes('tiny-warning') || id.includes('classnames') || id.includes('tslib')) return 'vendor-react';
 
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion') || id.includes('motion-dom') || id.includes('motion-utils')) return 'vendor-motion';
@@ -189,7 +189,6 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';
             if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
             if (id.includes('recharts') || id.includes('d3-') || id.includes('/d3/')) return 'vendor-viz';
-            if (id.includes('lottie')) return 'vendor-lottie';
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
             if (id.includes('@tanstack')) return 'vendor-query';

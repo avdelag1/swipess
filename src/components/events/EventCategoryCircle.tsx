@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MotionIcon } from '@/components/ui/MotionIcon';
 
 export interface EventCategoryCircleProps {
   label: string;
@@ -24,6 +25,7 @@ export const EventCategoryCircle = memo(({
 }: EventCategoryCircleProps) => {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
   useEffect(() => {
     setReady(false);
@@ -42,7 +44,11 @@ export const EventCategoryCircle = memo(({
       data-no-cinematic
       data-skip-press-engine
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 shrink-0 transition-transform active:scale-95 group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerLeave={() => setPressed(false)}
+      onPointerCancel={() => setPressed(false)}
+      className="flex flex-col items-center gap-1.5 shrink-0 press-snappy group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
       aria-label={label}
       aria-pressed={active}
     >
@@ -91,7 +97,9 @@ export const EventCategoryCircle = memo(({
                   : 'rgba(255,255,255,0.06)',
               }}
             >
-              <Icon className={cn('w-5 h-5', isLight ? 'text-slate-500' : 'text-white/70')} />
+              <MotionIcon id="eventos" active={pressed || active} loop={active}>
+                <Icon className={cn('w-5 h-5', isLight ? 'text-slate-500' : 'text-white/70')} />
+              </MotionIcon>
             </div>
           )}
 

@@ -109,7 +109,6 @@
     "heic2any": "^0.0.4",
     "i18next": "^25.8.14",
     "idb-keyval": "^6.2.2",
-    "lottie-react": "^2.4.1",
     "lucide-react": "^0.462.0",
     "mapbox-gl": "^3.24.1",
     "qrcode.react": "^4.2.0",

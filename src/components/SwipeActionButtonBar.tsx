@@ -16,7 +16,7 @@ import { forwardRef, memo, useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BarChart2, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
+import { MotionIcon, swipeVariantToMotion } from './ui/MotionIcon';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeActionButtonBarProps {
@@ -182,12 +182,13 @@ const ActionButton = memo(forwardRef<HTMLButtonElement, any>(function ActionButt
           transition: 'filter 0.15s ease',
         }}
       >
-        <AnimatedLottieIcon
-          iconId={variant === 'like' ? 'heart' : variant === 'dislike' ? 'dislike' : variant}
+        <MotionIcon
+          id={swipeVariantToMotion(variant) ?? 'pop'}
           active={isPressed}
-          size={iconSize}
-          inactiveIcon={children}
-        />
+          style={{ width: iconSize, height: iconSize }}
+        >
+          {children}
+        </MotionIcon>
       </div>
     </motion.button>
   );

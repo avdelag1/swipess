@@ -6,6 +6,7 @@ import {
   AudioLines, Search, Sparkles, Wand2, X, Zap, Mic
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
+import { MotionIcon } from '@/components/ui/MotionIcon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -505,7 +506,9 @@ export function AIListingWizard() {
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
-                  <Sparkles className="w-6 h-6 text-rose-400" />
+                  <MotionIcon id="ai-sparkle" loop={isProcessing}>
+                    <Sparkles className="w-6 h-6 text-rose-400" />
+                  </MotionIcon>
                 </div>
                 <div>
                   <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Uploading. Listing.</h2>
@@ -539,7 +542,9 @@ export function AIListingWizard() {
                         <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
                           <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
-                            <Sparkles className="w-4 h-4" />
+                            <MotionIcon id="ai-sparkle" loop>
+                              <Sparkles className="w-4 h-4" />
+                            </MotionIcon>
                             Great! Now let's create a listing.
                           </h3>
                           <p className={cn("text-xs font-bold leading-relaxed", textPrimary)}>
@@ -776,7 +781,9 @@ export function AIListingWizard() {
                             </>
                           ) : (
                             <>
-                              <Zap className="w-5 h-5 mr-4 active:scale-125 transition-transform" />
+                              <MotionIcon id="ai-sparkle" className="mr-4">
+                                <Zap className="w-5 h-5" />
+                              </MotionIcon>
                               Create Listing
                             </>
                           )}
@@ -806,8 +813,11 @@ export function AIListingWizard() {
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                           />
                         </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className={cn("text-3xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                          <MotionIcon id="ai-sparkle" loop>
+                            <Sparkles className="w-8 h-8 text-rose-400" />
+                          </MotionIcon>
+                          <span className={cn("text-2xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
                         </div>
                       </div>
 

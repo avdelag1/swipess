@@ -6,6 +6,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
+import { MotionIcon } from '@/components/ui/MotionIcon';
 import { triggerHaptic } from '@/utils/haptics';
 import { AiCharacter, useConciergeAI } from '@/hooks/useConciergeAI';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
@@ -41,6 +42,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   const { navigate: appNavigate } = useAppNavigate();
   const [input, setInput] = useState('');
+  const [sendPressed, setSendPressed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
   const [, setIsExiting] = useState(false); // Aladdin/genie minimize effect
@@ -352,7 +354,9 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                               const Icon = c?.icon || Sparkles;
                               return (
                                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", c?.bgColor || "bg-primary/15")}>
-                                  <Icon className={cn("w-5 h-5", c?.color || "text-primary")} />
+                                  <MotionIcon id="ai-sparkle" loop={isLoading}>
+                                    <Icon className={cn("w-5 h-5", c?.color || "text-primary")} />
+                                  </MotionIcon>
                                 </div>
                               );
                             })()}
@@ -504,6 +508,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                     <button
                       onClick={handleSend}
+                      onPointerDown={() => setSendPressed(true)}
+                      onPointerUp={() => setSendPressed(false)}
+                      onPointerLeave={() => setSendPressed(false)}
+                      onPointerCancel={() => setSendPressed(false)}
                       disabled={!input.trim() || isLoading}
                       className={cn(
                         "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
@@ -518,9 +526,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       )}
 
                       {isLoading ? (
-                        <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={3} />
+                        <MotionIcon id="ai-sparkle" loop>
+                          <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={3} />
+                        </MotionIcon>
                       ) : (
-                        <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={3} />
+                        <MotionIcon id="send" active={sendPressed}>
+                          <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={3} />
+                        </MotionIcon>
                       )}
                     </button>
                   </div>

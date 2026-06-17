@@ -43,6 +43,7 @@ import { useModalStore } from '@/state/modalStore';
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
+import { getNavMotionId, MotionIcon } from '@/components/ui/MotionIcon';
 
 const ICON_SIZE = 26;
 
@@ -141,6 +142,7 @@ export const BottomNavigation = memo(({
   ], [t, openAIChat, openVapId, onFilterClick]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [pressedId, setPressedId] = useState<string | null>(null);
 
 
   // Auto-scroll active item into view
@@ -335,14 +337,15 @@ export const BottomNavigation = memo(({
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
+                  setPressedId(item.id);
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   handlePointerDown(e);
                 }}
                 onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
+                onPointerUp={() => { setPressedId(null); handlePointerUp(); }}
+                onPointerCancel={() => { setPressedId(null); handlePointerUp(); }}
                 onClick={(e) => handleNavClick(item, e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
 
@@ -395,17 +398,32 @@ export const BottomNavigation = memo(({
 
                   {/* Icon: brand-colored when active, muted when inactive.
                       No frame, no glow — just color. */}
-                  <Icon
-                    style={{
-                      width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                      height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                      color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
-                      fill: 'none',
-                      strokeWidth: active ? 2.0 : 1.4,
-                      filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
-                      transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
-                    }}
-                  />
+                  {(() => {
+                    const motionId = getNavMotionId(item.id);
+                    const iconEl = (
+                      <Icon
+                        style={{
+                          width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
+                          height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
+                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)')),
+                          fill: 'none',
+                          strokeWidth: active ? 2.0 : 1.4,
+                          filter: item.id === 'add' ? 'drop-shadow(0 0 12px rgba(255,51,102,0.6))' : (active ? activeGlow : undefined),
+                          transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
+                        }}
+                      />
+                    );
+                    if (!motionId) return iconEl;
+                    return (
+                      <MotionIcon
+                        id={motionId}
+                        active={pressedId === item.id}
+                        loop={active && (item.id === 'ai' || item.id === 'likes')}
+                      >
+                        {iconEl}
+                      </MotionIcon>
+                    );
+                  })()}
                 </div>
                 {/* Label */}
                 {!isNarrow && (
