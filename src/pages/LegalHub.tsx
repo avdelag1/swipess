@@ -19,7 +19,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { useActiveMode } from '@/hooks/useActiveMode';
 
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
@@ -274,16 +274,11 @@ const LegalHub = () => {
   );
 
   return (
-    <div className="w-full bg-background relative selection:bg-rose-500/30 min-h-screen">
-      
-      {/* 🛸 SWIPESS SEO ARCHITECTURE */}
+    <AmbientPageBackground className="w-full selection:bg-rose-500/30 min-h-screen">
       <Helmet>
         <title>Legal Center | Swipess Authority</title>
         <meta name="description" content="Secure legal terminal for Swipess protocols, terms of use, and professional legal dispatch." />
       </Helmet>
-
-      {/* 🛸 ATMOSPHERIC DEPTH */}
-      <AtmosphericLayer variant={isOwner ? "indigo" : "rose"} opacity={0.25} />
 
       <main className="w-full max-w-[1600px] mx-auto px-6 sm:px-12 pt-8 pb-48 relative z-10 space-y-20">
         
@@ -916,7 +911,7 @@ const LegalHub = () => {
       
       {/* 🛸 FIXED TELEMETRY TAG */}
       <p className="fixed bottom-6 right-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Legal Terminal v15.0</p>
-    </div>
+    </AmbientPageBackground>
   );
 };
 

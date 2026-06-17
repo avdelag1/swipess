@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { useModalStore } from '@/state/modalStore';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { revealChrome } from '@/hooks/useChromeReveal';
 
 interface ClientDashboardProps {
@@ -48,21 +48,18 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, []);
 
   return (
-    <div
-      className={cn(
-        "flex-1 flex flex-col relative w-full min-h-0 bg-swipe-frame"
-      )}
+    <AmbientPageBackground
+      className={cn("flex-1 flex flex-col relative w-full min-h-0 bg-swipe-frame")}
+      variant="subtle"
     >
-      <AtmosphericLayer variant="Swipes" />
-
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 relative z-0">
         <SwipessSwipeContainer
           onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
           onInsights={() => {}}
           onMessageClick={onMessageClick}
         />
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 }
 

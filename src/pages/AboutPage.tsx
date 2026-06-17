@@ -3,7 +3,7 @@ import { Home, MessageCircle, Rocket, Shield, Sparkles, Target, ThumbsUp, Users,
 // import { } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
@@ -61,13 +61,11 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden pb-32">
+    <AmbientPageBackground className="min-h-screen overflow-hidden pb-32">
       <Helmet>
         <title>About Swipess | The Future of Real Estate</title>
         <meta name="description" content="Discover how Swipess is revolutionizing the rental market with a swipe-based interface." />
       </Helmet>
-
-      <AtmosphericLayer />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 pt-[env(safe-area-inset-top)] pb-32">
         <PageHeader
@@ -222,7 +220,7 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 }
 

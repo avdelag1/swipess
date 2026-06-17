@@ -8,7 +8,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { Helmet } from 'react-helmet-async';
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -79,13 +79,11 @@ export default function FAQClientPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <AmbientPageBackground className="min-h-screen overflow-hidden">
       <Helmet>
         <title>FAQ & Help | Swipess Client</title>
         <meta name="description" content="Common questions and support for Swipess renters." />
       </Helmet>
-
-      <AtmosphericLayer />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-32">
         <PageHeader
@@ -188,6 +186,6 @@ export default function FAQClientPage() {
           </Card>
         </motion.div>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 }

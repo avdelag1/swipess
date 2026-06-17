@@ -1,13 +1,12 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { PageHeader } from "@/components/PageHeader";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { motion } from "framer-motion";
 
 const ClientSecurity = () => {
   return (
-    <div className="w-full pb-24 min-h-screen bg-background relative">
-      <AtmosphericLayer variant="primary" />
+    <AmbientPageBackground className="w-full pb-24 min-h-screen">
       <div className="p-4 sm:p-6 lg:p-8 relative z-10">
         <div className="max-w-4xl mx-auto space-y-8">
           <PageHeader
@@ -26,7 +25,7 @@ const ClientSecurity = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </AmbientPageBackground>
   );
 };
 

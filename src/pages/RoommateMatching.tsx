@@ -16,7 +16,7 @@ import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/Simp
 import { RoommateFiltersSheet } from '@/components/filters/RoommateFiltersSheet';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { AtmosphericLayer } from '@/components/AtmosphericLayer';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { useFilterActions } from '@/state/filterStore';
 import { MatchOverlay } from '@/components/native/MatchOverlay';
 import { triggerMatchConfetti } from '@/utils/celebration';
@@ -174,12 +174,12 @@ export default function RoommateMatching() {
   // handleScroll removed as uiVisible was removed
 
   return (
-    <div className={cn(
-      "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
-      isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
-    )}>
-      <AtmosphericLayer variant="Swipes" />
-
+    <AmbientPageBackground
+      className={cn(
+        "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
+        isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
+      )}
+    >
       {/* ── IMMERSIVE CONTROLS (Removed, inherited from AppLayout) ── */}
 
       {/* ── CARD STACK AREA ── */}
@@ -431,6 +431,6 @@ export default function RoommateMatching() {
         recipientName={topCard?.name || (topCard as any)?.full_name || 'this roommate'}
         isLoading={isStartingConversation}
       /></Suspense>
-    </div>
+    </AmbientPageBackground>
   );
 }

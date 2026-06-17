@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { SwipessLogo } from "@/components/SwipessLogo";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
-import { AtmosphericLayer } from "@/components/AtmosphericLayer";
+import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const itemVariant = {
@@ -137,8 +137,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
-        <AtmosphericLayer variant="indigo" />
+      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6 pt-10">
@@ -156,28 +155,26 @@ const OwnerSettings = () => {
             </div>
           </motion.div>
         </div>
-      </div>
+      </AmbientPageBackground>
     );
   }
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
-        <AtmosphericLayer variant="indigo" />
+      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6 pt-10 flex justify-center">
             <LanguageToggle />
           </motion.div>
         </div>
-      </div>
+      </AmbientPageBackground>
     );
   }
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
-        <AtmosphericLayer variant="default" />
+      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-8 pt-10">
@@ -185,14 +182,13 @@ const OwnerSettings = () => {
             <SwipeSoundSettings />
           </motion.div>
         </div>
-      </div>
+      </AmbientPageBackground>
     );
   }
 
   if (activeSection === 'feedback') {
     return (
-      <div className="w-full relative px-4 pt-4 pb-32 bg-background min-h-screen">
-        <AtmosphericLayer variant="indigo" />
+      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
@@ -201,14 +197,12 @@ const OwnerSettings = () => {
             </div>
           </motion.div>
         </div>
-      </div>
+      </AmbientPageBackground>
     );
   }
 
   return (
-    <div className="w-full relative px-6 pb-40 bg-background min-h-screen">
-      <AtmosphericLayer variant="indigo" />
-
+    <AmbientPageBackground className="w-full px-6 pb-40 min-h-screen">
       <div className="max-w-3xl mx-auto space-y-12 pt-4 relative z-10">
         
         {/* 🛸 OWNER MEGA-HEADER */}
@@ -304,7 +298,7 @@ const OwnerSettings = () => {
       </div>
       
       <p className="fixed bottom-6 right-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Config Terminal v3.0</p>
-    </div>
+    </AmbientPageBackground>
   );
 };
 
