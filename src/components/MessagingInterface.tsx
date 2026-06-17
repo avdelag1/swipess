@@ -503,7 +503,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 newMessage.trim()
                   ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white shadow-[0_8px_25px_rgba(235,72,152,0.5)] hover:scale-105 active:scale-95 border-none"
                   : (isThemeLight
-                      ? "bg-background/[0.04] text-black/30 border border-black/[0.06]"
+                      ? "bg-slate-50 text-black/30 border border-slate-200"
                       : "bg-white/[0.05] text-white/20 border border-white/[0.05]")
               )}
             >

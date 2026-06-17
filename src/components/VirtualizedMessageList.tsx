@@ -81,7 +81,7 @@ const MessageBubble = memo(({
                 : cn(
                     "border rounded-[1.5rem] rounded-bl-[0.35rem]",
                     isThemeLight
-                      ? "bg-white border-black/[0.07] text-black shadow-sm"
+                      ? "bg-white border-slate-200 text-black shadow-sm"
                       : "bg-secondary border-white/[0.08] text-white shadow-md backdrop-blur-xl"
                   )
             )}
@@ -126,7 +126,7 @@ const TypingIndicator = memo(({ isThemeLight }: { isThemeLight: boolean }) => (
     <div className={cn(
       "px-4 py-3 rounded-[1.5rem] rounded-bl-[0.35rem] border",
       isThemeLight
-        ? "bg-white border-black/[0.07] shadow-sm"
+        ? "bg-white border-slate-200 shadow-sm"
         : "bg-secondary border-white/[0.08] shadow-md backdrop-blur-xl"
     )}>
       <div className="flex items-center gap-1.5">
