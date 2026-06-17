@@ -198,7 +198,7 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return createPortal(
-      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-200 overflow-hidden", isLight ? "bg-white" : "bg-black")}>
+      <div className={cn("fixed inset-0 z-[9999] w-full h-[100dvh] flex flex-col transition-colors duration-200 overflow-hidden page-canvas", isLight ? "bg-background" : "bg-black")}>
         <AnimatePresence mode="sync">
           <motion.div
             key="interface"
@@ -208,7 +208,7 @@ export function MessagingDashboard() {
             transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
             className={cn(
               "w-full max-w-full mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden",
-              isLight ? "bg-white" : "bg-[#0A0A0C]"
+              isLight ? "bg-background" : "bg-[#0A0A0C]"
             )}
           >
             <MessagingInterface
@@ -259,7 +259,7 @@ export function MessagingDashboard() {
               placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
               className={cn(
                 "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-white border-black/5 text-black placeholder:text-black/30 shadow-sm" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isLight ? "surface-inset text-black placeholder:text-black/30" : "bg-[#0d0d14] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -287,7 +287,7 @@ export function MessagingDashboard() {
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
                   activeFilter === filter.id 
                     ? "border-0" 
-                    : (isLight ? "bg-white border-black/10 text-black/50 hover:bg-zinc-50" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                    : (isLight ? "surface-2 text-black/50 hover:shadow-[var(--elev-3)]" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
                 )}
                 style={activeFilter === filter.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
               >
@@ -325,8 +325,8 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-white border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.08)]" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
-                        : (isLight ? "bg-white border-black/[0.04] hover:bg-black/[0.01]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
+                        ? (isLight ? "surface-row surface-row--active" : "bg-[#0d0d14] border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.5)]") 
+                        : (isLight ? "surface-row hover:shadow-[var(--elev-3)]" : "bg-[#08080c] border-white/[0.04] hover:bg-white/[0.01]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
@@ -405,7 +405,7 @@ export function MessagingDashboard() {
                animate={{ opacity: 1 }}
                className={cn(
                  "py-32 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
-                 isLight ? "bg-white/40 border-black/5 backdrop-blur-md" : "bg-white/[0.02] border-white/[0.05]"
+                 isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
                )}
             >
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
@@ -425,7 +425,7 @@ export function MessagingDashboard() {
       </Suspense>
 
       <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
-        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "bg-white text-slate-900 border-slate-200" : "bg-card text-white border-white/10")}>
+        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
           <AlertDialogHeader>
             <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
             <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>

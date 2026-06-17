@@ -74,7 +74,7 @@ function applyThemeToDOM(theme: Theme) {
   else if (theme === 'cheers') targetColor = '#180800';
   else if (theme === 'red-matte') targetColor = '#2d0a0a';
   else if (theme === 'amber-matte') targetColor = '#1a1200';
-  else targetColor = '#ffffff';
+  else targetColor = '#F2F2F7';
   meta.setAttribute('content', targetColor);
 
   // Native: match the status bar to the active theme — dark text on the light

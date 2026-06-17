@@ -117,16 +117,16 @@ export function AIListingWizard() {
   const { t } = useTranslation();
 
   const modalBg = isLight 
-    ? 'bg-white chrome-solid saturate-150 border-black/10' 
+    ? 'surface-5 chrome-solid saturate-150' 
     : 'bg-[#050505]/95 chrome-solid saturate-150 border-t-white/30 border-l-white/20 border-r-white/5 border-b-black';
-  const headerBorder = isLight ? 'border-black/10' : 'border-white/10';
+  const headerBorder = isLight ? 'border-border' : 'border-white/10';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/80';
   const inputCls = isLight
-    ? 'bg-white border-2 border-black/15 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
+    ? 'surface-inset focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium'
     : 'bg-black/60 border border-t-white/20 border-l-white/10 border-r-white/5 border-b-transparent focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/50 font-medium shadow-inner';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-black/5 rounded-2xl transition-all border border-black/20 shadow-[0_2px_8px_rgba(0,0,0,0.06)]'
+    ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
     : 'bg-white/10 hover:bg-white/20 rounded-2xl transition-all border border-t-white/30 border-l-white/20 border-r-white/5 border-b-transparent shadow-lg';
   
   const [step, setStep] = useState<WizardStep>('compose');
