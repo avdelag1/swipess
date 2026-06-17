@@ -95,6 +95,17 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     prefetchListingFlowModule();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('add') === '1') {
+      setShowCategoryDialog(true);
+      params.delete('add');
+      const next = params.toString();
+      window.history.replaceState(null, '', next ? `?${next}` : window.location.pathname);
+    }
+  }, []);
+
   // Auto-open form when category is provided via URL params
   useEffect(() => {
     if (initialCategory && initialMode) {
@@ -293,7 +304,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
           <button
             onClick={handleAddProperty}
-            className="press-snappy h-16 px-8 rounded-[2.2rem] bg-rose-600 text-white font-black uppercase italic tracking-[0.2em] text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:bg-rose-700"
+            className="press-snappy force-white h-16 px-8 rounded-[2.2rem] bg-gradient-to-r from-rose-600 to-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] text-sm flex items-center shadow-[0_12px_32px_rgba(225,29,72,0.35)] hover:brightness-110"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add Listing
@@ -550,7 +561,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               {!searchTerm && (
                 <button
                   onClick={handleAddProperty}
-                  className="press-snappy h-18 px-12 rounded-[2rem] bg-rose-600 hover:bg-rose-700 font-black uppercase italic tracking-[0.2em] text-white shadow-[0_20px_60px_rgba(225,29,72,0.4)]"
+                  className="press-snappy force-white h-18 px-12 rounded-[2rem] bg-gradient-to-r from-rose-600 to-[#EB4898] hover:brightness-110 font-black uppercase italic tracking-[0.2em] text-white shadow-[0_20px_60px_rgba(225,29,72,0.4)]"
                 >
                   <span className="flex items-center gap-3">
                     <Plus className="w-6 h-6" />

@@ -57,8 +57,9 @@ interface ModalState {
   showInviteFriends: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft'>, value: boolean) => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll'>, value: boolean) => void;
   openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker', draft?: any) => void;
+  openAddListing: () => void;
   openAIProfile: (mode: 'client' | 'owner', draft?: any) => void;
   openPropertyDetails: (id: string) => void;
   openPropertyInsights: (id: string) => void;
@@ -114,6 +115,11 @@ export const useModalStore = create<ModalState>((set) => ({
       aiListingDraft: draft || null,
       showAIListing: true,
     });
+  },
+  openAddListing: () => {
+    prefetchListingFlowModule();
+    prefetchCommonModalsModule();
+    set({ showCategoryDialog: true });
   },
   openAIProfile: (mode, draft) => set({ aiProfileMode: mode, aiProfileDraft: draft || null, showAIProfile: true }),
   openPropertyDetails: (id) => set({ selectedListingId: id, showPropertyDetails: true }),

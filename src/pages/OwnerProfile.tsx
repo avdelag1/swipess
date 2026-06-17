@@ -113,8 +113,7 @@ const OwnerProfile = () => {
         <div className={cn("space-y-3", isLight && "surface-section")}>
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
-            className="w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
-            style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+            className="force-white w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 hover:brightness-110"
           >
             <div className="relative z-10 flex items-center justify-center gap-4">
               <Sparkles className="w-7 h-7 text-white" />
@@ -126,16 +125,15 @@ const OwnerProfile = () => {
           </Button>
 
           <Button
-            onClick={() => { triggerHaptic('heavy'); setModal('showAIListing', true); }}
-            className="w-full h-16 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl"
-            style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
+            onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAddListing(); }}
+            className="force-white w-full h-16 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl bg-gradient-to-br from-[#FF4D00] to-[#EB4898] hover:brightness-110"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.35),transparent_70%)] pointer-events-none" />
             <div className="relative z-10 flex items-center justify-center gap-4">
               <Sparkles className="w-8 h-8 animate-pulse text-white" />
               <div className="text-left">
-                <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Magic AI Listing</span>
-                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">Swipes Intelligence v4</span>
+                <span className="block text-[18px] font-black uppercase italic tracking-[0.2em] leading-none text-white">Add Listing</span>
+                <span className="block text-[9px] font-black uppercase tracking-[0.3em] text-white/60 mt-1">AI builder or manual — pick your category</span>
               </div>
             </div>
           </Button>

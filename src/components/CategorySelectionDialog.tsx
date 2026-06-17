@@ -171,8 +171,10 @@ export function CategorySelectionDialog({
   };
 
   const handleOpenAI = () => {
-    if (onAIOpen) onAIOpen();
-    requestAnimationFrame(() => onOpenChange(false));
+    onOpenChange(false);
+    requestAnimationFrame(() => {
+      if (onAIOpen) onAIOpen();
+    });
   };
 
   const modes = selectedCategory ? getModes(selectedCategory.id) : [];
@@ -221,25 +223,26 @@ export function CategorySelectionDialog({
                     onClick={handleOpenAI}
                     className={cn(
                       "group relative w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-150 press-snappy",
-                      "bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-rose-500/10 border border-indigo-500/20 shadow-lg shadow-indigo-500/5",
-                      "hover:border-indigo-500/40 hover:shadow-indigo-500/10"
+                      "bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-rose-500/10 border border-indigo-500/25 shadow-lg shadow-indigo-500/5",
+                      "hover:border-indigo-500/40 hover:shadow-indigo-500/10",
+                      "dark:from-indigo-500/10 dark:via-purple-500/5 dark:to-rose-500/10"
                     )}
                   >
                     <div className="absolute top-3 right-3">
                       <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
                     </div>
                     
-                    <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg overflow-hidden">
+                    <div className="force-white relative w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg overflow-hidden">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent_70%)] animate-pulse" />
                       <Sparkles className="relative z-10 w-7 h-7 text-white" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-black uppercase italic tracking-tighter text-foreground text-lg">Magic AI Listing</h3>
-                        <Badge className="bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none">Fastest</Badge>
+                        <h3 className="font-black uppercase italic tracking-tighter text-slate-900 dark:text-white text-lg">Magic AI Listing</h3>
+                        <Badge className="force-white bg-indigo-500 text-[9px] h-4 px-1.5 font-black uppercase tracking-[0.2em] border-none text-white">Fastest</Badge>
                       </div>
-                      <p className="text-xs font-medium text-muted-foreground mt-0.5 line-clamp-2">
+                      <p className="text-xs font-medium text-slate-600 dark:text-white/60 mt-0.5 line-clamp-2">
                         Upload photos & describe your asset. AI generates the entire listing in seconds.
                       </p>
                     </div>

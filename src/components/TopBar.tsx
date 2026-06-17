@@ -200,7 +200,7 @@ function TopBarComponent({
           {!minimal && (
             <button
               type="button"
-              onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
+              onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
               className={HEADER_PILL_BASE}
               style={glassPillStyle}
               aria-label="AI Listing"

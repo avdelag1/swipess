@@ -248,7 +248,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
                 requestAnimationFrame(() => store.setModal('showCategoryDialog', false));
               }}
-              onAIOpen={() => store.openAIListing()}
+              onAIOpen={() => {
+                requestAnimationFrame(() => store.openAIListing());
+              }}
             />
           </DeferredDialog>
         </>

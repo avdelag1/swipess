@@ -84,6 +84,8 @@ export const TAP_SPRING = {
 
 export const BottomNavigation = memo(({
   onFilterClick,
+  onAddListingClick,
+  userRole = 'client',
   className,
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
@@ -91,6 +93,7 @@ export const BottomNavigation = memo(({
   const setCategories = useFilterStore((s) => s.setCategories);
   const setModal = useModalStore((s) => s.setModal);
   const showAIListing = useModalStore((s) => s.showAIListing);
+  const showCategoryDialog = useModalStore((s) => s.showCategoryDialog);
   const showAIChat = useModalStore((s) => s.showAIChat);
   const showVapId = useModalStore((s) => s.showVapId);
   const showTokensModal = useModalStore((s) => s.showTokensModal);
@@ -126,18 +129,28 @@ export const BottomNavigation = memo(({
 
   const openVapId = useCallback(() => setModal('showVapId', true), [setModal]);
 
+  const openAddListing = useCallback(() => {
+    prefetchListingFlowModule();
+    if (userRole === 'owner' || userRole === 'admin') {
+      if (onAddListingClick) onAddListingClick();
+      else useModalStore.getState().openAddListing();
+      return;
+    }
+    navigate('/owner/properties?add=1');
+  }, [userRole, onAddListingClick, navigate]);
+
   const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
-    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), path: '/owner/properties', isSpecial: true },
+    { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
     { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: EVENTS_FEED_PATH },
-  ], [t, openAIChat, openVapId, onFilterClick]);
+  ], [t, openAIChat, openVapId, onFilterClick, openAddListing]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [pressedId, setPressedId] = useState<string | null>(null);
@@ -248,6 +261,7 @@ export const BottomNavigation = memo(({
     switch (item.id) {
       case 'vapid': return showVapId;
       case 'ai': return showAIChat;
+      case 'add': return showAIListing || showCategoryDialog;
       case 'ai-listing': return showAIListing;
       case 'tokens': return showTokensModal;
       case 'search':
@@ -261,7 +275,7 @@ export const BottomNavigation = memo(({
   const isDashboard = isDashboardPath(location.pathname);
   const { useLightIcons, iconColor: baseColor, inactiveIconColor, iconShadow } = getHeaderChrome(
     isLight,
-    isDashboard || isLight,
+    isDashboard,
   );
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
@@ -310,7 +324,9 @@ export const BottomNavigation = memo(({
           "pointer-events-auto floating-dock-nav",
           "w-max max-w-[calc(100vw-24px)]",
           "px-1 py-1.5 border",
-          "glass-dark border-white/12",
+          isLight && !isDashboard
+            ? "glass-light-surface border-black/10"
+            : "glass-dark border-white/12",
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
