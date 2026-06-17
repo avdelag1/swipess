@@ -55,7 +55,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
     ([_cx, _cy]: any) => 1
   );
 
-  const rotate = useTransform(x, [-800, 800], [-25, 25]);
+  const rotate = useTransform(x, [-800, 800], [-10, 10]);
   const hintOpacity = useTransform(
     [x, y] as any,
     ([cx, cy]: any) => (Math.abs(cx) + Math.abs(cy) > 4 ? 0 : 1)
@@ -177,6 +177,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
 
   return (
     <motion.div
+      data-quick-filter-card
+      data-skip-press-engine
       drag={isTop ? "x" : false}
       dragDirectionLock={isTop ? true : undefined}
       dragMomentum={false}
@@ -218,15 +220,17 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
         rotate,
         touchAction: 'none',
         willChange: 'transform, opacity',
-        transformOrigin: '50% 120%',
+        transformOrigin: '50% 50%',
         backfaceVisibility: 'hidden',
-        borderRadius: 40,
         boxShadow: isTop ? '0 30px 60px -20px rgba(0,0,0,0.55)' : 'none',
         backgroundColor: '#000',
         backgroundImage: fallbackGradient,
       } as any}
       transition={{ ...PK_SPRING }}
-      className={cn("force-white select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer")}
+      className={cn(
+        "force-white select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra rounded-[2.5rem]",
+        isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
+      )}
     >
       <div
         className="absolute inset-0 overflow-hidden"
@@ -363,7 +367,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all hover:scale-[1.02] active:scale-95 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
+                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-opacity duration-100 hover:opacity-95 active:opacity-85 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
                 style={{ background: 'rgba(255,255,255,0.98)' }}
                 aria-label="Engage Discovery"
               >

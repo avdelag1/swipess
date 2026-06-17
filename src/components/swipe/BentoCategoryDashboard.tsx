@@ -61,8 +61,8 @@ const columnVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 450, damping: 30 } }
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.12, ease: 'easeOut' } },
 };
 
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
@@ -110,10 +110,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
               <motion.div
                 key={item.id}
                 variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
+                whileTap={{ opacity: 0.88 }}
+                transition={{ duration: 0.08 }}
                 onClick={() => handleSelect(item.id)}
+                data-quick-filter-card
+                data-skip-press-engine
                 className={cn(
-                  "force-white relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer transition-transform duration-700",
+                  "force-white relative flex flex-col justify-end text-left overflow-hidden rounded-2xl shadow-lg border border-white/10 group cursor-pointer",
                   SIZE_CLASS[item.size]
                 )}
                 style={{ contain: 'paint', touchAction: 'pan-y' }}
@@ -124,7 +127,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     src={POKER_CARD_PHOTOS[item.imageId] || ''}
                     alt={item.label}
                     animationDelay={item.delay}
-                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
+                    className="object-cover w-full h-full md:group-hover:scale-[1.03] transition-transform duration-500 ease-out"
                   />
                 </div>
 

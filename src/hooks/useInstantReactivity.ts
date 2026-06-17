@@ -33,6 +33,7 @@ export function useInstantReactivity() {
       // Map HUD / WebGL canvas — own press feedback; never scale the full-screen canvas
       if (
         interactiveEl?.closest('[data-skip-press-engine]')
+        || target.closest('[data-quick-filter-card]')
         || target.closest('[data-map-surface], [data-map-canvas], .mapboxgl-canvas, .mapboxgl-map')
       ) {
         return;

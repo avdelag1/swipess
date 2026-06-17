@@ -719,6 +719,19 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
   transform: scale(0.96) translateZ(0);
 }
 
+/* Quick-filter cards: lock corner radius under GPU transforms (Safari/iOS) */
+[data-quick-filter-card] {
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  contain: paint;
+}
+
+[data-quick-filter-card] .instant-active-element {
+  transform: scale(0.98) translateZ(0) !important;
+}
+
 .press-snappy-subtle:active {
   transform: scale(0.98) translateZ(0);
 }

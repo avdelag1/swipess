@@ -115,9 +115,10 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative flex-none flex items-center justify-center transition-all"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
+          className="relative flex-none flex items-center justify-center overflow-hidden rounded-[2.5rem]"
           style={{
             height: 'calc(100% - 24px)',
             width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 24px) * 0.66667)',
