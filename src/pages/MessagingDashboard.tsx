@@ -263,8 +263,9 @@ export function MessagingDashboard() {
               onChange={(e) => setSearchQuery(e.target.value)} 
             />
             {searchQuery && (
-              <button 
+              <button
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 text-[#EB4898] transition-all"
               >
                 <X className="w-4 h-4" />
@@ -398,19 +399,55 @@ export function MessagingDashboard() {
             })}
             </AnimatePresence>
           ) : (
-            <motion.div 
-               initial={{ opacity: 0 }} 
-               animate={{ opacity: 1 }}
-               className={cn(
-                 "py-32 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
-                 isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
-               )}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={cn(
+                "py-24 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
+                isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
+              )}
             >
-              <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
-                 <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
-              </div>
-              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{t('messages.noMessages')}</h3>
-              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>{t('messages.startConversation')}</p>
+              {searchQuery ? (
+                <>
+                  <div className="w-20 h-20 rounded-[1.8rem] bg-slate-500/10 flex items-center justify-center mb-8 border border-slate-500/20">
+                    <Search className="w-9 h-9 text-slate-400" />
+                  </div>
+                  <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>No results</h3>
+                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
+                    No chats matching "{searchQuery}"
+                  </p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
+                  >
+                    Clear search
+                  </button>
+                </>
+              ) : activeFilter !== 'all' ? (
+                <>
+                  <div className="w-20 h-20 rounded-[1.8rem] bg-amber-500/10 flex items-center justify-center mb-8 border border-amber-500/20">
+                    <MessageCircle className="w-9 h-9 text-amber-400" />
+                  </div>
+                  <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>Nothing here</h3>
+                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
+                    No {activeFilter} chats yet
+                  </p>
+                  <button
+                    onClick={() => setActiveFilter('all')}
+                    className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
+                  >
+                    Show all chats
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
+                    <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
+                  </div>
+                  <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{t('messages.noMessages')}</h3>
+                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>{t('messages.startConversation')}</p>
+                </>
+              )}
             </motion.div>
           )}
         </div>

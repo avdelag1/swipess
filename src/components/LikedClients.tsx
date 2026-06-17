@@ -10,7 +10,6 @@ import {
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { appToast } from '@/utils/appNotification';
-import { appToast } from "@/utils/appNotification";
 import useAppTheme from "@/hooks/useAppTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";

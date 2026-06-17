@@ -54,6 +54,7 @@ export const PassportMapPinPreview = memo(({
 
   return (
     <div
+      style={{ willChange: 'transform' }}
       className={cn(
         'overflow-hidden z-30 shadow-[0_32px_64px_rgba(0,0,0,0.55)]',
         // On mobile: max-w-[420px], anchored bottom
