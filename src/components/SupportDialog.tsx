@@ -220,8 +220,8 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 value={newTicket.subject}
                 onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
                 className={cn(
-                  "h-16 rounded-[1.5rem] px-6 font-bold text-sm placeholder:opacity-20 transition-all",
-                  isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
+                  "h-16 rounded-[1.5rem] px-6 font-bold text-sm transition-all",
+                  isLight ? "bg-slate-50 border-slate-200 placeholder:text-slate-400" : "bg-white/[0.03] border-white/10 placeholder:opacity-20"
                 )}
               />
               
@@ -230,8 +230,8 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 value={newTicket.message}
                 onChange={(e) => setNewTicket(prev => ({ ...prev, message: e.target.value }))}
                 className={cn(
-                  "min-h-[160px] rounded-[1.5rem] p-6 font-medium placeholder:opacity-20 resize-none transition-all",
-                  isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/10"
+                  "min-h-[160px] rounded-[1.5rem] p-6 font-medium resize-none transition-all",
+                  isLight ? "bg-slate-50 border-slate-200 placeholder:text-slate-400" : "bg-white/[0.03] border-white/10 placeholder:opacity-20"
                 )}
               />
               

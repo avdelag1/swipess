@@ -806,7 +806,7 @@ export function ContractsVault() {
                                 placeholder={variable.placeholder}
                                 value={quickFillValues[variable.key] ?? ''}
                                 onChange={(e) => setQuickFillValues(prev => ({ ...prev, [variable.key]: e.target.value }))}
-                                className={cn("w-full h-12 rounded-xl border px-4 text-sm outline-none transition-all", isLight ? "bg-slate-50 border-slate-200 text-black placeholder:opacity-30 focus:border-primary" : "bg-white/5 border-white/10 text-white placeholder:opacity-30 focus:border-primary")}
+                                className={cn("w-full h-12 rounded-xl border px-4 text-sm outline-none transition-all", isLight ? "bg-slate-50 border-slate-200 text-black placeholder:text-slate-400 focus:border-primary" : "bg-white/5 border-white/10 text-white placeholder:opacity-30 focus:border-primary")}
                               />
                             </div>
                           ))}
