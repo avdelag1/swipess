@@ -873,7 +873,7 @@ const LegalHub = () => {
                    { icon: Shield, label: 'Privacy Protocol', doc: 'privacy', color: 'bg-rose-600 text-white shadow-rose-500/20' },
                    { icon: BookOpen, label: 'AUP Standards', doc: 'agl', color: 'bg-purple-600 text-white shadow-purple-500/20' },
                    { icon: Package, label: 'Service Packages', doc: 'packages', color: 'bg-amber-500 text-white shadow-amber-500/20' },
-                   { icon: ScaleIcon, label: 'Smart Contracts', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
+                   { icon: ScaleIcon, label: 'Lease Builder', path: isOwner ? '/owner/contracts' : '/client/contracts', color: 'bg-emerald-600 text-white shadow-emerald-500/20' },
                    // Removed duplicate Admin Review shortcut as admin-swipess handles admin functionality
                  ].map((item) => (
                    <button

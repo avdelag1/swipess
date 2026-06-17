@@ -1,4 +1,5 @@
 // Contract templates for owners and clients
+import { LEASE_TEMPLATES } from './leaseTemplates';
 
 export interface ContractTemplate {
   id: string;
@@ -9,8 +10,12 @@ export interface ContractTemplate {
   content: string;
 }
 
-// Owner Templates
+// Re-export flagship lease templates for direct imports
+export { LEASE_TEMPLATES } from './leaseTemplates';
+
+// Owner Templates — lease builders listed first
 export const ownerTemplates: ContractTemplate[] = [
+  ...LEASE_TEMPLATES,
   {
     id: 'long-term-rental-3months',
     name: 'Long-Term Rental Agreement (3+ Months)',

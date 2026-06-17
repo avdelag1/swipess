@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowRight, Bold, ChevronDown, ChevronRight, ChevronUp, Clock,
+  ArrowRight, ChevronDown, ChevronRight, ChevronUp, Clock,
   Download, FileDown, FileText, PenLine, PenTool, Plus, Printer,
-  Save, ShieldCheck, Underline, Wand2, X
+  Save, ShieldCheck, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { clientTemplates, ContractTemplate, ownerTemplates } from '@/data/contractTemplates';
+import { clientTemplates, ContractTemplate, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
+import { DocumentEditorToolbar, type DocumentFontId, getFontCss } from '@/components/legal/DocumentEditorToolbar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
@@ -65,8 +66,15 @@ export function ContractsVault() {
   const [isSavingSignature, setIsSavingSignature] = useState(false);
   const [quickFillValues, setQuickFillValues] = useState<Record<string, string>>({});
   const [quickFillOpen, setQuickFillOpen] = useState(false);
+  const [fontSize, setFontSize] = useState(14);
+  const [fontFamily, setFontFamily] = useState<DocumentFontId>('times');
   const docRef = useRef<HTMLDivElement>(null);
   const { enhanceText, isEnhancing } = useAIEnhanceText();
+
+  const allTemplates = [...ownerTemplates, ...clientTemplates];
+  const otherTemplates = allTemplates.filter(
+    (t) => !LEASE_TEMPLATES.some((lt) => lt.id === t.id),
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -163,13 +171,10 @@ export function ContractsVault() {
     downloadAsWord(sanitizeHTML(contract.content || ''), contract.title || 'Contract');
   }, []);
 
-  // Rich-text formatting inside the editable document (works in the Android
-  // WebView). execCommand is deprecated but remains the most reliable
-  // contentEditable formatting API across mobile browsers.
-  const applyFormat = useCallback((command: 'bold' | 'underline' | 'insertUnorderedList') => {
+  const applyFormat = useCallback((command: string, value?: string) => {
     triggerHaptic('light');
     docRef.current?.focus();
-    try { document.execCommand(command, false); } catch { /* not supported */ }
+    try { document.execCommand(command, false, value); } catch { /* not supported */ }
   }, []);
 
   const handleImproveWithAI = useCallback(async () => {
@@ -336,7 +341,7 @@ export function ContractsVault() {
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
                     <Plus className="w-8 h-8 text-white" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Draft New Protocol</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">New Lease / Contract</span>
                 </Button>
 
                 <div className={cn("p-10 rounded-[2.5rem] border flex flex-col justify-between", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/5 border-white/10")}>
@@ -442,40 +447,77 @@ export function ContractsVault() {
               className="space-y-8"
             >
               <div className="flex items-center justify-between px-2">
-                <h3 className={cn("text-xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Protocol Templates</h3>
-                <div className="flex gap-2">
-                  <Badge variant="primary">Certified</Badge>
-                </div>
+                <h3 className={cn("text-xl font-black uppercase tracking-tighter italic", isLight ? "text-black" : "text-white")}>Document Templates</h3>
+                <Badge variant="primary">{LEASE_TEMPLATES.length} Lease Templates</Badge>
               </div>
 
-              <div className="grid grid-cols-1 gap-6">
-                {[...ownerTemplates, ...clientTemplates].map((template, i) => (
+              <p className={cn("text-[11px] font-bold italic opacity-60 px-2", isLight ? "text-black" : "text-white")}>
+                Word-style editor — change fonts &amp; sizes, fill every section, sign with your finger, export PDF or Word.
+              </p>
+
+              <div className="space-y-3 px-2">
+                <span className={cn("text-[10px] font-black uppercase tracking-[0.35em] opacity-50 italic", isLight ? "text-black" : "text-white")}>Lease agreements</span>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {LEASE_TEMPLATES.map((template, i) => (
                   <motion.button
                     key={template.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1], delay: i * 0.04 }}
                     onClick={() => handleSelectTemplate(template)}
                     className={cn(
-                        "group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden active:scale-[0.98]",
-                        isLight ? "bg-black/[0.03] border-black/5 hover:border-primary/40" : "bg-white/[0.03] border-white/5 hover:border-primary/40"
+                      "group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden active:scale-[0.98]",
+                      isLight ? "bg-primary/[0.04] border-primary/20 hover:border-primary/50" : "bg-primary/[0.08] border-primary/25 hover:border-primary/50",
                     )}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
                     <div className="relative flex items-center gap-6">
-                      <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
-                        <PenTool className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/10" : "text-white/20")} />
+                      <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-primary/10 border-primary/20" : "bg-primary/15 border-primary/30")}>
+                        <FileText className="w-7 h-7 text-primary" />
                       </div>
                       <div className="flex-1 space-y-1">
                         <h4 className={cn("text-base font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>{template.name}</h4>
                         <p className={cn("text-[11px] font-bold italic opacity-70 leading-relaxed", isLight ? "text-black" : "text-white")}>{template.description}</p>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                      <ArrowRight className="w-5 h-5 text-primary opacity-60 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
                     </div>
                   </motion.button>
                 ))}
               </div>
+
+              {otherTemplates.length > 0 && (
+                <>
+                  <div className="space-y-3 px-2 pt-4">
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.35em] opacity-50 italic", isLight ? "text-black" : "text-white")}>Other contracts</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {otherTemplates.map((template, i) => (
+                      <motion.button
+                        key={template.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                        onClick={() => handleSelectTemplate(template)}
+                        className={cn(
+                          "group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden active:scale-[0.98]",
+                          isLight ? "bg-black/[0.03] border-black/5 hover:border-primary/40" : "bg-white/[0.03] border-white/5 hover:border-primary/40",
+                        )}
+                      >
+                        <div className="relative flex items-center gap-6">
+                          <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center group-hover:scale-110 transition-transform", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+                            <PenTool className={cn("w-7 h-7 group-hover:text-primary transition-colors", isLight ? "text-black/10" : "text-white/20")} />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <h4 className={cn("text-base font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>{template.name}</h4>
+                            <p className={cn("text-[11px] font-bold italic opacity-70 leading-relaxed", isLight ? "text-black" : "text-white")}>{template.description}</p>
+                          </div>
+                          <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
 
@@ -595,27 +637,22 @@ export function ContractsVault() {
               {/* Editable document */}
               <div className={cn("rounded-[2.5rem] border overflow-hidden", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
                 {/* Toolbar row 1: formatting */}
-                <div className={cn("flex items-center justify-between gap-2 px-5 py-3.5 border-b flex-wrap", isLight ? "border-black/5" : "border-white/5")}>
+                <div className={cn("px-5 py-3.5 border-b space-y-3", isLight ? "border-black/5" : "border-white/5")}>
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
-                    <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Document — tap to edit</span>
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.25em] opacity-70", isLight ? "text-black" : "text-white")}>Document editor — tap anywhere to edit</span>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <button type="button" onClick={() => applyFormat('bold')} aria-label="Bold" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Bold className="w-3.5 h-3.5" /></button>
-                    <button type="button" onClick={() => applyFormat('underline')} aria-label="Underline" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}><Underline className="w-3.5 h-3.5" /></button>
-                    <button type="button" onClick={() => applyFormat('insertUnorderedList')} aria-label="Bullet list" className={cn("w-8 h-8 rounded-lg flex items-center justify-center border text-[14px] font-black leading-none", isLight ? "bg-black/[0.04] border-black/5 text-black" : "bg-white/5 border-white/10 text-white")}>•</button>
-                    <div className={cn("w-px h-5 mx-0.5", isLight ? "bg-black/10" : "bg-white/10")} />
-                    <button type="button" onClick={handleImproveWithAI} disabled={isEnhancing} aria-label="Improve with AI" className="h-8 px-3 rounded-lg flex items-center gap-1.5 bg-primary text-white text-[9px] font-black uppercase tracking-widest disabled:opacity-60 active:scale-95 transition-transform">
-                      <Wand2 className="w-3.5 h-3.5" />{isEnhancing ? 'Polishing…' : 'AI Polish'}
-                    </button>
-                    <div className={cn("w-px h-5 mx-0.5", isLight ? "bg-black/10" : "bg-white/10")} />
-                    <button type="button" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download as PDF" className={cn("h-8 px-3 rounded-lg flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-widest transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/70 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/70 hover:text-primary hover:border-primary/30")}>
-                      <Printer className="w-3.5 h-3.5" />PDF
-                    </button>
-                    <button type="button" onClick={handleDownloadWord} aria-label="Download Word" title="Download as Word (.doc)" className={cn("h-8 px-3 rounded-lg flex items-center gap-1.5 border text-[9px] font-black uppercase tracking-widest transition-colors active:scale-95", isLight ? "bg-black/[0.04] border-black/5 text-black/70 hover:text-primary hover:border-primary/30" : "bg-white/5 border-white/10 text-white/70 hover:text-primary hover:border-primary/30")}>
-                      <FileDown className="w-3.5 h-3.5" />.DOC
-                    </button>
-                  </div>
+                  <DocumentEditorToolbar
+                    fontSize={fontSize}
+                    fontFamily={fontFamily}
+                    onFontSizeChange={setFontSize}
+                    onFontFamilyChange={setFontFamily}
+                    onFormat={applyFormat}
+                    onDownloadPDF={handleDownloadPDF}
+                    onDownloadWord={handleDownloadWord}
+                    onImproveAI={handleImproveWithAI}
+                    isEnhancing={isEnhancing}
+                  />
                 </div>
 
                 <div
@@ -627,11 +664,17 @@ export function ContractsVault() {
                   aria-label="Document editor"
                   spellCheck
                   className={cn(
-                    "prose max-w-none px-7 py-6 h-[480px] overflow-y-auto outline-none text-[13px] leading-relaxed focus:ring-0",
+                    "prose max-w-none px-7 py-6 min-h-[480px] max-h-[65vh] overflow-y-auto outline-none leading-relaxed focus:ring-0",
                     "[&_h1]:text-lg [&_h2]:text-base [&_u]:underline",
-                    isLight ? "prose-slate text-black/90 bg-white/40" : "prose-invert text-white/90 bg-black/20"
+                    isLight ? "prose-slate text-black/90 bg-white/40" : "prose-invert text-white/90 bg-black/20",
                   )}
-                  style={{ WebkitUserSelect: 'text', userSelect: 'text', touchAction: 'auto' }}
+                  style={{
+                    WebkitUserSelect: 'text',
+                    userSelect: 'text',
+                    touchAction: 'auto',
+                    fontFamily: getFontCss(fontFamily),
+                    fontSize: `${fontSize}px`,
+                  }}
                 />
               </div>
 
