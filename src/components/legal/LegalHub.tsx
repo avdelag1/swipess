@@ -48,7 +48,7 @@ function Badge({ children, className, variant = "secondary" }: { children: React
   return (
     <span className={cn(
       "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest italic transition-colors",
-      variant === "secondary" ? (isLight ? "bg-black/5 text-black/70" : "bg-white/5 text-white/70") : "bg-primary/20 text-primary border border-primary/20",
+      variant === "secondary" ? (isLight ? "bg-slate-100 text-black/70" : "bg-white/5 text-white/70") : "bg-primary/20 text-primary border border-primary/20",
       className
     )}>
       {children}
@@ -587,7 +587,7 @@ export function ContractsVault() {
                               "text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full border",
                               contract.status === 'signed' ? "bg-primary/10 border-primary/20 text-primary" :
                               contract.status === 'sent' ? "bg-violet-500/10 border-violet-500/20 text-violet-500" :
-                              isLight ? "bg-black/5 border-black/10 text-black/70" : "bg-white/5 border-white/10 text-white/70"
+                              isLight ? "bg-slate-50 border-slate-200 text-black/70" : "bg-white/5 border-white/10 text-white/70"
                             )}>
                               {contract.status}
                             </span>

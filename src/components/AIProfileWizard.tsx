@@ -356,7 +356,7 @@ export function AIProfileWizard() {
              <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#EB4898]/10 blur-[100px] rounded-full mix-blend-screen" />
           </div>
 
-          <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-black/8" : "border-white/5")}>
+          <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-slate-200" : "border-white/5")}>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25">
                 <MotionIcon id="ai-sparkle" loop={isProcessing}>
@@ -454,7 +454,7 @@ export function AIProfileWizard() {
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photo</span>
                           </button>
                         )}
-                        <div className={cn("aspect-square rounded-[2rem] border flex items-center justify-center text-center p-4", isLight ? "border-black/8" : "border-white/8")}>
+                        <div className={cn("aspect-square rounded-[2rem] border flex items-center justify-center text-center p-4", isLight ? "border-slate-200" : "border-white/8")}>
                           <p className={cn("text-[10px] font-bold uppercase tracking-widest leading-relaxed", textMuted)}>One photo required for your profile</p>
                         </div>
                       </div>

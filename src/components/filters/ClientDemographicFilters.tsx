@@ -108,7 +108,7 @@ export function ClientDemographicFilters({
               {relationshipStatusOptions.map((status) => (
                 <div key={status} className="flex items-center space-x-2">
                   <Checkbox
-                    className={cn(isLight && "bg-black/5 border-black/20")}
+                    className={cn(isLight && "bg-slate-50 border-slate-300")}
                     checked={relationshipStatus.includes(status)}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -154,7 +154,7 @@ export function ClientDemographicFilters({
               {nationalityOptions.map((nationality) => (
                 <div key={nationality} className="flex items-center space-x-2">
                   <Checkbox
-                    className={cn(isLight && "bg-black/5 border-black/20")}
+                    className={cn(isLight && "bg-slate-50 border-slate-300")}
                     checked={nationalities.includes(nationality)}
                     onCheckedChange={(checked) => {
                       if (checked) {
@@ -176,7 +176,7 @@ export function ClientDemographicFilters({
               {languageOptions.map((language) => (
                 <div key={language} className="flex items-center space-x-2">
                   <Checkbox
-                    className={cn(isLight && "bg-black/5 border-black/20")}
+                    className={cn(isLight && "bg-slate-50 border-slate-300")}
                     checked={languages.includes(language)}
                     onCheckedChange={(checked) => {
                       if (checked) {

@@ -54,7 +54,7 @@ function ToolButton({
           ? 'bg-primary text-white border-primary'
           : active
             ? (isLight ? 'bg-black/10 border-black/15 text-black' : 'bg-white/15 border-white/20 text-white')
-            : (isLight ? 'bg-black/[0.04] border-black/5 text-black' : 'bg-white/5 border-white/10 text-white'),
+            : (isLight ? 'bg-slate-50 border-slate-200 text-black' : 'bg-white/5 border-white/10 text-white'),
       )}
     >
       {children}
@@ -113,7 +113,7 @@ export function DocumentEditorToolbar({
             aria-label="Font family"
             className={cn(
               'h-8 rounded-lg border px-2 text-[10px] font-bold uppercase tracking-wide outline-none',
-              isLight ? 'bg-black/[0.04] border-black/5 text-black' : 'bg-white/5 border-white/10 text-white',
+              isLight ? 'bg-slate-50 border-slate-200 text-black' : 'bg-white/5 border-white/10 text-white',
             )}
           >
             {DOCUMENT_FONTS.map((f) => (

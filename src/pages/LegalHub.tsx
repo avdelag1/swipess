@@ -483,7 +483,7 @@ const LegalHub = () => {
                         <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                       </div>
                       <div className="flex items-start gap-5">
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-black/5 text-black" : "bg-white/10 text-white")}>
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-slate-100 text-black" : "bg-white/10 text-white")}>
                            <section.icon className="w-6 h-6" />
                         </div>
                         <div className="space-y-2">
@@ -552,7 +552,7 @@ const LegalHub = () => {
                         <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                       </div>
                       <div className="flex items-start gap-5">
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-black/5 text-black" : "bg-white/10 text-white")}>
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-slate-100 text-black" : "bg-white/10 text-white")}>
                            <section.icon className="w-6 h-6" />
                         </div>
                         <div className="space-y-2">
@@ -576,7 +576,7 @@ const LegalHub = () => {
                         <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                       </div>
                       <div className="flex items-start gap-5">
-                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-black/5 text-black" : "bg-white/10 text-white")}>
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg", isLight ? "bg-slate-100 text-black" : "bg-white/10 text-white")}>
                            <section.icon className="w-6 h-6" />
                         </div>
                         <div className="space-y-2">
@@ -927,7 +927,7 @@ const LegalHub = () => {
                         <span className={cn("text-[11px] font-black uppercase tracking-[0.35em]", isLight ? "text-black/60" : "text-white/50")}>
                           {meta?.label || category}
                         </span>
-                        <span className={cn("text-[9px] font-black px-2.5 py-1 rounded-full", isLight ? "bg-black/5 text-black/40" : "bg-white/5 text-white/30")}>
+                        <span className={cn("text-[9px] font-black px-2.5 py-1 rounded-full", isLight ? "bg-slate-100 text-black/40" : "bg-white/5 text-white/30")}>
                           {templates.length}
                         </span>
                       </div>

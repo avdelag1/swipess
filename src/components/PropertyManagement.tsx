@@ -542,7 +542,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             >
               <div className={cn(
                 "w-28 h-28 rounded-[2.2rem] flex items-center justify-center mb-10 shadow-3xl border",
-                isLight ? "bg-white border-black/5" : "bg-black border-white/5"
+                isLight ? "bg-white border-slate-200" : "bg-black border-white/5"
               )}>
                 {searchTerm ? (
                   <Search className="w-14 h-14 text-indigo-500/60 animate-pulse" />
