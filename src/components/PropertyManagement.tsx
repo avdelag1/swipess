@@ -1,5 +1,8 @@
-import { memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { memo, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
+import { ListingDialogShell } from '@/components/ListingDialogShell';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -16,7 +19,6 @@ import { Bike, Briefcase, CheckCircle, ChevronRight, Edit, Eye, Home, ImageIcon,
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 const ListingPreviewDialog = lazyWithRetry(() => import('@/components/ListingPreviewDialog').then(m => ({ default: m.ListingPreviewDialog })));
 const UnifiedListingForm = lazyWithRetry(() => import('@/components/UnifiedListingForm').then(m => ({ default: m.UnifiedListingForm })));
-const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
@@ -85,7 +87,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
+  const hasOpenedCategoryRef = useRef(false);
+  const hasOpenedFormRef = useRef(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    prefetchListingFlowModule();
+  }, []);
 
   // Auto-open form when category is provided via URL params
   useEffect(() => {
@@ -129,6 +137,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   const handleAddProperty = () => {
     triggerHaptic('medium');
+    prefetchListingFlowModule();
     setEditingProperty(null);
     setShowCategoryDialog(true);
   };
@@ -136,9 +145,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
     triggerHaptic('success');
     setEditingProperty({ category, mode });
-    setShowCategoryDialog(false);
     setIsFormOpen(true);
+    requestAnimationFrame(() => setShowCategoryDialog(false));
   };
+
+  if (showCategoryDialog) hasOpenedCategoryRef.current = true;
+  if (isFormOpen) hasOpenedFormRef.current = true;
 
   const handleEditProperty = (listing: any) => {
     triggerHaptic('light');
@@ -562,23 +574,27 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         showEditButton={true}
       /></Suspense>
 
-      <Suspense fallback={null}><CategorySelectionDialog
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        onCategorySelect={handleCategorySelect}
-        onAIOpen={() => useModalStore.getState().openAIListing()}
-      /></Suspense>
-
-      <Suspense fallback={null}>
-        <UnifiedListingForm
-          isOpen={isFormOpen}
-          onClose={() => {
-            setIsFormOpen(false);
-            setEditingProperty(null);
-          }}
-          editingProperty={editingProperty as any ?? undefined}
+      {(hasOpenedCategoryRef.current || showCategoryDialog) && (
+        <CategorySelectionDialog
+          open={showCategoryDialog}
+          onOpenChange={setShowCategoryDialog}
+          onCategorySelect={handleCategorySelect}
+          onAIOpen={() => useModalStore.getState().openAIListing()}
         />
-      </Suspense>
+      )}
+
+      {(hasOpenedFormRef.current || isFormOpen) && (
+        <Suspense fallback={isFormOpen ? <ListingDialogShell /> : null}>
+          <UnifiedListingForm
+            isOpen={isFormOpen}
+            onClose={() => {
+              setIsFormOpen(false);
+              setEditingProperty(null);
+            }}
+            editingProperty={editingProperty as any ?? undefined}
+          />
+        </Suspense>
+      )}
 
       <Suspense fallback={null}><ShareDialog
         open={showShareDialog}

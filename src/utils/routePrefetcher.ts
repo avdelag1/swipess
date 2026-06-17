@@ -56,7 +56,12 @@ const routeImports: Record<string, RouteImport> = {
   '/owner/profile': () => import('@/pages/OwnerProfile'),
   '/owner/settings': () => import('@/pages/OwnerSettings'),
   '/owner/properties': () => import('@/pages/OwnerProperties'),
-  '/owner/listings/new': () => import('@/pages/OwnerNewListing'),
+  '/owner/listings/new': () => Promise.all([
+    import('@/pages/OwnerNewListing'),
+    import('@/components/CategorySelectionDialog'),
+    import('@/components/UnifiedListingForm'),
+    import('@/components/AIListingWizard'),
+  ]).then(() => {}),
   '/owner/liked-clients': () => import('@/pages/OwnerLikedClients'),
   '/owner/contracts': () => import('@/pages/OwnerContracts'),
   '/owner/saved-searches': () => import('@/pages/OwnerSavedSearches'),

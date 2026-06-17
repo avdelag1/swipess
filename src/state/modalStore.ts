@@ -3,6 +3,8 @@ import { useFilterStore } from '@/state/filterStore';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
+import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 import { resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { useGuidedTourActive } from '@/state/guidedTourStore';
 
@@ -103,11 +105,15 @@ export const useModalStore = create<ModalState>((set) => ({
 
   setModal: (key, value) => set({ [key]: value }),
   
-  openAIListing: (category, draft) => set({ 
-    aiListingCategory: category || null, 
-    aiListingDraft: draft || null,
-    showAIListing: true 
-  }),
+  openAIListing: (category, draft) => {
+    prefetchListingFlowModule();
+    prefetchAIWizardsModule();
+    set({
+      aiListingCategory: category || null,
+      aiListingDraft: draft || null,
+      showAIListing: true,
+    });
+  },
   openAIProfile: (mode, draft) => set({ aiProfileMode: mode, aiProfileDraft: draft || null, showAIProfile: true }),
   openPropertyDetails: (id) => set({ selectedListingId: id, showPropertyDetails: true }),
   openPropertyInsights: (id) => set({ selectedListingId: id, showPropertyInsights: true }),

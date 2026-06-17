@@ -65,16 +65,9 @@ const LISTING_STEPS = [
 ] as const;
 
 const stepVariants = {
-  enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 40 : -40 }),
-  center: { opacity: 1, x: 0 },
-  exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
-};
-
-const fastSpring = { type: "spring" as const, stiffness: 600, damping: 35, mass: 0.6 };
-
-const itemFadeScale = {
-  hidden: { opacity: 0, y: 10, scale: 0.98 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 const toIntOrNull = (value: unknown) => {
@@ -632,17 +625,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open && !createListingMutation.isPending) handleClose(); }}>
       <DialogContent
         hideCloseButton
+        motionPreset="fade"
         className={cn(
         // Mobile: full screen
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         // Desktop (sm+): restore centered modal with rounded corners
         "sm:!w-[calc(100%-24px)] sm:!max-w-5xl sm:!h-[90vh] sm:!max-h-[90vh] sm:!rounded-[3rem]",
-        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white backdrop-blur-3xl dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
+        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white dark:border-white/10 border-black/10 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
       )}>
-        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-           <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-rose-600/5 blur-[150px] rounded-full" />
-           <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/5 blur-[120px] rounded-full" />
-        </div>
         <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 border-b dark:border-white/5 border-black/5 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -707,15 +697,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         )}
 
         <ScrollArea className="flex-1 h-0">
-          <AnimatePresence mode="sync" custom={stepDir}>
+          <AnimatePresence mode="sync">
             <motion.div
               key={currentStep}
-              custom={stepDir}
               variants={stepVariants}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.08, ease: 'easeOut' }}
               className="px-6 py-6 space-y-8 pb-32"
             >
             {currentStep === 3 && needsGpsFix && (

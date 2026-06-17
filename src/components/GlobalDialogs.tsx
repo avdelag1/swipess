@@ -2,6 +2,9 @@ import { lazyWithRetry } from '@/utils/lazyRetry';
 import { memo, Suspense, useEffect, useState } from 'react';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
+import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
+import { AIListingWizard } from '@/components/AIListingWizard';
 import { useModalStore } from '@/state/modalStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -26,12 +29,10 @@ const OwnerSettingsDialog = lazyWithRetry(() => import('@/components/OwnerSettin
 const OwnerProfileDialog = lazyWithRetry(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
 const OwnerClientSwipeDialog = lazyWithRetry(() => import('@/components/OwnerClientSwipeDialog'));
 const SupportDialog = lazyWithRetry(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })));
-const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })));
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 
-const AIListingWizard = lazyWithRetry(() => import('@/components/AIListingWizard').then(m => ({ default: m.AIListingWizard })));
 const AIProfileWizard = lazyWithRetry(() => import('@/components/AIProfileWizard').then(m => ({ default: m.AIProfileWizard })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
@@ -78,6 +79,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
   useEffect(() => {
     let cancelled = false;
+    prefetchListingFlowModule();
     prefetchConciergeChatModule().then(() => {
       if (!cancelled) setConciergeChunkReady(true);
     });
@@ -235,13 +237,14 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             />
           </DeferredDialog>
 
-          <DeferredDialog when={store.showCategoryDialog}>
+          <DeferredDialog when={store.showCategoryDialog} keepMounted threshold={0}>
             <CategorySelectionDialog
               open={store.showCategoryDialog}
               onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
               onCategorySelect={(category: string, mode: string) => {
-                store.setModal('showCategoryDialog', false);
+                prefetchListingFlowModule();
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
+                requestAnimationFrame(() => store.setModal('showCategoryDialog', false));
               }}
               onAIOpen={() => store.openAIListing()}
             />
@@ -281,7 +284,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </DeferredDialog>
 
-      <DeferredDialog when={aiWizardsReady || store.showAIListing} threshold={0} keepMounted>
+      <DeferredDialog when={store.showAIListing} threshold={0} keepMounted>
         <AIListingWizard />
       </DeferredDialog>
 

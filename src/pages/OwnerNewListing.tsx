@@ -1,9 +1,11 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useModalStore } from "@/state/modalStore";
+import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
+import { ListingDialogShell } from "@/components/ListingDialogShell";
+import { prefetchListingFlowModule } from "@/utils/prefetchListingFlow";
 
-const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 const UnifiedListingForm = lazyWithRetry(() => import('@/components/UnifiedListingForm').then(m => ({ default: m.UnifiedListingForm })));
 
 const OwnerNewListing = () => {
@@ -11,17 +13,17 @@ const OwnerNewListing = () => {
   const navigate = useNavigate();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategorySelectorOpen, setIsCategorySelectorOpen] = useState(false);
+  const hasOpenedCategoryRef = useRef(false);
+  const hasOpenedFormRef = useRef(false);
   const [initialData, setInitialData] = useState<{
     category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
     mode: 'rent' | 'sale';
     aiDraft?: Record<string, unknown> | null;
   } | null>(null);
 
-  // NOTE: No role-based redirect here. The app allows any authenticated user
-  // to switch into owner mode (see useActiveMode → canSwitchMode), so gating
-  // this page on the user_roles table kicked legitimate users to the
-  // dashboard a few seconds after the role query resolved — including
-  // mid-save, which aborted the listing publish.
+  useEffect(() => {
+    prefetchListingFlowModule();
+  }, []);
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');
@@ -42,7 +44,6 @@ const OwnerNewListing = () => {
           const raw = sessionStorage.getItem('swipess_ai_listing_draft');
           if (raw) {
             const parsed = JSON.parse(raw);
-            // 10-minute freshness window
             if (parsed?.data && Date.now() - (parsed.ts || 0) < 10 * 60 * 1000) {
               aiDraft = parsed.data as Record<string, unknown>;
             }
@@ -60,8 +61,11 @@ const OwnerNewListing = () => {
     }
   }, [searchParams]);
 
+  if (isCategorySelectorOpen) hasOpenedCategoryRef.current = true;
+  if (isFormOpen) hasOpenedFormRef.current = true;
+
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
-    setIsCategorySelectorOpen(false);
+    requestAnimationFrame(() => setIsCategorySelectorOpen(false));
     setSearchParams({ category, mode: mode === 'both' ? 'rent' : mode });
   };
 
@@ -77,9 +81,7 @@ const OwnerNewListing = () => {
     }
   };
 
-
   const handleAIOpen = () => {
-    // Open the global AI Listing modal instead of navigating to a non-existent page
     const { openAIListing } = useModalStore.getState();
     openAIListing();
   };
@@ -95,25 +97,26 @@ const OwnerNewListing = () => {
 
   return (
     <>
-
-      <Suspense fallback={null}><CategorySelectionDialog
-        open={isCategorySelectorOpen}
-        onOpenChange={handleCloseCategorySelector}
-        onCategorySelect={handleCategorySelect}
-        onAIOpen={handleAIOpen}
-      /></Suspense>
-      
-      <Suspense fallback={null}>
-        <UnifiedListingForm
-          isOpen={isFormOpen && !!initialData}
-          onClose={handleCloseForm}
-          editingProperty={editingProperty}
+      {(hasOpenedCategoryRef.current || isCategorySelectorOpen) && (
+        <CategorySelectionDialog
+          open={isCategorySelectorOpen}
+          onOpenChange={handleCloseCategorySelector}
+          onCategorySelect={handleCategorySelect}
+          onAIOpen={handleAIOpen}
         />
-      </Suspense>
+      )}
+      
+      {(hasOpenedFormRef.current || isFormOpen) && (
+        <Suspense fallback={isFormOpen ? <ListingDialogShell /> : null}>
+          <UnifiedListingForm
+            isOpen={isFormOpen && !!initialData}
+            onClose={handleCloseForm}
+            editingProperty={editingProperty}
+          />
+        </Suspense>
+      )}
     </>
   );
 };
 
 export default OwnerNewListing;
-
-

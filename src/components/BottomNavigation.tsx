@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
+import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -341,6 +342,7 @@ export const BottomNavigation = memo(({
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
+                  if (item.id === 'add') prefetchListingFlowModule();
                   handlePointerDown(e);
                 }}
                 onPointerMove={handlePointerMove}

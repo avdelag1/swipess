@@ -26,9 +26,7 @@ const DialogTrigger = React.forwardRef<HTMLButtonElement, any>(({ children, asCh
 DialogTrigger.displayName = "DialogTrigger"
 
 const DialogPortal = ({ children }: any) => {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
+  if (typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence>
       {children}
@@ -54,14 +52,44 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, any>(({ className, ...pro
 })
 DialogOverlay.displayName = "DialogOverlay"
 
+type DialogMotionPreset = 'default' | 'fade' | 'none';
+
+const DIALOG_MOTION: Record<DialogMotionPreset, {
+  initial: Record<string, number>;
+  animate: Record<string, number>;
+  exit: Record<string, number>;
+  transition: { duration: number; ease?: number[] | string };
+}> = {
+  default: {
+    initial: { opacity: 0, scale: 0.98, y: 6 },
+    animate: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.98, y: 4 },
+    transition: { duration: 0.12, ease: [0.22, 1, 0.36, 1] },
+  },
+  fade: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: 0.08, ease: 'easeOut' },
+  },
+  none: {
+    initial: { opacity: 1 },
+    animate: { opacity: 1 },
+    exit: { opacity: 1 },
+    transition: { duration: 0 },
+  },
+};
+
 interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
   hideOverlay?: boolean;
   overlayClassName?: string;
   hideCloseButton?: boolean;
+  motionPreset?: DialogMotionPreset;
 }
 
-const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ className, children, hideOverlay, overlayClassName, hideCloseButton, ...props }, ref) => {
+const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ className, children, hideOverlay, overlayClassName, hideCloseButton, motionPreset = 'default', ...props }, ref) => {
   const { open, onOpenChange } = React.useContext(DialogContext);
+  const motion = DIALOG_MOTION[motionPreset];
 
   return (
     <DialogPortal>
@@ -71,10 +99,10 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          initial={{ opacity: 0, scale: 0.98, y: 6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.98, y: 4 }}
-          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          initial={motion.initial}
+          animate={motion.animate}
+          exit={motion.exit}
+          transition={motion.transition}
           className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
         >
           <div
