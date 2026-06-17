@@ -46,7 +46,7 @@ export function PersistentDashboardScene() {
     >
       {clientMountedRef.current && (
         <div
-          className="absolute inset-0 flex flex-col"
+          className="absolute inset-0 flex flex-col flex-1 min-h-0 h-full w-full"
           style={{ display: isDashboard ? 'flex' : 'none' }}
         >
           <Suspense fallback={null}>

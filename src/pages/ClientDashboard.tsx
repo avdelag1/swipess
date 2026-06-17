@@ -49,16 +49,15 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   return (
     <AmbientPageBackground
-      className={cn("flex-1 flex flex-col relative w-full min-h-0 bg-swipe-frame")}
+      layout="fill"
+      className={cn('relative w-full min-h-0 bg-swipe-frame')}
       variant="subtle"
     >
-      <div className="flex-1 flex flex-col min-h-0 relative z-0">
-        <SwipessSwipeContainer
-          onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
-          onInsights={() => {}}
-          onMessageClick={onMessageClick}
-        />
-      </div>
+      <SwipessSwipeContainer
+        onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
+        onInsights={() => {}}
+        onMessageClick={onMessageClick}
+      />
     </AmbientPageBackground>
   );
 }

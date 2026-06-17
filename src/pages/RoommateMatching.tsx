@@ -175,8 +175,9 @@ export default function RoommateMatching() {
 
   return (
     <AmbientPageBackground
+      layout="fill"
       className={cn(
-        "fixed inset-0 flex flex-col transition-colors duration-500 overflow-hidden",
+        "fixed inset-0 transition-colors duration-500 overflow-hidden",
         isLight ? "bg-[#F8FAFC]" : "bg-[#0A0A0B]"
       )}
     >

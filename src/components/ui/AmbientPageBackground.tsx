@@ -8,6 +8,11 @@ interface AmbientPageBackgroundProps {
   style?: CSSProperties;
   /** Show subtle brand gradient orbs behind content */
   variant?: 'default' | 'subtle';
+  /**
+   * `fill` — stretch inside flex / absolute parents (dashboard, swipe deck).
+   * `page` — scrollable pages that declare their own min-height.
+   */
+  layout?: 'page' | 'fill';
 }
 
 function AmbientBackdrop({
@@ -37,13 +42,29 @@ export function AmbientPageBackground({
   className,
   style,
   variant = 'default',
+  layout = 'page',
 }: AmbientPageBackgroundProps) {
   const { isLight } = useAppTheme();
+  const isFill = layout === 'fill';
 
   return (
-    <div className={cn('relative min-h-full w-full', className)} style={style}>
+    <div
+      className={cn(
+        'relative w-full',
+        isFill && 'flex flex-col flex-1 min-h-0 h-full',
+        className,
+      )}
+      style={style}
+    >
       <AmbientBackdrop tone={isLight ? 'light' : 'dark'} variant={variant} />
-      <div className="relative z-0">{children}</div>
+      <div
+        className={cn(
+          'relative z-0 w-full',
+          isFill && 'flex flex-col flex-1 min-h-0 h-full',
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -56,9 +77,14 @@ export function ImmersiveDarkShell({
   variant = 'subtle',
 }: AmbientPageBackgroundProps) {
   return (
-    <div className={cn('relative min-h-full w-full', className)} style={style}>
+    <div
+      className={cn('relative w-full h-full min-h-0 flex flex-col', className)}
+      style={style}
+    >
       <AmbientBackdrop tone="dark" variant={variant} />
-      <div className="relative z-0">{children}</div>
+      <div className="relative z-0 w-full h-full min-h-0 flex flex-col flex-1">
+        {children}
+      </div>
     </div>
   );
 }
