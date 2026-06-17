@@ -266,7 +266,7 @@ export function PhotoEditor({ imageDataUrl, onSave, onCancel }: PhotoEditorProps
 
         {/* Tab Content */}
         <div className="py-4 min-h-[180px]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {/* Filters Tab */}
             {activeTab === 'filters' && (
               <motion.div

@@ -112,7 +112,7 @@ export function CameraFiltersPanel({
 
             {/* Content */}
             <div className="overflow-y-auto max-h-[calc(70vh-150px)] pb-safe">
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="sync">
                 {/* Filters Tab */}
                 {activeTab === 'filters' && (
                   <motion.div

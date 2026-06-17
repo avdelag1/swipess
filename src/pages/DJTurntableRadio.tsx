@@ -132,7 +132,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Frequency */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <motion.div
             key={state.currentStation?.id || 'default'}
             initial={{ opacity: 0, y: 16 }}
@@ -183,7 +183,7 @@ export default function DJTurntableRadio() {
                 duration: 0.5 + Math.random() * 0.5,
                 repeat: Infinity,
                 repeatType: 'mirror',
-                delay: i * 0.06,
+                
                 ease: 'easeInOut',
               }}
             />

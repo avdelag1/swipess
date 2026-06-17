@@ -25,7 +25,9 @@ export const ClientCard = memo(({ client, onConnect, onViewProfile }: ClientCard
         <img 
           src={optimizedImage} 
           alt={client.name || 'Client'} 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
         />
       ) : (
         <div className="absolute inset-0 w-full h-full bg-black flex flex-col items-center justify-center p-6 text-center">

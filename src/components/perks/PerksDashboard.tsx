@@ -104,7 +104,7 @@ export function PerksDashboard() {
       </div>
 
       <div className="relative flex-1 px-5 pb-8 z-10 overflow-y-auto">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {tab === 'home' && (
             <motion.div 
               key="home" 

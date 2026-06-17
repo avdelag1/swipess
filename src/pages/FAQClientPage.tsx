@@ -104,7 +104,7 @@ export default function FAQClientPage() {
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ ...fastSpring, delay: index * 0.05 }}
+                transition={{ ...fastSpring }}
               >
                 <Card
                   className={cn(

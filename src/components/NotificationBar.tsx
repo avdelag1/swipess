@@ -134,7 +134,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
 
   return (
     <div className="fixed z-[9000] px-4 flex justify-center pointer-events-none left-0 right-0" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
-      <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+      <AnimatePresence mode="sync" onExitComplete={handleExitComplete}>
         {visible && (
           <motion.div
             key={current.id}

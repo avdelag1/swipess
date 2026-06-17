@@ -269,7 +269,7 @@ export function SeekerAdSection() {
 
           {/* Animated step content */}
           <div className="flex-1 overflow-y-auto px-6 pb-4">
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="sync" initial={false}>
               {step === 0 ? (
                 <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
                   <div className="grid grid-cols-3 gap-2">

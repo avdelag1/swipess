@@ -164,7 +164,7 @@ export function HolographicIDCard({
                     key={tag}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
+                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                     className="glass-pill px-4 py-1.5 text-[10px] font-black uppercase italic tracking-widest"
                     style={{
                       backgroundColor: theme.tagBg,

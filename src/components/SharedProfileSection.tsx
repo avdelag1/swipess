@@ -200,7 +200,7 @@ export function SharedProfileSection({
               size="icon"
               className="shrink-0 h-14 w-14 rounded-[1.5rem] transition-all active:scale-90 border-none bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_14px_30px_-10px_hsl(var(--primary)/0.55)]"
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="sync">
                 {copied ? (
                   <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
                     <Check className="w-6 h-6 text-emerald-500" />

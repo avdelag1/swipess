@@ -74,7 +74,7 @@ const MaintenanceRequests = () => {
           )}
         </div>
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {showForm ? (
             <motion.div
               key="form"
@@ -111,8 +111,10 @@ const MaintenanceRequests = () => {
 
               {/* Request cards */}
               {isLoading ? (
-                <div className="flex items-center justify-center py-16">
-                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="space-y-4 py-4">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-28 rounded-2xl border border-border/40 bg-muted/20 animate-pulse" />
+                  ))}
                 </div>
               ) : filtered.length === 0 ? (
                 <motion.div
@@ -139,7 +141,7 @@ const MaintenanceRequests = () => {
                         key={req.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
+                        transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                         className="rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-4 space-y-3"
                       >
                         <div className="flex items-start justify-between gap-3">

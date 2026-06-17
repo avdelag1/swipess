@@ -4,7 +4,7 @@ import { deckFadeVariants } from '@/utils/modernAnimations';
 
 export const SwipeSkeletonState = () => {
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="sync">
       <motion.div 
         key="skeleton" 
         variants={deckFadeVariants} 

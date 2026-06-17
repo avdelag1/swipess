@@ -87,7 +87,7 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
             <p className="text-xs text-muted-foreground mt-0.5">Show this to any partner business</p>
           </div>
 
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             {redeemed ? (
               <motion.div
                 key="success"

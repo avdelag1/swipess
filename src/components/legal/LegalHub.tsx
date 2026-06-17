@@ -275,7 +275,7 @@ export function ContractsVault() {
       </div>
 
       <div className="relative z-10 p-8">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {view === 'dashboard' && (
             <motion.div 
               key="dashboard"
@@ -305,7 +305,7 @@ export function ContractsVault() {
                   </div>
                   <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary italic mt-6">
                     <Clock className="w-3 h-3" />
-                    <span>Real-time Syncing</span>
+                    <span>Live updates</span>
                   </div>
                 </div>
               </div>
@@ -393,7 +393,7 @@ export function ContractsVault() {
                     key={template.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
+                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                     onClick={() => handleSelectTemplate(template)}
                     className={cn(
                         "group relative p-8 rounded-[2.5rem] border transition-all text-left overflow-hidden active:scale-[0.98]",

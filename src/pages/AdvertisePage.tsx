@@ -753,7 +753,7 @@ export default function AdvertisePage() {
 
       {/* Step content */}
       <div className="flex-1">
-        <AnimatePresence mode="wait" custom={dir}>
+        <AnimatePresence mode="sync" custom={dir}>
           <motion.div
             key={step}
             custom={dir}

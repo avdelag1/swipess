@@ -288,7 +288,7 @@ const LegalHub = () => {
       <main className="w-full max-w-[1600px] mx-auto px-6 sm:px-12 pt-8 pb-48 relative z-10 space-y-20">
         
         {/* 🛸 PREMIUM HEADER SECTION */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {currentDoc === 'packages' ? (
             <motion.div 
               key="packages"
@@ -702,7 +702,7 @@ const LegalHub = () => {
                           </div>
                         </button>
 
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence mode="sync">
                           {expandedCategory === category.id && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
@@ -751,7 +751,7 @@ const LegalHub = () => {
 
               {/* 🛸 CASE AUDIT ENGINE */}
               <div className="xl:col-span-5 space-y-10">
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="sync">
                   {selectedIssue ? (
                     <motion.div
                       key="active-case"

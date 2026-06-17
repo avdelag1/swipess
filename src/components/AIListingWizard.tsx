@@ -528,7 +528,7 @@ export function AIListingWizard() {
 
             <ScrollArea className="flex-1 overflow-hidden relative z-10">
               <div className="px-8 pt-8 pb-32">
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="sync">
                   {step === 'compose' && (
                     <motion.div 
                       key="step-compose"

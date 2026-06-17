@@ -276,7 +276,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
                   className="h-14 rounded-xl border-0 text-white font-black uppercase italic tracking-widest shadow-2xl"
                   style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)' }}
                 >
-                  {isChangingPassword ? 'Syncing...' : 'Update'}
+                  {isChangingPassword ? 'Saving...' : 'Update'}
                 </Button>
               </div>
             </div>

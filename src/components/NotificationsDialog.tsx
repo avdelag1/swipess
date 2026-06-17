@@ -196,7 +196,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -50 }}
-                            transition={{ delay: index * 0.03 }}
+                            transition={{ duration: 0.15 }}
                           >
                             <Card
                               className={cn(

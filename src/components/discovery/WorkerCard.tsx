@@ -45,7 +45,8 @@ export const WorkerCard = memo(({ worker, onContact, priority = false }: WorkerC
         <img 
           src={optimizedImage} 
           alt={worker.title || 'Service'} 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+          decoding="async"
           loading={priority ? 'eager' : 'lazy'}
         />
       ) : (

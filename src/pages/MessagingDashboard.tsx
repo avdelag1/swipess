@@ -231,7 +231,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className="w-full min-h-[100dvh] bg-background transition-colors duration-500 relative">
+    <div className="w-full min-h-[100dvh] bg-background transition-colors duration-200 relative">
       <AtmosphericLayer variant="rose" />
 
       <div 

@@ -56,7 +56,7 @@ export function PreviewSwipeCard({
       style={fill ? undefined : { aspectRatio: '3 / 4.4' }}
     >
       {/* Image */}
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.div
           key={idx}
           initial={{ opacity: 0 }}

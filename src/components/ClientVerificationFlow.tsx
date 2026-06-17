@@ -171,7 +171,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       </div>
 
       {/* Immersive Step Content */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={step}
           initial={{ opacity: 0, y: 20, scale: 0.95 }}

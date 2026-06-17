@@ -147,7 +147,7 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
         className
       )}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
            key={isSaved ? 'saved' : 'unsaved'}
            initial={{ scale: 0.5, opacity: 0 }}

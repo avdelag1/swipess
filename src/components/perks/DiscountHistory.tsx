@@ -59,7 +59,7 @@ export function DiscountHistory({ redemptions }: DiscountHistoryProps) {
             key={r.id}
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.03 }}
+            transition={{ duration: 0.15 }}
             className={cn(
               "flex items-start gap-3 py-3 border-b last:border-0",
               isLight ? "border-black/[0.05]" : "border-border/30"

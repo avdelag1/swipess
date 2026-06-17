@@ -89,11 +89,13 @@ export default function PublicProfilePreview() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-[#07070d] flex flex-col items-center justify-center gap-6">
+      <div className="fixed inset-0 bg-[#07070d] flex flex-col p-6 pt-safe relative z-10">
         <AtmosphericLayer variant="Swipes" opacity={0.1} />
-        <SwipessLogo size="md" variant="transparent" className="opacity-60 relative z-10" />
-        <div className="w-12 h-12 rounded-full border-[3px] border-[#EB4898]/20 border-t-[#EB4898] animate-spin relative z-10" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-white/35 relative z-10">Loading profile</p>
+        <div className="relative z-10 max-w-md mx-auto w-full mt-8">
+          <div className="aspect-[3/4] rounded-[2rem] bg-white/5 border border-white/10 animate-pulse mb-4" />
+          <div className="h-6 bg-white/5 rounded-xl w-3/4 animate-pulse mb-2" />
+          <div className="h-4 bg-white/5 rounded-lg w-1/2 animate-pulse" />
+        </div>
       </div>
     );
   }

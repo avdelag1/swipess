@@ -134,7 +134,7 @@ export function AccessCodeGate({ onGranted }: Props) {
         style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }}
       />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         {!success ? (
           <motion.div
             key="code-entry"

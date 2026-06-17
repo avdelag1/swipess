@@ -706,7 +706,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         )}
 
         <ScrollArea className="flex-1 h-0">
-          <AnimatePresence mode="wait" custom={stepDir}>
+          <AnimatePresence mode="sync" custom={stepDir}>
             <motion.div
               key={currentStep}
               custom={stepDir}
@@ -808,31 +808,27 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                         </div>
                         {photoList.length < maxPhotos && (
                           <div className="flex items-center justify-center aspect-square md:aspect-auto">
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                            <button
                               onClick={handleImageAdd}
-                              className="w-full h-full min-h-[120px] aspect-square flex flex-col items-center justify-center gap-2 rounded-[2.2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm"
+                              className="w-full h-full min-h-[120px] aspect-square flex flex-col items-center justify-center gap-2 rounded-[2.2rem] border-2 border-dashed border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary/30 transition-all group shadow-sm press-snappy"
                             >
                               <Upload className="w-8 h-8 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
                               <span className="text-sm font-semibold">Add Photo</span>
-                            </motion.button>
+                            </button>
                           </div>
                         )}
                       </div>
                     ) : (
                       <div className="flex justify-center items-center">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                        <button
                           onClick={handleImageAdd}
-                          className="w-full max-w-sm aspect-square flex flex-col items-center justify-center gap-3 rounded-[3rem] border border-dashed border-rose-500/30 bg-rose-500/5 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50 transition-all group shadow-sm py-12"
+                          className="w-full max-w-sm aspect-square flex flex-col items-center justify-center gap-3 rounded-[3rem] border border-dashed border-rose-500/30 bg-rose-500/5 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/50 transition-all group shadow-sm py-12 press-snappy"
                         >
                           <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                             <Upload className="w-8 h-8 text-rose-500" strokeWidth={1.5} />
                           </div>
                           <span className="text-[11px] font-black uppercase tracking-widest italic">Add Media Asset</span>
-                        </motion.button>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -965,12 +961,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               Next →
             </Button>
           ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.96 }}
+            <button
               onClick={handleSubmit}
               disabled={createListingMutation.isPending}
-              className="bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_24px_rgba(225,29,72,0.35)] px-10 rounded-2xl h-12 font-black uppercase italic tracking-widest text-[11px] transition-all flex items-center gap-3 disabled:opacity-50"
+              className="press-snappy bg-rose-600 hover:bg-rose-700 text-white shadow-[0_8px_24px_rgba(225,29,72,0.35)] px-10 rounded-2xl h-12 font-black uppercase italic tracking-widest text-[11px] transition-all flex items-center gap-3 disabled:opacity-50"
             >
               {createListingMutation.isPending ? (
                 <>
@@ -983,7 +977,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
-            </motion.button>
+            </button>
           )}
         </div>
 

@@ -593,7 +593,7 @@ function LegendaryLandingPage() {
 
       <LandingBackgroundEffects mode="off" />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         {view === 'landing' ? (
           <LandingView key="landing" onEnterAuth={(mode) => { setAuthMode(mode); setView('auth'); }} siteContent={landingData} />
         ) : (

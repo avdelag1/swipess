@@ -145,7 +145,7 @@ const NotificationsPage = () => {
                 key={notif.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                 onClick={() => { 
                   triggerHaptic('light'); 
                   markNotificationAsRead(notif.id); 

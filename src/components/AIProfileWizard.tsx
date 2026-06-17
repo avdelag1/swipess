@@ -373,7 +373,7 @@ export function AIProfileWizard() {
 
           <ScrollArea className="flex-1 overflow-hidden relative z-10">
             <div className="px-8 pt-8 pb-32">
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="sync">
                 {step === 'compose' && (
                   <motion.div key="compose" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
                     

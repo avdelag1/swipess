@@ -222,7 +222,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
                       key={memory.id}
                       layout
                       initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0, transition: { delay: index * 0.04 } }}
+                      animate={{ opacity: 1, y: 0, transition: { duration: 0.15 } }}
                       exit={{ opacity: 0, x: -20, transition: { duration: 0.15 } }}
                       className={cn(
                         "group flex gap-3 p-3 rounded-xl border transition-all",

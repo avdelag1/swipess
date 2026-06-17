@@ -52,7 +52,7 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black overflow-hidden flex flex-col">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={index}
           initial={{ opacity: 0, scale: 1.1 }}
@@ -111,7 +111,7 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
       )}
 
       <div className="relative flex-1 flex flex-col justify-end p-8 pb-16">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <motion.div
             key={index}
             initial={{ y: 40, opacity: 0 }}

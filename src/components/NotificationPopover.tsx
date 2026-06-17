@@ -64,7 +64,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
         type: "spring",
         stiffness: 500,
         damping: 30,
-        delay: index * 0.05
+        duration: 0.15
       }}
       drag="x"
       dragConstraints={{ left: -140, right: 0 }}

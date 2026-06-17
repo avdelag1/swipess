@@ -206,18 +206,14 @@ export function CategorySelectionDialog({
 
         <ScrollArea className="flex-1 min-h-0 relative z-10">
           <div className="p-6 sm:p-8 pb-10 sm:pb-12">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
               {step === 'category' ? (
                 <div className="space-y-4">
                   {/* MAGIC AI LISTING CARD */}
-                  <motion.button
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
+                  <button
                     onClick={handleOpenAI}
                     className={cn(
-                      "group relative w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-300",
+                      "group relative w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-150 press-snappy",
                       "bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-rose-500/10 border border-indigo-500/20 shadow-lg shadow-indigo-500/5",
                       "hover:border-indigo-500/40 hover:shadow-indigo-500/10"
                     )}
@@ -242,7 +238,7 @@ export function CategorySelectionDialog({
                     </div>
 
                     <ArrowRight className="w-5 h-5 text-indigo-400/40 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
+                  </button>
 
                   <div className="flex items-center gap-4 px-2 py-2">
                     <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-40" />
@@ -259,15 +255,11 @@ export function CategorySelectionDialog({
                     className="grid grid-cols-1 gap-3"
                   >
                   {categories.map((category, index) => (
-                    <motion.button
+                    <button
                       key={category.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.025, duration: 0.2 }}
-                      whileTap={{ scale: 0.98 }}
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
-                        "group relative flex items-center gap-4 sm:gap-5 p-5 sm:p-6 rounded-[2rem] text-left transition-all duration-300",
+                        "group relative flex items-center gap-4 sm:gap-5 p-5 sm:p-6 rounded-[2rem] text-left transition-all duration-150 press-snappy",
                         "bg-card/40 backdrop-blur-md border border-border/40",
                         "hover:shadow-2xl hover:bg-card/80",
                         category.glowColor
@@ -298,7 +290,7 @@ export function CategorySelectionDialog({
                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
                         <ArrowRight className="relative z-10 w-4 h-4 text-foreground/70" />
                       </div>
-                    </motion.button>
+                    </button>
                   ))}
                 </motion.div>
               </div>
@@ -340,15 +332,11 @@ export function CategorySelectionDialog({
                        <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
                     </div>
                     {modes.map((mode, index) => (
-                      <motion.button
+                      <button
                         key={mode.id}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.06 }}
-                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleModeSelect(mode.id)}
                         className={cn(
-                          "group w-full flex items-center gap-5 p-5 rounded-[2rem] text-left transition-all duration-300",
+                          "group w-full flex items-center gap-5 p-5 rounded-[2rem] text-left transition-all duration-150 press-snappy",
                           "bg-card/40 backdrop-blur-md border border-border/40",
                           "hover:border-foreground/20 hover:shadow-2xl hover:bg-card/80"
                         )}
@@ -373,7 +361,7 @@ export function CategorySelectionDialog({
                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
                            <ArrowRight className="w-4 h-4 text-foreground/70" />
                         </div>
-                      </motion.button>
+                      </button>
                     ))}
                   </div>
                 </motion.div>

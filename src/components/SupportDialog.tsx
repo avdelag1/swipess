@@ -241,7 +241,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
                 className="w-full h-16 rounded-[1.8rem] bg-purple-600 hover:bg-purple-500 text-white font-black uppercase italic tracking-widest shadow-2xl transition-all disabled:opacity-70"
               >
                 <Send className="h-5 w-5 mr-3" />
-                {createTicketMutation.isPending ? 'Syncing...' : 'Initiate Ticket'}
+                {createTicketMutation.isPending ? 'Sending...' : 'Submit Ticket'}
               </Button>
             </div>
           </div>

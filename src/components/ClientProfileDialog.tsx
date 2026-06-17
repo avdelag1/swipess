@@ -379,7 +379,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden touch-pan-y overscroll-contain relative z-10"
           style={{ WebkitOverflowScrolling: 'touch' as any }}
         >
-          <AnimatePresence mode="wait" custom={stepDir}>
+          <AnimatePresence mode="sync" custom={stepDir}>
             <motion.div
               key={currentStep}
               custom={stepDir}

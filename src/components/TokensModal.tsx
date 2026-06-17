@@ -153,7 +153,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                             key={pkg.productId}
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
+                            transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                             className={cn(
                               "relative rounded-[20px] border p-4 transition-all overflow-hidden",
                               config.accent, config.border,

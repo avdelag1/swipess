@@ -232,7 +232,7 @@ export function ShareDialog({
                 isLight ? "!bg-slate-900 !text-white hover:!bg-slate-800" : "!bg-white !text-black hover:!bg-white/90"
               )}
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="sync">
                 {copied ? (
                   <motion.div key="check" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }}>
                     <Check className="z-[10000] w-4 h-4 stroke-[3px]" />

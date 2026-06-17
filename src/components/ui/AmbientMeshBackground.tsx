@@ -25,7 +25,7 @@ export function AmbientMeshBackground({ color = '#f97316', intensity = 0.15, spe
 
   return (
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={color}
           initial={{ opacity: 0 }}

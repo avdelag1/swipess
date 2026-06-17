@@ -140,7 +140,7 @@ export function MessageConfirmationDialog({
             className={cn("w-full h-12 rounded-xl font-bold text-sm active:scale-[0.98] transition-all border-0 shadow-lg", isLight ? "text-slate-900" : "text-white")}
             style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)' }}
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
               {isLoading ? (
                 <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
                   <div className="z-[10000] w-4 h-4 mr-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

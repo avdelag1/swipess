@@ -164,9 +164,10 @@ export default function PriceTracker() {
 
           <div className="h-[250px] w-full">
             {isLoading ? (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                <span className="text-[10px] font-black text-black/30 uppercase tracking-widest">Computing Data...</span>
+              <div className="w-full h-full flex items-end justify-between gap-2 px-2 pb-4">
+                {[40, 65, 45, 80, 55, 70, 50].map((h, i) => (
+                  <div key={i} className="flex-1 rounded-t-lg bg-primary/15 animate-pulse" style={{ height: `${h}%` }} />
+                ))}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
