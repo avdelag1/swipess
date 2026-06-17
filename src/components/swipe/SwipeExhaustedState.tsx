@@ -63,14 +63,14 @@ export const SwipeExhaustedState = ({
     ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
     : 'bg-white text-slate-900 border-white hover:bg-white/90';
   const categoryBtnClass = isLight
-    ? 'bg-white text-slate-900 border-slate-200 shadow-[0_8px_22px_-12px_rgba(15,23,42,0.18)] hover:bg-slate-50'
-    : 'bg-white/[0.06] text-white border-white/15 hover:bg-white/[0.10]';
+    ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+    : 'bg-white/[0.12] text-white border-white/30 hover:bg-white/[0.18]';
 
   return (
     <div
       className={cn(
-        'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden',
-        isLight ? 'bg-white' : 'bg-[#0a0a0c]'
+        'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border',
+        isLight ? 'bg-white border-slate-200/80' : 'bg-[#0a0a0c] border-white/10'
       )}
     >
       {/* Top Left Back Button */}
@@ -105,10 +105,10 @@ export const SwipeExhaustedState = ({
         {onRadiusChange && onDetectLocation && (
           <div
             className={cn(
-              'w-full rounded-[1.75rem] p-5 pt-6 relative',
+              'w-full rounded-[2.25rem] p-5 pt-6 relative',
               isLight
                 ? 'bg-slate-50 border border-slate-200'
-                : 'bg-white/[0.04] border border-white/10'
+                : 'bg-white/[0.06] border border-white/15'
             )}
           >
             {/* Filter pill — top-right, isolated */}
@@ -158,7 +158,7 @@ export const SwipeExhaustedState = ({
               'w-full min-h-12 py-3 px-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 border flex items-center justify-center gap-2',
               isLight
                 ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
-                : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 hover:bg-indigo-500/30'
+                : 'bg-indigo-500 text-white border-indigo-500 hover:bg-indigo-600'
             )}
           >
             <Map className="w-4 h-4" />
