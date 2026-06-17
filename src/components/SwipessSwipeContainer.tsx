@@ -184,7 +184,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const deckCategory = activeCategory;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [_deckLength, setDeckLength] = useState(0);
+  // Tracked in state so ref-only deck updates always trigger a re-render.
+  const [deckLength, setDeckLength] = useState(0);
   // True from the moment a quick-filter changes until the new query settles.
   // Keeps the clean loader on screen so the "No results" exhausted card can
   // never flash in the gap before react-query flips isFetching.
@@ -491,22 +492,32 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, [smartData]);
 
   if (listingIdsSignature !== prevListingIdsRef.current && listingIdsSignature.length > 0) {
+    const dismissedSet = new Set(dismissedIds);
     const currentIds = new Set(deckQueueRef.current.map(l => l.id));
-    const newIds = smartData.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
+    const newIds = smartData.filter(l =>
+      !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id) && !dismissedSet.has(l.id),
+    );
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
 
+    const seedDeck = (items: typeof smartData) => {
+      const fresh = items.filter(l =>
+        !swipedIdsRef.current.has(l.id) && !dismissedSet.has(l.id),
+      );
+      if (fresh.length === 0) return;
+      deckQueueRef.current = fresh;
+      setDeckLength(fresh.length);
+      setClientDeck(deckCategory || 'all', fresh, false);
+    };
+
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
-      deckQueueRef.current = smartData;
-      setDeckLength(smartData.length);
+      seedDeck(smartData);
     } else if (activeMode === 'client' && smartData.length > 0) {
       const firstIncoming = smartData[0]?.id;
       const firstCurrent = deckQueueRef.current[currentIndexRef.current]?.id;
       const userHasNotStartedThisDeck = currentIndexRef.current === 0 && swipedIdsRef.current.size === 0;
       if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
-        deckQueueRef.current = smartData;
-        setDeckLength(smartData.length);
-        setClientDeck(deckCategory || 'all', smartData, false);
+        seedDeck(smartData);
       }
     }
   }
@@ -603,7 +614,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   const deckQueue = deckQueueRef.current;
-  const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const hasDeckCards = deckLength > 0 && deckQueue.length > 0;
+  const topCard = hasDeckCards && currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const topCardIdentity = topCard?.id || topCard?.user_id || '';
 
   useEffect(() => {
@@ -847,11 +859,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               return;
             }
             if (cat === 'property') {
-              selectDeckCategory('property', 'sale');
+              // Bento card says "buy or rent" — don't hard-filter to sale only.
+              selectDeckCategory('property', 'both');
               return;
             }
             if (cat === 'events') {
               navigate(EVENTS_FEED_PATH);
+              return;
+            }
+            if (cat === 'roommates') {
+              navigate('/explore/roommates');
+              return;
+            }
+            if (cat === 'seekers') {
+              navigate('/explore/seekers');
               return;
             }
             selectDeckCategory(cat as Parameters<typeof selectDeckCategory>[0], 'both');
@@ -881,7 +902,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const currentCategoryName = categoryNames[deckCategory] || deckCategory;
 
   if (
-    deckQueue.length === 0
+    !hasDeckCards
     && (isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current)
   ) {
     return <SwipeLoadingSkeleton />;
@@ -936,7 +957,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               style={{ borderRadius: 48 }}
             />
             <AnimatePresence mode="sync" initial={false}>
-              {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+              {hasDeckCards && currentIndex < deckQueue.length ? (
                 <motion.div
                   key="swipe-deck"
                   animate={{ opacity: 1, scale: 1 }}
