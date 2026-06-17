@@ -91,7 +91,7 @@ export const LocationRadiusSelector = memo(({
           isMap
             // Solid, fully-opaque panel — the live map must NOT bleed through the radius window.
             ? 'fixed left-4 right-4 mx-auto max-w-sm z-[10030] bg-[#12161f] border-white/12 text-white'
-            : cn('fixed left-4 right-4 mx-auto max-w-sm z-[10009] chrome-solid', isLight ? 'bg-white/95 border-black/10' : 'bg-[#0d0d0d]/95 border-white/10'),
+            : cn('fixed left-4 right-4 mx-auto max-w-sm z-[10009] chrome-solid', isLight ? 'bg-white/95 border-slate-200' : 'bg-[#0d0d0d]/95 border-white/10'),
         ),
   );
 
@@ -127,7 +127,7 @@ export const LocationRadiusSelector = memo(({
             detected={detected}
             onDark={isMap}
           />
-          <div className={cn('mt-5 pt-5 border-t', isMap ? 'border-white/10' : isLight ? 'border-black/10' : 'border-white/10')}>
+          <div className={cn('mt-5 pt-5 border-t', isMap ? 'border-white/10' : isLight ? 'border-slate-200' : 'border-white/10')}>
             <button
               type="button"
               data-skip-press-engine
