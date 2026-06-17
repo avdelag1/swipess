@@ -668,8 +668,8 @@ export default function AdvertisePage() {
                 <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30 rotate-3">
                   <CheckCircle2 className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">Approval Rocket! 🚀</h3>
-                <p className="text-sm font-bold text-white/60">Your brand promotion for <span className="text-white">"{approvedSubmission.title}"</span> has been approved! Ready to launch?</p>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic" style={{ color: th.text }}>Approval Rocket! 🚀</h3>
+                <p className="text-sm font-bold" style={{ color: th.textMuted }}>Your brand promotion for <span style={{ color: th.text }}>"{approvedSubmission.title}"</span> has been approved! Ready to launch?</p>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -677,31 +677,33 @@ export default function AdvertisePage() {
                   <button
                     key={pkg.id}
                     onClick={() => handleLaunchPayment(pkg)}
-                    className="flex items-center justify-between p-5 rounded-2xl bg-white/10 border border-white/10 hover:border-white/30 transition-all group overflow-hidden relative"
+                    className="flex items-center justify-between p-5 rounded-2xl transition-all group overflow-hidden relative"
                     style={{
+                      background: th.card,
+                      border: `1px solid ${th.cardBorder}`,
                       boxShadow: `0 8px 30px rgba(${pkg.colorRgb}, 0.1)`,
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity"
                          style={{ backgroundImage: `linear-gradient(to right, transparent, ${pkg.color})` }} />
                     <div className="flex items-center gap-4 relative z-10">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/10" 
-                           style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                           style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color, border: `1px solid ${th.cardBorder}` }}>
                         {pkg.icon}
                       </div>
                       <div className="text-left">
-                        <div className="font-black text-white text-sm uppercase tracking-tight">{pkg.name}</div>
-                        <div className="text-[11px] text-white/50 font-bold uppercase tracking-widest">${pkg.price} USD {pkg.durationLabel}</div>
+                        <div className="font-black text-sm uppercase tracking-tight" style={{ color: th.text }}>{pkg.name}</div>
+                        <div className="text-[11px] font-bold uppercase tracking-widest" style={{ color: th.textFaint }}>${pkg.price} USD {pkg.durationLabel}</div>
                       </div>
                     </div>
-                    <ArrowUpRight className="w-6 h-6 text-white/20 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all relative z-10" />
+                    <ArrowUpRight className={cn("w-6 h-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all relative z-10", isLight ? "text-black/20 group-hover:text-black" : "text-white/20 group-hover:text-white")} />
                   </button>
                 ))}
               </div>
               
               <button 
                 onClick={() => setApprovedSubmission(null)}
-                className="w-full text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white/40 transition-colors"
+                className={cn("w-full text-[10px] font-black uppercase tracking-widest transition-colors", isLight ? "text-black/30 hover:text-black/50" : "text-white/20 hover:text-white/40")}
               >
                 Create another submission
               </button>
@@ -896,7 +898,7 @@ export default function AdvertisePage() {
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                   {form.photoUrl ? (
                     <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
-                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
+                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="Event photo preview" />
                       <button
                         onClick={() => set("photoUrl", "")}
                         className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
@@ -990,7 +992,7 @@ export default function AdvertisePage() {
                   style={{ background: th.card, border: `1px solid ${th.divider}` }}>
                   {form.photoUrl && (
                     <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
-                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
+                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="Submitted event photo" />
                     </div>
                   )}
                   {[

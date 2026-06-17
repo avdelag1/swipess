@@ -226,7 +226,7 @@ const ResetPassword = () => {
                           "flex items-center gap-2 text-[9px] font-black tracking-widest transition-colors",
                           passwordStrength.checks[key as keyof typeof passwordStrength.checks]
                             ? 'text-[#EB4898]'
-                            : 'text-white/30'
+                            : isLight ? 'text-black/30' : 'text-white/30'
                         )}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
