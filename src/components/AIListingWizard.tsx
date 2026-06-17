@@ -608,7 +608,7 @@ export function AIListingWizard() {
                                 animate={{ scale: 1, opacity: 1 }}
                                 className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-slate-200" : "border-white/10")}
                               >
-                                <img src={previewUrls[i]} alt="" className="w-full h-full object-cover" />
+                                <img src={previewUrls[i]} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                                 <button
                                   type="button"
                                   onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}

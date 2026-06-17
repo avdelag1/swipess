@@ -69,7 +69,7 @@ export const EventCategoryCircle = memo(({
           {!failed && (
             <img
               src={img}
-              alt=""
+              alt={label}
               width={56}
               height={56}
               decoding="async"

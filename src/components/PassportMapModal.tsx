@@ -1222,7 +1222,7 @@ export const PassportMapModal = memo(() => {
                             <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
                               <img
                                 src={city.img}
-                                alt=""
+                                alt={city.name}
                                 loading="lazy"
                                 className="w-full h-full object-cover"
                                 onError={(e) => { e.currentTarget.src = DEFAULT_CITY_PHOTO; }}

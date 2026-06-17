@@ -68,7 +68,7 @@ export function PreviewSwipeCard({
           {current ? (
             <img
               src={current}
-              alt=""
+              alt={`Image ${idx + 1}`}
               className="w-full h-full object-cover"
               draggable={false}
             />
