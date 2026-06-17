@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -181,11 +181,13 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
     return () => subscription.unsubscribe();
   }, [watch, onDataChange, polishedDescription]);
 
-  const grouped = getGroupedCategories();
-  const serviceGroups = SERVICE_GROUPS.map((group) => ({
-    label: group,
-    options: grouped[group].map((c) => ({ value: c.value, label: `${c.icon} ${c.label}` })),
-  }));
+  const serviceGroups = useMemo(() => {
+    const grouped = getGroupedCategories();
+    return SERVICE_GROUPS.map((group) => ({
+      label: group,
+      options: grouped[group].map((c) => ({ value: c.value, label: `${c.icon} ${c.label}` })),
+    }));
+  }, []);
 
   const watchedServiceCategory = watch('service_category');
   const subspecialties = watchedServiceCategory ? SERVICE_SUBSPECIALTIES[watchedServiceCategory] : undefined;
