@@ -148,7 +148,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   className={cn(
                     "h-9 w-9 p-0 flex-shrink-0 transition-all duration-200 rounded-full",
                     "hover:bg-foreground/10 hover:text-foreground",
-                    isHovered ? "opacity-100" : "opacity-0 sm:opacity-0"
+                    isHovered ? "opacity-100" : "opacity-60 sm:opacity-0"
                   )}
                   onClick={(e) => {
                     e.stopPropagation();

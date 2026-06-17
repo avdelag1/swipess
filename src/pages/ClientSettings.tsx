@@ -264,7 +264,7 @@ const ClientSettings = () => {
                       )}
                     >
                       <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border border-white/10"
+                        className={cn("w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border", isLight ? "border-white/20" : "border-white/10")}
                         style={{ background: item.bg }}
                       >
                         <item.icon className="w-6 h-6 text-white drop-shadow-md" />

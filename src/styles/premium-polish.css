@@ -568,7 +568,7 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 .breathing-zoom {
-  animation: breathing-zoom 16s ease-in-out infinite alternate !important;
+  animation: breathing-zoom 10s ease-in-out infinite alternate !important;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   transform-origin: center;
@@ -584,10 +584,8 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  @keyframes breathing-zoom {
-    0%, 100% {
-      transform: scale(1);
-    }
+  .breathing-zoom {
+    animation: none !important;
   }
 }
 

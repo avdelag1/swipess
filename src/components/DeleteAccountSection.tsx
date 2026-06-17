@@ -96,7 +96,12 @@ export function DeleteAccountSection() {
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="TYPE DELETE"
-            className="h-16 rounded-[1.2rem] bg-white/5 border-white/10 text-center font-black uppercase tracking-[0.3em] placeholder:opacity-20"
+            className={cn(
+              "h-16 rounded-[1.2rem] text-center font-black uppercase tracking-[0.3em]",
+              isLight
+                ? "bg-black/[0.03] border-slate-200 text-black placeholder:opacity-40"
+                : "bg-white/5 border-white/10 placeholder:opacity-20"
+            )}
           />
 
           <div className="grid grid-cols-2 gap-3">

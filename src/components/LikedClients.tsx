@@ -197,7 +197,7 @@ export function LikedClients() {
                         filterSafeOnly
                           ? "bg-primary border-primary text-white shadow-md"
                           : isLight
-                          ? "bg-white border-black/8 text-black/70 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
+                          ? "bg-white border-slate-200 text-black/70 shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
                           : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
                       )}
                     >
@@ -249,7 +249,7 @@ export function LikedClients() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
               "w-full h-14 rounded-2xl pl-14 pr-6 font-bold transition-all outline-none border",
-              isLight ? "bg-white border-black/8 focus:border-primary text-black placeholder:text-black/40 shadow-[0_4px_12px_rgba(0,0,0,0.04)]" : "bg-white/[0.04] border-white/[0.08] focus:border-primary text-white"
+              isLight ? "bg-white border-slate-200 focus:border-primary text-black placeholder:text-black/40 shadow-[0_4px_12px_rgba(0,0,0,0.04)]" : "bg-white/[0.04] border-white/[0.08] focus:border-primary text-white"
             )}
           />
         </div>

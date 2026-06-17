@@ -60,7 +60,7 @@ export default function VapValidate() {
       <div className="w-full flex items-center justify-between mb-12">
         <button
           onClick={() => navigate('/')}
-          className={cn("p-2 rounded-full", isLight ? "bg-white border border-black/5" : "bg-white/5 border border-white/5")}
+          className={cn("p-2 rounded-full", isLight ? "bg-white border border-slate-200" : "bg-white/5 border border-white/5")}
         >
           <ChevronLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
         </button>
@@ -88,7 +88,7 @@ export default function VapValidate() {
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "flex-1 w-full max-w-sm mx-auto rounded-3xl p-8 flex flex-col items-center justify-center text-center",
-            isLight ? "bg-white border border-black/5 shadow-xl" : "bg-zinc-900 border border-white/10 shadow-2xl"
+            isLight ? "bg-white border border-slate-200 shadow-xl" : "bg-zinc-900 border border-white/10 shadow-2xl"
           )}
         >
           <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mb-6 ring-8 ring-green-500/5">
@@ -102,7 +102,7 @@ export default function VapValidate() {
           </p>
           <div className={cn(
             "w-full mt-8 rounded-2xl p-6 text-left space-y-4",
-            isLight ? "bg-zinc-50 border border-black/5" : "bg-black/40 border border-white/5"
+            isLight ? "bg-zinc-50 border border-slate-200" : "bg-black/40 border border-white/5"
           )}>
             <div>
               <p className={cn("text-xs font-semibold uppercase tracking-wider mb-1", isLight ? "text-zinc-400" : "text-zinc-500")}>Name</p>
@@ -135,7 +135,7 @@ export default function VapValidate() {
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "flex-1 w-full max-w-sm mx-auto rounded-3xl p-8 flex flex-col items-center justify-center text-center",
-            isLight ? "bg-white border border-black/5 shadow-xl" : "bg-zinc-900 border border-white/10 shadow-2xl"
+            isLight ? "bg-white border border-slate-200 shadow-xl" : "bg-zinc-900 border border-white/10 shadow-2xl"
           )}
         >
           <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6 ring-8 ring-red-500/5">

@@ -84,7 +84,7 @@ export default function PriceTracker() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-sm"
+            className="w-10 h-10 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-sm"
           >
             <ChevronLeft className="w-5 h-5 text-black/60 dark:text-white" />
           </motion.button>
@@ -125,7 +125,7 @@ export default function PriceTracker() {
               'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
               selectedZone === 'all' 
                 ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                : 'bg-white dark:bg-zinc-900 border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
+                : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
             )}
           >All Zones</motion.button>
           {neighborhoods.map(zone => (
@@ -137,7 +137,7 @@ export default function PriceTracker() {
                 'px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shrink-0 transition-all border',
                 selectedZone === zone 
                   ? 'bg-primary text-white border-primary shadow-[0_8px_20px_rgba(249,115,22,0.3)]' 
-                  : 'bg-white dark:bg-zinc-900 border-black/5 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
+                  : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-zinc-800'
               )}
             >{zone}</motion.button>
           ))}
@@ -151,7 +151,7 @@ export default function PriceTracker() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-black/5 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl relative"
+          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl relative"
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function PriceTracker() {
                 'group relative p-6 rounded-[2rem] border transition-all duration-300 overflow-hidden',
                 selectedZone === zone 
                   ? 'bg-white dark:bg-zinc-900 border-primary shadow-xl shadow-primary/10' 
-                  : 'bg-white dark:bg-white/5 border-black/5 dark:border-white/10'
+                  : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10'
               )}
             >
               {/* Background Glow */}

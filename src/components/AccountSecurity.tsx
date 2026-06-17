@@ -111,12 +111,12 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
   const SettingRow = ({ icon: Icon, title, description, checked, onToggle, disabled }: any) => (
     <div className={cn(
       "flex items-center justify-between p-6 rounded-[1.8rem] transition-all border",
-      isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/5"
+      isLight ? "bg-black/[0.02] border-slate-200" : "bg-white/[0.02] border-white/5"
     )}>
       <div className="flex items-center gap-5">
         <div className={cn(
           "w-12 h-12 rounded-[1rem] flex items-center justify-center transition-all border",
-          isLight ? "bg-white/50 border-black/5" : "bg-black/50 border-white/5"
+          isLight ? "bg-white/50 border-slate-200" : "bg-black/50 border-white/5"
         )}>
           <Icon className="w-5 h-5 opacity-70" />
         </div>
@@ -191,7 +191,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
           <div className="flex items-center gap-5">
             <div className={cn(
               "w-12 h-12 rounded-[1rem] flex items-center justify-center transition-all border",
-              isLight ? "bg-white/50 border-black/5" : "bg-black/50 border-white/5"
+              isLight ? "bg-white/50 border-slate-200" : "bg-black/50 border-white/5"
             )}>
               <Lock className="w-5 h-5 opacity-70" />
             </div>
@@ -208,7 +208,7 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
         <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-md">
           <div className={cn(
             "m-4 rounded-[3rem] backdrop-blur-[50px] border p-10 overflow-hidden shadow-3xl",
-            isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/5"
+            isLight ? "bg-white/95 border-slate-200" : "bg-black/95 border-white/5"
           )}>
             <div className="space-y-8">
               <div className="space-y-2">
