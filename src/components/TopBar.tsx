@@ -15,7 +15,12 @@ import { useModalStore } from '@/state/modalStore';
 import { useTokens } from '@/hooks/useTokens';
 import { useFilterStore } from '@/state/filterStore';
 import { getParentRoute } from '@/utils/sectionNavigation';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import {
+  getHeaderChrome,
+  getHeaderIconFilter,
+  HEADER_PILL_BASE,
+  isDashboardPath,
+} from '@/utils/headerChrome';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -34,10 +39,22 @@ interface TopBarProps {
   minimal?: boolean;
 }
 
-const HEADER_PILL =
-  'tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill chrome-solid pointer-events-auto';
-const HEADER_BTN_SIZE = 'h-[44px] w-[44px]';
 const HEADER_ICON = 'w-[20px] h-[20px]';
+
+function HeaderIconSlot({
+  children,
+  badge,
+}: {
+  children: React.ReactNode;
+  badge?: React.ReactNode;
+}) {
+  return (
+    <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
+      {children}
+      {badge}
+    </span>
+  );
+}
 
 function TopBarComponent({
   _onFilterClick,
@@ -127,15 +144,17 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className={cn(HEADER_PILL, HEADER_BTN_SIZE)}
+              className={HEADER_PILL_BASE}
               style={glassPillStyle}
               aria-label="Back"
             >
-              <ChevronLeft
-                className={HEADER_ICON}
-                strokeWidth={2.2}
-                style={{ color: iconColor, filter: iconShadow }}
-              />
+              <HeaderIconSlot>
+                <ChevronLeft
+                  className={HEADER_ICON}
+                  strokeWidth={2.2}
+                  style={{ color: iconColor, filter: iconShadow }}
+                />
+              </HeaderIconSlot>
             </button>
           ) : (
             user && (
@@ -145,7 +164,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className={cn(HEADER_PILL, HEADER_BTN_SIZE)}
+                className={HEADER_PILL_BASE}
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
@@ -153,7 +172,9 @@ function TopBarComponent({
                   className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
-                    boxShadow: '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
+                    boxShadow: useLightIcons
+                      ? '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35), 0 4px 12px rgba(0,0,0,0.35)'
+                      : '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
                   }}
                 >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -180,18 +201,20 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showAIListing', true); }}
-              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
+              className={HEADER_PILL_BASE}
               style={glassPillStyle}
               aria-label="AI Listing"
             >
-              <Sparkles
-                className={HEADER_ICON}
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(168,85,247,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
+              <HeaderIconSlot>
+                <Sparkles
+                  className={HEADER_ICON}
+                  style={{
+                    color: iconColor,
+                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
+                  }}
+                  strokeWidth={1.9}
+                />
+              </HeaderIconSlot>
             </button>
           )}
         </div>
@@ -204,53 +227,56 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
+              className={HEADER_PILL_BASE}
               style={glassPillStyle}
               aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
-              <Crown
-                className={HEADER_ICON}
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(228,0,124,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
-              <span
-                className={cn(
-                  'absolute top-2 right-2 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
-                  tokensLow
-                    ? 'bg-amber-400 animate-pulse'
-                    : 'bg-brand-primary',
+              <HeaderIconSlot
+                badge={(
+                  <span
+                    className={cn(
+                      'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
+                      tokensLow
+                        ? 'bg-amber-400 animate-pulse'
+                        : 'bg-brand-primary',
+                    )}
+                    aria-hidden
+                  />
                 )}
-                aria-hidden
-              />
+              >
+                <Crown
+                  className={HEADER_ICON}
+                  style={{
+                    color: iconColor,
+                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
+                  }}
+                  strokeWidth={1.9}
+                />
+              </HeaderIconSlot>
             </button>
 
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className={cn(HEADER_PILL, HEADER_BTN_SIZE, 'relative')}
+              className={HEADER_PILL_BASE}
               style={glassPillStyle}
               aria-label={t('map.liveMap')}
             >
-              <Globe
-                className={HEADER_ICON}
-                style={{
-                  color: iconColor,
-                  filter: useLightIcons ? 'drop-shadow(0 0 8px rgba(59,130,246,0.65))' : 'none',
-                }}
-                strokeWidth={1.9}
-              />
+              <HeaderIconSlot>
+                <Globe
+                  className={HEADER_ICON}
+                  style={{
+                    color: iconColor,
+                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
+                  }}
+                  strokeWidth={1.9}
+                />
+              </HeaderIconSlot>
             </button>
 
-            <div className={cn(HEADER_PILL, HEADER_BTN_SIZE)}>
-              <ThemeToggle glassPillStyle={glassPillStyle} />
-            </div>
+            <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
 
-            <div className={cn(HEADER_PILL, HEADER_BTN_SIZE)}>
-              <NotificationPopover glassPillStyle={glassPillStyle} />
-            </div>
+            <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
           </div>
         )}
 

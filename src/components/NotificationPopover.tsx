@@ -23,7 +23,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import { getHeaderChrome, HEADER_CHROME_PILL_CLASS, isDashboardPath } from '@/utils/headerChrome';
 
 // Notification type configurations for visual consistency
 
@@ -219,11 +219,12 @@ interface NotificationPopoverProps {
   className?: string;
   children?: React.ReactNode;
   glassPillStyle?: React.CSSProperties;
+  pillClassName?: string;
 }
 
 import { useAppTheme } from '@/hooks/useAppTheme';
 // ...
-export function NotificationPopover({ className, children, glassPillStyle }: NotificationPopoverProps) {
+export function NotificationPopover({ className, children, glassPillStyle, pillClassName }: NotificationPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
@@ -295,7 +296,9 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       className={cn(
         "relative h-[44px] w-[44px] shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
-        "touch-manipulation"
+        "touch-manipulation glass-pill chrome-solid",
+        HEADER_CHROME_PILL_CLASS,
+        pillClassName,
       )}
       style={{ ...glassPillStyle, overflow: 'visible' }}
       onClick={(_e) => {
@@ -304,7 +307,7 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
       }}
       aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
     >
-      <div className="relative">
+      <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
         <Bell
           strokeWidth={1.9}
           className={cn(
@@ -313,7 +316,6 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
           )}
           style={{ color: bellColor, filter: iconShadow }}
         />
-        {/* Notification badge */}
         <AnimatePresence>
           {unreadCount > 0 && (
             <motion.span
@@ -321,11 +323,11 @@ export function NotificationPopover({ className, children, glassPillStyle }: Not
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
+              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
             />
           )}
         </AnimatePresence>
-      </div>
+      </span>
     </Button>
   );
 

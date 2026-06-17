@@ -7,7 +7,7 @@ import { useContext } from 'react';
 
 import { triggerHaptic } from '@/utils/haptics';
 import { useLocation } from 'react-router-dom';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import { getHeaderChrome, HEADER_CHROME_PILL_CLASS, isDashboardPath } from '@/utils/headerChrome';
 
 type Theme = 'light' | 'dark';
 
@@ -49,7 +49,8 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
                 handleToggle(e as any);
             }}
             className={cn(
-                'relative flex items-center justify-center rounded-full',
+                'relative flex items-center justify-center rounded-full glass-pill chrome-solid',
+                HEADER_CHROME_PILL_CLASS,
                 'transition-all duration-200 ease-out active:scale-[0.92]',
                 'touch-manipulation h-[44px] w-[44px] flex-shrink-0',
                 className,

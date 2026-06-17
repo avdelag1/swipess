@@ -1,5 +1,33 @@
 import type { CSSProperties } from 'react';
 
+export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
+
+/** Shared TopBar pill — dark contrast wells on light pages. */
+export const HEADER_PILL_BASE =
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill chrome-solid ${HEADER_CHROME_PILL_CLASS} pointer-events-auto h-[44px] w-[44px]`;
+
+export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
+
+/** Depth shadow + optional accent glow for header HUD icons. */
+export function getHeaderIconFilter(
+  iconShadow: string,
+  useLightIcons: boolean,
+  accent?: HeaderIconAccent,
+): string {
+  if (!useLightIcons) return iconShadow;
+
+  const accentGlow =
+    accent === 'crown'
+      ? 'drop-shadow(0 0 8px rgba(228,0,124,0.55))'
+      : accent === 'globe'
+        ? 'drop-shadow(0 0 8px rgba(59,130,246,0.55))'
+        : accent === 'sparkles'
+          ? 'drop-shadow(0 0 8px rgba(168,85,247,0.55))'
+          : '';
+
+  return accent ? `${iconShadow} ${accentGlow}` : iconShadow;
+}
+
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons. */
 export function getHeaderChrome(isLight: boolean, isDashboard = false) {
   const useLightIcons = isDashboard || !isLight;
