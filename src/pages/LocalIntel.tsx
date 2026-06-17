@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 
 interface IntelPost {
   id: string;
@@ -60,7 +61,8 @@ export default function LocalIntel() {
     : posts.filter(p => p.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black p-4 pb-28 max-w-2xl mx-auto">
+    <AmbientPageBackground className="min-h-screen pb-28">
+    <div className="p-4 max-w-2xl mx-auto relative z-10">
       {/* ── HEADER ── */}
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center justify-between mb-8">
@@ -201,6 +203,7 @@ export default function LocalIntel() {
          </div>
       </div>
     </div>
+    </AmbientPageBackground>
   );
 }
 

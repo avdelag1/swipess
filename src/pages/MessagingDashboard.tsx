@@ -284,9 +284,9 @@ export function MessagingDashboard() {
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
                 className={cn(
                   "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
-                  activeFilter === filter.id 
-                    ? "border-0" 
-                    : (isLight ? "surface-2 text-black/50 hover:shadow-[var(--elev-3)]" : "bg-zinc-900 border-white/10 text-white/40 hover:bg-zinc-800")
+                  activeFilter === filter.id
+                    ? "border-0"
+                    : "surface-2 text-foreground/50 hover:shadow-[var(--elev-3)]"
                 )}
                 style={activeFilter === filter.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
               >

@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
+import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 
 interface PricePoint {
   neighborhood: string;
@@ -75,7 +76,8 @@ export default function PriceTracker() {
   const activeZones = selectedZone === 'all' ? neighborhoods : [selectedZone];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black p-4 pb-28 max-w-2xl mx-auto selection:bg-primary/30">
+    <AmbientPageBackground className="min-h-screen pb-28 selection:bg-primary/30">
+    <div className="p-4 max-w-2xl mx-auto relative z-10">
       {/* ── HEADER ── */}
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center gap-4 mb-6">
@@ -296,6 +298,7 @@ export default function PriceTracker() {
          </div>
       </div>
     </div>
+    </AmbientPageBackground>
   );
 }
 

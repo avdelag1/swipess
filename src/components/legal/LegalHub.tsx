@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight, ChevronDown, ChevronRight, ChevronUp, Clock,
   Download, FileDown, FileText, PenLine, PenTool, Plus, Printer,
-  Save, ShieldCheck, X
+  Save, Send, ShieldCheck, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { clientTemplates, ContractTemplate, getTemplateById, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
@@ -22,6 +22,12 @@ import { sanitizeHTML } from '@/utils/sanitizeHTML';
 import { SECTION_RESET_EVENT } from '@/utils/sectionNavigation';
 import { downloadAsPDF, downloadAsWord } from '@/utils/documentExport';
 import { applyVariablesToContent, getVariablesForTemplate } from '@/utils/contractUtils';
+import {
+  computeContractStatus,
+  notifyContractEvent,
+  resolveCounterpartyId,
+  userNeedsSignature,
+} from '@/utils/contractSigning';
 
 // Plain text → simple, safe HTML paragraphs (used when the AI returns cleaned
 // plain text that we drop back into the contentEditable document).
@@ -64,6 +70,7 @@ export function ContractsVault() {
   const [draftContent, setDraftContent] = useState('');
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSavingSignature, setIsSavingSignature] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [quickFillValues, setQuickFillValues] = useState<Record<string, string>>({});
   const [quickFillOpen, setQuickFillOpen] = useState(false);
   const [fontSize, setFontSize] = useState(14);
@@ -150,7 +157,7 @@ export function ContractsVault() {
 
   const handleOpenContract = (contract: any) => {
     triggerHaptic('medium');
-    if (contract.status === 'signed') {
+    if (contract.status === 'signed' || (user && userNeedsSignature(contract, user.id))) {
       setActiveContract(contract);
       setView('signing');
       return;
@@ -306,6 +313,86 @@ export function ContractsVault() {
     }
   };
 
+  const handleSendForSignature = async () => {
+    if (!user || !selectedTemplate || isSending) return;
+    if (!draftCounterparty.trim()) {
+      appToast.error('Add tenant email', 'Enter the other party\'s email in Document Details.');
+      return;
+    }
+    setIsSending(true);
+    try {
+      const party = await resolveCounterpartyId(draftCounterparty);
+      if (!party) {
+        appToast.error('User not found', 'No Swipess account matches that email or name.');
+        return;
+      }
+      if (party.id === user.id) {
+        appToast.error('Choose your tenant', 'Send the lease to the other party, not yourself.');
+        return;
+      }
+
+      const editedContent = sanitizeHTML(docRef.current?.innerHTML || draftContent || selectedTemplate.content);
+      const metadata = {
+        effective_date: draftEffectiveDate || null,
+        monthly_value: draftMonthlyValue || null,
+        counterparty: party.name,
+        counterparty_email: draftCounterparty.trim(),
+        template_category: selectedTemplate.category,
+      };
+
+      let saved = activeContract;
+      if (activeContract?.id) {
+        const { data, error } = await supabase
+          .from('digital_contracts')
+          .update({
+            title: draftTitle.trim() || selectedTemplate.name,
+            content: editedContent,
+            client_id: party.id,
+            status: 'sent',
+            metadata,
+            updated_at: new Date().toISOString(),
+          } as any)
+          .eq('id', activeContract.id)
+          .select('*')
+          .single();
+        if (error) throw error;
+        saved = data;
+      } else {
+        const { data, error } = await supabase.from('digital_contracts').insert({
+          title: draftTitle.trim() || selectedTemplate.name,
+          template_type: selectedTemplate.id,
+          content: editedContent,
+          owner_id: user.id,
+          client_id: party.id,
+          status: 'sent',
+          metadata,
+        } as any).select('*').single();
+        if (error) throw error;
+        saved = data;
+      }
+
+      await notifyContractEvent({
+        recipientId: party.id,
+        senderId: user.id,
+        contractId: saved.id,
+        title: 'Lease Ready to Sign',
+        type: 'contract_pending',
+        linkPath: '/client/contracts',
+        message: `"${draftTitle.trim() || selectedTemplate.name}" is waiting for your signature.`,
+      });
+
+      triggerHaptic('success');
+      appToast.success('Sent for signature', `${party.name} will be notified in the app.`);
+      await fetchContracts();
+      handleClose();
+    } catch (err) {
+      logger.error('[ContractsVault] send failed:', err);
+      appToast.error('Could not send lease', 'Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleSignatureCapture = async (sig: string, signatureType: 'drawn' | 'typed' | 'uploaded' = 'drawn') => {
     if (!user || !activeContract || isSavingSignature) return;
     setIsSavingSignature(true);
@@ -322,9 +409,18 @@ export function ContractsVault() {
       signatureId = sigData?.id ?? null;
 
       const isOwner = activeContract.owner_id === user.id;
+      const isClient = activeContract.client_id === user.id;
+      if (!isOwner && !isClient) throw new Error('Not authorized to sign this contract');
+
       const signatureUpdate: Record<string, unknown> = isOwner
-        ? { owner_signature: sig, owner_signed_at: new Date().toISOString(), status: 'signed' }
-        : { client_signature: sig, client_signed_at: new Date().toISOString(), status: 'signed' };
+        ? { owner_signature: sig, owner_signed_at: new Date().toISOString() }
+        : { client_signature: sig, client_signed_at: new Date().toISOString() };
+
+      const nextStatus = computeContractStatus({
+        ...activeContract,
+        ...signatureUpdate,
+      });
+      signatureUpdate.status = nextStatus;
 
       const { error: updateError } = await supabase
         .from('digital_contracts')
@@ -332,8 +428,35 @@ export function ContractsVault() {
         .eq('id', activeContract.id);
       if (updateError) throw updateError;
 
+      const otherPartyId = isOwner ? activeContract.client_id : activeContract.owner_id;
+      const contractTitle = activeContract.title || 'Lease';
+      if (nextStatus === 'signed' && otherPartyId && otherPartyId !== user.id) {
+        await notifyContractEvent({
+          recipientId: otherPartyId,
+          senderId: user.id,
+          contractId: activeContract.id,
+          title: 'Lease Fully Signed',
+          type: 'contract_signed',
+          linkPath: isOwner ? '/client/contracts' : '/owner/contracts',
+          message: `"${contractTitle}" is now fully executed.`,
+        });
+      } else if (nextStatus === 'sent' && isOwner && otherPartyId && otherPartyId !== user.id) {
+        await notifyContractEvent({
+          recipientId: otherPartyId,
+          senderId: user.id,
+          contractId: activeContract.id,
+          title: 'Your Turn to Sign',
+          type: 'contract_pending',
+          linkPath: '/client/contracts',
+          message: `Landlord signed "${contractTitle}" — add your signature to complete.`,
+        });
+      }
+
       triggerHaptic('success');
-      appToast.success('Signature Encrypted Successfully', 'Contract recorded in your vault.');
+      appToast.success(
+        nextStatus === 'signed' ? 'Lease fully signed' : 'Signature saved',
+        nextStatus === 'signed' ? 'Both parties are on record.' : 'Waiting for the other party to sign.',
+      );
       await fetchContracts();
       handleClose();
     } catch (err) {
@@ -403,7 +526,7 @@ export function ContractsVault() {
                   <div>
                     <h4 className={cn("text-[10px] font-black uppercase tracking-widest opacity-70 mb-2", isLight ? "text-black" : "text-white")}>Awaiting Signature</h4>
                     <p className={cn("text-5xl font-black italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
-                      {contracts.filter(c => c.status === 'sent' && !c.client_signature).length}
+                      {user ? contracts.filter(c => userNeedsSignature(c, user.id)).length : 0}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary italic mt-6">
@@ -733,11 +856,11 @@ export function ContractsVault() {
                 />
               </div>
 
-              {/* Save / Sign actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Save / Send / Sign actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Button
                   onClick={() => handleSaveDraft(false)}
-                  disabled={isSavingDraft}
+                  disabled={isSavingDraft || isSending}
                   variant="ghost"
                   className={cn("h-14 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-black/[0.04] border-black/10 text-black hover:bg-black/[0.07]" : "bg-white/5 border-white/10 text-white hover:bg-white/10")}
                 >
@@ -745,11 +868,20 @@ export function ContractsVault() {
                   {isSavingDraft ? 'Saving…' : activeContract?.id ? 'Update Vault' : 'Save to Vault'}
                 </Button>
                 <Button
+                  onClick={handleSendForSignature}
+                  disabled={isSavingDraft || isSending}
+                  variant="ghost"
+                  className={cn("h-14 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic border transition-all disabled:opacity-60", isLight ? "bg-violet-500/10 border-violet-500/25 text-violet-700 hover:bg-violet-500/15" : "bg-violet-500/15 border-violet-500/30 text-violet-300 hover:bg-violet-500/20")}
+                >
+                  <Send className="w-4 h-4 mr-3" />
+                  {isSending ? 'Sending…' : 'Send to Tenant'}
+                </Button>
+                <Button
                   onClick={() => handleSaveDraft(true)}
-                  disabled={isSavingDraft}
+                  disabled={isSavingDraft || isSending}
                   className="h-14 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] text-[11px] italic shadow-2xl shadow-primary/20 transition-all hover:scale-[1.01] disabled:opacity-60"
                 >
-                  {isSavingDraft ? 'Saving…' : 'Save & Sign'}
+                  {isSavingDraft ? 'Saving…' : 'Sign Now'}
                   <PenTool className="w-4 h-4 ml-3" />
                 </Button>
               </div>
@@ -821,12 +953,37 @@ export function ContractsVault() {
 
               <div className="text-center space-y-3 px-6">
                 <h3 className={cn("text-3xl font-black tracking-tighter uppercase italic", isLight ? "text-black" : "text-white")}>Signature Protocol</h3>
-                <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>Secure digital signature</p>
+                <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic", isLight ? "text-black" : "text-white")}>
+                  {activeContract?.status === 'signed' ? 'Fully executed' : 'Secure digital signature'}
+                </p>
               </div>
 
-              <DigitalSignaturePad
-                onSignatureCapture={handleSignatureCapture}
-              />
+              <div className="grid grid-cols-2 gap-3 px-2">
+                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                  <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-50 mb-1", isLight ? "text-black" : "text-white")}>Landlord</p>
+                  <p className={cn("text-xs font-bold", activeContract?.owner_signature ? "text-primary" : "opacity-40", isLight ? "text-black" : "text-white")}>
+                    {activeContract?.owner_signature ? 'Signed ✓' : 'Pending'}
+                  </p>
+                </div>
+                <div className={cn("p-4 rounded-2xl border text-center", isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.03] border-white/5")}>
+                  <p className={cn("text-[9px] font-black uppercase tracking-widest opacity-50 mb-1", isLight ? "text-black" : "text-white")}>Tenant</p>
+                  <p className={cn("text-xs font-bold", activeContract?.client_signature ? "text-primary" : "opacity-40", isLight ? "text-black" : "text-white")}>
+                    {activeContract?.client_signature ? 'Signed ✓' : 'Pending'}
+                  </p>
+                </div>
+              </div>
+
+              {user && activeContract && userNeedsSignature(activeContract, user.id) ? (
+                <DigitalSignaturePad onSignatureCapture={handleSignatureCapture} />
+              ) : (
+                <div className={cn("p-8 rounded-[2rem] border text-center", isLight ? "bg-primary/5 border-primary/20" : "bg-primary/10 border-primary/25")}>
+                  <p className={cn("text-sm font-bold", isLight ? "text-black/70" : "text-white/80")}>
+                    {activeContract?.status === 'signed'
+                      ? 'This lease is fully signed by both parties.'
+                      : 'You\'ve already signed — waiting for the other party.'}
+                  </p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
