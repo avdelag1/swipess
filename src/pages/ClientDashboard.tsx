@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
@@ -20,6 +20,13 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   const { hasSeenOnboarding, setOnboardingActive, markOnboardingSeen } = useOnboardingStore();
   const { setModal } = useModalStore();
+
+  // Landing on the dashboard always shows the quick-filter photo cards.
+  // Runs before paint so a previously-persisted category never flashes its
+  // deck before resetting. (Heals users whose old localStorage still has one.)
+  useLayoutEffect(() => {
+    useFilterStore.getState().setActiveCategory(null);
+  }, []);
 
   useEffect(() => {
     if (user && !hasSeenOnboarding) {

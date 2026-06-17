@@ -586,9 +586,12 @@ export const useFilterStore = create<FilterState>()(
     })),
     {
       name: 'Swipess-filter-storage', // name of the item in the storage (must be unique)
-      partialize: (state) => ({ 
-        categories: state.categories, 
-        activeCategory: state.activeCategory, 
+      partialize: (state) => ({
+        categories: state.categories,
+        // NOTE: activeCategory is intentionally NOT persisted. Persisting it
+        // made the app reopen straight into the last category's swipe deck,
+        // hiding the quick-filter photo-card dashboard. The dashboard must be
+        // the landing view; tapping a card sets the category for the session.
         listingType: state.listingType,
         clientGender: state.clientGender,
         clientType: state.clientType,
