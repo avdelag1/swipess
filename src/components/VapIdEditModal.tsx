@@ -158,8 +158,14 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
           ]
         });
 
-        appToast.success('Document uploaded and sent for review');
+        // Grant verified badge immediately on document upload
+        await supabase.from('profiles').update({ verified: true }).eq('user_id', user.id);
+
+        appToast.success('Document uploaded — Verified badge granted!');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
+        queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
+        queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
+        queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
       } catch (err: any) { appToast.error(err.message || 'Upload failed'); }
       finally { setUploading(null); }
     };

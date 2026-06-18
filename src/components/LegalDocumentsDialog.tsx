@@ -61,7 +61,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const _queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   // Fetch user's legal documents
   const { data: documents = [], isLoading, refetch } = useQuery({
@@ -116,15 +116,23 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
         .single();
 
       if (dbError) throw dbError;
+
+      // Grant verified badge immediately on document upload
+      await supabase.from('profiles').update({ verified: true }).eq('user_id', user.user.id);
+
       return data;
     },
     onSuccess: () => {
-      appToast.success("Document Uploaded");
+      appToast.success("Document uploaded — Verified badge granted!");
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       refetch();
+      queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
+      queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['client-profile-own'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-profile-own'] });
     },
     onError: (_error) => {
       appToast.error("Upload Failed");

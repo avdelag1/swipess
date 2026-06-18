@@ -106,16 +106,17 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
 
       if (requestError) throw requestError;
 
-      // 2. Update client profile verification timestamp
-      const { error: profileError } = await supabase
-        .from('client_profiles')
-        .update({
-          verification_submitted_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+      // 2. Update client profile + grant verified badge
+      const [{ error: profileError }] = await Promise.all([
+        supabase.from('client_profiles').update({
+          verification_submitted_at: new Date().toISOString(),
+          verified: true,
+        }).eq('user_id', user.id),
+        supabase.from('profiles').update({ verified: true }).eq('user_id', user.id),
+      ]);
       if (profileError) throw profileError;
 
-      appToast.success('Identity submitted for review! 🚀');
+      appToast.success('Identity verified — badge granted!');
       onComplete?.();
     } catch (err) {
       logger.error('[Verification] Submission error:', err);
