@@ -35,6 +35,7 @@ import { createHoverPrefetch, prefetchRoute } from '@/utils/routePrefetcher';
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
+import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -57,7 +58,6 @@ const TOUCH_TARGET_TABLET = 42;
 interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
-  onListingsClick?: () => void;
   userRole?: 'client' | 'owner' | 'admin';
   className?: string; // High-stability HUD support
 }
@@ -127,6 +127,8 @@ export const BottomNavigation = memo(({
   }, []);
 
 
+  const { unreadCount: unreadMessages } = useUnreadMessageCount();
+
   const openVapId = useCallback(() => setModal('showVapId', true), [setModal]);
 
   const openAddListing = useCallback(() => {
@@ -144,13 +146,13 @@ export const BottomNavigation = memo(({
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
     { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadMessages || undefined },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
     { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: EVENTS_FEED_PATH },
-  ], [t, openAIChat, openVapId, onFilterClick, openAddListing]);
+  ], [t, openAIChat, openVapId, onFilterClick, openAddListing, unreadMessages]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [pressedId, setPressedId] = useState<string | null>(null);

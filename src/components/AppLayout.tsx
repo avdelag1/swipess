@@ -258,11 +258,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   };
 
-  const handleListingsClick = () => {
-    if (userRole === 'owner') navigate('/owner/properties');
-    else navigate('/client/liked-properties');
-  };
-
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
   return (
@@ -325,7 +320,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             <BottomNavigation
               userRole={userRole as any}
               onFilterClick={handleFilterClick}
-              onListingsClick={handleListingsClick}
               onAddListingClick={() => useModalStore.getState().openAddListing()}
             />
           </SwipessHud>
