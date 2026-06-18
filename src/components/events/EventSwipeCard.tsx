@@ -1,5 +1,5 @@
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { AnimatePresence, animate, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
+import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { Calendar, ChevronLeft, Eye, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';

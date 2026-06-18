@@ -1,6 +1,6 @@
 import { useFilterStore } from '@/state/filterStore';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
-import { resolvePassportLocation, type PassportAction } from '@/utils/passportLocation';
+import { type PassportAction, resolvePassportLocation } from '@/utils/passportLocation';
 import type { QuickFilterCategory } from '@/types/filters';
 
 /** Apply a Global Passport teleport from AI chat or UI. */

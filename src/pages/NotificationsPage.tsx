@@ -143,7 +143,7 @@ const NotificationsPage = () => {
               <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state_subtitle', 'Check back later for system updates')}</p>
             </motion.div>
           ) : (
-            notifications.map((notif, i) => (
+            notifications.map((notif) => (
               <motion.div
                 key={notif.id}
                 initial={{ opacity: 0, x: -20 }}

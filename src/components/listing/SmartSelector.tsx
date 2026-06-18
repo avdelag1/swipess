@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ChipMultiSelect } from './ChipMultiSelect';
-import { SelectorSheet, SelectorTrigger, type SelectorGroup } from './SelectorSheet';
+import { type SelectorGroup, SelectorSheet, SelectorTrigger } from './SelectorSheet';
 import { labelForValue, normalizeOptions, type SelectOption } from './formUtils';
 
 type Accent = 'rose' | 'amber' | 'orange' | 'cyan' | 'emerald' | 'purple';

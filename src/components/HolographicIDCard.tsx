@@ -163,7 +163,7 @@ export function HolographicIDCard({
           <div className="flex-1 flex flex-col" style={disableTilt ? undefined : { transform: 'translateZ(20px)' }}>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {tags.map((tag, i) => (
+                {tags.map((tag) => (
                   <motion.span
                     key={tag}
                     initial={{ opacity: 0, y: 10 }}

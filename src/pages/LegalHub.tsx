@@ -24,7 +24,7 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
-import { ownerTemplates, clientTemplates } from '@/data/contractTemplates';
+import { clientTemplates, ownerTemplates } from '@/data/contractTemplates';
 
 interface LegalIssueCategory {
   id: string;

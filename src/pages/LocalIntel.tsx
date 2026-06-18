@@ -126,7 +126,7 @@ export default function LocalIntel() {
       ) : (
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
-            {filteredPosts.map((post, index) => {
+            {filteredPosts.map((post) => {
               const cat = CATEGORY_CONFIG[post.category] || CATEGORY_CONFIG.general;
               const CatIcon = cat.icon;
               return (

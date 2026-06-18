@@ -836,7 +836,7 @@ export default function AdvertisePage() {
 
                 {/* Category grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  {EVENT_TYPES.map((et, index) => {
+                  {EVENT_TYPES.map((et) => {
                     const selected = form.eventType === et.id;
                     return (
                       <motion.button

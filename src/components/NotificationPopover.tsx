@@ -49,7 +49,7 @@ interface NotificationItemProps {
   index: number;
 }
 
-function NotificationItem({ notification, onClick, onDismiss, index }: NotificationItemProps) {
+function NotificationItem({ notification, onClick, onDismiss, index: _index }: NotificationItemProps) {
   const _role = getNotificationRole(notification);
   const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;

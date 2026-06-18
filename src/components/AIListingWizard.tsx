@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Bike, Briefcase, Building2, Camera,
-  AudioLines, Search, Sparkles, Wand2, X, Zap, Mic
+  AudioLines, Bike, Briefcase, Building2,
+  Camera, Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { MotionIcon } from '@/components/ui/MotionIcon';

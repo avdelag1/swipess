@@ -30,7 +30,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, Flag, MessageCircle, Share2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
+import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';

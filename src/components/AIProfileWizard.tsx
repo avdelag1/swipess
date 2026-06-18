@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AudioLines, Camera, Loader2, Search, Sparkles, Wand2, X, Mic } from 'lucide-react';
+import { AudioLines, Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { Button } from '@/components/ui/button';

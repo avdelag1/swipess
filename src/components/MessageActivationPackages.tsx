@@ -227,7 +227,7 @@ export function MessageActivationPackages({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative z-10">
-          {packagesUI.map((pkg, index) => {
+          {packagesUI.map((pkg) => {
             const Icon = pkg.icon;
             const styles = getTierStyles(pkg.tier);
             const isPremium = pkg.tier === 'premium';

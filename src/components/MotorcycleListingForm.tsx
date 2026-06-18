@@ -9,8 +9,6 @@ import {
   buildMotoDescription,
   buildVehicleTitleFromChips,
   getModelsForBrand,
-  MOTORCYCLE_BRANDS,
-  MOTORCYCLE_MODELS,
   MOTO_CONDITION,
   MOTO_CONDITION_DB,
   MOTO_FEATURES,
@@ -18,6 +16,8 @@ import {
   MOTO_INCLUDED,
   MOTO_TRANSMISSION,
   MOTO_TYPE,
+  MOTORCYCLE_BRANDS,
+  MOTORCYCLE_MODELS,
   PROPERTY_ADJECTIVES,
 } from '@/constants/listingTaxonomies';
 import { DescriptionPreview } from './listing/DescriptionPreview';

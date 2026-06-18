@@ -142,7 +142,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     Tokens are used to message owners or unlock chat actions. One token = one new conversation.
                   </p>
                   <div className="space-y-2.5">
-                    {APPLE_TOKEN_PACKAGES.map((pkg, index) => {
+                    {APPLE_TOKEN_PACKAGES.map((pkg) => {
                         const config = tokenTierConfig[pkg.id] || tokenTierConfig.starter;
                         const Icon = config.icon;
                         const isPopular = pkg.badge === 'Popular' || pkg.badge === 'Best Value';

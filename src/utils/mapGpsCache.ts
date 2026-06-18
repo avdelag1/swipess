@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
-import { canGeolocate, getCurrentPosition, type GeoOptions } from '@/utils/geolocation';
+import { canGeolocate, type GeoOptions, getCurrentPosition } from '@/utils/geolocation';
 
 export type GpsFix = { lat: number; lng: number; accuracy?: number; at: number };
 

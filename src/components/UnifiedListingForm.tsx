@@ -104,7 +104,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [showVideoPanel, setShowVideoPanel] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const [stepDir, setStepDir] = useState(1);
+  const [_stepDir, setStepDir] = useState(1);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const photoListRef = useRef(photoList);

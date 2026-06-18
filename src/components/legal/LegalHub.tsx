@@ -250,12 +250,6 @@ export function ContractsVault() {
     }
   }, [enhanceText]);
 
-  const handleStartSigning = (contract: any) => {
-    triggerHaptic('medium');
-    setActiveContract(contract);
-    setView('signing');
-  };
-
   const handleClose = () => {
     setView('dashboard');
     setSelectedTemplate(null);
@@ -683,7 +677,7 @@ export function ContractsVault() {
                     <span className={cn("text-[10px] font-black uppercase tracking-[0.35em] opacity-50 italic", isLight ? "text-black" : "text-white")}>Other contracts</span>
                   </div>
                   <div className="grid grid-cols-1 gap-4">
-                    {otherTemplates.map((template, i) => (
+                    {otherTemplates.map((template) => (
                       <motion.button
                         key={template.id}
                         initial={{ opacity: 0, y: 10 }}

@@ -139,7 +139,7 @@ const MaintenanceRequests = () => {
                 </motion.div>
               ) : (
                 <div className="space-y-3">
-                  {filtered.map((req, i) => {
+                  {filtered.map((req) => {
                     const status = statusConfig[req.status] || statusConfig.submitted;
                     const StatusIcon = status.icon;
                     const CatIcon = categoryIcons[req.category] || MoreHorizontal;

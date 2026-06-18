@@ -25,7 +25,7 @@ export function ActivityFeed() {
 
     return (
         <div className="space-y-3">
-            {relevantNotifs.map((notif, i) => (
+            {relevantNotifs.map((notif) => (
                 <motion.div
                     key={notif.id}
                     initial={{ opacity: 0, y: 12 }}

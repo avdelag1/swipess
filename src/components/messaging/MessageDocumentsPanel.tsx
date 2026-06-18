@@ -2,16 +2,16 @@ import { memo, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  FileText, FolderOpen, PenLine, ScrollText, Send, X, Download, Plus,
+  Download, FileText, FolderOpen, PenLine, Plus, ScrollText, Send, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import {
+  extractThreadDocuments,
   useConversationVaultDocuments,
   useSendDocumentMessage,
   useShareVaultFileMessage,
-  extractThreadDocuments,
 } from '@/hooks/useMessageDocuments';
 import { useConversationMessages } from '@/hooks/useConversations';
 import {

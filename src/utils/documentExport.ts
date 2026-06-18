@@ -104,7 +104,7 @@ ${htmlContent}
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  const safeName = title.replace(/[^\w\s\-]/g, '').trim() || 'contract';
+  const safeName = title.replace(/[^\w\s-]/g, '').trim() || 'contract';
   a.download = `${safeName}.doc`;
   document.body.appendChild(a);
   a.click();

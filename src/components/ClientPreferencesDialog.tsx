@@ -14,7 +14,7 @@ import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
 import { useFilterStore } from '@/state/filterStore'
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 
 
 interface ClientPreferencesDialogProps {

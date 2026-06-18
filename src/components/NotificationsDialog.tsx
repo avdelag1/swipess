@@ -188,7 +188,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                 ) : (
                   <AnimatePresence mode="popLayout">
                     <div className="space-y-2">
-                      {filteredNotifications.map((notification, index) => {
+                      {filteredNotifications.map((notification) => {
                         const role = getNotificationRole(notification);
                         return (
                           <motion.div

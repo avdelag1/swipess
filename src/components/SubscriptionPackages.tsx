@@ -191,7 +191,7 @@ export function SubscriptionPackages({
         'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-6 items-stretch',
         showAsPage ? 'overflow-visible' : 'overflow-y-auto no-scrollbar'
       )}>
-        {clientPlans.map((pkg, index) => {
+        {clientPlans.map((pkg) => {
           const style = accentStyles[pkg.accent];
           const isHighlight = pkg.highlight;
 

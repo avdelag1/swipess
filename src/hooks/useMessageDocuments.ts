@@ -5,15 +5,15 @@ import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { shareContractInConversation } from '@/utils/contractSigning';
 import {
-  type DocumentAttachment,
-  type VaultContractRow,
-  type VaultFileRow,
   buildDocumentShareContent,
   contractDisplayStatus,
+  type DocumentAttachment,
   isContractWithParty,
   isDocumentMessage,
   isVaultDraft,
   parseDocumentAttachments,
+  type VaultContractRow,
+  type VaultFileRow,
 } from '@/utils/messageDocuments';
 
 export function useUserVaultDocuments() {

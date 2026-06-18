@@ -205,7 +205,7 @@ export default function EventosLikes() {
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
             <AnimatePresence mode='popLayout'>
-              {filtered.map((ev, idx) => (
+              {filtered.map((ev) => (
                 <motion.div
                   key={ev.id}
                   layout

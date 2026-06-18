@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, Flag, MessageCircle, Share2, ChevronLeft, RotateCcw, Mic, Map } from 'lucide-react';
+import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';

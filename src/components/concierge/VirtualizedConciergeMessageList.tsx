@@ -1,5 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useEffect, type RefObject } from 'react';
+import { type RefObject, useEffect } from 'react';
 import type { ChatMessage } from '@/hooks/useConciergeAI';
 import { MessageBubble } from '@/components/concierge/MessageBubble';
 import { TypingIndicator } from '@/components/concierge/TypingIndicator';

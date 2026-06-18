@@ -279,7 +279,7 @@ export function LikedClients() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"><div className="h-96 rounded-[2.5rem] bg-muted animate-pulse" /></div>
         ) : filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredClients.map((client: any, idx) => (
+            {filteredClients.map((client: any) => (
               <motion.div key={client.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}>
                 <PremiumLikedCard type="profile" data={client} onAction={(action) => handleAction(action, client)} />
               </motion.div>

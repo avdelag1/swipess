@@ -216,7 +216,7 @@ export function MemoryDrawer({ open, onOpenChange, isDark }: MemoryDrawerProps) 
           ) : (
             <div className="space-y-2 pb-4">
               <AnimatePresence>
-                {filtered.map((memory, index) => {
+                {filtered.map((memory) => {
                   const cat = getCategoryStyle(memory.category);
                   return (
                     <motion.div

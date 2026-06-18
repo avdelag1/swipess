@@ -14,8 +14,8 @@ import { usePolishedDescription } from '@/hooks/usePolishedDescription';
 import {
   buildClientBioFromChips,
   CLIENT_BIO_PHRASES,
-  LANGUAGES as PROFILE_LANGUAGES,
   OCCUPATION_SUGGESTIONS,
+  LANGUAGES as PROFILE_LANGUAGES,
 } from '@/constants/listingTaxonomies';
 
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
@@ -42,7 +42,6 @@ import {
   DRINKING_HABIT_OPTIONS,
   CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS,
   INTEREST_OPTIONS,
-  NOISE_TOLERANCE_OPTIONS,
   PERSONALITY_OPTIONS,
   SMOKING_HABIT_OPTIONS,
   WORK_SCHEDULE_OPTIONS,
@@ -266,10 +265,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     if (intentions.includes(intentionId)) setIntentions(intentions.filter(i => i !== intentionId));
     else setIntentions([...intentions, intentionId]);
   };
-
-  const completionPercentage = Math.round(
-    ((name ? 20 : 0) + (age ? 10 : 0) + (profileImages.length > 0 ? 30 : 0) + (intentions.length > 0 ? 20 : 0) + (city ? 20 : 0))
-  );
 
   const goNext = useCallback(() => {
     triggerHaptic('light');

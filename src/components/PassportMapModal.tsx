@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Globe2, LayoutList, Loader2, MapPin, Navigation, Search, Users, X, Menu } from 'lucide-react';
+import { Building2, Globe2, LayoutList, Loader2, MapPin, Menu, Navigation, Search, Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -14,13 +14,13 @@ import {
   applyCinematicFog,
   CINEMATIC_BEARING,
   CINEMATIC_OPEN_ALTITUDE_ZOOM,
-  FLY_DURATION_OPEN_MS,
-  OPEN_CENTER_MS,
   cinematicEaseTo,
   cinematicFlyTo,
   cinematicMaxPitchForViewport,
   cinematicOpenGlide,
   cinematicPitchForViewport,
+  FLY_DURATION_OPEN_MS,
+  OPEN_CENTER_MS,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
@@ -32,10 +32,10 @@ import { PassportMapResultsRail } from '@/components/passport/PassportMapResults
 import {
   createListingMarkerEl,
   createProfileMarkerEl,
-  updateListingMarkerEl,
-  updateProfileMarkerEl,
   type MapLayerFilter,
   type SelectedPin,
+  updateListingMarkerEl,
+  updateProfileMarkerEl,
 } from '@/components/passport/passportMapMarkers';
 import {
   bindMapDoubleTapZoom,
@@ -67,12 +67,12 @@ import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
   coordsNearFix,
   getCachedGpsFix,
+  type GpsFix,
   prefetchUserGps,
   seedGpsCache,
   startGpsWatch,
   stopGpsWatch,
   subscribeGpsFix,
-  type GpsFix,
 } from '@/utils/mapGpsCache';
 
 type MapboxGL = typeof import('mapbox-gl').default;

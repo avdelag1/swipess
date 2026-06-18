@@ -4,9 +4,9 @@ import { useAuth } from './useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
 import {
-  PLAN_LIMITS,
   computeCanStartNewConversation,
   fetchTokenBalance,
+  PLAN_LIMITS,
 } from '@/utils/messagingEntitlements';
 
 export function useMessagingQuota() {

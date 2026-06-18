@@ -13,7 +13,6 @@ import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useSiteContent } from '@/hooks/useSiteContent';

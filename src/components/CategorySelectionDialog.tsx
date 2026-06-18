@@ -264,7 +264,7 @@ export function CategorySelectionDialog({
                     transition={{ duration: 0.08, ease: "easeOut" }}
                     className="grid grid-cols-1 gap-3"
                   >
-                  {categories.map((category, index) => (
+                  {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => handleCategorySelect(category)}
@@ -341,7 +341,7 @@ export function CategorySelectionDialog({
                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] italic">Listing Type</h4>
                        <div className="h-px flex-1 bg-gradient-to-r from-border/50 to-transparent" />
                     </div>
-                    {modes.map((mode, index) => (
+                    {modes.map((mode) => (
                       <button
                         key={mode.id}
                         onClick={() => handleModeSelect(mode.id)}

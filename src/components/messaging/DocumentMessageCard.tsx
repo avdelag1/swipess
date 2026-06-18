@@ -1,13 +1,13 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, PenLine, Download } from 'lucide-react';
+import { Download, FileText, PenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  type DocumentAttachment,
   contractStatusLabel,
   contractStatusTone,
+  type DocumentAttachment,
 } from '@/utils/messageDocuments';
 import { supabase } from '@/integrations/supabase/client';
 import { downloadAsPDF } from '@/utils/documentExport';

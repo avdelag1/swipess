@@ -15,9 +15,9 @@ import {
   Crown,
   Home,
   Key,
+  Search,
   ShoppingCart,
   UserCheck,
-  Search,
   Users
 } from 'lucide-react';
 

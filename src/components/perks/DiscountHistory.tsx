@@ -54,7 +54,7 @@ export function DiscountHistory({ redemptions }: DiscountHistoryProps) {
 
       {/* Timeline */}
       <div className="space-y-0.5">
-        {redemptions.map((r, i) => (
+        {redemptions.map((r) => (
           <motion.div
             key={r.id}
             initial={{ opacity: 0, x: -12 }}

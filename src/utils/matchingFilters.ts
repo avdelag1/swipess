@@ -1,7 +1,7 @@
 import type { Listing } from '@/hooks/useListings';
 import type { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import type { ListingFilters } from '@/types/filters';
-import { calculateListingMatch, calculateClientMatch } from '@/hooks/smartMatching/matchCalculators';
+import { calculateClientMatch, calculateListingMatch } from '@/hooks/smartMatching/matchCalculators';
 import type { MatchedClientProfile } from '@/hooks/smartMatching/types';
 import { filterClientTypeToDb, resolveClientType } from '@/utils/clientType';
 

@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, type CSSProperties } from 'react';
+import { type CSSProperties, memo, useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, MapPin, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';

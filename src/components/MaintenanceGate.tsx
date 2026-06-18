@@ -1,5 +1,5 @@
 import React, { startTransition, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, ChevronDown, Lock, MessageSquare, Send, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
