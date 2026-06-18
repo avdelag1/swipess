@@ -38,7 +38,7 @@ const PACKAGES = [
       "Direct WhatsApp connection — leads contact you instantly",
     ],
     tagline: "Try it for a week — no commitment",
-    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL'),
+    paypalUrl: getSafePaymentUrl('ZXQC96VYV7JLL'),
   },
   {
     id: "growth",
@@ -58,7 +58,7 @@ const PACKAGES = [
     ],
     popular: true,
     tagline: "Best value — 3 months of organic reach",
-    paypalUrl: getSafePaymentUrl("https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU"),
+    paypalUrl: getSafePaymentUrl('ATKD4TR7KFTJU'),
   },
   {
     id: "premium",
@@ -77,7 +77,7 @@ const PACKAGES = [
       "Dedicated account manager & VIP support",
     ],
     tagline: "6 months of maximum visibility & VIP support",
-    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW'),
+    paypalUrl: getSafePaymentUrl('LK7XWSMDHH8AW'),
   },
 ];
 
@@ -377,8 +377,12 @@ export default function AdvertisePage() {
       }
 
       // WEB FALLBACK (Stripe/PayPal)
-      window.open(pkg.paypalUrl, '_blank');
-      appToast.success("Redirecting to Checkout");
+      if (pkg.paypalUrl) {
+        window.open(pkg.paypalUrl, '_blank');
+        appToast.success("Redirecting to Checkout");
+      } else {
+        appToast.error("Checkout Unavailable", "Please use the App Store on iOS devices.");
+      }
       return;
     }
 

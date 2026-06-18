@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { StoreKitService } from './StoreKitService';
 import { NativeBridge } from '@/utils/nativeBridge';
-import { getSafePaymentUrl } from '@/config/iapProducts';
 import { appToast } from '@/utils/appNotification';
 import { Browser } from '@capacitor/browser';
 import { STORAGE } from '@/constants/app';
@@ -44,7 +43,7 @@ export const PaymentOrchestrator = {
     }
 
     // Web Fallback
-    const safePaypalUrl = getSafePaymentUrl(options.paypalUrl);
+    const safePaypalUrl = options.paypalUrl;
     if (!safePaypalUrl) {
       appToast.error('In-App Purchase Required', 'This plan is only available through the App Store on iOS.');
       options.onError?.('NO_WEB_FALLBACK');

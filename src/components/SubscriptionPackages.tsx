@@ -47,7 +47,7 @@ const clientPlans: Plan[] = [
       '🤖 AI Concierge — 15 messages/day',
       '📝 AI Listing Creator — 3/month',
     ],
-    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY') ?? '',
+    paypalUrl: getSafePaymentUrl('QSRXCJYYQ2UGY') ?? '',
     accent: 'blue',
   },
   {
@@ -66,7 +66,7 @@ const clientPlans: Plan[] = [
       '🗺️ Local Expert Knowledge',
       '💡 AI Smart Suggestions',
     ],
-    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/HUESWJ68BRUSY') ?? '',
+    paypalUrl: getSafePaymentUrl('HUESWJ68BRUSY') ?? '',
     accent: 'pink',
   },
   {
@@ -86,7 +86,7 @@ const clientPlans: Plan[] = [
       '💡 AI Personalized Suggestions',
       '⚡ Priority AI Responses',
     ],
-    paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/7E6R38L33LYUJ') ?? '',
+    paypalUrl: getSafePaymentUrl('7E6R38L33LYUJ') ?? '',
     highlight: true,
     accent: 'gold',
   },
