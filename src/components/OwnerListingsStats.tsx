@@ -9,7 +9,7 @@ interface OwnerListingsStatsProps {
 }
 
 export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsStatsProps) {
-  const { stats, categoryBreakdown } = useMemo(() => {
+  const { stats, categoryBreakdown, totalListings } = useMemo(() => {
     const totalListings = listings.length;
     const activeListings = listings.filter(l => l.status === 'active' && l.is_active).length;
     const totalViews = listings.reduce((sum, l) => sum + (l.views || 0), 0);
@@ -65,7 +65,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
     ].filter(c => c.count > 0);
 
-    return { stats, categoryBreakdown };
+    return { stats, categoryBreakdown, totalListings };
   }, [listings]);
 
   return (

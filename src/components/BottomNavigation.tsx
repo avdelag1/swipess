@@ -417,17 +417,18 @@ export const BottomNavigation = memo(({
                 >
 
                   {/* Notification badge */}
-                  <AnimatePresence mode="popLayout">
+                  <AnimatePresence>
                     {item.badge && item.badge > 0 && (
                       <motion.span
+                        key={`${item.id}-badge`}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="force-white absolute -top-1 -right-1 rounded-full min-w-[18px] h-[18px] z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
+                        className="force-white absolute -top-1 -right-1 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm px-1"
                         style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
                       >
-                        {item.badge}
+                        {item.badge > 99 ? '99+' : item.badge}
                       </motion.span>
                     )}
                   </AnimatePresence>

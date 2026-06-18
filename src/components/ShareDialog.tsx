@@ -197,14 +197,20 @@ export function ShareDialog({
               <span className="text-[10px] font-bold uppercase tracking-wider">Facebook</span>
             </button>
             <button
-              onClick={async () => {
+              onClick={() => {
                 triggerHaptic('medium');
-                const shared = await shareViaNavigator({ title, text: shareText, url: shareUrl });
-                if (!shared) {
-                  const ok = await copyToClipboard(shareUrl);
-                  if (ok) appToast.success('Link copied — share on Instagram');
-                }
-                createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'instagram' });
+                (async () => {
+                  try {
+                    const shared = await shareViaNavigator({ title, text: shareText, url: shareUrl });
+                    if (!shared) {
+                      const ok = await copyToClipboard(shareUrl);
+                      if (ok) appToast.success('Link copied — share on Instagram');
+                    }
+                    createShare.mutateAsync({ sharedListingId: listingId, sharedProfileId: profileId, shareMethod: 'instagram' });
+                  } catch {
+                    appToast.error('Could not share. Try copying the link instead.');
+                  }
+                })();
               }}
               className="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white active:scale-95 transition-all shadow-md hover:brightness-110"
             >

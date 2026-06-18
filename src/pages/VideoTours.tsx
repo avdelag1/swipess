@@ -137,12 +137,14 @@ export default function VideoTours() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           aria-label="Share tour"
-          onClick={async () => {
+          onClick={() => {
             const listing = listings[currentIndex];
             if (!listing) return;
             const url = `${window.location.origin}/listing/${listing.id}`;
             if (canNativeShare()) {
-              await shareViaNavigator({ title: listing.title, text: listing.title, url });
+              shareViaNavigator({ title: listing.title, text: listing.title, url }).catch(e =>
+                logger.error('[VideoTours] share failed:', e)
+              );
             } else {
               navigate(`/listing/${listing.id}`);
             }

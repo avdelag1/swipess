@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { logger } from '@/utils/prodLogger';
 
 export function useUnreadMessageCount() {
   const { user } = useAuth();
   const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const instanceId = useId();
 
   const query = useQuery({
     queryKey: ['unread-message-count', user?.id],
-    placeholderData: (prev) => prev,
+    placeholderData: user?.id ? (prev: number | undefined) => prev : undefined,
     queryFn: async () => {
       if (!user?.id) return 0;
 
@@ -62,7 +63,7 @@ export function useUnreadMessageCount() {
     if (!user?.id) return;
 
     const channel = supabase
-      .channel('unread-messages-count-filtered')
+      .channel(`unread-messages-count-${instanceId}`)
       .on(
         'postgres_changes',
         {
@@ -122,7 +123,7 @@ export function useUnreadMessageCount() {
   }, [user?.id]);
 
   return {
-    unreadCount: query.data || 0,
+    unreadCount: user?.id ? (query.data || 0) : 0,
     isLoading: query.isLoading,
     refetch: query.refetch
   };

@@ -63,7 +63,10 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
       } as any).eq('user_id', user.id);
       if (profileError) throw profileError;
 
-      appToast.success('Verification document submitted! Review typically takes 24-48 hours.');
+      // Grant verified badge immediately
+      await supabase.from('profiles').update({ verified: true }).eq('user_id', user.id);
+
+      appToast.success('Document uploaded — Verified badge granted!');
       setStep(2);
     } catch (err) {
       logger.error('Upload error:', err);
