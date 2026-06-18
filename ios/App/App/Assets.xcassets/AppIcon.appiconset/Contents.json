@@ -1,14 +1,133 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "Swipess_AppStore_Icon_1024.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "filename": "Swipess_AppStore_Icon_1024.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_20x20@2x.png",
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "20x20",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_20x20@3x.png",
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "20x20",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_29x29@2x.png",
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "29x29",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_29x29@3x.png",
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "29x29",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_40x40@2x.png",
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "40x40",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_40x40@3x.png",
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "40x40",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_60x60@2x.png",
+      "idiom": "iphone",
+      "scale": "2x",
+      "size": "60x60",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_iphone_60x60@3x.png",
+      "idiom": "iphone",
+      "scale": "3x",
+      "size": "60x60",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_20x20.png",
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "20x20",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_20x20@2x.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "20x20",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_29x29.png",
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "29x29",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_29x29@2x.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "29x29",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_40x40.png",
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "40x40",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_40x40@2x.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "40x40",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_76x76.png",
+      "idiom": "ipad",
+      "scale": "1x",
+      "size": "76x76",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_76x76@2x.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "76x76",
+      "platform": "ios"
+    },
+    {
+      "filename": "Swipess_Icon_ipad_83_5x83_5@2x.png",
+      "idiom": "ipad",
+      "scale": "2x",
+      "size": "83.5x83.5",
+      "platform": "ios"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

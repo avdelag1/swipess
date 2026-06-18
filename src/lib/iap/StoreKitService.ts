@@ -13,7 +13,7 @@ import { ALL_APPLE_PRODUCTS, APPLE_SUBSCRIPTION_PRODUCTS } from '@/config/iapPro
 
 type PurchaseResult = { success: boolean; transactionId?: string; error?: string };
 
-let initialized = false;
+let initState: 'uninitialized' | 'initializing' | 'ready' | 'failed' = 'uninitialized';
 
 function getStore(): any | null {
   // cordova-plugin-purchase exposes CdvPurchase on window once the device
@@ -38,12 +38,14 @@ export const StoreKitService = {
   },
 
   async init(): Promise<void> {
-    if (initialized || !this.isAvailable()) return;
+    if (initState === 'ready' || initState === 'initializing' || !this.isAvailable()) return;
+    initState = 'initializing';
     try {
       await ensureDeviceReady();
       const store = getStore();
       if (!store) {
         logger.warn('[IAP] CdvPurchase.store unavailable; skipping init');
+        initState = 'failed';
         return;
       }
       const cdv = (window as any).CdvPurchase;
@@ -89,7 +91,7 @@ export const StoreKitService = {
           // If we are in local development/simulator, the Apple Prod verification endpoint will fail.
           // We must finish the transaction after a delay to prevent the consumable from getting stuck forever.
           setTimeout(() => {
-            if (tx.state !== cdv.TransactionState.FINISHED) {
+            if (tx.state !== (window as any).CdvPurchase.TransactionState.FINISHED) {
               logger.warn('[IAP] Force-finishing stuck transaction to clear queue.');
               tx.finish();
             }
@@ -106,9 +108,24 @@ export const StoreKitService = {
         : (window as any).CdvPurchase.Platform.GOOGLE_PLAY;
 
       await store.initialize([platformConfig]);
-      initialized = true;
+
+      // Wait for products to finish loading from App Store Connect
+      // before allowing purchases — prevents 'PRODUCT_NOT_FOUND' race
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          logger.warn('[IAP] Product loading timed out; proceeding anyway');
+          resolve();
+        }, 15000);
+        store.when().ready(() => {
+          clearTimeout(timeout);
+          resolve();
+        });
+      });
+
+      initState = 'ready';
     } catch (e) {
       logger.error('[IAP] init failed', e);
+      initState = 'failed';
     }
   },
 
@@ -117,10 +134,25 @@ export const StoreKitService = {
       return { success: false, error: 'NOT_NATIVE' };
     }
     await this.init();
+
+    if (initState === 'failed') {
+      return { success: false, error: 'App Store connection unavailable. Please try again later.' };
+    }
+
     const store = getStore();
     if (!store) return { success: false, error: 'STORE_UNAVAILABLE' };
 
-    const product = store.get(productId);
+    // Retry product lookup with backoff — products may still be loading
+    // or the .ready() callback may have fired before all products resolved
+    let product = store.get(productId);
+    if (!product) {
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => setTimeout(r, 500));
+        product = store.get(productId);
+        if (product) break;
+      }
+    }
+
     if (!product) return { success: false, error: 'PRODUCT_NOT_FOUND' };
     if (!product.canPurchase) return { success: false, error: 'CANNOT_PURCHASE' };
 
@@ -172,6 +204,7 @@ export const StoreKitService = {
   async restore(): Promise<PurchaseResult> {
     if (!this.isAvailable()) return { success: false, error: 'NOT_NATIVE' };
     await this.init();
+    if (initState === 'failed') return { success: false, error: 'STORE_UNAVAILABLE' };
     const store = getStore();
     if (!store) return { success: false, error: 'STORE_UNAVAILABLE' };
     try {

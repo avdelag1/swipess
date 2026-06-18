@@ -116,10 +116,15 @@ export function MessageActivationPackages({
       appToast.info("In-App Purchase", "Connecting to App Store...");
       const result = await NativeBridge.purchaseProduct(pkg.appleProductId || '');
       if (result.success) {
-        appToast.info("Success", "Tokens activated!");
+        appToast.success("Success", "Tokens activated!");
         onClose?.();
       } else {
-        appToast.error("Purchase Cancelled", "Transaction failed or was cancelled.");
+        const errMsg = result.error || "Transaction failed or was cancelled.";
+        if (errMsg === 'CANCELLED') {
+          appToast.info("Purchase Cancelled", "You cancelled the purchase.");
+        } else {
+          appToast.error("Purchase Failed", errMsg);
+        }
       }
       return;
     }
@@ -129,7 +134,7 @@ export function MessageActivationPackages({
 
   const handleRestore = () => {
     appToast.info("Restoring Purchases", "Checking your Apple ID for recent token activations...");
-    setTimeout(() => appToast.info("Done", "All active tokens have been restored."), 1500);
+    setTimeout(() => appToast.success("Restore Complete", "All active tokens have been restored."), 1500);
   };
 
   const packagesUI = convertPackages();
