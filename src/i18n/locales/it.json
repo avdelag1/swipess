@@ -545,6 +545,7 @@
     "youAreHere": "Sei qui",
     "findingYou": "Ti sto cercando…",
     "scanningArea": "Scansione area…",
+    "enableLocationHint": "Tocca GPS o abilita la posizione",
     "noResults": "Nessun annuncio entro {{radius}} km",
     "loadError": "Impossibile caricare i dati della mappa",
     "doubleTapHint": "Tocca due volte la mappa per ingrandire",

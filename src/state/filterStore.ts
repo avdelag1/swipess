@@ -77,23 +77,18 @@ interface FilterState {
   petFriendly: boolean;
   
   filterVersion: number;
-  lastChangedAt: number;
 
-  kmHudExpanded: boolean;
   ownerPhase: 'cards' | 'kilometer' | 'swipe';
 
   // ========== QUICK FILTER CARD POSITIONS ==========
   // Persist the rotation order of poker-style category cards so returning
   // from a filtered deck lands on the same card the user was viewing.
   pokerCardOrder: string[] | null;
-  ownerPokerCardOrder: string[] | null;
 
   // ACTIONS
   setActiveCategory: (category: QuickFilterCategory | null) => void;
   setOwnerPhase: (phase: 'cards' | 'kilometer' | 'swipe') => void;
-  setKmHudExpanded: (v: boolean) => void;
   setPokerCardOrder: (order: string[]) => void;
-  setOwnerPokerCardOrder: (order: string[]) => void;
   toggleCategory: (category: QuickFilterCategory) => void;
   setCategories: (categories: QuickFilterCategory[]) => void;
   /** Single filterVersion bump when picking a bento category + listing type. */
@@ -176,26 +171,20 @@ export const useFilterStore = create<FilterState>()(
     furnished: false,
     petFriendly: false,
     filterVersion: 0,
-    lastChangedAt: Date.now(),
 
-    kmHudExpanded: false,
     ownerPhase: 'cards',
     pokerCardOrder: null,
-    ownerPokerCardOrder: null,
 
     // ACTIONS
-    setKmHudExpanded: (v) => set({ kmHudExpanded: v }),
     setOwnerPhase: (phase) => {
       set({ ownerPhase: phase });
     },
     setPokerCardOrder: (order) => set({ pokerCardOrder: order }),
-    setOwnerPokerCardOrder: (order) => set({ ownerPokerCardOrder: order }),
 
     setRadiusKm: (radius) => {
       set((state) => ({
         radiusKm: radius,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setUserLocation: (lat, lon) => {
@@ -205,7 +194,6 @@ export const useFilterStore = create<FilterState>()(
         passportMode: false,
         passportLabel: null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setPassportLocation: (lat, lon, label) => {
@@ -215,7 +203,6 @@ export const useFilterStore = create<FilterState>()(
         passportMode: true,
         passportLabel: label ?? null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     clearPassportLocation: () => {
@@ -223,7 +210,6 @@ export const useFilterStore = create<FilterState>()(
         passportMode: false,
         passportLabel: null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     updateFilters: (filters: Record<string, any>) => {
@@ -268,7 +254,6 @@ export const useFilterStore = create<FilterState>()(
         return {
           ...mapped,
           filterVersion: state.filterVersion + 1,
-          lastChangedAt: Date.now(),
         };
       });
     },
@@ -279,7 +264,6 @@ export const useFilterStore = create<FilterState>()(
         passportMode: false,
         passportLabel: null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setActiveCategory: (category) => {
@@ -289,7 +273,6 @@ export const useFilterStore = create<FilterState>()(
         categories: category ? [category] : [],
         accentColor: category ? (CATEGORY_ACCENTS[category] ?? null) : null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     toggleCategory: (category) => {
@@ -304,7 +287,6 @@ export const useFilterStore = create<FilterState>()(
           activeCategory: single,
           accentColor: single ? (CATEGORY_ACCENTS[single] ?? null) : null,
           filterVersion: state.filterVersion + 1,
-          lastChangedAt: Date.now(),
         };
       });
     },
@@ -322,7 +304,6 @@ export const useFilterStore = create<FilterState>()(
         accentColor: CATEGORY_ACCENTS[category] ?? null,
         listingType,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       });
     },
     setCategories: (categories) => {
@@ -334,7 +315,6 @@ export const useFilterStore = create<FilterState>()(
         activeCategory,
         accentColor: activeCategory ? (CATEGORY_ACCENTS[activeCategory] ?? null) : null,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setListingType: (type) => {
@@ -342,98 +322,84 @@ export const useFilterStore = create<FilterState>()(
       set((state) => ({
         listingType: type,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setClientGender: (gender) => {
       set((state) => ({
         clientGender: gender,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setClientType: (type) => {
       set((state) => ({
         clientType: type,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setClientAgeRange: (range) => {
       set((state) => ({
         clientAgeRange: range,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setClientBudgetRange: (range) => {
       set((state) => ({
         clientBudgetRange: range,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setClientNationalities: (nationalities) => {
       set((state) => ({
         clientNationalities: nationalities,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setPriceRange: (range) => {
       set((state) => ({
         priceRange: range,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setBedrooms: (bedrooms) => {
       set((state) => ({
         bedrooms,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setBathrooms: (bathrooms) => {
       set((state) => ({
         bathrooms,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setAmenities: (amenities) => {
       set((state) => ({
         amenities,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setPropertyTypes: (types) => {
       set((state) => ({
         propertyTypes: types,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setServiceTypes: (types) => {
       set((state) => ({
         serviceTypes: types,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setMotoTypes: (types) => {
       set((state) => ({
         motoTypes: types,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setBicycleTypes: (types) => {
       set((state) => ({
         bicycleTypes: types,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     setFilters: (filters: Record<string, unknown>) => {
@@ -465,7 +431,6 @@ export const useFilterStore = create<FilterState>()(
         ...(filters.clientNationalities !== undefined && { clientNationalities: filters.clientNationalities as string[] }),
         ...(filters.accentColor !== undefined && { accentColor: filters.accentColor as string | null }),
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     resetClientFilters: () => {
@@ -486,7 +451,6 @@ export const useFilterStore = create<FilterState>()(
         petFriendly: false,
         radiusKm: DEFAULT_RADIUS_KM,
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     resetOwnerFilters: () => {
@@ -500,7 +464,6 @@ export const useFilterStore = create<FilterState>()(
         clientBudgetRange: null,
         clientNationalities: [],
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     resetAllFilters: () => {
@@ -516,7 +479,6 @@ export const useFilterStore = create<FilterState>()(
         amenities: [],
         propertyTypes: [],
         filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
       }));
     },
     getQuickFilters: () => {

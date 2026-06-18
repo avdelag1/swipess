@@ -284,7 +284,12 @@
     "youAreHere": "Вы здесь",
     "findingYou": "Ищем вас…",
     "scanningArea": "Сканируем район…",
-    "doubleTapHint": "Двойной тап по карте — приблизить"
+    "enableLocationHint": "Нажмите GPS или включите геолокацию",
+    "noResults": "Нет объявлений в радиусе {{radius}} км",
+    "loadError": "Не удалось загрузить данные карты",
+    "doubleTapHint": "Двойной тап по карте — приблизить",
+    "expandControls": "Показать управление картой",
+    "collapseControls": "Скрыть управление картой"
   },
   "tokens": {
     "outOfTokens": "Нет токенов сообщений",
