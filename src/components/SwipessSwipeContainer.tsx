@@ -47,7 +47,6 @@ import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
-
 import { categoryToClientType, resolveClientType } from '@/utils/clientType';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -185,8 +184,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const deckCategory = activeCategory;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Tracked in state so ref-only deck updates always trigger a re-render.
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
   // True from the moment a quick-filter changes until the new query settles.
   // Keeps the clean loader on screen so the "No results" exhausted card can
   // never flash in the gap before react-query flips isFetching.
@@ -493,32 +491,22 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, [smartData]);
 
   if (listingIdsSignature !== prevListingIdsRef.current && listingIdsSignature.length > 0) {
-    const dismissedSet = new Set(dismissedIds);
     const currentIds = new Set(deckQueueRef.current.map(l => l.id));
-    const newIds = smartData.filter(l =>
-      !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id) && !dismissedSet.has(l.id),
-    );
+    const newIds = smartData.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
 
-    const seedDeck = (items: typeof smartData) => {
-      const fresh = items.filter(l =>
-        !swipedIdsRef.current.has(l.id) && !dismissedSet.has(l.id),
-      );
-      if (fresh.length === 0) return;
-      deckQueueRef.current = fresh;
-      setDeckLength(fresh.length);
-      setClientDeck(deckCategory || 'all', fresh, false);
-    };
-
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
-      seedDeck(smartData);
+      deckQueueRef.current = smartData;
+      setDeckLength(smartData.length);
     } else if (activeMode === 'client' && smartData.length > 0) {
       const firstIncoming = smartData[0]?.id;
       const firstCurrent = deckQueueRef.current[currentIndexRef.current]?.id;
       const userHasNotStartedThisDeck = currentIndexRef.current === 0 && swipedIdsRef.current.size === 0;
       if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
-        seedDeck(smartData);
+        deckQueueRef.current = smartData;
+        setDeckLength(smartData.length);
+        setClientDeck(deckCategory || 'all', smartData, false);
       }
     }
   }
@@ -615,8 +603,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   const deckQueue = deckQueueRef.current;
-  const hasDeckCards = deckLength > 0 && deckQueue.length > 0;
-  const topCard = hasDeckCards && currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
+  const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const topCardIdentity = topCard?.id || topCard?.user_id || '';
 
   useEffect(() => {
@@ -860,20 +847,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               return;
             }
             if (cat === 'property') {
-              // Bento card says "buy or rent" — don't hard-filter to sale only.
-              selectDeckCategory('property', 'both');
+              selectDeckCategory('property', 'sale');
               return;
             }
             if (cat === 'events') {
               navigate(EVENTS_FEED_PATH);
-              return;
-            }
-            if (cat === 'roommates') {
-              navigate('/explore/roommates');
-              return;
-            }
-            if (cat === 'seekers') {
-              navigate('/explore/seekers');
               return;
             }
             selectDeckCategory(cat as Parameters<typeof selectDeckCategory>[0], 'both');
@@ -903,7 +881,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const currentCategoryName = categoryNames[deckCategory] || deckCategory;
 
   if (
-    !hasDeckCards
+    deckQueue.length === 0
     && (isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current)
   ) {
     return <SwipeLoadingSkeleton />;
@@ -912,11 +890,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   return (
     <>
     <div className={cn(
-      "absolute inset-0 w-full h-full flex flex-col transition-colors duration-200 overflow-hidden",
+      "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
       "bg-swipe-frame"
     )}>
       <div className={cn(
-        "absolute inset-0 pointer-events-none -z-10 transition-colors duration-200",
+        "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
         "bg-swipe-frame"
       )} />
 
@@ -946,19 +924,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         >
           <motion.div
             className="relative w-full h-full mx-auto flex items-stretch justify-stretch pointer-events-auto md:max-w-[640px]"
-            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)' }}
+            style={{ y: pullDown.y, scale: pullDown.scale, opacity: pullDown.opacity, transform: 'translateZ(0)', willChange: 'transform' }}
           >
             {/* Rounded backdrop matches card corners so deck blends into background */}
             <div
               aria-hidden
               className={cn(
-                "absolute inset-0 -z-10 transition-colors duration-200",
+                "absolute inset-0 -z-10 transition-colors duration-500",
                 "bg-swipe-frame"
               )}
               style={{ borderRadius: 48 }}
             />
             <AnimatePresence mode="sync" initial={false}>
-              {hasDeckCards && currentIndex < deckQueue.length ? (
+              {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
                 <motion.div
                   key="swipe-deck"
                   animate={{ opacity: 1, scale: 1 }}
@@ -966,11 +944,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   transition={{ duration: 0.08, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
                 >
-                  {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                  <AnimatePresence>
+                    {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
                       const isTopCard = listing.id === topCard?.id;
                       return (
-                        <div
+                        <motion.div
                           key={listing.id}
+                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
                           className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                         >
                         {dataType === 'people' ? (
@@ -1041,9 +1021,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             ) : undefined}
                           />
                       )}
-                    </div>
+                    </motion.div>
                   );
                 })}
+                </AnimatePresence>
               </motion.div>
             ) : (
               <motion.div
@@ -1094,7 +1075,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     prefetchPassportMapImmediate();
                     useModalStore.getState().openPassportMap();
                   }}
-                  onBack={handleBack}
+                  onBack={() => navigate(-1)}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
                 )}
