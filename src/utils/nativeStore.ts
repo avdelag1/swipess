@@ -1,10 +1,14 @@
 import { Capacitor } from '@capacitor/core';
-import { haptics } from './microPolish';
-import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 /**
  * 🚀 SWIPESS NATIVE STORE SERVICE
- * Handles Apple/Google In-App Purchases and App Store Ratings.
+ * App Store review prompts only.
+ *
+ * NOTE: In-app purchases do NOT go through this module. The real IAP flow is
+ * StoreKitService -> PaymentOrchestrator (cordova-plugin-purchase / StoreKit).
+ * A previous `purchase()` helper here routed through a `window.WebToNative`
+ * bridge that does not exist and always failed; it was removed so no buy button
+ * can accidentally be wired to a dead path.
  */
 export const NativeStore = {
   /**
@@ -13,7 +17,7 @@ export const NativeStore = {
    */
   requestReview: async () => {
     if (!Capacitor.isNativePlatform()) return;
-    
+
     try {
       // Using the WebToNative bridge if available, or fallback to standard Capacitor logic
       if ((window as any).WebToNative?.requestReview) {
@@ -25,34 +29,4 @@ export const NativeStore = {
       logger.error('[NativeStore] Review request failed:', err);
     }
   },
-
-  /**
-   * Handle Native Purchase Bridge
-   * Fixes App Store rejection by routing through Native IAP instead of Stripe/PayPal.
-   */
-  purchase: async (productId: string) => {
-    if (!Capacitor.isNativePlatform()) {
-      appToast.error('Native billing is only available on iOS/Android.');
-      return { success: false, error: 'NOT_NATIVE' };
-    }
-
-    haptics.impact('medium');
-    
-    try {
-      // 1. Trigger the native sheet
-      const result = (window as any).WebToNative?.purchase 
-        ? await (window as any).WebToNative.purchase(productId)
-        : { success: false, error: 'BRIDGE_MISSING' };
-
-      if (result.success) {
-        haptics.notification('success');
-        return { success: true };
-      }
-      
-      return { success: false, error: result.error || 'UNKNOWN' };
-    } catch (err) {
-      logger.error('[NativeStore] Purchase failed:', err);
-      return { success: false, error: 'CRASHED' };
-    }
-  }
 };

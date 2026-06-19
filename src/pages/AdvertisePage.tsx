@@ -358,12 +358,10 @@ export default function AdvertisePage() {
   const handleLaunchPayment = async (pkg: typeof PACKAGES[0]) => {
     haptics.tap();
 
-    // APPLE REVIEW BYPASS: Allow Apple to test payments instantly
-    const isAppleReviewer = user?.email?.toLowerCase().includes('apple');
-
-    // Step 1: Submission must be approved before payment.
-    // Always route to the submission form first; payment unlocks after approval.
-    if (approvedSubmission || isAppleReviewer) {
+    // Submission must be approved before payment. Everyone — including App
+    // Review — goes through the same gate; no per-user / reviewer special-casing
+    // (Guideline 2.3.1: the app must not behave differently for App Review).
+    if (approvedSubmission) {
       if (NativeBridge.isIOS()) {
         appToast.info("Connecting to App Store...");
         const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);

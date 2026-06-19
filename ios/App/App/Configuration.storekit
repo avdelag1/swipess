@@ -178,7 +178,7 @@
           ],
           "productID" : "Swipess.plus.semestral.v3",
           "recurringSubscriptionPeriod" : "P6M",
-          "reference.Name" : "Semestral Subscription",
+          "referenceName" : "Semestral Subscription",
           "subscriptionGroupID" : "0A0B1C34",
           "type" : "RecurringSubscription"
         },

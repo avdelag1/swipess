@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Clock, Crown, MessageCircle, RefreshCcw, Shield, Sparkles, Star, X, Zap } from "lucide-react";
 import { FaApple } from "react-icons/fa";
-import { Capacitor } from "@capacitor/core";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,7 @@ import { STORAGE } from "@/constants/app";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { NativeBridge } from "@/utils/nativeBridge";
+import { PaymentOrchestrator } from "@/lib/iap/PaymentOrchestrator";
 import { APPLE_TOKEN_PACKAGES } from "@/config/iapProducts";
 import { appToast } from '@/utils/appNotification';
 
@@ -57,8 +57,6 @@ export function MessageActivationPackages({
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isDark = theme === 'dark';
-
-  const isNative = Capacitor.isNativePlatform();
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -132,9 +130,10 @@ export function MessageActivationPackages({
     appToast.info("Apple checkout ready", `${pkg.name}: ${pkg.tokens} tokens for ${formatUSD(pkg.price)}. Complete purchase in the iOS app.`);
   };
 
-  const handleRestore = () => {
-    appToast.info("Restoring Purchases", "Checking your Apple ID for recent token activations...");
-    setTimeout(() => appToast.success("Restore Complete", "All active tokens have been restored."), 1500);
+  const handleRestore = async () => {
+    // Real App Store restore (was previously a fake setTimeout that always
+    // reported success without contacting StoreKit — an Apple review failure).
+    await PaymentOrchestrator.restore();
   };
 
   const packagesUI = convertPackages();
@@ -348,7 +347,7 @@ export function MessageActivationPackages({
           className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
         >
           <RefreshCcw className="w-3.5 h-3.5" />
-          Restore Previous Activations
+          Restore Previous Purchases
         </button>
 
         <div className="flex flex-wrap items-center justify-center gap-8">
@@ -371,19 +370,6 @@ export function MessageActivationPackages({
             <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
           </div>
         </div>
-
-        {/* 🚔 APPLE MANDATORY COMPLIANCE BUTTON */}
-        {isNative && (
-          <button
-            onClick={() => NativeBridge.restorePurchases()}
-            className={cn(
-              "text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-xl border transition-all",
-              isDark ? "bg-white/5 border-white/10 text-white/70 hover:text-white" : "bg-gray-50 border-gray-200 text-gray-400 hover:text-gray-900"
-            )}
-          >
-            Restore Previous Purchases
-          </button>
-        )}
       </motion.div>
     </div>
   );

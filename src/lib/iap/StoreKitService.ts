@@ -6,6 +6,13 @@ import { ALL_APPLE_PRODUCTS, APPLE_SUBSCRIPTION_PRODUCTS } from '@/config/iapPro
 type PurchaseResult = { success: boolean; transactionId?: string; error?: string };
 
 let initState: 'uninitialized' | 'initializing' | 'ready' | 'failed' = 'uninitialized';
+// Single in-flight init promise so concurrent callers (the startup pre-warm in
+// PaymentOrchestrator.init() and a fast "Buy" tap) await the SAME initialization
+// instead of racing. Without this, a tap that lands while pre-warm is still
+// running would fall straight through to store.get() before products finished
+// loading -> PRODUCT_NOT_FOUND -> the App Store sheet never opens ("tap does
+// nothing", the original 2.1(b) rejection).
+let initPromise: Promise<void> | null = null;
 
 const pendingPurchases = new Map<string, {
   resolve: (result: PurchaseResult) => void;
@@ -57,7 +64,14 @@ export const StoreKitService = {
   },
 
   async init(): Promise<void> {
-    if (initState === 'ready' || initState === 'initializing' || !this.isAvailable()) return;
+    if (!this.isAvailable() || initState === 'ready') return;
+    // Reuse the in-flight init so every caller awaits the same completion.
+    if (initPromise) return initPromise;
+    initPromise = this._runInit();
+    return initPromise;
+  },
+
+  async _runInit(): Promise<void> {
     initState = 'initializing';
     try {
       await ensureDeviceReady();
@@ -116,12 +130,18 @@ export const StoreKitService = {
           .when()
           .approved((tx: any) => {
             tx.verify();
+            // Safety net for transactions that never reach a terminal state.
+            // Must be comfortably LONGER than a real server-side receipt
+            // validation round-trip (Supabase edge fn -> Apple verifyReceipt),
+            // otherwise we'd finish() the transaction mid-verification and the
+            // buy promise would hang until the 120s timeout -> false "Purchase
+            // Failed". 30s leaves ample room while still clearing truly stuck txs.
             setTimeout(() => {
               if (tx.state !== cdv.TransactionState.FINISHED) {
                 logger.warn('[IAP] Force-finishing stuck transaction.');
                 tx.finish();
               }
-            }, 3000);
+            }, 30000);
           })
           .verified((verifiedReceipt: any) => {
             verifiedReceipt.finish?.();
@@ -172,6 +192,9 @@ export const StoreKitService = {
     } catch (e) {
       logger.error('[IAP] init failed', e);
       initState = 'failed';
+      // Drop the cached promise so the next purchase attempt can retry init
+      // instead of being stuck awaiting a permanently-failed run.
+      initPromise = null;
     }
   },
 
