@@ -125,7 +125,17 @@ export const StoreKitService = {
           })
           .verified((verifiedReceipt: any) => {
             verifiedReceipt.finish?.();
-            for (const tx of verifiedReceipt?.transactions ?? []) {
+            // CdvPurchase v13: a VerifiedReceipt exposes its transactions via
+            // `sourceReceipt.transactions`, NOT a top-level `transactions` field.
+            // (The `.unverified` handler below correctly reads `receipt.transactions`.)
+            // Reading the wrong path here meant the success branch never resolved
+            // the pending purchase, so a completed buy hung until the 120s timeout
+            // and surfaced as "Purchase Failed" even though tokens were granted.
+            const verifiedTxs =
+              verifiedReceipt?.sourceReceipt?.transactions ??
+              verifiedReceipt?.transactions ??
+              [];
+            for (const tx of verifiedTxs) {
               resolvePendingForTransaction(tx, { success: true, transactionId: tx.transactionId });
             }
           })
