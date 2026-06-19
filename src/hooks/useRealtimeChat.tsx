@@ -32,6 +32,7 @@ export function useRealtimeChat(conversationId: string) {
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const connectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryCountRef = useRef(0);
 
   // Use ref to track typing state to avoid dependency on isTyping in callback
   const isTypingRef = useRef(false);
@@ -204,6 +205,7 @@ export function useRealtimeChat(conversationId: string) {
       .subscribe(async (status) => {
 
         if (status === 'SUBSCRIBED') {
+          retryCountRef.current = 0; // Reset on success
           // Set connected immediately on subscribe
           setIsConnected(true);
 
@@ -216,13 +218,16 @@ export function useRealtimeChat(conversationId: string) {
             lastSeen: new Date().toISOString()
           });
         } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          // Only show disconnected after a delay to prevent flicker
+          // Exponential backoff before showing disconnected state
+          const backoff = Math.min(1000 * Math.pow(2, retryCountRef.current), 30000);
+          retryCountRef.current += 1;
+
           if (connectionTimeoutRef.current) {
             clearTimeout(connectionTimeoutRef.current);
           }
           connectionTimeoutRef.current = setTimeout(() => {
             setIsConnected(false);
-          }, 1000); // Wait 1 second before showing disconnected
+          }, backoff);
         }
       });
 
@@ -289,7 +294,7 @@ export function useRealtimeChat(conversationId: string) {
       typingChannelRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId, user?.id, queryClient]);
+  }, [conversationId, user?.id, queryClient, getProfile]);
 
   // Cleanup typing on unmount
   useEffect(() => {

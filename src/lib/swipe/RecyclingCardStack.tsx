@@ -100,6 +100,12 @@ export const RecyclingCardStack = memo(forwardRef<
   // Swipe engine
   const engineRef = useRef<SwipeEngine | null>(null);
 
+  // Track latest cards to avoid stale closures in swipe engine callbacks
+  const cardsRef = useRef(cards);
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
+
   // Update currentIndex ref
   useEffect(() => {
     currentIndexRef.current = currentIndex;
@@ -141,7 +147,7 @@ export const RecyclingCardStack = memo(forwardRef<
   // IMPORTANT: This is called AFTER the exit animation completes in SwipeEngine
   const handleSwipeComplete = useCallback((direction: 'left' | 'right') => {
     const idx = currentIndexRef.current;
-    const cardData = cards[idx];
+    const cardData = cardsRef.current[idx];
 
     if (cardData) {
       // Fire callback
@@ -181,19 +187,19 @@ export const RecyclingCardStack = memo(forwardRef<
     const nextIdx = currentIndexRef.current + 1;
 
     // Preload ALL images from next card (high priority)
-    if (cards[nextIdx]?.images) {
-      cards[nextIdx].images.forEach((img: string) => {
+    if (cardsRef.current[nextIdx]?.images) {
+      cardsRef.current[nextIdx].images.forEach((img: string) => {
         imagePreloadController.preload(img, 'high');
       });
     }
 
     // Preload ALL images from card after next (low priority)
-    if (cards[nextIdx + 1]?.images) {
-      cards[nextIdx + 1].images.forEach((img: string) => {
+    if (cardsRef.current[nextIdx + 1]?.images) {
+      cardsRef.current[nextIdx + 1].images.forEach((img: string) => {
         imagePreloadController.preload(img, 'low');
       });
     }
-  }, [cards, onSwipe, getTopCardRef]);
+  }, [onSwipe, getTopCardRef]);
 
   // Imperative handle for parent control
   useImperativeHandle(ref, () => ({
