@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check, ChevronLeft, Clock, Crown, RefreshCcw, Shield, Sparkles } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
@@ -124,7 +125,13 @@ export function SubscriptionPackages({
   showAsPage = false,
 }: SubscriptionPackagesProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isPurchasing, setIsPurchasing] = useState(false);
+
+  const openLegal = (doc: 'terms' | 'privacy') => {
+    onClose?.();
+    navigate(`/legal?doc=${doc}`);
+  };
 
   if (!isOpen) return null;
 
@@ -285,6 +292,34 @@ export function SubscriptionPackages({
           <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Priority Support</span>
+          </div>
+        </div>
+
+        {/* Apple Guideline 3.1.2 — auto-renewable subscription disclosure + legal
+            links. Required in the binary for auto-renewing subscriptions, and a
+            common re-rejection when missing. */}
+        <div className="max-w-md text-center space-y-2 pt-1">
+          <p className="text-[10px] leading-relaxed text-muted-foreground/60">
+            Subscriptions are billed to your Apple ID and automatically renew unless
+            canceled at least 24 hours before the end of the current period. Your
+            account is charged for renewal within 24 hours before the period ends.
+            Manage or cancel anytime in your App Store account settings.
+          </p>
+          <div className="flex items-center justify-center gap-5">
+            <button
+              type="button"
+              onClick={() => openLegal('terms')}
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              Terms of Use
+            </button>
+            <button
+              type="button"
+              onClick={() => openLegal('privacy')}
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </button>
           </div>
         </div>
       </div>
