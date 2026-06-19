@@ -647,6 +647,8 @@ export const PassportMapModal = memo(() => {
           maxPitch: cinematicMaxPitchForViewport(),
           refreshExpiredTiles: false,
           trackResize: true,
+          preserveDrawingBuffer: false,
+          powerPreference: 'default',
           // Render CJK labels with a local font instead of downloading huge glyph
           // ranges from the network — meaningfully faster first paint on mobile.
           localIdeographFontFamily: "'Noto Sans', 'Inter', sans-serif",
