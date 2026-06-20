@@ -46,8 +46,14 @@ const MOTORCYCLE_TYPES = ['Sport Bike','Cruiser','Touring','Adventure','Dual-Spo
 const BICYCLE_TYPES = ['road','mountain','hybrid','electric','cruiser','bmx'];
 const SERVICE_CATEGORIES = ['house_cleaner','handyman','maintenance_tech','house_painter','plumber','electrician','gardener','pool_cleaner','massage_therapist','yoga','meditation_coach','holistic_therapist','personal_trainer','beauty','nutritionist','nanny','pet_care','pet_groomer','driver','mechanic','chef','bartender','event_planner','language_teacher','music_teacher','dance_instructor','scuba_instructor','surf_instructor','snorkeling_guide','sailing_instructor','fishing_guide','photographer','videographer','graphic_designer','it_support','translator','accountant','security','other'];
 
+// Cap input size — DoS + Groq cost guard. 50KB fits any listing description.
+const MAX_PROMPT_BYTES = 50 * 1024;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const declaredLen = Number(req.headers.get("content-length") || "0");
+  if (declaredLen > MAX_PROMPT_BYTES * 2) return json(413, { error: "Payload too large" });
 
   try {
     const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
@@ -57,6 +63,7 @@ serve(async (req) => {
     const task = body.task ?? "extract";
     const prompt = (body.prompt || "").trim();
     if (!prompt) return json(400, { error: "Missing prompt" });
+    if (prompt.length > MAX_PROMPT_BYTES) return json(413, { error: "Prompt too long" });
 
     async function callGroq(systemContent: string, userContent: string, jsonMode = true) {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {

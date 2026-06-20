@@ -9,10 +9,22 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// Cap input size — DoS + Groq cost guard. 50KB fits any reasonable narrative.
+const MAX_NARRATIVE_BYTES = 50 * 1024;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const declaredLen = Number(req.headers.get("content-length") || "0");
+  if (declaredLen > MAX_NARRATIVE_BYTES * 2) {
+    return new Response(
+      JSON.stringify({ error: "Payload too large." }),
+      { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     if (!GROQ_API_KEY) {
@@ -27,6 +39,13 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Provide a longer narrative (min 5 chars)." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    if (narrative.length > MAX_NARRATIVE_BYTES) {
+      return new Response(
+        JSON.stringify({ error: "Narrative too long." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 

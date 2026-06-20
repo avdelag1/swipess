@@ -1625,6 +1625,15 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Reject oversized chat payloads before buffering (DoS + AI cost guard).
+  // 256KB comfortably holds a long trimmed history + location context.
+  const declaredLen = Number(req.headers.get("content-length") || "0");
+  if (declaredLen > 256 * 1024) {
+    return new Response(JSON.stringify({ error: "Request too large." }), {
+      status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; stream?: boolean; locationContext?: LocationContext };
     const { messages, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, stream = true, locationContext } = body;
