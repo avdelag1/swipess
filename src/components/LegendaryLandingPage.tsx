@@ -19,7 +19,11 @@ import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { appToast } from '@/utils/appNotification';
 import { Capacitor } from '@capacitor/core';
 
-const _isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+// On native iOS there is no native Google Sign-In plugin and the web OAuth
+// redirect cannot complete inside the WKWebView, so the Google button is hidden
+// there (email + native Sign in with Apple remain). Avoids a dead control that
+// Apple review flags under Guideline 2.1.
+const isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 type View = 'landing' | 'auth';
 
@@ -466,19 +470,21 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <span>Sign in with Apple</span>
             </button>
 
-            <button
-              onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
-              style={{
-                backgroundColor: '#ffffff',
-                color: '#000000',
-                border: '2px solid rgba(255,255,255,0.9)',
-                boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
-              }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
-            >
-              <GoogleIcon />
-              <span>Continue with Google</span>
-            </button>
+            {!isNativeIOS && (
+              <button
+                onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
+                }}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
+              >
+                <GoogleIcon />
+                <span>Continue with Google</span>
+              </button>
+            )}
           </motion.div>
         )}
       </div>
