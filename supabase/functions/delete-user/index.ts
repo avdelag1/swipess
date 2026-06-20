@@ -130,7 +130,7 @@ serve(async (req) => {
     await adminClient
       .from("matches")
       .delete()
-      .or(`user_id.eq.${userId},owner_id.eq.${userId}`);
+      .or(`client_id.eq.${userId},owner_id.eq.${userId}`);
 
     // --- Step 9: Delete likes ---
     await adminClient.from("likes").delete().eq("user_id", userId);
