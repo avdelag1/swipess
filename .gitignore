@@ -36,10 +36,17 @@ supabase/.temp/
 
 # Signing keys & credentials
 KEYS/
+KEY/
 *.jks
 *.keystore
 *.p12
 *.mobileprovision
+*.p8
+*.key
+*.pem
+*.cer
+*.csr
+AuthKey_*.p8
 
 # Audit & Debug Artifacts
 *audit.log
