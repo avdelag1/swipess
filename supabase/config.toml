@@ -1,37 +1,49 @@
 project_id = "vplgtcguxujxwrgguxqq"
 
-[functions.ai-assistant]
-verify_jwt = true
-
-[functions.ai-conversation]
-verify_jwt = true
-
-[functions.ai-orchestrator]
-verify_jwt = false
+# verify_jwt = true  -> Supabase gateway rejects unauthenticated calls before
+#                       they reach the function (the platform default).
+# verify_jwt = false -> function is publicly invokable; it must do its own auth.
+#
+# This list is kept in sync with supabase/functions/*. Functions not listed
+# here inherit the platform default (verify_jwt = true).
 
 [functions.ai-concierge]
 verify_jwt = true
 
-[functions.delete-user]
-verify_jwt = true
-
-[functions.moderate-image]
-verify_jwt = true
-
-[functions.send-push-notification]
-verify_jwt = true
-
-[functions.voice-transcribe]
-verify_jwt = true
-
-[functions.link-preview]
-verify_jwt = false
-
-[functions.ai-profile-extract]
+[functions.ai-enhance-text]
 verify_jwt = true
 
 [functions.ai-listing-extract]
 verify_jwt = true
 
+[functions.ai-profile-extract]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true
+
+# Public crawler/OG endpoint — must be reachable without auth.
+# It only reads public listing/profile/event data by id (no SSRF, no writes).
+[functions.link-preview]
+verify_jwt = false
+
+[functions.moderate-image]
+verify_jwt = true
+
+[functions.process-push-outbox]
+verify_jwt = true
+
+[functions.send-push-notification]
+verify_jwt = true
+
+[functions.validate-apple-receipt]
+verify_jwt = true
+
 [functions.validate-google-play-purchase]
+verify_jwt = true
+
+[functions.validate-resident-qr]
+verify_jwt = true
+
+[functions.voice-transcribe]
 verify_jwt = true

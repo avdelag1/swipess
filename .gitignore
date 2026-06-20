@@ -51,6 +51,10 @@ KEYS/
 error_list*
 errors*.json
 lint_results.json
+eslint-report.json
+
+# Local scratch / throwaway working dir
+scratch/
 ACTION_ITEMS.md
 AUDIT_REPORT*.md
 AUDIT_SUMMARY.md
