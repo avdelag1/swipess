@@ -170,6 +170,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [agreed18, setAgreed18] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
@@ -242,6 +243,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         }
         if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
+        // Apple/marketplace requirement: enforce the 18+ Terms acceptance the
+        // EULA already claims, instead of leaving it implicit.
+        if (!agreed18) errs.agree = 'You must confirm you are 18 or older to continue';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -406,6 +410,32 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <button type="button" onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }} className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors italic">
                 Forgot Access Code?
               </button>
+            </div>
+          )}
+
+          {!isLogin && !isForgotPassword && (
+            <div className="px-1 pt-0.5">
+              <div className="flex items-start gap-2.5">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={agreed18}
+                  onClick={() => { setAgreed18(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 shrink-0 rounded border flex items-center justify-center transition-colors",
+                    agreed18 ? "bg-white border-white" : "bg-white/5 border-white/30",
+                  )}
+                >
+                  <Check className={cn("w-3 h-3 transition-opacity", agreed18 ? "opacity-100 text-black" : "opacity-0 text-white")} strokeWidth={3} />
+                </button>
+                <p className="text-[10px] font-bold tracking-wide text-white/70 leading-snug">
+                  I confirm I am 18 or older and agree to the{' '}
+                  <button type="button" onClick={() => setLegalModal('terms')} className="underline text-white/90">Terms</button>
+                  {' '}&amp;{' '}
+                  <button type="button" onClick={() => setLegalModal('privacy')} className="underline text-white/90">Privacy Policy</button>.
+                </p>
+              </div>
+              {fieldErrors.agree && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.agree}</p>}
             </div>
           )}
 

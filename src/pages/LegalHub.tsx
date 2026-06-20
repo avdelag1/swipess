@@ -23,6 +23,7 @@ import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
+import { Capacitor } from '@capacitor/core';
 import { logger } from '@/utils/prodLogger';
 import { clientTemplates, ownerTemplates } from '@/data/contractTemplates';
 
@@ -516,7 +517,7 @@ const LegalHub = () => {
                         Third-Party Services
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases), <strong>PayPal</strong> (web checkout), and AI providers (<strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the concierge assistant. These services process only the minimum data needed to perform their function.
+                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases){Capacitor.getPlatform() !== 'ios' && <>, <strong>PayPal</strong> (web checkout)</>}, and AI providers (<strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the concierge assistant. These services process only the minimum data needed to perform their function.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Account Deletion & Data Removal
