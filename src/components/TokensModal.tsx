@@ -1,7 +1,6 @@
 import { memo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react';
-import { FaApple } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
@@ -194,15 +193,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                 )}
                               >
                                 {isPurchasing ? 'Processing...' : (
-                                  NativeBridge.isIOS() ? (
-                                    <>
-                                      <span>Buy with</span>
-                                      <FaApple className="w-4 h-4 mb-[2px]" />
-                                      <span>Pay</span>
-                                    </>
-                                  ) : (
-                                    <span className="text-[11px] uppercase tracking-widest">Get Offer</span>
-                                  )
+                                  <span className="text-[11px] uppercase tracking-widest">Get Offer</span>
                                 )}
                               </button>
                             </div>

@@ -2,7 +2,6 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Clock, Crown, MessageCircle, RefreshCcw, Shield, Sparkles, Star, X, Zap } from "lucide-react";
-import { FaApple } from "react-icons/fa";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -313,10 +312,8 @@ export function MessageActivationPackages({
                       )}
                     >
                       {NativeBridge.isIOS() ? (
-                        <div className="flex items-center justify-center gap-1.5 text-[15px]">
-                          <span>Buy with</span>
-                          <FaApple className="w-5 h-5 mb-[2px]" />
-                          <span>Pay</span>
+                        <div className="flex items-center justify-center text-[15px]">
+                          <span>Buy</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center uppercase tracking-tighter">

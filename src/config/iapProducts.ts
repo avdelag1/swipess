@@ -43,22 +43,24 @@ export const ALL_APPLE_PRODUCTS: AppleProductId[] = [
   ...APPLE_EVENT_PROMO_PRODUCTS,
 ];
 
-function _paypalUrl(path: string): string {
-  return 'https://www.' + ['pay', 'pal'].join('') + '.com/ncp/payment/' + path;
+function buildPaypalUrl(path: string): string {
+  return `https://www.paypal.com/ncp/payment/${path}`;
 }
 
 /**
- * Compliance Helper: Strips web payment links on iOS to satisfy Guideline 3.1.1.
- * Accepts a payment path suffix (e.g. "VNM2QVBFG6TA4") to avoid storing
- * full "paypal.com" URLs as contiguous strings in the production binary.
- * @param pathSuffix The PayPal checkout path suffix
+ * Returns the web (PayPal) checkout URL for a package, or `undefined` on the
+ * native iOS app.
+ *
+ * iOS must use In-App Purchase exclusively (App Store Review Guideline 3.1.1),
+ * so the native iOS build never exposes an external payment link. Web and
+ * Android builds use PayPal for checkout. `Capacitor.getPlatform()` returns
+ * 'ios' only inside the native app (iOS Safari reports 'web').
+ *
+ * @param pathSuffix The PayPal checkout path suffix (e.g. "VNM2QVBFG6TA4")
  */
 export const getSafePaymentUrl = (pathSuffix?: string): string | undefined => {
-  // IMPORTANT: We must block alternative payment URLs in production iOS to comply 
-  // with Apple App Store Guideline 3.1.1. If Apple sees PayPal, they ban the app.
-  // However, during local development, we allow it so you can test the fallback!
-  if (Capacitor.getPlatform() === 'ios' && !import.meta.env.DEV) return undefined;
-  return pathSuffix ? _paypalUrl(pathSuffix) : undefined;
+  if (Capacitor.getPlatform() === 'ios') return undefined;
+  return pathSuffix ? buildPaypalUrl(pathSuffix) : undefined;
 };
 
 export const APPLE_TOKEN_PACKAGES = [
