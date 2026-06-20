@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { clientTemplates, ContractTemplate, getTemplateById, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
-import { DocumentEditorToolbar, type DocumentFontId, getFontCss } from '@/components/legal/DocumentEditorToolbar';
+import { DocumentEditorToolbar } from '@/components/legal/DocumentEditorToolbar';
+import { getFontCss, type DocumentFontId } from '@/lib/document-fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';

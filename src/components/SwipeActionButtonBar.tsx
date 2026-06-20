@@ -16,7 +16,8 @@ import { forwardRef, memo, useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BarChart2, Flag, MessageCircle, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { MotionIcon, swipeVariantToMotion } from './ui/MotionIcon';
+import { MotionIcon } from './ui/MotionIcon';
+import { swipeVariantToMotion } from '@/lib/motion-constants';
 import useAppTheme from '@/hooks/useAppTheme';
 
 interface SwipeActionButtonBarProps {
