@@ -41,6 +41,37 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+function base64url(input: Uint8Array | string): string {
+  const bytes = typeof input === "string" ? new TextEncoder().encode(input) : input;
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** Generates an ES256 client secret JWT signed with the Apple .p8 key. */
+async function makeAppleClientSecret(): Promise<string> {
+  const teamId = Deno.env.get("APPLE_TEAM_ID");
+  const keyId = Deno.env.get("APPLE_KEY_ID");
+  const p8 = Deno.env.get("APPLE_PRIVATE_KEY");
+  const clientId = Deno.env.get("APPLE_CLIENT_ID") || "com.swipess.mobile";
+  if (!teamId || !keyId || !p8) throw new Error("Apple revoke secrets not configured");
+
+  const pemBody = p8
+    .replace(/-----BEGIN PRIVATE KEY-----/, "")
+    .replace(/-----END PRIVATE KEY-----/, "")
+    .replace(/\s+/g, "");
+  const der = Uint8Array.from(atob(pemBody), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey(
+    "pkcs8", der, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"],
+  );
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "ES256", kid: keyId, typ: "JWT" };
+  const payload = { iss: teamId, iat: now, exp: now + 3600, aud: "https://appleid.apple.com", sub: clientId };
+  const signingInput = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(signingInput));
+  return `${signingInput}.${base64url(new Uint8Array(sig))}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -268,6 +299,36 @@ serve(async (req) => {
     }
 
     await adminClient.from("profiles").delete().eq("user_id", userId);
+
+    // --- Revoke Sign in with Apple grant (Guideline 5.1.1(v)) ---
+    // Best-effort: a revoke failure must never block account deletion.
+    try {
+      const { data: appleTok } = await adminClient
+        .from("apple_signin_tokens")
+        .select("refresh_token")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (appleTok?.refresh_token && Deno.env.get("APPLE_PRIVATE_KEY")) {
+        const clientId = Deno.env.get("APPLE_CLIENT_ID") || "com.swipess.mobile";
+        const clientSecret = await makeAppleClientSecret();
+        const revokeRes = await fetch("https://appleid.apple.com/auth/revoke", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            token: appleTok.refresh_token,
+            token_type_hint: "refresh_token",
+          }),
+        });
+        if (!revokeRes.ok) {
+          console.error("[delete-user] Apple revoke returned", revokeRes.status, await revokeRes.text());
+        }
+      }
+      await adminClient.from("apple_signin_tokens").delete().eq("user_id", userId);
+    } catch (appleErr) {
+      console.error("[delete-user] Apple token revoke failed (non-fatal):", appleErr);
+    }
 
     // --- Step 22: Delete auth user (must be last) ---
     const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(userId);

@@ -44,6 +44,12 @@ export interface NativeAppleCredential {
   rawNonce: string;
   /** Apple only returns the name on the very first authorization. */
   fullName: string | null;
+  /**
+   * Short-lived authorization code. Exchanged server-side for an Apple refresh
+   * token so account deletion can revoke the Sign in with Apple grant
+   * (App Store Review Guideline 5.1.1(v)).
+   */
+  authorizationCode: string | null;
 }
 
 /** Thrown-error code Apple uses when the user dismisses the sheet. */
@@ -78,6 +84,7 @@ export async function performNativeAppleSignIn(): Promise<NativeAppleCredential>
   const given = result.response?.givenName ?? '';
   const family = result.response?.familyName ?? '';
   const fullName = [given, family].filter(Boolean).join(' ').trim() || null;
+  const authorizationCode = result.response?.authorizationCode ?? null;
 
-  return { identityToken, rawNonce, fullName };
+  return { identityToken, rawNonce, fullName, authorizationCode };
 }

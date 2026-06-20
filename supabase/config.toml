@@ -19,6 +19,9 @@ verify_jwt = true
 [functions.ai-profile-extract]
 verify_jwt = true
 
+[functions.apple-link-token]
+verify_jwt = true
+
 [functions.delete-user]
 verify_jwt = true
 

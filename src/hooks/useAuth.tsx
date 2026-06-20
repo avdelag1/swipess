@@ -554,7 +554,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Use the native authorization + signInWithIdToken instead.
       if (provider === 'apple' && isNativeAppleAvailable()) {
         try {
-          const { identityToken, rawNonce, fullName } = await performNativeAppleSignIn();
+          const { identityToken, rawNonce, fullName, authorizationCode } = await performNativeAppleSignIn();
 
           const { error: idTokenError } = await supabase.auth.signInWithIdToken({
             provider: 'apple',
@@ -567,6 +567,16 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
             localStorage.removeItem('pendingOAuthRole');
             appToast.error('Apple Sign In Failed', idTokenError.message || 'Please try again.');
             return { error: idTokenError };
+          }
+
+          // Exchange Apple's authorization code for a refresh token (stored
+          // server-side) so account deletion can revoke the Sign in with Apple
+          // grant, as required by Guideline 5.1.1(v). Best-effort and fully
+          // non-blocking — a failure here must never break sign-in.
+          if (authorizationCode) {
+            supabase.functions
+              .invoke('apple-link-token', { body: { authorizationCode } })
+              .catch((e) => logger.warn('[Auth] apple-link-token failed (non-fatal):', e));
           }
 
           // Apple returns the user's name ONLY on the first authorization.
