@@ -44,8 +44,8 @@ export function SEO({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
 
-      {/* App Specifics */}
-      <meta name="apple-itunes-app" content="app-id=swipess-app-id" />
+      {/* App Specifics — update app-id once App Store Connect assigns a numeric ID */}
+      {/* <meta name="apple-itunes-app" content="app-id=XXXXXXXXXX" /> */}
     </Helmet>
   );
 }
