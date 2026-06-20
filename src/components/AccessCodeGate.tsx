@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
@@ -26,6 +27,10 @@ function persistAccessGrant() {
 }
 
 export function isAccessGranted(): boolean {
+  // Native iOS/Android are public app-store builds: App Review (Guideline 2.1)
+  // and real users must reach the login screen directly, so the invite-code
+  // wall never applies there. The gate stays on web (private beta) only.
+  if (Capacitor.isNativePlatform()) return true;
   try {
     if (localStorage.getItem(ACCESS_GRANTED_KEY) === 'true') return true;
     if (localStorage.getItem(PROMO_UNLOCK_KEY) === 'true') return true;
