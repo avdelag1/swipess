@@ -238,23 +238,27 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
               onOpenChange={(val: boolean) => store.setModal('showLegalDocuments', val)}
             />
           </DeferredDialog>
-
-          <DeferredDialog when={store.showCategoryDialog} keepMounted threshold={0}>
-            <CategorySelectionDialog
-              open={store.showCategoryDialog}
-              onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
-              onCategorySelect={(category: string, mode: string) => {
-                prefetchListingFlowModule();
-                navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
-                requestAnimationFrame(() => store.setModal('showCategoryDialog', false));
-              }}
-              onAIOpen={() => {
-                requestAnimationFrame(() => store.openAIListing());
-              }}
-            />
-          </DeferredDialog>
         </>
       )}
+
+      {/* Add-listing category picker — shared across roles: the TopBar and
+          BottomNavigation "add / AI listing" buttons are shown to clients and
+          owners alike, so this must render regardless of role (it was previously
+          gated to owners, which made the AI button do nothing for clients). */}
+      <DeferredDialog when={store.showCategoryDialog} keepMounted threshold={0}>
+        <CategorySelectionDialog
+          open={store.showCategoryDialog}
+          onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
+          onCategorySelect={(category: string, mode: string) => {
+            prefetchListingFlowModule();
+            navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
+            requestAnimationFrame(() => store.setModal('showCategoryDialog', false));
+          }}
+          onAIOpen={() => {
+            requestAnimationFrame(() => store.openAIListing());
+          }}
+        />
+      </DeferredDialog>
 
       {/* Property insights — shared across roles so map listing taps always open
           (the map's pins exist for clients and owners alike). */}

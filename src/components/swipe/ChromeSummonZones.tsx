@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { toggleChrome } from '@/hooks/useChromeReveal';
+import { toggleChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
@@ -38,6 +38,15 @@ export function ChromeSummonZones() {
   }, []);
 
   const onPointerCancel = useCallback(() => { downRef.current = null; }, []);
+
+  const { isChromeVisible } = useChromeReveal();
+
+  // When the chrome is already visible, the real TopBar / BottomNavigation
+  // buttons must be tappable. These fixed summon strips sit at zIndex 10010 and
+  // would otherwise intercept taps on the header (AI / notification / tokens /
+  // etc.) via stopPropagation. Only mount them while the chrome is hidden —
+  // that is the only state where their "tap to bring chrome back" job applies.
+  if (isChromeVisible) return null;
 
   return (
     <>
