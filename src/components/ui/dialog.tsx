@@ -89,7 +89,7 @@ interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ className, children, hideOverlay, overlayClassName, hideCloseButton, motionPreset = 'default', ...props }, ref) => {
   const { open, onOpenChange } = React.useContext(DialogContext);
-  const motion = DIALOG_MOTION[motionPreset];
+  const preset = DIALOG_MOTION[motionPreset];
 
   return (
     <DialogPortal>
@@ -99,10 +99,10 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
       {open && (
         <motion.div
           key="content"
-          initial={motion.initial}
-          animate={motion.animate}
-          exit={motion.exit}
-          transition={motion.transition}
+          initial={preset.initial}
+          animate={preset.animate}
+          exit={preset.exit}
+          transition={preset.transition}
           className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
         >
           <div
