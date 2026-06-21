@@ -12,6 +12,8 @@ import {
   ReportType,
   useCreateReport,
 } from '@/hooks/useReporting';
+import { useBlockUser } from '@/hooks/useBlocking';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AnimatePresence, motion } from 'framer-motion';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -39,12 +41,19 @@ export function ReportDialog({
 }: ReportDialogProps) {
   const [selectedReportType, setSelectedReportType] = useState<ReportType | ''>('');
   const [description, setDescription] = useState('');
+  const [shouldBlockUser, setShouldBlockUser] = useState(false);
   const createReport = useCreateReport();
+  const blockUserMutation = useBlockUser();
   const { isLight } = useAppTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedReportType) return;
+    
+    if (shouldBlockUser && reportedUserId) {
+      blockUserMutation.mutate(reportedUserId);
+    }
+
     await createReport.mutateAsync({
       reportedUserId,
       reportedListingId,
@@ -52,8 +61,10 @@ export function ReportDialog({
       reportCategory: category,
       description,
     });
+    
     setSelectedReportType('');
     setDescription('');
+    setShouldBlockUser(false);
     onOpenChange(false);
   };
 
@@ -202,6 +213,29 @@ export function ReportDialog({
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Block User Option */}
+              {reportedUserId && (
+                <div className={cn(
+                  "mt-4 p-4 rounded-2xl border flex items-start gap-3 transition-colors",
+                  isLight ? "bg-slate-50 border-slate-200" : "bg-[#161616] border-white/10"
+                )}>
+                  <Checkbox 
+                    id="block-user-checkbox" 
+                    checked={shouldBlockUser}
+                    onCheckedChange={(checked) => setShouldBlockUser(!!checked)}
+                    className="mt-0.5"
+                  />
+                  <div>
+                    <Label htmlFor="block-user-checkbox" className={cn("text-sm font-bold cursor-pointer", isLight ? "text-slate-900" : "text-white")}>
+                      Also block this user
+                    </Label>
+                    <p className={cn("text-xs mt-1", isLight ? "text-slate-500" : "text-white/50")}>
+                      You will no longer see their listings, profile, or messages. They will not be notified that you blocked them.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer */}

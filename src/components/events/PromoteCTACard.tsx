@@ -4,10 +4,26 @@ import { Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
+import { NativeBridge } from '@/utils/nativeBridge';
+import { appToast } from '@/utils/appNotification';
 
-export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) => {
+export const PromoteCTACard = memo(({ onPromote }: { onPromote?: () => void }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
+
+  const handleBuy = async (productId: string, name: string) => {
+    triggerHaptic('medium');
+    if (NativeBridge.isNative()) {
+      const r = await NativeBridge.purchaseProduct(productId);
+      if (r.success) {
+        appToast.success('Promotion activated', name);
+      } else if ((r as any).error !== 'CANCELLED') {
+        appToast.error('Could not complete purchase');
+      }
+    } else {
+      appToast.message('Testing Buy', `Simulated purchase of ${name}`);
+    }
+  };
 
   return (
     <div
@@ -53,18 +69,31 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
           ))}
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => { triggerHaptic('medium'); onPromote(); }}
-          className="w-full max-w-[280px] py-5 rounded-[2rem] font-black text-white flex items-center justify-center gap-3 bg-gradient-to-br from-[#FF4D00] to-[#EB4898] shadow-[0_12px_40px_rgba(255,77,0,0.35)] active:scale-95 transition-transform"
-          data-testid="btn-promote-event"
-          title="Promote my event"
-        >
-          <Megaphone className="w-5 h-5" />
-          Promote My Event
-        </motion.button>
-
-        <p className={cn("text-[11px] font-bold", isLight ? "text-black/25" : "text-white/25")}>Starting from $50 MXN/week</p>
+        <div className="flex flex-col gap-3 w-full max-w-[280px] mx-auto">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleBuy('Swipess.promo.event.week.v3', '1 Week Promo')}
+            className="w-full py-4 rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-transform bg-white/10 text-white border border-white/20"
+          >
+            <Megaphone className="w-4 h-4" /> 1 Week - $19.99
+          </motion.button>
+          
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleBuy('Swipess.promo.event.month.v3', '1 Month Promo')}
+            className="w-full py-4 rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-transform bg-gradient-to-br from-[#FF4D00] to-[#EB4898] shadow-[0_12px_40px_rgba(255,77,0,0.35)] text-white"
+          >
+            <Megaphone className="w-4 h-4" /> 1 Month - $49.99
+          </motion.button>
+          
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleBuy('Swipess.promo.event.quarter.v3', '3 Months Promo')}
+            className="w-full py-4 rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-transform bg-white/10 text-white border border-white/20"
+          >
+            <Megaphone className="w-4 h-4" /> 3 Months - $99.99
+          </motion.button>
+        </div>
       </motion.div>
     </div>
   );

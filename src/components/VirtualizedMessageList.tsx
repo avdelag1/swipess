@@ -3,6 +3,9 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ScrollText, File, Download } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { appToast } from '@/utils/appNotification';
 
 interface MessageType {
   id: string;
@@ -18,6 +21,7 @@ interface MessageType {
     full_name: string;
     avatar_url?: string;
   };
+  attachments?: any;
 }
 
 interface TypingUser {
@@ -70,6 +74,51 @@ const MessageBubble = memo(({
         )}>
           {message.content || ''}
         </p>
+        
+        {message.message_type === 'document' && message.attachments && (
+          <div 
+            onClick={async () => {
+              const att = message.attachments;
+              if (att.type === 'contract') {
+                appToast.info('Contract viewed', `Opened ${att.name}`);
+                // Provide hook for the app to open the contract preview if implemented
+                window.dispatchEvent(new CustomEvent('open-contract', { detail: { contractId: att.id } }));
+              } else if (att.type === 'document') {
+                try {
+                  const { data } = await supabase.storage.from('legal-documents').createSignedUrl(att.id, 60);
+                  if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                  else appToast.error('Could not load document');
+                } catch {
+                  appToast.error('Error loading document');
+                }
+              }
+            }}
+            className={cn(
+              "mt-3 flex items-center gap-3 p-3 rounded-xl border transition-all active:scale-95 cursor-pointer",
+              isMyMessage 
+                ? "bg-white/10 border-white/20 hover:bg-white/20" 
+                : (isThemeLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-white/5 border-white/10 hover:bg-white/10")
+            )}
+          >
+            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0", 
+              message.attachments.type === 'contract' 
+                ? (isMyMessage ? "bg-white/20 text-white" : "bg-[#EB4898]/10 text-[#EB4898]")
+                : (isMyMessage ? "bg-white/20 text-white" : "bg-violet-500/10 text-violet-500")
+            )}>
+              {message.attachments.type === 'contract' ? <ScrollText className="w-5 h-5" /> : <File className="w-5 h-5" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={cn("text-[13px] font-bold truncate", isMyMessage ? "text-white" : (isThemeLight ? "text-slate-900" : "text-white"))}>
+                {message.attachments.name}
+              </p>
+              <p className={cn("text-[10px] uppercase tracking-widest mt-0.5", isMyMessage ? "text-white/70" : (isThemeLight ? "text-slate-500" : "text-white/50"))}>
+                {message.attachments.type === 'contract' ? 'Digital Contract' : 'Vault Document'}
+              </p>
+            </div>
+            <Download className={cn("w-4 h-4 shrink-0 opacity-50", isMyMessage ? "text-white" : (isThemeLight ? "text-slate-400" : "text-white/40"))} />
+          </div>
+        )}
+
         <div className={cn(
           "text-[9px] mt-1.5 font-semibold text-right",
           isMyMessage ? "text-white/60" : (isThemeLight ? "text-black/30" : "text-white/30")

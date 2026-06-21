@@ -21,7 +21,7 @@ import { getSafePaymentUrl } from '@/config/iapProducts';
 const PACKAGES = [
   {
     id: "starter",
-    appleProductId: "Swipess.promo.event.week.v2",
+    appleProductId: "Swipess.promo.event.week.v3",
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     color: "#14b8a6",
@@ -41,7 +41,7 @@ const PACKAGES = [
   },
   {
     id: "growth",
-    appleProductId: "Swipess.promo.event.month.v2",
+    appleProductId: "Swipess.promo.event.month.v3",
     name: "Growth",
     icon: <Star className="w-5 h-5" />,
     color: "#6366f1",
@@ -61,7 +61,7 @@ const PACKAGES = [
   },
   {
     id: "premium",
-    appleProductId: "Swipess.promo.event.quarter.v2",
+    appleProductId: "Swipess.promo.event.quarter.v3",
     name: "Wave",
     icon: <Crown className="w-5 h-5" />,
     color: "#a855f7",

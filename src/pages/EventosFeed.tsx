@@ -14,9 +14,12 @@ import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import { useTranslation } from 'react-i18next';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
+import { PromoteCTACard } from '@/components/events/PromoteCTACard';
 const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 
@@ -185,6 +188,16 @@ export default function EventosFeed() {
     
     const combined = [...dbEvents, ...validMocks];
     
+    // Inject CTA for Apple Reviewers
+    combined.splice(2, 0, {
+      id: 'promo-cta',
+      title: 'Promote',
+      category: 'promo',
+      image_url: null,
+      image_urls: [],
+      is_free: false,
+    } as any);
+    
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
         const first3 = combined.slice(0, 3).map(e => getCardImageUrl(pickEventImage(e) || ''));
@@ -235,6 +248,16 @@ export default function EventosFeed() {
     estimateSize: () => window.innerHeight || 800,
     overscan: 2,
     initialOffset: 0,
+  });
+
+  // Pull To Refresh
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
+    containerRef: parentRef,
+    disabled: false,
+    onRefresh: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['eventos'] });
+      resetFeedPosition();
+    }
   });
 
   // Auto-play Logic
@@ -307,6 +330,8 @@ export default function EventosFeed() {
     <div
       className="absolute inset-0 w-full h-full flex flex-col items-center justify-start bg-[#0a0a0b]"
     >
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
+      
       {/* Atmospheric layer extends behind the fixed chrome so the photo
           content shows through transparent TopBar / BottomNavigation. */}
       <div className="fixed inset-0 bg-[#0a0a0b] -z-10 pointer-events-none" />
@@ -449,7 +474,10 @@ export default function EventosFeed() {
                     transform: `translateY(${virtualRow.start}px)`
                   }}
                 >
-                  <EventCard
+                  {event.id === 'promo-cta' ? (
+                    <PromoteCTACard />
+                  ) : (
+                    <EventCard
                     event={event}
                     isActive={virtualRow.index === activeIdx}
                     isPaused={isPaused}
@@ -464,6 +492,7 @@ export default function EventosFeed() {
                     onNextEvent={() => parentRef.current?.scrollBy({ top: parentRef.current?.clientHeight || window.innerHeight, behavior: 'smooth' })}
                     onPrevEvent={() => parentRef.current?.scrollBy({ top: -(parentRef.current?.clientHeight || window.innerHeight), behavior: 'smooth' })}
                   />
+                  )}
                 </div>
               );
             })}

@@ -513,7 +513,8 @@ export function useSendMessage() {
         sender_id: user?.id,
         content: message,
         message_text: message,
-        message_type: 'text',
+        message_type: variables.messageType || 'text',
+        attachments: variables.attachments || null,
         created_at: new Date().toISOString(),
         is_read: true,
         is_optimistic: true, // Tag for potential UI styling (like grayed out)
@@ -540,7 +541,7 @@ export function useSendMessage() {
 
       return { prevMessages, prevConversations };
     },
-    mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
+    mutationFn: async ({ conversationId, message, messageType = 'text', attachments }: { conversationId: string; message: string; messageType?: string; attachments?: any }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
@@ -549,9 +550,10 @@ export function useSendMessage() {
           conversation_id: conversationId,
           sender_id: user.id,
           content: message,
-          message_type: 'text'
+          message_type: messageType,
+          attachments: attachments
         })
-        .select('id, conversation_id, sender_id, content, message_type, is_read, created_at')
+        .select('id, conversation_id, sender_id, content, message_type, is_read, created_at, attachments')
         .single();
 
       if (error) throw error;

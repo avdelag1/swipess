@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface PullToRefreshOptions {
   /** Element to attach to (defaults to window) */
@@ -13,7 +14,7 @@ interface PullToRefreshOptions {
 }
 
 /**
- * ðŸš€ Native-feeling pull-to-refresh for mobile PWA
+ * 🚀 Native-feeling pull-to-refresh for mobile PWA
  * - Invalidates all React Query caches on pull
  * - Haptic feedback on trigger
  * - Smooth rubber-band physics
@@ -35,7 +36,7 @@ export function usePullToRefresh({
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    if ('vibrate' in navigator) navigator.vibrate(15);
+    triggerHaptic('medium');
 
     // 🚀 MINIMUM DURATION: Ensure the user sees the loader doing its work.
     const minWait = new Promise(resolve => setTimeout(resolve, 900));

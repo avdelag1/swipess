@@ -167,12 +167,54 @@ body::-webkit-scrollbar {
   z-index: 2;
 }
 
+/* iOS-style Push Slide (Right to Left) */
+html[data-nav-dir="push"] ::view-transition-old(root) {
+  animation: slide-out-left 350ms cubic-bezier(0.36, 0.66, 0.04, 1) forwards;
+  z-index: 1;
+}
+html[data-nav-dir="push"] ::view-transition-new(root) {
+  animation: slide-in-right 350ms cubic-bezier(0.36, 0.66, 0.04, 1) forwards;
+  z-index: 2;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15); /* native drop shadow over old page */
+}
+
+/* iOS-style Pop Slide (Left to Right) */
+html[data-nav-dir="pop"] ::view-transition-old(root) {
+  animation: slide-out-right 350ms cubic-bezier(0.36, 0.66, 0.04, 1) forwards;
+  z-index: 2; /* The exiting page slides OUT OVER the entering page */
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+}
+html[data-nav-dir="pop"] ::view-transition-new(root) {
+  animation: slide-in-left 350ms cubic-bezier(0.36, 0.66, 0.04, 1) forwards;
+  z-index: 1;
+}
+
 @keyframes vt-fade-out {
   to { opacity: 0; }
 }
 
 @keyframes vt-fade-in {
   from { opacity: 0; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0%); }
+}
+
+@keyframes slide-out-left {
+  from { transform: translateX(0%); opacity: 1; }
+  to { transform: translateX(-25%); opacity: 0.8; } /* Parallax effect */
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-25%); opacity: 0.8; }
+  to { transform: translateX(0%); opacity: 1; }
+}
+
+@keyframes slide-out-right {
+  from { transform: translateX(0%); }
+  to { transform: translateX(100%); }
 }
 
 /* Theme-switch override: explicit ripple reveal driven by ThemeContext. */

@@ -14,6 +14,7 @@ import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
+import { useRouterDirection } from '@/hooks/useRouterDirection';
 import { cn } from '@/lib/utils';
 
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
@@ -47,6 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showAIChat, showAIListing, showAIProfile } = modalStore;
   const { activeMode } = useActiveMode();
   useDeepLinks();
+  useRouterDirection(); // Initialize routing direction state for View Transitions
 
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;

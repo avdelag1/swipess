@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // import { } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { Ban, ChevronLeft, Coins, Info, Mic, MicOff, MoreVertical, Paperclip, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -24,6 +24,7 @@ import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 const RatingSubmissionDialog = lazyWithRetry(() => import('@/components/RatingSubmissionDialog').then(m => ({ default: m.RatingSubmissionDialog })));
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
+const DocumentSelectorDialog = lazyWithRetry(() => import('@/components/DocumentSelectorDialog').then(m => ({ default: m.DocumentSelectorDialog })));
 import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
@@ -75,6 +76,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [showDocumentSelector, setShowDocumentSelector] = useState(false);
   // Controlled so the menu can't get stuck by the Radix mobile toggle race.
   const [menuOpen, setMenuOpen] = useState(false);
   const { _theme, isLight } = useAppTheme();
@@ -210,6 +212,22 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
     } catch (error: any) {
       logger.error('Failed to send message:', error);
       setNewMessage(messageText);
+    }
+  };
+
+  const handleSendDocument = async (doc: { id: string; name: string; type: 'contract' | 'document' }) => {
+    try {
+      await sendMessage.mutateAsync({
+        conversationId,
+        message: `Shared a ${doc.type}: ${doc.name}`,
+        messageType: 'document',
+        attachments: { id: doc.id, name: doc.name, type: doc.type }
+      });
+      uiSounds.playTap();
+      triggerHaptic('heavy');
+    } catch (error: any) {
+      logger.error('Failed to send document:', error);
+      appToast.error('Failed to send document');
     }
   };
 
@@ -421,6 +439,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
               <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
             </button>
 
+            <button
+              type="button"
+              onClick={() => setShowDocumentSelector(true)}
+              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showDocumentSelector ? "bg-violet-500/[0.12] border-violet-500/30 text-violet-500" : (isThemeLight ? "bg-background/[0.03] border-black/[0.06] text-black/50 hover:bg-background/[0.08]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+            >
+              <Paperclip className="z-[10000] w-5 h-5 stroke-[1.5]" />
+            </button>
+
             <div className="flex-1 relative flex items-center group">
               <textarea
                 value={newMessage}
@@ -493,6 +519,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, _c
           profileId={otherUser.id}
           title={otherUser.full_name || 'Check out this profile'}
           previewImage={otherUser.avatar_url || null}
+        /></Suspense>
+
+        <Suspense fallback={null}><DocumentSelectorDialog
+          open={showDocumentSelector}
+          onOpenChange={setShowDocumentSelector}
+          onSelectDocument={handleSendDocument}
         /></Suspense>
 
         <Suspense fallback={null}><SwipeInsightsModal

@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 const promoTiers = [
   {
     id: 'week',
-    appleProductId: 'Swipess.promo.event.week.v2',
+    appleProductId: 'Swipess.promo.event.week.v3',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/L94P4NFVX7T2E'),
 
     name: 'Spark',
@@ -25,7 +25,7 @@ const promoTiers = [
   },
   {
     id: 'month',
-    appleProductId: 'Swipess.promo.event.month.v2',
+    appleProductId: 'Swipess.promo.event.month.v3',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/XB42DA8JMY5L4'),
 
     name: 'Pulse',
@@ -39,7 +39,7 @@ const promoTiers = [
   },
   {
     id: 'quarter',
-    appleProductId: 'Swipess.promo.event.quarter.v2',
+    appleProductId: 'Swipess.promo.event.quarter.v3',
     paypalUrl: getSafePaymentUrl('https://www.paypal.com/ncp/payment/RPCFCMXDL3M2C'),
 
     name: 'Wave',

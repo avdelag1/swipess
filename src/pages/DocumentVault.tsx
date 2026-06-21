@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
-import { AlertTriangle, CreditCard, Download, File, FileText, FolderOpen, Plus, ScrollText, Search, Shield, Trash2, Upload } from 'lucide-react';
+import { AlertTriangle, CreditCard, Download, Eye, File, FileText, FolderOpen, MessageCircle, Plus, ScrollText, Search, Shield, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -318,13 +319,21 @@ export default function DocumentVault() {
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Digital Contracts</h3>
             <div className="space-y-2">
               {contracts.map(c => (
-                <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30">
+                <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30 group">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <ScrollText className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{c.title}</p>
                     <p className="text-xs text-muted-foreground">{c.status} · {format(new Date(c.created_at), 'MMM d, yyyy')}</p>
+                  </div>
+                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.dispatchEvent(new CustomEvent('open-contract', { detail: { contractId: c.id } }))}>
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-violet-500" onClick={() => appToast.info('Share via Chat', 'Open any chat and tap the paperclip icon to share this contract.')}>
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -360,9 +369,12 @@ export default function DocumentVault() {
                       {getDocTypeLabel(doc.document_type)} · {formatSize(doc.file_size)} · {format(new Date(doc.created_at), 'MMM d, yyyy')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(doc)}>
                       <Download className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-violet-500" onClick={() => appToast.info('Share via Chat', 'Open any chat and tap the paperclip icon to share this document.')}>
+                      <MessageCircle className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(doc)}>
                       <Trash2 className="w-4 h-4" />
