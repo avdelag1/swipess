@@ -108,6 +108,9 @@ export function PhotoUploadManager({
       if (failedCount > 0) {
         appToast.error("Upload Issue");
       }
+      if (failedCount > 0) {
+        toast.error("Upload Issue", { description: `${failedCount} photo${failedCount > 1 ? 's' : ''} failed to upload. Try again.` });
+      }
     } catch (error) {
       logger.error('Upload Error:', error);
       appToast.error("Transmission Error");
