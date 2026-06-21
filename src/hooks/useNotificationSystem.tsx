@@ -162,12 +162,25 @@ export function useNotificationSystem() {
               Notification.permission === 'granted' &&
               document.visibilityState !== 'visible'
             ) {
-              new Notification(`Message from ${senderName}`, {
+              const browserNotif = new Notification(`Message from ${senderName}`, {
                 body: dbNotification.message?.slice(0, 100) || '',
                 icon: dbNotification.metadata?.sender_avatar || '/placeholder.svg',
                 tag: `notif-${dbNotification.id}`,
                 requireInteraction: false,
               });
+              
+              browserNotif.onclick = () => {
+                window.focus();
+                // Navigate to the conversation
+                if (dbNotification.link_url) {
+                   navigate(dbNotification.link_url);
+                } else if (dbNotification.metadata?.conversation_id) {
+                   navigate(`/messages?conversationId=${dbNotification.metadata.conversation_id}`);
+                } else {
+                   navigate('/messages');
+                }
+                browserNotif.close();
+              };
             }
 
             // 2. Edge Function Push (to reach mobile/closed tabs)
