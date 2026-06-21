@@ -459,7 +459,12 @@ export function AIListingWizard() {
 
         if (isOnboardingActive) setOnboardingActive(false);
         handleClose();
-        setTimeout(() => navigate('/owner/properties', { replace: true }), 50);
+        setTimeout(() => {
+          navigate('/owner/properties', { replace: true });
+          if (listing?.id) {
+            useModalStore.getState().openPropertyDetails(listing.id);
+          }
+        }, 50);
       } catch (publishErr) {
         // Direct publish failed — fall back to the pre-filled manual form so
         // the user's photos and AI-extracted data aren't lost.

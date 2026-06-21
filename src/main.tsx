@@ -59,6 +59,18 @@ window.addEventListener('vite:preloadError', () => {
   handleEmergencyRecovery('Vite preload error');
 });
 
+// The service worker is the most reliable place to detect a stale app shell —
+// it sees the raw 404 on a hashed chunk. When it does, it signals here so we run
+// the same recovery (unregister SW, clear caches, hard reload to the fresh build)
+// even if no preload/script error fired on the page.
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'STALE_SHELL_RELOAD') {
+      handleEmergencyRecovery('Stale app shell (chunk 404 from service worker)');
+    }
+  });
+}
+
 // Catch unhandled promise rejections that would otherwise silently disappear
 window.addEventListener('unhandledrejection', (event) => {
   const msg = event.reason?.message || event.reason || 'Unknown promise rejection';

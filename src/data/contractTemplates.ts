@@ -28,18 +28,18 @@ export const ownerTemplates: ContractTemplate[] = [
   <p style="font-style: italic;">Minimum 3 Month Term</p>
 </div>
 
-<p><strong>This Rental Agreement</strong> ("Agreement") is entered into as of <u>________________</u> (the "Effective Date")</p>
+<p><strong>This Rental Agreement</strong> ("Agreement") is entered into as of <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u> (the "Effective Date")</p>
 
 <p><strong>BETWEEN:</strong></p>
 
 <p><strong>LANDLORD:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u><br/>
 Email: <u>_________________________________</u></p>
 
 <p><strong>TENANT:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u><br/>
 Email: <u>_________________________________</u></p>
@@ -48,21 +48,21 @@ Email: <u>_________________________________</u></p>
 
 <h2 style="font-size: 18px;">1. PROPERTY DESCRIPTION</h2>
 <p>The Landlord agrees to rent to the Tenant the property located at:</p>
-<p style="margin-left: 20px;"><u>_________________________________________________________________</u></p>
+<p style="margin-left: 20px;"><u style="color:#EB4898;font-style:italic;">{{property_address}}</u></p>
 <p>Including the following furnishings and appliances: <u>_________________________________</u></p>
 
 <h2 style="font-size: 18px;">2. TERM OF LEASE</h2>
-<p>The lease term shall commence on <u>________________</u> and shall continue for a minimum period of <u>_______</u> months, ending on <u>________________</u>.</p>
+<p>The lease term shall commence on <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u> and shall continue for a minimum period of <u style="color:#EB4898;font-style:italic;">{{lease_term}}</u> months, ending on <u>________________</u>.</p>
 <p>After the initial term, this Agreement shall continue on a month-to-month basis unless either party provides 30 days written notice of termination.</p>
 
 <h2 style="font-size: 18px;">3. RENT PAYMENT</h2>
-<p>Monthly Rent: <u>________________</u> (Currency: <u>________</u>)</p>
+<p>Monthly Rent: <u style="color:#EB4898;font-style:italic;">{{monthly_rent}}</u> (Currency: <u>________</u>)</p>
 <p>Due Date: The <u>_____</u> day of each month</p>
 <p>Payment Method: <u>_________________________________</u></p>
 <p>Late Fee: A late fee of <u>________</u> shall be assessed for payments received after the <u>_____</u> day of the month.</p>
 
 <h2 style="font-size: 18px;">4. SECURITY DEPOSIT</h2>
-<p>Security Deposit Amount: <u>________________</u></p>
+<p>Security Deposit Amount: <u style="color:#EB4898;font-style:italic;">{{security_deposit}}</u></p>
 <p>The security deposit shall be held by the Landlord and returned within 30 days of lease termination, minus any deductions for damages beyond normal wear and tear.</p>
 
 <h2 style="font-size: 18px;">5. UTILITIES AND SERVICES</h2>
@@ -121,18 +121,18 @@ Email: <u>_________________________________</u></p>
   <p style="font-style: italic;">Real Estate Purchase Agreement</p>
 </div>
 
-<p><strong>This Property Sale Contract</strong> ("Agreement") is made on <u>________________</u></p>
+<p><strong>This Property Sale Contract</strong> ("Agreement") is made on <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
 
 <p><strong>BETWEEN:</strong></p>
 
 <p><strong>SELLER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
 ID/Passport: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u></p>
 
 <p><strong>BUYER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
 ID/Passport: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u></p>
@@ -141,18 +141,18 @@ Phone: <u>_________________________________</u></p>
 
 <h2 style="font-size: 18px;">1. PROPERTY DESCRIPTION</h2>
 <p>The Seller agrees to sell and the Buyer agrees to purchase the following property:</p>
-<p>Address: <u>_________________________________________________________________</u></p>
+<p>Address: <u style="color:#EB4898;font-style:italic;">{{property_address}}</u></p>
 <p>Property Type: ☐ House ☐ Apartment ☐ Land ☐ Commercial ☐ Other: <u>________</u></p>
 <p>Size: <u>________</u> square meters/feet</p>
 <p>Property Registry Number: <u>_________________________________</u></p>
 
 <h2 style="font-size: 18px;">2. PURCHASE PRICE AND PAYMENT</h2>
-<p>Total Purchase Price: <u>________________</u> (Currency: <u>________</u>)</p>
+<p>Total Purchase Price: <u style="color:#EB4898;font-style:italic;">{{purchase_price}}</u> (Currency: <u>________</u>)</p>
 <p>Payment Schedule:</p>
 <ul>
-  <li>Earnest Money Deposit: <u>________________</u> due on <u>________________</u></li>
+  <li>Earnest Money Deposit: <u style="color:#EB4898;font-style:italic;">{{earnest_money}}</u> due on <u>________________</u></li>
   <li>Second Payment: <u>________________</u> due on <u>________________</u></li>
-  <li>Final Payment: <u>________________</u> due at closing on <u>________________</u></li>
+  <li>Final Payment: <u>________________</u> due at closing on <u style="color:#EB4898;font-style:italic;">{{closing_date}}</u></li>
 </ul>
 <p>Payment Method: <u>_________________________________</u></p>
 
@@ -218,16 +218,16 @@ Phone: <u>_________________________________</u></p>
   <h1 style="font-size: 24px; font-weight: bold;">BICYCLE RENTAL AGREEMENT</h1>
 </div>
 
-<p><strong>Agreement Date:</strong> <u>________________</u></p>
+<p><strong>Agreement Date:</strong> <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
 
 <p><strong>RENTAL COMPANY/OWNER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
 Business Name: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u></p>
 
 <p><strong>RENTER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
 ID/Passport: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u><br/>
@@ -262,9 +262,9 @@ Emergency Contact: <u>_________________________________</u></p>
 <h2 style="font-size: 18px;">2. RENTAL PERIOD AND RATES</h2>
 <p>Start Date/Time: <u>________________</u> at <u>________</u></p>
 <p>End Date/Time: <u>________________</u> at <u>________</u></p>
-<p>Rental Rate: <u>________________</u> per ☐ Hour ☐ Day ☐ Week ☐ Month</p>
+<p>Rental Rate: <u style="color:#EB4898;font-style:italic;">{{monthly_rent}}</u> per ☐ Hour ☐ Day ☐ Week ☐ Month</p>
 <p>Total Rental Fee: <u>________________</u></p>
-<p>Security Deposit: <u>________________</u></p>
+<p>Security Deposit: <u style="color:#EB4898;font-style:italic;">{{security_deposit}}</u></p>
 <p>Late Return Fee: <u>________________</u> per hour/day</p>
 
 <h2 style="font-size: 18px;">3. TERMS AND CONDITIONS</h2>
@@ -325,16 +325,16 @@ Emergency Contact: <u>_________________________________</u></p>
   <h1 style="font-size: 24px; font-weight: bold;">MOTORCYCLE RENTAL AGREEMENT</h1>
 </div>
 
-<p><strong>Agreement Date:</strong> <u>________________</u></p>
+<p><strong>Agreement Date:</strong> <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
 
 <p><strong>RENTAL COMPANY/OWNER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
 Business Name: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u></p>
 
 <p><strong>RENTER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
 ID/Passport: <u>_________________________________</u><br/>
 Driver's License #: <u>_________________________________</u><br/>
 License Expiry: <u>_________________________________</u><br/>
@@ -568,16 +568,16 @@ Professional ID/License #: <u>_________________________________</u></p>
   <p style="font-style: italic;">Vacation / Temporary Stay</p>
 </div>
 
-<p><strong>Agreement Date:</strong> <u>________________</u></p>
+<p><strong>Agreement Date:</strong> <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
 
 <p><strong>PROPERTY OWNER/MANAGER:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u><br/>
 Email: <u>_________________________________</u></p>
 
 <p><strong>GUEST:</strong><br/>
-Name: <u>_________________________________</u><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
 ID/Passport: <u>_________________________________</u><br/>
 Address: <u>_________________________________</u><br/>
 Phone: <u>_________________________________</u><br/>
@@ -586,7 +586,7 @@ Email: <u>_________________________________</u></p>
 <hr style="margin: 20px 0;"/>
 
 <h2 style="font-size: 18px;">1. PROPERTY</h2>
-<p>Address: <u>_________________________________________________________________</u></p>
+<p>Address: <u style="color:#EB4898;font-style:italic;">{{property_address}}</u></p>
 <p>Property Type: ☐ House ☐ Apartment ☐ Room ☐ Villa ☐ Other: <u>________</u></p>
 <p>Bedrooms: <u>_____</u> | Bathrooms: <u>_____</u> | Max Guests: <u>_____</u></p>
 

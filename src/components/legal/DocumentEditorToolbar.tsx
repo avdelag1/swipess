@@ -6,14 +6,8 @@ import {
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 
-export const DOCUMENT_FONTS = [
-  { id: 'times', label: 'Times', css: "'Times New Roman', Times, serif" },
-  { id: 'arial', label: 'Arial', css: 'Arial, Helvetica, sans-serif' },
-  { id: 'georgia', label: 'Georgia', css: 'Georgia, serif' },
-  { id: 'courier', label: 'Courier', css: "'Courier New', Courier, monospace" },
-] as const;
-
-export type DocumentFontId = (typeof DOCUMENT_FONTS)[number]['id'];
+import type { DocumentFontId } from '@/lib/document-fonts';
+import { DOCUMENT_FONTS } from '@/lib/document-fonts';
 
 interface DocumentEditorToolbarProps {
   fontSize: number;
@@ -155,8 +149,4 @@ export function DocumentEditorToolbar({
       </div>
     </div>
   );
-}
-
-export function getFontCss(family: DocumentFontId): string {
-  return DOCUMENT_FONTS.find((f) => f.id === family)?.css ?? DOCUMENT_FONTS[0].css;
 }

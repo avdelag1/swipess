@@ -46,7 +46,8 @@ import { useModalStore } from '@/state/modalStore';
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
-import { getNavMotionId, MotionIcon } from '@/components/ui/MotionIcon';
+import { MotionIcon } from '@/components/ui/MotionIcon';
+import { getNavMotionId } from '@/lib/motion-constants';
 import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 const ICON_SIZE = 26;

@@ -169,6 +169,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }, 1000);
   }, [sendMessage, conversationId]);
 
+  const cancelCountdown = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    setCountdown(null);
+  }, []);
+
   const startListening = useCallback(async () => {
     // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
     const ok = await startVoiceTranscribe();
