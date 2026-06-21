@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { NativeBridge } from '@/utils/nativeBridge';
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from '@/config/iapProducts';
-import { FaApple } from 'react-icons/fa';
 
 interface SubscriptionPackagesProps {
   isOpen?: boolean;
@@ -254,11 +253,7 @@ export function SubscriptionPackages({
                 >
                   {isPurchasing ? 'Connecting...' : (
                     NativeBridge.isIOS() ? (
-                      <>
-                        <span>Buy with</span>
-                        <FaApple className="w-5 h-5 mb-[2px]" />
-                        <span>Pay</span>
-                      </>
+                      <span>Subscribe</span>
                     ) : (
                       isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
                     )

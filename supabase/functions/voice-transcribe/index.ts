@@ -11,9 +11,21 @@ const corsHeaders = {
 
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY") || "";
 
+// Reject oversized audio before buffering/decoding (DoS + Groq cost guard).
+// ~10MB base64 ≈ 7.5MB of audio — far more than any short voice note needs.
+const MAX_AUDIO_B64_BYTES = 10 * 1024 * 1024;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const declaredLen = Number(req.headers.get("content-length") || "0");
+  if (declaredLen > MAX_AUDIO_B64_BYTES) {
+    return new Response(
+      JSON.stringify({ error: "Audio payload too large." }),
+      { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   try {
@@ -25,6 +37,13 @@ serve(async (req) => {
 
     if (!audio) {
       throw new Error("No audio provided.");
+    }
+
+    if (typeof audio !== "string" || audio.length > MAX_AUDIO_B64_BYTES) {
+      return new Response(
+        JSON.stringify({ error: "Audio payload too large or invalid." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Convert base64 to binary

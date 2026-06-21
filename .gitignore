@@ -36,10 +36,17 @@ supabase/.temp/
 
 # Signing keys & credentials
 KEYS/
+KEY/
 *.jks
 *.keystore
 *.p12
 *.mobileprovision
+*.p8
+*.key
+*.pem
+*.cer
+*.csr
+AuthKey_*.p8
 
 # Audit & Debug Artifacts
 *audit.log
@@ -51,6 +58,10 @@ KEYS/
 error_list*
 errors*.json
 lint_results.json
+eslint-report.json
+
+# Local scratch / throwaway working dir
+scratch/
 ACTION_ITEMS.md
 AUDIT_REPORT*.md
 AUDIT_SUMMARY.md

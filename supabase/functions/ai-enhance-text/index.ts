@@ -10,9 +10,21 @@ const corsHeaders = {
 
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY") || "";
 
+// Cap input size — protects against DoS and runaway Groq cost.
+// 50KB comfortably fits even a long legal-document draft.
+const MAX_TEXT_BYTES = 50 * 1024;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const declaredLen = Number(req.headers.get("content-length") || "0");
+  if (declaredLen > MAX_TEXT_BYTES * 2) {
+    return new Response(
+      JSON.stringify({ error: "Text payload too large." }),
+      { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   try {
@@ -24,6 +36,13 @@ serve(async (req) => {
 
     if (!text || text.trim().length === 0) {
       throw new Error("No text provided.");
+    }
+
+    if (typeof text !== "string" || text.length > MAX_TEXT_BYTES) {
+      return new Response(
+        JSON.stringify({ error: "Text too long." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     let systemPrompt: string;

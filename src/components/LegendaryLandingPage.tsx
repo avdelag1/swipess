@@ -19,7 +19,11 @@ import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { appToast } from '@/utils/appNotification';
 import { Capacitor } from '@capacitor/core';
 
-const _isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+// On native iOS there is no native Google Sign-In plugin and the web OAuth
+// redirect cannot complete inside the WKWebView, so the Google button is hidden
+// there (email + native Sign in with Apple remain). Avoids a dead control that
+// Apple review flags under Guideline 2.1.
+const isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 type View = 'landing' | 'auth';
 
@@ -166,6 +170,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [agreed18, setAgreed18] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
@@ -238,6 +243,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         }
         if (!confirmPassword.trim()) errs.confirmPassword = 'Please confirm your password';
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
+        // Apple/marketplace requirement: enforce the 18+ Terms acceptance the
+        // EULA already claims, instead of leaving it implicit.
+        if (!agreed18) errs.agree = 'You must confirm you are 18 or older to continue';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -405,6 +413,32 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
           )}
 
+          {!isLogin && !isForgotPassword && (
+            <div className="px-1 pt-0.5">
+              <div className="flex items-start gap-2.5">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={agreed18}
+                  onClick={() => { setAgreed18(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); }}
+                  className={cn(
+                    "w-4 h-4 mt-0.5 shrink-0 rounded border flex items-center justify-center transition-colors",
+                    agreed18 ? "bg-white border-white" : "bg-white/5 border-white/30",
+                  )}
+                >
+                  <Check className={cn("w-3 h-3 transition-opacity", agreed18 ? "opacity-100 text-black" : "opacity-0 text-white")} strokeWidth={3} />
+                </button>
+                <p className="text-[10px] font-bold tracking-wide text-white/70 leading-snug">
+                  I confirm I am 18 or older and agree to the{' '}
+                  <button type="button" onClick={() => setLegalModal('terms')} className="underline text-white/90">Terms</button>
+                  {' '}&amp;{' '}
+                  <button type="button" onClick={() => setLegalModal('privacy')} className="underline text-white/90">Privacy Policy</button>.
+                </p>
+              </div>
+              {fieldErrors.agree && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.agree}</p>}
+            </div>
+          )}
+
             <div className="pt-2 relative group">
               <div className="absolute inset-x-4 -bottom-2 h-10 bg-white/20 blur-[30px] opacity-0 group-hover:opacity-100 transition-opacity rounded-full pointer-events-none" />
               <button
@@ -466,19 +500,21 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               <span>Sign in with Apple</span>
             </button>
 
-            <button
-              onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
-              style={{
-                backgroundColor: '#ffffff',
-                color: '#000000',
-                border: '2px solid rgba(255,255,255,0.9)',
-                boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
-              }}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
-            >
-              <GoogleIcon />
-              <span>Continue with Google</span>
-            </button>
+            {!isNativeIOS && (
+              <button
+                onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
+                style={{
+                  backgroundColor: '#ffffff',
+                  color: '#000000',
+                  border: '2px solid rgba(255,255,255,0.9)',
+                  boxShadow: '0 0 0 1px rgba(255,255,255,0.3), 0 6px 24px rgba(255,255,255,0.2)',
+                }}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
+              >
+                <GoogleIcon />
+                <span>Continue with Google</span>
+              </button>
+            )}
           </motion.div>
         )}
       </div>

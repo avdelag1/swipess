@@ -12,19 +12,19 @@
  *   2. pass its SHA-256 hash to Apple (Apple embeds the hash in the token)
  *   3. pass the RAW nonce to Supabase, which re-hashes and compares
  */
+import { Capacitor } from '@capacitor/core';
+
 // Must match the iOS bundle identifier and be listed as an authorized
 // client id on the Apple provider in the Supabase dashboard.
 const APPLE_BUNDLE_ID = 'com.swipess.mobile';
 
 export function isNativeAppleAvailable(): boolean {
-  // TEMPORARY BYPASS: Since you are on a Personal Team (free account) and cannot add 
-  // the "Sign In with Apple" capability in Xcode, we force this to return false. 
-  // This tells the app to use the web-based Apple Login instead of the native one, 
-  // bypassing Xcode entirely so you can test!
-  return false; 
-  
-  // Original code:
-  // return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+  // Native Sign in with Apple is mandatory on iOS: Guideline 4.8 requires it
+  // whenever a third-party login is offered, and the web OAuth redirect cannot
+  // complete inside the WKWebView. The applesignin entitlement, the
+  // @capacitor-community/apple-sign-in pod, and the Supabase Apple provider are
+  // all configured, so always use the native flow on iOS.
+  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 }
 
 function generateRawNonce(): string {
@@ -44,6 +44,12 @@ export interface NativeAppleCredential {
   rawNonce: string;
   /** Apple only returns the name on the very first authorization. */
   fullName: string | null;
+  /**
+   * Short-lived authorization code. Exchanged server-side for an Apple refresh
+   * token so account deletion can revoke the Sign in with Apple grant
+   * (App Store Review Guideline 5.1.1(v)).
+   */
+  authorizationCode: string | null;
 }
 
 /** Thrown-error code Apple uses when the user dismisses the sheet. */
@@ -78,6 +84,7 @@ export async function performNativeAppleSignIn(): Promise<NativeAppleCredential>
   const given = result.response?.givenName ?? '';
   const family = result.response?.familyName ?? '';
   const fullName = [given, family].filter(Boolean).join(' ').trim() || null;
+  const authorizationCode = result.response?.authorizationCode ?? null;
 
-  return { identityToken, rawNonce, fullName };
+  return { identityToken, rawNonce, fullName, authorizationCode };
 }

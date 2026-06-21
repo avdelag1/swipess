@@ -81,12 +81,33 @@ async function moderateWithGemini(apiKey: string, base64: string, mimeType: stri
   return parseVerdict(text);
 }
 
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
+
+/**
+ * Only allow fetching images from our own Supabase storage origin. Without
+ * this, an authenticated caller could point imageUrl at internal/cloud-
+ * metadata endpoints (SSRF) since the function fetches the URL server-side.
+ */
+function isAllowedImageUrl(raw: string): boolean {
+  let u: URL;
+  try { u = new URL(raw); } catch { return false; }
+  if (u.protocol !== "https:") return false;
+  let supabaseHost = "";
+  try { supabaseHost = new URL(Deno.env.get("SUPABASE_URL") || "").host; } catch { /* unset */ }
+  return !!supabaseHost && u.host === supabaseHost;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const { imageUrl } = await req.json();
     if (!imageUrl) {
+      return safeResponse({ safe: true, reasons: [], confidence: 1.0 });
+    }
+
+    if (typeof imageUrl !== "string" || !isAllowedImageUrl(imageUrl)) {
+      console.warn("[moderate-image] rejected non-allowlisted imageUrl");
       return safeResponse({ safe: true, reasons: [], confidence: 1.0 });
     }
 
@@ -99,7 +120,11 @@ serve(async (req) => {
     // Fetch the image once; both providers consume it as base64.
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) throw new Error("Could not fetch image");
+    if (Number(imgRes.headers.get("content-length") || "0") > MAX_IMAGE_BYTES) {
+      throw new Error("Image too large");
+    }
     const arrayBuffer = await imgRes.arrayBuffer();
+    if (arrayBuffer.byteLength > MAX_IMAGE_BYTES) throw new Error("Image too large");
     const base64 = encode(arrayBuffer);
     const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
 

@@ -124,6 +124,21 @@ Deno.serve(async (req) => {
       ? new Date(Number(tx.expires_date_ms)).toISOString()
       : null;
 
+    // Replay guard: if this transaction was already recorded, do not re-grant.
+    // The transaction upsert is idempotent, but the token/promo grants below
+    // are not — without this, replaying one receipt farms unlimited tokens.
+    const { data: existingTx } = await supabase
+      .from('apple_transactions')
+      .select('original_transaction_id')
+      .eq('original_transaction_id', originalTxId)
+      .maybeSingle();
+    if (existingTx) {
+      return new Response(
+        JSON.stringify({ ok: true, alreadyProcessed: true, environment: verified.environment, productId }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Idempotent record of the transaction
     const { error: txErr } = await supabase.from('apple_transactions').upsert(
       {

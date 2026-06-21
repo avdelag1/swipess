@@ -27,14 +27,30 @@ const EVENT_PROMO_PRODUCTS: Record<string, number> = {
   'swipess.promo.event.quarter.v2': 90,
 };
 
-async function _verifyWithGooglePlay(
-  _packageName: string,
+interface GoogleVerifyResult {
+  verified: boolean;
+  orderId?: string;
+  purchaseState?: number;
+  startTimeMillis?: string;
+  expiryTimeMillis?: string;
+}
+
+/**
+ * Verifies a Google Play purchase server-side via the Android Publisher API.
+ * Signs a real RS256 service-account JWT, exchanges it for an access token,
+ * then queries the subscriptions or products endpoint depending on the SKU.
+ * Returns { verified: false } if the service account is not configured or the
+ * purchase cannot be confirmed — callers MUST NOT grant on a false result.
+ */
+async function verifyWithGooglePlay(
+  packageName: string,
   productId: string,
   purchaseToken: string,
-): Promise<{ verified: boolean; orderId?: string; purchaseState?: number; expiryTimeMillis?: string }> {
+  isSubscription: boolean,
+): Promise<GoogleVerifyResult> {
   const googleServiceAccountJson = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON");
   if (!googleServiceAccountJson) {
-    console.error("GOOGLE_SERVICE_ACCOUNT_JSON not configured; validation skipped");
+    console.error("GOOGLE_SERVICE_ACCOUNT_JSON not configured; cannot verify purchase");
     return { verified: false };
   }
 
@@ -54,13 +70,22 @@ async function _verifyWithGooglePlay(
       return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     }
 
+    // The PEM private key must be stripped of its header/footer and base64-
+    // decoded to DER bytes before importKey — a raw TextEncoder of the PEM
+    // string (the previous bug) is not a valid pkcs8 key.
+    const pemBody = String(serviceAccount.private_key)
+      .replace(/-----BEGIN PRIVATE KEY-----/, "")
+      .replace(/-----END PRIVATE KEY-----/, "")
+      .replace(/\s+/g, "");
+    const keyBytes = Uint8Array.from(atob(pemBody), (c) => c.charCodeAt(0));
+
     const headerB64 = base64url(JSON.stringify(jwtHeader));
     const bodyB64 = base64url(JSON.stringify(jwtBody));
     const signatureInput = `${headerB64}.${bodyB64}`;
 
-    const keyData = crypto.subtle.importKey(
+    const key = await crypto.subtle.importKey(
       "pkcs8",
-      new TextEncoder().encode(serviceAccount.private_key),
+      keyBytes,
       { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
       false,
       ["sign"],
@@ -68,7 +93,7 @@ async function _verifyWithGooglePlay(
 
     const signature = await crypto.subtle.sign(
       "RSASSA-PKCS1-v1_5",
-      await keyData,
+      key,
       new TextEncoder().encode(signatureInput),
     );
     const sigB64 = base64url(String.fromCharCode(...new Uint8Array(signature)));
@@ -90,8 +115,8 @@ async function _verifyWithGooglePlay(
     }
 
     const accessToken = tokenData.access_token;
-
-    const apiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(_packageName)}/purchases/products/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
+    const kind = isSubscription ? "subscriptions" : "products";
+    const apiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${encodeURIComponent(packageName)}/purchases/${kind}/${encodeURIComponent(productId)}/tokens/${encodeURIComponent(purchaseToken)}`;
 
     const verifyRes = await fetch(apiUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -103,11 +128,26 @@ async function _verifyWithGooglePlay(
     }
 
     const result = await verifyRes.json();
+
+    if (isSubscription) {
+      // paymentState 0=pending,1=received,2=free trial,3=deferred.
+      const paid = result.paymentState === 1 || result.paymentState === 2;
+      const notExpired = result.expiryTimeMillis
+        ? Number(result.expiryTimeMillis) > Date.now()
+        : true;
+      return {
+        verified: paid && notExpired,
+        orderId: result.orderId,
+        startTimeMillis: result.startTimeMillis,
+        expiryTimeMillis: result.expiryTimeMillis,
+      };
+    }
+
+    // One-time product: purchaseState 0=purchased,1=cancelled,2=pending.
     return {
       verified: result.purchaseState === 0,
       orderId: result.orderId,
       purchaseState: result.purchaseState,
-      expiryTimeMillis: result.expiryTimeMillis,
     };
   } catch (err) {
     console.error("Google Play verification error", err);
@@ -150,50 +190,50 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Attempt server-side validation via Google Play Developer API (androidpublisher v3)
-    // Falls back to client-trusted data if service account is not configured.
-    const googleServiceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
-    let validated = false;
-    let purchaseDate: string;
-    let expiresDate: string | null = null;
-
-    if (googleServiceAccountJson) {
-      try {
-        const googleAuth = await fetch('https://oauth2.googleapis.com/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            assertion: googleServiceAccountJson,
-            grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-          }),
-        });
-        const { access_token: googleToken } = await googleAuth.json();
-        if (googleToken) {
-          const verifyUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.swipess/purchases/subscriptions/${productId}/tokens/${purchaseToken}`;
-          const verifyRes = await fetch(verifyUrl, {
-            headers: { Authorization: `Bearer ${googleToken}` },
-          });
-          if (verifyRes.ok) {
-            const playData = await verifyRes.json();
-            validated = true;
-            purchaseDate = new Date(parseInt(playData.startTimeMillis)).toISOString();
-            expiresDate = playData.expiryTimeMillis
-              ? new Date(parseInt(playData.expiryTimeMillis)).toISOString()
-              : null;
-          }
-        }
-      } catch (_e) {
-        // Google verification failed; fall through to client-trusted path
-      }
+    const isSubscription = SUBSCRIPTION_PRODUCTS.has(productId);
+    const isToken = !!TOKEN_PRODUCTS[productId];
+    const isPromo = !!EVENT_PROMO_PRODUCTS[productId];
+    if (!isSubscription && !isToken && !isPromo) {
+      return new Response(JSON.stringify({ ok: false, error: 'Unknown productId' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    if (!validated) {
-      purchaseDate = new Date().toISOString();
-      if (SUBSCRIPTION_PRODUCTS.has(productId)) {
-        if (productId.includes('monthly')) expiresDate = new Date(Date.now() + 30*24*60*60*1000).toISOString();
-        else if (productId.includes('semestral')) expiresDate = new Date(Date.now() + 180*24*60*60*1000).toISOString();
-        else if (productId.includes('annual')) expiresDate = new Date(Date.now() + 365*24*60*60*1000).toISOString();
-      }
+    // Replay guard: if this purchase token was already recorded, do not grant
+    // again. Returns an idempotent success so the client treats it as done.
+    const { data: existingTx } = await supabase
+      .from('google_play_transactions')
+      .select('purchase_token')
+      .eq('purchase_token', purchaseToken)
+      .maybeSingle();
+    if (existingTx) {
+      return new Response(
+        JSON.stringify({ ok: true, alreadyProcessed: true, productId }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Mandatory server-side verification with the Google Play Developer API.
+    // No verification => no grant (mirrors validate-apple-receipt).
+    const verification = await verifyWithGooglePlay('com.swipess.mobile', productId, purchaseToken, isSubscription);
+    if (!verification.verified) {
+      return new Response(JSON.stringify({ ok: false, error: 'Purchase could not be verified' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const purchaseDate = verification.startTimeMillis
+      ? new Date(Number(verification.startTimeMillis)).toISOString()
+      : new Date().toISOString();
+    let expiresDate: string | null = verification.expiryTimeMillis
+      ? new Date(Number(verification.expiryTimeMillis)).toISOString()
+      : null;
+    if (isSubscription && !expiresDate) {
+      if (productId.includes('monthly')) expiresDate = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+      else if (productId.includes('semestral')) expiresDate = new Date(Date.now() + 180*24*60*60*1000).toISOString();
+      else if (productId.includes('annual')) expiresDate = new Date(Date.now() + 365*24*60*60*1000).toISOString();
     }
 
     const { error: upsertErr } = await supabase.from('google_play_transactions').upsert(
@@ -201,7 +241,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         product_id: productId,
         purchase_token: purchaseToken,
-        order_id: clientOrderId || null,
+        order_id: clientOrderId || verification.orderId || null,
         purchase_time: purchaseDate,
         environment: 'Production',
         verified: true,
