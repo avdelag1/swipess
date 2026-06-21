@@ -47,8 +47,17 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
   const isClientProfile = !!profile;
 
   const images: string[] = useMemo(() => {
-    if (isClientProfile) return profile?.profile_images || [];
-    const raw = (listing as any)?.images;
+    if (isClientProfile) {
+      const pImages = profile?.profile_images;
+      if (typeof pImages === 'string') {
+        try { const parsed = JSON.parse(pImages); if (Array.isArray(parsed)) return parsed; } catch { return [pImages]; }
+      }
+      return Array.isArray(pImages) ? pImages : [];
+    }
+    let raw = (listing as any)?.images;
+    if (typeof raw === 'string') {
+      try { raw = JSON.parse(raw); } catch { raw = [raw]; }
+    }
     if (Array.isArray(raw)) {
       return raw.map((i: any) => typeof i === 'string' ? i : i?.url || i?.image_url || i?.src || '').filter(Boolean);
     }
@@ -316,9 +325,9 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
             </div>
           </div>
 
-          {/* Floating return button — top-right corner */}
-          <div className="absolute top-0 right-0 p-safe pt-safe-top z-50">
-            <div className="flex justify-end px-5 pt-4">
+          {/* Floating return button — top-left corner */}
+          <div className="absolute top-0 left-0 p-safe pt-safe-top z-50">
+            <div className="flex justify-start px-5 pt-4">
               <button
                 onClick={handleClose}
                 aria-label="Close"

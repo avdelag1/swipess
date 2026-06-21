@@ -171,7 +171,7 @@ export function SubscriptionPackages({
 
   const body = (
     <>
-      <div className={cn('text-center px-4', showAsPage ? 'pt-safe-top pb-5' : 'pt-10 pb-5')}>
+      <div className={cn('text-center px-4', showAsPage ? 'pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-5' : 'pt-10 pb-5')}>
         {showAsPage && (
           <div className="flex items-center justify-start mb-6 px-2">
             <button

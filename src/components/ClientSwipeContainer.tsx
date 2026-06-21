@@ -76,6 +76,12 @@ const ClientSwipeContainerComponent = ({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLight } = useAppTheme();
+
+  const handleBack = useCallback(() => {
+    setActiveCategory(null as any);
+    navigate('/owner/dashboard');
+  }, [navigate, setActiveCategory]);
+
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
@@ -982,7 +988,7 @@ const ClientSwipeContainerComponent = ({
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
                         onDragStart={isTopCard ? handleDragStart : undefined}
-                        onBack={isTopCard ? () => navigate(`/${activeMode}/dashboard`) : undefined}
+                        onBack={isTopCard ? handleBack : undefined}
                         canUndo={canUndo}
                         isTop={isTopCard}
                         fullScreen={false}
@@ -1043,7 +1049,7 @@ const ClientSwipeContainerComponent = ({
                   onOpenFilters={() => {
                     navigate('/owner/filters');
                   }}
-                  onBack={() => navigate(`/${activeMode}/dashboard`)}
+                  onBack={handleBack}
                   role="owner"
                 />
                 )}
