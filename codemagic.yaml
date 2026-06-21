@@ -36,6 +36,7 @@ workflows:
         certificates:
           - CERT
       vars:
+        VITE_MAPBOX_ACCESS_TOKEN: "pk.eyJ1IjoiYXZkZWxhZyIsImEiOiJjbW81OWZvbmkxb284MnNwdmUxcjBwdzZzIn0.g6nNTESXekEIpz2GSwOMLg"
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.swipess.mobile"
