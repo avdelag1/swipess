@@ -10,11 +10,8 @@ import { useCallback, useSyncExternalStore } from 'react';
  *   5s idle → hide chrome → 2s later → hide rail.
  */
 
-const AUTO_HIDE_CHROME_MS = 5000;
-const RAIL_DELAY_AFTER_CHROME_MS = 2000;
-
-let chromeVisible = false;
-let railVisible = false;
+let chromeVisible = true;
+let railVisible = true;
 let chromeTimer: ReturnType<typeof setTimeout> | null = null;
 let railTimer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
@@ -29,19 +26,13 @@ function clearAllTimers() {
 }
 
 function scheduleChromeHide() {
-  if (chromeTimer) clearTimeout(chromeTimer);
-  chromeTimer = setTimeout(() => {
-    chromeVisible = false;
-    chromeTimer = null;
-    emit();
-    // After chrome hides, schedule rail hide
-    if (railTimer) clearTimeout(railTimer);
-    railTimer = setTimeout(() => {
-      railVisible = false;
-      railTimer = null;
-      emit();
-    }, RAIL_DELAY_AFTER_CHROME_MS);
-  }, AUTO_HIDE_CHROME_MS);
+  // Auto-hide is intentionally DISABLED. The header (TopBar) + bottom nav + card
+  // rail stay visible so every header button (AI listing, tokens, notifications,
+  // etc.) is tappable on the first tap. Previously the chrome auto-hid after 5s,
+  // which both hid the controls and let the invisible ChromeSummonZones overlay
+  // race in and swallow taps ("tokens only opens sometimes"). Chrome now only
+  // hides where a screen explicitly calls hideChrome() (e.g. immersive events).
+  clearAllTimers();
 }
 
 export function revealChrome() {
