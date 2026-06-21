@@ -115,7 +115,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     location.pathname.startsWith('/listing/') ||
     location.pathname.startsWith('/profile/');
   const { isChromeVisible } = useChromeReveal();
-  const useRevealMode = (swipeDeckActive || isImmersiveCardRoute) && !showAIChat;
+  const useRevealMode = isImmersiveCardRoute && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
