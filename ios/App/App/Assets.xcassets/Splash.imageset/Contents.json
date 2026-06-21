@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "Swipess_Splash_1x.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "Swipess_Splash_2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "Swipess_Splash_3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "Swipess-wordmark-white.png",
+      "idiom" : "universal"
     }
   ],
   "info" : {
