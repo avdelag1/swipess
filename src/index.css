@@ -426,8 +426,14 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  margin-bottom: max(8px, env(safe-area-inset-bottom, 0px));
-  border-radius: 28px;
+  /* The dock sits flush to the bottom edge of the screen on every device.
+     We keep the home-indicator clear by reserving safe-area-inset-bottom as
+     INTERNAL padding instead of an external margin — this way the nav
+     visually touches the bottom while its tap targets stay above the
+     iOS gesture pill / Android nav bar. */
+  margin-bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-radius: 28px 28px 0 0;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow:

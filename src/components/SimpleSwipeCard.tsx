@@ -30,7 +30,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
+import { BarChart3, ChevronLeft, Crown, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -643,6 +643,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
             <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
+                { icon: Crown, onClick: () => useModalStore.getState().setModal('showTokensModal', true), label: 'Tokens' },
                 { icon: Mic, onClick: () => useModalStore.getState().openAIChat(), label: 'Voice' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },

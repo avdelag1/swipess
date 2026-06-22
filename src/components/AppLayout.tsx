@@ -115,7 +115,13 @@ export function AppLayout({ children }: AppLayoutProps) {
     location.pathname.startsWith('/listing/') ||
     location.pathname.startsWith('/profile/');
   const { isChromeVisible } = useChromeReveal();
-  const useRevealMode = isImmersiveCardRoute && !showAIChat;
+  // Reveal-mode (chrome auto-hides after a short idle window) applies to:
+  //   • Immersive single-card detail pages (/listing/, /profile/)
+  //   • The dashboard swipe deck — when cards are on screen the header,
+  //     bottom nav and right-side action rail all fade so the photo is
+  //     unobstructed. A tap anywhere on the chrome summon zones brings
+  //     them back.
+  const useRevealMode = (isImmersiveCardRoute || swipeDeckActive) && !showAIChat;
   const hideFloatingForSwipe = useRevealMode && !isChromeVisible;
 
   const userRole = useMemo<'client' | 'owner' | 'admin'>(() => {
@@ -274,7 +280,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -316,7 +322,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole as any}
               onFilterClick={handleFilterClick}

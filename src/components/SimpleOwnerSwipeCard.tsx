@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
+import { BarChart3, ChevronLeft, Crown, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -516,6 +516,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
             <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
+                { icon: Crown, onClick: () => useModalStore.getState().setModal('showTokensModal', true), label: 'Tokens' },
                 { icon: Mic, onClick: () => useModalStore.getState().openAIChat(), label: 'Voice' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },
