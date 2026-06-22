@@ -36,17 +36,13 @@ function clearAllTimers() {
 
 function scheduleChromeHide() {
   if (chromeTimer) clearTimeout(chromeTimer);
-  chromeTimer = setTimeout(() => {
-    chromeVisible = false;
-    chromeTimer = null;
+  if (railTimer) clearTimeout(railTimer);
+  
+  // Auto-hide ONLY the vertical card action rail, keeping the header and bottom nav visible
+  railTimer = setTimeout(() => {
+    railVisible = false;
+    railTimer = null;
     emit();
-    // After chrome hides, fade the card action rail shortly after.
-    if (railTimer) clearTimeout(railTimer);
-    railTimer = setTimeout(() => {
-      railVisible = false;
-      railTimer = null;
-      emit();
-    }, RAIL_DELAY_AFTER_CHROME_MS);
   }, AUTO_HIDE_CHROME_MS);
 }
 
