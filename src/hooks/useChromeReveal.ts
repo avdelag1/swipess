@@ -12,12 +12,9 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 // Idle auto-hide (swipe deck only): the chrome (header + bottom nav) hides after
 // AUTO_HIDE_CHROME_MS of no interaction so the card is unobstructed; the card
-// action rail hides RAIL_DELAY_AFTER_CHROME_MS later. Any tap/swipe re-reveals
-// (revealChrome) and restarts the timer. Starts visible so controls are
-// discoverable on entry. (ChromeSummonZones is unmounted while visible, so the
-// header buttons stay tappable on the first tap.)
-const AUTO_HIDE_CHROME_MS = 6000;
-const RAIL_DELAY_AFTER_CHROME_MS = 2000;
+// action rail hides RAIL_DELAY_AFTER_CHROME_MS later.
+const AUTO_HIDE_CHROME_MS = 3000;
+const RAIL_DELAY_AFTER_CHROME_MS = 1000;
 
 let chromeVisible = true;
 let railVisible = true;
@@ -38,11 +35,16 @@ function scheduleChromeHide() {
   if (chromeTimer) clearTimeout(chromeTimer);
   if (railTimer) clearTimeout(railTimer);
   
-  // Auto-hide ONLY the vertical card action rail, keeping the header and bottom nav visible
-  railTimer = setTimeout(() => {
-    railVisible = false;
-    railTimer = null;
+  chromeTimer = setTimeout(() => {
+    chromeVisible = false;
+    chromeTimer = null;
     emit();
+    // After chrome hides, fade the card action rail shortly after.
+    railTimer = setTimeout(() => {
+      railVisible = false;
+      railTimer = null;
+      emit();
+    }, RAIL_DELAY_AFTER_CHROME_MS);
   }, AUTO_HIDE_CHROME_MS);
 }
 
