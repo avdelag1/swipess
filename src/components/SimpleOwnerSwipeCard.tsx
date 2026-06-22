@@ -514,9 +514,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
             />
 
-            <div className="flex flex-col gap-1.5 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-1 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
-                { glyph: 'AI', onClick: () => useModalStore.getState().openAIChat(), label: 'Chat' },
+                { glyph: 'AI', onClick: () => useModalStore.getState().openAIChat(), label: 'AI Chat' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                 { icon: BarChart3, onClick: onInsights, label: 'Insights' },
@@ -530,14 +530,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   data-no-cinematic=""
                   onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic('light'); btn.onClick?.(); }}
-                  className="flex flex-col items-center justify-center w-[48px] py-1 rounded-2xl bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
+                  className="flex items-center justify-center w-[44px] h-[44px] rounded-full bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
                 >
                   {btn.glyph ? (
-                    <span className="text-[13px] font-black tracking-tight leading-none">{btn.glyph}</span>
+                    <span className="text-[15px] font-black tracking-tight leading-none">{btn.glyph}</span>
                   ) : btn.icon ? (
-                    <btn.icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                    <btn.icon size={20} strokeWidth={1.8} aria-hidden="true" />
                   ) : null}
-                  <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.08em] leading-none">{btn.label}</span>
                 </button>
               ))}
             </div>
