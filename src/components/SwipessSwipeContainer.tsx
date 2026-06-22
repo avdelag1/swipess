@@ -429,6 +429,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     data: smartListings = [],
     isLoading: smartListingsLoading,
     isFetching: smartListingsFetching,
+    isPlaceholderData: smartListingsPlaceholder,
     error: smartListingsError,
   } = useSmartListingMatching(user?.id, [], stableFilters, page, 20, isRefreshMode && dataType === 'listing');
 
@@ -436,6 +437,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     data: smartClients = [],
     isLoading: smartClientsLoading,
     isFetching: smartClientsFetching,
+    isPlaceholderData: smartClientsPlaceholder,
     error: smartClientsError,
   } = useSmartClientMatching(
     user?.id, 
@@ -475,6 +477,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, [dataType, smartClients, smartListings, selectedCategoryDb, deckCategory]);
   const isLoading = dataType === 'people' ? smartClientsLoading : smartListingsLoading;
   const isFetching = dataType === 'people' ? smartClientsFetching : smartListingsFetching;
+  const isPlaceholderData = dataType === 'people' ? smartClientsPlaceholder : smartListingsPlaceholder;
   const error = dataType === 'people' ? smartClientsError : smartListingsError;
 
   // Release the transition guard once the new category's query has settled
@@ -490,7 +493,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     return `${smartData[0]?.id || ''}_${smartData[smartData.length - 1]?.id || ''}_${smartData.length}`;
   }, [smartData]);
 
-  if (listingIdsSignature !== prevListingIdsRef.current && listingIdsSignature.length > 0) {
+  // React Query keeps the PREVIOUS queryKey's data as placeholder while a
+  // new fetch is in flight. If we seed the deck from placeholder data, the
+  // user sees a stale listing for a beat, then the real first card pops in
+  // when the new query resolves — the "opens one listing then changes to
+  // another" bug. Gate the seed by !isPlaceholderData so we only react to
+  // data that genuinely belongs to the current filters.
+  if (
+    !isPlaceholderData &&
+    listingIdsSignature !== prevListingIdsRef.current &&
+    listingIdsSignature.length > 0
+  ) {
     const currentIds = new Set(deckQueueRef.current.map(l => l.id));
     const newIds = smartData.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
     hasNewListingsRef.current = newIds.length > 0;
@@ -498,12 +511,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
     // First-paint seed only. Once a card is on screen, the deck is owned by
     // the user — we no longer reshuffle it when the smart-matching query
-    // returns a different first result. Previously we replaced the whole
-    // deck while the user was still on index 0, which made the first card
-    // visibly swap to a different listing the moment the API responded
-    // (the "opens one listing then changes to another" bug). New items
-    // arrive via the append branch below so the user still gets fresh
-    // matches as they swipe deeper.
+    // returns a different first result. New items arrive via the append
+    // branch below so the user still gets fresh matches as they swipe deeper.
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
       deckQueueRef.current = smartData;
       setDeckLength(smartData.length);

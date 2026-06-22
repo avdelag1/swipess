@@ -1,25 +1,18 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 /**
- * Two-phase chrome reveal store for swipe dashboards.
+ * Single-phase chrome reveal store for swipe dashboards.
  *
- * Phase 1 (isChromeVisible): TopBar + BottomNavigation — fades first.
- * Phase 2 (isRailVisible):   Card action rail buttons — fades 2s after Phase 1.
- *
- * Both phases reveal immediately on tap. Auto-hide triggers sequentially:
- *   5s idle → hide chrome → 2s later → hide rail.
+ * On reveal: TopBar + BottomNavigation + Card action rail all show together.
+ * On auto-hide: all three fade together after AUTO_HIDE_CHROME_MS of idle.
+ * Tapping the chrome summon zones (top/bottom edges) brings them back.
  */
 
-// Idle auto-hide (swipe deck only): the chrome (header + bottom nav) hides after
-// AUTO_HIDE_CHROME_MS of no interaction so the card is unobstructed; the card
-// action rail hides RAIL_DELAY_AFTER_CHROME_MS later.
 const AUTO_HIDE_CHROME_MS = 3000;
-const RAIL_DELAY_AFTER_CHROME_MS = 1000;
 
 let chromeVisible = true;
 let railVisible = true;
 let chromeTimer: ReturnType<typeof setTimeout> | null = null;
-let railTimer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -28,23 +21,16 @@ function emit() {
 
 function clearAllTimers() {
   if (chromeTimer) { clearTimeout(chromeTimer); chromeTimer = null; }
-  if (railTimer) { clearTimeout(railTimer); railTimer = null; }
 }
 
 function scheduleChromeHide() {
   if (chromeTimer) clearTimeout(chromeTimer);
-  if (railTimer) clearTimeout(railTimer);
-  
+
   chromeTimer = setTimeout(() => {
     chromeVisible = false;
+    railVisible = false;
     chromeTimer = null;
     emit();
-    // After chrome hides, fade the card action rail shortly after.
-    railTimer = setTimeout(() => {
-      railVisible = false;
-      railTimer = null;
-      emit();
-    }, RAIL_DELAY_AFTER_CHROME_MS);
   }, AUTO_HIDE_CHROME_MS);
 }
 
