@@ -27,7 +27,6 @@ import {
   Scale as ScaleIcon,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -49,6 +48,7 @@ import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCateg
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
 import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 26;
 
@@ -145,7 +145,7 @@ export const BottomNavigation = memo(({
   const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    { id: 'ai', icon: Sparkles, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
+    { id: 'ai', icon: AIIcon, label: t('nav.aiBot'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadMessages || undefined },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
