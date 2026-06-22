@@ -36,9 +36,6 @@ function clearAllTimers() {
 
 function scheduleChromeHide() {
   if (chromeTimer) clearTimeout(chromeTimer);
-  if (railTimer) clearTimeout(railTimer);
-  // Auto-hide disabled per user request
-  /*
   chromeTimer = setTimeout(() => {
     chromeVisible = false;
     chromeTimer = null;
@@ -51,7 +48,6 @@ function scheduleChromeHide() {
       emit();
     }, RAIL_DELAY_AFTER_CHROME_MS);
   }, AUTO_HIDE_CHROME_MS);
-  */
 }
 
 export function revealChrome() {
