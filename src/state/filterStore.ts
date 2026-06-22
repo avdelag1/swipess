@@ -18,7 +18,7 @@ import type {
 } from '@/types/filters';
 
 /** Default discovery radius — 1 km was too tight for first-open empty decks. */
-export const DEFAULT_RADIUS_KM = 10;
+export const DEFAULT_RADIUS_KM = 50;
 
 // Accent color lookup for categories (from SwipeConstants)
 const CATEGORY_ACCENTS: Record<string, string> = {

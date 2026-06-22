@@ -59,6 +59,9 @@ export const PaymentOrchestrator = {
     // The backend must process the PayPal webhook independently.
 
     await Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' });
+    
+    // Web flow opened, release the lock in the UI
+    options.onError?.('CANCELLED');
   },
 
   async restore() {

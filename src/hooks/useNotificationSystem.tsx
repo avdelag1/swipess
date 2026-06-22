@@ -246,31 +246,11 @@ export function useNotificationSystem() {
   };
 
   const handleNotificationClick = useCallback((notification: AppNotification) => {
-    let url: string | null = null;
-    if (notification.actionUrl) {
-      url = notification.actionUrl;
-    } else if (notification.type === 'message' && (notification.conversationId || notification.metadata?.conversationId)) {
-      const convId = notification.conversationId || notification.metadata?.conversationId;
-      url = `/messages?conversationId=${convId}`;
-    }
-
-    if (url) {
-      try {
-        // Use client-side routing to avoid full page reload
-        navigate(url);
-      } catch { /* silent */ }
-    } else if (notification.type === 'premium_purchase' || notification.type === 'activation_purchase') {
-      // Payment related — go to profile where benefits/tokens show. Use
-      // /client/profile (a real route; /profile has no match and 404s, and
-      // /owner/profile redirects here anyway).
-      navigate('/client/profile');
-    } else if (!['success', 'info', 'warning', 'error'].includes((notification.type || '') as string)) {
-      // Show full details for social notifications if there is no URL
-      window.alert(`${notification.title}\n\n${notification.message}`);
-    }
+    // ALWAYS open the independent details modal first so the user can read the full message.
+    window.dispatchEvent(new CustomEvent('open-notification-details', { detail: notification }));
 
     // Auto-dismiss the banner on click
-    handleDismiss(notification.id);
+    dismissNotification(notification.id);
   }, [navigate, handleDismiss]);
 
   const markNotificationAsRead = (id: string) => {

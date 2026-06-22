@@ -38,6 +38,7 @@ const AIProfileWizard = lazyWithRetry(() => import('@/components/AIProfileWizard
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const InviteFriendsDialog = lazyWithRetry(() => import('@/components/InviteFriendsDialog').then(m => ({ default: m.InviteFriendsDialog })));
+const NotificationDetailsDialog = lazyWithRetry(() => import('@/components/NotificationDetailsDialog').then(m => ({ default: m.NotificationDetailsDialog })));
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -320,6 +321,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           category={reportState.category as any}
         />
       </DeferredDialog>
+
+      <Suspense fallback={null}>
+        <NotificationDetailsDialog />
+      </Suspense>
     </>
   );
 });

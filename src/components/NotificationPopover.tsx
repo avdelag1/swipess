@@ -240,6 +240,13 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
   } = useNotificationSystem();
   
   const { unreadCount } = useUnreadNotifications();
+
+  // Listen for global open event
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-notifications-popover', handleOpen);
+    return () => window.removeEventListener('open-notifications-popover', handleOpen);
+  }, []);
   
   // Mark all as read when popover opens
   useEffect(() => {
