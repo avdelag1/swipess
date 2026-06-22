@@ -358,6 +358,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const prevListingIdsRef = useRef<string>('');
   const hasNewListingsRef = useRef(false);
+  // Locks the first card shown to the user. Once a card is seeded, nothing
+  // is allowed to displace it — not a re-seed, not a deck slice, not a
+  // smart-matching re-rank. Cleared only when the user swipes past it or
+  // changes filters. This kills the "opens one listing then swaps to
+  // another after 1-2 seconds" bug regardless of which subsystem caused it.
+  const lockedFirstCardRef = useRef<any | null>(null);
 
   useEffect(() => {
     if (activeMode !== 'client' || !user?.id) return;
@@ -397,6 +403,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     swipedIdsRef.current.clear();
     prevListingIdsRef.current = '';
     hasNewListingsRef.current = false;
+    lockedFirstCardRef.current = null;
   }, [filterSignature]);
 
   useEffect(() => {
@@ -497,10 +504,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // new fetch is in flight. If we seed the deck from placeholder data, the
   // user sees a stale listing for a beat, then the real first card pops in
   // when the new query resolves — the "opens one listing then changes to
-  // another" bug. Gate the seed by !isPlaceholderData so we only react to
-  // data that genuinely belongs to the current filters.
+  // another" bug. Gate the seed by !isPlaceholderData AND !isFetching so we
+  // only react to data that genuinely belongs to the current filters AND
+  // has actually settled (no background fetch still in flight).
   if (
     !isPlaceholderData &&
+    !isFetching &&
     listingIdsSignature !== prevListingIdsRef.current &&
     listingIdsSignature.length > 0
   ) {
@@ -515,8 +524,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     // branch below so the user still gets fresh matches as they swipe deeper.
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
       deckQueueRef.current = smartData;
+      lockedFirstCardRef.current = smartData[0];
       setDeckLength(smartData.length);
     }
+  }
+
+  // HARD LOCK: while the user is on the first card (currentIndex 0), force
+  // deck[0] to match the locked identity. This catches any other code path
+  // that might mutate the deck (slice, re-seed, store sync) and snaps the
+  // first card back so the user never sees a swap.
+  if (
+    lockedFirstCardRef.current &&
+    currentIndexRef.current === 0 &&
+    deckQueueRef.current.length > 0 &&
+    deckQueueRef.current[0]?.id !== lockedFirstCardRef.current.id
+  ) {
+    const restCards = deckQueueRef.current.filter(
+      (c) => c.id !== lockedFirstCardRef.current.id
+    );
+    deckQueueRef.current = [lockedFirstCardRef.current, ...restCards];
   }
 
   usePrefetchImages({
@@ -628,6 +654,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const { listing, direction, newIndex } = pending;
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
+    // User swiped past the locked first card — release the lock so the deck
+    // can now flow naturally.
+    lockedFirstCardRef.current = null;
 
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
