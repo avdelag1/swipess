@@ -40,6 +40,8 @@ interface TopBarProps {
 }
 
 const HEADER_ICON = 'w-[20px] h-[20px]';
+const HEADER_LABEL_CLASS =
+  'block mt-0.5 text-[9px] font-black uppercase tracking-[0.1em] whitespace-nowrap leading-none pointer-events-none select-none';
 
 function HeaderIconSlot({
   children,
@@ -56,6 +58,30 @@ function HeaderIconSlot({
   );
 }
 
+function HeaderPillColumn({
+  label,
+  labelColor,
+  labelShadow,
+  children,
+}: {
+  label: string;
+  labelColor: string;
+  labelShadow?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center pointer-events-auto">
+      {children}
+      <span
+        className={HEADER_LABEL_CLASS}
+        style={{ color: labelColor, textShadow: labelShadow }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function TopBarComponent({
   _onFilterClick,
   onBack: propOnBack,
@@ -65,7 +91,7 @@ function TopBarComponent({
   transparent: _transparent = false,
   minimal = false,
   showBack,
-  onCenterTap,
+  onCenterTap: _onCenterTap,
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
@@ -118,6 +144,7 @@ function TopBarComponent({
     .toUpperCase();
 
   const tokensLow = tokens < 10;
+  const labelShadow = useLightIcons ? '0 1px 3px rgba(0,0,0,0.6)' : undefined;
 
   return (
     <header
@@ -139,83 +166,89 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         {/* LEFT: profile/back and AI — separate pills with breathing room */}
-        <div className="flex items-center gap-1.5 min-w-0 pointer-events-auto">
+        <div className="flex items-start gap-1.5 min-w-0 pointer-events-auto">
           {onBack && !isSwipeDeck ? (
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); onBack(); }}
-              className={HEADER_PILL_BASE}
-              style={glassPillStyle}
-              aria-label="Back"
-            >
-              <HeaderIconSlot>
-                <ChevronLeft
-                  className={HEADER_ICON}
-                  strokeWidth={2.2}
-                  style={{ color: iconColor, filter: iconShadow }}
-                />
-              </HeaderIconSlot>
-            </button>
-          ) : (
-            user && (
+            <HeaderPillColumn label="Back" labelColor={iconColor} labelShadow={labelShadow}>
               <button
                 type="button"
-                onClick={() => {
-                  haptics.tap();
-                  navigate('/client/profile');
-                }}
+                onClick={() => { haptics.tap(); onBack(); }}
                 className={HEADER_PILL_BASE}
                 style={glassPillStyle}
-                aria-label="Open profile"
+                aria-label="Back"
               >
-                <div
-                  className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
-                    boxShadow: useLightIcons
-                      ? '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35), 0 4px 12px rgba(0,0,0,0.35)'
-                      : '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
-                  }}
-                >
-                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                    <img
-                      src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                      alt="Profile"
-                      loading="eager"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
-                        {initials}
-                      </span>
-                    )
-                  )}
-                </div>
+                <HeaderIconSlot>
+                  <ChevronLeft
+                    className={HEADER_ICON}
+                    strokeWidth={2.2}
+                    style={{ color: iconColor, filter: iconShadow }}
+                  />
+                </HeaderIconSlot>
               </button>
+            </HeaderPillColumn>
+          ) : (
+            user && (
+              <HeaderPillColumn label="Profile" labelColor={iconColor} labelShadow={labelShadow}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptics.tap();
+                    navigate('/client/profile');
+                  }}
+                  className={HEADER_PILL_BASE}
+                  style={glassPillStyle}
+                  aria-label="Open profile"
+                >
+                  <div
+                    className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+                      boxShadow: useLightIcons
+                        ? '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35), 0 4px 12px rgba(0,0,0,0.35)'
+                        : '0 0 0 1px rgba(255,255,255,0.2) inset, 0 0 14px hsl(var(--primary) / 0.35)',
+                    }}
+                  >
+                    {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                      <img
+                        src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                        alt="Profile"
+                        loading="eager"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
+                        <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
+                          {initials}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </button>
+              </HeaderPillColumn>
             )
           )}
 
           {!minimal && (
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className={HEADER_PILL_BASE}
-              style={glassPillStyle}
-              aria-label="AI Listing"
-            >
-              <HeaderIconSlot>
-                <Sparkles
-                  className={HEADER_ICON}
-                  style={{
-                    color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
-                  }}
-                  strokeWidth={1.9}
-                />
-              </HeaderIconSlot>
-            </button>
+            <HeaderPillColumn label="AI" labelColor={iconColor} labelShadow={labelShadow}>
+              <button
+                type="button"
+                onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
+                className={HEADER_PILL_BASE}
+                style={glassPillStyle}
+                aria-label="AI Listing"
+              >
+                <HeaderIconSlot>
+                  <Sparkles
+                    className={HEADER_ICON}
+                    style={{
+                      color: iconColor,
+                      filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
+                    }}
+                    strokeWidth={1.9}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </HeaderPillColumn>
           )}
         </div>
 
@@ -223,77 +256,76 @@ function TopBarComponent({
 
         {/* RIGHT: each action in its own pill — 44px targets, gap between */}
         {!minimal && (
-          <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); setModal('showTokensModal', true); }}
-              className={HEADER_PILL_BASE}
-              style={glassPillStyle}
-              aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
-            >
-              <HeaderIconSlot
-                badge={(
-                  <span
-                    className={cn(
-                      'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
-                      tokensLow
-                        ? 'bg-amber-400 animate-pulse'
-                        : 'bg-brand-primary',
-                    )}
-                    aria-hidden
-                  />
-                )}
+          <div className="flex items-start gap-1.5 shrink-0 pointer-events-auto">
+            <HeaderPillColumn label="Tokens" labelColor={iconColor} labelShadow={labelShadow}>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
+                onPointerDown={(e) => { e.stopPropagation(); }}
+                className={HEADER_PILL_BASE}
+                style={glassPillStyle}
+                aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
               >
-                <Crown
-                  className={HEADER_ICON}
-                  style={{
-                    color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
-                  }}
-                  strokeWidth={1.9}
-                />
-              </HeaderIconSlot>
-            </button>
+                <HeaderIconSlot
+                  badge={(
+                    <span
+                      className={cn(
+                        'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
+                        tokensLow
+                          ? 'bg-amber-400 animate-pulse'
+                          : 'bg-brand-primary',
+                      )}
+                      aria-hidden
+                    />
+                  )}
+                >
+                  <Crown
+                    className={HEADER_ICON}
+                    style={{
+                      color: iconColor,
+                      filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
+                    }}
+                    strokeWidth={1.9}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </HeaderPillColumn>
 
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className={HEADER_PILL_BASE}
-              style={glassPillStyle}
-              aria-label={t('map.liveMap')}
-            >
-              <HeaderIconSlot>
-                <Globe
-                  className={HEADER_ICON}
-                  style={{
-                    color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
-                  }}
-                  strokeWidth={1.9}
-                />
-              </HeaderIconSlot>
-            </button>
+            <HeaderPillColumn label="Map" labelColor={iconColor} labelShadow={labelShadow}>
+              <button
+                type="button"
+                onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
+                className={HEADER_PILL_BASE}
+                style={glassPillStyle}
+                aria-label={t('map.liveMap')}
+              >
+                <HeaderIconSlot>
+                  <Globe
+                    className={HEADER_ICON}
+                    style={{
+                      color: iconColor,
+                      filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
+                    }}
+                    strokeWidth={1.9}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </HeaderPillColumn>
 
-            <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
+            <HeaderPillColumn label="Theme" labelColor={iconColor} labelShadow={labelShadow}>
+              <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
+            </HeaderPillColumn>
 
-            <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
+            <HeaderPillColumn label="Alerts" labelColor={iconColor} labelShadow={labelShadow}>
+              <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
+            </HeaderPillColumn>
           </div>
         )}
 
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center pointer-events-auto z-50 cursor-pointer"
-          style={{ background: 'transparent', WebkitTapHighlightColor: 'transparent' }}
-          onClick={() => {
-            haptics.tap();
-            if (onCenterTap) {
-              onCenterTap();
-            } else {
-              navigate('/client/dashboard');
-            }
-          }}
-          title="Go to Dashboard"
-          aria-label="Go to Dashboard"
-        />
+        {/* Center logo tap zone removed — its absolute 64×64 hit area overlapped the
+            Tokens pill on narrow devices and intercepted the click, so the Tokens
+            modal silently failed to open. Users still reach the dashboard via the
+            bottom-nav Dashboard tile. */}
       </div>
 
       <svg width="0" height="0" className="absolute" aria-hidden="true">

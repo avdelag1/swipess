@@ -14,7 +14,7 @@
 
 import { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { animate, AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { BarChart3, ChevronLeft, Crown, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
+import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { cn } from '@/lib/utils';
@@ -514,25 +514,27 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
             />
 
-            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-1.5 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
-                { icon: Crown, onClick: () => useModalStore.getState().setModal('showTokensModal', true), label: 'Tokens' },
                 { icon: Mic, onClick: () => useModalStore.getState().openAIChat(), label: 'Voice' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                 { icon: BarChart3, onClick: onInsights, label: 'Insights' },
                 { icon: Flag, onClick: onReport, label: 'Report' },
               ].map((btn, idx) => (
-                <GlassIconButton
+                <button
                   key={idx}
-                  icon={btn.icon}
-                  onClick={btn.onClick}
-                  label={btn.label}
-                  tone="surface"
-                  size="md"
-                  guardSwipe
-                  className="w-[44px] h-[44px] bg-transparent border-none shadow-none text-white hover:bg-white/10"
-                />
+                  type="button"
+                  aria-label={btn.label}
+                  data-no-pull-dismiss=""
+                  data-no-cinematic=""
+                  onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic('light'); btn.onClick?.(); }}
+                  className="flex flex-col items-center justify-center w-[48px] py-1 rounded-2xl bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
+                >
+                  <btn.icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                  <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.08em] leading-none">{btn.label}</span>
+                </button>
               ))}
             </div>
           </motion.div>

@@ -496,18 +496,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
 
+    // First-paint seed only. Once a card is on screen, the deck is owned by
+    // the user — we no longer reshuffle it when the smart-matching query
+    // returns a different first result. Previously we replaced the whole
+    // deck while the user was still on index 0, which made the first card
+    // visibly swap to a different listing the moment the API responded
+    // (the "opens one listing then changes to another" bug). New items
+    // arrive via the append branch below so the user still gets fresh
+    // matches as they swipe deeper.
     if (deckQueueRef.current.length === 0 && smartData.length > 0) {
       deckQueueRef.current = smartData;
       setDeckLength(smartData.length);
-    } else if (activeMode === 'client' && smartData.length > 0) {
-      const firstIncoming = smartData[0]?.id;
-      const firstCurrent = deckQueueRef.current[currentIndexRef.current]?.id;
-      const userHasNotStartedThisDeck = currentIndexRef.current === 0 && swipedIdsRef.current.size === 0;
-      if (userHasNotStartedThisDeck && firstIncoming && firstIncoming !== firstCurrent) {
-        deckQueueRef.current = smartData;
-        setDeckLength(smartData.length);
-        setClientDeck(deckCategory || 'all', smartData, false);
-      }
     }
   }
 
