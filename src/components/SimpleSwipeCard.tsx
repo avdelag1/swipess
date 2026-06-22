@@ -30,7 +30,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
-import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, Mic, RotateCcw, Share2 } from 'lucide-react';
+import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -643,7 +643,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
             <div className="flex flex-col gap-1.5 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
               {[
-                { icon: Mic, onClick: () => useModalStore.getState().openAIChat(), label: 'Voice' },
+                { glyph: 'AI', onClick: () => useModalStore.getState().openAIChat(), label: 'Chat' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: MessageCircle, onClick: onMessage, label: 'Message' },
                 { icon: BarChart3, onClick: onInsights, label: 'Insights' },
@@ -659,7 +659,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic('light'); btn.onClick?.(); }}
                   className="flex flex-col items-center justify-center w-[48px] py-1 rounded-2xl bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
                 >
-                  <btn.icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                  {btn.glyph ? (
+                    <span className="text-[13px] font-black tracking-tight leading-none">{btn.glyph}</span>
+                  ) : btn.icon ? (
+                    <btn.icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                  ) : null}
                   <span className="mt-0.5 text-[9px] font-black uppercase tracking-[0.08em] leading-none">{btn.label}</span>
                 </button>
               ))}

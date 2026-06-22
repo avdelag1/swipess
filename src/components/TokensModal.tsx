@@ -154,13 +154,15 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                             className={cn(
-                              "relative rounded-[20px] border p-4 transition-all overflow-hidden",
+                              // overflow-visible so the "Popular" / "Best Value" badge sitting
+                              // at -top-3 isn't clipped in half by the rounded card edge.
+                              "relative rounded-[20px] border p-4 transition-all overflow-visible",
                               config.accent, config.border,
                               isPopular && "ring-2 ring-primary/40 scale-[1.02]"
                             )}
                           >
                             {pkg.badge && (
-                              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-black bg-primary text-primary-foreground px-3 py-0.5 rounded-full shadow-lg border border-primary-foreground/10 uppercase tracking-widest">
+                              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 text-[10px] font-black bg-primary text-primary-foreground px-3 py-1 rounded-full shadow-lg border border-primary-foreground/10 uppercase tracking-widest leading-none whitespace-nowrap">
                                 {pkg.badge}
                               </span>
                             )}
