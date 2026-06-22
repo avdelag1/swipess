@@ -26,7 +26,7 @@ const PassportMapModal = lazyWithRetry(() =>
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { hideChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
@@ -205,17 +205,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.body.classList.remove('swipe-deck-active');
   }, [isDashboardOnly, swipeDeckActive, theme]);
 
-  // Entering swipe-deck reveal mode hides the chrome IMMEDIATELY so the card
-  // photo is unobstructed the instant the deck opens. The previous behaviour
-  // briefly flashed the chrome for discoverability and then auto-faded — but
-  // that "flash then hide" felt like the chrome was sticking around instead
-  // of disappearing on open. Users summon the chrome back by tapping the top
-  // or bottom edge (ChromeSummonZones); after that tap the auto-hide timer
-  // takes over and fades it again.
+  // Entering swipe-deck reveal mode: header + bottom nav + right rail are all
+  // visible the moment the deck opens, then the auto-hide timer in
+  // useChromeReveal fades the header + bottom nav at 3s and the rail 1s later.
+  // Users summon the chrome back by tapping the top or bottom edge
+  // (ChromeSummonZones); that resets the timer.
   const wasRevealRef = useRef(false);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
-      hideChrome();
+      revealChrome();
     }
     wasRevealRef.current = useRevealMode;
   }, [useRevealMode]);

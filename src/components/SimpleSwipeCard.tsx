@@ -259,6 +259,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     onDragStart?.();
   }, [onDragStart]);
 
+  // When a card becomes the top card, briefly reveal the chrome (header,
+  // bottom nav, right-side rail) so the user sees what controls are
+  // available, then let the auto-hide timer fade them out.
+  useEffect(() => {
+    if (isTop && !isZoomed) {
+      revealChrome();
+    }
+  }, [isTop, isZoomed]);
+
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
     const dx = info.offset.x;
