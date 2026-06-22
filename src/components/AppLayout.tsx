@@ -26,7 +26,7 @@ const PassportMapModal = lazyWithRetry(() =>
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { hideChrome, revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { hideChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
@@ -205,22 +205,20 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.body.classList.remove('swipe-deck-active');
   }, [isDashboardOnly, swipeDeckActive, theme]);
 
-  // Discoverability: when entering swipe-deck reveal mode (chrome auto-hides),
-  // briefly show the header + bottom nav so users see the controls exist
-  // before they fade out. Auto-hide timer (5s) is set by revealChrome().
+  // Entering swipe-deck reveal mode hides the chrome IMMEDIATELY so the card
+  // photo is unobstructed the instant the deck opens. The previous behaviour
+  // briefly flashed the chrome for discoverability and then auto-faded — but
+  // that "flash then hide" felt like the chrome was sticking around instead
+  // of disappearing on open. Users summon the chrome back by tapping the top
+  // or bottom edge (ChromeSummonZones); after that tap the auto-hide timer
+  // takes over and fades it again.
   const wasRevealRef = useRef(false);
-  const wasAIChatRef = useRef(showAIChat);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
-      if (wasAIChatRef.current) {
-        hideChrome();
-      } else {
-        revealChrome();
-      }
+      hideChrome();
     }
     wasRevealRef.current = useRevealMode;
-    wasAIChatRef.current = showAIChat;
-  }, [useRevealMode, showAIChat]);
+  }, [useRevealMode]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';

@@ -259,15 +259,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     onDragStart?.();
   }, [onDragStart]);
 
-  // SPEED OF LIGHT: Auto-reveal protocol
-  // When a card becomes the top card, briefly reveal the chrome (header/nav/buttons)
-  // so the user sees the available controls before they smoothly fade away.
-  useEffect(() => {
-    if (isTop && !isZoomed) {
-      revealChrome();
-    }
-  }, [isTop, isZoomed]);
-
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
     const dx = info.offset.x;

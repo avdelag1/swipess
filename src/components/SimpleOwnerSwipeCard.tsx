@@ -179,12 +179,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
-  useEffect(() => {
-    if (isTop && !isExitingRef.current) {
-      revealChrome();
-    }
-  }, [isTop]);
-
   const [isZoomed, setIsZoomed] = useState(false);
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, wasActive: wasMagnifierActive, isHoldPending: isMagnifierHoldPending } = useMagnifier({
     scale: 3.2,        // deeper zoom — was 2.8
