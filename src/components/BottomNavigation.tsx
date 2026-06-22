@@ -316,7 +316,6 @@ export const BottomNavigation = memo(({
         transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
-        paddingBottom: 'max(0px, env(safe-area-inset-bottom))',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
