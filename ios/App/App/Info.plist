@@ -24,10 +24,14 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Swipess adds events to your calendar so you never miss experiences, workshops, or ceremonies.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Swipess needs camera access to take profile photos and listing images.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Swipess can share listings with your contacts if you choose to.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Swipess can add event reminders to help you prepare for upcoming experiences.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Swipess uses Face ID for secure authentication.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

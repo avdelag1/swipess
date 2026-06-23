@@ -21,12 +21,18 @@ const REQUIRED = {
     'Swipess needs camera access to take profile photos and listing images.',
   NSMicrophoneUsageDescription:
     "Swipess uses the microphone so you can dictate messages to the AI concierge and record voice notes on listings. For example, say 'Show me 2-bedroom apartments under $1500' and Swipess will search for you.",
+  NSLocationAlwaysAndWhenInUseUsageDescription:
+    'Swipess uses your location to show nearby listings and match you with local services.',
   NSLocationWhenInUseUsageDescription:
     'Swipess uses your location to show nearby listings and match you with local services.',
   NSFaceIDUsageDescription:
     'Swipess uses Face ID for secure authentication.',
   NSContactsUsageDescription:
     'Swipess can share listings with your contacts if you choose to.',
+  NSCalendarsUsageDescription:
+    'Swipess adds events to your calendar so you never miss experiences, workshops, or ceremonies.',
+  NSRemindersUsageDescription:
+    'Swipess can add event reminders to help you prepare for upcoming experiences.',
 };
 
 if (!fs.existsSync(PLIST)) {

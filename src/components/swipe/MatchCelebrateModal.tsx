@@ -22,7 +22,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
     if (isOpen && !confettiRunRef.current) {
       confettiRunRef.current = true;
       triggerHaptic('heavy');
-      
+
       // Premium Confetti Burst
       const duration = 3 * 1000;
       const animationEnd = Date.now() + duration;
@@ -32,26 +32,30 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
 
       const interval: any = setInterval(function() {
         const timeLeft = animationEnd - Date.now();
-
         if (timeLeft <= 0) {
-          return clearInterval(interval);
+          clearInterval(interval);
+          return;
         }
-
         const particleCount = 50 * (timeLeft / duration);
-        // since particles fall down, start a bit higher than random
         confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
         confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
       }, 250);
 
-      setTimeout(() => triggerHaptic('success'), 300);
-      setTimeout(() => triggerHaptic('light'), 600);
+      const t1 = setTimeout(() => triggerHaptic('success'), 300);
+      const t2 = setTimeout(() => triggerHaptic('light'), 600);
 
       // A mutual match is a genuine happy moment — a good time to (occasionally)
       // ask for a store review. Gated to 2nd+ match / 90-day spacing, and the OS
       // throttles further, so this won't nag.
       void maybeRequestReviewAfterMatch();
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
-    
+
     if (!isOpen) {
       confettiRunRef.current = false;
     }
