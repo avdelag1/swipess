@@ -11,6 +11,7 @@ import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { useNavigate } from 'react-router-dom';
 import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
 import { appToast } from '@/utils/appNotification';
+import { PREMIUM_FOR_EVERYONE } from '@/utils/messagingEntitlements';
 import { createPortal } from 'react-dom';
 
 const formatUSD = (price: number) =>
@@ -119,9 +120,15 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-foreground">Message Tokens</h2>
+                  <h2 className="text-lg font-black tracking-tight text-foreground">
+                    {PREMIUM_FOR_EVERYONE ? 'Premium Messaging' : 'Message Tokens'}
+                  </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    You have <span className="font-bold text-primary">{tokens}</span> tokens remaining
+                    {PREMIUM_FOR_EVERYONE ? (
+                      <span className="font-bold text-primary">Premium · Unlimited messaging</span>
+                    ) : (
+                      <>You have <span className="font-bold text-primary">{tokens}</span> tokens remaining</>
+                    )}
                   </p>
                 </div>
                 <button
@@ -135,6 +142,36 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto overscroll-y-contain px-5 pb-8 space-y-6">
+                {PREMIUM_FOR_EVERYONE && (
+                  <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 text-center">
+                    <div className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/20 blur-3xl" />
+                    <div className="relative z-10 flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center shadow-inner">
+                        <Crown className="w-8 h-8 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Premium unlocked</p>
+                        <h3 className="text-2xl font-black tracking-tight text-foreground mt-1">Unlimited Messages</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground max-w-[280px] leading-relaxed">
+                        Message any owner or seeker, start unlimited conversations, and unlock every chat action — on the house. No tokens needed.
+                      </p>
+                      <div className="w-full grid gap-2 mt-2 text-left">
+                        {[
+                          'Unlimited new conversations',
+                          'Message every owner & seeker',
+                          'All chat actions unlocked',
+                        ].map((line) => (
+                          <div key={line} className="flex items-center gap-2.5 rounded-xl bg-primary/5 border border-primary/15 px-3 py-2">
+                            <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                            <span className="text-[11px] font-bold text-foreground">{line}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!PREMIUM_FOR_EVERYONE && (<>
                 {/* TOKEN PACKAGES */}
                 <div>
                   <p className="text-xs text-muted-foreground mb-4">
@@ -219,6 +256,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     Go!
                   </button>
                 </div>
+                </>)}
 
                 {/* Restore Footer */}
                 <div className="pt-4 pb-2 text-center">

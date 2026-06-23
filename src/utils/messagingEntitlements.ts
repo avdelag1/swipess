@@ -30,6 +30,15 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
 export const NO_TOKENS_ERROR =
   'You need message tokens or a premium plan to start a new conversation.';
 
+/**
+ * Promo: every user currently gets premium (unlimited) messaging for free.
+ * This mirrors the server-side override in
+ * supabase/migrations/20260623120000_free_premium_for_everyone.sql
+ * (user_has_unlimited_messaging() always returns true). Flip this to false AND
+ * restore that SQL function to re-enable paid messaging.
+ */
+export const PREMIUM_FOR_EVERYONE = true;
+
 export async function fetchTokenBalance(userId: string): Promise<number> {
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -84,6 +93,7 @@ export function computeCanStartNewConversation(input: {
   tokenBalance: number;
   conversationsStartedThisMonth?: number;
 }): boolean {
+  if (PREMIUM_FOR_EVERYONE) return true;
   const limits = PLAN_LIMITS[input.planName] || PLAN_LIMITS.free;
   if (limits.unlimited_messages) return true;
 

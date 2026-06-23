@@ -13,6 +13,7 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { useTokens } from '@/hooks/useTokens';
+import { PREMIUM_FOR_EVERYONE } from '@/utils/messagingEntitlements';
 import { useFilterStore } from '@/state/filterStore';
 import { getParentRoute } from '@/utils/sectionNavigation';
 import {
@@ -118,7 +119,8 @@ function TopBarComponent({
     .join('')
     .toUpperCase();
 
-  const tokensLow = tokens < 10;
+  // Everyone is premium right now, so never surface a "running low" warning.
+  const tokensLow = !PREMIUM_FOR_EVERYONE && tokens < 10;
 
   return (
     <header

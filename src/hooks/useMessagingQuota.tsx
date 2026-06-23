@@ -7,6 +7,7 @@ import {
   computeCanStartNewConversation,
   fetchTokenBalance,
   PLAN_LIMITS,
+  PREMIUM_FOR_EVERYONE,
 } from '@/utils/messagingEntitlements';
 
 export function useMessagingQuota() {
@@ -112,7 +113,7 @@ export function useMessagingQuota() {
     enabled: !!user?.id,
   });
   
-  const isUnlimited = limits.unlimited_messages;
+  const isUnlimited = PREMIUM_FOR_EVERYONE || limits.unlimited_messages;
   const totalAllowed = limits.messages_per_month;
   const remainingConversations = isUnlimited ? 999999 : Math.max(0, totalAllowed - conversationsStarted);
   const canStartNewConversation = computeCanStartNewConversation({
