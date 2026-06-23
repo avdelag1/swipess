@@ -497,34 +497,35 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, [isCategoryTransitioning, isLoading, isFetching]);
 
+  const getCardId = (item: any) => item?.id || item?.user_id;
+
   const listingIdsSignature = useMemo(() => {
     if (smartData.length === 0) return '';
-    return `${smartData[0]?.id || ''}_${smartData[smartData.length - 1]?.id || ''}_${smartData.length}`;
+    return `${getCardId(smartData[0]) || ''}_${getCardId(smartData[smartData.length - 1]) || ''}_${smartData.length}`;
   }, [smartData]);
 
   // React Query keeps the PREVIOUS queryKey's data as placeholder while a
-  // new fetch is in flight. If we seed the deck from placeholder data, the
-  // user sees a stale listing for a beat, then the real first card pops in
-  // when the new query resolves — the "opens one listing then changes to
-  // another" bug. Gate the seed by !isPlaceholderData AND !isFetching so we
-  // only react to data that genuinely belongs to the current filters AND
-  // has actually settled (no background fetch still in flight).
-  if (
-    !isPlaceholderData &&
-    !isFetching &&
-    listingIdsSignature !== prevListingIdsRef.current &&
-    listingIdsSignature.length > 0
-  ) {
-    const currentIds = new Set(deckQueueRef.current.map(l => l.id));
-    const newIds = smartData.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
+  // new fetch is in flight. When the deck already has cards, we gate by
+  // !isPlaceholderData to prevent the "opens one listing then swaps to
+  // another" bug. But when the deck is EMPTY (after a category change),
+  // we MUST seed even from placeholder data — the smartData memo already
+  // filters to the current category, so it's safe. Without this, the
+  // deck stays empty and the user sees a blank screen.
+  const deckIsEmpty = deckQueueRef.current.length === 0;
+  const canSeed = deckIsEmpty
+    ? (listingIdsSignature.length > 0 && smartData.length > 0)
+    : (!isPlaceholderData && !isFetching && listingIdsSignature !== prevListingIdsRef.current && listingIdsSignature.length > 0);
+
+  if (canSeed) {
+    const currentIds = new Set(deckQueueRef.current.map(l => getCardId(l)));
+    const newIds = smartData.filter(l => !currentIds.has(getCardId(l)) && !swipedIdsRef.current.has(getCardId(l)));
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
 
-    // First-paint seed only. Once a card is on screen, the deck is owned by
-    // the user — we no longer reshuffle it when the smart-matching query
-    // returns a different first result. New items arrive via the append
-    // branch below so the user still gets fresh matches as they swipe deeper.
-    if (deckQueueRef.current.length === 0 && smartData.length > 0) {
+    // First-paint seed: fill an empty deck from smartData. Once a card is
+    // on screen the deck is owned by the user — new items arrive via the
+    // append branch below as they swipe deeper.
+    if (deckIsEmpty) {
       deckQueueRef.current = smartData;
       lockedFirstCardRef.current = smartData[0];
       setDeckLength(smartData.length);
@@ -539,10 +540,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     lockedFirstCardRef.current &&
     currentIndexRef.current === 0 &&
     deckQueueRef.current.length > 0 &&
-    deckQueueRef.current[0]?.id !== lockedFirstCardRef.current.id
+    getCardId(deckQueueRef.current[0]) !== getCardId(lockedFirstCardRef.current)
   ) {
     const restCards = deckQueueRef.current.filter(
-      (c) => c.id !== lockedFirstCardRef.current.id
+      (c) => getCardId(c) !== getCardId(lockedFirstCardRef.current)
     );
     deckQueueRef.current = [lockedFirstCardRef.current, ...restCards];
   }
@@ -570,9 +571,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!isDashboard) return;
 
     const nextListing = deckQueueRef.current[currentIndex + 1];
-    if (nextListing?.id) {
+    const nextId = getCardId(nextListing);
+    if (nextId) {
       prefetchSchedulerRef.current.schedule(() => {
-        prefetchListingDetails(nextListing.id);
+        prefetchListingDetails(nextId);
       }, 300);
     }
 
@@ -610,11 +612,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
     hasNewListingsRef.current = false;
 
-    const existingIds = new Set(deckQueueRef.current.map(l => l.id));
+    const existingIds = new Set(deckQueueRef.current.map(l => getCardId(l)));
     const dismissedSet = new Set(dismissedIds);
-    const newListings = smartData.filter(l =>
-      !existingIds.has(l.id) && !swipedIdsRef.current.has(l.id) && (!isRefreshMode ? !dismissedSet.has(l.id) : true)
-    );
+    const newListings = smartData.filter(l => {
+      const lid = getCardId(l);
+      return !existingIds.has(lid) && !swipedIdsRef.current.has(lid) && (!isRefreshMode ? !dismissedSet.has(lid) : true);
+    });
 
     if (newListings.length > 0) {
       deckQueueRef.current = [...deckQueueRef.current, ...newListings];
@@ -640,7 +643,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const deckQueue = deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const topCardIdentity = topCard?.id || topCard?.user_id || '';
+  const topCardIdentity = getCardId(topCard) || '';
 
   useEffect(() => {
     pendingSwipeRef.current = null;
@@ -662,23 +665,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
     hasSwipedRef.current = true;
     setCurrentIndex(newIndex);
-    markClientSwiped(deckCategory || 'all', listing.id);
+    const listingId = getCardId(listing);
+    markClientSwiped(deckCategory || 'all', listingId);
 
-    recordSwipe(listing.id, 'listing', direction);
+    recordSwipe(listingId, 'listing', direction);
 
     swipeMutation.mutate({
-      targetId: listing.id,
+      targetId: listingId,
       direction,
       targetType: dataType === 'people' ? 'profile' : 'listing',
     });
 
     if (direction === 'left') {
-      dismissTarget(listing.id).catch(() => { });
+      dismissTarget(listingId).catch(() => { });
     }
 
     queueMicrotask(() => {
       recordProfileView.mutateAsync({
-        profileId: listing.id,
+        profileId: listingId,
         viewType: dataType === 'people' ? 'profile' : 'listing',
         action: direction === 'right' ? 'like' : 'pass'
       }).catch(() => { });
@@ -739,7 +743,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     isSwipeAnimatingRef.current = true;
     pendingSwipeRef.current = { listing, direction, newIndex };
     currentIndexRef.current = newIndex;
-    swipedIdsRef.current.add(listing.id);
+    swipedIdsRef.current.add(getCardId(listing));
     setSwipeDirection(direction);
     swipeDirectionRef.current = direction;
 
@@ -985,10 +989,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 >
                   <AnimatePresence>
                     {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
-                      const isTopCard = listing.id === topCard?.id;
+                      const listingId = getCardId(listing);
+                      const isTopCard = listingId === getCardId(topCard);
                       return (
                         <motion.div
-                          key={listing.id}
+                          key={listingId || Math.random().toString()}
                           exit={{ opacity: 0, transition: { duration: 0.15 } }}
                           className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
                         >
