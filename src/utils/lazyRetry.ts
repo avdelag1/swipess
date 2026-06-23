@@ -1,5 +1,10 @@
 import { logger } from '@/utils/prodLogger';
 import { ComponentType, lazy } from 'react';
+import {
+  canAttemptRecoveryReload,
+  clearStaleRuntimeCaches,
+  reloadForFreshBuild,
+} from '@/utils/chunkRecovery';
 
 /**
  * Lazy load with a single network retry (no page reload).
@@ -13,34 +18,32 @@ export function lazyWithRetry<T extends ComponentType<any>>(
   componentImport: () => Promise<{ default: T }>
 ) {
   return lazy(async () => {
-    const pageHasAlreadyReloaded = window.sessionStorage.getItem('page-reloaded-on-chunk-fail');
-
     try {
       return await componentImport();
     } catch (firstError) {
       logger.warn('[lazyWithRetry] First load failed, retrying…', firstError);
-      
-      // Delay before first retry
-      
+
       try {
         return await componentImport();
       } catch (retryError) {
-        // If we still fail, and we haven't reloaded yet, RELOAD.
-        if (!pageHasAlreadyReloaded) {
-          window.sessionStorage.setItem('page-reloaded-on-chunk-fail', 'true');
+        // Stale chunk after a redeploy: a single cache-busting reload pulls the
+        // fresh build. The gate is TIME-WINDOWED (see chunkRecovery) — not a
+        // one-shot session flag — so a long session that spans several deploys
+        // recovers from each new stale-shell episode instead of being disabled
+        // forever after the first reload. Once the budget is spent the error
+        // surfaces to the nearest ErrorBoundary instead of looping.
+        if (canAttemptRecoveryReload()) {
           console.error('[lazyWithRetry] Critical chunk error. Hard reloading page...', retryError);
-          // Clear SW caches so reload gets fresh chunks
-          if ('caches' in window) {
-            caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))).catch(() => {});
-          }
-          // Preserve existing query params (e.g. ?category=…&fromAI=1 on the
-          // listing form) — dropping them loses the user's in-progress flow.
-          const params = new URLSearchParams(window.location.search);
-          params.set('v', String(Date.now()));
-          window.location.replace(window.location.pathname + '?' + params.toString());
-          return new Promise(() => {}); // Never resolve to prevent further rendering while reloading
+          // Drop the SW + caches so the reload can't be handed the same stale
+          // shell again; race a timeout so a hung cache API can't strand us.
+          await Promise.race([
+            clearStaleRuntimeCaches(),
+            new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+          ]);
+          reloadForFreshBuild();
+          return new Promise(() => {}); // Never resolve — the page is reloading
         }
-        
+
         console.error('[lazyWithRetry] FAILED AFTER RELOAD', retryError);
         throw retryError;
       }

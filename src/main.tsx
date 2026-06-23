@@ -13,46 +13,42 @@ import "./styles/pwa-performance.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";
 import { applyHardwareTierClasses } from "@/utils/hardwareTier";
+import {
+  canAttemptRecoveryReload,
+  clearStaleRuntimeCaches,
+  reloadForFreshBuild,
+} from "@/utils/chunkRecovery";
 
 applyHardwareTierClasses();
 
 // 🚀 EMERGENCY RECOVERY: Handle Vite preload and script load failures
 // This prevents the infinite reload loop when chunks are missing after a deployment.
 const handleEmergencyRecovery = async (reason: string) => {
-  const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
-
-  // CRITICAL: cap at 1 to prevent reload loops in dev/preview where the
-  // sandbox re-mints chunk hashes on every save.
-  if (reloadCount >= 1) {
+  // TIME-WINDOWED budget (shared via chunkRecovery). The old `reloadCount >= 1`
+  // cap was a permanent one-shot per session and was never reset, so a SECOND
+  // stale-shell episode (a later deploy shipped while the tab stayed open) could
+  // never recover and logged "Manual intervention required" forever. The
+  // windowed budget still caps rapid loops (the original dev/preview concern)
+  // but gives every fresh deploy episode its own recovery attempt.
+  if (!canAttemptRecoveryReload()) {
     console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Manual intervention required.`);
     return;
   }
 
   console.warn(`[Emergency] ${reason} detected. Initiating recovery...`);
-  sessionStorage.setItem('Swipess_emergency_reload_count', (reloadCount + 1).toString());
 
-  try {
-    // 1. Unregister all service workers
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
-    
-    // 2. Clear all browser caches
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-    
-    // 3. Clear version tracking to force fresh check
-    localStorage.removeItem('Swipess_app_version');
-    
-    // 4. Force hard reload from server with cache bust
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
-  } catch (err) {
-    console.error('[Emergency] Recovery failed:', err);
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
-  }
+  // Clear version tracking so the next boot re-checks the build.
+  try { localStorage.removeItem('Swipess_app_version'); } catch { /* empty */ }
+
+  // Unregister the SW + clear caches so the reload can't be served the same
+  // stale shell. Race a timeout: cache/SW APIs can hang on some Android
+  // WebViews, and recovery must ALWAYS proceed to the reload.
+  await Promise.race([
+    clearStaleRuntimeCaches(),
+    new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+  ]);
+
+  reloadForFreshBuild();
 };
 
 window.addEventListener('vite:preloadError', () => {
