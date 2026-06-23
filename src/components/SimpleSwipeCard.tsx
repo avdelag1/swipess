@@ -222,6 +222,38 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, (listing as any).category);
 
+  // Declared before the pointer handlers because handleUnifiedPointerUp lists
+  // it as a useCallback dependency. The dependency array is evaluated eagerly
+  // during render, so a forward reference here would hit the temporal dead zone
+  // ("Cannot access 'handleImageTap' before initialization") and crash the card.
+  const handleImageTap = useCallback((e: React.MouseEvent) => {
+    if (isMagnifierActive() || wasMagnifierActive()) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const width = rect.width;
+    const height = rect.height;
+
+    if (imageCount > 1 && clickX < width * 0.33) {
+      setPhotoDirection('left');
+      setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
+      triggerHaptic('light');
+    } else if (imageCount > 1 && clickX > width * 0.67) {
+      setPhotoDirection('right');
+      setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
+      triggerHaptic('light');
+    } else {
+      revealChrome();
+      if (clickY > height * 0.33 && clickY < height * 0.67) {
+        onCardTap?.();
+      }
+      triggerHaptic('light');
+    }
+  }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
+
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
     dragStartedRef.current = false;
@@ -301,34 +333,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
     isDragging.current = false;
   }, [onSwipe, x, y]);
-
-  const handleImageTap = useCallback((e: React.MouseEvent) => {
-    if (isMagnifierActive() || wasMagnifierActive()) return;
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-    const width = rect.width;
-    const height = rect.height;
-
-    if (imageCount > 1 && clickX < width * 0.33) {
-      setPhotoDirection('left');
-      setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
-      triggerHaptic('light');
-    } else if (imageCount > 1 && clickX > width * 0.67) {
-      setPhotoDirection('right');
-      setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
-      triggerHaptic('light');
-    } else {
-      revealChrome();
-      if (clickY > height * 0.33 && clickY < height * 0.67) {
-        onCardTap?.();
-      }
-      triggerHaptic('light');
-    }
-  }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
     if (hasExited.current) return;
