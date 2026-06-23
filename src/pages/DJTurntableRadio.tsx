@@ -5,9 +5,10 @@ import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
+import { Equalizer } from '@/components/radio/Equalizer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Heart, ListMusic, Palette, Pause, Play, Shuffle, SkipBack, SkipForward, Star, Volume2 } from 'lucide-react';
+import { ArrowLeft, Heart, ListMusic, Palette, Pause, Play, Shuffle, SkipBack, SkipForward, SlidersHorizontal, Star, Volume2 } from 'lucide-react';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useRadioSkin } from '@/hooks/useRadioSkin';
 
@@ -19,6 +20,7 @@ export default function DJTurntableRadio() {
   } = useRadio();
   // Cheetah skin always applies dark base — force dark-styled UI
   const isDark = true;
+  const [showEq, setShowEq] = useState(false);
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'all' | 'favorites'>('all');
@@ -99,6 +101,14 @@ export default function DJTurntableRadio() {
             style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
           >
             <Palette size={16} />
+          </button>
+          <button
+            onClick={() => { triggerHaptic('light'); setShowEq(true); }}
+            aria-label="Equalizer"
+            className="w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+            style={{ background: btnBg, border: `1px solid ${btnBorder}`, color: textPrimary }}
+          >
+            <SlidersHorizontal size={16} />
           </button>
           <button
             onClick={() => { triggerHaptic('medium'); navigate('/radio/directory'); }}
@@ -334,6 +344,8 @@ export default function DJTurntableRadio() {
         onToggleFavorite={toggleFavorite}
         onShuffle={shuffleAndPlay}
       />
+
+      <Equalizer open={showEq} onClose={() => setShowEq(false)} accent={cityTheme.primaryColor} />
     </div>
   );
 }

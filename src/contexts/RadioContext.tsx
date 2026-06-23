@@ -38,6 +38,41 @@ function avoidRecent<T extends { id: string }>(queue: T[], recent: string[]): T[
   return [...fresh, ...stale];
 }
 
+/** 5-band graphic equalizer — frequencies + filter type per band. */
+export const EQ_BANDS: { freq: number; type: BiquadFilterType; label: string }[] = [
+  { freq: 60, type: 'lowshelf', label: '60' },
+  { freq: 250, type: 'peaking', label: '250' },
+  { freq: 1000, type: 'peaking', label: '1K' },
+  { freq: 4000, type: 'peaking', label: '4K' },
+  { freq: 12000, type: 'highshelf', label: '12K' },
+];
+
+/** Preset gains in dB, indexed to EQ_BANDS. */
+export const EQ_PRESETS: Record<string, number[]> = {
+  Flat: [0, 0, 0, 0, 0],
+  'Bass Boost': [7, 4, 1, 0, 1],
+  Vocal: [-2, 0, 3, 3, 1],
+  Treble: [0, 0, 1, 4, 6],
+  Club: [5, 3, 0, 2, 4],
+  Chill: [3, 1, -1, 0, 2],
+};
+
+const EQ_STORAGE_KEY = 'swipess_radio_eq';
+function loadSavedEq(): { gains: number[]; preset: string } {
+  try {
+    const raw = localStorage.getItem(EQ_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const gains = Array.isArray(parsed?.gains) && parsed.gains.length === EQ_BANDS.length
+        ? parsed.gains.map((n: unknown) => (typeof n === 'number' ? n : 0))
+        : EQ_PRESETS.Flat.slice();
+      const preset = typeof parsed?.preset === 'string' ? parsed.preset : 'Flat';
+      return { gains, preset };
+    }
+  } catch { /* ignore */ }
+  return { gains: EQ_PRESETS.Flat.slice(), preset: 'Flat' };
+}
+
 interface RadioContextType {
   state: RadioPlayerState;
   loading: boolean;
@@ -57,6 +92,11 @@ interface RadioContextType {
   playFavorites: () => void;
   setMiniPlayerMode: (mode: 'expanded' | 'minimized' | 'closed') => void;
   getFrequencyData: () => Uint8Array;
+  /** 5-band graphic EQ, gains in dB (-12..12), indexed to EQ_BANDS. */
+  eqGains: number[];
+  eqPreset: string;
+  setEqBand: (index: number, gainDb: number) => void;
+  applyEqPreset: (preset: string) => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -92,6 +132,10 @@ const fallbackRadioContext: RadioContextType = {
   playFavorites: () => {},
   setMiniPlayerMode: () => {},
   getFrequencyData: () => new Uint8Array(0),
+  eqGains: [0, 0, 0, 0, 0],
+  eqPreset: 'Flat',
+  setEqBand: () => {},
+  applyEqPreset: () => {},
 };
 
 export function RadioProvider({ children }: { children: React.ReactNode }) {
@@ -117,6 +161,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyzerRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const eqFiltersRef = useRef<BiquadFilterNode[]>([]);
+  const eqInitRef = useRef(loadSavedEq());
+  const eqGainsRef = useRef<number[]>(eqInitRef.current.gains.slice());
+  const [eqGains, setEqGains] = useState<number[]>(() => eqInitRef.current.gains.slice());
+  const [eqPreset, setEqPreset] = useState<string>(() => eqInitRef.current.preset);
   const dataArrayRef = useRef<Uint8Array>(new Uint8Array(0));
 
   // Initialize audio element once
@@ -720,7 +769,27 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
             analyzerRef.current.smoothingTimeConstant = 0.7; // Smoother visualizer, less CPU
             
             sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-            sourceRef.current.connect(analyzerRef.current);
+            // Insert the 5-band EQ between source and analyser. At 0 dB it is
+            // fully transparent; if filter creation fails we fall back to a
+            // direct connection so playback is never affected.
+            try {
+              const ctx = audioContextRef.current;
+              const filters = EQ_BANDS.map((band, i) => {
+                const filt = ctx.createBiquadFilter();
+                filt.type = band.type;
+                filt.frequency.value = band.freq;
+                if (band.type === 'peaking') filt.Q.value = 1.0;
+                filt.gain.value = eqGainsRef.current[i] ?? 0;
+                return filt;
+              });
+              let node: AudioNode = sourceRef.current;
+              for (const filt of filters) { node.connect(filt); node = filt; }
+              node.connect(analyzerRef.current);
+              eqFiltersRef.current = filters;
+            } catch (eqErr) {
+              logger.warn('[RadioEQ] filter chain failed, using direct connection', eqErr);
+              sourceRef.current.connect(analyzerRef.current);
+            }
             analyzerRef.current.connect(audioContextRef.current.destination);
             dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
           } catch (e) {
@@ -980,6 +1049,36 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     return new Uint8Array(0);
   }, []);
 
+  const persistEq = useCallback((gains: number[], preset: string) => {
+    try { localStorage.setItem(EQ_STORAGE_KEY, JSON.stringify({ gains, preset })); } catch { /* ignore */ }
+  }, []);
+
+  const setEqBand = useCallback((index: number, gainDb: number) => {
+    const g = Math.max(-12, Math.min(12, Math.round(gainDb)));
+    const next = eqGainsRef.current.slice();
+    next[index] = g;
+    eqGainsRef.current = next;
+    const filt = eqFiltersRef.current[index];
+    if (filt) { try { filt.gain.value = g; } catch { /* ignore */ } }
+    setEqGains(next);
+    setEqPreset('Custom');
+    persistEq(next, 'Custom');
+  }, [persistEq]);
+
+  const applyEqPreset = useCallback((preset: string) => {
+    const gains = EQ_PRESETS[preset];
+    if (!gains) return;
+    const next = gains.slice();
+    eqGainsRef.current = next;
+    next.forEach((g, i) => {
+      const filt = eqFiltersRef.current[i];
+      if (filt) { try { filt.gain.value = g; } catch { /* ignore */ } }
+    });
+    setEqGains(next);
+    setEqPreset(preset);
+    persistEq(next, preset);
+  }, [persistEq]);
+
   const value = useMemo(() => ({
     state,
     loading,
@@ -1001,7 +1100,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     playFavorites,
     setMiniPlayerMode,
     getFrequencyData,
-  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, shuffleAndPlay, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
+    eqGains,
+    eqPreset,
+    setEqBand,
+    applyEqPreset,
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, shuffleAndPlay, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData, eqGains, eqPreset, setEqBand, applyEqPreset]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }
