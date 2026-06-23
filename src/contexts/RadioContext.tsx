@@ -348,17 +348,22 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (currentId) {
         failedStationsRef.current.add(currentId);
         // Also update state so UI can show offline indicator
-        setState(prev => ({
-          ...prev,
-          deadStationIds: [...prev.deadStationIds, currentId]
-        }));
+        // CRITICAL: Cap deadStationIds to prevent infinite state loops
+        setState(prev => {
+          if (prev.deadStationIds.includes(currentId)) return prev;
+          const newDead = [...prev.deadStationIds, currentId];
+          // Keep max 20 dead stations to prevent memory issues
+          while (newDead.length > 20) newDead.shift();
+          return { ...prev, deadStationIds: newDead };
+        });
 
         setTimeout(() => {
           failedStationsRef.current.delete(currentId);
-          setState(prev => ({
-            ...prev,
-            deadStationIds: prev.deadStationIds.filter(id => id !== currentId)
-          }));
+          setState(prev => {
+            const filtered = prev.deadStationIds.filter(id => id !== currentId);
+            if (filtered.length === prev.deadStationIds.length) return prev;
+            return { ...prev, deadStationIds: filtered };
+          });
         }, 30000);
       }
 
@@ -503,17 +508,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, [state.isPlaying, tryReconnectSameStation]);
 
-  // Load user preferences
-  useEffect(() => {
-    loadUserPreferences();
-  }, [user?.id]);
-
   // Update audio volume
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = state.volume;
   }, [state.volume]);
 
-  const loadUserPreferences = async () => {
+  const loadUserPreferences = useCallback(async () => {
     const defaultStations = getStationsByCity('tulum');
     const defaultStation = defaultStations.length > 0 ? defaultStations[0] : null;
 
@@ -554,9 +554,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
-  const savePreferences = useCallback(async (updates: Partial<RadioPlayerState>) => {
+  // Load user preferences
+  useEffect(() => {
+    loadUserPreferences();
+  }, [loadUserPreferences]);
+
+  const savePreferences = useCallback(async (updates: Partial<RadioPlayerState & { currentCity?: string }>) => {
     if (!user?.id) return;
     try {
       const dbUpdates: any = {};
@@ -565,6 +570,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.volume !== undefined) dbUpdates.radio_volume = updates.volume;
       if (updates.isShuffle !== undefined) dbUpdates.radio_is_shuffle = updates.isShuffle;
       if (updates.favorites !== undefined) dbUpdates.radio_favorites = updates.favorites;
+      // Note: currentCity is accepted but not persisted to DB (intentional — city is session-local)
+
+      // Only send update if there are actual DB-mapped fields
+      if (Object.keys(dbUpdates).length === 0) return;
       
       const { error } = await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
       if (error) logger.info('[RadioPlayer] Error saving preferences:', error);
@@ -602,7 +611,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const targetStation = station || state.currentStation;
+    // CRITICAL: Use ref instead of state to avoid stale closures and
+    // prevent play() from being recreated every time currentStation changes.
+    // This was the root cause of cascade re-renders → stack overflow on error recovery.
+    const targetStation = station || currentStationRef.current;
     if (!targetStation || !audioRef.current) {
       isPlayingRef.current = false;
       return;
@@ -709,25 +721,31 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }, 15000);
 
       try {
-        // ⚡ TURBO ENGINE: Immediate AudioContext creation on first play
-        if (!audioContextRef.current && audioRef.current) {
+        // ⚡ TURBO ENGINE: AudioContext creation on first play
+        // CRITICAL: Double-guarded — AudioContext can throw on iOS Safari
+        // if called before a user gesture, or if the page is backgrounded.
+        if (!audioContextRef.current && audioRef.current && !sourceRef.current) {
           try {
-            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
-              latencyHint: 'interactive'
-            });
-            analyzerRef.current = audioContextRef.current.createAnalyser();
-            analyzerRef.current.fftSize = 256;
-            analyzerRef.current.smoothingTimeConstant = 0.7; // Smoother visualizer, less CPU
-            
-            sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-            sourceRef.current.connect(analyzerRef.current);
-            analyzerRef.current.connect(audioContextRef.current.destination);
-            dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioCtx) {
+              audioContextRef.current = new AudioCtx({ latencyHint: 'interactive' });
+              analyzerRef.current = audioContextRef.current.createAnalyser();
+              analyzerRef.current.fftSize = 256;
+              analyzerRef.current.smoothingTimeConstant = 0.7;
+              
+              sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+              sourceRef.current.connect(analyzerRef.current);
+              analyzerRef.current.connect(audioContextRef.current.destination);
+              dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+            }
           } catch (e) {
-            logger.error('[RadioTurbo] Context init failed:', e);
+            // AudioContext creation can fail — audio still works, just no visualizer
+            logger.warn('[RadioTurbo] Context init failed (audio will still work):', e);
+            audioContextRef.current = null;
+            analyzerRef.current = null;
           }
         } else if (audioContextRef.current?.state === 'suspended') {
-          audioContextRef.current.resume();
+          try { await audioContextRef.current.resume(); } catch { /* ignore */ }
         }
         await audioRef.current.play();
       } catch (playErr: any) {
@@ -806,7 +824,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         changeStationRef.current('next');
       }, 2000);
     }
-  }, [state.currentStation]);
+    // CRITICAL: Removed state.currentStation from deps — using currentStationRef
+    // instead to prevent cascade re-renders that caused stack overflow crashes
+  }, []);
 
   const pause = useCallback(() => {
     if (audioRef.current) {
