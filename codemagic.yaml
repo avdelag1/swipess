@@ -77,12 +77,29 @@ workflows:
         script: xcode-project use-profiles
       - name: Build signed .ipa
         script: |
+          set -e
+          ARCHIVE_PATH="$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive"
+          IPA_DIR="$CM_BUILD_DIR/build/ios/ipa"
+          mkdir -p "$IPA_DIR"
+
+          echo "=== ARCHIVING ==="
+          xcodebuild -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -archivePath "$ARCHIVE_PATH" \
+            archive \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            CODE_SIGN_STYLE=Manual \
+            2>&1 | tee /tmp/xcodebuild_archive.log
+
+          echo "=== EXPORTING IPA ==="
           xcode-project build-ipa \
             --workspace "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
+            --scheme "$XCODE_SCHEME" \
+            --archive "$ARCHIVE_PATH"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - /tmp/xcodebuild_archive.log
     publishing:
       app_store_connect:
         auth: integration
