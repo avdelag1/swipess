@@ -30,6 +30,8 @@
 	<string>Swipess can share listings with your contacts if you choose to.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Swipess uses Face ID for secure authentication.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Swipess uses your location to show nearby listings and match you with local services.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Swipess uses your location to show nearby listings and match you with local services.</string>
 	<key>NSMicrophoneUsageDescription</key>
