@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
-import { getStationById, getStationsByCity } from '@/data/radioStations';
+import { cityThemes, getStationById, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { Equalizer } from '@/components/radio/Equalizer';
@@ -21,6 +21,7 @@ export default function DJTurntableRadio() {
   // Cheetah skin always applies dark base — force dark-styled UI
   const isDark = true;
   const [showEq, setShowEq] = useState(false);
+  const cityTheme = cityThemes[state.currentCity as CityLocation] || cityThemes['miami'];
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'all' | 'favorites'>('all');
