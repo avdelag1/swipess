@@ -228,9 +228,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  const isMountSettledRef = useRef(false);
+  const [isMountSettled, setIsMountSettled] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
+    const t = setTimeout(() => { setIsMountSettled(true); }, 100);
     return () => clearTimeout(t);
   }, []);
 
@@ -919,7 +919,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   if (
     deckQueue.length === 0
-    && (isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current)
+    && (isLoading || isFetching || isCategoryTransitioning || !isMountSettled)
   ) {
     return <SwipeLoadingSkeleton />;
   }

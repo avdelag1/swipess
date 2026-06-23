@@ -217,9 +217,9 @@ const ClientSwipeContainerComponent = ({
   }, []);
 
   // FLICKER FIX: Track whether we've given the query a chance to start fetching.
-  const isMountSettledRef = useRef(false);
+  const [isMountSettled, setIsMountSettled] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => { isMountSettledRef.current = true; }, 100);
+    const t = setTimeout(() => { setIsMountSettled(true); }, 100);
     return () => clearTimeout(t);
   }, []);
 
@@ -1020,7 +1020,7 @@ const ClientSwipeContainerComponent = ({
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) ? (
+                {(isLoading || isFetching || isCategoryTransitioning || !isMountSettled) ? (
                   <SwipeLoadingSkeleton />
                 ) : error && deckQueue.length === 0 ? (
                   <SwipeErrorState

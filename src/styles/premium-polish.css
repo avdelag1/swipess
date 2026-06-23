@@ -826,9 +826,9 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 @keyframes motion-flame-flicker {
-  0%, 100% { transform: scale(1) translateY(0); }
-  40% { transform: scale(1.14) translateY(-3px); }
-  70% { transform: scale(1.06) translateY(1px); }
+  0%, 100% { transform: scale(1) translateY(0) translateZ(0); }
+  40% { transform: scale(1.14) translateY(-3px) translateZ(0); }
+  70% { transform: scale(1.06) translateY(1px) translateZ(0); }
 }
 
 @keyframes motion-nav-idle-pulse {
