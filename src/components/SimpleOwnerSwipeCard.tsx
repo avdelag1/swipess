@@ -379,7 +379,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   style={{ height: '42%', background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.1) 80%, transparent 100%)', opacity: isZoomed ? 0 : 1 }} />
               <PhotoPositionIndicators count={imageCount} currentIndex={currentImageIndex} hidden={isZoomed} />
               
-              <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
+              <div className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,72px)+10px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none" style={{ opacity: isZoomed ? 0 : 1 }}>
                 <button
                   data-no-cinematic
                   onClick={(e) => {
@@ -401,12 +401,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                       e.stopPropagation();
                       if (onUndo) onUndo();
                     }}
-                    className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-auto flex items-center justify-center w-10 h-10 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                     aria-label="Undo"
                   >
-                    <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                    <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
                   </button>
-                ) : <div className="w-12 h-12" />}
+                ) : <div className="w-10 h-10" />}
               </div>
             </>
           )}
@@ -486,7 +486,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         />
 
         {profile.verified && (
-          <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 12px)', opacity: isZoomed ? 0 : 1 }}>
+          <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 66px)', opacity: isZoomed ? 0 : 1 }}>
              <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-violet-500" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>

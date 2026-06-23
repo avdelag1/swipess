@@ -448,7 +448,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <GestureHints hidden={isZoomed} />
             
             <div
-              className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
+              className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,72px)+10px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
               style={{ opacity: isZoomed ? 0 : 1 }}
             >
               <button
@@ -465,7 +465,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </button>
 
               <AnimatePresence>
-                {!isRailVisible && canUndo ? (
+                {canUndo ? (
                   <motion.button
                     key="undo"
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -478,13 +478,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                       e.stopPropagation();
                       if (onUndo) onUndo();
                     }}
-                    className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-auto flex items-center justify-center w-10 h-10 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                     aria-label="Undo"
                   >
-                    <RotateCcw className="w-6 h-6" strokeWidth={2.5} />
+                    <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
                   </motion.button>
                 ) : (
-                  <div className="w-12 h-12" />
+                  <div className="w-10 h-10" />
                 )}
               </AnimatePresence>
             </div>
@@ -618,7 +618,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         />
 
         {(listing as any).has_verified_documents && (
-          <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 12px)', opacity: isZoomed ? 0 : 1 }}>
+          <div className="absolute left-6 z-40 transition-opacity duration-150" style={{ top: 'calc(var(--safe-top, 0px) + var(--top-bar-height, 72px) + 66px)', opacity: isZoomed ? 0 : 1 }}>
              <div className="glass-pill px-3 py-1.5 flex items-center gap-2">
                <div className="w-2 h-2 rounded-full bg-violet-500" />
                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">Verified</span>
