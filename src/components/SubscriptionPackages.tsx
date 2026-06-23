@@ -138,13 +138,20 @@ export function SubscriptionPackages({
     setIsPurchasing(true);
 
     if (user?.id) {
-      supabase.from('notifications').insert([{
-        user_id: user.id,
-        notification_type: 'payment_received',
-        title: 'Premium Package Selected!',
-        message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
-        is_read: false
-      }]).catch(() => {});
+      const sendNotif = async () => {
+        try {
+          await supabase.from('notifications').insert([{
+            user_id: user.id,
+            notification_type: 'payment_received',
+            title: 'Premium Package Selected!',
+            message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
+            is_read: false
+          }]);
+        } catch (e) {
+          // ignore
+        }
+      };
+      sendNotif();
     }
 
     await PaymentOrchestrator.purchase({
@@ -246,9 +253,7 @@ export function SubscriptionPackages({
                   disabled={isPurchasing}
                   className={cn(
                     'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5 disabled:opacity-70',
-                    NativeBridge.isIOS()
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10 text-[15px] tracking-normal'
-                      : cn(style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20')
+                    style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20'
                   )}
                 >
                   {isPurchasing ? 'Connecting...' : (

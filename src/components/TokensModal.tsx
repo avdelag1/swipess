@@ -189,9 +189,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                 className={cn(
                                   "flex-shrink-0 h-11 px-5 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
                                   isPurchasing ? "opacity-60 cursor-not-allowed" : "active:scale-95 touch-manipulation hover:shadow-lg",
-                                  NativeBridge.isIOS() 
-                                    ? "bg-black text-white dark:bg-white dark:text-black shadow-[0_4px_14px_0_rgba(0,0,0,0.39)] border border-white/10 dark:border-black/10" 
-                                    : "bg-primary text-primary-foreground shadow-lg"
+                                  "bg-primary text-primary-foreground shadow-lg"
                                 )}
                               >
                                 {isPurchasing ? 'Processing...' : (
