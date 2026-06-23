@@ -251,7 +251,7 @@ const ClientSwipeContainerComponent = ({
     }, 3000);
 
     return () => { clearInterval(check); clearTimeout(timeout); };
-  }, [deckReady, currentIndex]);
+  }, [deckReady, currentIndex, _deckLength]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
@@ -418,6 +418,7 @@ const ClientSwipeContainerComponent = ({
     });
     if (fresh.length > 0) {
       deckQueueRef.current = fresh;
+      setDeckLength(fresh.length);
     }
   }
 

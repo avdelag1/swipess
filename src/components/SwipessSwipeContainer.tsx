@@ -411,8 +411,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!filterChangedRef.current) return;
     filterChangedRef.current = false;
     isMountSettledRef.current = false;
+    setIsMountSettled(false);
     setIsCategoryTransitioning(true);
-    const settledTimer = setTimeout(() => { isMountSettledRef.current = true; }, 100);
+    const settledTimer = setTimeout(() => { isMountSettledRef.current = true; setIsMountSettled(true); }, 100);
 
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
