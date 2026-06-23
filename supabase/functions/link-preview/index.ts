@@ -50,6 +50,17 @@ function absolutize(maybeUrl: string | null | undefined, base: string): string |
   return `${base}/${s}`;
 }
 
+// Declare the real image MIME so strict crawlers (WhatsApp, iMessage) don't drop
+// a PNG/WebP hero that was mislabelled as JPEG.
+function imageMimeType(u: string): string {
+  const clean = u.split("?")[0].toLowerCase();
+  if (clean.endsWith(".png")) return "image/png";
+  if (clean.endsWith(".webp")) return "image/webp";
+  if (clean.endsWith(".avif")) return "image/avif";
+  if (clean.endsWith(".gif")) return "image/gif";
+  return "image/jpeg";
+}
+
 function renderHtml(opts: {
   title: string;
   description: string;
@@ -62,6 +73,7 @@ function renderHtml(opts: {
   const d = escapeHtml(description);
   const i = escapeHtml(image);
   const u = escapeHtml(url);
+  const imgType = imageMimeType(image);
   const redirectTags = redirect
     ? `<meta http-equiv="refresh" content="0; url=${u}" />
 <script>window.location.replace(${JSON.stringify(url)});</script>`
@@ -80,7 +92,7 @@ function renderHtml(opts: {
 <meta property="og:description" content="${d}" />
 <meta property="og:image" content="${i}" />
 <meta property="og:image:secure_url" content="${i}" />
-<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:image:type" content="${imgType}" />
 <meta property="og:image:alt" content="${t}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -103,7 +115,7 @@ ${redirectTags}
 <img src="${i}" alt="${t}" style="max-width:100%;max-height:60vh;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);" />
 <h1 style="font-size:20px;font-weight:900;margin:0;">${t}</h1>
 <p style="opacity:0.7;font-size:14px;margin:0;">${d}</p>
-<a href="${u}" style="margin-top:8px;padding:14px 28px;border-radius:32px;background:linear-gradient(180deg,#FF4D4D,#E01E2A);color:#fff;font-weight:900;text-decoration:none;letter-spacing:0.15em;text-transform:uppercase;font-size:12px;">Open in Swipess</a>
+<a href="${u}" style="margin-top:8px;padding:14px 28px;border-radius:32px;background:linear-gradient(135deg,#EB4898,#8B5CF6);color:#fff;font-weight:900;text-decoration:none;letter-spacing:0.15em;text-transform:uppercase;font-size:12px;box-shadow:0 12px 36px rgba(99,102,241,0.4);">Open in Swipess</a>
 </div>
 </body>
 </html>`;

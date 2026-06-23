@@ -118,8 +118,8 @@ export function AIProfileWizard() {
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
-    ? 'bg-white border-2 border-slate-300 focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/60 font-medium'
-    : 'bg-white/[0.15] border-2 border-white/30 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
+    ? 'bg-white border-2 border-slate-300 focus:border-[#8B5CF6] focus:ring-0 text-black placeholder:text-black/60 font-medium'
+    : 'bg-white/[0.15] border-2 border-white/30 focus:border-[#8B5CF6] focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
   const closeBtnCls = isLight
     ? 'bg-white hover:bg-slate-50 border border-slate-200'
     : 'bg-white/10 hover:bg-white/20 border border-white/20';
@@ -381,9 +381,9 @@ export function AIProfileWizard() {
                     
                     {/* Onboarding Banner */}
                     {isOnboardingActive && (
-                      <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
-                        <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
+                      <div className="bg-[#6366F1]/10 border border-[#8B5CF6]/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8B5CF6]/10 blur-[50px] rounded-full pointer-events-none" />
+                        <h3 className="text-[#A5B4FC] font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
                           <MotionIcon id="ai-sparkle" loop>
                             <Sparkles className="w-4 h-4" />
                           </MotionIcon>
@@ -447,9 +447,9 @@ export function AIProfileWizard() {
                           </div>
                         ) : (
                           <button onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", isLight ? "border-slate-300" : "border-white/10")}>
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5")}>
-                              <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", isLight ? "border-slate-300" : "border-white/10")}>
+                            <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5")}>
+                              <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
                             </div>
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photo</span>
                           </button>
@@ -473,7 +473,7 @@ export function AIProfileWizard() {
                           className={cn(
                             "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                             narrative.trim() && !isEnhancing
-                              ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
+                              ? "bg-[#6366F1]/12 border-[#8B5CF6]/30 text-[#A5B4FC] hover:bg-[#6366F1]/20"
                               : "opacity-40 bg-white/5 border-white/10 text-white/70 cursor-not-allowed"
                           )}
                         >
@@ -488,7 +488,7 @@ export function AIProfileWizard() {
                             <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
                               {isRecording && (
                                 <motion.div
-                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 blur-md pointer-events-none"
+                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] blur-md pointer-events-none"
                                   animate={{ 
                                     scale: 1 + (micVolume / 255) * 1.5,
                                     opacity: 0.4 + (micVolume / 255) * 0.6 
@@ -520,12 +520,12 @@ export function AIProfileWizard() {
                           <PopoverContent
                             side="top"
                             sideOffset={12}
-                            className="w-72 p-4 rounded-2xl border border-rose-500/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                            className="w-72 p-4 rounded-2xl border border-[#8B5CF6]/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
                           >
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <AudioLines className="w-4 h-4 text-rose-400" />
-                                <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
+                                <AudioLines className="w-4 h-4 text-[#A5B4FC]" />
+                                <span className="text-[11px] font-black uppercase tracking-widest text-[#A5B4FC]">Voice to Text</span>
                               </div>
                               <p className="text-[12px] leading-relaxed text-white">
                                 Tap to describe yourself out loud. The visualizer reacts to your voice!
@@ -535,17 +535,17 @@ export function AIProfileWizard() {
                         </Popover>
 
                         <div className="relative">
-                          <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
+                          <Search className="absolute left-5 top-5 w-4 h-4 text-[#A5B4FC] opacity-90" />
                           <textarea
                             value={narrative}
                             onChange={(e) => setNarrative(e.target.value)}
                             placeholder={placeholder}
-                            className={cn("w-full h-44 p-5 pl-14 pr-16 rounded-[2rem] text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
+                            className={cn("w-full h-44 p-5 pl-14 pr-16 rounded-[2rem] text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-[#8B5CF6]/30", inputCls)}
                           />
                           {isRecording && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
-                              <motion.div 
-                                className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-[#8B5CF6]/50 z-20 overflow-hidden">
+                              <motion.div
+                                className="absolute inset-0 bg-gradient-to-r from-[#06B6D4]/20 to-[#8B5CF6]/20 mix-blend-overlay"
                                 animate={{ opacity: [0.5, 1, 0.5] }}
                                 transition={{ repeat: Infinity, duration: 1.5 }}
                               />
@@ -557,9 +557,9 @@ export function AIProfileWizard() {
                                 {[...Array(12)].map((_, i) => (
                                   <motion.div
                                     key={i}
-                                    className="w-1.5 bg-gradient-to-t from-rose-500 to-orange-500 rounded-full"
-                                    animate={{ 
-                                      height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4 
+                                    className="w-1.5 bg-gradient-to-t from-[#06B6D4] to-[#8B5CF6] rounded-full"
+                                    animate={{
+                                      height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4
                                     }}
                                     transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                   />
@@ -570,9 +570,9 @@ export function AIProfileWizard() {
                           )}
                           {isTranscribing && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
-                              <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
-                                <Loader2 className="w-4 h-4 text-rose-400 animate-spin" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>
+                              <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-[#8B5CF6]/30 shadow-2xl">
+                                <Loader2 className="w-4 h-4 text-[#A5B4FC] animate-spin" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#A5B4FC]">Transcribing...</span>
                               </div>
                             </div>
                           )}

@@ -123,11 +123,11 @@ export function AIListingWizard() {
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/75';
   const chipIdleCls = isLight
-    ? 'bg-slate-50 border-slate-200 hover:border-rose-500/30'
+    ? 'bg-slate-50 border-slate-200 hover:border-[#8B5CF6]/30'
     : 'bg-[#141418] border-white/12 hover:border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]';
   const inputCls = isLight
-    ? 'surface-inset focus:border-rose-500 focus:ring-0 text-black placeholder:text-black/50 font-medium'
-    : 'bg-[#141418] border border-white/12 focus:border-rose-400 focus:ring-0 text-white placeholder:text-white/45 font-medium shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)]';
+    ? 'surface-inset focus:border-[#8B5CF6] focus:ring-0 text-black placeholder:text-black/50 font-medium'
+    : 'bg-[#141418] border border-white/12 focus:border-[#8B5CF6] focus:ring-0 text-white placeholder:text-white/45 font-medium shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)]';
   const closeBtnCls = isLight
     ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
     : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-2xl transition-all border border-white/15 shadow-lg';
@@ -516,18 +516,25 @@ export function AIListingWizard() {
             )}
           >
 
+            {/* Ambient nexus orbs for depth — mirrors the Magic Profile wizard
+                so both AI builders share the same premium glow. */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+              <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
+              <div className="absolute bottom-[-12%] right-[-12%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#6366F1]/10 blur-[100px] rounded-full mix-blend-screen" />
+            </div>
+
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shadow-inner">
+                <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25 shadow-inner">
                   <MotionIcon id="ai-sparkle" loop={isProcessing}>
-                    <Sparkles className="w-6 h-6 text-rose-400" />
+                    <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
                   </MotionIcon>
                 </div>
                 <div>
-                  <h2 className={cn("text-base font-black uppercase tracking-[0.1em] italic", isLight ? "bg-clip-text text-transparent" : "text-white")} style={isLight ? { backgroundImage: NEXUS_GRADIENTS.ai } : undefined}>AI Uploading. Listing.</h2>
+                  <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Listing Builder</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", textMuted)}>One-Step Builder</span>
-                    <div className="w-1 h-1 bg-rose-500 rounded-full animate-pulse" />
+                    <div className="w-1 h-1 rounded-full animate-pulse bg-[#8B5CF6]" />
                   </div>
                 </div>
               </div>
@@ -554,9 +561,9 @@ export function AIListingWizard() {
                     >
                       {/* Onboarding Banner */}
                       {isOnboardingActive && (
-                        <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[50px] rounded-full pointer-events-none" />
-                          <h3 className="text-rose-400 font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
+                        <div className="bg-[#6366F1]/10 border border-[#8B5CF6]/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-[#8B5CF6]/10 blur-[50px] rounded-full pointer-events-none" />
+                          <h3 className="text-[#A5B4FC] font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
                             <MotionIcon id="ai-sparkle" loop>
                               <Sparkles className="w-4 h-4" />
                             </MotionIcon>
@@ -578,7 +585,7 @@ export function AIListingWizard() {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
                                 category === cat.id
-                                  ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_4px_25px_rgba(255,77,0,0.4)] ring-1 ring-white/20"
+                                  ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_6px_26px_rgba(99,102,241,0.42)] ring-1 ring-white/20"
                                   : chipIdleCls
                               )}
                             >
@@ -598,7 +605,7 @@ export function AIListingWizard() {
                             <button
                               type="button"
                               onClick={handleClearAllPhotos}
-                              className="text-[9px] font-black uppercase tracking-widest text-rose-400/90 hover:text-rose-300 px-2 py-1 rounded-lg border border-rose-500/25"
+                              className="text-[9px] font-black uppercase tracking-widest text-[#A5B4FC] hover:text-[#C4B5FD] px-2 py-1 rounded-lg border border-[#8B5CF6]/25"
                             >
                               Clear all
                             </button>
@@ -629,10 +636,10 @@ export function AIListingWizard() {
                           <button
                             type="button"
                             onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-rose-500/5 hover:border-rose-500/40 transition-all group shadow-inner", photoAddCls)}
+                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", photoAddCls)}
                           >
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-rose-500/20 group-hover:border-rose-400/30 transition-all", photoAddInnerCls)}>
-                              <Camera className="w-6 h-6 text-rose-400 opacity-70 group-hover:opacity-100" />
+                            <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
+                              <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
                             </div>
                             <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photos</span>
                           </button>
@@ -673,7 +680,7 @@ export function AIListingWizard() {
                              className={cn(
                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                                prompt.trim() && !isEnhancing
-                                 ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
+                                 ? "bg-[#6366F1]/12 border-[#8B5CF6]/30 text-[#A5B4FC] hover:bg-[#6366F1]/20"
                                  : cn("cursor-not-allowed", enhanceDisabledCls)
                              )}
                            >
@@ -692,10 +699,10 @@ export function AIListingWizard() {
                               <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
                                 {isRecording && (
                                   <motion.div
-                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 blur-md pointer-events-none"
-                                    animate={{ 
+                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] blur-md pointer-events-none"
+                                    animate={{
                                       scale: 1 + (micVolume / 255) * 1.5,
-                                      opacity: 0.4 + (micVolume / 255) * 0.6 
+                                      opacity: 0.4 + (micVolume / 255) * 0.6
                                     }}
                                     transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                   />
@@ -704,8 +711,8 @@ export function AIListingWizard() {
                                   onClick={handleVoiceToggle}
                                   className={cn(
                                     "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
-                                    isRecording 
-                                      ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_30px_rgba(255,77,0,0.6)] scale-110" 
+                                    isRecording
+                                      ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_30px_rgba(139,92,246,0.55)] scale-110"
                                       : isLight
                                         ? "bg-slate-50 hover:bg-slate-100 border border-slate-300 hover:scale-105"
                                         : "bg-[#1c1c22] hover:bg-[#26262e] border border-white/15 hover:scale-105"
@@ -726,14 +733,14 @@ export function AIListingWizard() {
                               side="top"
                               sideOffset={12}
                               className={cn(
-                                "w-72 p-4 rounded-2xl border border-rose-500/30 text-white shadow-2xl",
-                                isLight ? "bg-white text-black chrome-solid border-rose-500/20" : "bg-[#141418] border-white/12"
+                                "w-72 p-4 rounded-2xl border border-[#8B5CF6]/30 text-white shadow-2xl",
+                                isLight ? "bg-white text-black chrome-solid border-[#8B5CF6]/20" : "bg-[#141418] border-white/12"
                               )}
                             >
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                  <AudioLines className="w-4 h-4 text-rose-400" />
-                                  <span className="text-[11px] font-black uppercase tracking-widest text-rose-400">Voice to Text</span>
+                                  <AudioLines className="w-4 h-4 text-[#A5B4FC]" />
+                                  <span className="text-[11px] font-black uppercase tracking-widest text-[#A5B4FC]">Voice to Text</span>
                                 </div>
                                 <p className={cn("text-[12px] leading-relaxed", isLight ? "text-black/80" : "text-white/90")}>
                                   Tap to describe your listing out loud. The visualizer reacts to your voice!
@@ -743,17 +750,17 @@ export function AIListingWizard() {
                           </Popover>
 
                           <div className="relative">
-                            <Search className="absolute left-5 top-5 w-4 h-4 text-rose-400 opacity-90" />
+                            <Search className="absolute left-5 top-5 w-4 h-4 text-[#A5B4FC] opacity-90" />
                             <textarea
                               value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
                               placeholder="Describe your listing or just tap publish. E.g. 'Stunning ocean view property with private pool'..."
-                              className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-rose-500/30", inputCls)}
+                              className={cn("w-full h-32 p-5 pl-14 pr-16 rounded-[2rem] transition-all text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-[#8B5CF6]/30", inputCls)}
                             />
                             {isRecording && (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 rounded-[2rem] border border-rose-500/50 z-20 overflow-hidden">
-                                <motion.div 
-                                  className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-orange-500/20 mix-blend-overlay"
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 rounded-[2rem] border border-[#8B5CF6]/50 z-20 overflow-hidden">
+                                <motion.div
+                                  className="absolute inset-0 bg-gradient-to-r from-[#06B6D4]/20 to-[#8B5CF6]/20 mix-blend-overlay"
                                   animate={{ opacity: [0.5, 1, 0.5] }}
                                   transition={{ repeat: Infinity, duration: 1.5 }}
                                 />
@@ -765,9 +772,9 @@ export function AIListingWizard() {
                                   {[...Array(12)].map((_, i) => (
                                     <motion.div
                                       key={i}
-                                      className="w-1.5 bg-gradient-to-t from-rose-500 to-orange-500 rounded-full"
-                                      animate={{ 
-                                        height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4 
+                                      className="w-1.5 bg-gradient-to-t from-[#06B6D4] to-[#8B5CF6] rounded-full"
+                                      animate={{
+                                        height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4
                                       }}
                                       transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                     />
@@ -778,9 +785,9 @@ export function AIListingWizard() {
                             )}
                             {isTranscribing && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/35 rounded-[2rem]">
-                                <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-rose-500/30 shadow-2xl">
+                                <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-[#8B5CF6]/30 shadow-2xl">
                                   <PremiumSpinner className="w-4 h-4" />
-                                  <span className="text-[10px] font-black uppercase tracking-widest text-rose-400">Transcribing...</span>
+                                  <span className="text-[10px] font-black uppercase tracking-widest text-[#A5B4FC]">Transcribing...</span>
                                 </div>
                               </div>
                             )}
@@ -793,7 +800,7 @@ export function AIListingWizard() {
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
                           className={cn(
-                            "w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_rgba(255,77,0,0.3)]",
+                            "w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_-10px_rgba(99,102,241,0.5)]",
                             "disabled:opacity-40 disabled:saturate-50 disabled:shadow-none disabled:cursor-not-allowed"
                           )}
                         >
@@ -828,7 +835,7 @@ export function AIListingWizard() {
                           <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
                           <motion.circle
                             cx="50" cy="50" r="44"
-                            stroke="#e11d48" strokeWidth="6" fill="none"
+                            stroke="#6366F1" strokeWidth="6" fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 44}
                             initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
@@ -838,7 +845,7 @@ export function AIListingWizard() {
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                           <MotionIcon id="ai-sparkle" loop>
-                            <Sparkles className="w-8 h-8 text-rose-400" />
+                            <Sparkles className="w-8 h-8 text-[#A5B4FC]" />
                           </MotionIcon>
                           <span className={cn("text-2xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
                         </div>
@@ -858,7 +865,7 @@ export function AIListingWizard() {
                               className={cn(
                                 'text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border',
                                 progressPhase === p
-                                  ? 'bg-rose-600 text-white border-transparent'
+                                  ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white border-transparent'
                                   : isLight ? 'border-slate-200 text-black/60' : 'border-white/10 text-white/80'
                               )}
                             >

@@ -100,17 +100,24 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
         </motion.div>
       </AnimatePresence>
 
-      {/* Skip button — top right */}
+      {/* Skip button — top right. High-contrast pill so dismissing the intro is
+          always obvious, and pinned below the iOS notch via safe-area inset. */}
       {!isLast && (
         <button
           onClick={() => { haptics.tap(); onFinish(); }}
-          className="absolute top-14 right-6 z-10 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/70 text-[12px] font-bold uppercase tracking-wider backdrop-blur-sm active:scale-95 transition-all"
+          aria-label="Skip introduction"
+          className="absolute right-5 z-20 flex items-center gap-1.5 pl-4 pr-3 py-2.5 rounded-full bg-black/45 border border-white/30 text-white text-[13px] font-bold uppercase tracking-wider backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.45)] active:scale-95 transition-all"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
         >
           Skip
+          <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.75} />
         </button>
       )}
 
-      <div className="relative flex-1 flex flex-col justify-end p-8 pb-16">
+      <div
+        className="relative flex-1 flex flex-col justify-end px-8 pt-8"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 40px)' }}
+      >
         <AnimatePresence mode="sync">
           <motion.div
             key={index}

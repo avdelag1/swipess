@@ -17,6 +17,7 @@ import { SwipessLogo } from '@/components/SwipessLogo';
 import { SEO } from '@/components/SEO';
 import { ImmersiveDarkShell } from '@/components/ui/AmbientPageBackground';
 import { PreviewSwipeCard } from '@/components/preview/PreviewSwipeCard';
+import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 const ShareDialog = lazyWithRetry(() => import('@/components/ShareDialog').then(m => ({ default: m.ShareDialog })));
 
@@ -297,7 +298,8 @@ export default function PublicProfilePreview() {
               <>
                 <Button
                   onClick={handleCreateAccount}
-                  className="w-full h-12 rounded-2xl bg-gradient-to-b from-[#FF4D4D] to-[#E01E2A] text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(224,30,42,0.45)] border border-white/15"
+                  className="w-full h-12 rounded-2xl text-white font-bold uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-transform shadow-[0_12px_36px_rgba(99,102,241,0.4)] border border-white/15"
+                  style={{ background: NEXUS_GRADIENTS.ai }}
                 >
                   <UserPlus className="w-5 h-5 mr-2" />
                   Join Free to Connect
