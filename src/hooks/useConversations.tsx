@@ -77,7 +77,7 @@ export function useConversations() {
         if (!data) return [];
 
         // Get all conversation IDs and user IDs for batch queries
-        const conversationIds = data.map((c: any) => c.id);
+        const conversationIds = data.map((c: any) => c.id).filter(Boolean);
         if (conversationIds.length === 0) return [];
 
         // Collect unique user IDs to fetch profiles

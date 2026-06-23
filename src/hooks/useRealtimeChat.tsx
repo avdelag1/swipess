@@ -257,13 +257,13 @@ export function useRealtimeChat(conversationId: string) {
       })
       .on('presence', { event: 'leave' }, ({ leftPresences: _leftPresences }) => {
         // Left typing presence
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          // Store channel reference for startTyping/stopTyping
-          typingChannelRef.current = typingChannel;
-        }
       });
+
+    // Make the channel available immediately so startTyping/stopTyping work
+    // before the subscription handshake completes.
+    typingChannelRef.current = typingChannel;
+
+    typingChannel.subscribe();
 
     return () => {
 

@@ -43,7 +43,7 @@ export function usePushNotifications() {
       PushNotifications.checkPermissions().then((res) => {
         setPermission(res.receive as any);
       });
-    } else {
+    } else if (typeof Notification !== 'undefined') {
       setPermission(Notification.permission);
     }
   }, [isSupported]);
