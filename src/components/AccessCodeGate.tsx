@@ -12,13 +12,6 @@ import { supabase } from '@/integrations/supabase/client';
 
 const ACCESS_GRANTED_KEY = 'swipess_access_granted';
 const PROMO_UNLOCK_KEY = 'swipess_promo_unlocked';
-const DEFAULT_SECRET_CODE = 'URDBEST';
-
-const normalizeCode = (value: string) =>
-  value
-    .normalize('NFKC')
-    .replace(/[^a-z0-9]/gi, '')
-    .toUpperCase();
 
 function persistAccessGrant() {
   try { localStorage.setItem(ACCESS_GRANTED_KEY, 'true'); } catch { /* empty */ }
@@ -54,6 +47,7 @@ export function AccessCodeGate({ onGranted }: Props) {
   const [showCode, setShowCode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [showRequest, setShowRequest] = useState(false);
 
   const [form, setForm] = useState<RequestForm>({ name: '', email: '', whatsapp: '', message: '' });
@@ -63,31 +57,47 @@ export function AccessCodeGate({ onGranted }: Props) {
 
   const { data: siteContent } = useSiteContent('swipess_gate');
 
-  const cmsCode = getContentValue(siteContent, 'secret_code');
-  const expectedCode = (typeof cmsCode === 'string' && cmsCode.trim()) ? cmsCode.trim() : DEFAULT_SECRET_CODE;
   const gateTitle = getContentValue(siteContent, 'gate_title');
   const gateSubtitle = getContentValue(siteContent, 'gate_subtitle', 'Authorized access only');
   const bgImage = getContentValue(siteContent, 'gate_background');
   const btnColor = getContentValue(siteContent, 'gate_btn_color');
   const btnText = getContentValue(siteContent, 'gate_btn_text', 'Enter');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!code.trim()) {
+    const candidate = code.trim();
+    if (!candidate) {
       setError('Enter access code');
       triggerHaptic('error');
       return;
     }
 
-    if (normalizeCode(code) !== normalizeCode(expectedCode)) {
-      setError('Invalid access code');
+    setVerifying(true);
+    try {
+      // The real code lives only in the validate-access-code edge function
+      // (env var / CMS, read server-side) so it never ships in the bundle.
+      const { data, error: fnError } = await supabase.functions.invoke('validate-access-code', {
+        body: { code: candidate },
+      });
+      if (fnError) throw fnError;
+      if (!data?.valid) {
+        setError('Invalid access code');
+        triggerHaptic('error');
+        setVerifying(false);
+        return;
+      }
+    } catch {
+      // Fail closed — never grant access if validation can't be confirmed.
+      setError('Could not verify code. Check your connection and try again.');
       triggerHaptic('error');
+      setVerifying(false);
       return;
     }
 
     triggerHaptic('success');
     persistAccessGrant();
+    setVerifying(false);
     setSuccess(true);
     setTimeout(() => onGranted(), 400);
   };
@@ -192,11 +202,12 @@ export function AccessCodeGate({ onGranted }: Props) {
                 )}
                 <button
                   type="submit"
+                  disabled={verifying}
                   style={btnColor ? { background: btnColor } : undefined}
-                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_8px_28px_rgba(0,0,0,0.45)] hover:brightness-105 active:scale-[0.97] transition-all flex items-center justify-center gap-3 text-white ${btnColor ? '' : 'bg-white/20 border border-white/20'}`}
+                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_8px_28px_rgba(0,0,0,0.45)] hover:brightness-105 active:scale-[0.97] transition-all flex items-center justify-center gap-3 text-white disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white/20 border border-white/20'}`}
                 >
-                  <Sparkles className="w-4 h-4" />
-                  {btnText}
+                  <Sparkles className={`w-4 h-4 ${verifying ? 'animate-spin' : ''}`} />
+                  {verifying ? 'Verifying…' : btnText}
                 </button>
               </form>
 

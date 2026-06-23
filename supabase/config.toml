@@ -30,6 +30,11 @@ verify_jwt = true
 [functions.link-preview]
 verify_jwt = false
 
+# Web access-code gate runs before login, so anonymous visitors must reach it.
+# It only compares a submitted code to a server-held secret and returns a boolean.
+[functions.validate-access-code]
+verify_jwt = false
+
 [functions.moderate-image]
 verify_jwt = true
 
