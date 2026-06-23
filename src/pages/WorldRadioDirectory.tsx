@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { RadioSkinBackground } from '@/components/radio/RadioSkinBackground';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
+import { LiveStationsSection } from '@/components/radio/LiveStationsSection';
 import { cityThemes, radioStations } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { triggerHaptic } from '@/utils/haptics';
@@ -32,6 +33,10 @@ export default function WorldRadioDirectory() {
   const [selectedCity, setSelectedCity] = useState<CityLocation | 'all' | 'favorites'>(initialFilter as any);
 
   const cities = useMemo(() => Object.values(cityThemes), []);
+
+  // Live Radio-Browser results show whenever the user searches or picks a city.
+  const liveActive = searchQuery.trim().length >= 2 || (selectedCity !== 'all' && selectedCity !== 'favorites');
+  const liveAccent = (selectedCity !== 'all' && selectedCity !== 'favorites' && cityThemes[selectedCity]?.primaryColor) || '#FF3D00';
 
   const filteredStations = useMemo(() => {
     return radioStations.filter(s => {
@@ -372,7 +377,7 @@ export default function WorldRadioDirectory() {
           </div>
 
           {/* 🛰️ EMPTY STATE */}
-          {filteredStations.length === 0 && (
+          {filteredStations.length === 0 && !liveActive && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -391,6 +396,8 @@ export default function WorldRadioDirectory() {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 mt-2">Adjust your frequency filters</p>
             </motion.div>
           )}
+
+          <LiveStationsSection search={searchQuery} city={selectedCity} accent={liveAccent} />
         </div>
       </main>
     </div>
