@@ -884,14 +884,14 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 .motion-icon--eventos.motion-icon--active > * { animation: motion-shout-pulse 0.38s ease-out; }
 .motion-icon--likes.motion-icon--active > * { animation: motion-flame-flicker 0.4s ease-out; }
 .motion-icon--likes.motion-icon--loop > * { animation: motion-flame-flicker 1.2s ease-in-out infinite; }
-.motion-icon--filter.motion-icon--loop > * { animation: motion-filter-loop 2.2s ease-in-out infinite; }
-.motion-icon--scale.motion-icon--loop > * { animation: motion-nav-idle-pulse 2s ease-in-out infinite; }
+.motion-icon--filter.motion-icon--loop > * { animation: motion-flame-flicker 1.2s ease-in-out infinite; }
+.motion-icon--scale.motion-icon--loop > * { animation: motion-flame-flicker 1.2s ease-in-out infinite; }
 .motion-icon--browse.motion-icon--loop > *,
 .motion-icon--messages.motion-icon--loop > *,
 .motion-icon--eventos.motion-icon--loop > *,
 .motion-icon--profile.motion-icon--loop > *,
 .motion-icon--pop.motion-icon--loop > *,
-.motion-icon--compass.motion-icon--loop > * { animation: motion-nav-idle-pulse 2s ease-in-out infinite; }
+.motion-icon--compass.motion-icon--loop > * { animation: motion-flame-flicker 1.2s ease-in-out infinite; }
 .motion-icon--profile.motion-icon--active > * { animation: motion-profile-bounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .motion-icon--pop.motion-icon--active > * { animation: motion-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .motion-icon--map.motion-icon--active > * { animation: motion-map-ping 0.4s ease-out; }
