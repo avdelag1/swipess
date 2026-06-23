@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { memo } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { ChevronLeft, Crown, Globe, UserRound } from 'lucide-react';
+import { ChevronLeft, Crown, Globe, UserRound, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -21,7 +21,7 @@ import {
   HEADER_PILL_BASE,
   isDashboardPath,
 } from '@/utils/headerChrome';
-import { AIIcon } from '@/components/icons/AIIcon';
+// AIIcon removed
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -207,7 +207,7 @@ function TopBarComponent({
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
-                <AIIcon
+                <Sparkles
                   className={HEADER_ICON}
                   style={{
                     color: iconColor,

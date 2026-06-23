@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { NativeBridge } from '@/utils/nativeBridge';
+// NativeBridge removed
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from '@/config/iapProducts';
 

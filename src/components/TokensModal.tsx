@@ -6,7 +6,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
-import { NativeBridge } from '@/utils/nativeBridge';
+// NativeBridge removed
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { useNavigate } from 'react-router-dom';
 import { APPLE_TOKEN_PACKAGES, type AppleTokenPackage } from '@/config/iapProducts';
