@@ -8,10 +8,12 @@ interface Props {
 
 interface State {
   hasChunkError: boolean;
+  hasGeneralError: boolean;
+  errorMsg: string;
 }
 
 export class ChunkErrorBoundary extends Component<Props, State> {
-  state: State = { hasChunkError: false };
+  state: State = { hasChunkError: false, hasGeneralError: false, errorMsg: '' };
 
   static getDerivedStateFromError(error: Error): State | null {
     const msg = error?.message || '';
@@ -30,7 +32,16 @@ export class ChunkErrorBoundary extends Component<Props, State> {
       } catch { /* sessionStorage unavailable in private browsing — safe to swallow */ }
       return { hasChunkError: true };
     }
-    throw error;
+    
+    // For non-chunk errors, we MUST NOT throw inside getDerivedStateFromError!
+    // Instead, update state so we can render a fallback or let componentDidCatch log it.
+    return { hasGeneralError: true, errorMsg: msg };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    if (!this.state.hasChunkError) {
+      console.error('[ChunkErrorBoundary] Caught non-chunk error:', error, errorInfo);
+    }
   }
 
   render() {
@@ -47,6 +58,22 @@ export class ChunkErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
+    
+    if (this.state.hasGeneralError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[200px] gap-4 p-6 text-center">
+          <p className="text-sm text-red-500 font-bold">A component error occurred.</p>
+          <p className="text-xs text-muted-foreground opacity-50">{this.state.errorMsg}</p>
+          <button
+            onClick={() => this.setState({ hasGeneralError: false, errorMsg: '' })}
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground"
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    
     return this.props.children;
   }
 }
