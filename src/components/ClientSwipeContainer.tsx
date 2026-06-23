@@ -218,8 +218,9 @@ const ClientSwipeContainerComponent = ({
 
   // FLICKER FIX: Track whether we've given the query a chance to start fetching.
   const [isMountSettled, setIsMountSettled] = useState(false);
+  const isMountSettledRef = useRef(false);
   useEffect(() => {
-    const t = setTimeout(() => { setIsMountSettled(true); }, 100);
+    const t = setTimeout(() => { setIsMountSettled(true); isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
 
@@ -297,6 +298,7 @@ const ClientSwipeContainerComponent = ({
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
+    setDeckReady(false); // Reset image preload gate for new deck
     deckQueueRef.current = [];
     swipedIdsRef.current.clear();
     setPage(0);

@@ -229,8 +229,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, []);
 
   const [isMountSettled, setIsMountSettled] = useState(false);
+  const isMountSettledRef = useRef(false);
   useEffect(() => {
-    const t = setTimeout(() => { setIsMountSettled(true); }, 100);
+    const t = setTimeout(() => { setIsMountSettled(true); isMountSettledRef.current = true; }, 100);
     return () => clearTimeout(t);
   }, []);
 

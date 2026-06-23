@@ -257,11 +257,7 @@ export function SubscriptionPackages({
                   )}
                 >
                   {isPurchasing ? 'Connecting...' : (
-                    NativeBridge.isIOS() ? (
-                      <span>Subscribe</span>
-                    ) : (
-                      isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
-                    )
+                    isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
                   )}
                 </motion.button>
               </div>
