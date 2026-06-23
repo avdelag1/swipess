@@ -59,6 +59,10 @@ async function blobToBase64(blob: Blob): Promise<string> {
 export interface UseVoiceTranscribeOptions {
   onStop?: (text: string) => void;
   onVolumeChange?: (volume: number) => void;
+  /** Fires on every live Web Speech update with the full running transcript so
+   *  callers can show words as they're spoken (no-op where Web Speech is
+   *  unavailable, e.g. most iOS Safari — those still get the final via onStop). */
+  onInterim?: (text: string) => void;
 }
 
 export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoiceTranscribeResult {
@@ -78,6 +82,9 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
   const mimeRef = useRef<string>('');
   const cancelledRef = useRef(false);
   const mountedRef = useRef(true);
+  // Latest live Web Speech transcript, used as a fallback if the Whisper backend
+  // fails so we never throw away words the user already saw on screen.
+  const interimRef = useRef('');
 
   // Cleanup on unmount: stop recorder + release media stream
   useEffect(() => {
@@ -159,17 +166,24 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       };
       
       setInterimTranscript('');
+      interimRef.current = '';
       const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRec) {
         const recognition = new SpeechRec();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.onresult = (e: any) => {
-          let currentInterim = '';
-          for (let i = e.resultIndex; i < e.results.length; ++i) {
-            if (!e.results[i].isFinal) currentInterim += e.results[i][0].transcript;
+          // Accumulate the whole transcript (finalized + in-progress) from index
+          // 0 so already-spoken words stay on screen instead of disappearing as
+          // each phrase finalizes.
+          let full = '';
+          for (let i = 0; i < e.results.length; ++i) {
+            full += e.results[i][0]?.transcript ?? '';
           }
-          setInterimTranscript(currentInterim);
+          const live = full.trim();
+          interimRef.current = live;
+          setInterimTranscript(live);
+          if (optionsRef.current?.onInterim) optionsRef.current.onInterim(live);
         };
         recognitionRef.current = recognition;
         try { recognition.start(); } catch (e) { logger.error('SpeechRec start failed', e); }
@@ -233,6 +247,9 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
 
     if (mountedRef.current) setIsTranscribing(true);
     setLastError(null);
+    // Captured before the async call so a backend failure can still surface the
+    // words the user watched appear live.
+    const liveFallback = interimRef.current.trim();
     try {
       const base64 = await blobToBase64(finalBlob);
       const mimeType = finalBlob.type || mimeRef.current || 'audio/webm';
@@ -244,6 +261,10 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
       });
 
       if (invokeError) {
+        if (liveFallback) {
+          if (optionsRef.current?.onStop) optionsRef.current.onStop(liveFallback);
+          return liveFallback;
+        }
         const msg = 'Voice transcription failed — please try again';
         setLastError(msg);
         appToast.error(msg);
@@ -251,10 +272,14 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
         if (optionsRef.current?.onStop) optionsRef.current.onStop('');
         return '';
       }
-      const finalTxt = typeof respData?.text === 'string' ? respData.text.trim() : '';
+      const finalTxt = (typeof respData?.text === 'string' ? respData.text.trim() : '') || liveFallback;
       if (optionsRef.current?.onStop) optionsRef.current.onStop(finalTxt);
       return finalTxt;
     } catch (err) {
+      if (liveFallback) {
+        if (optionsRef.current?.onStop) optionsRef.current.onStop(liveFallback);
+        return liveFallback;
+      }
       const msg = 'Network error — check your connection';
       setLastError(msg);
       appToast.error(msg);

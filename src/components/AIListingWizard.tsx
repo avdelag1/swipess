@@ -154,7 +154,7 @@ export function AIListingWizard() {
   const [progressPhase, setProgressPhase] = useState<ProgressPhase>('upload');
   const [progressPct, setProgressPct] = useState(0);
   const [micVolume, setMicVolume] = useState(0);
-  const { isRecording, isTranscribing, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
+  const { isRecording, isTranscribing, interimTranscript, start: startVoice, stop: stopVoice } = useVoiceTranscribe({
     onStop: (text) => {
       if (text) setPrompt(prev => prev ? `${prev} ${text}` : text);
       setMicVolume(0);
@@ -780,7 +780,13 @@ export function AIListingWizard() {
                                     />
                                   ))}
                                 </div>
-                                <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak your details aloud</p>
+                                {interimTranscript ? (
+                                  <p className="mt-3 px-6 max-h-24 overflow-hidden text-center text-sm font-semibold text-white leading-snug relative z-10 line-clamp-3">
+                                    {interimTranscript}
+                                  </p>
+                                ) : (
+                                  <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak — your words appear live</p>
+                                )}
                               </div>
                             )}
                             {isTranscribing && (

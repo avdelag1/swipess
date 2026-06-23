@@ -135,13 +135,21 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   useEffect(() => { inputValueRef.current = newMessage; }, [newMessage]);
   useEffect(() => { isListeningRef.current = isListening; }, [isListening]);
 
+  const voiceBaseRef = useRef('');
   const { start: startVoiceTranscribe, stop: stopVoiceTranscribe, isRecording: isVoiceRecording } = useVoiceTranscribe({
+    onInterim: (live) => {
+      const base = voiceBaseRef.current.trim();
+      setNewMessage(base ? `${base} ${live}` : live);
+    },
     onStop: (text) => {
       setIsListening(false);
       isListeningRef.current = false;
+      const base = voiceBaseRef.current.trim();
       if (text) {
-        setNewMessage(prev => (prev + ' ' + text).trim());
+        setNewMessage(base ? `${base} ${text}` : text);
         armSilenceCountdown();
+      } else {
+        setNewMessage(base);
       }
       uiSounds.playMicOff();
     }
@@ -175,7 +183,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   }, []);
 
   const startListening = useCallback(async () => {
-    // ALWAYS use the robust Whisper backend. Web Speech API is too flaky across browsers.
+    // Whisper backend gives the authoritative final text; Web Speech (when
+    // available) streams a live preview on top of whatever's already typed.
+    voiceBaseRef.current = inputValueRef.current;
     const ok = await startVoiceTranscribe();
     if (ok) { setIsListening(true); triggerHaptic('medium'); uiSounds.playMicOn(); }
     else { appToast.error('Microphone Access Denied'); }

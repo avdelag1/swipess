@@ -129,22 +129,31 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const inputValueRef = useRef('');
   const isListeningRef = useRef(false);
   const autoSendEnabledRef = useRef(true);
+  // Input value captured when recording starts, so live words and the final
+  // transcript layer on top of any already-typed text without duplicating it.
+  const voiceBaseRef = useRef('');
 
   const {
     start: startTranscribe,
     stop: stopTranscribe,
   } = useVoiceTranscribe({
+    onInterim: (live) => {
+      const base = voiceBaseRef.current.trim();
+      setInput(base ? `${base} ${live}` : live);
+    },
     onStop: (text) => {
       isListeningRef.current = false;
       setIsListening(false);
       cancelCountdown();
       uiSounds.playMicOff();
-      if (text) {
-        if (autoSendEnabledRef.current) {
-          sendMessage(text);
-        } else {
-          setInput(prev => (prev.trim() + ' ' + text).trim());
-        }
+      const base = voiceBaseRef.current.trim();
+      if (autoSendEnabledRef.current) {
+        // The spoken text becomes a sent message — restore the input to whatever
+        // was typed before recording (clears the live preview).
+        setInput(base);
+        if (text) sendMessage(text);
+      } else {
+        setInput(text ? (base ? `${base} ${text}` : text) : base);
       }
     }
   });
@@ -163,6 +172,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   }, []);
 
   const startListening = useCallback(async () => {
+    voiceBaseRef.current = inputValueRef.current;
     const success = await startTranscribe();
     if (success) {
       setIsListening(true);
