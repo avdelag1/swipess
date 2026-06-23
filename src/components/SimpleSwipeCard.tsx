@@ -251,7 +251,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
     storedPointerEventRef.current = null;
     magnifierPointerHandlers.onPointerUp(e);
-  }, [magnifierPointerHandlers]);
+
+    // If it wasn't a drag and wasn't a long-press zoom, it's a tap!
+    // We fire it manually because pointer capture + touch-action: none can suppress native onClick on iOS.
+    if (!dragStartedRef.current && !isMagnifierActive() && !wasMagnifierActive()) {
+      handleImageTap(e as unknown as React.MouseEvent);
+    }
+  }, [magnifierPointerHandlers, handleImageTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleDragStart = useCallback(() => {
     isDragging.current = true;
@@ -383,7 +389,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
           style={{ borderRadius: 'inherit', WebkitUserSelect: 'none', userSelect: 'none', touchAction: 'none' }}
-          onClick={handleImageTap}
           onDragStart={preventDrag}
           onContextMenu={preventContextMenuClick}
         >
