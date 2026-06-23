@@ -135,7 +135,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 </head>
 <body>
   ${content}
-  ${safeSignature ? `<div style="margin-top: 30px;"><p><strong>Digital Signature:</strong></p><img src="${safeSignature}" style="max-width: 200px;" /></div>` : ''}
+  ${safeSignature ? `<div style="margin-top: 30px;"><p><strong>Digital Signature:</strong></p><img src="${safeSignature}" alt="Digital signature" style="max-width: 200px;" /></div>` : ''}
 </body>
 </html>`;
 
