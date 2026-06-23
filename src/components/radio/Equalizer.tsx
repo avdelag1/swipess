@@ -26,17 +26,39 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onPointerDown={onClose}
-            className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[10001] bg-black/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-            className="fixed inset-x-0 bottom-0 z-[10002] rounded-t-[28px] border-t border-white/10 bg-[#0c0c10] px-5 pt-5"
+            className="fixed inset-x-0 bottom-0 z-[10002] rounded-t-[28px] border-t border-white/10 bg-[#0c0c10]/70 backdrop-blur-3xl px-5 pt-5"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}
           >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15" />
+            {/* Custom slider thumb styles for WebKit */}
+            <style>{`
+              .eq-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: ${accent};
+                cursor: pointer;
+                box-shadow: 0 0 10px ${accent}40;
+                margin-top: -6px; /* align center with track */
+              }
+              .eq-slider::-webkit-slider-runnable-track {
+                width: 100%;
+                height: 4px;
+                cursor: pointer;
+                background: rgba(255,255,255,0.1);
+                border-radius: 2px;
+              }
+            `}</style>
+            
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
 
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -46,7 +68,7 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
               <button
                 onClick={onClose}
                 aria-label="Close equalizer"
-                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white/80 active:scale-90 transition-transform"
+                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white/80 active:scale-90 transition-transform hover:bg-white/20"
               >
                 <X size={16} />
               </button>
@@ -60,10 +82,10 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
                   <button
                     key={p}
                     onClick={() => { triggerHaptic('light'); applyEqPreset(p); }}
-                    className="px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border transition-all active:scale-95"
+                    className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border transition-all active:scale-95"
                     style={active
-                      ? { background: accent, borderColor: accent, color: '#fff' }
-                      : { background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}
+                      ? { background: accent, borderColor: accent, color: '#fff', boxShadow: `0 0 12px ${accent}40` }
+                      : { background: 'transparent', borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)' }}
                   >
                     {p}
                   </button>
@@ -71,8 +93,8 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
               })}
               {eqPreset === 'Custom' && (
                 <span
-                  className="px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border"
-                  style={{ background: accent, borderColor: accent, color: '#fff' }}
+                  className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border"
+                  style={{ background: accent, borderColor: accent, color: '#fff', boxShadow: `0 0 12px ${accent}40` }}
                 >
                   Custom
                 </span>
@@ -80,11 +102,11 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
             </div>
 
             {/* Bands */}
-            <div className="flex items-stretch justify-between gap-2 h-48">
+            <div className="flex items-stretch justify-between gap-2 h-48 mt-8">
               {EQ_BANDS.map((band, i) => {
                 const gain = eqGains[i] ?? 0;
                 return (
-                  <div key={band.freq} className="flex-1 flex flex-col items-center gap-2 h-full">
+                  <div key={band.freq} className="flex-1 flex flex-col items-center gap-3 h-full">
                     <span
                       className="text-[10px] font-black tabular-nums"
                       style={{ color: gain === 0 ? 'rgba(255,255,255,0.4)' : accent }}
@@ -99,16 +121,22 @@ export function Equalizer({ open, onClose, accent = '#FF3D00' }: EqualizerProps)
                       value={gain}
                       onChange={(e) => setEqBand(i, Number(e.target.value))}
                       aria-label={`${band.label} hertz band`}
-                      className="flex-1 cursor-pointer"
-                      style={{ writingMode: 'vertical-lr', direction: 'rtl', width: 28, accentColor: accent }}
+                      className="eq-slider flex-1 cursor-pointer"
+                      style={{ 
+                        writingMode: 'vertical-lr', 
+                        direction: 'rtl', 
+                        width: 20, 
+                        WebkitAppearance: 'none',
+                        background: 'transparent'
+                      }}
                     />
-                    <span className="text-[10px] font-bold text-white/50">{band.label}</span>
+                    <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">{band.label}</span>
                   </div>
                 );
               })}
             </div>
 
-            <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
+            <p className="mt-8 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white/30">
               Tune the live stream · saved automatically
             </p>
           </motion.div>
