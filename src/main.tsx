@@ -342,7 +342,12 @@ setTimeout(async () => {
     const { Capacitor } = await import("@capacitor/core");
     if (Capacitor.isNativePlatform()) {
       const { StatusBar, Style } = await import("@capacitor/status-bar");
-      await StatusBar.setOverlaysWebView({ overlay: false });
+      // overlay:true lets the web view extend under the status bar so the
+      // app's own (black) background fills the notch strip. With overlay:false
+      // the strip is a native bar that iOS paints with the window background
+      // (it showed white). setBackgroundColor is Android-only, so overlay:true
+      // + the black html background is the reliable iOS fix.
+      await StatusBar.setOverlaysWebView({ overlay: true });
       await StatusBar.setStyle({ style: Style.Dark });
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
