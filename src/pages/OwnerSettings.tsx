@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
+import { BlockedUsersSection } from "@/components/BlockedUsersSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -145,6 +146,9 @@ const OwnerSettings = () => {
               <CardContent className="p-8">
                 <AccountSecurity userRole="owner" />
               </CardContent>
+            </div>
+            <div className="px-2">
+              <BlockedUsersSection />
             </div>
             <div className="space-y-3 px-2">
               <div className="space-y-1">
