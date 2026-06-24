@@ -143,39 +143,24 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto overscroll-y-contain px-5 pb-8 space-y-6">
                 {PREMIUM_FOR_EVERYONE && (
-                  <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 text-center">
-                    <div className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 rounded-full bg-primary/20 blur-3xl" />
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/15 border border-primary/30 flex items-center justify-center shadow-inner">
-                        <Crown className="w-8 h-8 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Premium unlocked</p>
-                        <h3 className="text-2xl font-black tracking-tight text-foreground mt-1">Unlimited Messages</h3>
-                      </div>
-                      <p className="text-xs text-muted-foreground max-w-[280px] leading-relaxed">
-                        Message any owner or seeker, start unlimited conversations, and unlock every chat action — on the house. No tokens needed.
-                      </p>
-                      <div className="w-full grid gap-2 mt-2 text-left">
-                        {[
-                          'Unlimited new conversations',
-                          'Message every owner & seeker',
-                          'All chat actions unlocked',
-                        ].map((line) => (
-                          <div key={line} className="flex items-center gap-2.5 rounded-xl bg-primary/5 border border-primary/15 px-3 py-2">
-                            <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                            <span className="text-[11px] font-bold text-foreground">{line}</span>
-                          </div>
-                        ))}
-                      </div>
+                  <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                      <Crown className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black uppercase tracking-[0.25em] text-primary">Premium unlocked</p>
+                      <h3 className="text-lg font-black tracking-tight text-foreground leading-tight">Unlimited Messages</h3>
+                      <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">Free for everyone right now — message anyone, no tokens needed.</p>
                     </div>
                   </div>
                 )}
-                {!PREMIUM_FOR_EVERYONE && (<>
+                <>
                 {/* TOKEN PACKAGES */}
                 <div>
                   <p className="text-xs text-muted-foreground mb-4">
-                    Tokens are used to message owners or unlock chat actions. One token = one new conversation.
+                    {PREMIUM_FOR_EVERYONE
+                      ? 'Messaging is free for everyone right now — no tokens needed. You can still grab a pack to support Swipess or stock up for later.'
+                      : 'Tokens are used to message owners or unlock chat actions. One token = one new conversation.'}
                   </p>
                   <div className="space-y-2.5">
                     {APPLE_TOKEN_PACKAGES.map((pkg) => {
@@ -244,8 +229,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                 <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
                   <Crown className="w-6 h-6 text-primary flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black text-foreground">Looking for unlimited messages?</p>
-                    <p className="text-[11px] text-muted-foreground">Premium plans live on your profile.</p>
+                    <p className="text-sm font-black text-foreground">Explore Premium plans</p>
+                    <p className="text-[11px] text-muted-foreground">See all Swipess premium options.</p>
                   </div>
                   <button
                     type="button"
@@ -256,7 +241,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     Go!
                   </button>
                 </div>
-                </>)}
+                </>
 
                 {/* Restore Footer */}
                 <div className="pt-4 pb-2 text-center">
