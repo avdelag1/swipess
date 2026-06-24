@@ -221,6 +221,9 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         if (!email.trim()) errs.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
         if (!password.trim()) errs.password = 'Password is required';
+        // Guideline 1.2: the Terms of Use (EULA) must be agreed before login too,
+        // not only at signup, so the agreement is presented for every entry path.
+        if (!agreed18) errs.agree = 'You must agree to the Terms of Use (EULA) & Privacy Policy to continue';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -271,6 +274,17 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Guideline 1.2: gate the social sign-in buttons (Apple / Google) behind the
+  // same Terms of Use (EULA) + Privacy agreement the email forms enforce, so the
+  // EULA is presented before registering or logging in via ANY method.
+  const requireAgreement = (): boolean => {
+    if (agreed18) return true;
+    setFieldErrors(p => ({ ...p, agree: 'You must agree to the Terms of Use (EULA) & Privacy Policy to continue' }));
+    triggerHaptic('error');
+    setShakeTrigger(prev => prev + 1);
+    return false;
   };
 
   return (
@@ -413,7 +427,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
           )}
 
-          {!isLogin && !isForgotPassword && (
+          {!isForgotPassword && (
             <div className="px-1 pt-0.5">
               <div className="flex items-start gap-2.5">
                 <button
@@ -430,7 +444,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 </button>
                 <p className="text-[10px] font-bold tracking-wide text-white/70 leading-snug">
                   I confirm I am 18 or older and agree to the{' '}
-                  <button type="button" onClick={() => setLegalModal('terms')} className="underline text-white/90">Terms</button>
+                  <button type="button" onClick={() => setLegalModal('terms')} className="underline text-white/90">Terms of Use (EULA)</button>
                   {' '}&amp;{' '}
                   <button type="button" onClick={() => setLegalModal('privacy')} className="underline text-white/90">Privacy Policy</button>.
                 </p>
@@ -487,7 +501,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
 
             <button
-              onClick={() => { triggerHaptic('medium'); signInWithOAuth('apple'); }}
+              onClick={() => { if (!requireAgreement()) return; triggerHaptic('medium'); signInWithOAuth('apple'); }}
               style={{
                 backgroundColor: '#ffffff',
                 color: '#000000',
@@ -502,7 +516,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
             {!isNativeIOS && (
               <button
-                onClick={() => { triggerHaptic('medium'); signInWithOAuth('google'); }}
+                onClick={() => { if (!requireAgreement()) return; triggerHaptic('medium'); signInWithOAuth('google'); }}
                 style={{
                   backgroundColor: '#ffffff',
                   color: '#000000',
@@ -553,14 +567,16 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
               {legalModal === 'terms' ? (
                 <div className="space-y-5">
-                  <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess experience, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
+                  <p className="text-sm font-bold leading-relaxed text-white">By creating an account or signing in, you agree to these Terms of Use (EULA) and the Privacy Policy. If you do not agree, do not use Swipess.</p>
                   <div className="h-px bg-white/10 my-6" />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Entity Eligibility</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter binding digital agreements.</p>
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Identity Security</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.</p>
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Prohibited Acts</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">Entities shall not transmit fraudulent logs, harass other users, or bypass platform security. Violations result in immediate ban.</p>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Eligibility</h3>
+                  <p className="text-sm opacity-80 leading-relaxed">You must be at least 18 years old and have the legal capacity to enter binding agreements to use Swipess.</p>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Zero Tolerance for Objectionable Content</h3>
+                  <p className="text-sm opacity-80 leading-relaxed">Swipess has ZERO TOLERANCE for objectionable content and abusive behavior. You agree not to post content that is offensive, illegal, hateful, sexually explicit, harassing, or otherwise objectionable, and not to harass or abuse other users. Content is automatically filtered and moderated; violators are removed and permanently banned.</p>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Reporting &amp; Blocking</h3>
+                  <p className="text-sm opacity-80 leading-relaxed">You can report any content or user, and block abusive users, at any time from their profile or your chats. Blocking removes them from your experience immediately. We review every report and remove violating content and offending users within 24 hours.</p>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">04 — Account Security</h3>
+                  <p className="text-sm opacity-80 leading-relaxed">You are responsible for safeguarding your credentials. Fraudulent profiles, scraping, malicious code, and attempts to bypass platform security are prohibited and result in immediate termination.</p>
                 </div>
               ) : (
                 <div className="space-y-5">
@@ -577,7 +593,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
             <div className="shrink-0 pt-4 flex flex-col gap-3">
               <button
-                onClick={() => { triggerHaptic('medium'); setLegalModal(null); }}
+                onClick={() => { triggerHaptic('medium'); setAgreed18(true); setFieldErrors(p => ({ ...p, agree: '' })); setLegalModal(null); }}
                 className="w-full h-14 bg-white text-black font-bold text-[14px] tracking-wide rounded-full shadow-[0_2px_20px_rgba(255,255,255,0.15)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-3"
               >
                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue

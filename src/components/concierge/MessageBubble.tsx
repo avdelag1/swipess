@@ -10,6 +10,18 @@ import { NAV_LABELS, parseNavActions } from './conciergeUtils';
 import type { ChatMessage } from '@/hooks/useConciergeAI';
 import type { PassportAction } from '@/utils/passportLocation';
 
+// Human-readable brand for the third-party AI that produced a given answer.
+// The edge function reports the live provider via the `X-AI-Provider` header
+// (surfaced on `message.provider`), so users — and App Review — can see exactly
+// which AI generated each response. Groq is the primary, the rest are fallbacks.
+const AI_PROVIDER_LABELS: Record<string, string> = {
+  groq: 'Groq · Llama 3.3',
+  gemini: 'Google Gemini',
+  kimi: 'Moonshot Kimi',
+  minimax: 'MiniMax',
+};
+const DEFAULT_AI_PROVIDER_LABEL = AI_PROVIDER_LABELS.groq;
+
 export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy, onDelete, onTranslate, onResend, onNavigate, onDraft, onFilter, onPassport, onSpeak, speakingMsgId, isSpeaking }: {
   message: ChatMessage, isUser: boolean, isSwipess: boolean, isLight?: boolean,
   onCopy: () => void, onDelete: () => void, onTranslate?: (l:string)=>void,
@@ -21,6 +33,7 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
+  const providerLabel = AI_PROVIDER_LABELS[message.provider ?? ''] ?? DEFAULT_AI_PROVIDER_LABEL;
   const { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles } = useMemo(
     () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, passportAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
     [message.content, isUser]
@@ -116,7 +129,7 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
         <div className={cn("flex items-center gap-1 mt-0.5 ml-2", isSwipess ? "opacity-40" : "opacity-60")}>
           <Sparkles className="w-2.5 h-2.5 text-[#f55036]" />
           <span className={cn("text-[9px] font-black tracking-widest uppercase", isSwipess ? "text-white" : "text-muted-foreground")}>
-            Powered by Groq
+            Powered by {providerLabel}
           </span>
         </div>
       )}

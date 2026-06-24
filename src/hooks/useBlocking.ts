@@ -24,6 +24,28 @@ export function useBlockUser() {
         }
         throw error;
       }
+
+      // Guideline 1.2: blocking an abusive user must also notify the developer so
+      // the offending account can be reviewed and acted on within 24 hours. We
+      // file a lightweight moderation flag into the same review queue that the
+      // in-app "Report" tool writes to. Best-effort and non-fatal — a failure
+      // here must never break the block itself.
+      try {
+        const { error: flagError } = await supabase
+          .from('user_reports' as any)
+          .insert({
+            reporter_id: user.id,
+            reported_user_id: blockedId,
+            report_type: 'harassment',
+            report_category: 'user_profile',
+            description: 'Auto-flagged from in-app Block action. The reporting user blocked this account; flagged for safety review.',
+            status: 'pending',
+          });
+        if (flagError) logger.warn('[Block] moderation flag failed (non-fatal):', flagError);
+      } catch (flagErr) {
+        logger.warn('[Block] moderation flag threw (non-fatal):', flagErr);
+      }
+
       return { success: true };
     },
     onSuccess: () => {
