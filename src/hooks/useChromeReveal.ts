@@ -8,11 +8,13 @@ import { useCallback, useSyncExternalStore } from 'react';
  * Tapping the chrome summon zones (top/bottom edges) brings them back.
  */
 
-const AUTO_HIDE_CHROME_MS = 3000;
+const AUTO_HIDE_CHROME_MS = 3500;
+const AUTO_HIDE_RAIL_MS = 4000;
 
 let chromeVisible = true;
 let railVisible = true;
 let chromeTimer: ReturnType<typeof setTimeout> | null = null;
+let railTimer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -21,17 +23,23 @@ function emit() {
 
 function clearAllTimers() {
   if (chromeTimer) { clearTimeout(chromeTimer); chromeTimer = null; }
+  if (railTimer) { clearTimeout(railTimer); railTimer = null; }
 }
 
 function scheduleChromeHide() {
-  if (chromeTimer) clearTimeout(chromeTimer);
+  clearAllTimers();
 
   chromeTimer = setTimeout(() => {
     chromeVisible = false;
-    railVisible = false;
     chromeTimer = null;
     emit();
   }, AUTO_HIDE_CHROME_MS);
+
+  railTimer = setTimeout(() => {
+    railVisible = false;
+    railTimer = null;
+    emit();
+  }, AUTO_HIDE_RAIL_MS);
 }
 
 export function revealChrome() {
