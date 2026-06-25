@@ -34,6 +34,7 @@ interface MessageDocumentsPanelProps {
   conversationId: string;
   otherUser: { id: string; full_name: string; role: 'client' | 'owner' };
   currentUserRole: 'client' | 'owner';
+  onChatClose: () => void;
 }
 
 export const MessageDocumentsPanel = memo(({
@@ -42,6 +43,7 @@ export const MessageDocumentsPanel = memo(({
   conversationId,
   otherUser,
   currentUserRole,
+  onChatClose,
 }: MessageDocumentsPanelProps) => {
   const { isLight } = useAppTheme();
   const navigate = useNavigate();
@@ -279,7 +281,13 @@ export const MessageDocumentsPanel = memo(({
                   </p>
                   <button
                     type="button"
-                    onClick={() => { onClose(); navigate(contractsPath); }}
+                    onClick={() => { 
+                      onClose(); 
+                      setTimeout(() => {
+                        onChatClose();
+                        setTimeout(() => navigate(contractsPath), 100);
+                      }, 200); 
+                    }}
                     className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-400 text-[10px] font-black uppercase tracking-widest"
                   >
                     <Plus className="w-4 h-4" />

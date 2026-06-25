@@ -246,25 +246,24 @@ export function useHasRated(targetId: string | undefined, targetType: 'listing' 
   return useHasReviewedListing(targetType === 'listing' ? targetId : undefined);
 }
 
-/** Check if user can rate (alias for useCanReviewListing) */
 export function useCanRate(targetId: string | undefined, targetType: 'listing' | 'user') {
+  const { user } = useAuth();
   const canReview = useCanReviewListing(targetType === 'listing' ? targetId : undefined);
 
-  return useQuery({
-    queryKey: ['can-rate', targetId, targetType],
-    queryFn: async () => {
-      if (targetType === 'user') {
-        // For user ratings, allow if not self
-        return { canRate: true };
-      }
-      return {
-        canRate: canReview.data?.canReview ?? false,
-        reason: canReview.data?.reason,
-      };
+  if (targetType === 'user') {
+    return {
+      data: { canRate: user?.id !== targetId, reason: user?.id === targetId ? "You can't rate yourself" : undefined },
+      isLoading: false
+    };
+  }
+
+  return {
+    data: {
+      canRate: canReview.data?.canReview ?? false,
+      reason: canReview.data?.reason,
     },
-    enabled: !!targetId,
-    staleTime: 60 * 1000,
-  });
+    isLoading: canReview.isLoading
+  };
 }
 
 

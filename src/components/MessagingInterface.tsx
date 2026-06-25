@@ -585,6 +585,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           conversationId={conversationId}
           otherUser={otherUser}
           currentUserRole={currentUserRole}
+          onChatClose={onBack}
         />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>

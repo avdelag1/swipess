@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   _ChevronLeft, _CircleDot,
   _Layers, _Navigation, Archive, Ban, Check,
+  ChevronLeft,
   FolderLock, Inbox, MessageCircle, MoreVertical, Search, ShieldAlert, Sparkles, Trash
 } from 'lucide-react';
 import { MessagesDocumentsLibrary } from '@/components/messaging/MessagesDocumentsLibrary';
@@ -263,10 +264,22 @@ export function MessagingDashboard() {
            <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl shrink-0">
               <MessageCircle className="w-7 h-7 sm:w-8 sm:h-8" />
            </div>
-           <div className="flex flex-col">
+            <div className="flex flex-col gap-0.5">
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">{t('messages.title')}</span>
-              <h1 className={cn("text-3xl sm:text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
-           </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center border transition-colors shrink-0",
+                    isLight ? "border-slate-200 text-black hover:bg-slate-50" : "border-white/10 text-white hover:bg-white/5"
+                  )}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <h1 className={cn("text-3xl sm:text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>{t('messages.title')}</h1>
+              </div>
+            </div>
          </div>
 
         <div className="space-y-6">
