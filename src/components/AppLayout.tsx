@@ -104,7 +104,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isClientDash = location.pathname.startsWith('/client/dashboard');
   const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
   const swipeDeckActive =
-    (isClientDash && selectedCategoriesCount > 0) ||
+    isClientDash ||
     (isOwnerDash && ownerPhase === 'swipe') ||
     isRoommatesRoute;
   // Immersive single-card detail pages (a listing or profile opened on its
