@@ -25,6 +25,7 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { ClientFilters, ListingFilters, useSmartClientMatching, useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { enableChromeAutoHide, revealChrome } from '@/hooks/useChromeReveal';
 
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -1109,6 +1110,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     }
                     setActiveCategory(cat as any);
                     setCategories([cat] as any);
+                    // Picking a quick filter is what kicks off the immersive
+                    // auto-hide: arm it, then reveal so header + bottom nav fade
+                    // at 3.5s and the right rail at 4s (see useChromeReveal).
+                    // Before this the chrome stays put.
+                    enableChromeAutoHide();
+                    revealChrome();
                   }}
                   onOpenFilters={() => {
                     triggerHaptic('medium');

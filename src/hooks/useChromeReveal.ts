@@ -8,13 +8,18 @@ import { useCallback, useSyncExternalStore } from 'react';
  * Tapping the chrome summon zones (top/bottom edges) brings them back.
  */
 
-const AUTO_HIDE_CHROME_MS = 3500;
-const AUTO_HIDE_RAIL_MS = 4000;
+const AUTO_HIDE_CHROME_MS = 3500; // header + bottom nav fade first
+const AUTO_HIDE_RAIL_MS = 4000;   // right-side action rail fades 0.5s later
 
 let chromeVisible = true;
 let railVisible = true;
 let chromeTimer: ReturnType<typeof setTimeout> | null = null;
 let railTimer: ReturnType<typeof setTimeout> | null = null;
+// Gate: on the dashboard deck the chrome must STAY up until the user picks a
+// quick filter. While this is false, scheduleChromeHide() is a no-op, so the
+// per-card revealChrome() calls just keep the chrome visible. Picking a filter
+// flips it on (enableChromeAutoHide); entering the deck resets it off.
+let autoHideEnabled = true;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -29,6 +34,10 @@ function clearAllTimers() {
 function scheduleChromeHide() {
   clearAllTimers();
 
+  // Hold the chrome up until auto-hide is armed (i.e. a quick filter is picked).
+  if (!autoHideEnabled) return;
+
+  // Staggered fade: header + bottom nav first, then the right rail 0.5s later.
   chromeTimer = setTimeout(() => {
     chromeVisible = false;
     chromeTimer = null;
@@ -49,6 +58,30 @@ export function revealChrome() {
   railVisible = true;
   if (wasHidden) emit();
   scheduleChromeHide();
+}
+
+// Show the chrome and KEEP it up with no auto-hide. Used when the swipe deck
+// first opens: the staggered auto-hide only begins once the user picks a quick
+// filter (revealChrome is called from the category handler at that point).
+export function showChromePersistent() {
+  clearAllTimers();
+  const wasHidden = !chromeVisible || !railVisible;
+  chromeVisible = true;
+  railVisible = true;
+  if (wasHidden) emit();
+}
+
+// Arm the staggered auto-hide. Call this when the user picks a quick filter so
+// the subsequent revealChrome() actually schedules the 3.5s / 4s fade.
+export function enableChromeAutoHide() {
+  autoHideEnabled = true;
+}
+
+// Disarm the auto-hide and cancel any pending fade (chrome stays visible).
+// Call this when entering the dashboard deck so the chrome holds until a filter.
+export function resetChromeAutoHide() {
+  autoHideEnabled = false;
+  clearAllTimers();
 }
 
 export function hideChrome() {

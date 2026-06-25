@@ -26,7 +26,7 @@ const PassportMapModal = lazyWithRetry(() =>
 const VapIdCardModal = lazyWithRetry(() => import('./VapIdCardModal').then(m => ({ default: m.VapIdCardModal })));
 const GlobalDialogs = lazyWithRetry(() => import('./GlobalDialogs').then(m => ({ default: m.GlobalDialogs })));
 import { ChromeSummonZones } from './swipe/ChromeSummonZones';
-import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
+import { enableChromeAutoHide, resetChromeAutoHide, revealChrome, showChromePersistent, useChromeReveal } from '@/hooks/useChromeReveal';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { UNIFIED_CARDS } from '@/components/swipe/SwipeConstants';
@@ -206,17 +206,31 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [isDashboardOnly, swipeDeckActive, theme]);
 
   // Entering swipe-deck reveal mode: header + bottom nav + right rail are all
-  // visible the moment the deck opens, then the auto-hide timer in
-  // useChromeReveal fades the header + bottom nav at 3s and the rail 1s later.
-  // Users summon the chrome back by tapping the top or bottom edge
-  // (ChromeSummonZones); that resets the timer.
+  // visible the moment the deck opens and STAY visible — the staggered auto-hide
+  // (header + bottom nav at 3.5s, right rail at 4s) only begins once the user
+  // actually picks a quick filter (see the category handler in the swipe
+  // container, which calls revealChrome). Users summon the chrome back by
+  // tapping the top or bottom edge (ChromeSummonZones); that resets the timer.
   const wasRevealRef = useRef(false);
   useLayoutEffect(() => {
     if (useRevealMode && !wasRevealRef.current) {
-      revealChrome();
+      // Dashboard deck: chrome stays up until the user picks a quick filter.
+      // Immersive single-card routes (no quick filter) keep the old auto-hide.
+      if (swipeDeckActive) {
+        resetChromeAutoHide();
+        showChromePersistent();
+      } else {
+        enableChromeAutoHide();
+        revealChrome();
+      }
+    } else if (!useRevealMode && wasRevealRef.current) {
+      // Left reveal mode — restore the default so other swipe surfaces (events
+      // feed, owner swipe) auto-hide normally and don't inherit the dashboard's
+      // "hold until filter" gate.
+      enableChromeAutoHide();
     }
     wasRevealRef.current = useRevealMode;
-  }, [useRevealMode]);
+  }, [useRevealMode, swipeDeckActive]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
