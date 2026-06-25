@@ -115,10 +115,32 @@ export function LikedClients() {
         .eq("target_type", "profile");
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["liked-clients", user?.id] });
-      appToast.success("Profile removed");
+    onMutate: async (clientId: string) => {
+      // Cancel in-flight refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["liked-clients", user?.id] });
+      // Snapshot for rollback
+      const previousClients = queryClient.getQueryData(["liked-clients", user?.id]);
+      // Optimistically remove the card from the list instantly
+      queryClient.setQueryData(["liked-clients", user?.id], (old: any[] | undefined) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.filter((c: any) => c.user_id !== clientId && c.id !== clientId);
+      });
       setShowDeleteDialog(false);
+      return { previousClients };
+    },
+    onSuccess: () => {
+      appToast.success("Profile removed");
+    },
+    onError: (_err, _clientId, context) => {
+      // Rollback to previous state
+      if (context?.previousClients) {
+        queryClient.setQueryData(["liked-clients", user?.id], context.previousClients);
+      }
+      appToast.error("Could not remove", "Please try again.");
+    },
+    onSettled: () => {
+      // Always refetch to sync with server truth
+      queryClient.invalidateQueries({ queryKey: ["liked-clients", user?.id] });
     },
   });
 

@@ -93,12 +93,21 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { data: partnerProfile } = useQuery({
     queryKey: ['chat-partner-profile', otherUser.id],
     queryFn: async () => {
-      const { data } = await supabase
+      // Try client_profiles first, then fall back to owner_profiles
+      const { data: clientData } = await supabase
         .from('client_profiles')
         .select('name, age, city, gender, bio, occupation, profile_images, interests, work_schedule, verified')
         .eq('user_id', otherUser.id)
         .maybeSingle();
-      return data;
+      if (clientData) return clientData;
+      // Fallback: partner might be an owner
+      const { data: ownerData } = await supabase
+        .from('owner_profiles')
+        .select('business_name, profile_images, city')
+        .eq('user_id', otherUser.id)
+        .maybeSingle();
+      if (ownerData) return { name: ownerData.business_name, profile_images: ownerData.profile_images, city: ownerData.city } as any;
+      return null;
     },
     enabled: showInsightsModal,
     staleTime: 5 * 60 * 1000,
@@ -235,8 +244,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   if (isLoading) {
     return (
       <div className="flex-1 flex flex-col bg-background min-h-0">
-        <div className="shrink-0 px-4 py-3 min-h-[72px] flex items-center gap-4 border-b border-border/40">
-          <div className="w-12 h-12 rounded-full bg-muted/30 animate-pulse shrink-0" />
+        <div className="shrink-0 px-4 py-3 min-h-[72px] flex items-center gap-4 border-b border-border/40 pt-safe">
+          <button
+            onClick={onBack}
+            className="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-muted/10 hover:bg-muted/20 transition-colors"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="w-6 h-6 text-foreground" />
+          </button>
           <div className="flex-1 space-y-2">
             <div className="h-4 bg-muted/30 rounded-lg w-32 animate-pulse" />
             <div className="h-3 bg-muted/20 rounded w-20 animate-pulse" />
@@ -360,13 +375,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => navigate('/subscription/packages')}
+                    onClick={() => { setMenuOpen(false); onBack(); setTimeout(() => navigate('/subscription/packages'), 50); }}
                   >
                     <Sparkles className="w-4 h-4" /> Premium
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-white/[0.07] cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => useModalStore.getState().setModal('showTokensModal', true)}
+                    onClick={() => { setMenuOpen(false); useModalStore.getState().setModal('showTokensModal', true); }}
                   >
                     <Coins className="w-4 h-4" /> Tokens
                   </DropdownMenuItem>

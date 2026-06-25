@@ -241,8 +241,13 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     )}
                   </>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-white/40"><Eye className="w-12 h-12" /></div>
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%)' }}>
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-24 h-24 rounded-[2rem] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ff3366, #ff6b35)', boxShadow: '0 12px 40px rgba(255, 51, 102, 0.4)' }}>
+                        <User className="w-12 h-12 text-white" />
+                      </div>
+                      <span className="text-white/50 text-[10px] font-black uppercase tracking-[0.3em]">No Photo Available</span>
+                    </div>
                   </div>
                 )}
                 
@@ -276,21 +281,31 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
 
               {/* Chunky Specs Grid */}
               {specs.length > 0 && (
-                <div className="grid grid-cols-1 gap-4">
-                  {specs.map((s, i) => (
-                    <div key={i} className={cn("p-6 rounded-[2.5rem] flex items-center gap-5 shadow-sm", isLight ? "bg-slate-100" : "bg-[#161618]")}>
-                      <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner",
-                        isLight ? "bg-white text-indigo-600" : "bg-[#252528] text-indigo-400"
-                      )}>
-                        {s.icon}
+                <div className="grid grid-cols-2 gap-3">
+                  {specs.map((s, i) => {
+                    const gradients = [
+                      'linear-gradient(135deg, #ff3366, #ff6b35)',
+                      'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                      'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                      'linear-gradient(135deg, #f59e0b, #ef4444)',
+                      'linear-gradient(135deg, #10b981, #059669)',
+                      'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                      'linear-gradient(135deg, #f97316, #eab308)',
+                      'linear-gradient(135deg, #14b8a6, #06b6d4)',
+                    ];
+                    const gradient = gradients[i % gradients.length];
+                    return (
+                      <div key={i} className={cn("p-4 rounded-[1.8rem] flex flex-col gap-3 shadow-sm border", isLight ? "bg-white border-slate-100" : "bg-white/[0.03] border-white/[0.06]")}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg" style={{ background: gradient }}>
+                          {s.icon}
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <p className={cn("text-[9px] font-black uppercase tracking-[0.25em]", textTer)}>{s.label}</p>
+                          <p className={cn("text-[15px] font-black italic tracking-tight uppercase leading-tight", textPri)}>{s.value}</p>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <p className={cn("text-[10px] font-black uppercase tracking-[0.25em]", textTer)}>{s.label}</p>
-                        <p className={cn("text-[17px] font-black italic tracking-tight uppercase", textPri)}>{s.value}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -314,11 +329,22 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     {isClientProfile ? 'Interests' : (category === 'worker' || category === 'services' ? 'Skills' : (listing?.equipment?.length ? 'Equipment' : 'Amenities'))}
                   </h3>
                   <div className="flex flex-wrap gap-2.5">
-                    {tags.map((t, i) => (
-                      <span key={i} className={cn("px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider", isLight ? "bg-slate-100 text-slate-700" : "bg-[#161618] text-white/80")}>
-                        {t}
-                      </span>
-                    ))}
+                    {tags.map((t, i) => {
+                      const tagColors = [
+                        { bg: 'rgba(255,51,102,0.12)', border: 'rgba(255,51,102,0.25)', text: '#ff3366' },
+                        { bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.25)', text: '#6366f1' },
+                        { bg: 'rgba(6,182,212,0.12)', border: 'rgba(6,182,212,0.25)', text: '#06b6d4' },
+                        { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)', text: '#f59e0b' },
+                        { bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)', text: '#10b981' },
+                        { bg: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.25)', text: '#ec4899' },
+                      ];
+                      const color = tagColors[i % tagColors.length];
+                      return (
+                        <span key={i} className="px-4 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-wider border" style={{ backgroundColor: color.bg, borderColor: color.border, color: color.text }}>
+                          {t}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               )}

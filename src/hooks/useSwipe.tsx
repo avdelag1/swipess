@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * OPTIMISTIC SWIPE HANDLER — Instagram-speed mutations
@@ -13,21 +14,23 @@ import { logger } from '@/utils/prodLogger';
  */
 export function useSwipe() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     retry: 2, // Silent retry on failure
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
     onMutate: async ({ targetId, direction, targetType = 'listing', targetObject }) => {
       const listingsKey = targetType === 'listing' ? 'listings' : 'client-profiles';
-      const likedKey = targetType === 'listing' ? 'liked-properties' : 'liked-clients';
+      const likedKeyBase = targetType === 'listing' ? 'liked-properties' : 'liked-clients';
+      const likedKey = [likedKeyBase, user?.id];
 
       // Cancel in-flight refetches
       await queryClient.cancelQueries({ queryKey: [listingsKey] });
-      await queryClient.cancelQueries({ queryKey: [likedKey] });
+      await queryClient.cancelQueries({ queryKey: likedKey });
 
       // Snapshot for rollback
       const prevData = queryClient.getQueryData([listingsKey]);
-      const prevLiked = queryClient.getQueryData([likedKey]);
+      const prevLiked = queryClient.getQueryData(likedKey);
 
       // 🚀 Optimistic: Remove swiped item from deck cache (BOTH directions)
       // This prevents the card from flickering back into view
@@ -44,7 +47,7 @@ export function useSwipe() {
 
       // Add to liked cache if right swipe
       if (direction === 'right' && targetObject) {
-        queryClient.setQueryData([likedKey], (old: any[] | undefined) => {
+        queryClient.setQueryData(likedKey, (old: any[] | undefined) => {
           if (!old) return [targetObject];
           if (old.some(item => item.id === targetId)) return old;
           return [targetObject, ...old];
@@ -59,7 +62,7 @@ export function useSwipe() {
         queryClient.setQueryData([context.listingsKey], context.prevData);
       }
       if (context?.prevLiked) {
-        queryClient.setQueryData([context.likedKey], context.prevLiked);
+        queryClient.setQueryData(context.likedKey, context.prevLiked);
       }
       
       logger.error('[useSwipe] Error after retries:', _err);
@@ -72,13 +75,13 @@ export function useSwipe() {
       targetObject?: any;
     }) => {
       const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
-      if (!user?.id) throw new Error('Not authenticated');
+      const sessionUser = session?.user;
+      if (!sessionUser?.id) throw new Error('Not authenticated');
 
       const { error } = await supabase
         .from('likes')
         .upsert({
-          user_id: user.id,
+          user_id: sessionUser.id,
           target_id: targetId,
           target_type: targetType,
           direction: direction
@@ -89,11 +92,14 @@ export function useSwipe() {
         .maybeSingle();
 
       if (error) throw error;
-      return { success: true, direction, targetId, userId: user.id };
+      return { success: true, direction, targetId, userId: sessionUser.id };
     },
     onSuccess: (_data, variables) => {
-      // Background invalidation to sync with server
-      queryClient.invalidateQueries({ queryKey: [variables.targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
+      // Background invalidation to sync with server — use full key with user ID
+      const likedKeyBase = variables.targetType === 'listing' ? 'liked-properties' : 'liked-clients';
+      queryClient.invalidateQueries({ queryKey: [likedKeyBase, user?.id] });
+      // Also invalidate without user ID for any legacy consumers
+      queryClient.invalidateQueries({ queryKey: [likedKeyBase] });
       queryClient.invalidateQueries({ queryKey: ['matches'] });
     },
   });
