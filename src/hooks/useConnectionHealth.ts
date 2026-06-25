@@ -20,8 +20,15 @@ interface ConnectionHealth {
 
 const CHECK_TIMEOUT_MS = 8000; // Generous enough for slow mobile (LTE) first-byte; only a truly hung connection should trip the offline screen
 const MAX_RETRIES = 3;
-const SUPABASE_HEALTH_URL = `${import.meta.env.VITE_SUPABASE_URL}/auth/v1/health`;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+// Mirror the public fallbacks in src/integrations/supabase/client.ts so a
+// missing build-time env var can never point the health check at
+// `undefined/auth/v1/health` (which produces a false "offline" reading while
+// the real client keeps working off its own fallback URL).
+const FALLBACK_SUPABASE_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co';
+const FALLBACK_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FA0BseFSS6zM7Y8K3w8zLQ_d8BXqEuV';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
+const SUPABASE_HEALTH_URL = `${SUPABASE_URL}/auth/v1/health`;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
 
 function isErrorWithMessage(err: unknown): err is { message: string; name?: string } {
   return typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string';

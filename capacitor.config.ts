@@ -13,7 +13,13 @@ const config: CapacitorConfig = {
     backgroundColor: '#000000',
     scrollEnabled: false,
     allowsLinkPreviews: false,
-    limitsNavigationsToAppBoundDomains: true,
+    // NOTE: do NOT set `limitsNavigationsToAppBoundDomains: true` here. That flag
+    // locks the WKWebView to the domains listed under `WKAppBoundDomains` in
+    // Info.plist — which we do not declare — so on the device every request to
+    // external hosts (Supabase REST/Auth/Realtime, OAuth providers) gets
+    // restricted and hangs to timeout, while the browser preview works fine.
+    // It is not required for the App Store and was never load-bearing. Leaving it
+    // unset (Capacitor default = false) lets the webview reach *.supabase.co.
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         'Swipess needs access to your photo library to upload profile photos and listing images.',
