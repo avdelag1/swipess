@@ -181,14 +181,31 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         .eq("target_type", "listing");
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-      appToast.success("Removed from your likes");
+    onMutate: async (propertyId: string) => {
+      // Remove it from the list IMMEDIATELY (optimistic) so it disappears the
+      // instant the user confirms — don't wait for the server round-trip.
+      await queryClient.cancelQueries({ queryKey: ["liked-properties"] });
+      const previous = queryClient.getQueryData<any[]>(["liked-properties"]);
+      queryClient.setQueryData<any[]>(["liked-properties"], (old) =>
+        (old || []).filter((p) => p.id !== propertyId)
+      );
       setShowDeleteDialog(false);
       setPropertyToDelete(null);
+      return { previous };
     },
-    onError: () => {
+    onError: (_err, _propertyId, context) => {
+      // Put it back if the delete failed.
+      if (context?.previous) {
+        queryClient.setQueryData(["liked-properties"], context.previous);
+      }
       appToast.error("Failed to remove from likes");
+    },
+    onSuccess: () => {
+      appToast.success("Removed from your likes");
+    },
+    onSettled: () => {
+      // Reconcile with server truth.
+      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
     },
   });
 
