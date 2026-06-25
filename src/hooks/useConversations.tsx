@@ -189,10 +189,11 @@ export function useConversations() {
           logger.error('[useConversations] Error fetching conversations:', err?.message);
         }
 
-        // For temporary auth issues, return empty array to avoid blocking UI
-        if (err?.message?.includes('JWT') || err?.message?.includes('auth')) {
-          return [];
-        }
+        // Do NOT return [] on a transient JWT/auth hiccup. The realtime handler
+        // refetches on every conversation change, and returning [] from a
+        // refetch OVERWRITES the cached conversation list with nothing — making
+        // the user's chats "disappear". Throwing keeps React Query's last-good
+        // data on screen, and `retry` recovers the transient failure.
         throw error;
       }
     },
