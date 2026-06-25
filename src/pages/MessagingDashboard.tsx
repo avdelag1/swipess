@@ -233,9 +233,13 @@ export function MessagingDashboard() {
               currentUserRole={userRole}
               onBack={() => {
                 triggerHaptic('medium');
-                setSelectedConversationId(null);
+                // Authoritative one-tap close: clear chat state AND any lingering
+                // ?conversationId / ?startConversation params so the open-effect
+                // can't immediately re-open the chat (the "tap back 3 times" bug).
+                setIsStartingConversation(false);
                 setDirectlyFetchedConversation(null);
-                navigate('/messages', { replace: true });
+                setSelectedConversationId(null);
+                setSearchParams({}, { replace: true });
               }}
             />
           </motion.div>
