@@ -1,4 +1,3 @@
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { type RefObject, useEffect } from 'react';
 import type { ChatMessage } from '@/hooks/useConciergeAI';
 import { MessageBubble } from '@/components/concierge/MessageBubble';
@@ -23,6 +22,14 @@ interface VirtualizedConciergeMessageListProps {
   onSpeak: (content: string, id: string) => void;
 }
 
+// NOTE: this previously used @tanstack/react-virtual with a fixed 120px size
+// estimate and absolute `translateY` positioning. Concierge messages that embed
+// a listing-card preview are far taller than 120px — and grow again when the
+// card image loads — so the virtualizer's positions went stale and consecutive
+// messages overlapped (a text bubble rendered on top of a listing card).
+// measureElement also excludes each bubble's own mb-6 margin, compounding it.
+// Concierge threads are short, so we render a plain column in normal flow (no
+// measurement → no overlap) and scroll the container to the bottom on update.
 export function VirtualizedConciergeMessageList({
   scrollElementRef,
   messages,
@@ -41,64 +48,40 @@ export function VirtualizedConciergeMessageList({
   onPassport,
   onSpeak,
 }: VirtualizedConciergeMessageListProps) {
-  const virtualizer = useVirtualizer({
-    count: messages.length,
-    getScrollElement: () => scrollElementRef.current,
-    estimateSize: () => 120,
-    overscan: 6,
-  });
-
   useEffect(() => {
-    if (messages.length > 0) {
-      virtualizer.scrollToIndex(messages.length - 1, { align: 'end', behavior: 'smooth' });
-    }
-  }, [messages.length, isLoading, virtualizer]);
+    const el = scrollElementRef.current;
+    if (!el || messages.length === 0) return;
+    // Wait a frame so newly added (and image-loaded) content is laid out before
+    // we pin the view to the latest message.
+    const id = requestAnimationFrame(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [messages.length, isLoading, scrollElementRef]);
 
   return (
     <div className="px-6 py-8">
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
-          const m = messages[virtualRow.index];
-          return (
-            <div
-              key={m.id}
-              data-index={virtualRow.index}
-              ref={virtualizer.measureElement}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              <MessageBubble
-                message={m}
-                isUser={m.role === 'user'}
-                isSwipess={isSwipess}
-                isLight={isLight}
-                onCopy={() => onCopy(m.content)}
-                onDelete={() => onDelete(m.id)}
-                onTranslate={onTranslate}
-                onResend={() => onResend(m.id)}
-                onNavigate={onNavigate}
-                onDraft={onDraft}
-                onFilter={onFilter}
-                onPassport={onPassport}
-                onSpeak={onSpeak}
-                speakingMsgId={speakingMsgId}
-                isSpeaking={isSpeaking}
-              />
-            </div>
-          );
-        })}
-      </div>
+      {messages.map((m) => (
+        <div key={m.id} className="w-full">
+          <MessageBubble
+            message={m}
+            isUser={m.role === 'user'}
+            isSwipess={isSwipess}
+            isLight={isLight}
+            onCopy={() => onCopy(m.content)}
+            onDelete={() => onDelete(m.id)}
+            onTranslate={onTranslate}
+            onResend={() => onResend(m.id)}
+            onNavigate={onNavigate}
+            onDraft={onDraft}
+            onFilter={onFilter}
+            onPassport={onPassport}
+            onSpeak={onSpeak}
+            speakingMsgId={speakingMsgId}
+            isSpeaking={isSpeaking}
+          />
+        </div>
+      ))}
       {isLoading && <TypingIndicator isSwipess={isSwipess} />}
     </div>
   );
