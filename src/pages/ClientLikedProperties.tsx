@@ -171,17 +171,20 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   };
 
   const removeLikeMutation = useMutation({
-    mutationFn: async (propertyId: string) => {
+    mutationFn: async ({ propertyId, targetType }: { propertyId: string; targetType: string }) => {
       if (!user?.id || !propertyId) throw new Error("Not authenticated or missing ID");
       const { error } = await supabase
         .from("likes")
         .delete()
         .eq("user_id", user.id)
         .eq("target_id", propertyId)
-        .eq("target_type", "listing");
+        // This list mixes listings, events AND profiles/roommates. Delete with
+        // the item's ACTUAL target_type — hardcoding "listing" deleted 0 rows
+        // for events/roommates, so they reappeared on the next refetch.
+        .eq("target_type", targetType);
       if (error) throw error;
     },
-    onMutate: async (propertyId: string) => {
+    onMutate: async ({ propertyId }: { propertyId: string; targetType: string }) => {
       // Remove it from the list IMMEDIATELY (optimistic) so it disappears the
       // instant the user confirms — don't wait for the server round-trip.
       await queryClient.cancelQueries({ queryKey: ["liked-properties"] });
@@ -366,7 +369,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl bg-secondary text-foreground border-border/30">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id!)}
+              onClick={() => propertyToDelete?.id && removeLikeMutation.mutate({ propertyId: propertyToDelete.id!, targetType: (propertyToDelete as any).target_type || 'listing' })}
               className="bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white rounded-xl font-black"
             >
               REMOVE
