@@ -34,7 +34,19 @@ export const supabase = createClient<Database>(
       // Fetch with 30s timeout — prevent AI request timeouts while allowing for slower mobile networks
       fetch: (url: RequestInfo | URL, options?: RequestInit) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); 
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        // CRITICAL: respect the caller's own abort signal. Supabase auth
+        // (navigator.locks token refresh) and React Query pass a signal to
+        // coordinate/cancel requests. Previously this fetch DROPPED that
+        // signal and only used its own timeout, so auth-js could not abort a
+        // hung refresh — the lock stayed held and subsequent calls failed with
+        // "Lock request was aborted via AbortSignal", causing flaky message /
+        // notification / role loads. Chain the caller's signal into ours.
+        const callerSignal = options?.signal ?? undefined;
+        if (callerSignal) {
+          if (callerSignal.aborted) controller.abort();
+          else callerSignal.addEventListener('abort', () => controller.abort(), { once: true });
+        }
         return fetch(url, { ...options, signal: controller.signal })
           .finally(() => clearTimeout(timeoutId));
       },
