@@ -12,6 +12,7 @@ interface MessageType {
   conversation_id: string;
   sender_id: string;
   content?: string | null;
+  message_text?: string | null;
   message_type: string;
   attachments?: unknown;
   created_at: string;
@@ -90,7 +91,7 @@ const MessageBubble = memo(({
               "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
               isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
             )}>
-              {message.content || ''}
+              {message.content || message.message_text || ''}
             </p>
           </div>
         )}

@@ -57,7 +57,9 @@ export function MessagingDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  // Open an existing chat (?conversationId=…) directly on first render so the
+  // inbox never flashes underneath while the conversation metadata resolves.
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(() => searchParams.get('conversationId'));
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
   const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
@@ -142,6 +144,8 @@ export function MessagingDashboard() {
           setSelectedConversationId(conversationId);
           setSearchParams({}, { replace: true });
         } else {
+          setSelectedConversationId(null);
+          setSearchParams({}, { replace: true });
           appToast.error('Conversation not found', 'This chat may have been deleted or is no longer available.');
         }
       }
@@ -168,15 +172,24 @@ export function MessagingDashboard() {
         setSearchParams({}, { replace: true });
         return;
       }
-      const result = await startConversation.mutateAsync({
-        otherUserId: userId,
-        initialMessage: "Hi! I'm interested in connecting.",
-        canStartNewConversation: canSendMessage,
-      });
+      // Race the create against a timeout so a hung network can never leave the
+      // user stuck on the connecting screen forever.
+      const result = await Promise.race([
+        startConversation.mutateAsync({
+          otherUserId: userId,
+          initialMessage: "Hi! I'm interested in connecting.",
+          canStartNewConversation: canSendMessage,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Timed out connecting. Please check your connection and try again.')), 15000)
+        ),
+      ]);
       if (result.conversationId) {
-        await refetch();
+        // Open the chat immediately; refresh the inbox list in the background so
+        // the header fills in without blocking entry into the chat.
         setSelectedConversationId(result.conversationId);
         setSearchParams({}, { replace: true });
+        void refetch();
       }
     } catch (e) {
       handleStartConversationError(e);

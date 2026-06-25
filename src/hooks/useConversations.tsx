@@ -346,7 +346,7 @@ export function useConversationMessages(conversationId: string) {
     queryFn: async () => {
       const { data: messages, error } = await supabase
         .from('conversation_messages')
-        .select('id, conversation_id, sender_id, content, message_type, attachments, is_read, read_at, created_at')
+        .select('id, conversation_id, sender_id, content, message_text, message_type, attachments, is_read, read_at, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -559,10 +559,15 @@ export function useSendMessage() {
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
+          // Write BOTH columns: `message_text` is NOT NULL and is what the
+          // RPC, notification triggers and push previews read; `content` is the
+          // newer column the chat UI historically rendered. Keeping them in sync
+          // is what stops blank message bubbles.
+          message_text: message,
           content: message,
           message_type: 'text'
         })
-        .select('id, conversation_id, sender_id, content, message_type, is_read, created_at')
+        .select('id, conversation_id, sender_id, content, message_text, message_type, is_read, created_at')
         .single();
 
       if (error) throw error;
