@@ -24,7 +24,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Bike, MapPin, Users, Wrench } from 'lucide-react';
+import { Anchor, Bike, MapPin, Users, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useConversations, useStartConversation } from '@/hooks/useConversations';
@@ -91,6 +91,7 @@ const ClientSwipeContainerComponent = ({
       case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', Icon: MapPin, color: 'text-primary' };
       case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', Icon: Bike, color: 'text-rose-500' };
       case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500' };
+      case 'yacht': return { singular: 'Yacht', plural: 'Yachts', searchText: 'Searching for Yachts', Icon: Anchor, color: 'text-teal-500' };
       case 'services':
       case 'worker':
       case 'hire': return { singular: 'Service', plural: 'Services', searchText: 'Searching for Service Clients', Icon: Wrench, color: 'text-purple-500' };

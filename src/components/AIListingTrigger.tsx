@@ -1,4 +1,4 @@
-import { Bike, Briefcase, Building2, Sparkles, X } from 'lucide-react';
+import { Anchor, Bike, Briefcase, Building2, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
   Dialog, 
@@ -29,14 +29,20 @@ const categories = [
     icon: MotorcycleIcon,
     color: 'text-orange-500'
   },
-  { 
-    id: 'bicycle', 
-    label: 'BICYCLE', 
+  {
+    id: 'bicycle',
+    label: 'BICYCLE',
     icon: Bike,
     color: 'text-violet-500'
   },
-  { 
-    id: 'worker', 
+  {
+    id: 'yacht',
+    label: 'YACHT',
+    icon: Anchor,
+    color: 'text-teal-500'
+  },
+  {
+    id: 'worker',
     label: 'JOB / SERVICE', 
     icon: Briefcase,
     color: 'text-amber-500'
@@ -47,7 +53,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
   const { openAIListing } = useModalStore();
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker') => {
+  const handleSelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker') => {
     triggerHaptic('medium');
     openAIListing(category);
     setOpen(false);

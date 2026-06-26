@@ -44,7 +44,7 @@ interface ModalState {
   showFilters: boolean;
   showAIChat: boolean;
   showAIListing: boolean;
-  aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'worker' | null;
+  aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker' | null;
   aiListingDraft: any | null;
   showAIProfile: boolean;
   aiProfileMode: 'client' | 'owner' | null;
@@ -58,7 +58,7 @@ interface ModalState {
 
   // Actions
   setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll'>, value: boolean) => void;
-  openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker', draft?: any) => void;
+  openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker', draft?: any) => void;
   openAddListing: () => void;
   openAIProfile: (mode: 'client' | 'owner', draft?: any) => void;
   openPropertyDetails: (id: string) => void;

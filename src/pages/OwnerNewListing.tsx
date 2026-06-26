@@ -16,7 +16,7 @@ const OwnerNewListing = () => {
   const hasOpenedCategoryRef = useRef(false);
   const hasOpenedFormRef = useRef(false);
   const [initialData, setInitialData] = useState<{
-    category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
+    category: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker';
     mode: 'rent' | 'sale';
     aiDraft?: Record<string, unknown> | null;
   } | null>(null);
@@ -31,8 +31,8 @@ const OwnerNewListing = () => {
     const fromAI = searchParams.get('fromAI');
     
     if (categoryParam) {
-      const validCategory = ['property', 'motorcycle', 'bicycle', 'worker'].includes(categoryParam) 
-        ? categoryParam as 'property' | 'motorcycle' | 'bicycle' | 'worker'
+      const validCategory = ['property', 'motorcycle', 'bicycle', 'yacht', 'worker'].includes(categoryParam)
+        ? categoryParam as 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker'
         : 'property';
       const validMode = ['rent', 'sale'].includes(modeParam || '') 
         ? modeParam as 'rent' | 'sale'
@@ -64,7 +64,7 @@ const OwnerNewListing = () => {
   if (isCategorySelectorOpen) hasOpenedCategoryRef.current = true;
   if (isFormOpen) hasOpenedFormRef.current = true;
 
-  const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
+  const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker', mode: 'rent' | 'sale' | 'both') => {
     requestAnimationFrame(() => setIsCategorySelectorOpen(false));
     setSearchParams({ category, mode: mode === 'both' ? 'rent' : mode });
   };
