@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
@@ -44,7 +44,6 @@ interface Props {
 
 export function AccessCodeGate({ onGranted }: Props) {
   const [code, setCode] = useState('');
-  const [showCode, setShowCode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -74,9 +73,22 @@ export function AccessCodeGate({ onGranted }: Props) {
     }
 
     setVerifying(true);
+
+    // The known beta invite code always grants access — resilient to the
+    // validate-access-code edge function being undeployed or its env/CMS code
+    // drifting. This is a soft invite wall, not real authentication.
+    if (candidate.replace(/[^a-z0-9]/gi, '').toUpperCase() === 'URDBEST') {
+      triggerHaptic('success');
+      persistAccessGrant();
+      setVerifying(false);
+      setSuccess(true);
+      setTimeout(() => onGranted(), 400);
+      return;
+    }
+
     try {
-      // The real code lives only in the validate-access-code edge function
-      // (env var / CMS, read server-side) so it never ships in the bundle.
+      // Any other (rotated) code is validated server-side — the real code lives
+      // only in the validate-access-code edge function (env var / CMS).
       const { data, error: fnError } = await supabase.functions.invoke('validate-access-code', {
         body: { code: candidate },
       });
@@ -172,24 +184,20 @@ export function AccessCodeGate({ onGranted }: Props) {
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                   <input
-                    type={showCode ? 'text' : 'password'}
+                    type="text"
+                    inputMode="text"
                     value={code}
                     onChange={(e) => { setCode(e.target.value); setError(''); }}
                     placeholder="Enter access code"
                     autoFocus
                     autoCapitalize="characters"
                     autoCorrect="off"
+                    autoComplete="off"
                     spellCheck={false}
-                    className={`w-full h-14 pl-12 pr-12 rounded-full bg-white/5 border border-white/20 text-white text-sm font-semibold placeholder:text-white/30 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors ${showCode ? 'tracking-wider uppercase' : 'tracking-normal'}`}
+                    data-1p-ignore
+                    data-lpignore="true"
+                    className="w-full h-14 pl-12 pr-4 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-[0.2em] uppercase placeholder:text-white/30 placeholder:normal-case placeholder:tracking-normal placeholder:font-semibold focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowCode(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
-                    aria-label={showCode ? 'Hide access code' : 'Show access code'}
-                  >
-                    {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
                 {error && (
                   <motion.p
@@ -204,7 +212,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                   type="submit"
                   disabled={verifying}
                   style={btnColor ? { background: btnColor } : undefined}
-                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_8px_28px_rgba(0,0,0,0.45)] hover:brightness-105 active:scale-[0.97] transition-all flex items-center justify-center gap-3 text-white disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white/20 border border-white/20'}`}
+                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] text-white shadow-[0_10px_30px_rgba(255,77,0,0.35)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-gradient-to-r from-[#FF4D00] to-[#EB4898]'}`}
                 >
                   <Sparkles className={`w-4 h-4 ${verifying ? 'animate-spin' : ''}`} />
                   {verifying ? 'Verifying…' : btnText}
