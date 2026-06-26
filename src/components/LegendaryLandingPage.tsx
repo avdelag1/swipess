@@ -171,6 +171,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
   const [name, setName] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [agreed18, setAgreed18] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { signIn, signUp, signInWithOAuth } = useAuth();
@@ -223,7 +224,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         if (!password.trim()) errs.password = 'Password is required';
         // Guideline 1.2: the Terms of Use (EULA) must be agreed before login too,
         // not only at signup, so the agreement is presented for every entry path.
-        if (!agreed18) errs.agree = 'You must agree to the Terms of Use (EULA) & Privacy Policy to continue';
+        if (!agreed18 || !agreedTerms) errs.agree = 'Please confirm you are 18+ and agree to the Terms of Use (EULA) & Privacy Policy';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -248,7 +249,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         else if (password !== confirmPassword) errs.confirmPassword = 'Passwords do not match';
         // Apple/marketplace requirement: enforce the 18+ Terms acceptance the
         // EULA already claims, instead of leaving it implicit.
-        if (!agreed18) errs.agree = 'You must confirm you are 18 or older to continue';
+        if (!agreed18 || !agreedTerms) errs.agree = 'Please confirm you are 18+ and agree to the Terms of Use (EULA) & Privacy Policy';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -280,8 +281,8 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
   // same Terms of Use (EULA) + Privacy agreement the email forms enforce, so the
   // EULA is presented before registering or logging in via ANY method.
   const requireAgreement = (): boolean => {
-    if (agreed18) return true;
-    setFieldErrors(p => ({ ...p, agree: 'You must agree to the Terms of Use (EULA) & Privacy Policy to continue' }));
+    if (agreed18 && agreedTerms) return true;
+    setFieldErrors(p => ({ ...p, agree: 'Please confirm you are 18+ and agree to the Terms of Use (EULA) & Privacy Policy' }));
     triggerHaptic('error');
     setShakeTrigger(prev => prev + 1);
     return false;
@@ -429,25 +430,49 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
           {!isForgotPassword && (
             <div className="px-1 pt-0.5">
-              <div className="flex items-start gap-2.5">
-                <button
-                  type="button"
+              <div className="space-y-2.5">
+                {/* Box 1 — age confirmation */}
+                <div
                   role="checkbox"
                   aria-checked={agreed18}
+                  tabIndex={0}
                   onClick={() => { setAgreed18(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); }}
-                  className={cn(
-                    "w-4 h-4 mt-0.5 shrink-0 rounded border flex items-center justify-center transition-colors",
-                    agreed18 ? "bg-white border-white" : "bg-white/5 border-white/30",
-                  )}
+                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setAgreed18(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); } }}
+                  className="flex items-center gap-3 cursor-pointer select-none"
                 >
-                  <Check className={cn("w-3 h-3 transition-opacity", agreed18 ? "opacity-100 text-black" : "opacity-0 text-white")} strokeWidth={3} />
-                </button>
-                <p className="text-[10px] font-bold tracking-wide text-white/70 leading-snug">
-                  I confirm I am 18 or older and agree to the{' '}
-                  <button type="button" onClick={() => setLegalModal('terms')} className="underline text-white/90">Terms of Use (EULA)</button>
-                  {' '}&amp;{' '}
-                  <button type="button" onClick={() => setLegalModal('privacy')} className="underline text-white/90">Privacy Policy</button>.
-                </p>
+                  <span className={cn(
+                    "w-[22px] h-[22px] shrink-0 rounded-md border-2 flex items-center justify-center transition-colors",
+                    agreed18 ? "bg-[#FF4D00] border-[#FF4D00]" : "border-white/45 bg-white/[0.06]",
+                  )}>
+                    <Check className={cn("w-3.5 h-3.5 text-white transition-opacity", agreed18 ? "opacity-100" : "opacity-0")} strokeWidth={3.5} />
+                  </span>
+                  <span className="text-[11px] font-bold tracking-wide text-white/75 leading-snug">
+                    I confirm I am 18 or older
+                  </span>
+                </div>
+
+                {/* Box 2 — terms & privacy */}
+                <div
+                  role="checkbox"
+                  aria-checked={agreedTerms}
+                  tabIndex={0}
+                  onClick={() => { setAgreedTerms(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); }}
+                  onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setAgreedTerms(v => !v); setFieldErrors(p => ({ ...p, agree: '' })); } }}
+                  className="flex items-start gap-3 cursor-pointer select-none"
+                >
+                  <span className={cn(
+                    "w-[22px] h-[22px] mt-0.5 shrink-0 rounded-md border-2 flex items-center justify-center transition-colors",
+                    agreedTerms ? "bg-[#FF4D00] border-[#FF4D00]" : "border-white/45 bg-white/[0.06]",
+                  )}>
+                    <Check className={cn("w-3.5 h-3.5 text-white transition-opacity", agreedTerms ? "opacity-100" : "opacity-0")} strokeWidth={3.5} />
+                  </span>
+                  <span className="text-[11px] font-bold tracking-wide text-white/75 leading-snug">
+                    I agree to the{' '}
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setLegalModal('terms'); }} className="underline text-white/95">Terms of Use (EULA)</button>
+                    {' '}&amp;{' '}
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setLegalModal('privacy'); }} className="underline text-white/95">Privacy Policy</button>.
+                  </span>
+                </div>
               </div>
               {fieldErrors.agree && <p className="text-red-500/90 text-[10px] font-bold mt-1.5 ml-3 uppercase tracking-wider">{fieldErrors.agree}</p>}
             </div>
@@ -593,7 +618,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
             <div className="shrink-0 pt-4 flex flex-col gap-3">
               <button
-                onClick={() => { triggerHaptic('medium'); setAgreed18(true); setFieldErrors(p => ({ ...p, agree: '' })); setLegalModal(null); }}
+                onClick={() => { triggerHaptic('medium'); setAgreed18(true); setAgreedTerms(true); setFieldErrors(p => ({ ...p, agree: '' })); setLegalModal(null); }}
                 className="w-full h-14 bg-white text-black font-bold text-[14px] tracking-wide rounded-full shadow-[0_2px_20px_rgba(255,255,255,0.15)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-3"
               >
                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue
