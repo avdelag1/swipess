@@ -29,7 +29,7 @@ import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
-import { useBlockUser } from '@/hooks/useBlocking';
+import { useBlockUser, useUnblockUser, useBlockedUsers } from '@/hooks/useBlocking';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import {
@@ -89,6 +89,11 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
+  const unblock = useUnblockUser();
+  const { data: blockedList = [] } = useBlockedUsers();
+  // True when *I* have blocked the person in this chat — listings stay visible,
+  // but the composer is swapped for an "unblock to message" banner.
+  const isBlockedByMe = (blockedList as any[]).some((b) => b?.blocked_id === otherUser.id);
 
   const { data: partnerProfile } = useQuery({
     queryKey: ['chat-partner-profile', otherUser.id],
@@ -433,6 +438,27 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           )}
         </div>
 
+        {isBlockedByMe ? (
+          <div className={cn(
+            "shrink-0 px-4 py-4 flex items-center justify-between gap-3 backdrop-blur-3xl pb-safe relative z-20 border-t",
+            isThemeLight ? "bg-rose-50 border-rose-200" : "bg-rose-500/[0.06] border-rose-500/20"
+          )}>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Ban className="w-5 h-5 text-rose-500 shrink-0" />
+              <p className={cn("text-[13px] font-semibold leading-tight", isThemeLight ? "text-slate-700" : "text-white/80")}>
+                You blocked {otherUser.full_name || 'this user'}. Unblock to send messages.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => unblock.mutate(otherUser.id)}
+              disabled={unblock.isPending}
+              className="shrink-0 px-4 py-2.5 rounded-full bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white text-[11px] font-black uppercase tracking-wider active:scale-95 transition-all disabled:opacity-60"
+            >
+              {unblock.isPending ? 'Unblocking…' : 'Unblock'}
+            </button>
+          </div>
+        ) : (
         <div className={cn(
           "shrink-0 px-4 py-3 flex items-center backdrop-blur-3xl transition-all pb-safe relative z-20",
           isThemeLight ? "surface-4 border-t-0" : "bg-background/90"
@@ -541,6 +567,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             </button>
           </form>
         </div>
+        )}
 
         <Suspense fallback={null}><RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'} onSuccess={() => setShowRatingDialog(false)} /></Suspense>
 
@@ -593,7 +620,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <AlertDialogHeader>
               <AlertDialogTitle className={cn("text-lg font-bold", isThemeLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
               <AlertDialogDescription className={cn(isThemeLight ? "text-slate-500" : "text-white/50")}>
-                This will permanently block {otherUser.full_name} from contacting you. You won't see their messages or listings.
+                {otherUser.full_name} won't be able to message you, and you won't receive their messages. You can unblock them anytime from this chat or in Settings → Security.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-2">
