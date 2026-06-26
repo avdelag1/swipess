@@ -23,6 +23,7 @@ import { MotorcycleFormData, MotorcycleListingForm } from './MotorcycleListingFo
 import { BicycleFormData, BicycleListingForm } from './BicycleListingForm';
 import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerFormData, WorkerListingForm } from './WorkerListingForm';
+import { YachtFormData, YachtListingForm } from './YachtListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';
@@ -43,7 +44,7 @@ import { WaterDropLoader } from './ui/WaterDropLoader';
 
 interface EditingListing {
   id?: string;
-  category?: 'property' | 'motorcycle' | 'bicycle' | 'worker';
+  category?: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker';
   mode?: 'rent' | 'sale' | 'both';
   images?: string[];
   latitude?: number;
@@ -136,6 +137,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       case 'property': return 30;
       case 'motorcycle': return 5;
       case 'bicycle': return 5;
+      case 'yacht': return 12;
       case 'worker': return 3;
       default: return 10;
     }
@@ -410,14 +412,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         background_check_verified: !!formData.background_check_verified,
         insurance_verified: !!formData.insurance_verified,
         // Vehicle fields (motorcycle/bicycle) - ALL in listings table now
-        vehicle_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? selectedCategory : null,
-        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.brand || formData.vehicle_brand) : null,
-        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.model || formData.vehicle_model) : null,
-        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
+        vehicle_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle' || selectedCategory === 'yacht') ? selectedCategory : null,
+        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle' || selectedCategory === 'yacht') ? (formData.brand || formData.vehicle_brand) : null,
+        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle' || selectedCategory === 'yacht') ? (formData.model || formData.vehicle_model) : null,
+        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle' || selectedCategory === 'yacht') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
         year: toIntOrNull(formData.year),
         mileage: toIntOrNull(formData.mileage),
         engine_cc: toIntOrNull(formData.engine_cc),
-        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
+        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle' || selectedCategory === 'yacht') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
         transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.transmission ? String(formData.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
         // Motorcycle specific
         motorcycle_type: selectedCategory === 'motorcycle' ? formData.motorcycle_type : null,
@@ -442,6 +444,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         includes_lights: selectedCategory === 'bicycle' ? !!formData.includes_lights : null,
         includes_basket: selectedCategory === 'bicycle' ? !!formData.includes_basket : null,
         includes_pump: selectedCategory === 'bicycle' ? !!formData.includes_pump : null,
+        // Yacht specific
+        length_m: selectedCategory === 'yacht' ? (Number.isFinite(Number(formData.length_m)) ? Number(formData.length_m) : null) : null,
+        berths: selectedCategory === 'yacht' ? toIntOrNull(formData.berths) : null,
+        max_passengers: selectedCategory === 'yacht' ? toIntOrNull(formData.max_passengers) : null,
+        hull_material: selectedCategory === 'yacht' ? (formData.hull_material || null) : null,
+        engines: selectedCategory === 'yacht' ? (formData.engines || null) : null,
       };
 
       // Strip undefined and null values that might cause column mismatch
@@ -906,6 +914,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as MotorcycleFormData} />}
               {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as BicycleFormData} />}
               {selectedCategory === 'worker' && <WorkerListingForm onDataChange={handleDataChange} initialData={formData as unknown as WorkerFormData} />}
+              {selectedCategory === 'yacht' && <YachtListingForm onDataChange={handleDataChange} initialData={formData as unknown as YachtFormData} />}
             </div>
             )}
 

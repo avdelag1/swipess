@@ -190,6 +190,58 @@ export const BIKE_CONDITION_DB: Record<string, string> = {
   'Fair': 'fair',
 };
 
+export const YACHT_TYPE = [
+  'Sailboat', 'Catamaran', 'Motor yacht', 'Gulet',
+  'Speedboat', 'Trawler', 'Pontoon', 'Houseboat',
+] as const;
+
+export const YACHT_CONDITION = [
+  'Brand new', 'Like new', 'Good', 'Fair', 'Project',
+] as const;
+
+export const YACHT_FEATURES = [
+  'Air conditioning', 'WiFi', 'Flybridge', 'Watermaker',
+  'Tender', 'Stabilizers', 'Solar panels', 'Bow thruster',
+  'GPS / Chartplotter', 'Autopilot', 'Sun deck', 'Jacuzzi',
+] as const;
+
+export const YACHT_INCLUDED = [
+  'Captain', 'Crew', 'Fuel', 'Insurance',
+  'Snorkel gear', 'Paddleboard', 'Dinghy', 'Safety equipment',
+] as const;
+
+export const YACHT_FUEL = [
+  { value: 'diesel', label: 'Diesel' },
+  { value: 'gasoline', label: 'Gasoline' },
+  { value: 'electric', label: 'Electric' },
+  { value: 'sail', label: 'Sail / Wind' },
+] as const;
+
+/** Maps YACHT_CONDITION chip labels → DB vehicle_condition slugs */
+export const YACHT_CONDITION_DB: Record<string, string> = {
+  'Brand new': 'excellent',
+  'Like new': 'excellent',
+  'Good': 'good',
+  'Fair': 'fair',
+  'Project': 'poor',
+};
+
+export const YACHT_BRANDS = [
+  'Beneteau', 'Jeanneau', 'Lagoon', 'Fountaine Pajot', 'Azimut',
+  'Sunseeker', 'Princess', 'Ferretti', 'Sea Ray', 'Bavaria',
+  'Boston Whaler', 'Prestige', 'Dufour', 'Zodiac', 'Yamaha',
+] as const;
+
+export const YACHT_MODELS: Record<string, readonly string[]> = {
+  Beneteau: ['Oceanis 40', 'Oceanis 46.1', 'Antares 8', 'Swift Trawler 35', 'Flyer 9'],
+  Jeanneau: ['Sun Odyssey 410', 'Sun Odyssey 490', 'Merry Fisher 895', 'Leader 33'],
+  Lagoon: ['Lagoon 40', 'Lagoon 42', 'Lagoon 46', 'Lagoon 50'],
+  'Fountaine Pajot': ['Lucia 40', 'Astrea 42', 'Elba 45', 'Saona 47'],
+  Azimut: ['Atlantis 45', 'Magellano 43', 'Flybridge 60', 'Grande 26M'],
+  Sunseeker: ['Manhattan 52', 'Predator 55', 'Manhattan 66', '88 Yacht'],
+  Princess: ['V40', 'F45', 'S62', 'Y72'],
+};
+
 export const WORKER_TRAITS = [
   'Punctual', 'Detail-oriented', 'English-speaking', 'Spanish-speaking',
   'Insured', 'Background-checked', 'Own tools', 'Own vehicle', 'Emergency available',
@@ -380,6 +432,32 @@ export function buildBikeDescription(opts: {
     opts.wheelSize ? `${opts.wheelSize} wheels` : undefined,
     opts.electric ? 'E-bike' : undefined,
     opts.batteryRange ? `${opts.batteryRange}km range` : undefined,
+    opts.included,
+    opts.city,
+  ]);
+}
+
+export function buildYachtDescription(opts: {
+  adjectives?: string[];
+  yachtType?: string;
+  condition?: string;
+  fuel?: string;
+  lengthM?: number;
+  berths?: number;
+  maxPassengers?: number;
+  features?: string[];
+  included?: string[];
+  city?: string;
+}): string {
+  return buildDescriptionFromChips([
+    opts.adjectives?.[0],
+    opts.yachtType,
+    opts.condition,
+    opts.fuel,
+    opts.lengthM ? `${opts.lengthM}m` : undefined,
+    opts.berths ? `${opts.berths} berths` : undefined,
+    opts.maxPassengers ? `${opts.maxPassengers} guests` : undefined,
+    opts.features,
     opts.included,
     opts.city,
   ]);

@@ -37,6 +37,7 @@ const AMENITY_VOCAB: Record<string, string[]> = {
   ],
   motorcycle: ['ABS','ESC','Traction control','Heated grips','Luggage rack','Crash bars','Quick-shifter','Bluetooth','Helmet','Riding gear','Lock','Top case','Charger','Insurance','Roadside assistance'],
   bicycle: ['Front suspension','Full suspension','Disc brakes','Carbon frame','Aluminum frame','Tubeless','Dropper post','Lock','Lights','Basket','Pump','Helmet','Repair kit'],
+  yacht: ['Air conditioning','WiFi','Flybridge','Watermaker','Tender','Stabilizers','Solar panels','Bow thruster','GPS / Chartplotter','Autopilot','Sun deck','Jacuzzi','Captain','Crew','Fuel','Insurance','Snorkel gear','Paddleboard','Dinghy','Safety equipment'],
   worker: ['Punctual','Detail-oriented','English-speaking','Spanish-speaking','Insured','Background-checked','Own tools','Own vehicle','Emergency available'],
 };
 
@@ -44,6 +45,7 @@ const AMENITY_VOCAB: Record<string, string[]> = {
 const PROPERTY_TYPES = ['penthouse','house','apartment','loft','studio','mobile_home','camper','land','building','glamping','bungalow','mezzanine','room','commercial'];
 const MOTORCYCLE_TYPES = ['Sport Bike','Cruiser','Touring','Adventure','Dual-Sport','Dirt Bike','Standard','Cafe Racer','Chopper','Scooter','Electric','Other'];
 const BICYCLE_TYPES = ['road','mountain','hybrid','electric','cruiser','bmx'];
+const YACHT_TYPES = ['Sailboat','Catamaran','Motor yacht','Gulet','Speedboat','Trawler','Pontoon','Houseboat'];
 const SERVICE_CATEGORIES = ['house_cleaner','handyman','maintenance_tech','house_painter','plumber','electrician','gardener','pool_cleaner','massage_therapist','yoga','meditation_coach','holistic_therapist','personal_trainer','beauty','nutritionist','nanny','pet_care','pet_groomer','driver','mechanic','chef','bartender','event_planner','language_teacher','music_teacher','dance_instructor','scuba_instructor','surf_instructor','snorkeling_guide','sailing_instructor','fishing_guide','photographer','videographer','graphic_designer','it_support','translator','accountant','security','other'];
 
 // Cap input size — DoS + Groq cost guard. 50KB fits any listing description.
@@ -111,6 +113,7 @@ STEP 1 — Detect the category from the user's words:
 - "property": penthouse, hotel, apartment, studio, house, condo, villa, room, land, office, any real estate for rent or sale
 - "motorcycle": motorcycle, motorbike, scooter, moped
 - "bicycle": bicycle, bike, e-bike, BMX, mountain bike
+- "yacht": yacht, boat, sailboat, catamaran, motor yacht, gulet, speedboat, vessel, charter
 - "worker": a person offering a job, service, or skill (cleaner, plumber, chef, teacher, photographer, massage, etc.)
 The user pre-selected "${hintCategory}" — only override it if their words CLEARLY describe a different category.
 
@@ -126,6 +129,7 @@ Field rules:
 - "property_type" must be EXACTLY one of: ${JSON.stringify(PROPERTY_TYPES)} (a hotel/villa/condo maps to the closest: building, house, apartment...)
 - "motorcycle_type" must be EXACTLY one of: ${JSON.stringify(MOTORCYCLE_TYPES)}
 - "bicycle_type" must be EXACTLY one of: ${JSON.stringify(BICYCLE_TYPES)}
+- "yacht_type" must be EXACTLY one of: ${JSON.stringify(YACHT_TYPES)}; for yachts also extract "length_m" (number, meters), "berths" (integer, sleeps), "max_passengers" (integer), "brand", "model", "year", "fuel_type"
 - "service_category" must be EXACTLY one of: ${JSON.stringify(SERVICE_CATEGORIES)}
 - "pricing_unit" one of: hourly, daily, weekly, monthly, project
 - "transmission" one of: manual, automatic, semi-automatic; "fuel_type" one of: gasoline, electric, hybrid; "condition" one of: excellent, good, fair, poor

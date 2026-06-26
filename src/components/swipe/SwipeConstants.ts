@@ -6,6 +6,7 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
 import {
+  Anchor,
   Key,
   PartyPopper,
   ShoppingBag,
@@ -19,6 +20,7 @@ export const categoryConfig: Record<string, { icon: React.ComponentType<{ classN
   moto: { icon: VespaIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: VespaIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   bicycle: { icon: BeachBicycleIcon, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
+  yacht: { icon: Anchor, label: 'Yacht', plural: 'Yachts', color: 'text-teal-500' },
   services: { icon: WorkersIcon, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: WorkersIcon, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
   pros: { icon: Sparkles, label: 'Pro', plural: 'Pros', color: 'text-sky-500' },

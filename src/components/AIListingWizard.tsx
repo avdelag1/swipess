@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AudioLines, Bike, Briefcase, Building2,
+  Anchor, AudioLines, Bike, Briefcase, Building2,
   Camera, Mic, Search, Sparkles, Wand2, X, Zap
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
@@ -35,6 +35,7 @@ const AI_MAX_PHOTOS: Record<string, number> = {
   property: 30,
   motorcycle: 5,
   bicycle: 5,
+  yacht: 12,
   worker: 3,
 };
 
@@ -49,6 +50,7 @@ const CATEGORIES = [
   { id: 'property', label: 'Property', icon: Building2, color: 'text-rose-400', bg: 'bg-rose-400/10' },
   { id: 'motorcycle', label: 'Motorcycle', icon: MotorcycleIcon, color: 'text-orange-400', bg: 'bg-orange-400/10' },
   { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+  { id: 'yacht', label: 'Yacht', icon: Anchor, color: 'text-teal-400', bg: 'bg-teal-400/10' },
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
 
@@ -67,10 +69,10 @@ const buildFallbackTitle = ({ category, cityLocation, extras }: Omit<FallbackCon
     const bedPart = Number.isFinite(beds) && beds > 0 ? `${beds}-bedroom ` : '';
     return `${bedPart}home${city ? ` in ${city}` : ''}`.replace(/^./, (c) => c.toUpperCase());
   }
-  if (cat === 'motorcycle' || cat === 'bicycle') {
+  if (cat === 'motorcycle' || cat === 'bicycle' || cat === 'yacht') {
     const brand = (extras.brand as string) || '';
     const year = (extras.year as string) || '';
-    const label = cat === 'motorcycle' ? 'Motorcycle' : 'Bicycle';
+    const label = cat === 'motorcycle' ? 'Motorcycle' : cat === 'bicycle' ? 'Bicycle' : 'Yacht';
     return [year, brand, label].filter(Boolean).join(' ') || `${label}${city ? ` — ${city}` : ''}`;
   }
   if (cat === 'worker') {
@@ -96,7 +98,7 @@ const buildFallbackPrompt = ({ category, cityLocation, price, extras }: Fallback
     if (beds > 0) parts.push(`${beds} bedroom${beds === 1 ? '' : 's'}`);
     if (baths > 0) parts.push(`${baths} bathroom${baths === 1 ? '' : 's'}`);
   }
-  if (cat === 'motorcycle' || cat === 'bicycle') {
+  if (cat === 'motorcycle' || cat === 'bicycle' || cat === 'yacht') {
     if (extras.brand) parts.push(`brand ${extras.brand}`);
     if (extras.year) parts.push(`year ${extras.year}`);
   }
@@ -376,7 +378,7 @@ export function AIListingWizard() {
 
       // Trust the AI-detected category when valid — the user may describe a
       // motorcycle while the default "property" chip is still selected.
-      const validCats = ['property', 'motorcycle', 'bicycle', 'worker'] as const;
+      const validCats = ['property', 'motorcycle', 'bicycle', 'yacht', 'worker'] as const;
       const detected = parsed.category as typeof CATEGORIES[number]['id'];
       const cat = validCats.includes(detected) ? detected : category;
       const numericPrice = (parsed.price as number) || Number(price) || 0;
@@ -415,7 +417,7 @@ export function AIListingWizard() {
         if (parsed.pet_friendly === true) listingPayload.pet_friendly = true;
         if (Array.isArray(parsed.amenities)) listingPayload.amenities = parsed.amenities;
       }
-      if (cat === 'motorcycle' || cat === 'bicycle') {
+      if (cat === 'motorcycle' || cat === 'bicycle' || cat === 'yacht') {
         listingPayload.vehicle_type = cat;
         const brand = (extras.brand as string) || (parsed.make as string);
         const model = (extras.model as string) || (parsed.model as string);
@@ -429,6 +431,12 @@ export function AIListingWizard() {
           if (parsed.engine_cc) listingPayload.engine_cc = parsed.engine_cc;
           if (parsed.transmission) listingPayload.transmission = parsed.transmission;
           if (parsed.fuel_type) listingPayload.fuel_type = parsed.fuel_type;
+        }
+        if (cat === 'yacht') {
+          if (parsed.fuel_type) listingPayload.fuel_type = parsed.fuel_type;
+          if (parsed.length_m) listingPayload.length_m = parsed.length_m;
+          if (parsed.berths) listingPayload.berths = parsed.berths;
+          if (parsed.max_passengers) listingPayload.max_passengers = parsed.max_passengers;
         }
       }
       if (cat === 'worker') {

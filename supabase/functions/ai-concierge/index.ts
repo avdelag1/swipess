@@ -186,7 +186,7 @@ function detectProfileIntent(query: string): boolean {
   const isPropertyQuery = /\b(apartment|apartments|house|houses|property|properties|studio|studios|condo|condos|villa|villas|penthouse|duplex|loft|townhouse|bungalow|cabin|listing|listings|bedroom|bedrooms|rent|rental|sale|buy|casa|departamento|cuarto|pisos|chalet)\b/.test(q);
   if (isPropertyQuery) return false;
 
-  const isVehicleQuery = /\b(motorcycle|motorbike|moto|scooter|bicycle|bike|bici|bicicleta|car|vehicle)\b/.test(q);
+  const isVehicleQuery = /\b(motorcycle|motorbike|moto|scooter|bicycle|bike|bici|bicicleta|yacht|boat|sailboat|catamaran|yate|barco|velero|car|vehicle)\b/.test(q);
   if (isVehicleQuery) return false;
 
   // Now match only people/service/social queries
@@ -312,14 +312,15 @@ function detectListingIntent(query: string): { isListing: boolean; category?: st
 
   // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
   // This covers English, Spanish, French, Portuguese, misspellings, and slang.
-  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
+  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|yacht|yachts|boat|boats|sailboat|catamaran|yate|yates|barco|velero|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
 
   // Category detection — values must match listings.category in the DB:
-  // 'property' | 'motorcycle' | 'bicycle' | 'worker'.
+  // 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker'.
   // Motorcycle is tested BEFORE bicycle so "motorbike" never lands in bicycle.
   const matched: string[] = [];
   if (/(?:^|\s)(?:motorcycles?|motorbikes?|motos?|scooters?|vespas?|motonetas?|motocicletas?)\b/.test(q)) matched.push("motorcycle");
   if (!matched.includes("motorcycle") && /(?:^|\s)(?:bicycles?|bikes?|bicis?|bicicletas?|ciclismo|cycling)\b/.test(q)) matched.push("bicycle");
+  if (/(?:^|\s)(?:yachts?|boats?|sailboats?|motorboats?|catamarans?|gulets?|yates?|barcos?|veleros?|lanchas?)\b/.test(q)) matched.push("yacht");
   if (/(?:^|\s)(?:houses?|apartments?|rooms?|studios?|villas?|condos?|penthouses?|duplex|lofts?|townhouses?|bungalows?|cabins?|casas?|departamentos?|depa|cuartos?|habitacion|habitaciones|pisos?|chalets?|propert(?:y|ies)|propiedad(?:es)?)\b/.test(q)) matched.push("property");
   if (/(?:^|\s)(?:workers?|cleaners?|maids?|plumbers?|electricians?|handym[ae]n|gardeners?|cooks?|chefs?|drivers?|nann(?:y|ies)|babysitters?|tutors?|trainers?|contractors?|mechanics?|painters?|carpenters?|welders?|technicians?|trabajador(?:es)?|limpieza|limpiador(?:es)?|plomeros?|electricistas?|jardineros?|cocineros?|chofer(?:es)?|niñeras?|mecanicos?|pintores?|carpinteros?|soldadores?|tecnicos?|emplead[oa]s?)\b/.test(q)) matched.push("worker");
 

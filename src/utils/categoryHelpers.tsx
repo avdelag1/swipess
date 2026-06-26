@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React from 'react';
-import { Bike, Briefcase, Home } from 'lucide-react';
+import { Anchor, Bike, Briefcase, Home } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 // Motorcycle wheel + sport helmet icon (replaces classic motorcycle silhouette)
@@ -33,6 +33,7 @@ export const categoryConfig: Record<string, CategoryDisplayInfo> = {
   moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
+  yacht: { icon: Anchor, label: 'Yacht', plural: 'Yachts', color: 'text-teal-500' },
   services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
 };

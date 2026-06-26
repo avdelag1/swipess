@@ -10,6 +10,7 @@ import { POKER_CARD_PHOTOS } from './SwipeConstants';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import {
+  Anchor,
   Bike,
   Calendar,
   Crown,
@@ -31,16 +32,17 @@ export interface BentoCategoryDashboardProps {
 // and not predictable, while both columns still end at the same height so the
 // grid stays balanced (no ragged gap at the bottom).
 const BENTO_ITEMS = [
-  { id: 'property',   label: 'PROPERTIES',  description: 'Find properties to buy or rent', size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
-  { id: 'buyers',     label: 'BUYERS',      description: 'People looking to buy',          size: 'normal', imageId: 'buyers',     icon: ShoppingCart, delay: '4s' },
-  { id: 'renters',    label: 'TENANTS',     description: 'People looking to rent',         size: 'normal', imageId: 'renters',    icon: Key,          delay: '8s' },
-  { id: 'bicycle',    label: 'BICYCLES',    description: 'Bicycles for sale or rent',      size: 'big',    imageId: 'bicycle',    icon: Bike,         delay: '12s' },
-  { id: 'services',   label: 'WORKERS',     description: 'Find people offering services',  size: 'big',    imageId: 'services',   icon: UserCheck,    delay: '16s' },
-  { id: 'motorcycle', label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',   size: 'normal', imageId: 'motorcycle', icon: Bike,         delay: '20s' },
-  { id: 'seekers',    label: 'SEEKERS',     description: 'People looking for workers',     size: 'normal', imageId: 'seekers',    icon: Search,       delay: '24s' },
-  { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',     size: 'big',    imageId: 'roommates',  icon: Users,        delay: '28s' },
-  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',      size: 'normal', imageId: 'premium',    icon: Crown,        delay: '32s' },
-  { id: 'events',     label: 'EVENTS',      description: 'Discover local events',          size: 'big',    imageId: 'events',     icon: Calendar,     delay: '36s' },
+  { id: 'property',   label: 'PROPERTIES',  description: 'Find properties to buy or rent',  size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
+  { id: 'yacht',      label: 'YACHTS',      description: 'Yachts & boats to charter or buy', size: 'big',   imageId: 'yacht',      icon: Anchor,       delay: '4s' },
+  { id: 'services',   label: 'WORKERS',     description: 'Find people offering services',   size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '8s' },
+  { id: 'motorcycle', label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',    size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '12s' },
+  { id: 'bicycle',    label: 'BICYCLES',    description: 'Bicycles for sale or rent',       size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '16s' },
+  { id: 'buyers',     label: 'BUYERS',      description: 'People looking to buy',           size: 'normal', imageId: 'buyers',     icon: ShoppingCart, delay: '20s' },
+  { id: 'renters',    label: 'TENANTS',     description: 'People looking to rent',          size: 'normal', imageId: 'renters',    icon: Key,          delay: '24s' },
+  { id: 'seekers',    label: 'SEEKERS',     description: 'People looking for workers',      size: 'big',    imageId: 'seekers',    icon: Search,       delay: '28s' },
+  { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',      size: 'normal', imageId: 'roommates',  icon: Users,        delay: '32s' },
+  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',       size: 'normal', imageId: 'premium',    icon: Crown,        delay: '36s' },
+  { id: 'events',     label: 'EVENTS',      description: 'Discover local events',           size: 'normal', imageId: 'events',     icon: Calendar,     delay: '40s' },
 ] as const;
 
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered

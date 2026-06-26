@@ -153,6 +153,11 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=800&q=90',
     'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=800&q=90',
   ],
+  yacht: [
+    'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?auto=format&fit=crop&w=800&q=90',
+    'https://images.unsplash.com/photo-1540946485063-a40da27545f8?auto=format&fit=crop&w=800&q=90',
+  ],
   services: [
     '/images/filters/workers_dog_sitting.png',
     '/images/filters/workers_massage_therapy.png',
@@ -226,6 +231,7 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
 const NEUTRAL_FALLBACK = 'linear-gradient(135deg, #111111 0%, #050505 100%)';
 export const POKER_CARD_GRADIENTS: Record<string, string> = {
   property: NEUTRAL_FALLBACK,
+  yacht: NEUTRAL_FALLBACK,
   motorcycle: NEUTRAL_FALLBACK,
   moto: NEUTRAL_FALLBACK,
   bicycle: NEUTRAL_FALLBACK,

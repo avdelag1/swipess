@@ -44,6 +44,7 @@ export const SwipeExhaustedState = ({
     { id: 'property', label: t('deck.exhausted.categories.property') },
     { id: 'motorcycle', label: t('deck.exhausted.categories.motorcycle') },
     { id: 'bicycle', label: t('deck.exhausted.categories.bicycle') },
+    { id: 'yacht', label: t('deck.exhausted.categories.yacht', 'Yachts') },
     { id: 'services', label: t('deck.exhausted.categories.services') },
   ];
 

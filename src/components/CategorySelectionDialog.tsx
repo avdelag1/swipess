@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Bike, Briefcase, Building2, Key, Repeat, Sparkles, Tag, X } from "lucide-react";
+import { Anchor, ArrowRight, Bike, Briefcase, Building2, Key, Repeat, Sparkles, Tag, X } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils";
 interface CategorySelectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCategorySelect?: (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => void;
+  onCategorySelect?: (category: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker', mode: 'rent' | 'sale' | 'both') => void;
   onAIOpen?: () => void;
   navigateToNewPage?: boolean;
 }
 
 interface Category {
-  id: 'property' | 'motorcycle' | 'bicycle' | 'worker';
+  id: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker';
   name: string;
   description: string;
   icon: React.ReactNode;
@@ -60,6 +60,15 @@ const categories: Category[] = [
     glowColor: 'hover:border-violet-300 dark:hover:border-violet-500/30',
   },
   {
+    id: 'yacht',
+    name: 'Yacht',
+    description: 'Yachts, boats, catamarans, charters',
+    icon: <Anchor className="w-6 h-6" />,
+    gradient: 'from-teal-500/10 to-transparent',
+    iconColor: 'text-teal-600 bg-teal-50 dark:text-teal-400 dark:bg-teal-500/15',
+    glowColor: 'hover:border-teal-300 dark:hover:border-teal-500/30',
+  },
+  {
     id: 'worker',
     name: 'Jobs & Services',
     description: 'Chef, cleaner, nanny, handyman, and more',
@@ -87,6 +96,11 @@ const getModes = (categoryId: string) => {
       { id: 'rent', label: 'For Rent', icon: <Key className="w-5 h-5" />, description: 'Hourly, daily, or weekly rental' },
       { id: 'sale', label: 'For Sale', icon: <Tag className="w-5 h-5" />, description: 'Bicycle for purchase' },
       { id: 'both', label: 'Both Options', icon: <Repeat className="w-5 h-5" />, description: 'Rent & sale available' },
+    ],
+    yacht: [
+      { id: 'rent', label: 'For Charter', icon: <Key className="w-5 h-5" />, description: 'Daily or weekly charter' },
+      { id: 'sale', label: 'For Sale', icon: <Tag className="w-5 h-5" />, description: 'Yacht for purchase' },
+      { id: 'both', label: 'Both Options', icon: <Repeat className="w-5 h-5" />, description: 'Charter & sale available' },
     ],
   };
   return modeMap[categoryId] || modeMap.property;

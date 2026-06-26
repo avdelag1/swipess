@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bike, Check, Home, Sparkles, User } from 'lucide-react';
+import { Anchor, Bike, Check, Home, Sparkles, User } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -7,7 +7,7 @@ import { triggerHaptic } from '@/utils/haptics';
 
 interface ListingSuccessCelebrationProps {
   isOpen: boolean;
-  category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
+  category: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker';
   onComplete: () => void;
 }
 
@@ -30,6 +30,12 @@ const CATEGORY_CONFIG = {
     icon: Bike,
     label: 'Gear Engaged'
   },
+  yacht: {
+    color: 'from-teal-500 to-cyan-600',
+    glow: 'rgba(20, 184, 166, 0.5)',
+    icon: Anchor,
+    label: 'Anchors Aweigh'
+  },
   worker: {
     color: 'from-amber-500 to-orange-600',
     glow: 'rgba(245, 158, 11, 0.5)',
@@ -39,7 +45,7 @@ const CATEGORY_CONFIG = {
 };
 
 export function ListingSuccessCelebration({ isOpen, category, onComplete }: ListingSuccessCelebrationProps) {
-  const config = CATEGORY_CONFIG[category];
+  const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.property;
   const Icon = config.icon;
   const [_hasStarted, setHasStarted] = useState(false);
 

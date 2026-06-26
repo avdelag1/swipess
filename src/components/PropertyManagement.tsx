@@ -59,6 +59,7 @@ const getCategoryColor = (category: string) => {
     case 'services': return 'text-blue-500 border-blue-500/20 bg-blue-500/5';
     case 'motorcycle': return 'text-orange-500 border-orange-500/20 bg-orange-500/5';
     case 'bicycle': return 'text-purple-500 border-purple-500/20 bg-purple-500/5';
+    case 'yacht': return 'text-teal-500 border-teal-500/20 bg-teal-500/5';
     default: return 'text-rose-500 border-rose-500/20 bg-rose-500/5';
   }
 };

@@ -1,9 +1,9 @@
-import { Bike, Briefcase, Home, Key, Tag } from 'lucide-react';
+import { Anchor, Bike, Briefcase, Home, Key, Tag } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
+export type Category = 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker';
 export type Mode = 'sale' | 'rent' | 'both';
 
 interface CategorySelectorProps {
@@ -27,6 +27,7 @@ export function CategorySelector({
     { value: 'property' as Category, label: 'Properties', icon: Home },
     { value: 'motorcycle' as Category, label: 'Motorcycles', icon: MotorcycleIcon },
     { value: 'bicycle' as Category, label: 'Bicycles', icon: Bike },
+    { value: 'yacht' as Category, label: 'Yachts', icon: Anchor },
     { value: 'worker' as Category, label: 'Workers', icon: Briefcase },
   ];
 

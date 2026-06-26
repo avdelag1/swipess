@@ -43,7 +43,7 @@ import { persistDeckToSession, useSwipeDeckStore } from '@/state/swipeDeckStore'
 import { useFilterActions, useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
-import { Bike, Briefcase, Home } from 'lucide-react';
+import { Anchor, Bike, Briefcase, Home } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
@@ -73,6 +73,7 @@ const _CATEGORY_ICON_MAP: Record<string, any> = {
   property: Home,
   motorcycle: MotorcycleIcon,
   bicycle: Bike,
+  yacht: Anchor,
   services: Briefcase,
   worker: Briefcase,
 };
@@ -914,6 +915,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     property: listingType === 'rent' ? 'Rentals' : 'Properties',
     motorcycle: 'Motorcycles',
     bicycle: 'Bicycles',
+    yacht: 'Yachts',
     services: 'Services',
     pros: 'Pros',
     events: 'Events',
