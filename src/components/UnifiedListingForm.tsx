@@ -26,7 +26,7 @@ import { WorkerFormData, WorkerListingForm } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';
-import { validateContent } from '@/utils/contactInfoValidation';
+import { validateContent, validateProfanity } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
@@ -271,6 +271,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           const result = validateContent(field.text);
           if (!result.isClean) {
             throw new Error(`${field.label}: ${result.message}`);
+          }
+          const prof = validateProfanity(field.text);
+          if (!prof.isClean) {
+            throw new Error(`${field.label}: ${prof.message}`);
           }
         }
       }

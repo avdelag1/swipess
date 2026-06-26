@@ -3,7 +3,7 @@
  * Validates text for contact info and optionally logs flags to database.
  */
 import { useCallback } from 'react';
-import { type FlagReason, validateContent } from '@/utils/contactInfoValidation';
+import { type FlagReason, validateContent, validateProfanity } from '@/utils/contactInfoValidation';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
@@ -44,18 +44,30 @@ export function useContentModeration() {
     text: string,
     contentType: ContentType,
     sourceId?: string,
-    showToast = true
+    options?: { allowContactInfo?: boolean; showToast?: boolean }
   ): boolean => {
     if (!text) return true;
+    const showToast = options?.showToast ?? true;
 
-    const result = validateContent(text);
-    if (!result.isClean && result.reason) {
-      if (showToast && result.message) {
-        appToast.error('Content blocked');
-      }
-      // Fire-and-forget DB log
-      logFlag(contentType, text, result.reason, sourceId);
+    // Profanity / slurs are ALWAYS blocked — even inside a paid chat where
+    // contact info is allowed.
+    const prof = validateProfanity(text);
+    if (!prof.isClean && prof.reason) {
+      if (showToast) appToast.error('Content blocked', prof.message || undefined);
+      logFlag(contentType, text, prof.reason, sourceId);
       return false;
+    }
+
+    // Contact info (phone/email/social) is blocked everywhere EXCEPT where the
+    // caller opts in — i.e. inside an already-opened (token-paid) 1:1 chat,
+    // where exchanging details is the whole point of having paid to connect.
+    if (!options?.allowContactInfo) {
+      const result = validateContent(text);
+      if (!result.isClean && result.reason) {
+        if (showToast && result.message) appToast.error('Content blocked', result.message);
+        logFlag(contentType, text, result.reason, sourceId);
+        return false;
+      }
     }
     return true;
   }, []);

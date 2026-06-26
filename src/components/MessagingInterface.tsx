@@ -229,7 +229,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     if (!newMessage.trim()) return;
 
     const messageText = newMessage.trim();
-    if (!moderate(messageText, 'message', conversationId)) return;
+    // This is an already-opened (token-paid) conversation, so sharing contact
+    // details is allowed here — only profanity is still blocked. Contact info
+    // stays blocked in descriptions, profiles and the cold opener.
+    if (!moderate(messageText, 'message', conversationId, { allowContactInfo: true })) return;
 
     setNewMessage('');
     stopTyping();

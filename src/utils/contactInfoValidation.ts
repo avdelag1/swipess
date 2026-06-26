@@ -4,7 +4,7 @@
  * Returns categorized results with severity levels for admin flagging.
  */
 
-export type FlagReason = 'phone' | 'email' | 'social_media' | 'url' | 'whatsapp';
+export type FlagReason = 'phone' | 'email' | 'social_media' | 'url' | 'whatsapp' | 'profanity';
 export type FlagSeverity = 'block' | 'flag';
 
 export interface ValidationResult {
@@ -114,6 +114,32 @@ export function validateContent(text: string): ValidationResult {
     return { isClean: false, reason: 'url', severity: 'block', message: BLOCK_MESSAGE };
   }
 
+  return clean;
+}
+
+// === PROFANITY / HARASSMENT ===
+// Word-boundary matched (with optional plural) to limit false positives, and
+// kept to clear profanity/slurs in both English and Spanish (the app is
+// bilingual). Not exhaustive — meant to catch overt abuse, not police tone.
+const PROFANITY_WORDS = [
+  // English
+  'fuck', 'fuk', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'whore',
+  'slut', 'bastard', 'nigger', 'nigga', 'faggot', 'fag', 'retard', 'rape', 'rapist',
+  // Spanish
+  'puta', 'puto', 'mierda', 'cabron', 'cabrón', 'pendejo', 'coño', 'verga',
+  'chinga', 'pinche', 'maricon', 'maricón', 'culero', 'joto', 'perra', 'zorra',
+];
+const PROFANITY_RE = new RegExp(`\\b(?:${PROFANITY_WORDS.join('|')})(?:s|es)?\\b`, 'i');
+const PROFANITY_MESSAGE = "Please keep it respectful — that language isn't allowed.";
+
+/** Detects overt profanity / slurs. Always enforced, even in paid chats. */
+export function validateProfanity(text: string): ValidationResult {
+  const clean: ValidationResult = { isClean: true, reason: null, severity: 'block', message: null };
+  if (!text) return clean;
+  const sanitized = sanitize(text);
+  if (PROFANITY_RE.test(sanitized)) {
+    return { isClean: false, reason: 'profanity', severity: 'block', message: PROFANITY_MESSAGE };
+  }
   return clean;
 }
 
