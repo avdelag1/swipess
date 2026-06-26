@@ -33,6 +33,7 @@ import {
 } from '@/data/worldLocations';
 
 import { validateContent } from '@/utils/contactInfoValidation';
+import { assertImageSafe } from '@/utils/photoUpload';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
@@ -226,7 +227,18 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     const filePath = `${user.data.user.id}/${uuid}.${fileExt}`;
     const { error } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
     if (error) throw error;
-    return supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+    const publicUrl = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+    try {
+      await assertImageSafe(publicUrl);
+    } catch (e) {
+      // Reject + remove the unsafe photo so it never becomes a public profile pic.
+      await supabase.storage.from('profile-images').remove([filePath]).catch(() => {});
+      if ((e as Error & { moderationBlocked?: boolean })?.moderationBlocked) {
+        appToast.error('Photo rejected', (e as Error).message);
+      }
+      throw e;
+    }
+    return publicUrl;
   };
 
   const handleSave = async () => {

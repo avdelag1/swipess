@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
+import { assertImageSafe } from '@/utils/photoUpload';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { cn } from '@/lib/utils';
@@ -58,7 +59,17 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
     const filePath = `${user.data.user.id}/${uuid}.${fileExt}`;
     const { error } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
     if (error) throw error;
-    return supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+    const publicUrl = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+    try {
+      await assertImageSafe(publicUrl);
+    } catch (e) {
+      await supabase.storage.from('profile-images').remove([filePath]).catch(() => {});
+      if ((e as Error & { moderationBlocked?: boolean })?.moderationBlocked) {
+        appToast.error('Photo rejected', (e as Error).message);
+      }
+      throw e;
+    }
+    return publicUrl;
   };
 
   const handleAddPhoto = () => {

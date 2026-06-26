@@ -12,9 +12,11 @@ const corsHeaders = {
 };
 
 const PROMPT = `You are a strict content moderator for a property/vehicle/job marketplace.
-Analyze this image for safety.
-If the image contains explicit nudity, pornography, gore, extreme violence, or illegal content, return {"safe": false, "reasons": ["description of what violated the policy"]}.
-If the image is safe, return {"safe": true, "reasons": []}.
+Analyze this image for BOTH unsafe content AND contact-info evasion.
+Mark it UNSAFE — return {"safe": false, "reasons": ["short description of what violated the policy"]} — if the image contains ANY of:
+- explicit nudity, pornography, gore, extreme violence, or illegal content; OR
+- visible personal contact details meant to move users off-platform: a phone or WhatsApp number, an email address, a social-media @handle or username (Instagram, Telegram, TikTok, Facebook, Snapchat, etc.), a website URL, or overlaid text like "WhatsApp me", "call me", "DM me" or "follow me".
+If none of the above are present, return {"safe": true, "reasons": []}.
 Respond ONLY with valid JSON.`;
 
 function safeResponse(payload: { safe: boolean; reasons: string[]; confidence: number }) {

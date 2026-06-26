@@ -6,6 +6,29 @@ export interface UploadProgressCallback {
   (progress: number): void;
 }
 
+/**
+ * Run an already-uploaded image through the moderate-image edge function and
+ * THROW if it's flagged (nudity / violence / contact-info-in-photo). Fails OPEN
+ * on any infra/network error so a moderation outage never blocks a legit upload.
+ * Callers should delete the rejected file from storage after catching.
+ */
+export async function assertImageSafe(publicUrl: string): Promise<void> {
+  let verdict: { safe?: boolean; reasons?: string[] } | null = null;
+  try {
+    const { data } = await supabase.functions.invoke('moderate-image', { body: { imageUrl: publicUrl } });
+    verdict = data as { safe?: boolean; reasons?: string[] } | null;
+  } catch (e) {
+    logger.warn('[Moderation] image check failed (fail-open):', e);
+    return; // infra error → don't block
+  }
+  if (verdict && verdict.safe === false) {
+    const reason = Array.isArray(verdict.reasons) && verdict.reasons[0] ? verdict.reasons[0] : 'it violates our content policy';
+    const err = new Error(`This photo can't be used — ${reason}. Please choose another.`);
+    (err as Error & { moderationBlocked?: boolean }).moderationBlocked = true;
+    throw err;
+  }
+}
+
 export interface PhotoUploadOptions {
   userId: string;
   blob: Blob;
