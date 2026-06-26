@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
@@ -44,6 +44,7 @@ interface Props {
 
 export function AccessCodeGate({ onGranted }: Props) {
   const [code, setCode] = useState('');
+  const [revealed, setRevealed] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -196,8 +197,20 @@ export function AccessCodeGate({ onGranted }: Props) {
                     spellCheck={false}
                     data-1p-ignore
                     data-lpignore="true"
-                    className="w-full h-14 pl-12 pr-4 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-[0.2em] uppercase placeholder:text-white/30 placeholder:normal-case placeholder:tracking-normal placeholder:font-semibold focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
+                    // CSS masking keeps the field type="text" (so Safari/1Password
+                    // don't inject their key icon) while still hiding the code with
+                    // dots; the eye toggles it.
+                    style={{ WebkitTextSecurity: revealed ? 'none' : 'disc' } as any}
+                    className="w-full h-14 pl-12 pr-12 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-[0.2em] uppercase placeholder:text-white/45 placeholder:normal-case placeholder:tracking-normal placeholder:font-semibold focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setRevealed(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full text-white/55 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label={revealed ? 'Hide access code' : 'Show access code'}
+                  >
+                    {revealed ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                  </button>
                 </div>
                 {error && (
                   <motion.p
@@ -250,7 +263,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                     <div className="rounded-2xl border border-white/15 bg-black/40 p-4 space-y-3">
                       <div className="text-center mb-1">
                         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">Request Access</p>
-                        <p className="text-[10px] text-white/50 mt-0.5">We&apos;ll send your code within 24 h</p>
+                        <p className="text-[10px] text-white/65 mt-0.5">We&apos;ll send your code within 24 h</p>
                       </div>
 
                       {submitted ? (
@@ -267,7 +280,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                             onChange={updateForm('name')}
                             placeholder="Your name *"
                             required
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 transition-colors"
+                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
                           />
                           <input
                             type="email"
@@ -275,21 +288,21 @@ export function AccessCodeGate({ onGranted }: Props) {
                             onChange={updateForm('email')}
                             placeholder="your@email.com *"
                             required
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 transition-colors"
+                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
                           />
                           <input
                             type="tel"
                             value={form.whatsapp}
                             onChange={updateForm('whatsapp')}
                             placeholder="WhatsApp (optional)"
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 transition-colors"
+                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
                           />
                           <textarea
                             value={form.message}
                             onChange={updateForm('message')}
                             placeholder="Tell us more (optional)"
                             rows={2}
-                            className="w-full rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 outline-none focus:border-white/40 transition-colors resize-none"
+                            className="w-full rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors resize-none"
                           />
                           {submitError && (
                             <p className="text-xs text-red-400 text-center">{submitError}</p>
@@ -297,7 +310,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                           <button
                             type="submit"
                             disabled={submitting || !form.name.trim() || !form.email.trim()}
-                            className="w-full min-h-11 py-2.5 rounded-xl bg-white text-black font-bold text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-transform disabled:opacity-40"
+                            className="w-full min-h-11 py-2.5 rounded-xl bg-white text-black font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-transform disabled:opacity-60"
                           >
                             {submitting ? (
                               <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -315,7 +328,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                 )}
               </AnimatePresence>
 
-              <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/40 italic text-center drop-shadow-md">
+              <p className="text-[9px] font-black uppercase tracking-[0.35em] text-white/60 italic text-center drop-shadow-md">
                 {gateSubtitle}
               </p>
             </motion.div>
