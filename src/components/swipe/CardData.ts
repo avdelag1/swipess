@@ -14,7 +14,8 @@ import {
   ShoppingBag,
   Sparkles,
   Users,
-  Zap
+  Zap,
+  Anchor
 } from 'lucide-react';
 
 export interface PokerCardData {
@@ -113,6 +114,8 @@ export const UNIFIED_CARDS: PokerCardData[] = [
   { id: 'motorcycle', label: 'Motorcycles', description: 'Motorcycles for rent and sale', accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame, dataType: 'listing' },
   // Bicycles
   { id: 'bicycle', label: 'Bicycles', description: 'Bicycles for rent and sale', accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap, dataType: 'listing' },
+  // Yachts
+  { id: 'yacht', label: 'Yachts', description: 'Yachts for charter and sale', accent: '#14b8a6', accentRgb: '20,184,166', icon: Anchor, dataType: 'listing' },
   // Events
   { id: 'events', label: 'Events', description: 'Discover local events', accent: '#ec4899', accentRgb: '236,72,153', icon: PartyPopper, dataType: 'events' },
   // Buyers
@@ -152,6 +155,11 @@ export const POKER_CARD_PHOTOS: Record<string, string[]> = {
     '/images/filters/bicycle_beach_ride.jpg',
     'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=800&q=90',
     'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=800&q=90',
+  ],
+  yacht: [
+    '/images/filters/yacht_luxury_sunset.png',
+    '/images/filters/yacht_marina_aerial.png',
+    '/images/filters/yacht_ocean_cruise.png',
   ],
   services: [
     '/images/filters/workers_dog_sitting.png',
@@ -247,4 +255,5 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   pros: NEUTRAL_FALLBACK,
   seekers: NEUTRAL_FALLBACK,
   premium: NEUTRAL_FALLBACK,
+  yacht: NEUTRAL_FALLBACK,
 };

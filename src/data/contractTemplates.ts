@@ -5,7 +5,7 @@ export interface ContractTemplate {
   id: string;
   name: string;
   description: string;
-  category: 'lease' | 'rental' | 'purchase' | 'rental_agreement' | 'service' | 'bicycle' | 'moto' | 'promise';
+  category: 'lease' | 'rental' | 'purchase' | 'rental_agreement' | 'service' | 'bicycle' | 'moto' | 'promise' | 'yacht';
   forRole: 'owner' | 'client' | 'both';
   content: string;
 }
@@ -2613,6 +2613,363 @@ Phone: <u>_________________________________</u></p>
     <p>Date: <u>_____________________</u></p>
   </div>
 </div>
+`
+  },
+  // ── yacht (2 new) ────────────────────────────────────────────────────────────
+  {
+    id: 'yacht-charter-agreement',
+    name: 'Yacht Charter Agreement',
+    description: 'Comprehensive charter agreement for yacht rentals including crew, fuel, and insurance terms',
+    category: 'yacht',
+    forRole: 'owner',
+    content: `
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1 style="font-size: 24px; font-weight: bold;">YACHT CHARTER AGREEMENT</h1>
+  <p style="font-style: italic;">Time Charter / Bareboat Charter</p>
+</div>
+
+<p><strong>This Yacht Charter Agreement</strong> ("Agreement") is entered into as of <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
+
+<p><strong>BETWEEN:</strong></p>
+
+<p><strong>YACHT OWNER/CHARTER COMPANY:</strong><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
+Company: <u>_________________________________</u><br/>
+Address: <u>_________________________________</u><br/>
+Phone: <u>_________________________________</u><br/>
+Email: <u>_________________________________</u><br/>
+Maritime License #: <u>_________________________________</u></p>
+
+<p><strong>CHARTERER:</strong><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
+ID/Passport: <u>_________________________________</u><br/>
+Address: <u>_________________________________</u><br/>
+Phone: <u>_________________________________</u><br/>
+Email: <u>_________________________________</u><br/>
+Boating License # (if bareboat): <u>_________________________________</u></p>
+
+<hr style="margin: 20px 0;"/>
+
+<h2 style="font-size: 18px;">1. VESSEL DESCRIPTION</h2>
+<table style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Vessel Name:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Make/Model:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Year Built:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Hull ID Number (HIN):</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Length Overall (LOA):</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> ft / m</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Beam:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> ft / m</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Berths/Cabins:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> berths / <u>________</u> cabins</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Max Passengers:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> persons</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Engines:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Flag/Registration:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Home Port:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+</table>
+
+<h2 style="font-size: 18px;">2. CHARTER TYPE AND PERIOD</h2>
+<p>Charter Type: ☐ Bareboat (Charterer operates) ☐ Crewed (Captain/Crew provided)</p>
+<p>Charter Start: <u>________________</u> at <u>________</u> from <u>_________________________________</u></p>
+<p>Charter End: <u>________________</u> at <u>________</u> returning to <u>_________________________________</u></p>
+<p>Total Charter Duration: <u>_____</u> days/hours</p>
+<p>Permitted Cruising Area: <u>_________________________________</u></p>
+
+<h2 style="font-size: 18px;">3. CHARTER FEE AND PAYMENT</h2>
+<p>Charter Fee: <u style="color:#EB4898;font-style:italic;">{{monthly_rent}}</u> (Currency: <u>________</u>)</p>
+<p>Rate Basis: ☐ Per Day ☐ Per Week ☐ Per Trip ☐ Per Hour</p>
+<p>Advance Payment / Deposit: <u style="color:#EB4898;font-style:italic;">{{security_deposit}}</u> due on <u>________________</u></p>
+<p>Balance Due: <u>________________</u> days before charter date</p>
+<p>Payment Method: <u>_________________________________</u></p>
+
+<h2 style="font-size: 18px;">4. INCLUDED AND EXCLUDED</h2>
+<p><strong>Included in Charter Fee:</strong></p>
+<ul>
+  <li>☐ Captain ☐ Crew ☐ Fuel ☐ Docking fees ☐ Insurance ☐ Snorkeling gear</li>
+  <li>☐ Fishing equipment ☐ Water toys ☐ Food & beverages ☐ Wi-Fi</li>
+</ul>
+<p><strong>NOT Included (Charterer responsibility):</strong></p>
+<ul>
+  <li>☐ Fuel ☐ Port/marina fees ☐ Food & beverages ☐ Gratuity</li>
+  <li>☐ Other: <u>_________________________________</u></li>
+</ul>
+
+<h2 style="font-size: 18px;">5. CREW (if crewed charter)</h2>
+<p>Captain Name: <u>_________________________________</u></p>
+<p>Captain License #: <u>_________________________________</u></p>
+<p>Number of Crew: <u>_____</u></p>
+<p>Gratuity: ☐ Included ☐ At Charterer's discretion (customary: 15-20%)</p>
+
+<h2 style="font-size: 18px;">6. INSURANCE</h2>
+<p>Hull Insurance: <u>_________________________________</u></p>
+<p>P&I (Protection & Indemnity): <u>_________________________________</u></p>
+<p>Charterer's Liability Insurance: ☐ Included ☐ Charterer must provide</p>
+<p>Insurance Deductible: <u>________________</u> (Charterer responsible)</p>
+
+<h2 style="font-size: 18px;">7. SECURITY DEPOSIT</h2>
+<p>Security Deposit: <u style="color:#EB4898;font-style:italic;">{{security_deposit}}</u></p>
+<p>The deposit covers potential damages to the vessel, its equipment, and any third-party claims. It will be returned within <u>_____</u> days after charter completion, minus any verified deductions.</p>
+
+<h2 style="font-size: 18px;">8. CHARTERER OBLIGATIONS</h2>
+<ul>
+  <li>Operate the vessel in a safe and seamanlike manner</li>
+  <li>Not exceed the maximum passenger capacity</li>
+  <li>Not engage in illegal activities or smuggling</li>
+  <li>Not sub-charter the vessel without written consent</li>
+  <li>Return the vessel with fuel tank at the same level as departure</li>
+  <li>Report any damage or mechanical issues immediately</li>
+  <li>Comply with all maritime laws and regulations</li>
+</ul>
+
+<h2 style="font-size: 18px;">9. SAFETY EQUIPMENT</h2>
+<p>The Owner confirms the vessel is equipped with:</p>
+<ul>
+  <li>☐ Life jackets (quantity: <u>_____</u>) ☐ Fire extinguisher(s) ☐ First aid kit</li>
+  <li>☐ Flares ☐ VHF Radio ☐ GPS/Navigation ☐ EPIRB ☐ Life raft</li>
+</ul>
+
+<h2 style="font-size: 18px;">10. CANCELLATION POLICY</h2>
+<p>☐ More than 30 days: Full refund minus <u>________</u>% admin fee</p>
+<p>☐ 15-30 days: <u>________</u>% refund</p>
+<p>☐ Less than 15 days: No refund</p>
+<p>☐ Weather cancellation: Full refund or reschedule at no charge</p>
+
+<h2 style="font-size: 18px;">11. LIMITATION OF LIABILITY</h2>
+<p>The Owner shall not be liable for personal injury, loss of personal belongings, or consequential damages except in cases of gross negligence. The Charterer assumes all inherent risks associated with boating and water activities.</p>
+
+<h2 style="font-size: 18px;">12. GOVERNING LAW</h2>
+<p>This Agreement shall be governed by the maritime laws and regulations of <u>_________________________________</u>.</p>
+
+<hr style="margin: 30px 0;"/>
+
+<div style="display: flex; justify-content: space-between; margin-top: 40px;">
+  <div style="width: 45%;">
+    <p><strong>OWNER/CHARTER COMPANY SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>_____________________</u></p>
+    <p>Date: <u>_____________________</u></p>
+  </div>
+  <div style="width: 45%;">
+    <p><strong>CHARTERER SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>_____________________</u></p>
+    <p>Date: <u>_____________________</u></p>
+  </div>
+</div>
+`
+  },
+  {
+    id: 'yacht-sale-contract',
+    name: 'Yacht Sale / Purchase Contract',
+    description: 'Contract for the sale and purchase of a yacht or boat, including marine survey and sea trial provisions',
+    category: 'yacht',
+    forRole: 'owner',
+    content: `
+<div style="text-align: center; margin-bottom: 30px;">
+  <h1 style="font-size: 24px; font-weight: bold;">YACHT / VESSEL SALE CONTRACT</h1>
+  <p style="font-style: italic;">Bill of Sale & Purchase Agreement</p>
+</div>
+
+<p><strong>This Vessel Sale Contract</strong> ("Agreement") is made on <u style="color:#EB4898;font-style:italic;">{{effective_date}}</u></p>
+
+<p><strong>BETWEEN:</strong></p>
+
+<p><strong>SELLER:</strong><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{landlord_name}}</u><br/>
+ID/Passport: <u>_________________________________</u><br/>
+Address: <u>_________________________________</u><br/>
+Phone: <u>_________________________________</u><br/>
+Email: <u>_________________________________</u></p>
+
+<p><strong>BUYER:</strong><br/>
+Name: <u style="color:#EB4898;font-style:italic;">{{tenant_name}}</u><br/>
+ID/Passport: <u>_________________________________</u><br/>
+Address: <u>_________________________________</u><br/>
+Phone: <u>_________________________________</u><br/>
+Email: <u>_________________________________</u></p>
+
+<hr style="margin: 20px 0;"/>
+
+<h2 style="font-size: 18px;">1. VESSEL DESCRIPTION</h2>
+<table style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Vessel Name:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Make/Builder:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Model:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Year Built:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Hull ID Number (HIN):</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Hull Material:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;">☐ Fiberglass ☐ Aluminum ☐ Steel ☐ Wood ☐ Carbon Fiber ☐ Other: <u>________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Length Overall (LOA):</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> ft / m</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Beam:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> ft / m</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Draft:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>________</u> ft / m</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Engine(s):</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Engine Hours:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Fuel Type:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;">☐ Diesel ☐ Gasoline ☐ Electric ☐ Hybrid ☐ Sail</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Flag/Registration:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u>_________________________________</u></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border: 1px solid #ccc;"><strong>Current Location:</strong></td>
+    <td style="padding: 8px; border: 1px solid #ccc;"><u style="color:#EB4898;font-style:italic;">{{property_address}}</u></td>
+  </tr>
+</table>
+
+<h2 style="font-size: 18px;">2. PURCHASE PRICE AND PAYMENT</h2>
+<p>Total Purchase Price: <u style="color:#EB4898;font-style:italic;">{{purchase_price}}</u> (Currency: <u>________</u>)</p>
+<p>Payment Schedule:</p>
+<ul>
+  <li>Earnest Money Deposit: <u style="color:#EB4898;font-style:italic;">{{earnest_money}}</u> due upon signing</li>
+  <li>Balance Due: <u>________________</u> due at closing on <u style="color:#EB4898;font-style:italic;">{{closing_date}}</u></li>
+</ul>
+<p>Payment Method: <u>_________________________________</u></p>
+<p>Escrow Agent (if applicable): <u>_________________________________</u></p>
+
+<h2 style="font-size: 18px;">3. MARINE SURVEY</h2>
+<p>The Buyer has the right to conduct a marine survey within <u>_____</u> days of this Agreement at Buyer's expense.</p>
+<p>Survey Type: ☐ Hull & Structural ☐ Mechanical/Engine ☐ Electrical ☐ Full Condition</p>
+<p>Haul-Out Costs: ☐ Seller ☐ Buyer ☐ Split equally</p>
+<p>If the survey reveals defects exceeding <u>________</u>% of the purchase price, the Buyer may:</p>
+<ul>
+  <li>☐ Terminate this Agreement with full refund of deposit</li>
+  <li>☐ Negotiate repair credits with the Seller</li>
+  <li>☐ Proceed with the purchase as-is</li>
+</ul>
+
+<h2 style="font-size: 18px;">4. SEA TRIAL</h2>
+<p>The Buyer shall have the right to a sea trial of <u>_____</u> hours on or before <u>________________</u>.</p>
+<p>Fuel and operating costs for the sea trial shall be borne by: ☐ Seller ☐ Buyer</p>
+
+<h2 style="font-size: 18px;">5. TITLE AND REGISTRATION</h2>
+<p>The Seller warrants that:</p>
+<ul>
+  <li>They are the sole and lawful owner of the vessel</li>
+  <li>The vessel is free and clear of all liens, mortgages, and encumbrances</li>
+  <li>All taxes and fees are current</li>
+  <li>The vessel has not been involved in illegal activities</li>
+</ul>
+<p>At closing, Seller shall provide:</p>
+<ul>
+  <li>☐ Bill of Sale ☐ Certificate of Registration/Title ☐ Release of liens</li>
+  <li>☐ Coast Guard documentation ☐ Tax receipts ☐ Warranty documents</li>
+</ul>
+
+<h2 style="font-size: 18px;">6. EQUIPMENT AND INVENTORY</h2>
+<p>The following equipment and inventory are INCLUDED in the sale:</p>
+<ul>
+  <li>☐ Navigation electronics ☐ Anchor & ground tackle ☐ Dinghy/tender</li>
+  <li>☐ Safety equipment ☐ Fishing equipment ☐ Water sports gear</li>
+  <li>☐ Galley equipment ☐ Bedding/linens ☐ Spare parts</li>
+  <li>☐ Other: <u>_________________________________</u></li>
+</ul>
+<p>Detailed inventory list: ☐ Attached as Appendix A</p>
+
+<h2 style="font-size: 18px;">7. CONDITION AND WARRANTIES</h2>
+<p>The vessel is sold: ☐ As-Is ☐ With the following warranties:</p>
+<p><u>_________________________________________________________________</u></p>
+<p>Seller certifies the vessel is in seaworthy condition and that all systems are in working order as of the date of sale.</p>
+
+<h2 style="font-size: 18px;">8. DELIVERY</h2>
+<p>Delivery Location: <u>_________________________________</u></p>
+<p>Delivery Date: <u>________________</u></p>
+<p>Delivery Costs: ☐ Seller ☐ Buyer ☐ Split equally</p>
+
+<h2 style="font-size: 18px;">9. CLOSING COSTS</h2>
+<p>Seller responsible for: <u>_________________________________</u></p>
+<p>Buyer responsible for: <u>_________________________________</u></p>
+<p>Registration transfer fees: ☐ Seller ☐ Buyer ☐ Split</p>
+
+<h2 style="font-size: 18px;">10. DEFAULT</h2>
+<p>If Buyer defaults, Seller may retain the earnest money deposit as liquidated damages.</p>
+<p>If Seller defaults, Buyer shall be entitled to return of all deposits plus <u>_________________________________</u>.</p>
+
+<h2 style="font-size: 18px;">11. GOVERNING LAW</h2>
+<p>This Agreement shall be governed by the maritime laws of <u>_________________________________</u>.</p>
+
+<hr style="margin: 30px 0;"/>
+
+<div style="display: flex; justify-content: space-between; margin-top: 40px;">
+  <div style="width: 45%;">
+    <p><strong>SELLER SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>_____________________</u></p>
+    <p>Date: <u>_____________________</u></p>
+  </div>
+  <div style="width: 45%;">
+    <p><strong>BUYER SIGNATURE</strong></p>
+    <p style="border-bottom: 1px solid #000; height: 40px;"></p>
+    <p>Name: <u>_____________________</u></p>
+    <p>Date: <u>_____________________</u></p>
+  </div>
+</div>
+
+<p style="margin-top: 30px;"><strong>WITNESS 1:</strong> <u>_________________________________</u> Date: <u>___________</u></p>
+<p><strong>WITNESS 2:</strong> <u>_________________________________</u> Date: <u>___________</u></p>
 `
   }
 ];

@@ -1,4 +1,4 @@
-import { Bike, Building2, CarFront, Key, Search, Wallet, Wrench } from 'lucide-react';
+import { Anchor, Bike, Building2, CarFront, Key, Search, Wallet, Wrench } from 'lucide-react';
 import type { QuickFilterCategory } from '@/types/filters';
 
 export interface FilterOption {
@@ -77,6 +77,19 @@ export const FILTERS: FilterCategory[] = [
       { label: 'Cheapest', prompt: 'Show cheapest bicycles' },
       { label: 'New Listings', prompt: 'Show new bicycle listings' },
       { label: 'Near Me', prompt: 'Find bicycles near me' },
+    ],
+  },
+  {
+    label: 'Yachts',
+    icon: Anchor,
+    glowColor: '#14b8a6',
+    category: 'yacht',
+    options: [
+      { label: 'Charters', prompt: 'Find yachts available for charter' },
+      { label: 'For Sale', prompt: 'Find yachts for sale' },
+      { label: 'Day Trips', prompt: 'Find yachts for day trips' },
+      { label: 'Luxury', prompt: 'Show luxury yachts' },
+      { label: 'Near Me', prompt: 'Find yachts near me' },
     ],
   },
   {

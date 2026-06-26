@@ -10,6 +10,7 @@ import { POKER_CARD_PHOTOS } from './SwipeConstants';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import {
+  Anchor,
   Bike,
   Calendar,
   Crown,
@@ -37,10 +38,11 @@ const BENTO_ITEMS = [
   { id: 'bicycle',    label: 'BICYCLES',    description: 'Bicycles for sale or rent',      size: 'big',    imageId: 'bicycle',    icon: Bike,         delay: '12s' },
   { id: 'services',   label: 'WORKERS',     description: 'Find people offering services',  size: 'big',    imageId: 'services',   icon: UserCheck,    delay: '16s' },
   { id: 'motorcycle', label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',   size: 'normal', imageId: 'motorcycle', icon: Bike,         delay: '20s' },
+  { id: 'yacht',      label: 'YACHTS',      description: 'Yachts for charter or sale',     size: 'big',    imageId: 'yacht',      icon: Anchor,       delay: '22s' },
   { id: 'seekers',    label: 'SEEKERS',     description: 'People looking for workers',     size: 'normal', imageId: 'seekers',    icon: Search,       delay: '24s' },
-  { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',     size: 'big',    imageId: 'roommates',  icon: Users,        delay: '28s' },
-  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',      size: 'normal', imageId: 'premium',    icon: Crown,        delay: '32s' },
-  { id: 'events',     label: 'EVENTS',      description: 'Discover local events',          size: 'big',    imageId: 'events',     icon: Calendar,     delay: '36s' },
+  { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',     size: 'normal', imageId: 'roommates',  icon: Users,        delay: '28s' },
+  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',      size: 'big',    imageId: 'premium',    icon: Crown,        delay: '32s' },
+  { id: 'events',     label: 'EVENTS',      description: 'Discover local events',          size: 'normal', imageId: 'events',     icon: Calendar,     delay: '36s' },
 ] as const;
 
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered
