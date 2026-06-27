@@ -25,7 +25,7 @@ import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerFormData, WorkerListingForm } from './WorkerListingForm';
 import { YachtFormData, YachtListingForm } from './YachtListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
-import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { assertImageSafe, uploadPhotoBatch } from '@/utils/photoUpload';
 import { compressImages, LISTING_COMPRESSION } from '@/utils/imageCompression';
 import { validateContent, validateProfanity } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
@@ -296,15 +296,25 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         );
         
         setUploadProgress(95);
-        // Fire-and-forget moderation so upload flows instantly
-        supabase.functions.invoke('moderate-image', {
-          body: { imageUrl: uploadedImageUrls[0] }
-        }).then(({ data: modData }) => {
-          if (modData && !modData.safe) {
-            logger.warn('[Moderation] Unsafe content detected:', modData.reasons);
+        // Block objectionable listing photos before publishing (Apple Guideline 1.2).
+        // assertImageSafe fails OPEN on infra errors so an outage never blocks a legit
+        // upload; checks run in parallel to keep the added latency to ~1 round-trip.
+        try {
+          await Promise.all(uploadedImageUrls.map((url) => assertImageSafe(url)));
+        } catch (e) {
+          // Remove the just-uploaded files so a rejected upload leaves no orphan.
+          const paths = uploadedImageUrls
+            .map((u) => u.split('/listing-images/')[1])
+            .filter(Boolean) as string[];
+          if (paths.length) {
+            await supabase.storage.from('listing-images').remove(paths).catch(() => {});
           }
-        }).catch((e) => logger.warn('[Moderation] check failed:', e));
-        
+          if ((e as Error & { moderationBlocked?: boolean })?.moderationBlocked) {
+            appToast.error('Photo rejected', (e as Error).message);
+          }
+          throw e;
+        }
+
         setUploadProgress(98);
       }
 

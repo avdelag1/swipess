@@ -12,7 +12,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
-import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { assertImageSafe, uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useQueryClient } from '@tanstack/react-query';
@@ -212,6 +212,25 @@ export function AIProfileWizard() {
       })();
 
       const [urls, draft] = await Promise.all([uploadPromise, extractPromise]);
+
+      // Block objectionable profile photos before saving (Apple Guideline 1.2).
+      // assertImageSafe fails OPEN on infra errors and only throws for genuinely
+      // unsafe content.
+      let photoRejected: Error | null = null;
+      try {
+        await Promise.all(urls.map((url) => assertImageSafe(url)));
+      } catch (e) {
+        photoRejected = e as Error;
+      }
+      if (photoRejected) {
+        const paths = urls.map((u) => u.split('/profile-images/')[1]).filter(Boolean) as string[];
+        if (paths.length) {
+          await supabase.storage.from('profile-images').remove(paths).catch(() => {});
+        }
+        appToast.error('Photo rejected', photoRejected.message);
+        setStep('compose');
+        return;
+      }
       setProgressPct(70);
 
       // 3. Save profile as draft to modal store

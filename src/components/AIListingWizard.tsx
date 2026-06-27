@@ -15,7 +15,7 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
-import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { assertImageSafe, uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { useAIEnhanceText } from '@/hooks/useAIEnhanceText';
@@ -356,6 +356,22 @@ export function AIListingWizard() {
       })();
 
       const [uploadedUrls, parsed] = await Promise.all([uploadPromise, extractPromise]);
+
+      // Block objectionable photos before publishing (Apple Guideline 1.2).
+      // assertImageSafe fails OPEN on infra errors and only throws for genuinely
+      // unsafe content; the outer catch surfaces the message + returns to compose.
+      try {
+        await Promise.all(uploadedUrls.map((url) => assertImageSafe(url)));
+      } catch (e) {
+        const paths = uploadedUrls
+          .map((u) => u.split('/listing-images/')[1])
+          .filter(Boolean) as string[];
+        if (paths.length) {
+          await supabase.storage.from('listing-images').remove(paths).catch(() => {});
+        }
+        throw e;
+      }
+
       setProgressPhase('optimize');
       setProgressPct(72);
 
