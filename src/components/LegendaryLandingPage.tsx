@@ -492,7 +492,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden border border-white/30"
               >
                 <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} />
-                {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? getContentValue(siteContent, 'auth_login_btn_text', 'Sign In') : getContentValue(siteContent, 'auth_signup_btn_text', 'Create Account')}
+                {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
               </button>
             </div>
         </motion.form>
@@ -536,7 +536,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
               className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
             >
               <AppleIcon />
-              <span>Sign in with Apple</span>
+              <span>{isLogin ? 'Sign in with Apple' : 'Sign up with Apple'}</span>
             </button>
 
             {!isNativeIOS && (
@@ -551,7 +551,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                 className="flex h-12 w-full items-center justify-center gap-3 rounded-xl active:scale-[0.97] transition-all font-black uppercase tracking-widest text-[13px]"
               >
                 <GoogleIcon />
-                <span>Continue with Google</span>
+                <span>{isLogin ? 'Continue with Google' : 'Sign up with Google'}</span>
               </button>
             )}
           </motion.div>
