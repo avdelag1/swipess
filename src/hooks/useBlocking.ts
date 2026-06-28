@@ -116,13 +116,13 @@ export function useBlockedUsers() {
       const ids = (blocks as any[]).map((b) => b.blocked_id);
 
       const [clientsRes, ownersRes] = await Promise.all([
-        supabase.from('client_profiles').select('user_id, name, profile_images').in('user_id', ids),
+        supabase.from('client_profiles').select('user_id, name, full_name, profile_images').in('user_id', ids),
         supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', ids),
       ]);
 
       const profileMap = new Map<string, { full_name: string; avatar_url?: string }>();
       for (const c of (clientsRes.data ?? []) as any[]) {
-        profileMap.set(c.user_id, { full_name: c.name || 'User', avatar_url: c.profile_images?.[0] });
+        profileMap.set(c.user_id, { full_name: c.name || c.full_name || 'User', avatar_url: c.profile_images?.[0] });
       }
       for (const o of (ownersRes.data ?? []) as any[]) {
         if (!profileMap.has(o.user_id)) {

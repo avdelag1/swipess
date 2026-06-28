@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Search, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { appToast } from '@/utils/appNotification';
@@ -78,6 +79,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [showChatInfo, setShowChatInfo] = useState(false);
   // Controlled so the menu can't get stuck by the Radix mobile toggle race.
   const [menuOpen, setMenuOpen] = useState(false);
   // In-chat keyword search (WhatsApp-style): filter this conversation's messages.
@@ -310,7 +312,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             </button>
 
             <button
-              onClick={() => navigate(`/profile/${otherUser.id}`)}
+              onClick={() => setShowChatInfo(true)}
               className="flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition-transform"
             >
               <div className="relative shrink-0">
@@ -341,11 +343,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none shrink min-w-0 max-w-[140px]", isThemeLight ? "text-black" : "text-white")}>
                     {otherUser.full_name}
                   </h3>
-                  {listing && (
-                    <div className="px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20 shrink min-w-0 truncate">
-                      <span className="text-[8px] font-black uppercase text-rose-500 tracking-widest truncate block">{listing.title}</span>
-                    </div>
-                  )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
                   <div className={cn("w-1.5 h-1.5 rounded-full", isOnline ? "bg-violet-400 animate-pulse" : "bg-slate-500")} />
@@ -361,7 +358,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
             <div className="flex-1" />
 
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-1 shrink-0">
               <button
                 onClick={() => { setShowChatSearch(s => !s); setChatSearch(''); triggerHaptic('light'); }}
                 aria-label="Search messages"
@@ -707,30 +704,100 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         />
 
         <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
-          <AlertDialogContent className={cn("z-[10000] rounded-[28px]", isThemeLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
+          <AlertDialogContent className={cn("max-w-[320px] rounded-3xl", isThemeLight ? "bg-white" : "bg-[#111111] border-white/10")}>
             <AlertDialogHeader>
-              <AlertDialogTitle className={cn("text-lg font-bold", isThemeLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
-              <AlertDialogDescription className={cn(isThemeLight ? "text-slate-500" : "text-white/50")}>
-                {otherUser.full_name} won't be able to message you, and you won't receive their messages. You can unblock them anytime from this chat or in Settings → Security.
+              <AlertDialogTitle className={cn("text-xl font-black uppercase tracking-tight text-center", isThemeLight ? "text-slate-900" : "text-white")}>
+                Block User
+              </AlertDialogTitle>
+              <AlertDialogDescription className={cn("text-center font-medium", isThemeLight ? "text-slate-600" : "text-white/60")}>
+                Are you sure you want to block {otherUser.full_name}? They will no longer be able to message you or see your listings.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="gap-2">
-              <AlertDialogCancel className={cn("z-[10000] rounded-2xl", isThemeLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
-                Cancel
-              </AlertDialogCancel>
+            <AlertDialogFooter className="sm:justify-center gap-3 mt-4">
+              <AlertDialogCancel className={cn("rounded-full font-bold uppercase tracking-widest text-xs flex-1", isThemeLight ? "" : "border-white/10 text-white hover:bg-white/5")}>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="rounded-2xl bg-red-600 hover:bg-red-500 text-white border-0"
-                onClick={() => { blockUser.mutate(otherUser.id); onBack(); }}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-full uppercase tracking-widest text-xs flex-1"
+                onClick={() => {
+                  blockUser.mutate(otherUser.id);
+                }}
               >
                 Block
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog open={showChatInfo} onOpenChange={setShowChatInfo}>
+          <DialogContent className={cn("max-w-[320px] rounded-[32px] p-6 border-0", isThemeLight ? "bg-white shadow-2xl" : "bg-[#111111] shadow-[0_0_40px_rgba(0,0,0,0.5)]")} hideCloseButton>
+            <DialogHeader className="mb-2">
+              <DialogTitle className="hidden">Chat Info</DialogTitle>
+              <DialogDescription className="hidden">Details about this chat</DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center text-center relative">
+              <button 
+                onClick={() => setShowChatInfo(false)}
+                className={cn("absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors", isThemeLight ? "bg-slate-100 text-slate-500 hover:bg-slate-200" : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white")}
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <Avatar className={cn("w-24 h-24 border-[3px] mb-4 shadow-lg", isThemeLight ? "border-white" : "border-[#111111]")}>
+                <AvatarImage src={otherUser.avatar_url} className="object-cover" />
+                <AvatarFallback className="text-3xl font-black bg-rose-100 text-rose-500">{otherUser.full_name?.charAt(0) || '?'}</AvatarFallback>
+              </Avatar>
+              
+              <h2 className={cn("text-xl font-black uppercase tracking-tight leading-none", isThemeLight ? "text-slate-900" : "text-white")}>
+                {otherUser.full_name}
+              </h2>
+              <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-1.5 mb-6">
+                {otherUser.role === 'owner' ? 'Property Owner' : 'Client'}
+              </p>
+
+              {listing && (
+                <div className={cn("w-full p-4 rounded-2xl mb-6 text-left border relative overflow-hidden", isThemeLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
+                  <div className="absolute top-0 right-0 p-3 opacity-20 pointer-events-none">
+                    <FileText className="w-12 h-12" />
+                  </div>
+                  <div className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-2 relative z-10">Related Listing</div>
+                  <div className="flex items-center gap-3 relative z-10">
+                    {listing.images?.[0] ? (
+                      <img src={listing.images[0]} alt={listing.title} className="w-14 h-14 rounded-xl object-cover border border-black/10" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-black/10 flex items-center justify-center"><FileText className="w-6 h-6 text-black/20" /></div>
+                    )}
+                    <div className="flex-1 min-w-0 pr-4">
+                      <p className={cn("font-bold text-[13px] leading-tight line-clamp-2", isThemeLight ? "text-slate-900" : "text-white")}>{listing.title}</p>
+                      {listing.city && <p className="text-[11px] font-semibold text-slate-500 truncate mt-1">{listing.city}</p>}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 w-full">
+                <button
+                  onClick={() => { setShowChatInfo(false); navigate(`/profile/${otherUser.id}`); }}
+                  className="w-full py-3.5 rounded-2xl bg-rose-500 text-white font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-transform"
+                >
+                  View Profile
+                </button>
+                {listing && (
+                  <button
+                    onClick={() => { setShowChatInfo(false); navigate(`/listing/${listing.id}`); }}
+                    className={cn("w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-transform border", 
+                      isThemeLight ? "bg-white text-slate-700 border-slate-200 hover:bg-slate-50" : "bg-white/5 text-white border-white/10 hover:bg-white/10")}
+                  >
+                    View Listing
+                  </button>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
 });
 
 MessagingInterface.displayName = 'MessagingInterface';
+
 
