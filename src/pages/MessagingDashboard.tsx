@@ -65,6 +65,11 @@ export function MessagingDashboard() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
+  // True only when the chat was opened by tapping a row in the inbox list. When
+  // the chat is deep-linked (e.g. from a listing's "Message" preview, ?conversationId
+  // or ?startConversation), this stays false so Back leaves Messages in one tap
+  // instead of dropping the user on the inbox.
+  const [openedFromInbox, setOpenedFromInbox] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
   const [blockTarget, setBlockTarget] = useState<{ userId: string; name: string } | null>(null);
@@ -139,9 +144,13 @@ export function MessagingDashboard() {
           setSelectedConversationId(conversationId);
           setSearchParams({}, { replace: true });
         } else {
-          setSelectedConversationId(null);
+          // Metadata not readable yet (common right after creating a chat — RLS
+          // lag). Keep the chat OPEN by id: MessagingInterface loads the messages
+          // directly and the header fills in once the row is readable. Do NOT
+          // bounce to the inbox — that was the "it shows me the inbox instead of
+          // the chat" bug.
+          setSelectedConversationId(conversationId);
           setSearchParams({}, { replace: true });
-          appToast.error('Conversation not found', 'This chat may have been deleted or is no longer available.');
         }
       }
     } catch (_e) {
@@ -228,13 +237,20 @@ export function MessagingDashboard() {
               currentUserRole={userRole}
               onBack={() => {
                 triggerHaptic('medium');
-                // Authoritative one-tap close: clear chat state AND any lingering
-                // ?conversationId / ?startConversation params so the open-effect
-                // can't immediately re-open the chat (the "tap back 3 times" bug).
+                // Clear chat state AND any lingering ?conversationId /
+                // ?startConversation params so the open-effect can't immediately
+                // re-open the chat (the "tap back 3 times" bug).
                 setIsStartingConversation(false);
                 setDirectlyFetchedConversation(null);
                 setSelectedConversationId(null);
                 setSearchParams({}, { replace: true });
+                if (!openedFromInbox) {
+                  // Deep-linked straight into this chat (from a listing/card, not
+                  // the inbox list) — one Back should leave Messages entirely and
+                  // return to where they came from, not strand them on the inbox.
+                  navigate(-1);
+                }
+                setOpenedFromInbox(false);
               }}
             />
           </motion.div>
@@ -377,7 +393,7 @@ export function MessagingDashboard() {
                         ? "surface-row surface-row--active"
                         : "surface-row hover:shadow-[var(--elev-3)]"
                     )} 
-                    onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
+                    onClick={() => { triggerHaptic('medium'); setOpenedFromInbox(true); setSelectedConversationId(conversation.id); }}
                   >
                     {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}

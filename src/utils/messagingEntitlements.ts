@@ -129,6 +129,11 @@ export async function assertCanStartNewConversation(
   userId: string,
   otherUserId: string,
 ): Promise<void> {
+  // Promo: everyone can message for free. Skip the existence/token/plan network
+  // round-trips entirely so opening a chat is instant instead of "stuck loading"
+  // while three extra queries resolve.
+  if (PREMIUM_FOR_EVERYONE) return;
+
   if (await conversationExistsBetween(userId, otherUserId)) return;
 
   const [tokenBalance, planName] = await Promise.all([
