@@ -226,7 +226,7 @@ function TopBarComponent({
 
         {/* RIGHT: each action in its own pill — 44px targets, gap between */}
         {!minimal && (
-          <div className="flex items-center gap-1.5 shrink-0 pointer-events-auto">
+          <div className="flex items-center gap-1 shrink-0 pointer-events-auto">
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
