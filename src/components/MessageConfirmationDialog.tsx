@@ -98,7 +98,7 @@ export function MessageConfirmationDialog({
                 <span className={cn("text-[11px] font-black uppercase tracking-wider block", isLight ? "text-slate-900" : "text-white")}>
                   {isUnlimited ? 'Unlimited Access' : 'Message Tokens'}
                 </span>
-                <span className={cn("text-[10px] font-semibold uppercase tracking-widest mt-0.5 block", isLight ? "text-slate-500" : "text-white/40")}>
+                <span className={cn("text-[10px] font-semibold uppercase tracking-widest mt-0.5 block", isLight ? "text-slate-500" : "text-white/80")}>
                   {isUnlimited ? `${currentPlan} plan` : quotaLabel}
                 </span>
               </div>
@@ -115,10 +115,10 @@ export function MessageConfirmationDialog({
         {/* Message area */}
         <div className="flex-1 px-6 py-6">
           <div className="flex justify-between items-center mb-3">
-            <label className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>
+            <label className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/90")}>
               Message to {recipientName}
             </label>
-            <span className={cn("text-[10px] font-bold", isLight ? "text-slate-400" : "text-white/30")}>
+            <span className={cn("text-[10px] font-bold", isLight ? "text-slate-400" : "text-white/70")}>
               {message.length}/500
             </span>
           </div>
@@ -132,7 +132,7 @@ export function MessageConfirmationDialog({
               "min-h-[140px] resize-none rounded-2xl text-[15px] p-5 transition-all outline-none border", 
               isLight 
                 ? "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-slate-300 focus:shadow-sm" 
-                : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 focus:bg-white/[0.05] focus:border-white/20"
+                : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/60 focus:bg-white/[0.05] focus:border-white/20"
             )}
             disabled={isLoading}
           />
@@ -170,7 +170,7 @@ export function MessageConfirmationDialog({
             onClick={handleCancel}
             disabled={isLoading}
             className={cn("w-full h-12 rounded-full font-bold text-xs uppercase tracking-widest active:scale-[0.98] transition-all border", 
-              isLight ? "bg-white text-slate-500 border-slate-200 hover:bg-slate-50" : "bg-transparent text-white/50 border-white/10 hover:bg-white/5 hover:text-white"
+              isLight ? "bg-white text-slate-500 border-slate-200 hover:bg-slate-50" : "bg-transparent text-white/80 border-white/20 hover:bg-white/10 hover:text-white"
             )}
           >
             Cancel
