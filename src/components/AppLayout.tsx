@@ -232,28 +232,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     wasRevealRef.current = useRevealMode;
   }, [useRevealMode, swipeDeckActive]);
 
-  // Arm / disarm the staggered auto-hide based on whether a quick filter is
-  // active. On the dashboard swipe surface the chrome is PINNED on the category
-  // picker (the navigation hub, no category selected) and AUTO-HIDES once a
-  // quick filter is active and the card deck is on screen — header + bottom nav
-  // fade at 3.5s and the right-side action rail at 4s (see useChromeReveal).
-  //
-  // This MUST react to the active-category count, not just to entering reveal
-  // mode. Previously the auto-hide was only ever armed from the "no results"
-  // exhausted card, so the common path (open dashboard → pick a filter → swipe)
-  // left autoHideEnabled false and the chrome never hid. Reacting to the count
-  // also re-pins the chrome when the user taps back to the picker.
-  useEffect(() => {
-    if (!useRevealMode || !swipeDeckActive) return;
-    if (selectedCategoriesCount > 0) {
-      enableChromeAutoHide();
-      revealChrome();
-    } else {
-      resetChromeAutoHide();
-      showChromePersistent();
-    }
-  }, [useRevealMode, swipeDeckActive, selectedCategoriesCount]);
-
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
