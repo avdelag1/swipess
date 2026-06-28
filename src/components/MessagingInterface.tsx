@@ -482,7 +482,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <div className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 bg-gradient-to-br from-rose-500/20 to-amber-500/20 border border-white/5 shadow-2xl">
                 <ShieldAlert className="z-[10000] w-10 h-10 text-rose-400" />
               </div>
-              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Couldn't load chat</h3>
+              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Couldn't load messages</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[220px] leading-relaxed", isThemeLight ? "text-black/30" : "text-white/30")}>
                 The connection stalled. Check your network and try again.
               </p>
@@ -717,10 +717,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <AlertDialogCancel className={cn("rounded-full font-bold uppercase tracking-widest text-xs flex-1", isThemeLight ? "" : "border-white/10 text-white hover:bg-white/5")}>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-full uppercase tracking-widest text-xs flex-1"
-                onClick={() => {
-                  blockUser.mutate(otherUser.id);
-                  // Use setTimeout to allow Radix UI to unmount its scroll-lock properly
-                  setTimeout(() => onBack(), 300);
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowBlockConfirm(false);
+                  setTimeout(() => {
+                    blockUser.mutate(otherUser.id);
+                    setTimeout(() => onBack(), 100);
+                  }, 300);
                 }}
               >
                 Block
