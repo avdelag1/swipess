@@ -357,29 +357,16 @@ export function useSmartListingMatching(
                 // 1. Prepare exclusion list from cache (if available)
                 const swipedListingIds = new Set<string>();
                 if (userSwipes) {
-                  // 1. Always exclude liked items
+                  // Exclude only items the user already LIKED — a like saves the
+                  // listing to their likes, so it leaves the swipe deck.
                   userSwipes.liked.forEach(id => swipedListingIds.add(id));
-                  
-                  // 2. Apply 3-strike progressive exclusion for dislikes
-                  userSwipes.left.forEach((createdAt, id) => {
-                    const strike = userSwipes.strikes.get(id);
-                    const strikeCount = strike?.count || 1;
-                    
-                    let timeoutDays = 3;
-                    if (strikeCount === 2) timeoutDays = 7;
-                    if (strikeCount >= 3) timeoutDays = 36500; // 100 years = forever
 
-                    const timeoutMs = timeoutDays * 24 * 60 * 60 * 1000;
-                    const isTimedOut = new Date(createdAt).getTime() + timeoutMs > Date.now();
-                    
-                    // If refresh mode is ON, we only exclude "forever" items (strike 3)
-                    // If refresh mode is OFF, we exclude any active timeout
-                    if (strikeCount >= 3) {
-                      swipedListingIds.add(id);
-                    } else if (!isRefreshMode && isTimedOut) {
-                      swipedListingIds.add(id);
-                    }
-                  });
+                  // NOTE: dislikes (left swipes) intentionally do NOT hide
+                  // listings right now. There are only a handful of real
+                  // property listings in testing, so hiding every disliked one
+                  // empties the deck. A left swipe is still recorded (so the
+                  // "hide for a few days" rule can be turned on later), but for
+                  // now disliked listings keep showing up in the deck.
                 }
 
                 // Helper: append demo listings AFTER real ones so testing data is never lost.
