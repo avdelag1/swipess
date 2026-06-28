@@ -338,7 +338,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-2 min-w-0">
-                  <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none shrink-0 max-w-[140px]", isThemeLight ? "text-black" : "text-white")}>
+                  <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none shrink min-w-0 max-w-[140px]", isThemeLight ? "text-black" : "text-white")}>
                     {otherUser.full_name}
                   </h3>
                   {listing && (

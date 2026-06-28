@@ -94,7 +94,7 @@ export function useConversations() {
         // Last messages use a single IN query; JS deduplicates by conversation_id keeping
         // the latest row (results come back ordered by created_at DESC globally).
         const [clientsResult, ownersResult, listingsResult, blockedResult, messagesResult] = await Promise.all([
-          supabase.from('client_profiles').select('user_id, name, age, profile_images').in('user_id', Array.from(userIds)),
+          supabase.from('client_profiles').select('user_id, name, full_name, age, profile_images').in('user_id', Array.from(userIds)),
           supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', Array.from(userIds)),
           listingIds.length > 0
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', listingIds)
