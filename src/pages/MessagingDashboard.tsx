@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -65,11 +65,11 @@ export function MessagingDashboard() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
-  // True only when the chat was opened by tapping a row in the inbox list. When
-  // the chat is deep-linked (e.g. from a listing's "Message" preview, ?conversationId
-  // or ?startConversation), this stays false so Back leaves Messages in one tap
-  // instead of dropping the user on the inbox.
-  const [openedFromInbox, setOpenedFromInbox] = useState(false);
+  // Monotonic "open request" id. Every attempt to open a chat claims the next
+  // value; Back (or a newer open) bumps it. An async open that finishes AFTER
+  // its id was superseded bails instead of re-opening the chat — this is what
+  // kills the "tap Back 5 times and it keeps coming back" bug.
+  const openGenRef = useRef(0);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
   const [blockTarget, setBlockTarget] = useState<{ userId: string; name: string } | null>(null);
@@ -126,6 +126,9 @@ export function MessagingDashboard() {
   }, [conversations, searchQuery, activeFilter, user?.id]);
 
   const handleDirectOpenConversation = useCallback(async (conversationId: string) => {
+    const gen = ++openGenRef.current;
+    // Superseded by a newer open or cancelled by Back → don't touch state.
+    const cancelled = () => gen !== openGenRef.current;
     setIsStartingConversation(true);
     const timeout = setTimeout(() => setIsStartingConversation(false), 6000);
     try {
@@ -134,11 +137,13 @@ export function MessagingDashboard() {
         const result = await refetch();
         conversation = (result.data || []).find((c: any) => c.id === conversationId);
       }
+      if (cancelled()) return;
       if (conversation) {
         setSelectedConversationId(conversationId);
         setSearchParams({}, { replace: true });
       } else {
         const fetched = await fetchSingleConversation(conversationId);
+        if (cancelled()) return;
         if (fetched) {
           setDirectlyFetchedConversation(fetched);
           setSelectedConversationId(conversationId);
@@ -154,15 +159,18 @@ export function MessagingDashboard() {
         }
       }
     } catch (_e) {
+      if (cancelled()) return;
       appToast.error('Failed to open conversation', _e instanceof Error ? _e.message : 'Please try again.');
       setSearchParams({}, { replace: true });
     } finally {
       clearTimeout(timeout);
-      setIsStartingConversation(false);
+      if (!cancelled()) setIsStartingConversation(false);
     }
   }, [conversations, refetch, fetchSingleConversation, setSearchParams]);
 
   const handleAutoStartConversation = useCallback(async (userId: string) => {
+    const gen = ++openGenRef.current;
+    const cancelled = () => gen !== openGenRef.current;
     setIsStartingConversation(true);
     try {
       const existing = conversations.find(c => c.other_user?.id === userId);
@@ -188,6 +196,7 @@ export function MessagingDashboard() {
           setTimeout(() => reject(new Error('Timed out connecting. Please check your connection and try again.')), 15000)
         ),
       ]);
+      if (cancelled()) return;
       if (result.conversationId) {
         // Open the chat immediately; refresh the inbox list in the background so
         // the header fills in without blocking entry into the chat.
@@ -196,10 +205,11 @@ export function MessagingDashboard() {
         void refetch();
       }
     } catch (e) {
+      if (cancelled()) return;
       handleStartConversationError(e);
       setSearchParams({}, { replace: true });
     } finally {
-      setIsStartingConversation(false);
+      if (!cancelled()) setIsStartingConversation(false);
     }
   }, [conversations, canSendMessage, startConversation, refetch, setSearchParams]);
 
@@ -237,20 +247,17 @@ export function MessagingDashboard() {
               currentUserRole={userRole}
               onBack={() => {
                 triggerHaptic('medium');
-                // Clear chat state AND any lingering ?conversationId /
-                // ?startConversation params so the open-effect can't immediately
-                // re-open the chat (the "tap back 3 times" bug).
+                // ONE-TAP back to the inbox. Bump the open id first so any
+                // in-flight "open this chat" resolution that's still awaiting a
+                // refetch can't fire setSelectedConversationId and re-open the
+                // chat after we've closed it (the "tap Back 5 times" bug). Then
+                // clear chat state + any lingering ?conversationId / ?startConversation
+                // params so the open-effect can't re-open it either.
+                openGenRef.current += 1;
                 setIsStartingConversation(false);
                 setDirectlyFetchedConversation(null);
                 setSelectedConversationId(null);
                 setSearchParams({}, { replace: true });
-                if (!openedFromInbox) {
-                  // Deep-linked straight into this chat (from a listing/card, not
-                  // the inbox list) — one Back should leave Messages entirely and
-                  // return to where they came from, not strand them on the inbox.
-                  navigate(-1);
-                }
-                setOpenedFromInbox(false);
               }}
             />
           </motion.div>
@@ -393,7 +400,7 @@ export function MessagingDashboard() {
                         ? "surface-row surface-row--active"
                         : "surface-row hover:shadow-[var(--elev-3)]"
                     )} 
-                    onClick={() => { triggerHaptic('medium'); setOpenedFromInbox(true); setSelectedConversationId(conversation.id); }}
+                    onClick={() => { triggerHaptic('medium'); openGenRef.current += 1; setSelectedConversationId(conversation.id); }}
                   >
                     {/* Unread Indicator Glow */}
                     {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
