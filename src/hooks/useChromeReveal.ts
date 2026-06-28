@@ -8,8 +8,8 @@ import { useCallback, useSyncExternalStore } from 'react';
  * Tapping the chrome summon zones (top/bottom edges) brings them back.
  */
 
-const AUTO_HIDE_CHROME_MS = 3500; // header + bottom nav fade first
-const AUTO_HIDE_RAIL_MS = 4000;   // right-side action rail fades 0.5s later
+const AUTO_HIDE_CHROME_MS = 4000; // header + bottom nav fade first
+const AUTO_HIDE_RAIL_MS = 4500;   // right-side action rail fades 0.5s later
 
 let chromeVisible = true;
 let railVisible = true;
