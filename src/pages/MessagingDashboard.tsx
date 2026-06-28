@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { MessagesDocumentsLibrary } from '@/components/messaging/MessagesDocumentsLibrary';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import PullToRefresh from 'react-simple-pull-to-refresh';
 // Empty line to keep line count consistent
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -20,6 +21,7 @@ import {
   type Conversation,
   useConversations,
   useDeleteConversation,
+  useDeleteMultipleConversations,
   useMarkConversationAsRead,
   useStartConversation,
   useUpdateConversationStatus
@@ -64,6 +66,8 @@ export function MessagingDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedChats, setSelectedChats] = useState<Set<string>>(new Set());
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   // Monotonic "open request" id. Every attempt to open a chat claims the next
   // value; Back (or a newer open) bumps it. An async open that finishes AFTER
@@ -87,6 +91,7 @@ export function MessagingDashboard() {
 
   const { data: conversations = [], isLoading, isError, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
+  const deleteMultipleConversations = useDeleteMultipleConversations();
   const updateStatus = useUpdateConversationStatus();
   const markChatAsRead = useMarkConversationAsRead();
   const blockUser = useBlockUser();
@@ -385,9 +390,30 @@ export function MessagingDashboard() {
           )}
         </div>
 
+        {inboxSection === 'chats' && filteredConversations.length > 0 && (
+          <div className="flex justify-end px-1 mb-2">
+            <button
+              onClick={() => {
+                triggerHaptic('light');
+                setIsSelectionMode(!isSelectionMode);
+                if (isSelectionMode) setSelectedChats(new Set());
+              }}
+              className={cn(
+                "text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all border",
+                isSelectionMode 
+                  ? (isLight ? "bg-black text-white border-black" : "bg-white text-black border-white") 
+                  : (isLight ? "bg-black/5 text-black/60 border-black/10 hover:bg-black/10" : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10")
+              )}
+            >
+              {isSelectionMode ? 'Cancel' : 'Select'}
+            </button>
+          </div>
+        )}
+
         {inboxSection === 'documents' ? (
           <MessagesDocumentsLibrary />
         ) : (
+        <PullToRefresh onRefresh={async () => { triggerHaptic('medium'); await refetch(); }} pullingContent={''} refreshingContent={<div className="flex justify-center p-4"><div className="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" /></div>}>
         <div className="space-y-4">
           {isError && conversations.length === 0 ? (
             <div className="py-24 flex flex-col items-center justify-center gap-4">
@@ -414,21 +440,43 @@ export function MessagingDashboard() {
                   <button 
                     className={cn(
                       "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
-                      isUnread
+                      selectedChats.has(conversation.id) ? "border-rose-500 bg-rose-500/10" : "",
+                      isUnread && !selectedChats.has(conversation.id)
                         ? "surface-row surface-row--active"
-                        : "surface-row hover:shadow-[var(--elev-3)]"
+                        : (!selectedChats.has(conversation.id) ? "surface-row hover:shadow-[var(--elev-3)]" : "")
                     )} 
-                    onClick={() => { triggerHaptic('medium'); openGenRef.current += 1; setSelectedConversationId(conversation.id); }}
+                    onClick={() => {
+                      triggerHaptic('medium');
+                      if (isSelectionMode) {
+                        const newSet = new Set(selectedChats);
+                        if (newSet.has(conversation.id)) newSet.delete(conversation.id);
+                        else newSet.add(conversation.id);
+                        setSelectedChats(newSet);
+                      } else {
+                        openGenRef.current += 1;
+                        setSelectedConversationId(conversation.id);
+                      }
+                    }}
                   >
                     {/* Unread Indicator Glow */}
-                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
+                    {isUnread && !selectedChats.has(conversation.id) && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898]" />}
 
-                    <div className="relative shrink-0">
+                    <div className="relative shrink-0 flex items-center gap-3">
+                        {isSelectionMode && (
+                          <div className={cn(
+                            "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all",
+                            selectedChats.has(conversation.id) 
+                              ? "bg-rose-500 border-rose-500" 
+                              : "border-muted-foreground/30"
+                          )}>
+                            {selectedChats.has(conversation.id) && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                        )}
                        <Avatar className={cn("w-14 h-14 rounded-full border shadow-xl overflow-hidden", isLight ? "border-slate-200" : "border-white/10")}>
                           <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
                           <AvatarFallback className={cn("font-black uppercase italic", isLight ? "bg-foreground/5 text-foreground" : "bg-white/5 text-white")}>{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        {isUnread && (
+                        {isUnread && !selectedChats.has(conversation.id) && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background flex items-center justify-center">
                             <div className="w-1 h-1 bg-white rounded-full" />
                           </div>
@@ -542,10 +590,45 @@ export function MessagingDashboard() {
             </motion.div>
           )}
         </div>
+        </PullToRefresh>
         )}
-
-        <div className="h-20" />
       </div>
+
+      <AnimatePresence>
+        {isSelectionMode && selectedChats.size > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            className="fixed bottom-24 left-4 right-4 z-50 flex items-center justify-between p-4 rounded-3xl border shadow-2xl backdrop-blur-md"
+            style={{ 
+              background: isLight ? 'rgba(255,255,255,0.9)' : 'rgba(20,20,20,0.9)',
+              borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' 
+            }}
+          >
+            <span className={cn("text-xs font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
+              {selectedChats.size} Selected
+            </span>
+            <Button
+              variant="destructive"
+              className="rounded-full font-black uppercase tracking-widest text-[10px] h-10 px-6 bg-red-500 hover:bg-red-600 shadow-xl shadow-red-500/20"
+              disabled={deleteMultipleConversations.isPending}
+              onClick={() => {
+                triggerHaptic('heavy');
+                deleteMultipleConversations.mutate(Array.from(selectedChats), {
+                  onSuccess: () => {
+                    setIsSelectionMode(false);
+                    setSelectedChats(new Set());
+                  }
+                });
+              }}
+            >
+              <Trash className="w-3.5 h-3.5 mr-2" />
+              Delete {selectedChats.size > 1 ? 'All' : ''}
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <Suspense fallback={null}>
         <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />

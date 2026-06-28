@@ -676,6 +676,29 @@ export function useDeleteConversation() {
   });
 }
 
+export function useDeleteMultipleConversations() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (conversationIds: string[]) => {
+      if (!user?.id) throw new Error('Not authenticated');
+      if (!conversationIds.length) return [];
+      const { error } = await supabase.from('conversations').delete().in('id', conversationIds);
+      if (error) throw error;
+      return conversationIds;
+    },
+    onSuccess: (conversationIds) => {
+      queryClient.setQueryData(['conversations', user?.id], (oldData: Conversation[] | undefined) => {
+        if (!oldData) return [];
+        const idSet = new Set(conversationIds);
+        return oldData.filter(c => !idSet.has(c.id));
+      });
+      appToast.success('🗑️ Chats deleted', `${conversationIds.length} conversations have been removed.`);
+    }
+  });
+}
+
 export function useUpdateConversationStatus() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
