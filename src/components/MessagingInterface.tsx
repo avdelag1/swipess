@@ -336,14 +336,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 )} />
               </div>
               
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
+              <div className="flex flex-col min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3 className={cn("font-black text-[15px] uppercase tracking-tight truncate leading-none shrink-0 max-w-[140px]", isThemeLight ? "text-black" : "text-white")}>
                     {otherUser.full_name}
                   </h3>
                   {listing && (
-                    <div className="px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20 shrink-0">
-                      <span className="text-[8px] font-black uppercase text-rose-500 tracking-widest">{listing.title}</span>
+                    <div className="px-1.5 py-0.5 bg-rose-500/10 rounded-md border border-rose-500/20 shrink min-w-0 truncate">
+                      <span className="text-[8px] font-black uppercase text-rose-500 tracking-widest truncate block">{listing.title}</span>
                     </div>
                   )}
                 </div>
@@ -594,7 +594,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
             </button>
 
-            <div className="flex-1 relative flex items-center group">
+            <div className="flex-1 relative flex items-center group min-w-0">
               <textarea
                 ref={composerRef}
                 value={newMessage}
@@ -604,7 +604,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 rows={1}
                 style={{ resize: 'none' }}
                 className={cn(
-                  "flex-1 min-h-[48px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10",
+                  "flex-1 w-full min-h-[48px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10",
                   isThemeLight ? "surface-inset text-black placeholder:text-slate-400" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
                 )}
                 disabled={sendMessage.isPending}
@@ -650,8 +650,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 newMessage.trim()
                   ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white shadow-[0_8px_25px_rgba(235,72,152,0.5)] hover:scale-105 active:scale-95 border-none"
                   : (isThemeLight
-                      ? "bg-slate-50 text-black/30 border border-slate-200"
-                      : "bg-white/[0.05] text-white/20 border border-white/[0.05]")
+                      ? "bg-slate-200 text-slate-500 border border-slate-300 hover:bg-slate-300"
+                      : "bg-white/[0.15] text-white/60 border border-white/[0.1] hover:bg-white/[0.25]")
               )}
             >
               <Send className={cn("w-5 h-5 ml-0.5", newMessage.trim() ? "fill-white/20" : "")} />

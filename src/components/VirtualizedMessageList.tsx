@@ -73,7 +73,7 @@ const MessageBubble = memo(({
               currentUserRole={currentUserRole}
             />
           ))
-        ) : (
+        ) : (message.content || message.message_text) ? (
           <div
             className={cn(
               "px-4 py-3 transition-all duration-200",
@@ -91,8 +91,12 @@ const MessageBubble = memo(({
               "text-[14px] font-medium break-words whitespace-pre-wrap leading-relaxed",
               isMyMessage ? "text-white" : (isThemeLight ? "text-black" : "text-white/90")
             )}>
-              {message.content || message.message_text || ''}
+              {message.content || message.message_text}
             </p>
+          </div>
+        ) : (
+          <div className="px-4 py-3 rounded-[1.5rem] bg-white/5 border border-white/10 text-white/50 text-[12px] italic">
+            Attachment unavailable
           </div>
         )}
         {docAttachments.length > 0 && message.content && (
