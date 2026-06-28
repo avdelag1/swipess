@@ -58,55 +58,54 @@ export function MessageConfirmationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className={cn("z-[10000] max-w-[400px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[28px] border shadow-2xl max-h-[90dvh] flex flex-col backdrop-blur-2xl", isLight ? "bg-white/95 border-slate-200" : "bg-[#080808]/95 border-white/[0.08]")}
-        style={{ background: 'linear-gradient(160deg, rgba(15,15,20,0.97) 0%, rgba(8,8,12,0.97) 100%)' }}
+        className={cn("z-[10000] max-w-[380px] w-[calc(100vw-32px)] p-0 overflow-hidden rounded-[32px] border shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col backdrop-blur-3xl", isLight ? "bg-white/95 border-slate-200" : "bg-black/95 border-white/[0.06]")}
+        style={{ background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'linear-gradient(180deg, rgba(20,20,20,0.95) 0%, rgba(10,10,10,0.95) 100%)' }}
       >
-        {/* Atmosphere orbs */}
-        <div className="absolute top-0 left-0 w-[60%] h-[60%] bg-rose-600/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[60%] h-[60%] bg-violet-700/10 rounded-full blur-[80px] pointer-events-none" />
+        {/* Subtle top highlight */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50" />
 
         {/* Header */}
-        <div className={cn("shrink-0 relative px-6 pt-7 pb-5 border-b", isLight ? "border-slate-200" : "border-white/[0.06]")}>
+        <div className={cn("shrink-0 relative px-6 pt-8 pb-5 border-b", isLight ? "border-slate-200" : "border-white/[0.04]")}>
           <button
             onClick={handleCancel}
-            className={cn("absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 border text-white/50 hover:text-white/80 active:scale-90 transition-all z-10", isLight ? "border-slate-200 bg-slate-100" : "border-white/10 bg-white/5")}
+            className={cn("absolute top-6 right-6 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10", isLight ? "bg-slate-100 text-slate-500 hover:bg-slate-200" : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white")}
           >
-            <X className="z-[10000] w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-3.5 pr-12">
+          <div className="flex items-center gap-4 pr-12">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="z-[10000] w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, rgba(244,63,94,0.2) 0%, rgba(139,92,246,0.2) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}
+              className={cn("w-12 h-12 rounded-[18px] flex items-center justify-center shadow-inner", isLight ? "bg-slate-100" : "bg-white/5")}
+              style={{ border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.05)' }}
             >
-              <MessageCircle className="z-[10000] w-6 h-6 text-white/80" strokeWidth={1.6} />
+              <MessageCircle className={cn("w-6 h-6", isLight ? "text-slate-800" : "text-white")} strokeWidth={1.5} />
             </motion.div>
             <div>
-              <h2 className={cn("text-base font-bold tracking-tight leading-none", isLight ? "text-slate-900" : "text-white")}>Send Message</h2>
-              <p className={cn("text-[10px] font-semibold uppercase tracking-[0.2em] mt-1", isLight ? "text-slate-400" : "text-white/35")}>Direct Connection</p>
+              <h2 className={cn("text-xl font-black uppercase tracking-tight leading-none", isLight ? "text-slate-900" : "text-white")}>Send Message</h2>
+              <p className={cn("text-[10px] font-bold uppercase tracking-widest mt-1.5", isLight ? "text-rose-500" : "text-rose-400")}>Direct Connection</p>
             </div>
           </div>
 
           {/* Premium badge */}
-          <div className={cn("mt-4 flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border", isLight ? "border-slate-200 bg-slate-50" : "border-white/[0.07] bg-white/[0.03]")}>
-            <div className="flex items-center gap-2.5">
-              <div className="z-[10000] w-7 h-7 rounded-full flex items-center justify-center bg-rose-500/15 border border-rose-500/20">
-                <Sparkles className="z-[10000] w-3.5 h-3.5 text-rose-400" />
+          <div className={cn("mt-6 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition-all", isLight ? "border-slate-200 bg-slate-50/50" : "border-white/[0.05] bg-white/[0.02]")}>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
+                <Sparkles className="w-4 h-4 text-violet-400" />
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80 block">
+                <span className={cn("text-[11px] font-black uppercase tracking-wider block", isLight ? "text-slate-900" : "text-white")}>
                   {isUnlimited ? 'Unlimited Access' : 'Message Tokens'}
                 </span>
-                <span className={cn("text-[9px] font-medium", isLight ? "text-slate-400" : "text-white/35")}>
+                <span className={cn("text-[10px] font-semibold uppercase tracking-widest mt-0.5 block", isLight ? "text-slate-500" : "text-white/40")}>
                   {isUnlimited ? `${currentPlan} plan` : quotaLabel}
                 </span>
               </div>
             </div>
             <button
               onClick={() => { triggerHaptic('light'); useModalStore.getState().setModal('showTokensModal', true); }}
-              className="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[9px] font-bold uppercase tracking-wider text-rose-400 hover:bg-rose-500/20 transition-colors"
+              className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", isLight ? "bg-slate-200 text-slate-700 hover:bg-slate-300" : "bg-white/10 text-white hover:bg-white/20")}
             >
               Tokens
             </button>
@@ -114,43 +113,52 @@ export function MessageConfirmationDialog({
         </div>
 
         {/* Message area */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          <div className="flex justify-between items-center px-0.5 mb-2">
-            <label className={cn("text-[9px] font-bold uppercase tracking-[0.2em]", isLight ? "text-slate-400" : "text-white/30")}>
+        <div className="flex-1 px-6 py-6">
+          <div className="flex justify-between items-center mb-3">
+            <label className={cn("text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/40")}>
               Message to {recipientName}
             </label>
-            <span className={cn("text-[9px] font-medium", isLight ? "text-slate-300" : "text-white/20")}>
+            <span className={cn("text-[10px] font-bold", isLight ? "text-slate-400" : "text-white/30")}>
               {message.length}/500
             </span>
           </div>
           <Textarea
             autoGrow
-            maxHeight={240}
+            maxHeight={200}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-            className={cn("min-h-[130px] resize-none rounded-xl text-sm p-4 transition-all border bg-white/[0.04] placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-rose-500/30 focus-visible:border-rose-500/30", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/[0.08]")}
+            className={cn(
+              "min-h-[140px] resize-none rounded-2xl text-[15px] p-5 transition-all outline-none border", 
+              isLight 
+                ? "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-slate-300 focus:shadow-sm" 
+                : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 focus:bg-white/[0.05] focus:border-white/20"
+            )}
             disabled={isLoading}
           />
         </div>
 
         {/* Footer */}
-        <div className={cn("shrink-0 flex flex-col gap-2 p-5 pt-3 border-t", isLight ? "border-slate-200" : "border-white/[0.06]")}>
+        <div className={cn("shrink-0 flex flex-col gap-3 p-6 pt-2 pb-8")}>
           <Button
             onClick={handleConfirm}
             disabled={isLoading || !message.trim() || !canStartNewConversation}
-            className={cn("w-full h-12 rounded-xl font-bold text-sm active:scale-[0.98] transition-all border-0 shadow-lg", isLight ? "text-slate-900" : "text-white")}
-            style={{ background: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)' }}
+            className={cn(
+              "w-full h-14 rounded-full font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-all", 
+              isLight 
+                ? "bg-black text-white hover:bg-slate-800 shadow-md" 
+                : "bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            )}
           >
             <AnimatePresence mode="sync">
               {isLoading ? (
                 <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                  <div className="z-[10000] w-4 h-4 mr-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 mr-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   Sending…
                 </motion.div>
               ) : (
                 <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center">
-                  <Send className="z-[10000] w-4 h-4 mr-2" />
+                  <Send className="w-4 h-4 mr-2" />
                   Deliver Message
                 </motion.div>
               )}
@@ -161,7 +169,9 @@ export function MessageConfirmationDialog({
             variant="ghost"
             onClick={handleCancel}
             disabled={isLoading}
-            className={cn("w-full h-10 rounded-xl font-semibold text-sm hover:text-white/70 hover:bg-white/5 transition-all", isLight ? "text-slate-400" : "text-white/40")}
+            className={cn("w-full h-12 rounded-full font-bold text-xs uppercase tracking-widest active:scale-[0.98] transition-all border", 
+              isLight ? "bg-white text-slate-500 border-slate-200 hover:bg-slate-50" : "bg-transparent text-white/50 border-white/10 hover:bg-white/5 hover:text-white"
+            )}
           >
             Cancel
           </Button>

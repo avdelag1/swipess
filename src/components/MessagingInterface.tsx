@@ -577,7 +577,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm",
                 showDocumentsPanel
                   ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500"
-                  : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"),
+                  : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/80 hover:bg-white/0.09"),
               )}
             >
               <FileText className="z-[10000] w-5 h-5 stroke-[1.5]" />
@@ -586,7 +586,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:bg-white/[0.09]"))}
+              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white/80 hover:bg-white/[0.09]"))}
             >
               <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
             </button>
@@ -611,7 +611,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <button
                   type="button"
                   onClick={isListening ? stopListening : startListening}
-                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/30 hover:text-rose-400 hover:bg-rose-500/10"))}
+                  className={cn("absolute right-2 bottom-1.5 w-9 h-9 rounded-full flex items-center justify-center transition-all", (isListening || isVoiceRecording) ? "bg-red-600 text-white animate-pulse scale-110" : (isThemeLight ? "text-black/30 hover:text-rose-500 hover:bg-rose-50" : "text-white/80 hover:text-rose-400 hover:bg-rose-500/10"))}
                 >
                   {(isListening || isVoiceRecording) ? <MicOff className="z-[10000] w-4 h-4" /> : <Mic className="z-[10000] w-4 h-4" />}
                 </button>
@@ -648,7 +648,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white shadow-[0_8px_25px_rgba(235,72,152,0.5)] hover:scale-105 active:scale-95 border-none"
                   : (isThemeLight
                       ? "bg-slate-200 text-slate-500 border border-slate-300 hover:bg-slate-300"
-                      : "bg-white/[0.15] text-white/60 border border-white/[0.1] hover:bg-white/[0.25]")
+                      : "bg-white/[0.15] text-white hover:bg-white/[0.25] border border-white/[0.1]")
               )}
             >
               <Send className={cn("w-5 h-5 ml-0.5", newMessage.trim() ? "fill-white/20" : "")} />
