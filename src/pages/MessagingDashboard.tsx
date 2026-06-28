@@ -680,11 +680,11 @@ export function MessagingDashboard() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className={cn("rounded-2xl", isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
+            <AlertDialogCancel className={cn("rounded-full", isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="rounded-2xl bg-red-600 hover:bg-red-500 text-white border-0"
+              className="rounded-full bg-red-600 hover:bg-red-500 text-white border-0"
               onClick={(e) => {
                 e.preventDefault();
                 const target = blockTarget?.userId;
