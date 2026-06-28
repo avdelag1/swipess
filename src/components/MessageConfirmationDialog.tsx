@@ -124,6 +124,8 @@ export function MessageConfirmationDialog({
             </span>
           </div>
           <Textarea
+            autoGrow
+            maxHeight={240}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."

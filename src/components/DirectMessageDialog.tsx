@@ -113,6 +113,8 @@ export function DirectMessageDialog({
             </span>
           </div>
           <Textarea
+            autoGrow
+            maxHeight={240}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className={cn("min-h-[140px] resize-none rounded-xl text-sm p-4 transition-all border bg-white/[0.04] placeholder:text-white/20 focus-visible:ring-1 focus-visible:ring-rose-500/30 focus-visible:border-rose-500/30", isLight ? "text-slate-900 border-slate-200" : "text-white border-white/[0.08]")}

@@ -118,6 +118,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     staleTime: 5 * 60 * 1000,
   });
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const previousMessageCountRef = useRef(0);
   const { isOnline } = usePresence(otherUser.id);
   const { startTyping, stopTyping, typingUsers, _isConnected } = useRealtimeChat(conversationId);
@@ -221,6 +222,19 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     
     previousMessageCountRef.current = messages.length;
   }, [messages, user?.id]);
+
+  // Auto-grow the composer as the user types: it expands to fit the text up to
+  // a max height, then switches to an internal scrollbar so a long draft stays
+  // fully reachable instead of being clipped at a fixed height.
+  const COMPOSER_MAX_H = 200;
+  useEffect(() => {
+    const el = composerRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const next = Math.min(el.scrollHeight, COMPOSER_MAX_H);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > COMPOSER_MAX_H ? 'auto' : 'hidden';
+  }, [newMessage]);
 
   const { moderate } = useContentModeration();
 
@@ -526,6 +540,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
             <div className="flex-1 relative flex items-center group">
               <textarea
+                ref={composerRef}
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
@@ -533,7 +548,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 rows={1}
                 style={{ resize: 'none' }}
                 className={cn(
-                  "flex-1 min-h-[48px] max-h-[120px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10 no-scrollbar",
+                  "flex-1 min-h-[48px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10",
                   isThemeLight ? "surface-inset text-black placeholder:text-slate-400" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
                 )}
                 disabled={sendMessage.isPending}
