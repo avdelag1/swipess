@@ -99,7 +99,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getText } = useSiteContent('chat');
-  const { data: messages = [], isLoading, isError, refetch: refetchMessages } = useConversationMessages(conversationId);
+  const { data: messages = [], isLoading, isError, error, refetch: refetchMessages } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
@@ -485,6 +485,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Couldn't load messages</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[220px] leading-relaxed", isThemeLight ? "text-black/30" : "text-white/30")}>
                 The connection stalled. Check your network and try again.
+              </p>
+              <p className="mt-2 text-red-500 text-xs font-mono max-w-[80%] break-words">
+                Error details: {error instanceof Error ? error.message : JSON.stringify(error)}
               </p>
               <button
                 type="button"
