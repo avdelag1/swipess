@@ -267,7 +267,8 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setActiveCategory: (category) => {
-      if (get().activeCategory === category) return;
+      const state = get();
+      if (state.activeCategory === category && (category !== null || state.categories.length === 0)) return;
       set((state) => ({
         activeCategory: category,
         categories: category ? [category] : [],
