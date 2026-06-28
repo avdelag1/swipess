@@ -83,6 +83,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   // In-chat keyword search (WhatsApp-style): filter this conversation's messages.
   const [showChatSearch, setShowChatSearch] = useState(false);
   const [chatSearch, setChatSearch] = useState('');
+  // The chat component is reused (not remounted) when switching conversations,
+  // so reset per-chat UI state when the conversation changes. Without this the
+  // previous chat's search query AND its half-typed draft would carry over to
+  // the next chat — the draft leak could send a message to the wrong person.
+  useEffect(() => {
+    setShowChatSearch(false);
+    setChatSearch('');
+    setNewMessage('');
+  }, [conversationId]);
   const { _theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
