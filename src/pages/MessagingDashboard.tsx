@@ -685,7 +685,14 @@ export function MessagingDashboard() {
             </AlertDialogCancel>
             <AlertDialogAction
               className="rounded-2xl bg-red-600 hover:bg-red-500 text-white border-0"
-              onClick={() => { if (blockTarget) blockUser.mutate(blockTarget.userId); }}
+              onClick={(e) => {
+                e.preventDefault();
+                const target = blockTarget?.userId;
+                setBlockTarget(null);
+                if (target) {
+                  setTimeout(() => blockUser.mutate(target), 300);
+                }
+              }}
             >
               Block
             </AlertDialogAction>
