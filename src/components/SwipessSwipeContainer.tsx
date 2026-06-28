@@ -852,16 +852,28 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setIsCreatingConversation(true);
     startNavigation();
     try {
-      const result = await startConversation.mutateAsync({
-        otherUserId: targetUserId,
-        listingId: activeMode === 'owner' ? undefined : selectedListing.id,
-        initialMessage: message,
-        canStartNewConversation,
-      });
-      if (result?.conversationId) {
+      // Race the create against a timeout so a hung network can never leave the
+      // "Sending…" dialog spinning forever with the chat never opening (parity
+      // with MessagingDashboard's auto-start path).
+      const convo = await Promise.race([
+        startConversation.mutateAsync({
+          otherUserId: targetUserId,
+          listingId: activeMode === 'owner' ? undefined : selectedListing.id,
+          initialMessage: message,
+          canStartNewConversation,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Timed out connecting. Please check your connection and try again.')), 15000)
+        ),
+      ]);
+      if (convo?.conversationId) {
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
-        navigate(`/messages?conversationId=${result.conversationId}`);
+        navigate(`/messages?conversationId=${convo.conversationId}`);
+      } else {
+        // Resolved without an id — surface an error instead of silently leaving
+        // the dialog stuck on its spinner.
+        throw new Error('Could not open the conversation. Please try again.');
       }
     } catch (err) {
       handleStartConversationError(err, 'Error');
