@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 // Empty line to keep line count consistent
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
+import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Search, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { triggerHaptic } from '@/utils/haptics';
@@ -80,6 +80,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   // Controlled so the menu can't get stuck by the Radix mobile toggle race.
   const [menuOpen, setMenuOpen] = useState(false);
+  // In-chat keyword search (WhatsApp-style): filter this conversation's messages.
+  const [showChatSearch, setShowChatSearch] = useState(false);
+  const [chatSearch, setChatSearch] = useState('');
   const { _theme, isLight } = useAppTheme();
   const isThemeLight = isLight;
   const { user } = useAuth();
@@ -263,6 +266,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }
   };
 
+  // In-chat search: when a keyword is typed, show only messages that contain it.
+  const trimmedChatSearch = chatSearch.trim().toLowerCase();
+  const displayedMessages = trimmedChatSearch
+    ? messages.filter((m: any) => (m.content || m.message_text || '').toLowerCase().includes(trimmedChatSearch))
+    : messages;
+
   // NOTE: we intentionally do NOT gate the whole screen on `isLoading`. The
   // chat shell (header + composer) renders immediately so a slow/stalled message
   // load can never freeze the entire chat on a full-screen skeleton — only the
@@ -345,6 +354,18 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
             <div className="flex gap-2 shrink-0">
               <button
+                onClick={() => { setShowChatSearch(s => !s); setChatSearch(''); triggerHaptic('light'); }}
+                aria-label="Search messages"
+                className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
+                  showChatSearch
+                    ? "bg-rose-500/[0.15] text-rose-400"
+                    : (isThemeLight ? "surface-2 text-black hover:shadow-[var(--elev-3)]" : "bg-white/[0.05] text-white hover:bg-white/[0.12]")
+                )}
+              >
+                <Search className="z-[10000] w-5 h-5" />
+              </button>
+
+              <button
                 onClick={() => setShowRatingDialog(true)}
                 className={cn("w-11 h-11 rounded-full flex items-center justify-center transition-all",
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
@@ -410,6 +431,39 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           </div>
         </div>
 
+        {showChatSearch && (
+          <div className={cn("shrink-0 px-4 py-2 border-b z-10", isThemeLight ? "bg-background border-slate-200" : "bg-background/95 border-white/10")}>
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 w-4 h-4 text-rose-400 pointer-events-none" />
+              <input
+                autoFocus
+                value={chatSearch}
+                onChange={(e) => setChatSearch(e.target.value)}
+                placeholder="Search in this chat…"
+                className={cn(
+                  "w-full h-11 pl-11 pr-10 rounded-full text-[14px] outline-none border",
+                  isThemeLight ? "bg-slate-50 border-slate-200 text-black placeholder:text-slate-400" : "bg-white/[0.05] border-white/10 text-white placeholder:text-white/30"
+                )}
+              />
+              {chatSearch && (
+                <button
+                  type="button"
+                  onClick={() => setChatSearch('')}
+                  aria-label="Clear search"
+                  className="absolute right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/10 text-white/60 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            {trimmedChatSearch && (
+              <p className={cn("mt-1.5 px-2 text-[10px] font-bold uppercase tracking-widest", isThemeLight ? "text-black/40" : "text-white/40")}>
+                {displayedMessages.length} {displayedMessages.length === 1 ? 'match' : 'matches'}
+              </p>
+            )}
+          </div>
+        )}
+
         <div
           id="chat-scroll-container"
           className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-background surface-0" : "bg-background")}
@@ -446,9 +500,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 Initialize the connection stream with a greeting
               </p>
             </div>
+          ) : trimmedChatSearch && displayedMessages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-10">
+              <Search className="w-10 h-10 text-rose-400/50 mb-4" />
+              <h3 className={cn("text-lg font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>No matches</h3>
+              <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-2 max-w-[220px]", isThemeLight ? "text-black/30" : "text-white/30")}>
+                No messages contain “{chatSearch.trim()}”
+              </p>
+            </div>
           ) : (
             <VirtualizedMessageList
-              messages={messages}
+              messages={displayedMessages}
               currentUserId={user?.id || ''}
               otherUserRole={otherUser.role}
               currentUserRole={currentUserRole}

@@ -108,8 +108,14 @@ export function MessagingDashboard() {
   useMarkMessagesAsRead(selectedConversationId || '', !!selectedConversationId);
 
   const filteredConversations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return conversations.filter(conv => {
-      const matchesSearch = conv.other_user?.full_name?.toLowerCase()?.includes(searchQuery.toLowerCase());
+      // With no search query, ALWAYS show the conversation. Previously this read
+      // `other_user?.full_name?.includes('')`, which evaluates to `undefined`
+      // (falsy) whenever the other user's name hadn't resolved — silently hiding
+      // real chats from the single inbox (the "I don't see the chat I was just
+      // in" bug). Now an empty query shows every conversation.
+      const matchesSearch = q === '' || (conv.other_user?.full_name?.toLowerCase().includes(q) ?? false);
       const isUnread = conv.last_message?.sender_id !== user?.id && conv.last_message?.is_read === false;
 
       let matchesFilter = true;
