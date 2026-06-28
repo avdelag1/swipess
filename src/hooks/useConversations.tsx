@@ -125,16 +125,22 @@ export function useConversations() {
         const profilesMap = new Map<string, any>();
         (clientsResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, {
           id: p.user_id,
-          full_name: p.name,
+          full_name: p.name || p.full_name,
           avatar_url: p.profile_images?.[0],
           age: p.age
         }));
-        (ownersResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, {
-          id: p.user_id,
-          full_name: p.business_name,
-          avatar_url: p.profile_images?.[0],
-          age: undefined
-        }));
+        (ownersResult.data || []).forEach((p: any) => {
+          const existing = profilesMap.get(p.user_id);
+          // If we already have a valid client name, and the owner name is empty, don't overwrite it with empty.
+          if (existing && existing.full_name && !p.business_name) return;
+          
+          profilesMap.set(p.user_id, {
+            id: p.user_id,
+            full_name: p.business_name || existing?.full_name,
+            avatar_url: p.profile_images?.[0] || existing?.avatar_url,
+            age: existing?.age
+          });
+        });
         const listingsMap = new Map<string, any>();
         ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 
@@ -166,13 +172,13 @@ export function useConversations() {
             status: conversation.status,
             created_at: conversation.created_at,
             updated_at: conversation.updated_at,
-            other_user: otherUserProfile ? {
+            other_user: {
               id: otherUserId,
-              full_name: otherUserProfile.full_name,
-              avatar_url: otherUserProfile.avatar_url,
+              full_name: otherUserProfile?.full_name || 'Anonymous Entity',
+              avatar_url: otherUserProfile?.avatar_url,
               role: otherUserRole,
-              age: otherUserProfile.age
-            } : undefined,
+              age: otherUserProfile?.age
+            },
             last_message: lastMessagesMap.get(conversation.id),
             listing: listingData || undefined
           };
@@ -293,17 +299,27 @@ export function useConversations() {
       const isClient = data.client_id === user.id;
 
       const [clientResult, ownerResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId && !isClient ? supabase.from('client_profiles').select('user_id, name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
-        otherUserId && isClient ? supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('client_profiles').select('user_id, name, full_name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
         supabase.from('conversation_messages').select('id, conversation_id, content, message_text, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
       let otherUserProfile = null;
-      if (clientResult.data) {
-         otherUserProfile = { full_name: clientResult.data.name, avatar_url: clientResult.data.profile_images?.[0], age: clientResult.data.age };
-      } else if (ownerResult.data) {
-         otherUserProfile = { full_name: ownerResult.data.business_name, avatar_url: ownerResult.data.profile_images?.[0], age: undefined };
+      if (clientResult.data || ownerResult.data) {
+         const clientName = clientResult.data?.name || clientResult.data?.full_name;
+         const ownerName = ownerResult.data?.business_name;
+         
+         otherUserProfile = {
+           full_name: ownerName || clientName,
+           avatar_url: ownerResult.data?.profile_images?.[0] || clientResult.data?.profile_images?.[0],
+           age: clientResult.data?.age
+         };
+         
+         // If owner name was empty, prefer the valid client name
+         if (clientName && !ownerName) {
+           otherUserProfile.full_name = clientName;
+         }
       }
       const otherUserRole = isClient ? 'owner' : 'client';
 
@@ -312,18 +328,18 @@ export function useConversations() {
         client_id: data.client_id ?? '',
         owner_id: data.owner_id ?? '',
         listing_id: data.listing_id ?? undefined,
-        last_message_at: data.last_message_at ?? undefined,
-        status: data.status ?? 'active',
+        last_message_at: undefined,
+        status: data.status,
         created_at: data.created_at,
         updated_at: data.updated_at,
         other_user: {
-          id: otherUserId ?? '',
-          full_name: otherUserProfile?.full_name ?? 'User',
-          avatar_url: otherUserProfile?.avatar_url ?? undefined,
+          id: otherUserId,
+          full_name: otherUserProfile?.full_name || 'Anonymous Entity',
+          avatar_url: otherUserProfile?.avatar_url,
           role: otherUserRole,
           age: otherUserProfile?.age
         },
-        last_message: (messagesResult as any).data?.[0],
+        last_message: messagesResult.data?.[0] || undefined,
         listing: (listingResult as any).data || undefined
       };
     } catch (error) {
