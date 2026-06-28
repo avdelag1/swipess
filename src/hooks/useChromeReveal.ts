@@ -19,7 +19,7 @@ let railTimer: ReturnType<typeof setTimeout> | null = null;
 // quick filter. While this is false, scheduleChromeHide() is a no-op, so the
 // per-card revealChrome() calls just keep the chrome visible. Picking a filter
 // flips it on (enableChromeAutoHide); entering the deck resets it off.
-let autoHideEnabled = true;
+let autoHideEnabled = false;
 const listeners = new Set<() => void>();
 
 function emit() {
