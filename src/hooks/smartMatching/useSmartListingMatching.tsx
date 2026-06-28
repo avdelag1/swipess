@@ -354,20 +354,16 @@ export function useSmartListingMatching(
                     }
                 }
 
-                // 1. Prepare exclusion list from cache (if available)
+                // 1. Prepare exclusion list.
+                // TESTING PHASE: do NOT hide swiped listings at all. With only a
+                // handful of real listings, excluding liked OR disliked ones
+                // empties the deck and the user "can't see any listings" (and a
+                // refresh can't undo a like). Swipes are still RECORDED — likes
+                // still save to the likes page — but every listing keeps showing
+                // in the deck so it can never go empty. Re-enable exclusion here
+                // (likes + the 3-strike dislike timeout) once the catalog is large
+                // enough that hiding swiped items doesn't empty the feed.
                 const swipedListingIds = new Set<string>();
-                if (userSwipes) {
-                  // Exclude only items the user already LIKED — a like saves the
-                  // listing to their likes, so it leaves the swipe deck.
-                  userSwipes.liked.forEach(id => swipedListingIds.add(id));
-
-                  // NOTE: dislikes (left swipes) intentionally do NOT hide
-                  // listings right now. There are only a handful of real
-                  // property listings in testing, so hiding every disliked one
-                  // empties the deck. A left swipe is still recorded (so the
-                  // "hide for a few days" rule can be turned on later), but for
-                  // now disliked listings keep showing up in the deck.
-                }
 
                 // Helper: append demo listings AFTER real ones so testing data is never lost.
                 // Demos bypass swipe exclusion — they always reappear so user can practice repeatedly.
