@@ -391,7 +391,44 @@ export function MessagingDashboard() {
         </div>
 
         {inboxSection === 'chats' && filteredConversations.length > 0 && (
-          <div className="flex justify-end px-1 mb-2">
+          <div className="flex items-center justify-between px-1 mb-2">
+            {isSelectionMode ? (
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    const toSelect = filteredConversations.filter(c => c.last_message_at && new Date(c.last_message_at) < oneDayAgo).map(c => c.id);
+                    setSelectedChats(new Set(toSelect));
+                    triggerHaptic('light');
+                  }}
+                  className={cn("text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all border whitespace-nowrap", isLight ? "bg-black/5 text-black/60 border-black/10 hover:bg-black/10" : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10")}
+                >
+                  &gt; 1 Day
+                </button>
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    const toSelect = filteredConversations.filter(c => c.last_message_at && new Date(c.last_message_at) < oneWeekAgo).map(c => c.id);
+                    setSelectedChats(new Set(toSelect));
+                    triggerHaptic('light');
+                  }}
+                  className={cn("text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all border whitespace-nowrap", isLight ? "bg-black/5 text-black/60 border-black/10 hover:bg-black/10" : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10")}
+                >
+                  &gt; 1 Week
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedChats(new Set(filteredConversations.map(c => c.id)));
+                    triggerHaptic('light');
+                  }}
+                  className={cn("text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all border whitespace-nowrap", isLight ? "bg-black/5 text-black/60 border-black/10 hover:bg-black/10" : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10")}
+                >
+                  All
+                </button>
+              </div>
+            ) : <div />}
             <button
               onClick={() => {
                 triggerHaptic('light');
@@ -399,7 +436,7 @@ export function MessagingDashboard() {
                 if (isSelectionMode) setSelectedChats(new Set());
               }}
               className={cn(
-                "text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all border",
+                "text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full transition-all border shrink-0",
                 isSelectionMode 
                   ? (isLight ? "bg-black text-white border-black" : "bg-white text-black border-white") 
                   : (isLight ? "bg-black/5 text-black/60 border-black/10 hover:bg-black/10" : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10")
