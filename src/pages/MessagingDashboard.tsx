@@ -690,7 +690,10 @@ export function MessagingDashboard() {
                 const target = blockTarget?.userId;
                 setBlockTarget(null);
                 if (target) {
-                  setTimeout(() => blockUser.mutate(target), 300);
+                  setTimeout(() => {
+                    document.body.style.pointerEvents = '';
+                    blockUser.mutate(target);
+                  }, 300);
                 }
               }}
             >

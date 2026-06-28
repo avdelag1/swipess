@@ -721,6 +721,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   e.preventDefault();
                   setShowBlockConfirm(false);
                   setTimeout(() => {
+                    document.body.style.pointerEvents = '';
                     blockUser.mutate(otherUser.id);
                     setTimeout(() => onBack(), 100);
                   }, 300);
