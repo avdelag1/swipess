@@ -263,27 +263,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 flex flex-col bg-background min-h-0">
-        <div className="shrink-0 px-4 py-3 min-h-[72px] flex items-center gap-4 border-b border-border/40 pt-safe">
-          <button
-            onClick={onBack}
-            className="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-muted/10 hover:bg-muted/20 transition-colors"
-            aria-label="Go back"
-          >
-            <ChevronLeft className="w-6 h-6 text-foreground" />
-          </button>
-          <div className="flex-1 space-y-2">
-            <div className="h-4 bg-muted/30 rounded-lg w-32 animate-pulse" />
-            <div className="h-3 bg-muted/20 rounded w-20 animate-pulse" />
-          </div>
-        </div>
-        <MessageListSkeleton rows={8} />
-      </div>
-    );
-  }
-
+  // NOTE: we intentionally do NOT gate the whole screen on `isLoading`. The
+  // chat shell (header + composer) renders immediately so a slow/stalled message
+  // load can never freeze the entire chat on a full-screen skeleton — only the
+  // message-list area shows the loader (and a Retry on error).
   return (
     <>
       <div className={cn(
@@ -432,7 +415,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-background surface-0" : "bg-background")}
           ref={messagesContainerRef}
         >
-          {isError && messages.length === 0 ? (
+          {isLoading && messages.length === 0 ? (
+            <MessageListSkeleton rows={8} />
+          ) : isError && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-10">
               <div className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 bg-gradient-to-br from-rose-500/20 to-amber-500/20 border border-white/5 shadow-2xl">
                 <ShieldAlert className="z-[10000] w-10 h-10 text-rose-400" />
