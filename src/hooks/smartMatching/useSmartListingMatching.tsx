@@ -347,7 +347,7 @@ export function useSmartListingMatching(
             try {
                 const normalizedCat = filters?.category && filters.category !== 'all' ? normalizeCategoryName(filters.category) : undefined;
                 if (normalizedCat) {
-                    const allowedCategories = ['property', 'motorcycle', 'bicycle', 'worker', 'services'];
+                    const allowedCategories = ['property', 'motorcycle', 'bicycle', 'worker', 'services', 'yacht'];
                     if (!allowedCategories.includes(normalizedCat)) {
                         logger.warn(`[SmartMatching] Skipped listing query for invalid category: ${normalizedCat}`);
                         return [];
@@ -403,7 +403,7 @@ export function useSmartListingMatching(
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
                         let results = (rpcListings as any[])
-                            .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services'].includes(l.category))
+                            .filter(l => !adminIds?.has(l.owner_id || l.user_id) && ['property', 'motorcycle', 'bicycle', 'worker', 'services', 'yacht'].includes(l.category))
                             .filter(l => !swipedListingIds.has(l.id))
                             .map(l => ({
                                 ...l,
@@ -465,7 +465,7 @@ export function useSmartListingMatching(
                 } else {
                     // CRITICAL: Restrict to only the 4 allowed categories on client side
                     // This prevents "places" or "businesses" from leaking into the feed
-                    query = query.in('category', ['property', 'motorcycle', 'bicycle', 'worker', 'services']);
+                    query = query.in('category', ['property', 'motorcycle', 'bicycle', 'worker', 'services', 'yacht']);
                 }
 
                 if (filters?.serviceCategory && filters.serviceCategory.length > 0) {

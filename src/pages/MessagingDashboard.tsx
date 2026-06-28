@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { MessagesDocumentsLibrary } from '@/components/messaging/MessagesDocumentsLibrary';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-// import { } from '@/components/ui/EmptyState';
+// Empty line to keep line count consistent
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 
@@ -28,7 +28,7 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
-// import { } from '@/integrations/supabase/client';
+// Empty line to keep line count consistent
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { guardNewConversation, handleStartConversationError } from '@/utils/messagingQuotaUX';
@@ -62,7 +62,7 @@ export function MessagingDashboard() {
   // inbox never flashes underneath while the conversation metadata resolves.
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(() => searchParams.get('conversationId'));
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [inboxSection, setInboxSection] = useState<'chats' | 'documents'>('chats');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
@@ -72,7 +72,7 @@ export function MessagingDashboard() {
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
-  const { _theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
   const { t } = useTranslation();
 
   const { data: conversations = [], isLoading, isError, refetch, fetchSingleConversation } = useConversations();
@@ -83,7 +83,7 @@ export function MessagingDashboard() {
 
   const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
-  const { _totalActivations, canSendMessage } = useMessageActivations();
+  const { canSendMessage } = useMessageActivations();
 
   const { prefetchTopConversations, prefetchTopConversationMessages } = usePrefetchManager();
 
@@ -112,12 +112,6 @@ export function MessagingDashboard() {
         matchesFilter = isUnread;
       } else if (activeFilter === 'archived') {
         matchesFilter = conv.status === 'archived';
-      } else if (activeFilter === 'listing') {
-        matchesFilter = !!conv.listing_id && conv.status !== 'archived';
-      } else if (activeFilter === 'client') {
-        matchesFilter = !conv.listing_id && !!conv.id && conv.status !== 'archived';
-      } else if (activeFilter === 'potential') {
-        matchesFilter = !conv.listing_id && !conv.id && conv.status !== 'archived';
       } else {
         matchesFilter = conv.status !== 'archived';
       }

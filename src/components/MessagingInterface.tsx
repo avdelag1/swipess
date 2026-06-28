@@ -2,7 +2,7 @@ import { memo, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-// import { } from '@/components/ui/button';
+// Empty line to keep line count consistent
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
@@ -14,8 +14,8 @@ import { useConversationMessages, useSendMessage } from '@/hooks/useConversation
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { useAuth } from '@/hooks/useAuth';
-// import { } from '@/hooks/useMonthlyMessageLimits';
-// import { } from '@/utils/timeFormatter';
+// Empty line to keep line count consistent
+// Empty line to keep line count consistent
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 const SwipeInsightsModal = lazyWithRetry(() => import('@/components/SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
@@ -85,7 +85,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getText } = useSiteContent('chat');
-  const { data: messages = [], isLoading } = useConversationMessages(conversationId);
+  const { data: messages = [], isLoading, isError, refetch: refetchMessages } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
   const blockUser = useBlockUser();
@@ -418,7 +418,24 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           className={cn("flex-1 flex flex-col relative min-h-0", isThemeLight ? "bg-background surface-0" : "bg-background")}
           ref={messagesContainerRef}
         >
-          {messages.length === 0 ? (
+          {isError && messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-10">
+              <div className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 bg-gradient-to-br from-rose-500/20 to-amber-500/20 border border-white/5 shadow-2xl">
+                <ShieldAlert className="z-[10000] w-10 h-10 text-rose-400" />
+              </div>
+              <h3 className={cn("text-2xl font-black uppercase tracking-tight", isThemeLight ? "text-black" : "text-white")}>Couldn't load chat</h3>
+              <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em] mt-4 max-w-[220px] leading-relaxed", isThemeLight ? "text-black/30" : "text-white/30")}>
+                The connection stalled. Check your network and try again.
+              </p>
+              <button
+                type="button"
+                onClick={() => { triggerHaptic('light'); refetchMessages(); }}
+                className="mt-8 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white active:scale-95 transition-transform shadow-[0_8px_25px_rgba(235,72,152,0.4)]"
+              >
+                Retry
+              </button>
+            </div>
+          ) : messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-10">
               <div className={cn(
                 "w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 bg-gradient-to-br from-rose-500/20 to-violet-600/20 border border-white/5 shadow-2xl",

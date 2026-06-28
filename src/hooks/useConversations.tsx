@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { logSupabaseError } from '@/lib/supabaseError';
+import { withTimeout } from '@/utils/withTimeout';
 
 export interface Conversation {
   id: string;
@@ -345,11 +346,19 @@ export function useConversationMessages(conversationId: string) {
   const query = useQuery({
     queryKey: ['conversation-messages', conversationId],
     queryFn: async () => {
-      const { data: messages, error } = await supabase
-        .from('conversation_messages')
-        .select('id, conversation_id, sender_id, content, message_text, message_type, attachments, is_read, read_at, created_at')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+      // Hard timeout so a stalled request (e.g. a hung auth-lock acquisition,
+      // which the 30s fetch timeout does NOT cover) can't leave the chat stuck
+      // on its loading skeleton forever — it rejects, React Query retries, and
+      // failing that surfaces an error state the UI can offer a retry for.
+      const { data: messages, error } = await withTimeout(
+        supabase
+          .from('conversation_messages')
+          .select('id, conversation_id, sender_id, content, message_text, message_type, attachments, is_read, read_at, created_at')
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true }),
+        15000,
+        'Loading messages',
+      );
 
       if (error) throw error;
       if (!messages || messages.length === 0) return [];
@@ -388,6 +397,13 @@ export function useConversationMessages(conversationId: string) {
     placeholderData: (prev) => prev,
     staleTime: 5 * 60 * 1000,  // realtime subscription keeps data fresh; 5 min avoids redundant refetches
     gcTime: 10 * 60 * 1000,
+    // Fail fast on our own hard timeout: a stalled request/lock will just stall
+    // again, so re-trying would only stack another 15s skeleton. Surface the
+    // error state (with a Retry button) immediately instead. Genuine transient
+    // errors still get a couple of quick auto-retries.
+    retry: (failureCount, error) =>
+      !(error instanceof Error && error.message.includes('timed out')) && failureCount < 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
   });
 
   const { refetch } = query;
@@ -555,21 +571,29 @@ export function useSendMessage() {
     mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .from('conversation_messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          // Write BOTH columns: `message_text` is NOT NULL and is what the
-          // RPC, notification triggers and push previews read; `content` is the
-          // newer column the chat UI historically rendered. Keeping them in sync
-          // is what stops blank message bubbles.
-          message_text: message,
-          content: message,
-          message_type: 'text'
-        })
-        .select('id, conversation_id, sender_id, content, message_text, message_type, is_read, created_at')
-        .single();
+      // Hard timeout so a hung insert can't leave the composer frozen with the
+      // send button disabled forever — on timeout this rejects, onError rolls
+      // back the optimistic bubble and restores the typed text so the user can
+      // retry. (The 30s fetch timeout does not cover an auth-lock stall.)
+      const { data, error } = await withTimeout(
+        supabase
+          .from('conversation_messages')
+          .insert({
+            conversation_id: conversationId,
+            sender_id: user.id,
+            // Write BOTH columns: `message_text` is NOT NULL and is what the
+            // RPC, notification triggers and push previews read; `content` is the
+            // newer column the chat UI historically rendered. Keeping them in sync
+            // is what stops blank message bubbles.
+            message_text: message,
+            content: message,
+            message_type: 'text'
+          })
+          .select('id, conversation_id, sender_id, content, message_text, message_type, is_read, created_at')
+          .single(),
+        15000,
+        'Sending message',
+      );
 
       if (error) throw error;
 
