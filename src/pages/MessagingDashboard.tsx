@@ -70,6 +70,11 @@ export function MessagingDashboard() {
   // its id was superseded bails instead of re-opening the chat — this is what
   // kills the "tap Back 5 times and it keeps coming back" bug.
   const openGenRef = useRef(0);
+  // Remembers which deep-link (?conversationId / ?startConversation) we've already
+  // acted on, so the open-effect handles each one EXACTLY once. Without this it
+  // re-runs whenever `conversations` refetches (realtime) and can re-open a chat
+  // the user just closed — making Back feel like it needs several taps.
+  const handledDeepLinkRef = useRef<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
   const [blockTarget, setBlockTarget] = useState<{ userId: string; name: string } | null>(null);
@@ -223,8 +228,15 @@ export function MessagingDashboard() {
     if (isLoading) return;
     const conversationId = searchParams.get('conversationId');
     const startUserId = searchParams.get('startConversation');
-    if (conversationId && !isStartingConversation) handleDirectOpenConversation(conversationId);
-    else if (startUserId && !isStartingConversation) handleAutoStartConversation(startUserId);
+    const key = conversationId ? `c:${conversationId}` : startUserId ? `s:${startUserId}` : null;
+    // No deep-link param (e.g. after Back cleared it) → reset so a later link,
+    // even to the same chat, can open again.
+    if (!key) { handledDeepLinkRef.current = null; return; }
+    // Act on each deep-link exactly once; never re-open while one is resolving.
+    if (handledDeepLinkRef.current === key || isStartingConversation) return;
+    handledDeepLinkRef.current = key;
+    if (conversationId) handleDirectOpenConversation(conversationId);
+    else if (startUserId) handleAutoStartConversation(startUserId);
   }, [searchParams, isStartingConversation, isLoading, handleDirectOpenConversation, handleAutoStartConversation]);
 
   if (selectedConversationId) {
