@@ -63,6 +63,7 @@ interface MessagingInterfaceProps {
   };
   currentUserRole?: 'client' | 'owner' | 'admin';
   onBack: () => void;
+  onRequestBlock?: (userId: string, name: string) => void;
 }
 
 const QUICK_EMOJIS = [
@@ -71,7 +72,7 @@ const QUICK_EMOJIS = [
   '\u{1F4AA}', '\u{1F44F}', '\u{1F973}', '\u{1F607}', '\u{1F917}', '\u{1F601}', '\u{1F31F}', '\u{1F4EC}',
 ];
 
-export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
+export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack, onRequestBlock }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(false);
@@ -420,14 +421,19 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }))}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setTimeout(() => {
+                        (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }));
+                      }, 50);
+                    }}
                   >
                     <ShieldAlert className="w-4 h-4" /> Report
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/[0.06] my-1.5" />
                   <DropdownMenuItem
                     className="p-4 rounded-[1rem] focus:bg-red-500/[0.12] text-red-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
-                    onClick={() => setShowBlockConfirm(true)}
+                    onClick={() => { setMenuOpen(false); onRequestBlock?.(otherUser.id, otherUser.full_name || 'User'); }}
                   >
                     <Ban className="w-4 h-4" /> Block
                   </DropdownMenuItem>
@@ -706,38 +712,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           onChatClose={onBack}
         />
 
-        <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
-          <AlertDialogContent className={cn("max-w-[320px] rounded-3xl", isThemeLight ? "bg-white" : "bg-[#111111] border-white/10")}>
-            <AlertDialogHeader>
-              <AlertDialogTitle className={cn("text-xl font-black uppercase tracking-tight text-center", isThemeLight ? "text-slate-900" : "text-white")}>
-                Block User
-              </AlertDialogTitle>
-              <AlertDialogDescription className={cn("text-center font-medium", isThemeLight ? "text-slate-600" : "text-white/60")}>
-                Are you sure you want to block {otherUser.full_name}? They will no longer be able to message you or see your listings.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="sm:justify-center gap-3 mt-4">
-              <AlertDialogCancel className={cn("rounded-full font-bold uppercase tracking-widest text-xs flex-1", isThemeLight ? "" : "border-white/10 text-white hover:bg-white/5")}>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-red-500 hover:bg-red-600 text-white font-bold rounded-full uppercase tracking-widest text-xs flex-1"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowBlockConfirm(false);
-                  
-                  // Wait for Radix UI dialog exit animation and cleanup to finish completely
-                  // before we unmount the entire MessagingInterface. Otherwise Radix leaves
-                  // the body pointer-events locked, causing the app to "freeze".
-                  setTimeout(() => {
-                    blockUser.mutate(otherUser.id);
-                    onBack();
-                  }, 400);
-                }}
-              >
-                Block
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
 
         <Dialog open={showChatInfo} onOpenChange={setShowChatInfo}>
           <DialogContent className={cn("max-w-[320px] rounded-[32px] p-6 border-0", isThemeLight ? "bg-white shadow-2xl" : "bg-[#111111] shadow-[0_0_40px_rgba(0,0,0,0.5)]")} hideCloseButton>

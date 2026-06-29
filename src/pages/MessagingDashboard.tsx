@@ -268,6 +268,7 @@ export function MessagingDashboard() {
               otherUser={(otherUser || { id: 'loading', full_name: 'Connecting...', role: 'client' }) as any}
               listing={listing}
               currentUserRole={userRole}
+              onRequestBlock={(userId, name) => setBlockTarget({ userId, name })}
               onBack={() => {
                 triggerHaptic('medium');
                 // ONE-TAP back to the inbox. Bump the open id first so any
@@ -557,7 +558,12 @@ export function MessagingDashboard() {
                               <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-white/5 my-2" />
-                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, category: 'user_profile' } })); }}>
+                            <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-amber-500/20 text-amber-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { 
+                              e.stopPropagation(); 
+                              setTimeout(() => {
+                                (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, category: 'user_profile' } })); 
+                              }, 50);
+                            }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>
                              <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); if (conversation.other_user) setBlockTarget({ userId: conversation.other_user.id, name: conversation.other_user.full_name || 'this user' }); }}>
@@ -691,6 +697,10 @@ export function MessagingDashboard() {
                 setBlockTarget(null);
                 if (target) {
                   blockUser.mutate(target);
+                  if (activeChat?.other_user?.id === target) {
+                    // Close the chat if we just blocked the person we are chatting with
+                    setActiveChat(null);
+                  }
                 }
               }}
             >
