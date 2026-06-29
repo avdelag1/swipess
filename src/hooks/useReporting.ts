@@ -84,7 +84,8 @@ export function useCreateReport() {
     },
     onError: (error: Error) => {
       logger.error('Error creating report:', error);
-      appToast.error('Failed to submit report', error instanceof Error ? error.message : undefined);
+      const msg = error instanceof Error ? error.message : typeof error === 'object' ? JSON.stringify(error) : String(error);
+      appToast.error('Failed to submit report', msg);
     },
   });
 }
