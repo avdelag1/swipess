@@ -369,7 +369,7 @@ export function useConversationMessages(conversationId: string) {
       const { data: messages, error } = await withTimeout(
         supabase
           .from('conversation_messages')
-          .select('id, conversation_id, sender_id, content, message_text, message_type, is_read, read_at, created_at')
+          .select('id, conversation_id, sender_id, content, message_text, message_type, is_read, created_at')
           .eq('conversation_id', conversationId)
           .order('created_at', { ascending: true }),
         15000,

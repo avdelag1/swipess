@@ -15,7 +15,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
     const markAsRead = async () => {
       const { error } = await supabase
         .from('conversation_messages')
-        .update({ is_read: true, read_at: new Date().toISOString() })
+        .update({ is_read: true })
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id)
         .eq('is_read', false);
@@ -50,7 +50,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
           if (payload.new.sender_id !== user.id) {
             supabase
               .from('conversation_messages')
-              .update({ is_read: true, read_at: new Date().toISOString() })
+              .update({ is_read: true })
               .eq('id', payload.new.id)
               .then(({ error }) => {
                 if (error && import.meta.env.DEV) {

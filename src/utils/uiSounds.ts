@@ -29,6 +29,11 @@ const BOWL_SOUNDS = [
   "/sounds/deep-meditation-bell-hit-root-chakra-1-174455.mp3",
 ];
 
+const WAVE_SOUNDS = [
+  "/sounds/water-splash-46402.mp3",
+  "/sounds/water-droplet-sfx-417690.mp3"
+];
+
 interface ToneOptions {
   type?: OscillatorType;
   startFreq: number;
@@ -119,21 +124,30 @@ class SoundEngine {
   }
 
   // â”€â”€ DISABLED IN-APP SOUNDS (no-ops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ DISABLED IN-APP SOUNDS (no-ops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   public playWelcome() {}
   public playLike() {}
   public playDislike() {}
   public playNotification() {}
   public playUploadComplete() {}
 
-  // â”€â”€ LANDING-PAGE-ONLY SOUNDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── LANDING-PAGE-ONLY SOUNDS ──────────────────────────────────────────────
   public playStarShoot() {
+    this.init();
     const randomUrl = STAR_SOUNDS[Math.floor(Math.random() * STAR_SOUNDS.length)];
     this.loadAndPlay(randomUrl, 0.3);
   }
 
   public playZenBowl() {
+    this.init();
     const url = BOWL_SOUNDS[Math.floor(Math.random() * BOWL_SOUNDS.length)];
     this.loadAndPlay(url, 0.45);
+  }
+
+  public playOceanWave() {
+    this.init();
+    const url = WAVE_SOUNDS[Math.floor(Math.random() * WAVE_SOUNDS.length)];
+    this.loadAndPlay(url, 0.3);
   }
 
   // â”€â”€ DISABLED TACTILE SOUNDS (no-ops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

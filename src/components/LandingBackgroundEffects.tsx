@@ -187,9 +187,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         type: sizeType
       });
 
-      // User triggered stars should ALWAYS play sound & notify UI
+      // User triggered stars should ALWAYS notify UI
       if (x !== undefined && y !== undefined && !disableSoundsRef.current) {
-        uiSounds.playStarShoot();
         // Dispatch event so Swipess UI can react
         window.dispatchEvent(new CustomEvent('STAR_SPAWNED', { detail: { x, y } }));
       }
@@ -247,12 +246,18 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
 
+      if (!disableSoundsRef.current) {
+        try {
+          const soundPref = localStorage.getItem('Swipess_bg_sound') || 'bells';
+          if (soundPref === 'bells') uiSounds.playStarShoot();
+          else if (soundPref === 'bowls') uiSounds.playZenBowl();
+          else if (soundPref === 'waves') uiSounds.playOceanWave();
+        } catch { /* ignore */ }
+      }
+
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
-        // Meditation bowl chime on every background tap (cosmos mode)
-        if (!disableSoundsRef.current) uiSounds.playZenBowl();
       } else if (mode === 'sunset') {
-        if (!disableSoundsRef.current) uiSounds.playZenBowl();
         const hh = window.innerHeight;
         if (e.clientY > hh * 0.6) {
           spawnRipple(e.clientX, e.clientY);
