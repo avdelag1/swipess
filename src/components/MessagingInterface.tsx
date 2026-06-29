@@ -363,7 +363,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <button
                 onClick={() => { setShowChatSearch(s => !s); setChatSearch(''); triggerHaptic('light'); }}
                 aria-label="Search messages"
-                className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all",
+                className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
                   showChatSearch
                     ? "bg-rose-500/[0.15] text-rose-400"
                     : (isThemeLight ? "surface-2 text-black hover:shadow-[var(--elev-3)]" : "bg-white/[0.05] text-white hover:bg-white/[0.12]")
@@ -374,7 +374,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
               <button
                 onClick={() => setShowRatingDialog(true)}
-                className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all",
+                className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
                   isThemeLight ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-amber-500/[0.08] text-amber-400 hover:bg-amber-500/[0.15]"
                 )}
               >
@@ -385,7 +385,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-label="More options"
-                    className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all",
+                    className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-all outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
                     isThemeLight ? "surface-2 text-black hover:shadow-[var(--elev-3)]" : "bg-white/[0.05] text-white hover:bg-white/[0.12]"
                   )}>
                     <MoreVertical className="w-5 h-5" />
