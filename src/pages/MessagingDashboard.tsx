@@ -286,6 +286,39 @@ export function MessagingDashboard() {
             />
           </motion.div>
         </AnimatePresence>
+
+        <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
+          <AlertDialogContent className={cn("rounded-[28px]", isLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
+            <AlertDialogHeader>
+              <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
+              <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>
+                This will permanently block {blockTarget?.name} from contacting you. You won't see their messages or listings.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-2">
+              <AlertDialogCancel className={cn("rounded-full", isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="rounded-full bg-red-600 hover:bg-red-500 text-white border-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = blockTarget?.userId;
+                  setBlockTarget(null);
+                  if (target) {
+                    blockUser.mutate(target);
+                    if (activeChat?.other_user?.id === target) {
+                      setActiveChat(null);
+                    }
+                  }
+                }}
+              >
+                Block
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </div>,
       document.body
     );
@@ -677,38 +710,6 @@ export function MessagingDashboard() {
         <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />
       </Suspense>
 
-      <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
-        <AlertDialogContent className={cn("rounded-[28px]", isLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>
-          <AlertDialogHeader>
-            <AlertDialogTitle className={cn("text-lg font-bold", isLight ? "text-slate-900" : "text-white")}>Block this user?</AlertDialogTitle>
-            <AlertDialogDescription className={cn(isLight ? "text-slate-500" : "text-white/50")}>
-              This will permanently block {blockTarget?.name} from contacting you. You won't see their messages or listings.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className={cn("rounded-full", isLight ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200" : "bg-white/10 border-white/20 text-white hover:bg-white/15")}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="rounded-full bg-red-600 hover:bg-red-500 text-white border-0"
-              onClick={(e) => {
-                e.preventDefault();
-                const target = blockTarget?.userId;
-                setBlockTarget(null);
-                if (target) {
-                  blockUser.mutate(target);
-                  if (activeChat?.other_user?.id === target) {
-                    // Close the chat if we just blocked the person we are chatting with
-                    setActiveChat(null);
-                  }
-                }
-              }}
-            >
-              Block
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </AmbientPageBackground>
   );
 }
