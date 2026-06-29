@@ -73,65 +73,77 @@ export function useCreateReport() {
         updated_at: new Date().toISOString(),
       };
 
-      const payloadsToTry = [
-        // 1. Current modern schema
-        {
-          ...basePayload,
-          report_category: params.reportCategory,
-          description: params.description,
-          evidence_urls: params.evidenceUrls || [],
-        },
-        // 2. Old schema with all legacy columns (if reason and details are required)
-        {
-          ...basePayload,
-          report_category: params.reportCategory,
-          report_reason: params.reportCategory,
-          report_details: params.description,
-          description: params.description,
-        },
-        // 3. Legacy schema without description or category (if they were never added)
-        {
-          ...basePayload,
-          report_reason: params.reportCategory,
-          report_details: params.description,
-        },
-        // 4. Legacy schema with only reason
-        {
-          ...basePayload,
-          report_reason: params.description,
-        },
-        // 5. Legacy schema with only details
-        {
-          ...basePayload,
-          report_details: params.description,
-        },
-        // 6. Absolute bare minimum, using only guaranteed columns
-        {
-          id: basePayload.id,
-          reporter_id: basePayload.reporter_id,
-          reported_user_id: basePayload.reported_user_id,
-          reported_listing_id: basePayload.reported_listing_id,
-          report_type: basePayload.report_type,
-          status: basePayload.status
-        }
-      ];
+      // Self-healing payload algorithm:
+      // Start with a maximal payload containing ALL historical and modern columns.
+      // If Supabase complains about a missing column (PGRST204), remove it and try again.
+      const payload: Record<string, any> = {
+        id: crypto.randomUUID(),
+        reporter_id: user.id,
+        reported_user_id: params.reportedUserId || null,
+        reported_listing_id: params.reportedListingId || null,
+        report_type: params.reportType, // Sometimes used for reason, sometimes 'user'/'listing'
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        
+        // Potential drift columns
+        report_category: params.reportCategory,
+        description: params.description,
+        evidence_urls: params.evidenceUrls || [],
+        
+        // Legacy NOT NULL columns
+        report_reason: params.reportType, 
+        report_details: params.description,
+      };
 
+      let attempts = 0;
       let lastError;
-      for (let i = 0; i < payloadsToTry.length; i++) {
-        const payload = payloadsToTry[i];
+
+      while (attempts < 10) {
+        attempts++;
         const { data, error } = await supabase
           .from('user_reports' as any)
           .insert(payload)
           .select()
           .single();
-          
+
         if (!error) {
-          if (i > 0) logger.info(`Report inserted successfully using fallback payload #${i + 1}`);
+          if (attempts > 1) {
+            logger.info(`Self-healed payload succeeded on attempt ${attempts}`, { payload });
+          }
           return data;
         }
-        
+
         lastError = error;
-        logger.warn(`Failed payload #${i + 1}`, { error });
+        
+        // Schema Cache Error: Missing Column
+        if (error.code === 'PGRST204') {
+          const match = error.message.match(/Could not find the '([^']+)' column/);
+          if (match && match[1]) {
+            const missingCol = match[1];
+            logger.warn(`Removing missing column '${missingCol}' from payload...`);
+            delete payload[missingCol];
+            continue; // Try again!
+          }
+        }
+        
+        // NOT NULL Violation
+        if (error.code === '23502') {
+          const match = error.message.match(/null value in column "([^"]+)"/);
+          if (match && match[1]) {
+            const nullCol = match[1];
+            logger.warn(`NOT NULL violation for '${nullCol}'. Fixing...`);
+            
+            // If we somehow passed null/undefined, force a fallback string
+            if (!payload[nullCol]) {
+               payload[nullCol] = params.description || params.reportType || 'N/A';
+               continue; // Try again!
+            }
+          }
+        }
+
+        // If we get here, it's an error we can't heal from
+        break;
       }
 
       throw lastError;
