@@ -137,9 +137,9 @@ export function ReportDialog({
                 <RadioGroup name={dialogId} value={selectedReportType} onValueChange={(value) => setSelectedReportType(value as ReportType | '')}>
                   <div className="space-y-2">
                     {relevantReportTypes.map((type) => (
-                      <Label
+                      <div
                         key={type}
-                        htmlFor={`${dialogId}-${type}`}
+                        onClick={() => setSelectedReportType(type)}
                         className={cn(
                           "flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer",
                           selectedReportType === type
@@ -147,10 +147,11 @@ export function ReportDialog({
                             : (isLight ? "bg-slate-50 border-slate-200 hover:border-slate-300" : "bg-[#121212] border-white/10 hover:border-white/20")
                         )}
                       >
-                        <div className="mt-0.5">
+                        <div className="mt-0.5 pointer-events-none">
                           <RadioGroupItem
                             value={type}
                             id={`${dialogId}-${type}`}
+                            checked={selectedReportType === type}
                             className={cn(
                               selectedReportType === type
                                 ? "border-rose-600 text-rose-600"
@@ -158,7 +159,7 @@ export function ReportDialog({
                             )}
                           />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 pointer-events-none">
                           <div className={cn(
                             "text-sm font-semibold tracking-tight",
                             selectedReportType === type
@@ -171,7 +172,7 @@ export function ReportDialog({
                             {REPORT_TYPE_DESCRIPTIONS[type]}
                           </div>
                         </div>
-                      </Label>
+                      </div>
                     ))}
                   </div>
                 </RadioGroup>
