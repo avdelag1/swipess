@@ -56,8 +56,7 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
                 "relative overflow-hidden rounded-[2rem] p-6 text-center transition-all duration-300 group active:scale-[0.96]",
                 isLight && !isSwipess
                   ? "bg-white border-2 border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
-                  : "bg-white/[0.02] border-2 border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20",
-                i === FILTERS.length - 1 && "col-span-2"
+                  : "bg-white/[0.02] border-2 border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20"
               )}
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${cat.glowColor}, transparent 80%)` }} />
