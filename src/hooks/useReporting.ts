@@ -63,6 +63,7 @@ export function useCreateReport() {
       const { data, error } = await supabase
         .from('user_reports' as any)
         .insert({
+          id: crypto.randomUUID(),
           reporter_id: user.id,
           reported_user_id: params.reportedUserId || null,
           reported_listing_id: params.reportedListingId || null,
@@ -71,6 +72,8 @@ export function useCreateReport() {
           description: params.description,
           evidence_urls: params.evidenceUrls || [],
           status: 'pending',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();

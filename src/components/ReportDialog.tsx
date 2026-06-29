@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,7 @@ export function ReportDialog({
   const [description, setDescription] = useState('');
   const createReport = useCreateReport();
   const { isLight } = useAppTheme();
+  const dialogId = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,7 +139,7 @@ export function ReportDialog({
                     {relevantReportTypes.map((type) => (
                       <Label
                         key={type}
-                        htmlFor={type}
+                        htmlFor={`${dialogId}-${type}`}
                         className={cn(
                           "flex items-start gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer",
                           selectedReportType === type
@@ -149,7 +150,7 @@ export function ReportDialog({
                         <div className="mt-0.5">
                           <RadioGroupItem
                             value={type}
-                            id={type}
+                            id={`${dialogId}-${type}`}
                             className={cn(
                               selectedReportType === type
                                 ? "border-rose-600 text-rose-600"
