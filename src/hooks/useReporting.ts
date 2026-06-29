@@ -140,9 +140,9 @@ export function useCreateReport() {
       queryClient.invalidateQueries({ queryKey: ['user-reports'] });
       appToast.success('Report submitted');
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       logger.error('Error creating report:', error);
-      const msg = error instanceof Error ? error.message : typeof error === 'object' ? JSON.stringify(error) : String(error);
+      const msg = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
       appToast.error('Failed to submit report', msg);
     },
   });
