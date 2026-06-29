@@ -13,8 +13,8 @@ import {
 import { MessagesDocumentsLibrary } from '@/components/messaging/MessagesDocumentsLibrary';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import PullToRefresh from 'react-simple-pull-to-refresh';
-// Empty line to keep line count consistent
-import { useAuth } from '@/hooks/useAuth';
+import { ReportDialog } from '@/components/ReportDialog';
+import { ReportCategory } from '@/hooks/useReporting';
 import { useUserRole } from '@/hooks/useUserRole';
 
 import {
@@ -82,6 +82,7 @@ export function MessagingDashboard() {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [_showActivationBanner, _setShowActivationBanner] = useState(false);
   const [blockTarget, setBlockTarget] = useState<{ userId: string; name: string } | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ userId: string; age?: number | string; category: string } | null>(null);
   const { getText } = useSiteContent('messages');
 
   const { data: fetchedRole } = useUserRole(user?.id);
@@ -269,6 +270,7 @@ export function MessagingDashboard() {
               listing={listing}
               currentUserRole={userRole}
               onRequestBlock={(userId, name) => setBlockTarget({ userId, name })}
+              onRequestReport={(userId, age, category) => setReportTarget({ userId, age, category })}
               onBack={() => {
                 triggerHaptic('medium');
                 // ONE-TAP back to the inbox. Bump the open id first so any
@@ -286,6 +288,14 @@ export function MessagingDashboard() {
             />
           </motion.div>
         </AnimatePresence>
+
+        <ReportDialog
+          open={!!reportTarget}
+          onOpenChange={(open) => { if (!open) setReportTarget(null); }}
+          reportedUserId={reportTarget?.userId}
+          reportedUserAge={reportTarget?.age}
+          category={(reportTarget?.category as ReportCategory) || 'user_profile'}
+        />
 
         <AlertDialog open={!!blockTarget} onOpenChange={(open) => { if (!open) setBlockTarget(null); }}>
           <AlertDialogContent className={cn("rounded-[28px]", isLight ? "surface-5 text-slate-900" : "bg-card text-white border-white/10")}>

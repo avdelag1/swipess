@@ -64,6 +64,7 @@ interface MessagingInterfaceProps {
   currentUserRole?: 'client' | 'owner' | 'admin';
   onBack: () => void;
   onRequestBlock?: (userId: string, name: string) => void;
+  onRequestReport?: (userId: string, age?: number | string, category?: string) => void;
 }
 
 const QUICK_EMOJIS = [
@@ -72,7 +73,7 @@ const QUICK_EMOJIS = [
   '\u{1F4AA}', '\u{1F44F}', '\u{1F973}', '\u{1F607}', '\u{1F917}', '\u{1F601}', '\u{1F31F}', '\u{1F4EC}',
 ];
 
-export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack, onRequestBlock }: MessagingInterfaceProps) => {
+export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack, onRequestBlock, onRequestReport }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(false);
@@ -423,8 +424,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     className="p-4 rounded-[1rem] focus:bg-amber-500/[0.12] text-amber-400 cursor-pointer font-black uppercase tracking-widest text-[10px] gap-3"
                     onClick={() => {
                       setMenuOpen(false);
+                      // Adding a tiny delay lets the popover finish its close animation
+                      // before we blast a new modal on top, preventing Radix portal crashes
                       setTimeout(() => {
-                        (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }));
+                        if (onRequestReport) {
+                          onRequestReport(otherUser.id, otherUser.age, 'user_profile');
+                        } else {
+                          (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }));
+                        }
                       }, 400);
                     }}
                   >
