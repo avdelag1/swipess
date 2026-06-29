@@ -60,23 +60,72 @@ export function useCreateReport() {
       }
 
       // Create the report
-      const { data, error } = await supabase
+      let insertPayload: any = {
+        id: crypto.randomUUID(),
+        reporter_id: user.id,
+        reported_user_id: params.reportedUserId || null,
+        reported_listing_id: params.reportedListingId || null,
+        report_type: params.reportType,
+        report_category: params.reportCategory,
+        description: params.description,
+        evidence_urls: params.evidenceUrls || [],
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      let { data, error } = await supabase
         .from('user_reports' as any)
-        .insert({
+        .insert(insertPayload)
+        .select()
+        .single();
+
+      // If the live database is missing columns like `description`, `report_category`, or `evidence_urls`
+      // due to manual schema creation (schema drift), fallback to a simpler payload.
+      if (error && error.code === 'PGRST204') {
+        logger.warn('Schema mismatch detected for user_reports. Falling back to alternative columns...', error);
+        
+        insertPayload = {
           id: crypto.randomUUID(),
           reporter_id: user.id,
           reported_user_id: params.reportedUserId || null,
           reported_listing_id: params.reportedListingId || null,
           report_type: params.reportType,
-          report_category: params.reportCategory,
-          description: params.description,
-          evidence_urls: params.evidenceUrls || [],
+          report_reason: params.description, // some live DBs might have report_reason instead
           status: 'pending',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+        };
+
+        const fallbackAttempt1 = await supabase
+          .from('user_reports' as any)
+          .insert(insertPayload)
+          .select()
+          .single();
+          
+        data = fallbackAttempt1.data;
+        error = fallbackAttempt1.error;
+
+        // If that STILL fails because of missing columns, do the bare minimum
+        if (error && error.code === 'PGRST204') {
+          logger.warn('Alternative columns also missing. Falling back to bare minimum payload...', error);
+          const fallbackAttempt2 = await supabase
+            .from('user_reports' as any)
+            .insert({
+              id: crypto.randomUUID(),
+              reporter_id: user.id,
+              reported_user_id: params.reportedUserId || null,
+              reported_listing_id: params.reportedListingId || null,
+              report_type: params.reportType,
+              status: 'pending'
+            })
+            .select()
+            .single();
+            
+          data = fallbackAttempt2.data;
+          error = fallbackAttempt2.error;
+        }
+      }
 
       if (error) throw error;
       return data;
