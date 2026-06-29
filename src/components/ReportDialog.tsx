@@ -134,7 +134,7 @@ export function ReportDialog({
                 <Label className={cn("text-[10px] font-bold uppercase tracking-[0.18em] ml-1", isLight ? "text-slate-500" : "text-white/50")}>
                   Select Reason
                 </Label>
-                <RadioGroup value={selectedReportType} onValueChange={(value) => setSelectedReportType(value as ReportType | '')}>
+                <RadioGroup name={dialogId} value={selectedReportType} onValueChange={(value) => setSelectedReportType(value as ReportType | '')}>
                   <div className="space-y-2">
                     {relevantReportTypes.map((type) => (
                       <Label
