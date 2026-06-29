@@ -59,81 +59,82 @@ export function useCreateReport() {
         throw new Error('You have already submitted a report for this. Our team is reviewing it.');
       }
 
-      // Create the report
-      let insertPayload: any = {
+      // Due to schema drift on the live database (missing columns like description, 
+      // or older columns like report_reason being required), we try a sequence of payloads
+      // from most complete to bare minimum, until one succeeds.
+      const basePayload = {
         id: crypto.randomUUID(),
         reporter_id: user.id,
         reported_user_id: params.reportedUserId || null,
         reported_listing_id: params.reportedListingId || null,
         report_type: params.reportType,
-        report_category: params.reportCategory,
-        description: params.description,
-        evidence_urls: params.evidenceUrls || [],
         status: 'pending',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      let { data, error } = await supabase
-        .from('user_reports' as any)
-        .insert(insertPayload)
-        .select()
-        .single();
-
-      // If the live database is missing columns like `description`, `report_category`, or `evidence_urls`
-      // due to manual schema creation (schema drift), fallback to a simpler payload.
-      if (error && error.code === 'PGRST204') {
-        logger.warn('Schema mismatch detected for user_reports. Falling back to alternative columns...', error);
-        
-        insertPayload = {
-          id: crypto.randomUUID(),
-          reporter_id: user.id,
-          reported_user_id: params.reportedUserId || null,
-          reported_listing_id: params.reportedListingId || null,
-          report_type: params.reportType,
+      const payloadsToTry = [
+        // 1. Current modern schema
+        {
+          ...basePayload,
           report_category: params.reportCategory,
-          report_reason: params.description, // some live DBs might have report_reason instead
-          report_details: params.description, // some live DBs might have report_details instead
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
+          description: params.description,
+          evidence_urls: params.evidenceUrls || [],
+        },
+        // 2. Old schema with all legacy columns (if reason and details are required)
+        {
+          ...basePayload,
+          report_category: params.reportCategory,
+          report_reason: params.reportCategory,
+          report_details: params.description,
+          description: params.description,
+        },
+        // 3. Legacy schema without description or category (if they were never added)
+        {
+          ...basePayload,
+          report_reason: params.reportCategory,
+          report_details: params.description,
+        },
+        // 4. Legacy schema with only reason
+        {
+          ...basePayload,
+          report_reason: params.description,
+        },
+        // 5. Legacy schema with only details
+        {
+          ...basePayload,
+          report_details: params.description,
+        },
+        // 6. Absolute bare minimum, using only guaranteed columns
+        {
+          id: basePayload.id,
+          reporter_id: basePayload.reporter_id,
+          reported_user_id: basePayload.reported_user_id,
+          reported_listing_id: basePayload.reported_listing_id,
+          report_type: basePayload.report_type,
+          status: basePayload.status
+        }
+      ];
 
-        const fallbackAttempt1 = await supabase
+      let lastError;
+      for (let i = 0; i < payloadsToTry.length; i++) {
+        const payload = payloadsToTry[i];
+        const { data, error } = await supabase
           .from('user_reports' as any)
-          .insert(insertPayload)
+          .insert(payload)
           .select()
           .single();
           
-        data = fallbackAttempt1.data;
-        error = fallbackAttempt1.error;
-
-        // If that STILL fails, try one more time without report_reason/details
-        if (error && (error.code === 'PGRST204' || error.code === '23502')) {
-          logger.warn('Alternative columns also failing. Falling back to bare minimum payload...', error);
-          const fallbackAttempt2 = await supabase
-            .from('user_reports' as any)
-            .insert({
-              id: crypto.randomUUID(),
-              reporter_id: user.id,
-              reported_user_id: params.reportedUserId || null,
-              reported_listing_id: params.reportedListingId || null,
-              report_type: params.reportType,
-              report_category: params.reportCategory,
-              status: 'pending',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
-            
-          data = fallbackAttempt2.data;
-          error = fallbackAttempt2.error;
+        if (!error) {
+          if (i > 0) logger.info(`Report inserted successfully using fallback payload #${i + 1}`);
+          return data;
         }
+        
+        lastError = error;
+        logger.warn(`Failed payload #${i + 1}`, { error });
       }
 
-      if (error) throw error;
-      return data;
+      throw lastError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-reports'] });
