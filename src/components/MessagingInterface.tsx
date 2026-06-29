@@ -723,11 +723,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 onClick={(e) => {
                   e.preventDefault();
                   setShowBlockConfirm(false);
+                  
+                  // Wait for Radix UI dialog exit animation and cleanup to finish completely
+                  // before we unmount the entire MessagingInterface. Otherwise Radix leaves
+                  // the body pointer-events locked, causing the app to "freeze".
                   setTimeout(() => {
-                    document.body.style.pointerEvents = '';
                     blockUser.mutate(otherUser.id);
-                    setTimeout(() => onBack(), 100);
-                  }, 300);
+                    onBack();
+                  }, 400);
                 }}
               >
                 Block
