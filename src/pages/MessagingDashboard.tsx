@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import PullToRefresh from 'react-simple-pull-to-refresh';
 import { ReportDialog } from '@/components/ReportDialog';
 import { ReportCategory } from '@/hooks/useReporting';
+import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 
 import {
