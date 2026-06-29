@@ -45,7 +45,8 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, any>(({ className, ...pro
       exit={{ opacity: 0 }}
       transition={{ duration: 0.1 }}
       onClick={() => onOpenChange(false)}
-      className={cn("fixed inset-0 z-[10001] modal-scrim", className)}
+      className={cn("fixed inset-0 modal-scrim", className)}
+      style={{ zIndex: 10050 }}
       {...props}
     />
   )
@@ -103,7 +104,8 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
           animate={preset.animate}
           exit={preset.exit}
           transition={preset.transition}
-          className="fixed inset-0 z-[10002] flex items-center justify-center pointer-events-none"
+          className="fixed inset-0 flex items-center justify-center pointer-events-none"
+          style={{ zIndex: 10050 }}
         >
           <div
             ref={ref}
@@ -111,6 +113,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
               "relative w-full max-w-lg max-h-[90vh] border border-border bg-card chrome-solid surface-5 p-5 sm:p-[28px] pointer-events-auto rounded-[32px] overflow-hidden",
               className
             )}
+            style={{ zIndex: 10050 }}
             {...props}
           >
           {children}
