@@ -562,7 +562,7 @@ export function MessagingDashboard() {
                               e.stopPropagation(); 
                               setTimeout(() => {
                                 (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: conversation.other_user?.id, reportedUserAge: conversation.other_user?.age, category: 'user_profile' } })); 
-                              }, 50);
+                              }, 400);
                             }}>
                               <ShieldAlert className="w-4 h-4 mr-3" /> Report Entity
                             </DropdownMenuItem>

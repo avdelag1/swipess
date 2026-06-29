@@ -425,7 +425,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                       setMenuOpen(false);
                       setTimeout(() => {
                         (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedUserId: otherUser.id, reportedUserAge: otherUser.age, category: 'user_profile' } }));
-                      }, 50);
+                      }, 400);
                     }}
                   >
                     <ShieldAlert className="w-4 h-4" /> Report
