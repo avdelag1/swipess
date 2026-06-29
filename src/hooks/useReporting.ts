@@ -91,7 +91,9 @@ export function useCreateReport() {
           reported_user_id: params.reportedUserId || null,
           reported_listing_id: params.reportedListingId || null,
           report_type: params.reportType,
+          report_category: params.reportCategory,
           report_reason: params.description, // some live DBs might have report_reason instead
+          report_details: params.description, // some live DBs might have report_details instead
           status: 'pending',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -106,9 +108,9 @@ export function useCreateReport() {
         data = fallbackAttempt1.data;
         error = fallbackAttempt1.error;
 
-        // If that STILL fails because of missing columns, do the bare minimum
-        if (error && error.code === 'PGRST204') {
-          logger.warn('Alternative columns also missing. Falling back to bare minimum payload...', error);
+        // If that STILL fails, try one more time without report_reason/details
+        if (error && (error.code === 'PGRST204' || error.code === '23502')) {
+          logger.warn('Alternative columns also failing. Falling back to bare minimum payload...', error);
           const fallbackAttempt2 = await supabase
             .from('user_reports' as any)
             .insert({
@@ -117,7 +119,10 @@ export function useCreateReport() {
               reported_user_id: params.reportedUserId || null,
               reported_listing_id: params.reportedListingId || null,
               report_type: params.reportType,
-              status: 'pending'
+              report_category: params.reportCategory,
+              status: 'pending',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             })
             .select()
             .single();
