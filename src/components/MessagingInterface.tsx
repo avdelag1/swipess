@@ -613,6 +613,16 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 value={newMessage}
                 onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
                 onFocus={() => { if (isListening) stopListening(); }}
+                onKeyDown={(e) => {
+                  // Enter sends; Shift+Enter (and mobile "return") add a newline.
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (newMessage.trim() && !sendMessage.isPending) {
+                      handleSendMessage(e as unknown as React.FormEvent);
+                    }
+                  }
+                }}
+                enterKeyHint="send"
                 placeholder={isListening ? "Listening..." : getText('input_placeholder', 'Type a message...')}
                 rows={1}
                 style={{ resize: 'none' }}
@@ -659,6 +669,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               disabled={!newMessage.trim() || sendMessage.isPending}
               aria-label="Send message"
               className={cn(
+                // Always clearly visible so the Send button is never "missing".
+                // It brightens to the full gradient once there's text to send.
                 "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all",
                 newMessage.trim()
                   ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white shadow-[0_8px_25px_rgba(235,72,152,0.5)] hover:scale-105 active:scale-95 border-none"
