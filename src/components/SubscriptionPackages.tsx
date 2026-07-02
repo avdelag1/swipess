@@ -125,7 +125,10 @@ export function SubscriptionPackages({
 }: SubscriptionPackagesProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isPurchasing, setIsPurchasing] = useState(false);
+  // Track WHICH plan is being purchased, not a global boolean — a single
+  // shared flag made every plan button flip to "Connecting..." at once,
+  // looking like all buttons got clicked.
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
   const openLegal = (doc: 'terms' | 'privacy') => {
     onClose?.();
@@ -135,7 +138,7 @@ export function SubscriptionPackages({
   if (!isOpen) return null;
 
   const handleSubscribe = async (plan: Plan) => {
-    setIsPurchasing(true);
+    setPurchasingId(plan.id);
 
     if (user?.id) {
       const sendNotif = async () => {
@@ -160,11 +163,11 @@ export function SubscriptionPackages({
       returnPath: `/${userRole}/dashboard`,
       onSuccess: () => {
         appToast.success('Subscription Successful!');
-        setIsPurchasing(false);
+        setPurchasingId(null);
         onClose?.();
       },
       onError: (err) => {
-        setIsPurchasing(false);
+        setPurchasingId(null);
         if (err !== 'CANCELLED') {
           appToast.error('Purchase Failed', err);
         }
@@ -250,13 +253,14 @@ export function SubscriptionPackages({
                   type="button"
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleSubscribe(pkg)}
-                  disabled={isPurchasing}
+                  disabled={purchasingId !== null}
                   className={cn(
-                    'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5 disabled:opacity-70',
+                    'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5',
+                    purchasingId === pkg.id && 'opacity-70',
                     style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20'
                   )}
                 >
-                  {isPurchasing ? 'Connecting...' : (
+                  {purchasingId === pkg.id ? 'Connecting...' : (
                     isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
                   )}
                 </motion.button>

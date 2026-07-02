@@ -63,10 +63,13 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const isOpen = useModalStore((s) => s.showTokensModal);
   const close = () => useModalStore.getState().setModal('showTokensModal', false);
 
-  const [isPurchasing, setIsPurchasing] = useState(false);
+  // Track WHICH product is being purchased, not a global boolean — a single
+  // shared flag made all four "Get Offer" buttons flip to "Processing..." at
+  // once, looking like every button got clicked.
+  const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
   const handlePurchase = async (pkg: AppleTokenPackage) => {
-    setIsPurchasing(true);
+    setPurchasingId(pkg.productId);
 
     await PaymentOrchestrator.purchase({
       appleProductId: pkg.productId,
@@ -74,11 +77,11 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
       returnPath: `/${userRole}/dashboard`,
       onSuccess: () => {
         appToast.success('Tokens Purchased', `${pkg.tokens} tokens activated via App Store.`);
-        setIsPurchasing(false);
+        setPurchasingId(null);
         close();
       },
       onError: (err) => {
-        setIsPurchasing(false);
+        setPurchasingId(null);
         if (err !== 'CANCELLED') {
           appToast.error('Purchase Failed', err);
         }
@@ -206,15 +209,17 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                               </div>
                               <button
                                 onClick={(e) => { e.preventDefault(); haptics.tap(); handlePurchase(pkg); }}
-                                disabled={isPurchasing}
+                                disabled={purchasingId !== null}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
                                 className={cn(
                                   "flex-shrink-0 h-11 px-5 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
-                                  isPurchasing ? "opacity-60 cursor-not-allowed" : "active:scale-95 touch-manipulation hover:shadow-lg",
+                                  purchasingId === pkg.productId
+                                    ? "opacity-60 cursor-not-allowed"
+                                    : "active:scale-95 touch-manipulation hover:shadow-lg",
                                   "bg-primary text-primary-foreground shadow-lg"
                                 )}
                               >
-                                {isPurchasing ? 'Processing...' : (
+                                {purchasingId === pkg.productId ? 'Processing...' : (
                                   <span className="text-[11px] uppercase tracking-widest">Get Offer</span>
                                 )}
                               </button>
