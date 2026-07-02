@@ -182,7 +182,11 @@ export const StoreKitService = {
           logger.warn('[IAP] Product loading timed out; proceeding anyway');
           resolve();
         }, 15000);
-        store.when().ready(() => {
+        // CdvPurchase v13: `ready` lives on the store itself, NOT on `when()`.
+        // `store.when().ready` is undefined, so calling it throws a TypeError
+        // that made every init fail ("[IAP] init failed {}") and blocked all
+        // purchases on both simulator and device.
+        store.ready(() => {
           clearTimeout(timeout);
           resolve();
         });
@@ -190,7 +194,10 @@ export const StoreKitService = {
 
       initState = 'ready';
     } catch (e) {
-      logger.error('[IAP] init failed', e);
+      // Error instances JSON-serialize to "{}" over the Capacitor console
+      // bridge, hiding the actual failure; log the message/stack explicitly.
+      const err = e as Error;
+      logger.error('[IAP] init failed', err?.message ?? String(e), err?.stack ?? '');
       initState = 'failed';
       // Drop the cached promise so the next purchase attempt can retry init
       // instead of being stuck awaiting a permanently-failed run.
