@@ -10,6 +10,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
 import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { Helmet } from 'react-helmet-async';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -79,7 +80,8 @@ const faqItems: FAQItem[] = [
 
 export default function FAQOwnerPage() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { _theme, isLight } = useAppTheme();
+  const { isLight } = useAppTheme();
+  const { getText } = useSiteContent('faq_owner');
 
   const toggleExpand = (index: number) => {
     haptics.tap();
@@ -93,10 +95,10 @@ export default function FAQOwnerPage() {
         <meta name="description" content="Common questions and support for Swipess property owners." />
       </Helmet>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-32">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-[env(safe-area-inset-top)] mt-6 pb-32">
         <PageHeader
-          title="Terminal Support"
-          subtitle="Frequently Asked Questions for Property Owners"
+          title={getText('faq_title', 'Owner Support')}
+          subtitle={getText('faq_subtitle', 'Frequently Asked Questions for Property Owners')}
           showBack={true}
           backTo="/owner/settings"
           icon={<HelpCircle className="w-8 h-8 text-purple-500" />}

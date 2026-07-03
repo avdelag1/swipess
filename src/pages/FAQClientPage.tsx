@@ -10,6 +10,7 @@ import useAppTheme from "@/hooks/useAppTheme";
 import { haptics } from "@/utils/microPolish";
 import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { Helmet } from 'react-helmet-async';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -72,6 +73,7 @@ const faqItems: FAQItem[] = [
 export default function FAQClientPage() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const { _theme, isLight } = useAppTheme();
+  const { getText } = useSiteContent('faq_client');
 
   const toggleExpand = (index: number) => {
     haptics.tap();
@@ -87,8 +89,8 @@ export default function FAQClientPage() {
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-32">
         <PageHeader
-          title="Protocol Support"
-          subtitle="Frequently Asked Questions for Renters"
+          title={getText('faq_title', 'Protocol Support')}
+          subtitle={getText('faq_subtitle', 'Frequently Asked Questions for Renters')}
           showBack={true}
           backTo="/client/settings"
           icon={<HelpCircle className="w-8 h-8 text-rose-500" />}

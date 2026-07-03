@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 // NativeBridge removed
 import { PaymentOrchestrator } from '@/lib/iap/PaymentOrchestrator';
 import { getSafePaymentUrl } from '@/config/iapProducts';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface SubscriptionPackagesProps {
   isOpen?: boolean;
@@ -117,18 +118,29 @@ const accentStyles = {
 };
 
 export function SubscriptionPackages({
-  isOpen = true,
+  isOpen = false,
   onClose,
   reason,
   userRole = 'client',
   showAsPage = false,
 }: SubscriptionPackagesProps) {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  // Track WHICH plan is being purchased, not a global boolean — a single
-  // shared flag made every plan button flip to "Connecting..." at once,
-  // looking like all buttons got clicked.
+  const { user } = useAuth();
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
+  const { getText, data: pkgData } = useSiteContent('subscription_packages');
+
+  const plans = clientPlans.map(plan => {
+    if (plan.id === 'client-unlimited-1-month') {
+      return { ...plan, label: getText('starter_label', plan.label), price: getText('starter_price', plan.price) };
+    }
+    if (plan.id === 'client-unlimited-6-months') {
+      return { ...plan, label: getText('popular_label', plan.label), price: getText('popular_price', plan.price) };
+    }
+    if (plan.id === 'client-unlimited-1-year') {
+      return { ...plan, label: getText('premium_label', plan.label), price: getText('premium_price', plan.price) };
+    }
+    return plan;
+  });
 
   const openLegal = (doc: 'terms' | 'privacy') => {
     onClose?.();
@@ -195,9 +207,8 @@ export function SubscriptionPackages({
           </div>
         )}
         <Crown className="w-8 h-8 text-amber-400 mx-auto mb-3" />
-        <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-pink-500 via-orange-400 to-amber-400 bg-clip-text text-transparent uppercase tracking-tighter">
-          Unlock Full Potential
-        </h2>
+        <h2 className="text-2xl font-black italic tracking-tighter uppercase">{getText('packages_title', 'Premium Plans')}</h2>
+        <p className="text-sm text-muted-foreground mt-2">{getText('packages_subtitle', 'Unlock the full Swipess experience')}</p>
         {reason && (
           <p className="text-sm font-semibold text-muted-foreground mt-2">{reason}</p>
         )}
@@ -207,7 +218,7 @@ export function SubscriptionPackages({
         'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-6 items-stretch',
         showAsPage ? 'overflow-visible' : 'overflow-y-auto no-scrollbar'
       )}>
-        {clientPlans.map((pkg) => {
+        {plans.map((pkg) => {
           const style = accentStyles[pkg.accent];
           const isHighlight = pkg.highlight;
 
@@ -254,15 +265,14 @@ export function SubscriptionPackages({
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleSubscribe(pkg)}
                   disabled={purchasingId !== null}
+                  style={pkgData?.cta_color?.text_value ? { background: pkgData.cta_color.text_value, color: 'white' } : {}}
                   className={cn(
                     'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5',
                     purchasingId === pkg.id && 'opacity-70',
-                    style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20'
+                    !pkgData?.cta_color?.text_value && style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20'
                   )}
                 >
-                  {purchasingId === pkg.id ? 'Connecting...' : (
-                    isHighlight ? 'Upgrade to Swipess' : 'Activate Access'
-                  )}
+                  {purchasingId === pkg.id ? 'Connecting...' : getText('cta_text', 'Choose Plan')}
                 </motion.button>
               </div>
             </motion.div>

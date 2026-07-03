@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import useAppTheme from "@/hooks/useAppTheme";
+import { useSiteContent } from '@/hooks/useSiteContent';
 import { haptics } from "@/utils/microPolish";
 import { appToast } from '@/utils/appNotification';
 import { NativeBridge } from "@/utils/nativeBridge";
@@ -314,6 +315,7 @@ export default function AdvertisePage() {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isLight = theme === "light";
+  const { getText } = useSiteContent('advertise_page');
 
   const [view, setView] = useState<View>("landing");
   const [step, setStep] = useState<Step>("type");

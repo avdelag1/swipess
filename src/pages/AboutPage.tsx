@@ -7,12 +7,13 @@ import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import useAppTheme from "@/hooks/useAppTheme";
 import { cn } from "@/lib/utils";
 import { Helmet } from "react-helmet-async";
-// import { } from "@/utils/microPolish";
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
 export default function AboutPage() {
   const { isLight } = useAppTheme();
+  const { getText } = useSiteContent('about_page');
 
   const ownerBenefits = [
     {
@@ -69,8 +70,8 @@ export default function AboutPage() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 pt-[env(safe-area-inset-top)] pb-32">
         <PageHeader
-          title="Our Mission"
-          subtitle="The Architecture of Modern Real Estate"
+          title={getText('about_hero_title', 'About Swipess')}
+          subtitle={getText('about_hero_subtitle', 'The Architecture of Modern Real Estate')}
           showBack={true}
           icon={<Rocket className="w-8 h-8 text-primary" />}
         />
@@ -93,9 +94,9 @@ export default function AboutPage() {
                   <Target className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter">Revolutionizing Connection</h2>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter">{getText('mission_title', 'Revolutionizing Connection')}</h2>
                   <p className={cn("text-[15px] font-medium leading-relaxed italic opacity-70", isLight ? "text-black" : "text-white")}>
-                    Swipess is the architecture of the future rental market. We believe finding your next home or the perfect tenant should be a fluid, high-fidelity experience. By combining a revolutionary swipe interface with secure digital protocols, we connect humanity with their ideal spaces faster than ever before.
+                    {getText('mission_text', 'Swipess is the architecture of the future rental market. We believe finding your next home or the perfect tenant should be a fluid, high-fidelity experience. By combining a revolutionary swipe interface with secure digital protocols, we connect humanity with their ideal spaces faster than ever before.')}
                   </p>
                 </div>
               </div>
