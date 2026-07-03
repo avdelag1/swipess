@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
 import {
   ChevronRight, FileText, Globe, HelpCircle, Info,
-  MessageSquarePlus, Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench
+  MessageSquarePlus, Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench, Ticket
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { FeedbackSection } from "@/components/FeedbackSection";
+import { PromoCodeSection } from "@/components/PromoCodeSection";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SwipessLogo } from "@/components/SwipessLogo";
@@ -72,6 +73,13 @@ const ClientSettings = () => {
           description: t('settings.preferencesDesc'),
           bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
           section: 'preferences',
+        },
+        {
+          icon: Ticket,
+          label: t('promo.title', 'Promo Codes'),
+          description: t('promo.menuDesc', 'Redeem gift codes & vouchers'),
+          bg: 'linear-gradient(135deg, #ec4899, #a855f7)',
+          section: 'promo',
         },
         {
           icon: Globe,
@@ -190,6 +198,21 @@ const ClientSettings = () => {
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6 pt-10 flex justify-center">
             <LanguageToggle />
+          </motion.div>
+        </div>
+      </AmbientPageBackground>
+    );
+  }
+
+  if (activeSection === 'promo') {
+    return (
+      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <PageHeader title={t('promo.title', 'Promo Codes')} subtitle={t('promo.menuDesc', 'Redeem gift codes & vouchers')} showBack={true} onBack={() => setActiveSection(null)} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10 flex justify-center w-full max-w-md mx-auto">
+            <div className="w-full">
+              <PromoCodeSection />
+            </div>
           </motion.div>
         </div>
       </AmbientPageBackground>
