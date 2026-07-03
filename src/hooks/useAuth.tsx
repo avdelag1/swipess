@@ -9,6 +9,7 @@ import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
 import { isNativeAppleAvailable, isUserCancellation, performNativeAppleSignIn } from '@/lib/auth/nativeAppleAuth';
+import { STORAGE } from '@/constants/app';
 
 import { AuthContext, type AuthContextType } from '@/contexts/AuthContext';
 export { AuthContext, type AuthContextType };
@@ -333,6 +334,19 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         ? window.location.origin
         : 'https://swipess.com';
 
+      let referredBy = undefined;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const storedRef = window.localStorage.getItem(STORAGE.REFERRAL_CODE_KEY);
+          if (storedRef) {
+            const parsed = JSON.parse(storedRef);
+            referredBy = parsed.code;
+          }
+        }
+      } catch (e) {
+        logger.warn('[Auth] Error parsing referral code:', e);
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -341,7 +355,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
           data: {
             role: role,
             name: name || '',
-            full_name: name || ''
+            full_name: name || '',
+            referred_by: referredBy
           }
         }
       });
@@ -352,6 +367,15 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       }
 
       if (data.user) {
+        // Clear referral code if it was successfully attached
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
+          }
+        } catch (e) {
+          logger.warn('[Auth] Error clearing referral code:', e);
+        }
+
         // Always attempt profile creation regardless of email confirmation status.
         // The DB trigger creates a bare profile, but we need user_roles,
         // client_profiles/owner_profiles, and onboarding_completed=true.
