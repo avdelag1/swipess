@@ -1,4 +1,4 @@
-import { Suspense } from "react"; // cache-bust-v3
+import { Suspense, useEffect } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
@@ -130,6 +130,30 @@ import { NativeProvider } from "./components/native/NativeProvider";
 import { ScrollToTop } from "./components/ScrollToTop";
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
+  // --- CMS LIVE PREVIEW MODE ---
+  useEffect(() => {
+    const handleCmsUpdate = (event: MessageEvent) => {
+      // Listen for the CMS update event
+      if (event.data?.type === 'SWIPESS_CMS_UPDATE') {
+        const { payload } = event.data;
+        
+        // Loop through the design changes and apply them instantly
+        Object.entries(payload).forEach(([key, value]) => {
+          // If you use CSS variables for theme/colors/fonts, inject them here:
+          if (key.includes('color') || key.includes('bg') || key.includes('primary') || key.includes('secondary') || key.includes('accent') || key.includes('destructive') || key.includes('muted') || key.includes('popover') || key.includes('card') || key.includes('border') || key.includes('ring')) {
+             document.documentElement.style.setProperty(`--${key}`, value as string);
+          }
+          if (key.includes('font')) {
+             document.documentElement.style.setProperty(`--${key}-font`, `"${value}", sans-serif`);
+          }
+        });
+      }
+    };
+
+    window.addEventListener("message", handleCmsUpdate);
+    return () => window.removeEventListener("message", handleCmsUpdate);
+  }, []);
+
   return (
     <GlobalErrorBoundary>
       <RootProviders authPromise={authPromise}>

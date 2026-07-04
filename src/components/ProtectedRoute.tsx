@@ -58,10 +58,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     // Not authenticated -> redirect to home (login/landing)
     if (!user) {
-      redirectTimerRef.current = setTimeout(() => {
-        didNavigateRef.current = true;
-        navigate("/", { replace: true, state: { from: location } });
-      }, 1200);
+      const searchParams = new URLSearchParams(location.search);
+      const isPreview = searchParams.get('preview') === 'true';
+      
+      if (!isPreview) {
+        redirectTimerRef.current = setTimeout(() => {
+          didNavigateRef.current = true;
+          navigate("/", { replace: true, state: { from: location } });
+        }, 1200);
+      } else {
+        // Bypass auth for CMS preview mode
+        setHasShownContent(true);
+      }
       return () => {
         if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
       };
