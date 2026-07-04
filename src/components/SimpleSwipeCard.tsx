@@ -532,6 +532,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
               }}
             >
+              {(listing as any).isPriceDrop && (
+                <div className="mb-1.5 animate-in fade-in slide-in-from-bottom-1">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white bg-gradient-to-r from-rose-500 to-orange-500 shadow-[0_2px_10px_rgba(244,63,94,0.4)]">
+                    🔥 Price Dropped
+                  </span>
+                </div>
+              )}
               {(() => {
                 const isProfile = (listing as any).profile_images || (listing as any).name;
                 if (isProfile) {

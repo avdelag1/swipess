@@ -35,7 +35,7 @@ export function useRecordProfileView() {
         let count = 1;
         if (existingView?.action?.startsWith('pass:')) {
           const currentCount = parseInt(existingView.action.split(':')[1]) || 1;
-          count = Math.min(currentCount + 1, 3); // Cap at 3 strikes
+          count = Math.min(currentCount + 1, 2); // Cap at 2 strikes
         }
         finalAction = `pass:${count}`;
         logger.info(`[useRecordProfileView] Recording strike ${count} for ${profileId}`);
@@ -76,16 +76,16 @@ export function usePermanentlyExcludedProfiles(viewType: 'profile' | 'listing' =
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return [];
 
-      // Get passed/disliked cards from last 1 day (reset after next day)
-      const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+      // Get passed/disliked cards from last 5 days (reset after 5 days)
+      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
       const { data: passedCards, error } = await supabase
         .from('profile_views')
         .select('viewed_profile_id, created_at')
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
-        .eq('action', 'pass')
-        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string; created_at: string }[] | null; error: any };
+        .like('action', 'pass%') // Catch pass, pass:1, pass:2
+        .gte('created_at', fiveDaysAgo) as { data: { viewed_profile_id: string; created_at: string }[] | null; error: any };
 
       if (error?.code === '42P01') return [];
       if (error) {
@@ -145,7 +145,7 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return [];
 
-      const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
       const { data, error } = await supabase
@@ -154,7 +154,7 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
         .eq('action', 'like')
-        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string }[] | null; error: any };
+        .gte('created_at', fiveDaysAgo) as { data: { viewed_profile_id: string }[] | null; error: any };
 
       if (error?.code === '42P01') return [];
       if (error) {
@@ -217,7 +217,7 @@ export function useRecycledProfiles(viewType: 'profile' | 'listing' = 'profile')
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return [];
 
-      const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
       const { data, error } = await supabase
@@ -225,7 +225,7 @@ export function useRecycledProfiles(viewType: 'profile' | 'listing' = 'profile')
         .select('viewed_profile_id, action, created_at')
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
-        .lt('created_at', oneDayAgo) as { data: { viewed_profile_id: string; action: string; created_at: string }[] | null; error: any };
+        .lt('created_at', fiveDaysAgo) as { data: { viewed_profile_id: string; action: string; created_at: string }[] | null; error: any };
 
       if (error) {
         logger.error('Error fetching recycled profiles:', error);
