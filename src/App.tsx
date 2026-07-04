@@ -130,38 +130,7 @@ import { NativeProvider } from "./components/native/NativeProvider";
 import { ScrollToTop } from "./components/ScrollToTop";
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
-  // --- CMS LIVE PREVIEW MODE ---
-  useEffect(() => {
-    const handleCmsUpdate = (event: MessageEvent) => {
-      // Listen for the CMS update event
-      if (event.data?.type === 'SWIPESS_CMS_UPDATE') {
-        const { payload } = event.data;
-        
-        if (payload?.type === 'content' && payload.sectionKey) {
-          const key = payload.sectionKey;
-          const value = payload.value;
-          
-          if (key.includes('font')) {
-             document.documentElement.style.setProperty(`--${key}-font`, `"${value}", sans-serif`);
-          } else if (key.includes('size')) {
-             document.documentElement.style.setProperty(`--${key}`, `${value}px`);
-          } else if (key.includes('radius')) {
-             document.documentElement.style.setProperty(`--${key}`, `${value}%`);
-          } else {
-             document.documentElement.style.setProperty(`--${key}`, value as string);
-          }
-        } else if (payload?.type === 'theme') {
-          // If the payload is a full theme object
-          Object.entries(payload.theme || {}).forEach(([key, value]) => {
-             document.documentElement.style.setProperty(`--${key}`, value as string);
-          });
-        }
-      }
-    };
-
-    window.addEventListener("message", handleCmsUpdate);
-    return () => window.removeEventListener("message", handleCmsUpdate);
-  }, []);
+  // CMS LIVE PREVIEW is handled entirely by CMSPreviewListener (mounted in RootProviders)
 
   return (
     <GlobalErrorBoundary>

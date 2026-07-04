@@ -3064,7 +3064,14 @@ body.hw-high .glass-pill {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Dynamic CMS Header Button Controls */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CMS LIVE PREVIEW — Dynamic CSS Variable Bindings
+   These CSS variables are set by CMSPreviewListener.tsx when the app runs
+   inside the admin CMS iframe. Each var() uses a fallback that matches the
+   app's default look so nothing changes until the CMS sends an update.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Header Buttons (TopBar pills) ───────────────────────────────────────── */
 .header-chrome-pill {
   width: var(--header_btn_size, 44px) !important;
   height: var(--header_btn_size, 44px) !important;
@@ -3088,4 +3095,106 @@ body.hw-high .glass-pill {
   width: calc(var(--header_btn_size, 44px) * 0.72) !important;
   height: calc(var(--header_btn_size, 44px) * 0.72) !important;
   transition: all 0.3s ease !important;
+}
+
+/* ── Header Background ───────────────────────────────────────────────────── */
+.app-header-bar,
+[data-header-bar] {
+  background: var(--header_bg) !important;
+  box-shadow: var(--header_shadow) !important;
+}
+
+/* ── Bottom Navigation Bar ───────────────────────────────────────────────── */
+.floating-dock-nav {
+  background: var(--navbar_bg) !important;
+}
+
+.floating-dock-nav .nav-item-active,
+.floating-dock-nav [data-active="true"] {
+  color: var(--navbar_active_color) !important;
+}
+
+.floating-dock-nav .nav-item-inactive,
+.floating-dock-nav [data-active="false"] {
+  color: var(--navbar_inactive_color) !important;
+}
+
+/* ── Global Primary Button ───────────────────────────────────────────────── */
+[data-cms-primary-btn],
+.btn-primary-cms {
+  background-color: var(--global_primary_btn) !important;
+}
+
+/* ── Global Border Radius ────────────────────────────────────────────────── */
+[data-cms-radius] {
+  border-radius: var(--global_radius) !important;
+}
+
+/* ── Swipe Card (Dashboard) ──────────────────────────────────────────────── */
+[data-swipe-card] {
+  border-radius: var(--card_border_radius) !important;
+  box-shadow: var(--card_shadow) !important;
+  border: var(--card_border) !important;
+}
+
+/* ── Swipe Action Buttons ────────────────────────────────────────────────── */
+[data-action="like"] {
+  background-color: var(--like_btn_color) !important;
+  box-shadow: var(--action_btn_shadow) !important;
+}
+
+[data-action="pass"] {
+  background-color: var(--pass_btn_color) !important;
+  box-shadow: var(--action_btn_shadow) !important;
+}
+
+[data-action="super-like"] {
+  background-color: var(--super_like_btn_color) !important;
+  box-shadow: var(--action_btn_shadow) !important;
+}
+
+/* ── CMS Effects ─────────────────────────────────────────────────────────── */
+[data-cms-effect="glassmorphism"] {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+[data-cms-effect="neon_glow"] {
+  box-shadow: 0 0 20px rgba(139,92,246,0.4), 0 0 60px rgba(139,92,246,0.15);
+}
+
+[data-cms-effect="fade_in"] {
+  animation: cms-fade-in 0.8s ease-out;
+}
+
+[data-cms-effect="slide_up"] {
+  animation: cms-slide-up 0.6s ease-out;
+}
+
+[data-cms-effect="pulse"] {
+  animation: cms-pulse 2s ease-in-out infinite;
+}
+
+[data-cms-effect="bounce"] {
+  animation: cms-bounce 1s ease infinite;
+}
+
+@keyframes cms-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cms-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cms-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes cms-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
