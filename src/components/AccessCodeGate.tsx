@@ -20,9 +20,6 @@ function persistAccessGrant() {
 }
 
 export function isAccessGranted(): boolean {
-  // Native iOS/Android are public app-store builds: App Review (Guideline 2.1)
-  // and real users must reach the login screen directly, so the invite-code
-  // wall never applies there. The gate stays on web (private beta) only.
   if (Capacitor.isNativePlatform()) return true;
   try {
     if (localStorage.getItem(ACCESS_GRANTED_KEY) === 'true') return true;
@@ -56,12 +53,29 @@ export function AccessCodeGate({ onGranted }: Props) {
   const [submitError, setSubmitError] = useState('');
 
   const { data: siteContent } = useSiteContent('swipess_gate');
+  const { data: landingContent } = useSiteContent('swipess_landing');
 
+  // Basic Content
   const gateTitle = getContentValue(siteContent, 'gate_title');
   const gateSubtitle = getContentValue(siteContent, 'gate_subtitle', 'Authorized access only');
   const bgImage = getContentValue(siteContent, 'gate_background');
-  const btnColor = getContentValue(siteContent, 'gate_btn_color');
   const btnText = getContentValue(siteContent, 'gate_btn_text', 'Enter');
+  
+  // Advanced Granular Styles
+  const gateBgColor = getContentValue(siteContent, 'gate_bg_color', '#000000');
+  const gateFontFamily = getContentValue(siteContent, 'gate_font_family');
+  const gateTitleColor = getContentValue(siteContent, 'gate_title_color', '#ffffff');
+  const gateSubtitleColor = getContentValue(siteContent, 'gate_subtitle_color', 'rgba(255,255,255,0.6)');
+  const btnColor = getContentValue(siteContent, 'gate_btn_color', '#8B5CF6');
+  
+  const inputWidth = getContentValue(siteContent, 'input_width', '100%');
+  const inputHeight = getContentValue(siteContent, 'input_height', 56);
+  const inputBgColor = getContentValue(siteContent, 'input_bg_color', 'rgba(255,255,255,0.05)');
+  const inputTextColor = getContentValue(siteContent, 'input_text_color', '#ffffff');
+  const inputPlaceholderColor = getContentValue(siteContent, 'input_placeholder_color', 'rgba(255,255,255,0.45)');
+  
+  // Shooting Stars globally from landing config
+  const shootingStarsEnabled = getContentValue(landingContent, 'shooting_stars_effect', true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,9 +89,6 @@ export function AccessCodeGate({ onGranted }: Props) {
 
     setVerifying(true);
 
-    // The known beta invite code always grants access — resilient to the
-    // validate-access-code edge function being undeployed or its env/CMS code
-    // drifting. This is a soft invite wall, not real authentication.
     if (candidate.replace(/[^a-z0-9]/gi, '').toUpperCase() === 'URDBEST') {
       triggerHaptic('success');
       persistAccessGrant();
@@ -88,8 +99,6 @@ export function AccessCodeGate({ onGranted }: Props) {
     }
 
     try {
-      // Any other (rotated) code is validated server-side — the real code lives
-      // only in the validate-access-code edge function (env var / CMS).
       const { data, error: fnError } = await supabase.functions.invoke('validate-access-code', {
         body: { code: candidate },
       });
@@ -101,7 +110,6 @@ export function AccessCodeGate({ onGranted }: Props) {
         return;
       }
     } catch {
-      // Fail closed — never grant access if validation can't be confirmed.
       setError('Could not verify code. Check your connection and try again.');
       triggerHaptic('error');
       setVerifying(false);
@@ -144,11 +152,34 @@ export function AccessCodeGate({ onGranted }: Props) {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm(prev => ({ ...prev, [field]: e.target.value }));
 
+  // Load custom font dynamically if configured
+  if (gateFontFamily) {
+    const linkId = 'gate-custom-font';
+    if (!document.getElementById(linkId)) {
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.href = `https://fonts.googleapis.com/css2?family=${gateFontFamily.replace(/\s+/g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+  }
+
   return (
-    <div className="fixed inset-0 bg-black overflow-y-auto overflow-x-hidden">
+    <div 
+      className="fixed inset-0 overflow-y-auto overflow-x-hidden"
+      style={{ 
+        backgroundColor: gateBgColor,
+        fontFamily: gateFontFamily ? `"${gateFontFamily}", sans-serif` : undefined,
+        '--input-placeholder-color': inputPlaceholderColor
+      } as React.CSSProperties}
+    >
+      <style>{`
+        .gate-input::placeholder { color: var(--input-placeholder-color) !important; font-weight: 600; text-transform: none; letter-spacing: normal; }
+      `}</style>
+      
       {bgImage ? (
         <div
-          className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
           style={{ backgroundImage: `url(${bgImage})` }}
         />
       ) : (
@@ -157,7 +188,9 @@ export function AccessCodeGate({ onGranted }: Props) {
           className="fixed inset-0 pointer-events-none ambient-page-bg ambient-page-bg--dark opacity-80"
         />
       )}
-      <LandingBackgroundEffects mode="off" />
+      
+      <LandingBackgroundEffects mode={shootingStarsEnabled ? "stars" : "off"} />
+      
       <div
         className="fixed inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }}
@@ -178,12 +211,20 @@ export function AccessCodeGate({ onGranted }: Props) {
               <SwipessLogo size="lg" variant="transparent" className="w-[60vw] max-w-[240px]" />
 
               {gateTitle && (
-                <h1 className="text-white text-2xl font-bold text-center tracking-wide">{gateTitle}</h1>
+                <h1 className="text-2xl font-bold text-center tracking-wide" style={{ color: gateTitleColor }}>
+                  {gateTitle}
+                </h1>
               )}
 
-              <form onSubmit={handleSubmit} className="w-full space-y-4">
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+              <form onSubmit={handleSubmit} className="w-full flex flex-col items-center space-y-4">
+                <div 
+                  className="relative flex items-center justify-center transition-all duration-300"
+                  style={{ width: inputWidth, height: `${inputHeight}px` }}
+                >
+                  <Lock 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors" 
+                    style={{ color: inputPlaceholderColor }} 
+                  />
                   <input
                     type="text"
                     inputMode="text"
@@ -197,21 +238,24 @@ export function AccessCodeGate({ onGranted }: Props) {
                     spellCheck={false}
                     data-1p-ignore
                     data-lpignore="true"
-                    // CSS masking keeps the field type="text" (so Safari/1Password
-                    // don't inject their key icon) while still hiding the code with
-                    // dots; the eye toggles it.
-                    style={{ WebkitTextSecurity: revealed ? 'none' : 'disc' } as any}
-                    className="w-full h-14 pl-12 pr-12 rounded-full bg-white/5 border border-white/20 text-white text-sm font-bold tracking-[0.2em] uppercase placeholder:text-white/45 placeholder:normal-case placeholder:tracking-normal placeholder:font-semibold focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
+                    className="gate-input w-full h-full pl-11 pr-12 rounded-full border border-white/20 text-sm font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
+                    style={{ 
+                      backgroundColor: inputBgColor,
+                      color: inputTextColor,
+                      WebkitTextSecurity: revealed ? 'none' : 'disc' 
+                    } as any}
                   />
                   <button
                     type="button"
                     onClick={() => setRevealed(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full text-white/55 hover:text-white hover:bg-white/10 transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
                     aria-label={revealed ? 'Hide access code' : 'Show access code'}
+                    style={{ color: inputPlaceholderColor }}
                   >
                     {revealed ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                   </button>
                 </div>
+                
                 {error && (
                   <motion.p
                     initial={{ opacity: 0, y: -4 }}
@@ -221,11 +265,12 @@ export function AccessCodeGate({ onGranted }: Props) {
                     {error}
                   </motion.p>
                 )}
+                
                 <button
                   type="submit"
                   disabled={verifying}
-                  style={btnColor ? { background: btnColor } : undefined}
-                  className={`w-full h-14 rounded-full font-black uppercase tracking-[0.25em] text-[12px] text-white shadow-[0_10px_30px_rgba(255,77,0,0.35)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-gradient-to-r from-[#FF4D00] to-[#EB4898]'}`}
+                  style={btnColor ? { background: btnColor, height: `${inputHeight}px` } : { height: `${inputHeight}px` }}
+                  className={`w-full rounded-full font-black uppercase tracking-[0.25em] text-[12px] text-white shadow-[0_10px_30px_rgba(255,77,0,0.35)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-gradient-to-r from-[#FF4D00] to-[#EB4898]'}`}
                 >
                   <Sparkles className={`w-4 h-4 ${verifying ? 'animate-spin' : ''}`} />
                   {verifying ? 'Verifying…' : btnText}
@@ -260,7 +305,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                     exit={{ opacity: 0, height: 0 }}
                     className="w-full overflow-hidden"
                   >
-                    <div className="rounded-2xl border border-white/15 bg-black/40 p-4 space-y-3">
+                    <div className="rounded-2xl border border-white/15 bg-black/40 p-4 space-y-3 mt-2">
                       <div className="text-center mb-1">
                         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">Request Access</p>
                         <p className="text-[10px] text-white/65 mt-0.5">We&apos;ll send your code within 24 h</p>
@@ -328,7 +373,10 @@ export function AccessCodeGate({ onGranted }: Props) {
                 )}
               </AnimatePresence>
 
-              <p className="text-[9px] font-black uppercase tracking-[0.35em] text-white/60 italic text-center drop-shadow-md">
+              <p 
+                className="text-[9px] font-black uppercase tracking-[0.35em] italic text-center drop-shadow-md"
+                style={{ color: gateSubtitleColor }}
+              >
                 {gateSubtitle}
               </p>
             </motion.div>

@@ -667,8 +667,7 @@ function LegendaryLandingPage() {
           </>
         )}
       </div>
-
-      <LandingBackgroundEffects mode="off" />
+      <LandingBackgroundEffects mode={getContentValue(landingData, 'shooting_stars_effect', true) ? "stars" : "off"} />
 
       <AnimatePresence mode="sync">
         {view === 'landing' ? (
