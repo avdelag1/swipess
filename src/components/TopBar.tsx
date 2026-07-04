@@ -132,8 +132,8 @@ function TopBarComponent({
       )}
       style={{
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
-        paddingTop: 'calc(var(--safe-top, 0px) + 16px)',
-        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) + 10px)',
+        paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
+        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) - 2px)',
         background: 'transparent',
         border: 'none',
         viewTransitionName: 'swipess-header',

@@ -276,7 +276,11 @@ export const BottomNavigation = memo(({
 
 
   const isDashboard = isDashboardPath(location.pathname);
-  const { useLightIcons, iconColor: baseColor, inactiveIconColor, iconShadow } = getHeaderChrome(
+  // We made the BottomNav permanently black, so icons MUST be light.
+  const useLightIcons = true;
+  const baseColor = '#FFFFFF';
+  const inactiveIconColor = 'rgba(255,255,255,0.6)';
+  const { iconShadow } = getHeaderChrome(
     isLight,
     isDashboard,
   );
@@ -326,9 +330,7 @@ export const BottomNavigation = memo(({
           "pointer-events-auto floating-dock-nav",
           "w-max max-w-[calc(100vw-24px)]",
           "px-1 py-1.5 border",
-          isLight && !isDashboard
-            ? "glass-light-surface border-black/20"
-            : "glass-dark border-white/12",
+          "bg-black border-white/12"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
