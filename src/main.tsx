@@ -48,10 +48,14 @@ const handleEmergencyRecovery = async (reason: string) => {
     localStorage.removeItem('Swipess_app_version');
     
     // 4. Force hard reload from server with cache bust
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
+    const u = new URL(window.location.href);
+    u.searchParams.set('v', Date.now().toString());
+    window.location.replace(u.toString());
   } catch (err) {
     console.error('[Emergency] Recovery failed:', err);
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
+    const u = new URL(window.location.href);
+    u.searchParams.set('v', Date.now().toString());
+    window.location.replace(u.toString());
   }
 };
 
@@ -195,13 +199,17 @@ async function bootstrap() {
     ]);
 
     // Force cache bust on replace to completely bypass browser HTTP disk cache!
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
+    const u = new URL(window.location.href);
+    u.searchParams.set('v', Date.now().toString());
+    window.location.replace(u.toString());
     return;
   }
 
   const shouldReload = await resetPreviewRuntimeState();
   if (shouldReload) {
-    window.location.replace(window.location.pathname + '?v=' + Date.now());
+    const u = new URL(window.location.href);
+    u.searchParams.set('v', Date.now().toString());
+    window.location.replace(u.toString());
     return;
   }
 
