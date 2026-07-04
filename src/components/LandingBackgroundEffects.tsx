@@ -246,18 +246,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
 
-      if (!disableSoundsRef.current) {
-        try {
-          const soundPref = localStorage.getItem('Swipess_bg_sound') || 'bells';
-          if (soundPref === 'bells') uiSounds.playStarShoot();
-          else if (soundPref === 'bowls') uiSounds.playZenBowl();
-          else if (soundPref === 'waves') uiSounds.playOceanWave();
-        } catch { /* ignore */ }
-      }
+      // Sounds removed by request
 
-      if (mode === 'stars') {
-        spawnShootingStar(e.clientX, e.clientY);
-      } else if (mode === 'sunset') {
+      if (mode === 'sunset') {
         const hh = window.innerHeight;
         if (e.clientY > hh * 0.6) {
           spawnRipple(e.clientX, e.clientY);
@@ -514,18 +505,12 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.fillRect(0, 0, w, h);
       }
 
-      // Automatic Shooting Stars — random 6-10 second intervals
-      if (mode === 'stars' && timestamp - lastAutoStarTime > nextAutoStarDelay) {
-        spawnShootingStar();
-        lastAutoStarTime = timestamp;
-        nextAutoStarDelay = 6000 + Math.random() * 4000; // 6-10s
-      }
+      // Shooting stars removed by request
 
 
 
 
-      if (mode === 'stars') drawStars();
-      else if (mode === 'sunset') {
+      if (mode === 'sunset') {
         drawSunset();
       }
       animRef.current = requestAnimationFrame(loop);
