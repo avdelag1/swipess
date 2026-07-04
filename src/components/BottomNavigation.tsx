@@ -461,26 +461,7 @@ export const BottomNavigation = memo(({
                     );
                   })()}
                 </div>
-                {/* Label */}
-                {!isNarrow && (
-                  <div className="flex items-center justify-center w-full min-h-[14px] px-0.5">
-                    <span
-                      className={cn(
-                        'tracking-wide relative font-black uppercase whitespace-nowrap',
-                        isTablet ? 'text-[12px]' : 'text-[10px]',
-                      )}
-                      style={{
-                        color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
-                        textShadow: getNavLabelShadow(item.id, active),
-                        transition: 'color 120ms ease-out, text-shadow 120ms ease-out',
-                        zIndex: 1,
-                        letterSpacing: '0.08em',
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  </div>
-                )}
+
               </button>
             );
           })}
