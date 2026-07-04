@@ -433,25 +433,22 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  /* The dock sits flush to the bottom edge of the screen on every device.
-     We keep the home-indicator clear by reserving safe-area-inset-bottom as
-     INTERNAL padding instead of an external margin — this way the nav
-     visually touches the bottom while its tap targets stay above the
-     iOS gesture pill / Android nav bar. */
-  margin-bottom: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  border-radius: 28px 28px 0 0;
+  /* Pill-shaped floating nav bar — wide, close to the edges, fully immersive.
+     Bottom margin floats it above the home indicator for a premium look. */
+  margin-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
+  padding-bottom: 0;
+  border-radius: 999px;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow:
-    0 -4px 24px rgba(0, 0, 0, 0.12),
-    0 16px 48px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 body.hw-high .floating-dock-nav {
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
 }
 
 .glass-pill[data-active="true"],

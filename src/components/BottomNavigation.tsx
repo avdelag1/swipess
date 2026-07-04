@@ -323,14 +323,15 @@ export const BottomNavigation = memo(({
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* ── Solid Premium Bar ────────────────────────────────────────
-          The bar sits lower and uses a strong, rich background to feel more premium. */}
+      {/* ── Immersive Pill Nav ──────────────────────────────────────
+          Full-width pill shape, hugging the screen edges for maximum
+          immersive screen real estate. */}
       <div
         className={cn(
           "pointer-events-auto floating-dock-nav",
-          "w-max max-w-[calc(100vw-24px)]",
-          "px-1 py-1.5 border",
-          "bg-black border-white/12"
+          "w-[calc(100vw-16px)]",
+          "px-2 py-1 border",
+          "bg-black border-white/10"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -340,10 +341,9 @@ export const BottomNavigation = memo(({
           data-scroll-axis="x"
           onPointerMove={handlePointerMove}
           className={cn(
-            // justify-start on phone (items scroll from the left); justify-center
-            // on md+ so the buttons sit in the middle. CSS-media-query driven so
-            // it never depends on JS resize timing.
-            'relative flex items-center justify-start md:justify-center w-full gap-0.5 px-2 py-0.5 nav-scroll-hide transform-gpu select-none',
+            // Evenly distribute items across the full pill width — no scrolling.
+            // On very small screens the items are spread across available space.
+            'relative flex items-center justify-between w-full nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -352,13 +352,11 @@ export const BottomNavigation = memo(({
             scrollbarWidth: 'none' as const,
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
-            contentVisibility: 'auto',
-            containIntrinsicSize: '60px',
             touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
             scrollBehavior: 'smooth',
-            padding: '0 8px',
+            padding: '2px 4px',
           }}
         >
           {navItems.map((item) => {
@@ -396,11 +394,12 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
-                  minWidth: isTablet ? '64px' : 'calc(100vw / 6.5)', // Let about 6.5 items fit on screen at once
+                  flex: '1 1 0',
+                  minWidth: isTablet ? '56px' : '44px',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
-                  padding: isTablet ? '8px 14px' : (isNarrow ? '5px' : 'clamp(5px, 1.4vw, 10px)'),
+                  padding: isTablet ? '6px 10px' : '4px 6px',
                   cursor: 'pointer',
-                  flexShrink: 0,
+                  flexShrink: 1,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
