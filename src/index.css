@@ -435,7 +435,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 .floating-dock-nav {
   /* Pill-shaped floating nav bar — wide, close to the edges, fully immersive.
      Bottom margin floats it just above the home indicator for a premium look. */
-  margin-bottom: max(8px, calc(env(safe-area-inset-bottom, 24px) - 16px));
+  margin-bottom: max(4px, calc(env(safe-area-inset-bottom, 34px) - 26px));
   padding-bottom: 0;
   border-radius: 999px;
   -webkit-backdrop-filter: none;
