@@ -24,6 +24,7 @@ export type { Theme, ThemeToggleCoords, ThemeContextType };
 export { ThemeContext, ThemeProvider, useAppTheme };
 import { VisualThemeProvider } from "@/contexts/VisualThemeContext";
 import { GlobalThemeProvider } from "./GlobalThemeProvider";
+import { CMSPreviewListener } from "@/components/CMSPreviewListener";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useEnsureSpecializedProfile, useProfileAutoSync } from "@/hooks/useProfileAutoSync";
@@ -219,6 +220,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
           client={queryClient}
           persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1.5' }}
         >
+          <CMSPreviewListener />
           <LazyMotion features={domAnimation}>
             <WarpPrefetcher />
             <GlobalThemeProvider>
