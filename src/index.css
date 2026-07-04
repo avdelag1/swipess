@@ -3071,18 +3071,31 @@ body.hw-high .glass-pill {
    app's default look so nothing changes until the CMS sends an update.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+:root {
+  --default-navbar-bg: rgba(0, 0, 0, 0.85);
+  --default-navbar-active: #ffffff;
+  --default-navbar-inactive: rgba(255, 255, 255, 0.5);
+  --default-header-bg: transparent;
+}
+
+.light, [data-theme="light"], .force-light {
+  --default-navbar-bg: rgba(255, 255, 255, 0.85);
+  --default-navbar-active: #000000;
+  --default-navbar-inactive: rgba(0, 0, 0, 0.5);
+}
+
 /* ── Header Buttons (TopBar pills) ───────────────────────────────────────── */
 .header-chrome-pill {
-  width: var(--header_btn_frame_size, 44px) !important;
-  height: var(--header_btn_frame_size, 44px) !important;
+  width: var(--header_btn_frame_size, 38px) !important;
+  height: var(--header_btn_frame_size, 38px) !important;
   border-radius: var(--header_btn_radius, 50%) !important;
-  background: var(--header_btn_bg, rgba(255, 255, 255, 0.1)) !important;
+  background: var(--header_btn_bg, rgba(255, 255, 255, 0.15)) !important;
   border: var(--header_btn_border, 1px solid rgba(255, 255, 255, 0.1)) !important;
   box-shadow: var(--header_btn_shadow, 0 4px 12px rgba(0,0,0,0.05)) !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   min-width: 0 !important;
   min-height: 0 !important;
-  transform: translateY(var(--header_btn_offset_y, 0px)) !important;
+  transform: translateY(var(--header_btn_offset_y, -6px)) !important;
 }
 
 .header-chrome-pill svg {
@@ -3101,7 +3114,7 @@ body.hw-high .glass-pill {
 /* ── Header Background & Gap ─────────────────────────────────────────────── */
 .app-header-bar,
 [data-header-bar] {
-  background: var(--header_bg) !important;
+  background: var(--header_bg, var(--default-header-bg)) !important;
   box-shadow: var(--header_shadow) !important;
 }
 
@@ -3115,7 +3128,9 @@ body.hw-high .glass-pill {
 
 /* ── Bottom Navigation Bar ───────────────────────────────────────────────── */
 .floating-dock-nav {
-  background: var(--navbar_bg) !important;
+  background: var(--navbar_bg, var(--default-navbar-bg)) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
   transform: translateY(var(--navbar_offset_y, 0px)) !important;
 }
 
@@ -3125,12 +3140,12 @@ body.hw-high .glass-pill {
 
 .floating-dock-nav .nav-item-active,
 .floating-dock-nav [data-active="true"] {
-  color: var(--navbar_active_color) !important;
+  color: var(--navbar_active_color, var(--default-navbar-active)) !important;
 }
 
 .floating-dock-nav .nav-item-inactive,
 .floating-dock-nav [data-active="false"] {
-  color: var(--navbar_inactive_color) !important;
+  color: var(--navbar_inactive_color, var(--default-navbar-inactive)) !important;
 }
 
 /* ── Global Primary Button ───────────────────────────────────────────────── */
