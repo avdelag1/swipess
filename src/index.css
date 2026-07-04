@@ -3068,13 +3068,24 @@ body.hw-high .glass-pill {
 .header-chrome-pill {
   width: var(--header_btn_size, 44px) !important;
   height: var(--header_btn_size, 44px) !important;
-  border-radius: var(--header_btn_radius, 999px) !important;
+  border-radius: var(--header_btn_radius, 50%) !important;
   background: var(--header_btn_bg, rgba(255, 255, 255, 0.1)) !important;
   border: var(--header_btn_border, 1px solid rgba(255, 255, 255, 0.1)) !important;
   box-shadow: var(--header_btn_shadow, 0 4px 12px rgba(0,0,0,0.05)) !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
 }
 
 .header-chrome-pill svg {
   color: var(--header_btn_icon, inherit) !important;
+  width: calc(var(--header_btn_size, 44px) * 0.45) !important;
+  height: calc(var(--header_btn_size, 44px) * 0.45) !important;
+  transition: all 0.3s ease !important;
+}
+
+.header-chrome-pill .rounded-full.overflow-hidden {
+  width: calc(var(--header_btn_size, 44px) * 0.72) !important;
+  height: calc(var(--header_btn_size, 44px) * 0.72) !important;
+  transition: all 0.3s ease !important;
 }

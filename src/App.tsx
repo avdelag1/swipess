@@ -143,8 +143,10 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
           
           if (key.includes('font')) {
              document.documentElement.style.setProperty(`--${key}-font`, `"${value}", sans-serif`);
-          } else if (key.includes('size') || key.includes('radius')) {
+          } else if (key.includes('size')) {
              document.documentElement.style.setProperty(`--${key}`, `${value}px`);
+          } else if (key.includes('radius')) {
+             document.documentElement.style.setProperty(`--${key}`, `${value}%`);
           } else {
              document.documentElement.style.setProperty(`--${key}`, value as string);
           }
