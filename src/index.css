@@ -3073,8 +3073,8 @@ body.hw-high .glass-pill {
 
 /* ── Header Buttons (TopBar pills) ───────────────────────────────────────── */
 .header-chrome-pill {
-  width: var(--header_btn_size, 44px) !important;
-  height: var(--header_btn_size, 44px) !important;
+  width: var(--header_btn_frame_size, 44px) !important;
+  height: var(--header_btn_frame_size, 44px) !important;
   border-radius: var(--header_btn_radius, 50%) !important;
   background: var(--header_btn_bg, rgba(255, 255, 255, 0.1)) !important;
   border: var(--header_btn_border, 1px solid rgba(255, 255, 255, 0.1)) !important;
@@ -3082,31 +3082,45 @@ body.hw-high .glass-pill {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   min-width: 0 !important;
   min-height: 0 !important;
+  transform: translateY(var(--header_btn_offset_y, 0px)) !important;
 }
 
 .header-chrome-pill svg {
   color: var(--header_btn_icon, inherit) !important;
-  width: calc(var(--header_btn_size, 44px) * 0.45) !important;
-  height: calc(var(--header_btn_size, 44px) * 0.45) !important;
+  width: var(--header_btn_size, 20px) !important;
+  height: var(--header_btn_size, 20px) !important;
   transition: all 0.3s ease !important;
 }
 
 .header-chrome-pill .rounded-full.overflow-hidden {
-  width: calc(var(--header_btn_size, 44px) * 0.72) !important;
-  height: calc(var(--header_btn_size, 44px) * 0.72) !important;
+  width: calc(var(--header_btn_size, 20px) * 1.5) !important;
+  height: calc(var(--header_btn_size, 20px) * 1.5) !important;
   transition: all 0.3s ease !important;
 }
 
-/* ── Header Background ───────────────────────────────────────────────────── */
+/* ── Header Background & Gap ─────────────────────────────────────────────── */
 .app-header-bar,
 [data-header-bar] {
   background: var(--header_bg) !important;
   box-shadow: var(--header_shadow) !important;
 }
 
+[data-header-bar] .flex.items-center.gap-1\.5 {
+  gap: var(--header_btn_gap, 6px) !important;
+}
+
+[data-header-bar] .flex.items-center.gap-1 {
+  gap: var(--header_btn_gap, 4px) !important;
+}
+
 /* ── Bottom Navigation Bar ───────────────────────────────────────────────── */
 .floating-dock-nav {
   background: var(--navbar_bg) !important;
+  transform: translateY(var(--navbar_offset_y, 0px)) !important;
+}
+
+.floating-dock-nav .flex.gap-0\.5 {
+  gap: var(--navbar_item_gap, 2px) !important;
 }
 
 .floating-dock-nav .nav-item-active,
