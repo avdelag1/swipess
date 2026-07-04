@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { triggerHaptic } from '@/utils/haptics';
 
 export const PromoCodeSection = () => {
   const { t } = useTranslation();
@@ -20,16 +22,38 @@ export const PromoCodeSection = () => {
 
     setIsApplying(true);
 
-    // Simulate network request for UI
-    setTimeout(() => {
-      setIsApplying(false);
-      // Currently just a UI mock, so we show a pending/coming soon toast
-      toast.info(t('promo.comingSoon', 'Promo codes will be activated soon!'), {
-        description: t('promo.comingSoonDesc', 'Hold on to your code, this feature is unlocking after our official launch.'),
-        icon: <Sparkles className="w-4 h-4 text-[#EB4898]" />
+    try {
+      const { data, error } = await supabase.rpc('rpc_redeem_promo_code' as any, {
+        p_code: code.trim().toUpperCase()
       });
-      setCode('');
-    }, 1200);
+
+      if (error) throw error;
+
+      // Handle the RPC response
+      const result = data as unknown as { success: boolean, message: string }[];
+      const response = result?.[0];
+
+      if (response?.success) {
+        triggerHaptic('success');
+        toast.success(t('promo.success', 'Code Redeemed!'), {
+          description: response.message,
+          icon: <Sparkles className="w-4 h-4 text-[#EB4898]" />
+        });
+        setCode('');
+      } else {
+        triggerHaptic('warning');
+        toast.error(t('promo.error', 'Redemption Failed'), {
+          description: response?.message || t('promo.invalid', 'Invalid promo code.'),
+        });
+      }
+    } catch (err: any) {
+      triggerHaptic('error');
+      toast.error(t('promo.error', 'Redemption Failed'), {
+        description: err.message || t('promo.networkError', 'Something went wrong. Please try again.'),
+      });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   return (

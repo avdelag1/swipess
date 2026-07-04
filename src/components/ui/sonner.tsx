@@ -11,29 +11,26 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
-      position="bottom-center"
-      style={{ bottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 20px)', zIndex: 10005 }}
-      // Only show 1 toast at a time — no stack-up
-      visibleToasts={1}
-      // Default swipe to dismiss
-      // Close immediately on swipe — no threshold delay
+      position="top-center"
+      style={{ top: 'var(--safe-top, 20px)', zIndex: 9999999 }}
+      visibleToasts={2}
       closeButton={false}
       toastOptions={{
-        duration: 4000,
+        duration: 5000,
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-zinc-900/95 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-white group-[.toaster]:border-white/10 group-[.toaster]:shadow-[0_4px_20px_rgba(0,0,0,0.35)] group-[.toaster]:rounded-2xl group-[.toaster]:px-4 group-[.toaster]:py-3.5",
-          description: "group-[.toast]:text-white/55 group-[.toast]:text-xs group-[.toast]:mt-0.5",
+            "group toast group-[.toaster]:bg-background/80 group-[.toaster]:backdrop-blur-3xl group-[.toaster]:text-foreground group-[.toaster]:border-border/50 group-[.toaster]:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] group-[.toaster]:rounded-3xl group-[.toaster]:px-5 group-[.toaster]:py-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all",
+          description: "group-[.toast]:text-muted-foreground group-[.toast]:text-xs group-[.toast]:font-medium group-[.toast]:mt-1",
           actionButton:
-            "group-[.toast]:bg-white/15 group-[.toast]:text-white group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 group-[.toast]:text-xs group-[.toast]:font-medium hover:group-[.toast]:bg-white/20 transition-colors",
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 group-[.toast]:text-xs group-[.toast]:font-bold hover:group-[.toast]:opacity-90 transition-opacity shadow-lg shadow-primary/25",
           cancelButton:
-            "group-[.toast]:bg-white/8 group-[.toast]:text-white/70 group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 hover:group-[.toast]:bg-white/12",
-          title: "group-[.toast]:text-white group-[.toast]:font-semibold group-[.toast]:text-sm group-[.toast]:tracking-normal",
-          icon: "group-[.toast]:w-4 group-[.toast]:h-4 group-[.toast]:opacity-80",
-          success: "",
-          error: "",
-          warning: "",
-          info: "",
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 hover:group-[.toast]:bg-muted/80",
+          title: "group-[.toast]:text-foreground group-[.toast]:font-black group-[.toast]:text-sm group-[.toast]:tracking-tight",
+          icon: "group-[.toast]:w-5 group-[.toast]:h-5 group-[.toast]:opacity-90",
+          success: "group-[.toast]:border-green-500/30 group-[.toast]:bg-green-500/10",
+          error: "group-[.toast]:border-red-500/30 group-[.toast]:bg-red-500/10",
+          warning: "group-[.toast]:border-orange-500/30 group-[.toast]:bg-orange-500/10",
+          info: "group-[.toast]:border-blue-500/30 group-[.toast]:bg-blue-500/10",
         },
       }}
       {...props}
@@ -53,6 +50,22 @@ function isOldSyntax(arg: unknown): arg is OldToastArgs {
   return typeof arg === 'object' && arg !== null && 'title' in arg;
 }
 
+const injectOnClick = (title: string, opts: any = {}) => {
+  if (!opts.onClick && !opts.action) {
+    opts.onClick = () => {
+      window.dispatchEvent(new CustomEvent('open-notification-details', {
+        detail: {
+          type: 'info',
+          title: title || 'Notification',
+          message: opts.description || title,
+          timestamp: Date.now()
+        }
+      }));
+    };
+  }
+  return opts;
+};
+
 const toast = Object.assign(
   (messageOrOptions: any, data?: any) => {
     if (isOldSyntax(messageOrOptions)) {
@@ -60,16 +73,17 @@ const toast = Object.assign(
       const opts: any = {};
       if (description) opts.description = description;
       if (duration) opts.duration = duration;
-      if (variant === 'destructive') return sonnerToast.error(title || 'Error', opts);
-      return sonnerToast(title || '', opts);
+      const finalOpts = injectOnClick(title || 'Notification', opts);
+      if (variant === 'destructive') return sonnerToast.error(title || 'Error', finalOpts);
+      return sonnerToast(title || '', finalOpts);
     }
-    return sonnerToast(messageOrOptions, data);
+    return sonnerToast(messageOrOptions, injectOnClick(messageOrOptions, data));
   },
   {
-    success: sonnerToast.success,
-    error: sonnerToast.error,
-    warning: sonnerToast.warning,
-    info: sonnerToast.info,
+    success: (msg: string | React.ReactNode, data?: any) => sonnerToast.success(msg, injectOnClick(msg as string, data)),
+    error: (msg: string | React.ReactNode, data?: any) => sonnerToast.error(msg, injectOnClick(msg as string, data)),
+    warning: (msg: string | React.ReactNode, data?: any) => sonnerToast.warning(msg, injectOnClick(msg as string, data)),
+    info: (msg: string | React.ReactNode, data?: any) => sonnerToast.info(msg, injectOnClick(msg as string, data)),
     loading: sonnerToast.loading,
     promise: sonnerToast.promise,
     dismiss: sonnerToast.dismiss,

@@ -502,26 +502,48 @@ export function useSmartListingMatching(
 
                 // 5. Scoring, Sorting, and Update Recovery
                 const matchedResults = filteredListings.map(listing => {
-                    const match = calculateListingMatch((filters || {}) as any, listing as Listing);
+                    const l = listing as Listing & { previous_price?: number };
+                    const match = calculateListingMatch((filters || {}) as any, l);
                     
                     // CHECK FOR RECOVERY: If this listing was swiped but updated since, it should bypass exclusion
-                    const swipe = userSwipes?.left.get(listing.id);
-                    const isUpdated = swipe && new Date(listing.created_at) > new Date(swipe);
+                    const swipe = userSwipes?.left.get(l.id);
+                    const isUpdated = swipe && new Date(l.created_at) > new Date(swipe);
+                    
+                    // PRICE DROP LOGIC: Boost score massively if price dropped
+                    const isPriceDrop = l.previous_price && l.price < l.previous_price;
+                    
+                    let finalPercentage = match.percentage;
+                    let finalReasons = match.reasons;
+                    
+                    if (isPriceDrop) {
+                      finalPercentage = 200; // Force to top
+                      finalReasons = ['🔥 PRICE DROP!', ...match.reasons];
+                    } else if (isUpdated) {
+                      finalPercentage = Math.min(match.percentage + 10, 100);
+                      finalReasons = ['Recently Updated', ...match.reasons];
+                    }
                     
                     return {
-                        ...listing as Listing,
-                        matchPercentage: isUpdated ? Math.min(match.percentage + 10, 100) : match.percentage,
-                        matchReasons: isUpdated ? ['Recently Updated', ...match.reasons] : match.reasons,
+                        ...l,
+                        matchPercentage: finalPercentage,
+                        matchReasons: finalReasons,
                         incompatibleReasons: match.incompatible,
-                        isUpdatedRecovery: !!isUpdated
+                        isUpdatedRecovery: !!isUpdated,
+                        isPriceDrop: !!isPriceDrop
                     };
                 });
 
                 // Real listings first, ordered by recency (most recently created/edited
-                // surfaces first so users see their own latest uploads immediately).
+                // surfaces first so users see their own latest uploads immediately),
+                // but PRICE DROPS always go to the very top.
                 const realResults = matchedResults.sort((a, b) => {
                   const seedDelta = Number(isSeedListing(a)) - Number(isSeedListing(b));
                   if (seedDelta !== 0) return seedDelta;
+                  
+                  // Sort by price drop first
+                  if (a.isPriceDrop && !b.isPriceDrop) return -1;
+                  if (!a.isPriceDrop && b.isPriceDrop) return 1;
+                  
                   const ta = new Date((a as any).updated_at || a.created_at || 0).getTime();
                   const tb = new Date((b as any).updated_at || b.created_at || 0).getTime();
                   return tb - ta;

@@ -1,7 +1,7 @@
 // Standalone file — zero imports, no circular dep risk.
 // Both useListings and useSmartListingMatching import from here.
 export const SWIPE_CARD_FIELDS = `
-  id, title, description, price, images, video_url, city, neighborhood, beds, baths,
+  id, title, description, price, previous_price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
   owner_id, created_at, updated_at, currency,
