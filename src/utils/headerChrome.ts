@@ -4,7 +4,7 @@ export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
 
 /** Shared TopBar pill — dark contrast wells on light pages. */
 export const HEADER_PILL_BASE =
-  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill chrome-solid ${HEADER_CHROME_PILL_CLASS} pointer-events-auto h-[44px] w-[44px]`;
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill chrome-solid ${HEADER_CHROME_PILL_CLASS} pointer-events-auto h-[38px] w-[38px]`;
 
 export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 
@@ -34,8 +34,8 @@ export function getHeaderChrome(isLight: boolean, isDashboard = false) {
 
   const pillStyle: CSSProperties = {
     background: isLight
-      ? (isDashboard ? 'rgba(0,0,0,0.42)' : 'rgba(0,0,0,0.10)')
-      : 'transparent',
+      ? (isDashboard ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.10)')
+      : 'rgba(0,0,0,0.4)',
     border: 'none',
     boxShadow: 'none',
     backdropFilter: 'none',
@@ -54,7 +54,7 @@ export function getHeaderChrome(isLight: boolean, isDashboard = false) {
     useLightIcons,
     iconColor: useLightIcons ? '#FFFFFF' : '#0A0A0A',
     inactiveIconColor: useLightIcons
-      ? 'rgba(255,255,255,0.65)'
+      ? 'rgba(255,255,255,0.8)'
       : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)'),
     pillStyle,
     iconShadow: useLightIcons
