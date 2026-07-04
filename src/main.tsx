@@ -103,7 +103,8 @@ const isNativeApp = !!(window as any).Capacitor?.isNativePlatform?.();
 const isPreviewHost = !isNativeApp && (import.meta.env.DEV
   || hostname === 'localhost'
   || hostname === '127.0.0.1'
-  || hostname.includes('id-preview--'));
+  || hostname.includes('id-preview--')
+  || (typeof window !== 'undefined' && window.location.search.includes('preview=true')));
 const PREVIEW_CACHE_RESET_KEY = 'Swipess-preview-cache-reset-v1';
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
