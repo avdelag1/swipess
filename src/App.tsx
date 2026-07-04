@@ -137,16 +137,23 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       if (event.data?.type === 'SWIPESS_CMS_UPDATE') {
         const { payload } = event.data;
         
-        // Loop through the design changes and apply them instantly
-        Object.entries(payload).forEach(([key, value]) => {
-          // If you use CSS variables for theme/colors/fonts, inject them here:
-          if (key.includes('color') || key.includes('bg') || key.includes('primary') || key.includes('secondary') || key.includes('accent') || key.includes('destructive') || key.includes('muted') || key.includes('popover') || key.includes('card') || key.includes('border') || key.includes('ring')) {
-             document.documentElement.style.setProperty(`--${key}`, value as string);
-          }
+        if (payload?.type === 'content' && payload.sectionKey) {
+          const key = payload.sectionKey;
+          const value = payload.value;
+          
           if (key.includes('font')) {
              document.documentElement.style.setProperty(`--${key}-font`, `"${value}", sans-serif`);
+          } else if (key.includes('size') || key.includes('radius')) {
+             document.documentElement.style.setProperty(`--${key}`, `${value}px`);
+          } else {
+             document.documentElement.style.setProperty(`--${key}`, value as string);
           }
-        });
+        } else if (payload?.type === 'theme') {
+          // If the payload is a full theme object
+          Object.entries(payload.theme || {}).forEach(([key, value]) => {
+             document.documentElement.style.setProperty(`--${key}`, value as string);
+          });
+        }
       }
     };
 
