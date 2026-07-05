@@ -279,7 +279,7 @@ export const BottomNavigation = memo(({
   // Match the header: in light theme use dark icons, in dark theme use light icons
   const useLightIcons = !isLight;
   const baseColor = isLight ? '#000000' : '#ffffff';
-  const inactiveIconColor = isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.6)';
+  const inactiveIconColor = isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.6)';
   const { iconShadow } = getHeaderChrome(
     isLight,
     isDashboard,
@@ -331,7 +331,8 @@ export const BottomNavigation = memo(({
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
           "px-2 py-1.5 border",
-          isLight ? "bg-white/95 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]" : "bg-black border-white/10"
+          "bg-white/95 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
+          "dark:bg-black dark:border-white/10 dark:shadow-none"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -443,7 +444,7 @@ export const BottomNavigation = memo(({
                           height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                           fill: 'none',
-                          strokeWidth: active ? 2.0 : 1.4,
+                          strokeWidth: active ? 2.25 : 1.8,
                           filter: getNavIconFilter(item.id, active),
                           transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}

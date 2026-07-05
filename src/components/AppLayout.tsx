@@ -179,27 +179,20 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
-    if (isDashboardOnly) {
-      // Whole dashboard (picker + deck) stays on the black frame.
-      document.documentElement.classList.add('dark', 'black-matte');
-      document.documentElement.classList.remove('light', 'white-matte', 'cheers', 'red-matte', 'amber-matte', 'pure-black', 'Swipess-style');
-      document.documentElement.style.colorScheme = 'dark';
+    // Apply user's actual theme across the entire app
+    if (theme === 'light' || theme === 'white-matte') {
+      document.documentElement.classList.add('light', 'white-matte');
+      document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style');
+      document.documentElement.style.colorScheme = 'light';
     } else {
-      // Restore user's actual theme when leaving dashboard
-      if (theme === 'light' || theme === 'white-matte') {
-        document.documentElement.classList.add('light', 'white-matte');
-        document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style');
-        document.documentElement.style.colorScheme = 'light';
-      } else {
-        document.documentElement.classList.add('dark');
-        if (theme === 'dark' || theme === 'black-matte') {
-          document.documentElement.classList.add('black-matte');
-        } else if (theme) {
-          document.documentElement.classList.add(theme);
-        }
-        document.documentElement.classList.remove('light', 'white-matte');
-        document.documentElement.style.colorScheme = 'dark';
+      document.documentElement.classList.add('dark');
+      if (theme === 'dark' || theme === 'black-matte') {
+        document.documentElement.classList.add('black-matte');
+      } else if (theme) {
+        document.documentElement.classList.add(theme);
       }
+      document.documentElement.classList.remove('light', 'white-matte');
+      document.documentElement.style.colorScheme = 'dark';
     }
     
     return () => document.body.classList.remove('swipe-deck-active');
@@ -298,12 +291,31 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
+  // GLOBAL PULL TO REFRESH
+  // The dashboard has its own scroll container and PTR instance. This covers the rest of the app.
+  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const ptrDisabled = isInsideDashboard || swipeDeckActive || isFullScreen;
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
+    containerRef: mainScrollRef,
+    disabled: ptrDisabled,
+  });
+
   return (
     <div className={cn(
-      "w-full h-[100dvh] flex flex-col relative selection:bg-brand-primary/30 overflow-hidden", 
-      "bg-background",
-      theme === 'Swipess-style' && "Swipess-style"
+      "fixed inset-0 overflow-hidden bg-background text-foreground app-container",
+      isPWA && "pwa-mode",
+      isNative && "native-app-mode",
+      useRevealMode && "reveal-mode"
     )}>
+      {/* GLOBAL PULL TO REFRESH INDICATOR */}
+      {!ptrDisabled && (
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          isRefreshing={isRefreshing}
+          triggered={triggered}
+        />
+      )}
+      
       <SkipToMainContent />
       
       <Suspense fallback={null}>
@@ -330,6 +342,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       <main
+        ref={mainScrollRef}
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
