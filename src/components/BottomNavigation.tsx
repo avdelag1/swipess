@@ -330,7 +330,7 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
-          "px-2 py-1 border",
+          "px-2 py-2.5 border",
           "bg-black border-white/10"
         )}
       >
@@ -356,7 +356,7 @@ export const BottomNavigation = memo(({
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
             scrollBehavior: 'smooth',
-            padding: '2px 4px',
+            padding: '6px 4px',
           }}
         >
           {navItems.map((item) => {
@@ -397,7 +397,7 @@ export const BottomNavigation = memo(({
                   flex: '1 1 0',
                   minWidth: isTablet ? '56px' : '44px',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
-                  padding: isTablet ? '6px 10px' : '4px 6px',
+                  padding: isTablet ? '10px' : '8px 6px',
                   cursor: 'pointer',
                   flexShrink: 1,
                   touchAction: 'manipulation',
