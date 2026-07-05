@@ -125,7 +125,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const isLight = theme === 'light';
+  const isLight = theme === 'light' || theme === 'white-matte';
   const isDark = !isLight;
   const value = React.useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark, setTheme]);
 

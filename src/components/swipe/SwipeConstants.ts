@@ -96,14 +96,14 @@ export const POKER_FAN_ROTATION = 8;
 export const PK_DIST_THRESHOLD = 50;
 export const PK_VEL_THRESHOLD = 200;
 // Snappier spring — quick-filter cards glide instead of fight
-export const PK_SPRING = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.4 };
+export const PK_SPRING = { type: 'spring' as const, stiffness: 450, damping: 30, mass: 0.3 };
 
 // 🎯 Unified elastic spring language — consistent feel across all card types.
 // Snap-back: instantaneous native iOS App Switcher feel
-export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 600, damping: 38, mass: 0.35 };
+export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 700, damping: 40, mass: 0.3 };
 // Horizontal exit: fast snap off-screen
-export const EXIT_SPRING = { type: 'spring' as const, stiffness: 500, damping: 35, mass: 0.4 };
+export const EXIT_SPRING = { type: 'spring' as const, stiffness: 600, damping: 35, mass: 0.3 };
 // Vertical skip exit: fast vertical flick
-export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 450, damping: 32, mass: 0.4 };
+export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 500, damping: 32, mass: 0.3 };
 
 

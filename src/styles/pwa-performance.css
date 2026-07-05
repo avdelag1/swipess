@@ -160,7 +160,8 @@ html.pwa-mode [data-sonner-toast] {
    PERF: Removed permanent will-change (wastes VRAM on low-end devices).
    Use transform: translateZ(0) only where needed for compositing. */
 .swipe-card,
-.modal-overlay {
+.modal-overlay,
+.pull-to-refresh-content {
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
