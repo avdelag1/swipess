@@ -301,10 +301,9 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-[44px] w-[44px] shrink-0 transition-all duration-300",
+        "relative h-[38px] w-[38px] shrink-0 transition-all duration-300",
         "hover:opacity-90 active:scale-[0.92] group !rounded-full",
-        "touch-manipulation glass-pill chrome-solid",
-        HEADER_CHROME_PILL_CLASS,
+        "touch-manipulation glass-pill",
         pillClassName,
       )}
       style={{ ...glassPillStyle, overflow: 'visible' }}
