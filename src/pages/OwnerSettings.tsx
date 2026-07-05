@@ -224,29 +224,32 @@ const OwnerSettings = () => {
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
           className="space-y-12"
         >
+          <div className="space-y-6">
           {settingsGroups.map((group) => (
-            <motion.div key={group.label} variants={itemVariant} className="space-y-4">
-              {/* Section pill label */}
-              <div className="px-1 flex items-center gap-4">
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-40 italic">{group.label}</span>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
+            <motion.div key={group.label} variants={itemVariant} className="space-y-2">
+              {/* Section label */}
+              <div className="px-4 text-[13px] font-black uppercase tracking-widest opacity-40 italic">
+                {group.label}
               </div>
 
-              <div className="space-y-3">
-                {group.items.map((item, _idx) => (
-                  <div key={item.label}>
+              <div className={cn(
+                "rounded-[24px] overflow-hidden border",
+                isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+              )}>
+                {group.items.map((item, idx) => (
+                  <div key={item.label} className={cn(
+                    "relative",
+                    idx < group.items.length - 1 && (isLight ? "border-b border-black/4" : "border-b border-white/5")
+                  )}>
                     <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.985 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
                       className={cn(
-                        "group w-full flex items-center gap-5 p-5 transition-all text-left rounded-[2rem]",
-                        isLight
-                          ? "surface-row hover:shadow-[var(--elev-3)]"
-                          : "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
+                        "group w-full flex items-center gap-4 px-5 py-3 transition-colors text-left",
+                        isLight ? "hover:bg-black/[0.02]" : "hover:bg-white/[0.02]"
                       )}
                     >
                       <div
@@ -275,6 +278,7 @@ const OwnerSettings = () => {
               </div>
             </motion.div>
           ))}
+          </div>
         </motion.div>
 
         {/* 🛸 Swipess FOOTER */}

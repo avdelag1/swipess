@@ -129,7 +129,6 @@ const NotificationsPage = () => {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-10">
-        <div className="space-y-4">
           {notifications.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
@@ -143,7 +142,11 @@ const NotificationsPage = () => {
               <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state_subtitle', 'Check back later for system updates')}</p>
             </motion.div>
           ) : (
-            notifications.map((notif) => (
+            <div className={cn(
+              "rounded-[24px] overflow-hidden border",
+              isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+            )}>
+            {notifications.map((notif, idx) => (
               <motion.div
                 key={notif.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -155,28 +158,31 @@ const NotificationsPage = () => {
                   handleNotificationClick(notif);
                 }}
                 className={cn(
-                  "group relative transition-all cursor-pointer active:scale-[0.98] rounded-[1.5rem] p-4",
-                  notif.read ? "surface-row opacity-70" : "surface-row surface-row--active",
+                  "group relative transition-colors cursor-pointer active:scale-[0.99] px-5 py-4",
+                  idx < notifications.length - 1 && (isLight ? "border-b border-black/4" : "border-b border-white/5"),
+                  !notif.read && (isLight ? "bg-rose-500/[0.03]" : "bg-rose-500/[0.04]"),
+                  notif.read && "opacity-60",
+                  isLight ? "hover:bg-black/[0.02]" : "hover:bg-white/[0.02]",
                 )}
               >
                 <div className="flex gap-4">
                   <div className={cn(
-                    "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0",
-                    isDark ? "bg-white/[0.04]" : "bg-slate-50"
+                    "w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0",
+                    isDark ? "bg-white/[0.06]" : "bg-black/[0.04]"
                   )}>
                     {getIcon(notif.type)}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className={cn("text-[14px] font-semibold leading-snug", isLight ? "text-slate-900" : "text-white")}>
+                    <h3 className={cn("text-[14px] font-semibold leading-snug", isLight ? "text-black" : "text-white")}>
                       {notif.title}
                     </h3>
-                    <p className={cn("text-[12px] mt-0.5 line-clamp-2", isLight ? "text-slate-500" : "text-slate-400")}>
+                    <p className={cn("text-[12px] mt-0.5 line-clamp-2", isLight ? "text-black/50" : "text-white/50")}>
                       {notif.message}
                     </p>
                     <span className={cn(
                       "text-[10px] mt-1 block",
-                      isLight ? "text-slate-400" : "text-slate-500"
+                      isLight ? "text-black/30" : "text-white/30"
                     )}>
                       {formatDistanceToNow(notif.timestamp, { addSuffix: true })}
                     </span>
@@ -184,16 +190,16 @@ const NotificationsPage = () => {
 
                   <button
                     onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); dismissNotification(notif.id); }}
-                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-rose-500/20 text-slate-500 hover:text-rose-500 transition-colors shrink-0 self-start"
+                    className={cn("min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors shrink-0 self-start", isLight ? "text-black/20 hover:text-rose-500 hover:bg-rose-500/10" : "text-white/20 hover:text-rose-500 hover:bg-rose-500/10")}
                     aria-label="Dismiss notification"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </motion.div>
-            ))
+            ))}
+            </div>
           )}
-        </div>
       </div>
     </AmbientPageBackground>
   );
