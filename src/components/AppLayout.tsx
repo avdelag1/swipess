@@ -15,8 +15,7 @@ import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { useGlobalBackButton } from '@/hooks/useGlobalBackButton';
 import { useProfileGpsPersist } from '@/hooks/useProfileGpsPersist';
 import { useDeepLinks } from '@/hooks/useDeepLinks';
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { PullToRefreshIndicator } from './PullToRefreshIndicator';
+
 import { cn } from '@/lib/utils';
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
@@ -293,32 +292,14 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
-  // GLOBAL PULL TO REFRESH
-  // The dashboard has its own scroll container and PTR instance. This covers the rest of the app.
-  const mainScrollRef = useRef<HTMLDivElement>(null);
-  const ptrDisabled = isInsideDashboard || swipeDeckActive || isFullScreen;
-  const { isRefreshing, pullDistance, triggered } = usePullToRefresh({
-    containerRef: mainScrollRef,
-    disabled: ptrDisabled,
-  });
-
   return (
     <div className={cn(
-      "fixed inset-0 overflow-hidden bg-background text-foreground app-container",
-      isPWA && "pwa-mode",
-      isNative && "native-app-mode",
-      useRevealMode && "reveal-mode"
+      "w-full h-[100dvh] flex flex-col relative selection:bg-brand-primary/30 overflow-hidden", 
+      "bg-background",
+      theme === 'Swipess-style' && "Swipess-style"
     )}>
-      {/* GLOBAL PULL TO REFRESH INDICATOR */}
-      {!ptrDisabled && (
-        <PullToRefreshIndicator
-          pullDistance={pullDistance}
-          isRefreshing={isRefreshing}
-          triggered={triggered}
-        />
-      )}
-      
       <SkipToMainContent />
+
       
       <Suspense fallback={null}>
         <NotificationSystem />
@@ -344,7 +325,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       <main
-        ref={mainScrollRef}
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
