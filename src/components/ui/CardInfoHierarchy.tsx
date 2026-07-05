@@ -83,14 +83,14 @@ export const PropertyCardInfo = memo(({
       {photoIndex === 0 && (
         <>
           <div className="flex items-baseline gap-1">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+            <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
               ${price.toLocaleString()}
             </span>
             <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
           {title && (
-            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+            <div className="font-semibold text-white/95 truncate drop-shadow-lg [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.body }}>
               {title}
             </div>
           )}
@@ -185,14 +185,14 @@ export const VehicleCardInfo = memo(({
       {normalizedIndex === 0 && (
         <>
           <div className="flex items-baseline gap-1">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+            <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
               ${price.toLocaleString()}
             </span>
             <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
           {title && (
-            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+            <div className="font-semibold text-white/95 truncate drop-shadow-lg [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.body }}>
               {title}
             </div>
           )}
@@ -205,7 +205,7 @@ export const VehicleCardInfo = memo(({
 
       {normalizedIndex === 1 && (
         <>
-          <div className="font-bold text-white drop-shadow-lg truncate" style={{ fontSize: FONT.headline }}>
+          <div className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)] truncate" style={{ fontSize: FONT.headline }}>
             {vehicleName || 'Vehicle'}
           </div>
           {location && (
@@ -248,7 +248,7 @@ export const VehicleCardInfo = memo(({
       {normalizedIndex === 3 && (
         <>
           <div className="flex items-baseline gap-1">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+            <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
               ${price.toLocaleString()}
             </span>
             <span className="text-white/80" style={{ fontSize: FONT.meta }}>{priceLabel}</span>
@@ -325,7 +325,7 @@ export const ServiceCardInfo = memo(({
         <>
           {hourlyRate !== undefined && (
             <div className="flex items-baseline gap-1">
-              <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+              <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
                 ${hourlyRate}
               </span>
               <span className="text-white/80" style={{ fontSize: FONT.meta }}>{unitLabel}</span>
@@ -333,7 +333,7 @@ export const ServiceCardInfo = memo(({
             </div>
           )}
           {title && (
-            <div className="font-semibold text-white/95 truncate drop-shadow" style={{ fontSize: FONT.body }}>
+            <div className="font-semibold text-white/95 truncate drop-shadow-lg [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.body }}>
               {title}
             </div>
           )}
@@ -346,7 +346,7 @@ export const ServiceCardInfo = memo(({
 
       {normalizedIndex === 1 && (
         <>
-          <div className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+          <div className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
             {serviceName}
           </div>
           {name && (
@@ -373,7 +373,7 @@ export const ServiceCardInfo = memo(({
             </>
           ) : (
             <>
-              <div className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>{serviceName}</div>
+              <div className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>{serviceName}</div>
               {name && <div className="text-white/90 font-medium" style={{ fontSize: FONT.body }}>{name}</div>}
             </>
           )}
@@ -390,7 +390,7 @@ export const ServiceCardInfo = memo(({
         <>
           {hourlyRate !== undefined && (
             <div className="flex items-baseline gap-1">
-              <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+              <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
                 ${hourlyRate}
               </span>
               <span className="text-white/80" style={{ fontSize: FONT.meta }}>{unitLabel}</span>
@@ -472,7 +472,7 @@ export const ClientCardInfo = memo(({
       {normalizedIndex === 0 && (
         <>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+            <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
               {name || 'Client'}
             </span>
             {age && <span className="text-white/80" style={{ fontSize: FONT.secondary }}>{age}</span>}
@@ -533,7 +533,7 @@ export const ClientCardInfo = memo(({
       {normalizedIndex === 3 && (
         <>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold text-white drop-shadow-lg" style={{ fontSize: FONT.headline }}>
+            <span className="font-bold text-white drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.8)]" style={{ fontSize: FONT.headline }}>
               {name || 'Client'}
             </span>
             {age && <span className="text-white/80" style={{ fontSize: FONT.secondary }}>{age}</span>}

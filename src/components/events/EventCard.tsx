@@ -226,18 +226,18 @@ export const EventCard = memo(({
           </div>
         )}
 
-        <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-2xl pr-16">
+        <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-2xl [text-shadow:0_4px_12px_rgba(0,0,0,0.9)] pr-16">
           {event.title}
         </h2>
 
         {event.organizer_name && (
-          <p className="text-sm text-white/60 font-semibold mt-1.5 drop-shadow-lg">
+          <p className="text-sm text-white/80 font-semibold mt-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
             by {event.organizer_name}
           </p>
         )}
 
         {event.promo_text && (
-          <p className="text-sm text-white/80 mt-2 leading-relaxed drop-shadow-lg line-clamp-2 pr-16">
+          <p className="text-sm text-white/90 mt-2 leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] line-clamp-2 pr-16">
             {event.promo_text}
           </p>
         )}
