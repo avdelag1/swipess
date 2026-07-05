@@ -55,7 +55,6 @@ const ALL_THEME_CLASSES = [
 function applyThemeToDOM(theme: Theme) {
   if (typeof window === 'undefined') return;
   const root = window.document.documentElement;
-  if (root.classList.contains(theme) && (theme !== 'dark' || root.classList.contains('black-matte'))) return;
   root.style.colorScheme = (theme === 'light') ? 'light' : 'dark';
   root.classList.remove(...ALL_THEME_CLASSES, 'ivanna-style', 'ivana');
   root.classList.add(theme);
@@ -95,7 +94,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return normalizeTheme(cached);
   });
 
-  React.useEffect(() => {
+  // useLayoutEffect ensures theme classes are applied BEFORE paint,
+  // preventing a flash of the wrong theme on page reload.
+  React.useLayoutEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
 
