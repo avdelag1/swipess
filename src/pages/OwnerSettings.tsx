@@ -124,14 +124,7 @@ const OwnerSettings = () => {
           description: t('settings.legalPageDesc'),
           bg: 'linear-gradient(135deg, #6366f1, #818cf8)',
           route: '/legal',
-        },
-        {
-          icon: MessageSquarePlus,
-          label: 'Feedback',
-          description: 'Share ideas, bugs, or appreciation',
-          bg: 'linear-gradient(135deg, #4c1d95, #7c3aed)',
-          section: 'feedback',
-        },
+        }
       ],
     },
   ];
@@ -190,20 +183,6 @@ const OwnerSettings = () => {
     );
   }
 
-  if (activeSection === 'feedback') {
-    return (
-      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
-        <div className="max-w-3xl mx-auto relative z-10">
-          <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
-            <div className={cn('rounded-[2.8rem] overflow-hidden border shadow-2xl p-8', isLight ? 'bg-white border-slate-200' : 'bg-background border-white/5')}>
-              <FeedbackSection />
-            </div>
-          </motion.div>
-        </div>
-      </AmbientPageBackground>
-    );
-  }
 
   return (
     <AmbientPageBackground className="w-full px-6 pb-40 min-h-screen">

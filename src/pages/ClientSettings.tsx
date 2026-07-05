@@ -75,13 +75,6 @@ const ClientSettings = () => {
           section: 'preferences',
         },
         {
-          icon: Ticket,
-          label: t('promo.title', 'Promo Codes'),
-          description: t('promo.menuDesc', 'Redeem gift codes & vouchers'),
-          bg: 'linear-gradient(135deg, #ec4899, #a855f7)',
-          section: 'promo',
-        },
-        {
           icon: Globe,
           label: t('settings.language'),
           description: t('settings.languageDesc'),
@@ -139,14 +132,7 @@ const ClientSettings = () => {
           description: t('settings.legalPageDesc'),
           bg: 'linear-gradient(135deg, #6366f1, #818cf8)',
           route: '/legal',
-        },
-        {
-          icon: MessageSquarePlus,
-          label: 'Feedback',
-          description: 'Share ideas, bugs, or appreciation',
-          bg: 'linear-gradient(135deg, #4c1d95, #7c3aed)',
-          section: 'feedback',
-        },
+        }
       ],
     },
   ];
@@ -204,35 +190,6 @@ const ClientSettings = () => {
     );
   }
 
-  if (activeSection === 'promo') {
-    return (
-      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
-        <div className="max-w-3xl mx-auto relative z-10">
-          <PageHeader title={t('promo.title', 'Promo Codes')} subtitle={t('promo.menuDesc', 'Redeem gift codes & vouchers')} showBack={true} onBack={() => setActiveSection(null)} />
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10 flex justify-center w-full max-w-md mx-auto">
-            <div className="w-full">
-              <PromoCodeSection />
-            </div>
-          </motion.div>
-        </div>
-      </AmbientPageBackground>
-    );
-  }
-
-  if (activeSection === 'feedback') {
-    return (
-      <AmbientPageBackground className="w-full px-4 pt-4 pb-32 min-h-screen">
-        <div className="max-w-3xl mx-auto relative z-10">
-          <PageHeader title="Feedback" subtitle="Help us improve Swipess" showBack={true} onBack={() => setActiveSection(null)} />
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="pt-10">
-            <div className="rounded-[2.5rem] overflow-hidden bg-background border border-border shadow-2xl p-8">
-              <FeedbackSection />
-            </div>
-          </motion.div>
-        </div>
-      </AmbientPageBackground>
-    );
-  }
 
   if (activeSection === 'preferences') {
     return (
@@ -273,42 +230,43 @@ const ClientSettings = () => {
                 <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
               </div>
 
-              <div className="space-y-3">
-                {group.items.map((item, _idx) => (
-                  <div key={item.label}>
+              <div className={cn(
+                "rounded-[24px] overflow-hidden border",
+                isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+              )}>
+                {group.items.map((item, idx) => (
+                  <div key={item.label} className={cn(
+                    "relative",
+                    idx < group.items.length - 1 && (isLight ? "border-b border-black/4" : "border-b border-white/5")
+                  )}>
                     <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.985 }}
+                      whileHover={{ backgroundColor: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)' }}
+                      whileTap={{ backgroundColor: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)' }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
                       className={cn(
-                        "group w-full flex items-center gap-5 p-5 transition-all text-left rounded-[2rem]",
-                        isLight
-                          ? "surface-row hover:shadow-[var(--elev-3)]"
-                          : "bg-card/40 backdrop-blur-md border border-border/40 shadow-sm hover:shadow-2xl hover:bg-card/80 hover:border-foreground/20"
+                        "group w-full flex items-center gap-4 px-5 py-4 transition-colors text-left",
                       )}
                     >
                       <div
-                        className={cn("w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner border", isLight ? "border-white/20" : "border-white/10")}
+                        className={cn("w-[42px] h-[42px] rounded-xl flex items-center justify-center flex-shrink-0 shadow-inner border", isLight ? "border-white/20" : "border-white/10")}
                         style={{ background: item.bg }}
                       >
-                        <item.icon className="w-6 h-6 text-white drop-shadow-md" />
+                        <item.icon className="w-5 h-5 text-white drop-shadow-md" />
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[15px] font-black uppercase italic tracking-tighter text-foreground">{item.label}</div>
-                        <div className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mt-1 opacity-70 leading-relaxed truncate">{item.description}</div>
+                      <div className="flex-1 min-w-0 py-1">
+                        <div className={cn("text-[15px] font-bold tracking-tight", isLight ? "text-black" : "text-white")}>{item.label}</div>
+                        <div className="text-[12px] font-medium text-muted-foreground mt-0.5 opacity-80 leading-snug truncate">{item.description}</div>
                       </div>
 
-                      <div className="flex items-center gap-4 shrink-0">
+                      <div className="flex items-center gap-3 shrink-0">
                         {item.section && (
                           <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse shadow-[0_0_10px_rgba(235,72,152,0.8)]" />
                         )}
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 shrink-0">
-                           <ChevronRight className="w-5 h-5 text-foreground/70 flex-shrink-0" />
-                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0" strokeWidth={3} />
                       </div>
                     </motion.button>
                   </div>

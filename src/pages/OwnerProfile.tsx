@@ -2,6 +2,8 @@ import { SharedProfileSection } from "@/components/SharedProfileSection";
 
 import { Button } from "@/components/ui/button";
 import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
+import { PromoCodeSection } from '@/components/PromoCodeSection';
+import { FeedbackSection } from '@/components/FeedbackSection';
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
@@ -200,6 +202,19 @@ const OwnerProfile = () => {
 
         <div className="py-4">
           <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Identity'} isClient={false} />
+        </div>
+
+        {/* PROMO CODES */}
+        <div className="mt-6 mb-6">
+           <PromoCodeSection />
+        </div>
+
+        {/* FEEDBACK & CONTACT ADMINS */}
+        <div className={cn(
+          "rounded-[2.5rem] overflow-hidden border shadow-2xl p-6",
+          isLight ? "bg-white border-black/5" : "bg-card/40 border-white/5 backdrop-blur-xl"
+        )}>
+           <FeedbackSection />
         </div>
 
         <div className="flex justify-center pt-4">

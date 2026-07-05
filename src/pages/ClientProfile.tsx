@@ -20,6 +20,8 @@ import {
   User,
   Zap,
 } from 'lucide-react';
+import { PromoCodeSection } from '@/components/PromoCodeSection';
+import { FeedbackSection } from '@/components/FeedbackSection';
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -270,6 +272,19 @@ const ClientProfile = () => {
           <div className={cn("rounded-3xl", isLight ? "surface-2" : "bg-[#020202]")}>
             <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
           </div>
+        </div>
+
+        {/* PROMO CODES */}
+        <div className="mt-6 mb-6">
+           <PromoCodeSection />
+        </div>
+
+        {/* FEEDBACK & CONTACT ADMINS */}
+        <div className={cn(
+          "rounded-[2.5rem] overflow-hidden border shadow-2xl p-6",
+          isLight ? "bg-white border-black/5" : "bg-card/40 border-white/5 backdrop-blur-xl"
+        )}>
+           <FeedbackSection />
         </div>
 
         {/* HOLOGRAPHIC IDENTITY VAULT */}
