@@ -32,7 +32,7 @@ export function getHeaderIconFilter(
 export function getHeaderChrome(isLight: boolean, isDashboard = false) {
   // On the swipe deck we always show light icons (photo bg).
   // On light-theme non-dashboard pages we show dark icons on a crisp white pill.
-  const useLightIcons = isDashboard && !isLight ? true : !isLight;
+  const useLightIcons = isDashboard ? true : !isLight;
 
   // Pill background:
   // - Swipe deck (always dark bg): translucent black
