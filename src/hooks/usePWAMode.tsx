@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * PWA Mode Detection and Optimization Hook
@@ -112,7 +113,7 @@ function detectPWAMode(): { isPWA: boolean; isIOS: boolean; isAndroid: boolean }
   const isLaunchedFromHomeScreen = document.referrer.includes('android-app://') ||
     window.matchMedia('(display-mode: minimal-ui)').matches;
 
-  const isPWA = isStandalone || isIOSStandalone || isLaunchedFromHomeScreen;
+  const isPWA = isStandalone || isIOSStandalone || isLaunchedFromHomeScreen || Capacitor.isNativePlatform();
 
   return { isPWA, isIOS, isAndroid };
 }

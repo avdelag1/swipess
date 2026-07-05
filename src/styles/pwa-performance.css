@@ -739,3 +739,20 @@ html.pwa-mode .nexus-glass-lite {
   -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
   backdrop-filter: blur(16px) saturate(1.4) !important;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  DRAGGING GPU ACCELERATION                                          */
+/*  Kills CSS transitions during framer-motion drags                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+body.is-dragging * {
+    transition: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* Force hardware acceleration on horizontal scroll areas */
+.nav-scroll-hide {
+    transform: translateZ(0);
+    will-change: transform;
+}

@@ -99,12 +99,11 @@ export const PK_VEL_THRESHOLD = 200;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 400, damping: 28, mass: 0.4 };
 
 // 🎯 Unified elastic spring language — consistent feel across all card types.
-// Snap-back: smooth professional return to center, Apple-style ease
-export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 380, damping: 30, mass: 0.5 };
-// Horizontal exit: smooth glide-off with momentum feel
-export const EXIT_SPRING = { type: 'spring' as const, stiffness: 280, damping: 28, mass: 0.5 };
-// Vertical skip exit: slightly softer for page-turn feel
-export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 260, damping: 26, mass: 0.5 };
-
+// Snap-back: instantaneous native iOS App Switcher feel
+export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 600, damping: 38, mass: 0.35 };
+// Horizontal exit: fast snap off-screen
+export const EXIT_SPRING = { type: 'spring' as const, stiffness: 500, damping: 35, mass: 0.4 };
+// Vertical skip exit: fast vertical flick
+export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 450, damping: 32, mass: 0.4 };
 
 

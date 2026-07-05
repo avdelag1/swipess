@@ -293,6 +293,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragStart = useCallback(() => {
     isDragging.current = true;
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('is-dragging');
+    }
     triggerHaptic('light');
     onDragStart?.();
   }, [onDragStart]);
@@ -332,6 +335,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       animate(y, 0, SNAP_BACK_SPRING);
     }
     isDragging.current = false;
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('is-dragging');
+    }
   }, [onSwipe, x, y]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
