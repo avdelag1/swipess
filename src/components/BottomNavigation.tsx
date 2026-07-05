@@ -278,8 +278,8 @@ export const BottomNavigation = memo(({
   const isDashboard = isDashboardPath(location.pathname);
   // Match the header: in light theme use dark icons, in dark theme use light icons
   const useLightIcons = !isLight;
-  const baseColor = isLight ? '#111111' : '#ffffff';
-  const inactiveIconColor = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.6)';
+  const baseColor = isLight ? '#000000' : '#ffffff';
+  const inactiveIconColor = isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.6)';
   const { iconShadow } = getHeaderChrome(
     isLight,
     isDashboard,
