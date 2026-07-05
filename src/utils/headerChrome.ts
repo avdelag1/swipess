@@ -30,20 +30,15 @@ export function getHeaderIconFilter(
 
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons. */
 export function getHeaderChrome(isLight: boolean, isDashboard = false) {
-  // On the swipe deck we always show light icons (photo bg).
-  // On light-theme non-dashboard pages we show dark icons on a crisp white pill.
-  const useLightIcons = isDashboard ? true : !isLight;
+  // The header buttons should always match the bottom nav bar.
+  // In light theme, they use a crisp white pill with dark icons.
+  // In dark theme, they use a dark pill with white icons.
+  const useLightIcons = !isLight;
 
-  // Pill background:
-  // - Swipe deck (always dark bg): translucent black
-  // - Light theme non-dashboard: white frosted glass so dark icons are visible
-  // - Dark theme: translucent dark glass
   const pillStyle: CSSProperties = {
-    background: isDashboard
-      ? (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.40)')
-      : (isLight ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,30,0.65)'),
-    border: isLight && !isDashboard ? '1px solid rgba(0,0,0,0.06)' : 'none',
-    boxShadow: isLight && !isDashboard
+    background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,30,0.65)',
+    border: isLight ? '1px solid rgba(0,0,0,0.06)' : 'none',
+    boxShadow: isLight
       ? '0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)'
       : '0 2px 12px rgba(0,0,0,0.25)',
     backdropFilter: 'blur(16px) saturate(1.6)',
