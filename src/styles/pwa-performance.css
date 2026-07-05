@@ -522,16 +522,6 @@ body.hw-high [data-map-hud] .glass-pill {
         inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
-/* Header HUD pills — dark wells so white icons read on light-theme pages */
-.light .glass-pill.header-chrome-pill,
-.white-matte .glass-pill.header-chrome-pill {
-    background: rgba(0, 0, 0, 0.42) !important;
-    border-color: rgba(255, 255, 255, 0.14) !important;
-    box-shadow:
-        0 4px 14px rgba(0, 0, 0, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
-}
-
 .deck-hud-solid {
     background: rgba(0, 0, 0, 0.48) !important;
     -webkit-backdrop-filter: none !important;
