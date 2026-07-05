@@ -276,9 +276,9 @@ export const BottomNavigation = memo(({
 
 
   const isDashboard = isDashboardPath(location.pathname);
-  // We made the BottomNav permanently black, so icons MUST be light.
-  const useLightIcons = true;
-  const baseColor = isLight ? '#000000' : '#ffffff';
+  // Match the header: in light theme use dark icons, in dark theme use light icons
+  const useLightIcons = !isLight;
+  const baseColor = isLight ? '#111111' : '#ffffff';
   const inactiveIconColor = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.6)';
   const { iconShadow } = getHeaderChrome(
     isLight,
@@ -330,7 +330,7 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
-          "px-2 py-2.5 border",
+          "px-2 py-1.5 border",
           isLight ? "bg-white/95 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]" : "bg-black border-white/10"
         )}
       >
@@ -356,7 +356,7 @@ export const BottomNavigation = memo(({
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
             scrollBehavior: 'smooth',
-            padding: '6px 4px',
+            padding: '2px 4px',
           }}
         >
           {navItems.map((item) => {
