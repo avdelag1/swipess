@@ -643,7 +643,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     isFetchingMore.current = false;
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
-  const deckQueue = deckQueueRef.current;
+  const isFilterChanging = filterSignature !== prevFilterSignatureRef.current;
+  const deckQueue = isFilterChanging ? [] : deckQueueRef.current;
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
   const topCardIdentity = getCardId(topCard) || '';
 

@@ -57,21 +57,21 @@ export const SwipeExhaustedState = ({
   const allCategories = role === 'owner' ? ownerCategories : clientCategories;
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
-  const headingColor = isLight ? 'text-slate-900' : 'text-white';
-  const subColor = isLight ? 'text-slate-500' : 'text-white/60';
-  const sectionLabelColor = isLight ? 'text-slate-500' : 'text-white/55';
+  const headingColor = isLight ? 'text-black' : 'text-white';
+  const subColor = isLight ? 'text-black/60' : 'text-white/60';
+  const sectionLabelColor = isLight ? 'text-black/50' : 'text-white/55';
   const filterBtnClass = isLight
-    ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+    ? 'bg-black text-white border-black hover:bg-black/90 shadow-md'
     : 'bg-white text-slate-900 border-white hover:bg-white/90';
   const categoryBtnClass = isLight
-    ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+    ? 'bg-black text-white border-black hover:bg-black/90 shadow-md'
     : 'bg-white/[0.12] text-white border-white/30 hover:bg-white/[0.18]';
 
   return (
     <div
       className={cn(
         'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border',
-        isLight ? 'bg-white border-slate-200/80' : 'bg-[#0a0a0c] border-white/10'
+        isLight ? 'bg-white border-black/10' : 'bg-[#0a0a0c] border-white/10'
       )}
     >
       {/* Top Left Back Button */}
@@ -108,7 +108,7 @@ export const SwipeExhaustedState = ({
             className={cn(
               'w-full rounded-[2.25rem] p-5 pt-6 relative',
               isLight
-                ? 'bg-slate-50 border border-slate-200'
+                ? 'bg-[#f8f9fa] border border-black/5 shadow-sm'
                 : 'bg-white/[0.06] border border-white/15'
             )}
           >

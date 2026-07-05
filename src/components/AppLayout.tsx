@@ -38,6 +38,8 @@ import { seedGpsCache } from '@/utils/mapGpsCache';
 const NotificationSystem = lazyWithRetry(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
+import { PullToRefresh } from '@/components/ui/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 interface AppLayoutProps {
@@ -55,6 +57,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { activeMode } = useActiveMode();
   useDeepLinks();
   useProfileGpsPersist();
+  const queryClient = useQueryClient();
+
+  const handleGlobalRefresh = async () => {
+    // Invalidate all queries to fetch fresh data globally
+    await queryClient.invalidateQueries();
+    // Re-trigger auth check 
+    if (user) {
+      await queryClient.invalidateQueries({ queryKey: ['user', user.id] });
+    }
+    // Also give a tiny delay to let the animation feel satisfying
+    await new Promise(resolve => setTimeout(resolve, 600));
+  };
 
   const isSwipeDashboard = useMemo(() => {
     const path = location.pathname;

@@ -462,6 +462,26 @@ export const BottomNavigation = memo(({
                       </MotionIcon>
                     );
                   })()}
+
+                  {/* Active Indicator Pill */}
+                  <AnimatePresence>
+                    {active && (
+                      <motion.div
+                        layoutId="nav-active-indicator"
+                        initial={{ opacity: 0, y: 10, scale: 0.5 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.5 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 500,
+                          damping: 30,
+                          mass: 0.5,
+                        }}
+                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                        style={{ backgroundColor: baseColor }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
 
               </button>
