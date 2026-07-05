@@ -30,16 +30,24 @@ export function getHeaderIconFilter(
 
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons. */
 export function getHeaderChrome(isLight: boolean, isDashboard = false) {
-  const useLightIcons = isDashboard || !isLight;
+  // On the swipe deck we always show light icons (photo bg).
+  // On light-theme non-dashboard pages we show dark icons on a crisp white pill.
+  const useLightIcons = isDashboard && !isLight ? true : !isLight;
 
+  // Pill background:
+  // - Swipe deck (always dark bg): translucent black
+  // - Light theme non-dashboard: white frosted glass so dark icons are visible
+  // - Dark theme: translucent dark glass
   const pillStyle: CSSProperties = {
-    background: isLight
-      ? (isDashboard ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.10)')
-      : 'rgba(0,0,0,0.4)',
-    border: 'none',
-    boxShadow: 'none',
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
+    background: isDashboard
+      ? (isLight ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.40)')
+      : (isLight ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,30,0.65)'),
+    border: isLight && !isDashboard ? '1px solid rgba(0,0,0,0.06)' : 'none',
+    boxShadow: isLight && !isDashboard
+      ? '0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)'
+      : '0 2px 12px rgba(0,0,0,0.25)',
+    backdropFilter: 'blur(16px) saturate(1.6)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.6)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
@@ -50,16 +58,18 @@ export function getHeaderChrome(isLight: boolean, isDashboard = false) {
     overflow: 'visible',
   };
 
+  const iconColor = useLightIcons ? '#FFFFFF' : '#111111';
+
   return {
     useLightIcons,
-    iconColor: useLightIcons ? '#FFFFFF' : '#0A0A0A',
+    iconColor,
     inactiveIconColor: useLightIcons
       ? 'rgba(255,255,255,0.8)'
-      : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)'),
+      : 'rgba(0,0,0,0.5)',
     pillStyle,
     iconShadow: useLightIcons
       ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.55))'
-      : 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))',
+      : 'drop-shadow(0 1px 2px rgba(0,0,0,0.12))',
   };
 }
 

@@ -110,7 +110,12 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ cl
           <div
             ref={ref}
             className={cn(
-              "relative w-full max-w-lg max-h-[90vh] border border-border bg-card chrome-solid surface-5 p-5 sm:p-[28px] pointer-events-auto rounded-[32px] overflow-hidden",
+              "relative w-full max-w-lg max-h-[90vh] pointer-events-auto rounded-[32px] overflow-hidden",
+              "border border-white/10 dark:border-white/8",
+              "bg-white/90 dark:bg-[rgba(18,18,24,0.92)]",
+              "backdrop-blur-2xl",
+              "shadow-[0_32px_80px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.05)_inset]",
+              "p-5 sm:p-[28px]",
               className
             )}
             style={{ zIndex: 10050 }}

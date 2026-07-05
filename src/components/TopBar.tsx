@@ -80,7 +80,7 @@ function TopBarComponent({
 
   const isActuallyVisible = true;
   const isDashboard = isDashboardPath(location.pathname);
-  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getHeaderChrome(isLight, isDashboard || isLight);
+  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getHeaderChrome(isLight, isDashboard);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
