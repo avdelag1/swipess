@@ -108,21 +108,22 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
     return score;
   };
 
-  const SettingRow = ({ icon: Icon, title, description, checked, onToggle, disabled }: any) => (
+  const SettingRow = ({ icon: Icon, title, description, checked, onToggle, disabled, isLast }: any) => (
     <div className={cn(
-      "flex items-center justify-between p-6 rounded-[1.8rem] transition-all border",
-      isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.02] border-white/5"
+      "flex items-center justify-between py-4 px-5 transition-colors",
+      !isLast && (isLight ? "border-b border-black/5" : "border-b border-white/5"),
+      isLight ? "hover:bg-black/[0.02]" : "hover:bg-white/[0.02]"
     )}>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <div className={cn(
-          "w-12 h-12 rounded-[1rem] flex items-center justify-center transition-all border",
-          isLight ? "bg-white/50 border-slate-200" : "bg-black/50 border-white/5"
+          "w-10 h-10 rounded-[12px] flex items-center justify-center transition-all",
+          isLight ? "bg-black/5" : "bg-white/10"
         )}>
-          <Icon className="w-5 h-5 opacity-70" />
+          <Icon className={cn("w-4 h-4", isLight ? "text-black/70" : "text-white/70")} />
         </div>
         <div className="space-y-0.5">
-          <h4 className={cn("text-[14px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{title}</h4>
-          <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">{description}</p>
+          <h4 className={cn("text-[15px] font-semibold tracking-tight", isLight ? "text-black" : "text-white")}>{title}</h4>
+          <p className={cn("text-[12px] font-medium", isLight ? "text-black/50" : "text-white/50")}>{description}</p>
         </div>
       </div>
       <Switch 
@@ -138,20 +139,20 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
   );
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 pb-12">
       {/* Security Health */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between px-2">
+      <div className="space-y-5 px-1">
+        <div className="flex items-center justify-between">
            <div className="flex items-center gap-3">
               <Shield className="w-4 h-4 text-rose-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-rose-500 italic">Security Status</span>
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-rose-500 italic">Security Status</span>
            </div>
-           <span className={cn("text-xl font-black italic", securityScore() >= 80 ? "text-rose-500" : "text-violet-500")}>
+           <span className={cn("text-xl font-black italic tracking-tight", securityScore() >= 80 ? "text-rose-500" : "text-violet-500")}>
              {securityScore()}% SECURE
            </span>
         </div>
         
-        <div className={cn("w-full h-1.5 rounded-full overflow-hidden", isLight ? "bg-slate-200" : "bg-white/5")}>
+        <div className={cn("w-full h-2 rounded-full overflow-hidden shadow-inner", isLight ? "bg-black/5" : "bg-white/5")}>
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${securityScore()}%` }}
@@ -163,7 +164,10 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className={cn(
+        "rounded-[24px] overflow-hidden border shadow-sm backdrop-blur-2xl",
+        isLight ? "bg-white/80 border-black/5" : "bg-white/[0.03] border-white/10"
+      )}>
         <SettingRow 
           icon={Smartphone} 
           title="2FA Protocol" 
@@ -178,29 +182,27 @@ export function AccountSecurity({ userRole: _userRole }: AccountSecurityProps) {
           description="Neural Intrusion Detection" 
           checked={localSettings.login_alerts}
           onToggle={() => toggleSetting('login_alerts')}
+          isLast
         />
-
+        
         <Button 
           variant="ghost" 
-          className={cn(
-            "w-full h-20 rounded-[2rem] px-6 justify-between transition-all border",
-            isLight ? "bg-slate-50 border-slate-200 hover:bg-slate-100" : "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]"
-          )}
+          className="w-full h-auto py-4 px-5 justify-between transition-colors rounded-none hover:bg-transparent"
           onClick={() => setShowPasswordDialog(true)}
         >
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <div className={cn(
-              "w-12 h-12 rounded-[1rem] flex items-center justify-center transition-all border",
-              isLight ? "bg-white/50 border-slate-200" : "bg-black/50 border-white/5"
+              "w-10 h-10 rounded-[12px] flex items-center justify-center transition-all",
+              isLight ? "bg-black/5" : "bg-white/10"
             )}>
-              <Lock className="w-5 h-5 opacity-70" />
+              <Lock className={cn("w-4 h-4", isLight ? "text-black/70" : "text-white/70")} />
             </div>
             <div className="text-left space-y-0.5">
-              <h4 className={cn("text-[14px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>Access Key</h4>
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">Rotate your security credentials</p>
+              <h4 className={cn("text-[15px] font-semibold tracking-tight", isLight ? "text-black" : "text-white")}>Access Key</h4>
+              <p className={cn("text-[12px] font-medium", isLight ? "text-black/50" : "text-white/50")}>Rotate your security credentials</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 opacity-20" />
+          <ChevronRight className={cn("w-5 h-5", isLight ? "text-black/30" : "text-white/30")} />
         </Button>
       </div>
 
