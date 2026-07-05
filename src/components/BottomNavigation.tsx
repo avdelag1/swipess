@@ -279,7 +279,8 @@ export const BottomNavigation = memo(({
   // Match the header: in light theme use dark icons, in dark theme use light icons
   const useLightIcons = !isLight;
   const baseColor = isLight ? '#000000' : '#ffffff';
-  const inactiveIconColor = isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.6)';
+  // Pure black for inactive icons in light mode so they don't look grey
+  const inactiveIconColor = isLight ? '#000000' : 'rgba(255,255,255,0.6)';
   const { iconShadow } = getHeaderChrome(
     isLight,
     isDashboard,
@@ -444,7 +445,7 @@ export const BottomNavigation = memo(({
                           height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                           fill: 'none',
-                          strokeWidth: active ? 2.25 : 1.8,
+                          strokeWidth: active ? 2.5 : 2.0,
                           filter: getNavIconFilter(item.id, active),
                           transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
