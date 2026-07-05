@@ -367,14 +367,16 @@ export function MessagingDashboard() {
             </div>
          </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10 text-[#EB4898]" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 opacity-40 z-10 text-[#EB4898]" />
             <input 
-              placeholder={getText('search_placeholder', 'SEARCH NAMES...')} 
+              placeholder={getText('search_placeholder', 'Search conversations...')} 
               className={cn(
-                "w-full pl-14 pr-14 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border surface-inset",
-                isLight ? "text-black placeholder:text-black/50 focus:ring-2 focus:ring-[#EB4898]/30 focus:border-[#EB4898]/40" : "text-white placeholder:text-white/20 focus:border-white/10"
+                "w-full pl-12 pr-12 h-14 rounded-2xl text-[14px] outline-none transition-all font-semibold border",
+                isLight
+                  ? "bg-black/[0.04] border-black/5 text-black placeholder:text-black/30 focus:bg-black/[0.06] focus:border-[#EB4898]/30"
+                  : "bg-white/[0.05] border-white/8 text-white placeholder:text-white/20 focus:border-[#EB4898]/30"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -505,10 +507,15 @@ export function MessagingDashboard() {
           ) : isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
+            <div className={cn(
+              "rounded-[24px] overflow-hidden border",
+              isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+            )}>
             <AnimatePresence initial={false}>
-            {filteredConversations.map((conversation) => {
+            {filteredConversations.map((conversation, convIdx) => {
               const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
               const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
+              const isLast = convIdx === filteredConversations.length - 1;
 
               return (
                 <motion.div
@@ -518,14 +525,15 @@ export function MessagingDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.1 }}
+                  className={cn(!isLast && (isLight ? "border-b border-black/4" : "border-b border-white/5"))}
                 >
                   <button 
                     className={cn(
-                      "w-full flex items-center gap-5 p-6 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
-                      selectedChats.has(conversation.id) ? "border-rose-500 bg-rose-500/10" : "",
+                      "w-full flex items-center gap-4 px-5 py-4 text-left transition-colors group relative overflow-hidden",
+                      selectedChats.has(conversation.id) ? "bg-rose-500/10" : "",
                       isUnread && !selectedChats.has(conversation.id)
-                        ? "surface-row surface-row--active"
-                        : (!selectedChats.has(conversation.id) ? "surface-row hover:shadow-[var(--elev-3)]" : "")
+                        ? (isLight ? "bg-[#EB4898]/[0.03]" : "bg-[#EB4898]/[0.04]")
+                        : (!selectedChats.has(conversation.id) ? (isLight ? "hover:bg-black/[0.02]" : "hover:bg-white/[0.02]") : "")
                     )} 
                     onClick={() => {
                       triggerHaptic('medium');
@@ -624,6 +632,7 @@ export function MessagingDashboard() {
               );
             })}
             </AnimatePresence>
+            </div>
           ) : (
             <motion.div
               initial={{ opacity: 0 }}
