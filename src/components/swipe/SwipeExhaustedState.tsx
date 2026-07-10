@@ -57,22 +57,40 @@ export const SwipeExhaustedState = ({
   const allCategories = role === 'owner' ? ownerCategories : clientCategories;
   const categories = allCategories.filter((c) => c.id !== activeCategory);
 
-  const headingColor = isLight ? 'text-black' : 'text-white';
-  const subColor = isLight ? 'text-black/60' : 'text-white/60';
-  const sectionLabelColor = isLight ? 'text-black/50' : 'text-white/55';
-  const filterBtnClass = isLight
-    ? 'bg-black text-white border-black hover:bg-black/90 shadow-md'
-    : 'bg-white text-slate-900 border-white hover:bg-white/90';
-  const categoryBtnClass = isLight
-    ? 'bg-black text-white border-black hover:bg-black/90 shadow-md'
-    : 'bg-white/[0.12] text-white border-white/30 hover:bg-white/[0.18]';
+  // ── Inline style tokens ─────────────────────────────────────────────────────
+  // We use inline styles instead of Tailwind text-color classes here because
+  // index.css has a global `.white-matte .text-white { color: #111 !important }`
+  // rule that turns white button text invisible when the app is in light theme.
+  // Inline styles win the cascade over class-based !important overrides.
+  const bgColor          = isLight ? '#ffffff' : '#0a0a0c';
+  const borderColor      = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
+  const headingColor     = isLight ? '#000000' : '#ffffff';
+  const subColor         = isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)';
+  const sectionLabel     = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.5)';
+  const radiusCardBg     = isLight ? '#f8f9fa' : 'rgba(255,255,255,0.06)';
+  const radiusCardBorder = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.15)';
+
+  // Action buttons — always high-contrast regardless of theme
+  const actionBtnStyle: React.CSSProperties = isLight
+    ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
+    : { backgroundColor: 'rgba(255,255,255,0.12)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.3)' };
+
+  const filterBtnStyle: React.CSSProperties = isLight
+    ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
+    : { backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: '#ffffff' };
+
+  const mapBtnStyle: React.CSSProperties = isLight
+    ? { backgroundColor: '#4f46e5', color: '#ffffff', borderColor: '#4f46e5' }
+    : { backgroundColor: '#6366f1', color: '#ffffff', borderColor: '#6366f1' };
+
+  const backBtnStyle: React.CSSProperties = isLight
+    ? { backgroundColor: '#f1f5f9', color: '#000000' }
+    : { backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff' };
 
   return (
     <div
-      className={cn(
-        'relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border',
-        isLight ? 'bg-white border-black/10' : 'bg-[#0a0a0c] border-white/10'
-      )}
+      style={{ backgroundColor: bgColor, borderColor }}
+      className="relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border"
     >
       {/* Top Left Back Button */}
       {onBack && (
@@ -81,10 +99,8 @@ export const SwipeExhaustedState = ({
             triggerHaptic('light');
             onBack();
           }}
-          className={cn(
-            "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90",
-            isLight ? "bg-slate-100 text-black hover:bg-slate-200" : "bg-white/10 text-white hover:bg-white/20"
-          )}
+          style={backBtnStyle}
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90"
           aria-label="Go back to dashboard"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 opacity-90"><path d="m15 18-6-6 6-6"/></svg>
@@ -94,10 +110,10 @@ export const SwipeExhaustedState = ({
       <div className="flex flex-col items-center text-center w-full max-w-md gap-7 relative z-10">
         {/* Headline */}
         <div className="space-y-2">
-          <h2 className={cn('text-[26px] sm:text-[30px] font-black tracking-tight leading-tight', headingColor)}>
+          <h2 style={{ color: headingColor }} className="text-[26px] sm:text-[30px] font-black tracking-tight leading-tight">
             {isLoading ? t('deck.exhausted.scanning') : t('deck.exhausted.noNearby', { category: categoryName })}
           </h2>
-          <p className={cn('text-[11px] font-bold uppercase tracking-[0.22em]', subColor)}>
+          <p style={{ color: subColor }} className="text-[11px] font-bold uppercase tracking-[0.22em]">
             {isLoading ? t('deck.exhausted.initializing') : t('deck.exhausted.adjustRadius')}
           </p>
         </div>
@@ -105,12 +121,8 @@ export const SwipeExhaustedState = ({
         {/* Radius card */}
         {onRadiusChange && onDetectLocation && (
           <div
-            className={cn(
-              'w-full rounded-[2.25rem] p-5 pt-6 relative',
-              isLight
-                ? 'bg-[#f8f9fa] border border-black/5 shadow-sm'
-                : 'bg-white/[0.06] border border-white/15'
-            )}
+            style={{ backgroundColor: radiusCardBg, borderColor: radiusCardBorder }}
+            className="w-full rounded-[2.25rem] p-5 pt-6 relative border"
           >
             {/* Filter pill — top-right, isolated */}
             {onOpenFilters && (
@@ -119,18 +131,16 @@ export const SwipeExhaustedState = ({
                   triggerHaptic('light');
                   onOpenFilters();
                 }}
-                className={cn(
-                  'absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-90',
-                  filterBtnClass
-                )}
+                style={filterBtnStyle}
+                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-90"
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal className="w-4 h-4" />
+                <SlidersHorizontal style={{ color: filterBtnStyle.color }} className="w-4 h-4" />
               </button>
             )}
 
-            <div className={cn('flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] mb-3', sectionLabelColor)}>
+            <div style={{ color: sectionLabel }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em] mb-3">
               <MapPin className="w-3.5 h-3.5" />
               <span>{t('deck.exhausted.searchRadius')}</span>
             </div>
@@ -143,7 +153,7 @@ export const SwipeExhaustedState = ({
               detected={detected}
             />
 
-            <p className={cn('text-[11px] font-semibold mt-4', subColor)}>
+            <p style={{ color: subColor }} className="text-[11px] font-semibold mt-4">
               {t('deck.exhausted.moveSlider')}
             </p>
           </div>
@@ -155,14 +165,10 @@ export const SwipeExhaustedState = ({
               triggerHaptic('heavy');
               onOpenMap();
             }}
-            className={cn(
-              'w-full min-h-12 py-3 px-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 border flex items-center justify-center gap-2',
-              isLight
-                ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700'
-                : 'bg-indigo-500 text-white border-indigo-500 hover:bg-indigo-600'
-            )}
+            style={mapBtnStyle}
+            className="w-full min-h-12 py-3 px-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 border flex items-center justify-center gap-2"
           >
-            <Map className="w-4 h-4" />
+            <Map style={{ color: mapBtnStyle.color }} className="w-4 h-4" />
             {t('deck.exhausted.exploreMap')}
           </button>
         )}
@@ -170,7 +176,7 @@ export const SwipeExhaustedState = ({
         {/* Category switcher */}
         {onCategoryChange && categories.length > 0 && (
           <div className="w-full space-y-3">
-            <p className={cn('text-[10px] font-black uppercase tracking-[0.22em]', sectionLabelColor)}>
+            <p style={{ color: sectionLabel }} className="text-[10px] font-black uppercase tracking-[0.22em]">
               {t('deck.exhausted.orTry')}
             </p>
             <div className={cn('grid gap-2', categories.length >= 3 ? 'grid-cols-3' : categories.length === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
@@ -181,10 +187,8 @@ export const SwipeExhaustedState = ({
                     triggerHaptic('medium');
                     onCategoryChange(cat.id);
                   }}
-                  className={cn(
-                    'min-h-12 py-2.5 px-3 rounded-full text-[11px] font-black uppercase tracking-[0.12em] transition-all active:scale-95 border',
-                    categoryBtnClass
-                  )}
+                  style={actionBtnStyle}
+                  className="min-h-12 py-2.5 px-3 rounded-full text-[11px] font-black uppercase tracking-[0.12em] transition-all active:scale-95 border"
                 >
                   {cat.label}
                 </button>
