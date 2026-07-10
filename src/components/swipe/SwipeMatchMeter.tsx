@@ -71,7 +71,7 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
         }}
       >
         <span style={{ color }}>{icon}</span>
-        <span className="text-[11px] font-black text-white tabular-nums">{percentage}%</span>
+        <span style={{ color: '#ffffff' }} className="text-[11px] font-black tabular-nums">{percentage}%</span>
       </motion.div>
     );
   }
@@ -95,7 +95,7 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
             backgroundColor: 'rgba(0, 0, 0, 0.82)',
           }}
         >
-          <span className="text-[10px] font-black text-white tabular-nums">{percentage}</span>
+          <span style={{ color: '#ffffff' }} className="text-[10px] font-black tabular-nums">{percentage}</span>
         </div>
       </div>
 

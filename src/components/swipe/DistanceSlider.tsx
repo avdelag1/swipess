@@ -118,7 +118,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             )}
           </button>
           <div className="flex flex-col">
-            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1", dark ? "text-white/55" : "text-muted-foreground")}>Scanning</span>
+            <span style={{ color: dark ? 'rgba(255,255,255,0.55)' : undefined }} className={cn("text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1", !dark && "text-muted-foreground")}>Scanning</span>
             <span className="text-xs font-black text-primary leading-none uppercase italic tracking-wider">
               {activeCategory === 'all-clients' ? 'Everyone' :
                activeCategory === 'buyers' ? 'Buyers' :
@@ -130,7 +130,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         </div>
         <div className="flex items-center gap-2">
           <div className="px-2.5 py-1 rounded-full flex items-center justify-center">
-            <span className={cn("text-sm font-black tracking-tight", dark ? "text-primary" : "text-black")}>
+            <span style={{ color: dark ? undefined : '#000000' }} className={cn("text-sm font-black tracking-tight", dark && "text-primary")}>
               {localKm} <span className="text-[10px] opacity-60 italic">km</span>
             </span>
           </div>
@@ -147,7 +147,14 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
         {/* Track - Pure Glass Morphic with Liquid Highlight */}
-         <div className="absolute left-[3%] right-[3%] h-2 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+         <div
+           className={cn(
+             "absolute left-[3%] right-[3%] h-2 rounded-full overflow-hidden",
+             dark
+               ? "bg-white/5 backdrop-blur-3xl border border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
+               : "bg-black/[0.06] border border-black/[0.08] shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)]"
+           )}
+         >
            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10" />
          </div>
         
@@ -197,8 +204,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
       </motion.div>
       
       <div className="flex justify-between mt-2 px-1">
-        <span className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", dark ? "text-white/40" : "text-muted-foreground/40")}>Local</span>
-        <span className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", dark ? "text-white/40" : "text-muted-foreground/40")}>100 km+</span>
+        <span style={{ color: dark ? 'rgba(255,255,255,0.4)' : undefined }} className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", !dark && "text-muted-foreground/60")}>Local</span>
+        <span style={{ color: dark ? 'rgba(255,255,255,0.4)' : undefined }} className={cn("text-[9px] font-bold uppercase tracking-[0.3em]", !dark && "text-muted-foreground/60")}>100 km+</span>
       </div>
     </motion.div>
   );

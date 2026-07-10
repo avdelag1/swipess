@@ -1124,7 +1124,7 @@ export const PassportMapModal = memo(() => {
   return (
     <motion.div
       className={cn(
-        'fixed inset-0 z-[10025] overflow-hidden will-change-transform gpu-ultra',
+        'force-white fixed inset-0 z-[10025] overflow-hidden will-change-transform gpu-ultra',
         !isOpen && 'pointer-events-none',
       )}
       role="dialog"
