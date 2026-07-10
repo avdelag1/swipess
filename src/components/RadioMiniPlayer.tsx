@@ -175,39 +175,41 @@ function RadioMiniPlayerInner() {
             </div>
 
             {/* Station info — animated crossfade on station change */}
-            <AnimatePresence mode="popLayout">
-              <m.button
-                key={station.id}
-                onClick={handleNavigate}
-                className="flex items-center gap-4 px-4 pb-4 w-full text-left active:opacity-80"
-                initial={{ opacity: 0, x: 30, scale: 0.95 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -30, scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              >
-                <m.div
-                  className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl flex-shrink-0"
-                  initial={{ rotate: -8, scale: 0.85 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 22, delay: 0.05 }}
+            <div className="relative h-[72px] w-full mb-1">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <m.button
+                  key={station.id}
+                  onClick={handleNavigate}
+                  className="absolute inset-0 flex items-center gap-4 px-4 pb-4 w-full text-left active:opacity-80"
+                  initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -15, filter: 'blur(4px)' }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                 >
-                  {station.albumArt ? (
-                    <img src={station.albumArt} alt={station.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-slate-50" : "bg-primary/20")}>
-                      <Radio className="w-6 h-6 text-primary" />
-                    </div>
-                  )}
-                </m.div>
-                <div className="flex-1 min-w-0">
-                  <p className={cn("text-[15px] font-black truncate", isLight ? "text-black" : "text-white")}>{station.name}</p>
-                  <p className={cn("text-[11px] font-bold truncate uppercase tracking-widest mt-0.5", isLight ? "text-primary/60" : "text-blue-400/60")}>
-                    {station.frequency} · {station.genre || 'LIVE'}
-                  </p>
-                </div>
-                {state.isPlaying && <div className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />}
-              </m.button>
-            </AnimatePresence>
+                  <m.div
+                    className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl flex-shrink-0"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 22, delay: 0.05 }}
+                  >
+                    {station.albumArt ? (
+                      <img src={station.albumArt} alt={station.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className={cn("w-full h-full flex items-center justify-center", isLight ? "bg-slate-50" : "bg-primary/20")}>
+                        <Radio className="w-6 h-6 text-primary" />
+                      </div>
+                    )}
+                  </m.div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-[15px] font-black truncate", isLight ? "text-black" : "text-white")}>{station.name}</p>
+                    <p className={cn("text-[11px] font-bold truncate uppercase tracking-widest mt-0.5", isLight ? "text-primary/60" : "text-blue-400/60")}>
+                      {station.frequency} · {station.genre || 'LIVE'}
+                    </p>
+                  </div>
+                  {state.isPlaying && <div className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />}
+                </m.button>
+              </AnimatePresence>
+            </div>
 
             {/* Controls */}
             <div className="px-4 pb-5 pt-1 flex flex-col gap-3">
