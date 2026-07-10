@@ -334,7 +334,6 @@ export function useSmartClientMatching(
         queryKey: ['smart-clients', userId, _category, page, isRefreshMode, filtersKey, isRoommateSection],
         staleTime: 2 * 60 * 1000,
         gcTime: 15 * 60 * 1000,
-        placeholderData: (prev: any) => prev,
         queryFn: async () => {
             if (!userId) return [] as MatchedClientProfile[];
 

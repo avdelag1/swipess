@@ -340,7 +340,6 @@ export function useSmartListingMatching(
         queryKey: queryKey,
         staleTime: 2 * 60 * 1000, // 2 minutes
         gcTime: 15 * 60 * 1000,
-        placeholderData: (prev: any) => prev,
         queryFn: async () => {
             if (!userId) return [];
 
