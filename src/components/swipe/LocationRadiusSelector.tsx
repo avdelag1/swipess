@@ -147,18 +147,18 @@ export const LocationRadiusSelector = memo(({
 
   if (orientation === 'vertical') {
     return (
-      <div className="flex flex-col items-center gap-2 w-[52px]" style={{ pointerEvents: 'auto' }}>
+      <div className="flex flex-col items-center gap-2 w-auto" style={{ pointerEvents: 'auto' }}>
         <button
           type="button"
           data-skip-press-engine
           onClick={toggleExpand}
           className={cn(
-            "w-[52px] h-[52px] flex flex-col items-center justify-center rounded-full border shadow-[0_4px_12px_rgba(0,0,0,0.3)]",
-            "deck-hud-solid border-white/20 text-white gap-0.5 tap-css-only"
+            "h-[38px] px-4 flex items-center justify-center rounded-full border shadow-xl backdrop-blur-2xl transition-transform active:scale-95",
+            "bg-black/30 dark:bg-white/10 border-white/20 text-white gap-1.5 tap-css-only"
           )}
         >
-          <MapPin className="w-5 h-5 opacity-90" strokeWidth={2.2} />
-          <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">{radiusKm}km</span>
+          <MapPin className="w-3.5 h-3.5 opacity-90" strokeWidth={2.5} />
+          <span className="text-[11px] font-black uppercase tracking-widest leading-none pt-0.5">{radiusKm}km Radius</span>
         </button>
         
         {renderExpandedPanel()}

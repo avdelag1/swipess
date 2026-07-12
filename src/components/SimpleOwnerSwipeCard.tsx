@@ -124,8 +124,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const cardOpacity = useTransform([x, y] as any, () => 1);
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
-  const rotate = useTransform(x, [-800, 800], [-25, 25]);
+  const rotate = useTransform(x, [-800, 800], [-15, 15]); // reduced flat rotation for 3D realism
+  const rotateX = useTransform(y, [-800, 800], [20, -20]); // 3D tilt up/down
+  const rotateY = useTransform(x, [-800, 800], [-20, 20]); // 3D tilt left/right
   const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
+
+  const dynamicBoxShadow = useTransform(
+    x,
+    [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD],
+    [
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(239,68,68,0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 0px rgba(0,0,0,0), inset 0 1px 0 rgba(255,255,255,0.1)',
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.1)'
+    ]
+  );
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -340,14 +352,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         className={cn("swipe-live-card flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
-          x, y, rotate: isTop ? rotate : 0, scale: isTop ? scale : 0.95, opacity: isTop ? cardOpacity : 0.6,
-          willChange: 'transform, opacity',
+          x, y,
+          rotate: isTop ? rotate : 0,
+          rotateX: isTop ? rotateX : 0,
+          rotateY: isTop ? rotateY : 0,
+          scale: isTop ? scale : 0.95,
+          opacity: isTop ? cardOpacity : 0.6,
+          willChange: 'transform, opacity, box-shadow',
           transform: 'translate3d(0,0,0)',
-          transformOrigin: '50% 120%',
+          transformStyle: 'preserve-3d',
+          transformOrigin: 'center center',
           backfaceVisibility: 'hidden',
           borderRadius: fullScreen ? 0 : 48,
           boxShadow: isTop
-            ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+            ? dynamicBoxShadow
             : '0 4px 10px rgba(0,0,0,0.1)',
           background: 'hsl(var(--swipe-deck-frame))',
         }}
