@@ -169,7 +169,7 @@ export const EventCard = memo(({
               className={cn('w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]', liked && 'border-rose-500/50')}
             />
 
-            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-2 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
               {[
                 { icon: Eye, onClick: handleInsights, label: 'Insights' },
                 { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },

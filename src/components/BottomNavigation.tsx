@@ -332,8 +332,8 @@ export const BottomNavigation = memo(({
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
           "px-2 py-1.5 border",
-          "bg-white/95 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
-          "dark:bg-black dark:border-white/10 dark:shadow-none"
+          "bg-white/90 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
+          "dark:bg-white/5 dark:backdrop-blur-3xl dark:border-white/15 dark:shadow-[0_16px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12)]"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}

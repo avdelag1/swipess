@@ -1,3 +1,4 @@
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
@@ -94,18 +95,41 @@ export const SwipeExhaustedState = ({
       style={{ backgroundColor: bgColor, borderColor }}
       className="relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border"
     >
-      {/* Top Left Back Button */}
+      {/* ── Animated radar rings background ─────────────────────────────── */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-[2.5rem]">
+        {/* Pulsing concentric rings */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              'absolute w-40 h-40 rounded-full border-2',
+              i === 0 ? 'animate-radar-ring' : i === 1 ? 'animate-radar-ring-2' : 'animate-radar-ring-3'
+            )}
+            style={{
+              borderColor: isLight ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.4)',
+            }}
+          />
+        ))}
+        {/* Centre dot */}
+        <div
+          className="absolute w-3 h-3 rounded-full animate-radar-pulse"
+          style={{ background: isLight ? '#6366f1' : '#818cf8', boxShadow: '0 0 12px 4px rgba(99,102,241,0.6)' }}
+        />
+      </div>
+
+      {/* Top Left Back Button — Glass */}
       {onBack && (
         <button
           onClick={() => {
             triggerHaptic('light');
             onBack();
           }}
-          style={backBtnStyle}
-          className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90"
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-11 h-11 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] transition-all duration-300 active:scale-85"
           aria-label="Go back to dashboard"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 opacity-90"><path d="m15 18-6-6 6-6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
         </button>
       )}
 
@@ -126,19 +150,18 @@ export const SwipeExhaustedState = ({
             style={{ backgroundColor: radiusCardBg, borderColor: radiusCardBorder }}
             className="w-full rounded-[2.25rem] p-5 pt-6 relative border"
           >
-            {/* Filter pill — top-right, isolated */}
+            {/* Filter pill — top-right, glass */}
             {onOpenFilters && (
               <button
                 onClick={() => {
                   triggerHaptic('light');
                   onOpenFilters();
                 }}
-                style={filterBtnStyle}
-                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-90"
+                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 active:scale-85"
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal style={{ color: filterBtnStyle.color }} className="w-4 h-4" />
+                <SlidersHorizontal className="w-4 h-4 text-white" />
               </button>
             )}
 
