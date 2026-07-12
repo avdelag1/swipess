@@ -367,8 +367,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed: _isCol
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-opacity duration-100 hover:opacity-95 active:opacity-85 text-black shadow-[0_18px_40px_rgba(0,0,0,0.35)] ring-1 ring-white/40"
-                style={{ background: 'rgba(255,255,255,0.98)' }}
+                className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-black uppercase italic tracking-widest transition-all duration-300 active:scale-90 text-white shadow-[0_18px_40px_rgba(0,0,0,0.5)] border border-white/25"
+                style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.10) 100%)', backdropFilter: 'blur(20px) saturate(1.8)', WebkitBackdropFilter: 'blur(20px) saturate(1.8)' }}
                 aria-label="Engage Discovery"
               >
                 {card.icon && <card.icon className="w-5 h-5" />}

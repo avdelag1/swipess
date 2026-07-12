@@ -439,16 +439,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <GestureHints hidden={isZoomed} />
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity, scale: likeOpacity }}>
-          <div className="flex flex-col items-center gap-1.5">
-             <div className="px-5 py-2.5 rounded-2xl border-2 border-orange-500/80 bg-orange-500/20">
-               <span className="font-black text-4xl text-white  tracking-tighter whitespace-nowrap">I LIKE IT</span>
-             </div>
+          <div className="px-6 py-3 rounded-2xl border-[3px] border-emerald-400 relative overflow-hidden"
+            style={{ background: 'rgba(16,185,129,0.18)', boxShadow: '0 0 40px rgba(16,185,129,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
+            <span className="font-black text-4xl tracking-tighter whitespace-nowrap relative z-10"
+              style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>I LIKE IT</span>
           </div>
         </motion.div>
 
         <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity, scale: passOpacity }}>
-          <div className="px-5 py-2.5 rounded-2xl border-2 border-rose-500/80 bg-rose-500/20">
-            <span className="font-black text-4xl text-white  tracking-tighter">NOPE</span>
+          <div className="px-6 py-3 rounded-2xl border-[3px] border-rose-400 relative overflow-hidden"
+            style={{ background: 'rgba(244,63,94,0.18)', boxShadow: '0 0 40px rgba(244,63,94,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
+            <span className="font-black text-4xl tracking-tighter relative z-10"
+              style={{ color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>NOPE</span>
           </div>
         </motion.div>
 

@@ -86,8 +86,8 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
     >
       {/* Radial ring */}
       <div
-        className="relative w-10 h-10 rounded-full flex items-center justify-center"
-        style={ringStyle}
+        className="relative w-10 h-10 rounded-full flex items-center justify-center animate-pulse"
+        style={{ ...ringStyle, boxShadow: `0 0 16px ${bgGlow}, 0 0 4px ${color}60`, animationDuration: '3s' }}
       >
         <div
           className="absolute inset-[2px] rounded-full flex items-center justify-center"
