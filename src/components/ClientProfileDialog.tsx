@@ -308,18 +308,18 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-border bg-background text-foreground shadow-[0_0_80px_hsl(var(--background)/0.95)]")}>
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border/50 bg-background/90 backdrop-blur-3xl text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-white/10 bg-background/80 backdrop-blur-[48px] text-foreground shadow-[0_0_80px_rgba(0,0,0,0.95)]")}>
         
         <div
           aria-hidden
           className={cn(
-            'ambient-page-bg pointer-events-none absolute inset-0',
+            'ambient-page-bg pointer-events-none absolute inset-0 opacity-50',
             isLight ? 'ambient-page-bg--light' : 'ambient-page-bg--dark',
           )}
         />
 
         {/* Header with step indicator */}
-        <div className={cn("relative px-6 pt-6 pb-4 border-b z-10 shrink-0", isLight ? "border-border bg-gradient-to-b from-muted/50 to-transparent" : "border-border bg-gradient-to-b from-foreground/[0.04] to-transparent")}>
+        <div className={cn("relative px-6 pt-6 pb-4 border-b z-10 shrink-0", isLight ? "border-border/50 bg-white/40 backdrop-blur-xl" : "border-white/10 bg-black/40 backdrop-blur-xl")}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
@@ -649,7 +649,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         </div>
 
         {/* Footer — step navigation */}
-        <div className={cn("px-6 py-4 border-t flex items-center justify-between gap-3 z-10 relative shrink-0", isLight ? "border-border bg-gradient-to-t from-muted/40 to-transparent" : "border-border bg-gradient-to-t from-foreground/[0.04] to-transparent")}>
+        <div className={cn("px-6 py-4 border-t flex items-center justify-between gap-3 z-10 relative shrink-0", isLight ? "border-border/50 bg-white/60 backdrop-blur-2xl" : "border-white/10 bg-black/60 backdrop-blur-2xl")}>
           <Button
             variant="ghost"
             onClick={currentStep === 1 ? () => handleOpenChange(false) : goBack}
