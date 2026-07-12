@@ -558,7 +558,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             >
               {(listing as any).isPriceDrop && (
                 <div className="mb-1.5 animate-in fade-in slide-in-from-bottom-1">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white bg-gradient-to-r from-rose-500 to-orange-500 shadow-[0_2px_10px_rgba(244,63,94,0.4)]">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white bg-gradient-to-r from-rose-500 via-orange-400 to-rose-500 bg-[length:200%_auto] animate-shimmer shadow-[0_2px_10px_rgba(244,63,94,0.4)]">
                     🔥 Price Dropped
                   </span>
                 </div>
@@ -681,10 +681,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               tone="onPhoto"
               size="lg"
               guardSwipe
-              className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+              className="w-[58px] h-[58px] shadow-[0_16px_48px_rgba(0,0,0,0.5)] bg-black/30 backdrop-blur-3xl border border-white/30 active:scale-90 transition-all duration-300"
             />
 
-            <div className="flex flex-col gap-1 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-1 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
               {[
                 { glyph: 'AI', onClick: () => useModalStore.getState().openAIChat(), label: 'AI Chat' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
@@ -700,12 +700,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   data-no-cinematic=""
                   onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic('light'); btn.onClick?.(); }}
-                  className="flex items-center justify-center w-[44px] h-[44px] rounded-full bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
+                  className="flex items-center justify-center w-[46px] h-[46px] rounded-[1.25rem] bg-transparent text-white hover:bg-white/10 active:scale-85 active:bg-white/20 transition-all duration-300"
                 >
                   {btn.glyph ? (
                     <span className="text-[15px] font-black tracking-tight leading-none">{btn.glyph}</span>
                   ) : btn.icon ? (
-                    <btn.icon size={20} strokeWidth={1.8} aria-hidden="true" />
+                    <btn.icon size={20} strokeWidth={2} aria-hidden="true" />
                   ) : null}
                 </button>
               ))}
