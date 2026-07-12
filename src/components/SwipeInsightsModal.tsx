@@ -371,6 +371,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
               style={{
                 background: 'rgba(24, 24, 28, 0.55)',
                 border: '1px solid rgba(255, 255, 255, 0.20)',
+                backdropFilter: 'blur(32px) saturate(1.8)',
+                WebkitBackdropFilter: 'blur(32px) saturate(1.8)',
                 boxShadow: '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}
             >
