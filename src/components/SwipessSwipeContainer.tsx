@@ -312,6 +312,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       resetUndoState();
       logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [undoSuccess, resetUndoState]);
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
@@ -326,6 +327,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const stableFilters = useMemo(() => {
     const state = useFilterStore.getState();
     return state.getListingFilters() as ListingFilters;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion]);
 
   const filterSignature = useMemo(() => {
@@ -394,6 +396,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     try { sessionStorage.setItem('swipe-deck-client-user', user.id); } catch (_err) { logger.warn('session storage error', _err); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
   // Clear deck refs before paint when filters change — avoids old card photo flash.
@@ -641,6 +644,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     isFetchingMore.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   const isFilterChanging = filterSignature !== prevFilterSignatureRef.current;
@@ -735,6 +739,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         imagePreloadController.preloadBatch(batch);
       }
     }, 200);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error, dataType, user?.id]);
 
   const executeSwipe = useCallback((direction: 'left' | 'right') => {
@@ -751,6 +756,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     swipeDirectionRef.current = direction;
 
     flushPendingSwipe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flushPendingSwipe, playSwipeSound]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
@@ -782,6 +788,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     } else {
       setTimeout(runPrefetch, 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [executeSwipe, playSwipeSound]);
 
   const handleInsights = () => {

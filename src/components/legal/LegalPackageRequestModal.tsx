@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, Scale as ScaleIcon, Send, X, Clock, Sparkles } from 'lucide-react';
+import { CheckCircle2, Clock, Scale as ScaleIcon, Send, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,10 +12,10 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import {
-  LegalPackage, categoryMeta, formatPrice, formatDuration,
+  categoryMeta, formatDuration, formatPrice, LegalPackage,
 } from '@/data/legalPackages';
 import {
-  submitLegalPackageRequest, fetchProfilePrefill, LegalRequestPayload,
+  fetchProfilePrefill, LegalRequestPayload, submitLegalPackageRequest,
 } from '@/hooks/useLegalPackages';
 
 interface LegalPackageRequestModalProps {

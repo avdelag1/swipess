@@ -739,6 +739,7 @@ const ClientSwipeContainerComponent = ({
       isFetchingMore.current = true;
       setPage(p => p + 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget, topCardX, error]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {

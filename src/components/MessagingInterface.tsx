@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Search, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { appToast } from '@/utils/appNotification';
@@ -30,7 +30,7 @@ import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
-import { useBlockUser, useUnblockUser, useBlockedUsers } from '@/hooks/useBlocking';
+import { useBlockedUsers, useBlockUser, useUnblockUser } from '@/hooks/useBlocking';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import {
@@ -78,7 +78,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
+  const [_showBlockConfirm, _setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [showChatInfo, setShowChatInfo] = useState(false);
@@ -104,7 +104,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { data: messages = [], isLoading, isError, error, refetch: refetchMessages } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
-  const blockUser = useBlockUser();
+  const _blockUser = useBlockUser();
   const unblock = useUnblockUser();
   const { data: blockedList = [] } = useBlockedUsers();
   // True when *I* have blocked the person in this chat — listings stay visible,

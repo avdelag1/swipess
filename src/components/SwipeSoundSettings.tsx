@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { appToast } from '@/utils/appNotification';
-import { Vibrate, Volume2, VolumeX, Activity } from "lucide-react";
+import { Activity, Vibrate, Volume2, VolumeX } from "lucide-react";
 import { logger } from '@/utils/prodLogger';
-import { getHapticLevel, setHapticLevel, HapticLevel, triggerHaptic } from "@/utils/haptics";
+import { getHapticLevel, HapticLevel, setHapticLevel, triggerHaptic } from "@/utils/haptics";
 import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 const isNative = Capacitor.isNativePlatform();
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isAndroid = /android/i.test(navigator.userAgent);
-const supportsWebVibration = 'vibrate' in navigator;
+const _supportsWebVibration = 'vibrate' in navigator;
 
 export function SwipeSoundSettings() {
   const [soundsEnabled, setSoundsEnabled] = useState(true);

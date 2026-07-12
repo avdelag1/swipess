@@ -30,6 +30,7 @@ import { logger } from '@/utils/prodLogger';
 import { useTranslation } from 'react-i18next';
 import { validateImageFile } from '@/utils/fileValidation';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
+import { WizardWelcomeScreen } from './WizardWelcomeScreen';
 
 const AI_MAX_PHOTOS: Record<string, number> = {
   property: 30,
@@ -43,7 +44,7 @@ function photoFileKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-type WizardStep = 'compose' | 'processing';
+type WizardStep = 'welcome' | 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
 
 const CATEGORIES = [
@@ -207,6 +208,11 @@ export function AIListingWizard() {
     } else if (aiListingCategory) {
       setCategory(aiListingCategory);
       setStep('compose');
+    } else {
+      // Show welcome screen only on first-ever open (no draft/category deep-link)
+      const hasSeen = localStorage.getItem('hasSeenListingWelcome');
+      if (!hasSeen) setStep('welcome');
+      else setStep('compose');
     }
   }, [aiListingCategory, aiListingDraft]);
 
@@ -547,6 +553,18 @@ export function AIListingWizard() {
               <div className="absolute bottom-[-12%] right-[-12%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#6366F1]/10 blur-[100px] rounded-full mix-blend-screen" />
             </div>
 
+            <AnimatePresence>
+              {step === 'welcome' && (
+                <WizardWelcomeScreen
+                  title="AI Listing Builder"
+                  description="Snap a photo, say a sentence — and our AI will craft a stunning listing that sells in seconds."
+                  onContinue={() => {
+                    localStorage.setItem('hasSeenListingWelcome', 'true');
+                    setStep('compose');
+                  }}
+                />
+              )}
+            </AnimatePresence>
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25 shadow-inner">

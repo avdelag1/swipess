@@ -226,6 +226,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
     } finally {
       setSaving(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, bio, occupation, city, country, nationality, yearsInCity, languages, interests, displayName, age, profileImages, saveClient, saveVapCard]);
 
   const handleClose = useCallback(() => {

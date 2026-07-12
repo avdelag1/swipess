@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '@/utils/prodLogger';
-import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface PullToRefreshOptions {
@@ -26,7 +25,7 @@ export function usePullToRefresh({
   onRefresh,
   disabled = false,
 }: PullToRefreshOptions = {}) {
-  const queryClient = useQueryClient();
+
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const startY = useRef(0);
@@ -62,7 +61,7 @@ export function usePullToRefresh({
       pullDistanceRef.current = 0;
       setPullDistance(0);
     }
-  }, [queryClient, onRefresh]);
+  }, [onRefresh]);
 
   useEffect(() => {
     if (disabled) {

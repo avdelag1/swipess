@@ -29,7 +29,7 @@ export function getHeaderIconFilter(
 }
 
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons. */
-export function getHeaderChrome(isLight: boolean, isDashboard = false) {
+export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
   // The header buttons should always match the bottom nav bar.
   // In light theme, they use a crisp white pill with dark icons.
   // In dark theme, they use a dark pill with white icons.

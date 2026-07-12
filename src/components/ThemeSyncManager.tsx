@@ -45,7 +45,8 @@ export function ThemeSyncManager() {
     };
     
     loadUserTheme();
-  }, [user?.id, loading, theme, setTheme]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, loading, theme]);
 
   // SAVE to DB when theme changes
   const lastSavedThemeRef = useRef(theme);

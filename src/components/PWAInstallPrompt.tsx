@@ -70,6 +70,7 @@ export function PWAInstallPrompt() {
       const t = (handler as { _t?: ReturnType<typeof setTimeout> })._t;
       if (t) clearTimeout(t);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInstall = useCallback(async () => {

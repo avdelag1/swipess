@@ -719,7 +719,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     signIn,
     signInWithOAuth,
     signOut
-  }), [user, session, loading, initialized, signUp, signIn, signInWithOAuth, signOut]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [user, session, loading, initialized]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

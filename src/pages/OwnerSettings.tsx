@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 // import { } from "@/components/ui/badge";
 import {
   Building2, ChevronRight, FileText, Globe, HelpCircle,
-  Info, MessageSquarePlus, Scale as ScaleIcon, Shield, Volume2
+  Info, Scale as ScaleIcon, Shield, Volume2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,7 +14,7 @@ import { BlockedUsersSection } from "@/components/BlockedUsersSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { FeedbackSection } from "@/components/FeedbackSection";
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SwipessLogo } from "@/components/SwipessLogo";

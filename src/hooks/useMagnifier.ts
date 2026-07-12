@@ -206,6 +206,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
         imageRef.current.style.transition = 'none';
       }
     }, 200);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applyZoomPan, findImage, onActiveChange]);
 
   const deactivateMagnifier = useCallback(() => {

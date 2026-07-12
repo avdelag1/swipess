@@ -20,6 +20,34 @@ interface DBNotification {
   metadata: any;
 }
 
+// Map database notification types to frontend types
+const notificationTypeMap: Record<string, NotificationType> = {
+  'new_like': 'like',
+  'new_match': 'match',
+  'new_message': 'message',
+  'new_review': 'like',
+  'property_inquiry': 'message',
+  'contract_signed': 'like',
+  'contract_pending': 'like',
+  'payment_received': 'premium_purchase',
+  'profile_viewed': 'like',
+  'system_announcement': 'like',
+  'verification_approved': 'like',
+  'subscription_expiring': 'premium_purchase',
+};
+
+const titleMap: Record<string, string> = {
+  'new_like': 'New Like',
+  'new_match': 'It\'s a Match!',
+  'new_message': 'New Message',
+  'new_review': 'New Review',
+  'property_inquiry': 'Property Inquiry',
+  'contract_signed': 'Contract Signed',
+  'payment_received': 'Payment Received',
+  'profile_viewed': 'Profile Viewed',
+  'system_announcement': 'Announcement',
+};
+
 export function useNotificationSystem() {
   const { 
     notifications, 
@@ -32,34 +60,6 @@ export function useNotificationSystem() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getProfile: _getProfile } = useProfileCache();
-
-  // Map database notification types to frontend types
-  const notificationTypeMap: Record<string, NotificationType> = {
-    'new_like': 'like',
-    'new_match': 'match',
-    'new_message': 'message',
-    'new_review': 'like',
-    'property_inquiry': 'message',
-    'contract_signed': 'like',
-    'contract_pending': 'like',
-    'payment_received': 'premium_purchase',
-    'profile_viewed': 'like',
-    'system_announcement': 'like',
-    'verification_approved': 'like',
-    'subscription_expiring': 'premium_purchase',
-  };
-
-  const titleMap: Record<string, string> = {
-    'new_like': 'New Like',
-    'new_match': 'It\'s a Match!',
-    'new_message': 'New Message',
-    'new_review': 'New Review',
-    'property_inquiry': 'Property Inquiry',
-    'contract_signed': 'Contract Signed',
-    'payment_received': 'Payment Received',
-    'profile_viewed': 'Profile Viewed',
-    'system_announcement': 'Announcement',
-  };
 
   // Fetch existing notifications on mount
   useEffect(() => {
@@ -224,7 +224,7 @@ export function useNotificationSystem() {
       notificationsChannel.unsubscribe();
       supabase.removeChannel(notificationsChannel);
     };
-  }, [user?.id, addNotification]);
+  }, [user?.id, addNotification, navigate]);
 
   const handleDismiss = useCallback((id: string) => {
     dismissNotification(id);
@@ -251,7 +251,7 @@ export function useNotificationSystem() {
 
     // Auto-dismiss the banner on click
     dismissNotification(notification.id);
-  }, [navigate, handleDismiss]);
+  }, [dismissNotification]);
 
   const markNotificationAsRead = (id: string) => {
     // Mark single notification as read locally + in DB

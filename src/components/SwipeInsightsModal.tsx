@@ -3,7 +3,7 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
   Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle,
-  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
+  Clock, DollarSign, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
   Share2, ShieldCheck, Square, User, Wrench, Zap,
 } from 'lucide-react';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';

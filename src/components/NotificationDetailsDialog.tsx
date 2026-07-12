@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Sparkles } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { AppNotification } from '@/state/notificationStore';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useNavigate } from 'react-router-dom';

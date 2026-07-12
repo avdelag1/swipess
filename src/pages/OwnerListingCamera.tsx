@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CameraCapture } from '@/components/CameraCapture';
 import { CapturedPhoto } from '@/hooks/useCamera';
@@ -40,7 +40,7 @@ export default function OwnerListingCamera() {
   const state = location.state as LocationState | undefined;
   const returnPath = state?.returnPath || '/owner/properties';
   const listingId = state?.listingId;
-  const existingPhotos = state?.existingPhotos || [];
+  const existingPhotos = useMemo(() => state?.existingPhotos || [], [state?.existingPhotos]);
   const maxPhotos = state?.maxPhotos || 30;
 
   // Calculate remaining slots

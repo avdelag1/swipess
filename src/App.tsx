@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react"; // cache-bust-v3
+import { Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
 import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";

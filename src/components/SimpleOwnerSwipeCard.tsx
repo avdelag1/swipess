@@ -221,6 +221,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       }
     }
     magnifierPointerHandlers.onPointerMove(e);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
@@ -294,6 +295,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       }
       triggerHaptic('light');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageCount, onTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {

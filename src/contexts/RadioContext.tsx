@@ -199,6 +199,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.src = '';
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Track failed stations to avoid infinite loops and identify dead ones
@@ -294,6 +295,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       } catch {/* ignore */}
     }, delay);
     return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Keep refs in sync so the once-only listener effect can read latest values.
@@ -895,6 +897,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
     // CRITICAL: Removed state.currentStation from deps — using currentStationRef
     // instead to prevent cascade re-renders that caused stack overflow crashes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const pause = useCallback(() => {

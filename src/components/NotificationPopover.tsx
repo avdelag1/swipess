@@ -23,7 +23,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
-import { getHeaderChrome, HEADER_CHROME_PILL_CLASS, isDashboardPath } from '@/utils/headerChrome';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 // Notification type configurations for visual consistency
 

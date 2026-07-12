@@ -302,7 +302,7 @@ export const BottomNavigation = memo(({
     return active ? `${iconShadow} ${activeGlow}` : `${iconShadow} ${inactiveGlow}`;
   };
 
-  const getNavLabelShadow = (itemId: string, active: boolean) => {
+  const _getNavLabelShadow = (itemId: string, active: boolean) => {
     if (itemId === 'add') return '0 0 8px rgba(255,51,102,0.4)';
     if (!useLightIcons) return undefined;
     return active ? '0 0 6px rgba(255,255,255,0.35)' : '0 1px 3px rgba(0,0,0,0.35)';

@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { uiSounds } from '@/utils/uiSounds';
+
 
 export type EffectMode = 'off' | 'stars' | 'sunset';
 
@@ -142,7 +142,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
     let time = 0;
 
-    const spawnShootingStar = (x?: number, y?: number) => {
+    const _spawnShootingStar = (x?: number, y?: number) => {
       const w = window.innerWidth;
       const h = window.innerHeight;
       
@@ -268,7 +268,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     canvas.addEventListener('pointercancel', handlePointerUp, { passive: true });
     canvas.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
 
-    const drawStars = () => {
+    const _drawStars = () => {
       time += 0.12;
       for (let i = 0; i < starsRef.current.length; i++) {
         const star = starsRef.current[i];
@@ -456,8 +456,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
-    let lastAutoStarTime = 0;
-    let nextAutoStarDelay = 6000 + Math.random() * 4000; // 6-10s
+    const _lastAutoStarTime = 0;
+    const _nextAutoStarDelay = 6000 + Math.random() * 4000; // 6-10s
 
     const loop = (timestamp: number) => {
       if (document.visibilityState === 'hidden') {

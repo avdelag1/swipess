@@ -203,6 +203,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         y.set(0);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listing.id, (listing as any).user_id, x, y]);
 
   useEffect(() => {
@@ -252,6 +253,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       }
       triggerHaptic('light');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageCount, onCardTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
@@ -278,6 +280,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       }
     }
     magnifierPointerHandlers.onPointerMove(e);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {

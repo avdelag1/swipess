@@ -61,6 +61,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     const step = getStepIndex(radiusKm);
     setLocalStep(step);
     displayPct.set((step / maxStep) * 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [radiusKm, displayPct]);
 
   const commitRadius = (valStep: number) => {

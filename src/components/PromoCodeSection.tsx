@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ticket, Sparkles, AlertCircle } from 'lucide-react';
+import { AlertCircle, Sparkles, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from 'react-i18next';

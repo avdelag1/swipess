@@ -38,7 +38,7 @@ import { seedGpsCache } from '@/utils/mapGpsCache';
 const NotificationSystem = lazyWithRetry(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
-import { PullToRefresh } from '@/components/ui/PullToRefresh';
+
 import { useQueryClient } from '@tanstack/react-query';
 
 
@@ -59,7 +59,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useProfileGpsPersist();
   const queryClient = useQueryClient();
 
-  const handleGlobalRefresh = async () => {
+  const _handleGlobalRefresh = async () => {
     // Invalidate all queries to fetch fresh data globally
     await queryClient.invalidateQueries();
     // Re-trigger auth check 

@@ -315,7 +315,7 @@ export default function AdvertisePage() {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const isLight = theme === "light";
-  const { getText } = useSiteContent('advertise_page');
+  useSiteContent('advertise_page');
 
   const [view, setView] = useState<View>("landing");
   const [step, setStep] = useState<Step>("type");

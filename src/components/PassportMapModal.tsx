@@ -793,6 +793,7 @@ export const PassportMapModal = memo(() => {
     return () => {
       if (deferHandle) clearTimeout(deferHandle);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizeMap]);
 
   // If the user opens the map before the deferred warm-start fired, init now.
@@ -838,6 +839,7 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mapReady, deviceGps, lat, lng]);
 
   // Keep geocoder proximity near user as GPS warms up after mount.
@@ -893,6 +895,7 @@ export const PassportMapModal = memo(() => {
     canvas.style.visibility = 'hidden';
     clearPinPreview();
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mapReady]);
 
   const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {

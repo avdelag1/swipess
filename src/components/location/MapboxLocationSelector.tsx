@@ -145,6 +145,7 @@ export function MapboxLocationSelector({
         mapInstance.current.remove();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMap]);
 
   useEffect(() => {
@@ -206,6 +207,7 @@ export function MapboxLocationSelector({
         }
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectionMode, selectedTab]);
 
   const handleGetCurrentLocation = async () => {

@@ -26,8 +26,9 @@ import {
   type SeekerClientType,
 } from '@/utils/clientType';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
+import { WizardWelcomeScreen } from './WizardWelcomeScreen';
 
-type Step = 'compose' | 'processing';
+type Step = 'welcome' | 'compose' | 'processing';
 type Mode = 'client' | 'owner';
 
 export function AIProfileWizard() {
@@ -76,7 +77,8 @@ export function AIProfileWizard() {
   const initialOpen = useRef(showAIProfile);
   useEffect(() => {
     if (showAIProfile && !initialOpen.current) {
-      setStep('compose');
+      const hasSeen = localStorage.getItem('hasSeenProfileWelcome');
+      setStep(hasSeen ? 'compose' : 'welcome');
       setNarrative('');
       setImageFiles([]);
       setSelectedClientType(null);
@@ -374,6 +376,19 @@ export function AIProfileWizard() {
              <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
              <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#EB4898]/10 blur-[100px] rounded-full mix-blend-screen" />
           </div>
+          
+          <AnimatePresence>
+            {step === 'welcome' && (
+              <WizardWelcomeScreen
+                title="AI Profile Builder"
+                description="Just talk or type naturally. Our AI will instantly create a high-converting profile for you."
+                onContinue={() => {
+                  localStorage.setItem('hasSeenProfileWelcome', 'true');
+                  setStep('compose');
+                }}
+              />
+            )}
+          </AnimatePresence>
 
           <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", isLight ? "border-slate-200" : "border-white/5")}>
             <div className="flex items-center gap-4">
