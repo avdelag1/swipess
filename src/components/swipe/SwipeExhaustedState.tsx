@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { Map, MapPin, SlidersHorizontal } from 'lucide-react';
+import { Map, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +18,7 @@ interface SwipeExhaustedStateProps {
   onOpenFilters?: () => void;
   onOpenMap?: () => void;
   onBack?: () => void;
+  onOpenAIWizard?: () => void;
   role?: 'client' | 'owner';
   [key: string]: any;
 }
@@ -35,6 +36,7 @@ export const SwipeExhaustedState = ({
   onOpenFilters,
   onOpenMap,
   onBack,
+  onOpenAIWizard,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
@@ -171,6 +173,56 @@ export const SwipeExhaustedState = ({
             <Map style={{ color: mapBtnStyle.color }} className="w-4 h-4" />
             {t('deck.exhausted.exploreMap')}
           </button>
+        )}
+
+        {/* AI CTA Banner */}
+        {onOpenAIWizard && (
+          <div className="w-full">
+            <button
+              onClick={() => {
+                triggerHaptic('heavy');
+                onOpenAIWizard();
+              }}
+              className="w-full relative overflow-hidden rounded-[2rem] p-px active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #6366F1 55%, #8B5CF6 100%)' }}
+            >
+              <div
+                className="relative w-full rounded-[calc(2rem-1px)] px-5 py-4 flex items-center gap-4"
+                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(99,102,241,0.15) 55%, rgba(139,92,246,0.15) 100%)', backdropFilter: 'blur(24px)' }}
+              >
+                {/* Glow orb */}
+                <div className="absolute inset-0 rounded-[calc(2rem-1px)] overflow-hidden pointer-events-none">
+                  <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full blur-2xl opacity-40" style={{ background: '#06B6D4' }} />
+                  <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full blur-2xl opacity-30" style={{ background: '#8B5CF6' }} />
+                </div>
+
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #06B6D4, #8B5CF6)' }}>
+                  {role === 'owner' ? (
+                    <Zap className="w-5 h-5 text-white" />
+                  ) : (
+                    <Sparkles className="w-5 h-5 text-white" />
+                  )}
+                </div>
+
+                <div className="flex-1 text-left">
+                  <p className="text-[13px] font-black text-white tracking-tight">
+                    {role === 'owner' ? 'Post a Listing with AI' : 'Let AI Find Your Match'}
+                  </p>
+                  <p className="text-[11px] font-semibold mt-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                    {role === 'owner'
+                      ? 'One sentence is all it takes'
+                      : 'Describe what you\'re looking for'}
+                  </p>
+                </div>
+
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          </div>
         )}
 
         {/* Category switcher */}

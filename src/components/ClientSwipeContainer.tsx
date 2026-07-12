@@ -1054,6 +1054,9 @@ const ClientSwipeContainerComponent = ({
                   onOpenFilters={() => {
                     navigate('/owner/filters');
                   }}
+                  onOpenAIWizard={() => {
+                    useModalStore.getState().openAIListing();
+                  }}
                   onBack={handleBack}
                   role="owner"
                 />

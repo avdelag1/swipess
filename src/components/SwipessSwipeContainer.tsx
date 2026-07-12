@@ -1148,6 +1148,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                     prefetchPassportMapImmediate();
                     useModalStore.getState().openPassportMap();
                   }}
+                  onOpenAIWizard={() => {
+                    triggerHaptic('heavy');
+                    if (userRole === 'owner') {
+                      useModalStore.getState().openAIListing();
+                    } else {
+                      useModalStore.getState().openAIProfile('client');
+                    }
+                  }}
                   onBack={handleBack}
                   role={userRole === 'owner' ? 'owner' : 'client'}
                 />
