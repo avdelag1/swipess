@@ -147,21 +147,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [locationDetected, setLocationDetected] = useState(false);
   const { user } = useAuth();
 
-  const memoizedTopRail = useMemo(() => {
-    return (
-      <LocationRadiusSelector
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-        lat={userLatitude}
-        lng={userLongitude}
-        orientation="vertical"
-      />
-    );
-  }, [radiusKm, setRadiusKm, detectLocation, locationDetecting, locationDetected, userLatitude, userLongitude]);
-
   const detectLocation = useCallback(() => {
     if (!canGeolocate()) return;
     setLocationDetecting(true);
@@ -177,6 +162,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         setLocationDetecting(false);
       });
   }, [setUserLocation, setRadiusKm, user?.id]);
+
+  const memoizedTopRail = useMemo(() => {
+    return (
+      <LocationRadiusSelector
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        lat={userLatitude}
+        lng={userLongitude}
+        orientation="vertical"
+      />
+    );
+  }, [radiusKm, setRadiusKm, detectLocation, locationDetecting, locationDetected, userLatitude, userLongitude]);
 
   useEffect(() => {
     if (userLatitude != null && userLongitude != null) {
