@@ -553,6 +553,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               className="inline-flex flex-col w-fit max-w-full px-4 py-3 rounded-3xl"
               style={{
                 background: 'rgba(20, 20, 24, 0.55)',
+                backdropFilter: 'blur(32px)',
+                WebkitBackdropFilter: 'blur(32px)',
                 boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.55)',
                 color: '#FFFFFF',
                 textShadow: '0 2px 6px rgba(0, 0, 0, 0.55)',
