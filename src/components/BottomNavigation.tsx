@@ -468,17 +468,16 @@ export const BottomNavigation = memo(({
                     {active && (
                       <motion.div
                         layoutId="nav-active-indicator"
-                        initial={{ opacity: 0, y: 10, scale: 0.5 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.5 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
                         transition={{
                           type: 'spring',
-                          stiffness: 500,
-                          damping: 30,
+                          stiffness: 400,
+                          damping: 25,
                           mass: 0.5,
                         }}
-                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                        style={{ backgroundColor: baseColor }}
+                        className="absolute inset-0 z-[-1] rounded-full bg-black/5 dark:bg-white/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.2)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.05)]"
                       />
                     )}
                   </AnimatePresence>
