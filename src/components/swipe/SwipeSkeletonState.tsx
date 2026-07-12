@@ -21,18 +21,18 @@ export const SwipeSkeletonState = () => {
               contain: 'paint',
             }}
           >
-            {/* Base gradient - matches TinderSwipeCard skeleton */}
+            {/* Base gradient - dark/light adaptive */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)',
+                background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted)/0.7) 50%, hsl(var(--muted)) 100%)',
               }}
             />
-            {/* Animated shimmer - GPU accelerated */}
+            {/* Animated shimmer - GPU accelerated, toned down */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.28) 50%, rgba(255,255,255,0.18) 55%, transparent 100%)',
                 backgroundSize: '200% 100%',
                 animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
                 transform: 'translateZ(0)',
@@ -70,10 +70,11 @@ export const SwipeSkeletonState = () => {
         {/* Action buttons skeleton */}
         <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
+            {[1, 2, 3, 4].map((n) =>
+              [1, 4].includes(n)
+                ? <div key={n} className="w-14 h-14 rounded-full route-skeleton-bar border border-white/10" />
+                : <div key={n} className="w-11 h-11 rounded-full route-skeleton-bar border border-white/[0.07]" />
+            )}
           </div>
         </div>
       </motion.div>

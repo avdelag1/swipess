@@ -26,11 +26,13 @@ export function SwipeErrorState({
       <div className="flex flex-col items-center text-center w-full max-w-md gap-6">
         <div
           className={cn(
-            'w-16 h-16 rounded-full flex items-center justify-center',
-            isLight ? 'bg-rose-50 text-rose-500' : 'bg-rose-500/15 text-rose-400',
+            'w-20 h-20 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-[0_8px_32px_rgba(0,0,0,0.3)]',
+            isLight
+              ? 'bg-rose-50/80 border-rose-200 text-rose-500'
+              : 'bg-rose-500/15 border-rose-500/30 text-rose-400',
           )}
         >
-          <AlertTriangle className="w-8 h-8" strokeWidth={2} />
+          <AlertTriangle className="w-9 h-9" strokeWidth={2} />
         </div>
 
         <div className="space-y-2">
@@ -50,8 +52,10 @@ export function SwipeErrorState({
           }}
           disabled={isRetrying}
           className={cn(
-            'inline-flex h-12 min-w-[160px] items-center justify-center gap-2 rounded-full px-6 text-sm font-black transition-transform active:scale-[0.98] disabled:opacity-60',
-            isLight ? 'bg-slate-900 text-white' : 'bg-white text-slate-900',
+            'inline-flex h-14 min-w-[160px] items-center justify-center gap-2 rounded-full px-8 text-sm font-black transition-all duration-300 active:scale-85 disabled:opacity-60 shadow-[0_16px_48px_rgba(0,0,0,0.4)]',
+            isLight
+              ? 'bg-slate-900 text-white border border-white/10'
+              : 'bg-white/10 backdrop-blur-3xl text-white border border-white/30',
           )}
         >
           <RefreshCw className={cn('w-4 h-4', isRetrying && 'animate-spin')} />

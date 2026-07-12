@@ -76,19 +76,29 @@ export const SwipeExhaustedState = ({
   // Action buttons — always high-contrast regardless of theme
   const actionBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
-    : { backgroundColor: 'rgba(255,255,255,0.12)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.3)' };
+    : {
+        backgroundColor: 'rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(16px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+        color: '#ffffff',
+        borderColor: 'rgba(255,255,255,0.18)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
+      };
 
   const filterBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
     : { backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: '#ffffff' };
 
-  const mapBtnStyle: React.CSSProperties = isLight
-    ? { backgroundColor: '#4f46e5', color: '#ffffff', borderColor: '#4f46e5' }
-    : { backgroundColor: '#6366f1', color: '#ffffff', borderColor: '#6366f1' };
+  const mapBtnStyle: React.CSSProperties = {
+    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent,244 63% 70%)))',
+    color: '#fff',
+    border: '1px solid rgba(255,255,255,0.15)',
+    boxShadow: '0 8px 24px hsl(var(--primary)/0.35)',
+  };
 
   const backBtnStyle: React.CSSProperties = isLight
-    ? { backgroundColor: '#f1f5f9', color: '#000000' }
-    : { backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff' };
+    ? { backgroundColor: 'rgba(241,245,249,0.9)', color: '#000000', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }
+    : { backgroundColor: 'rgba(255,255,255,0.10)', color: '#ffffff', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' };
 
   return (
     <div

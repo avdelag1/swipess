@@ -179,7 +179,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
           >
             <Button 
               onClick={handleMessage}
-              className="w-full h-16 rounded-2xl bg-white text-black font-black text-xl hover:bg-white/90 shadow-[0_10px_40px_rgba(255,255,255,0.2)] flex items-center justify-center gap-3 transition-all active:scale-95"
+              className="w-full h-16 rounded-2xl bg-white text-black font-black text-xl hover:bg-white/90 shadow-[0_0_60px_rgba(255,255,255,0.25),0_10px_40px_rgba(255,255,255,0.15)] flex items-center justify-center gap-3 transition-all duration-300 active:scale-90 border border-white/30"
             >
               <MessageCircle className="w-6 h-6" />
               SAY HELLO
@@ -187,7 +187,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
             
             <button 
               onClick={onClose}
-              className="w-full h-16 rounded-2xl font-bold text-lg bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+              className="w-full h-16 rounded-2xl font-bold text-lg bg-white/5 backdrop-blur-xl border border-white/20 text-white/70 hover:bg-white/10 hover:text-white transition-all duration-300 active:scale-85 shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
             >
               KEEP SWIPING
             </button>
