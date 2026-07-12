@@ -190,6 +190,21 @@ const ClientSwipeContainerComponent = ({
     }
   }, [userLatitude, userLongitude]);
 
+  const memoizedTopRail = useMemo(() => {
+    return (
+      <LocationRadiusSelector
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        lat={userLatitude}
+        lng={userLongitude}
+        orientation="vertical"
+      />
+    );
+  }, [radiusKm, setRadiusKm, detectLocation, locationDetecting, locationDetected, userLatitude, userLongitude]);
+
   // ­ƒôì Location is requested ONLY on explicit user action (filter button or
   // kilometer slider interaction). No auto-prompt on mount/sign-in to avoid
   // an invasive permission dialog.
@@ -814,8 +829,14 @@ const ClientSwipeContainerComponent = ({
     }
   }, []);
 
-  const handleInsights = useCallback((clientId: string) => {
-    navigate(`/owner/view-client/${clientId}`);
+  const handleTap = useCallback(() => {
+    const profile = deckQueueRef.current[currentIndexRef.current];
+    if (profile?.user_id) onClientTap(profile.user_id);
+  }, [onClientTap]);
+
+  const handleInsightsWrapper = useCallback(() => {
+    const profile = deckQueueRef.current[currentIndexRef.current];
+    if (profile?.user_id) navigate(`/owner/view-client/${profile.user_id}`);
   }, [navigate]);
 
   const handleShare = useCallback(() => {
@@ -827,8 +848,17 @@ const ClientSwipeContainerComponent = ({
     appToast.success('Saved for later');
     triggerHaptic('light');
   }, []);
+  
+  const handleReport = useCallback(() => {
+    triggerHaptic('medium');
+    setReportDialogOpen(true);
+  }, []);
 
-  const handleConnect = useCallback((clientId: string) => {
+  const handleConnectWrapper = useCallback(() => {
+    const profile = deckQueueRef.current[currentIndexRef.current];
+    if (!profile?.user_id) return;
+    const clientId = profile.user_id;
+
     logger.info('[ClientSwipeContainer] Message icon clicked');
     setSelectedClientId(clientId);
     const existing = conversations?.find(c => c.other_user?.id === clientId);
@@ -982,13 +1012,13 @@ const ClientSwipeContainerComponent = ({
                       <SimpleOwnerSwipeCard
                         ref={isTopCard ? cardRef : undefined}
                         profile={profile}
-                        onSwipe={isTopCard ? handleSwipe : () => {}}
-                        onTap={isTopCard ? () => onClientTap(profile.user_id) : undefined}
-                        onInsights={isTopCard ? () => handleInsights(profile.user_id) : undefined}
-                        onMessage={isTopCard ? () => handleConnect(profile.user_id) : undefined}
+                        onSwipe={isTopCard ? handleSwipe : undefined}
+                        onTap={isTopCard ? handleTap : undefined}
+                        onInsights={isTopCard ? handleInsightsWrapper : undefined}
+                        onMessage={isTopCard ? handleConnectWrapper : undefined}
                         onShare={isTopCard ? handleShare : undefined}
                         onSoon={isTopCard ? handleSoon : undefined}
-                        onReport={isTopCard ? () => { triggerHaptic('medium'); setReportDialogOpen(true); } : undefined}
+                        onReport={isTopCard ? handleReport : undefined}
                         onUndo={isTopCard ? undoLastSwipe : undefined}
                         onLike={isTopCard ? handleButtonLike : undefined}
                         onDislike={isTopCard ? handleButtonDislike : undefined}
@@ -999,18 +1029,7 @@ const ClientSwipeContainerComponent = ({
                         fullScreen={false}
                         externalX={isTopCard ? topCardX : undefined}
                         externalY={isTopCard ? topCardY : undefined}
-                        renderTopRail={isTopCard ? (
-                          <LocationRadiusSelector
-                            radiusKm={radiusKm}
-                            onRadiusChange={setRadiusKm}
-                            onDetectLocation={detectLocation}
-                            detecting={locationDetecting}
-                            detected={locationDetected}
-                            lat={userLatitude}
-                            lng={userLongitude}
-                            orientation="vertical"
-                          />
-                        ) : undefined}
+                        renderTopRail={isTopCard ? memoizedTopRail : undefined}
                       />
                     </motion.div>
                   );

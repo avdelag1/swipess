@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { GripVertical, Star, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -113,7 +114,7 @@ function PhotoItem({
   );
 }
 
-export function DraggablePhotoGrid({
+export const DraggablePhotoGrid = memo(function DraggablePhotoGridComponent({
   photos,
   onReorder,
   onRemove,
@@ -139,16 +140,18 @@ export function DraggablePhotoGrid({
         listStyle: 'none',
         padding: 0,
         margin: 0,
+        width: '100%',
+        boxSizing: 'border-box'
       }}
       className="sm:grid-cols-3"
     >
-      {photos.map((photo, i) => (
+      {photos.map((photo, index) => (
         <PhotoItem
           key={photo}
           photo={photo}
-          index={i}
+          index={index}
+          onRemove={() => onRemove(index)}
           isLight={isLight}
-          onRemove={() => onRemove(i)}
         />
       ))}
 
@@ -160,4 +163,11 @@ export function DraggablePhotoGrid({
       )}
     </Reorder.Group>
   );
-}
+}, (prev, next) => {
+  return (
+    prev.isLight === next.isLight &&
+    prev.photos.length === next.photos.length &&
+    prev.photos.every((p, i) => p === next.photos[i]) &&
+    prev.addSlot === next.addSlot
+  );
+});

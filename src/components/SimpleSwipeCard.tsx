@@ -704,4 +704,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 });
 
 SimpleSwipeCardComponent.displayName = 'SimpleSwipeCard';
-export const SimpleSwipeCard = memo(SimpleSwipeCardComponent);
+export const SimpleSwipeCard = memo(SimpleSwipeCardComponent, (prev, next) => {
+  return (
+    prev.listing.id === next.listing.id &&
+    prev.isTop === next.isTop &&
+    prev.fullScreen === next.fullScreen &&
+    prev.canUndo === next.canUndo &&
+    prev.disableDrag === next.disableDrag &&
+    // Parent components must useMemo for renderTopRail to prevent unnecessary re-renders
+    prev.renderTopRail === next.renderTopRail
+  );
+});

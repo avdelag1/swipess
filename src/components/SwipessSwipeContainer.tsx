@@ -133,7 +133,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // Epic Match State
   const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
 
-  // ÔöÇÔöÇ Distance filter state ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+  // ——— Distance filter state ——————————————————————————————————————————————————
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
@@ -146,6 +146,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
   const { user } = useAuth();
+
+  const memoizedTopRail = useMemo(() => {
+    return (
+      <LocationRadiusSelector
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        lat={userLatitude}
+        lng={userLongitude}
+        orientation="vertical"
+      />
+    );
+  }, [radiusKm, setRadiusKm, detectLocation, locationDetecting, locationDetected, userLatitude, userLongitude]);
 
   const detectLocation = useCallback(() => {
     if (!canGeolocate()) return;
@@ -275,7 +290,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
   const swipeDirectionRef = useRef<'left' | 'right' | null>(null);
 
-  // The under-card stays fully sized and opaque at all times ÔÇö it acts as a
+  // The under-card stays fully sized and opaque at all times — it acts as a
   // static backdrop so the top card reveals it cleanly on commit. No reactive
   // transforms, no willChange churn: the layer is stable across promotions.
 
@@ -495,7 +510,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const error = dataType === 'people' ? smartClientsError : smartListingsError;
 
   // Release the transition guard once the new category's query has settled
-  // (or errored). Until then the loader stays up ÔÇö no exhausted-state flash.
+  // (or errored). Until then the loader stays up — no exhausted-state flash.
   useEffect(() => {
     if (isCategoryTransitioning && !isLoading && !isFetching) {
       setIsCategoryTransitioning(false);
@@ -791,20 +806,29 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [executeSwipe, playSwipeSound]);
 
-  const handleInsights = () => {
+  const handleInsights = useCallback(() => {
     setInsightsModalOpen(true);
     triggerHaptic('light');
-  };
+  }, []);
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     setShareDialogOpen(true);
     triggerHaptic('light');
-  };
+  }, []);
 
-  const handleSoon = () => {
+  const handleSoon = useCallback(() => {
     appToast.success('Saved for later');
     triggerHaptic('light');
-  };
+  }, []);
+
+  const handleReport = useCallback(() => {
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (listing) {
+      setSelectedListing(listing);
+      setReportDialogOpen(true);
+      triggerHaptic('medium');
+    }
+  }, []);
 
   const handleBack = useCallback(() => {
     triggerHaptic('light');
@@ -812,7 +836,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     navigate(`/${activeMode}/dashboard`);
   }, [navigate, activeMode, setActiveCategory]);
 
-  const handleMessage = () => {
+  const handleMessage = useCallback(() => {
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!canNavigate()) return;
     const targetUserId = activeMode === 'owner' 
@@ -838,7 +862,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setMessageDialogOpen(true);
     triggerHaptic('light');
     if (onMessageClick) onMessageClick();
-  };
+  }, [activeMode, canNavigate, canStartNewConversation, conversations, navigate, onMessageClick]);
 
   const handleSendMessage = async (message: string) => {
     const targetUserId = activeMode === 'owner' 
@@ -1040,18 +1064,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             onUndo={isTopCard ? undoLastSwipe : undefined}
                             canUndo={canUndo}
                             onBack={handleBack}
-                            renderTopRail={isTopCard ? (
-                              <LocationRadiusSelector
-                                radiusKm={radiusKm}
-                                onRadiusChange={setRadiusKm}
-                                onDetectLocation={detectLocation}
-                                detecting={locationDetecting}
-                                detected={locationDetected}
-                                lat={userLatitude}
-                                lng={userLongitude}
-                                orientation="vertical"
-                              />
-                            ) : undefined}
+                            renderTopRail={isTopCard ? memoizedTopRail : undefined}
                           />
                         ) : (
                           <SimpleSwipeCard
@@ -1059,7 +1072,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             listing={listing}
                             isTop={isTopCard}
                             fullScreen={false}
-                            onSwipe={isTopCard ? handleSwipe : () => {}}
+                            onSwipe={isTopCard ? handleSwipe : undefined}
                             onCardTap={isTopCard ? handleInsights : undefined}
                             onInsights={isTopCard ? handleInsights : undefined}
                             onShare={isTopCard ? handleShare : undefined}
@@ -1068,24 +1081,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                             onExit={isTopCard ? handleBack : undefined}
                             onUndo={isTopCard ? undoLastSwipe : undefined}
                             canUndo={canUndo}
-                            onReport={isTopCard ? () => {
-                              setSelectedListing(listing);
-                              setReportDialogOpen(true);
-                              triggerHaptic('medium');
-                            } : undefined}
+                            onReport={isTopCard ? handleReport : undefined}
                             onDragStart={isTopCard ? handleDragStart : undefined}
-                            renderTopRail={isTopCard ? (
-                              <LocationRadiusSelector
-                                radiusKm={radiusKm}
-                                onRadiusChange={setRadiusKm}
-                                onDetectLocation={detectLocation}
-                                detecting={locationDetecting}
-                                detected={locationDetected}
-                                lat={userLatitude}
-                                lng={userLongitude}
-                                orientation="vertical"
-                              />
-                            ) : undefined}
+                            renderTopRail={isTopCard ? memoizedTopRail : undefined}
                           />
                       )}
                     </motion.div>
