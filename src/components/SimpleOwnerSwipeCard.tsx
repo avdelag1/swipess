@@ -407,7 +407,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     e.stopPropagation();
                     if (onBack) onBack();
                   }}
-                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
                   aria-label="Back"
                 >
                   <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
@@ -421,7 +421,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                       e.stopPropagation();
                       if (onUndo) onUndo();
                     }}
-                    className="pointer-events-auto flex items-center justify-center w-10 h-10 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-auto flex items-center justify-center w-11 h-11 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
                     aria-label="Undo"
                   >
                     <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
