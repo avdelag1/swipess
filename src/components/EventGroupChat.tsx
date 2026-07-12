@@ -86,7 +86,7 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
 
         {/* Panel */}
         <motion.div
-          className="relative mt-auto w-full max-h-[85dvh] flex flex-col bg-background rounded-t-3xl shadow-2xl border-t border-border/40"
+          className="relative mt-auto w-full max-h-[85dvh] flex flex-col bg-background/90 backdrop-blur-3xl rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] border-t border-white/10"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
@@ -146,7 +146,7 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
           </div>
 
           {/* Input */}
-          <div className="px-4 py-3 border-t border-border/40 flex items-end gap-2 pb-safe">
+          <div className="px-4 py-3 border-t border-white/10 flex items-end gap-2 pb-safe">
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -154,16 +154,16 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
               placeholder="Escribe un mensaje..."
               rows={1}
               data-testid="input-group-chat"
-              className="flex-1 resize-none bg-muted rounded-2xl px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground max-h-24 leading-5"
+              className="flex-1 resize-none bg-muted/40 backdrop-blur-xl rounded-2xl px-4 py-2.5 text-[16px] outline-none placeholder:text-muted-foreground max-h-24 leading-snug shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus:bg-background/80 transition-all"
               style={{ overflowY: 'auto' }}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || sending}
               data-testid="button-send-message"
-              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0 disabled:opacity-70 transition-opacity"
+              className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] flex items-center justify-center flex-shrink-0 disabled:opacity-50 transition-all active:scale-90 shadow-[0_8px_16px_rgba(255,77,0,0.3)] hover:scale-105"
             >
-              <Send className="w-4 h-4 text-primary-foreground" />
+              <Send className="w-5 h-5 text-white shadow-sm" />
             </button>
           </div>
         </motion.div>
