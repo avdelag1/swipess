@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { triggerHaptic } from "@/utils/haptics";
 
 interface CategorySelectionDialogProps {
   open: boolean;
@@ -127,6 +128,7 @@ export function CategorySelectionDialog({
   }, []);
 
   const handleCategorySelect = (category: Category) => {
+    triggerHaptic('light');
     setSelectedCategory(category);
     if (category.id === 'worker') {
       if (navigateToNewPage) {
@@ -150,6 +152,7 @@ export function CategorySelectionDialog({
 
   const handleModeSelect = (mode: 'rent' | 'sale' | 'both') => {
     if (!selectedCategory) return;
+    triggerHaptic('light');
 
     if (navigateToNewPage) {
       navigate(`/owner/listings/new?category=${selectedCategory.id}&mode=${mode}`);
@@ -185,6 +188,7 @@ export function CategorySelectionDialog({
   };
 
   const handleOpenAI = () => {
+    triggerHaptic('medium');
     onOpenChange(false);
     requestAnimationFrame(() => {
       if (onAIOpen) onAIOpen();
