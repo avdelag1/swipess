@@ -205,10 +205,10 @@ export function CategorySelectionDialog({
         className={cn(
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         "sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
-        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/80 bg-white/90 dark:backdrop-blur-3xl backdrop-blur-3xl dark:border-white/10 border-slate-200/50 shadow-[0_40px_100px_rgba(0,0,0,0.5)]"
+        "flex flex-col p-0 gap-0 overflow-hidden border bg-white dark:bg-black dark:border-white/10 border-slate-200/50 shadow-[0_40px_100px_rgba(0,0,0,0.5)]"
       )}>
         
-        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-slate-200/50 relative z-10 bg-white/40 dark:bg-black/40 backdrop-blur-xl">
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-slate-200/50 relative z-10 bg-slate-50 dark:bg-zinc-950">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">

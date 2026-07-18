@@ -95,7 +95,7 @@ export function SelectorSheet({
 
   return (
     <Sheet open={open} onOpenChange={(v) => { if (!v) setQuery(''); onOpenChange(v); }}>
-      <SheetContent side="bottom" className="h-[min(78dvh,640px)] p-0 rounded-t-[28px] border-t border-border bg-background/95 backdrop-blur-xl">
+      <SheetContent side="bottom" className="h-[min(78dvh,640px)] p-0 rounded-t-[28px] border-t border-border bg-background">
         <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/60 text-left">
           <SheetTitle className="text-base font-bold tracking-tight">{title}</SheetTitle>
         </SheetHeader>

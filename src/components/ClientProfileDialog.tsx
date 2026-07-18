@@ -308,7 +308,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border/50 bg-background/90 backdrop-blur-3xl text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-white/10 bg-background/80 backdrop-blur-[48px] text-foreground shadow-[0_0_80px_rgba(0,0,0,0.95)]")}>
+      <DialogContent hideCloseButton className={cn("client-profile-dialog sm:max-w-3xl h-[92dvh] max-h-[92dvh] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem]", isLight ? "light-profile-dialog border-border/50 bg-background text-foreground shadow-[0_30px_90px_hsl(var(--foreground)/0.16)]" : "border-white/10 bg-background text-foreground shadow-[0_0_80px_rgba(0,0,0,0.95)]")}>
         
         <div
           aria-hidden
