@@ -181,7 +181,7 @@ export const StoreKitService = {
         const timeout = setTimeout(() => {
           logger.warn('[IAP] Product loading timed out; proceeding anyway');
           resolve();
-        }, 15000);
+        }, 3000);
         // CdvPurchase v13: `ready` lives on the store itself, NOT on `when()`.
         // `store.when().ready` is undefined, so calling it throws a TypeError
         // that made every init fail ("[IAP] init failed {}") and blocked all
@@ -220,7 +220,7 @@ export const StoreKitService = {
 
     let product = store.get(productId);
     if (!product) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 3; i++) {
         await new Promise((r) => setTimeout(r, 500));
         product = store.get(productId);
         if (product) break;
