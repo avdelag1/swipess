@@ -34,14 +34,14 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
   const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
   const providerLabel = AI_PROVIDER_LABELS[message.provider ?? ''] ?? DEFAULT_AI_PROVIDER_LABEL;
-  const { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles } = useMemo(
-    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, passportAction: null, listings: [], profiles: [] } : parseNavActions(message.content),
+  const { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles, events } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [], draftActions: [], filterAction: null, passportAction: null, listings: [], profiles: [], events: [] } : parseNavActions(message.content),
     [message.content, isUser]
   );
 
   const displayContent = useMemo(() => {
     let disp = cleanContent.replace(/https?:\/\/swipess\.com\/share\/[^\s)]*/g, '');
-    const tags = ['[LISTINGS:', '[PROFILES:', '[DRAFT:', '[FILTER:', '[PASSPORT:', '[NAV:'];
+    const tags = ['[LISTINGS:', '[PROFILES:', '[EVENTS:', '[DRAFT:', '[FILTER:', '[PASSPORT:', '[NAV:'];
     let earliestIndex = -1;
     tags.forEach(tag => {
       const idx = disp.indexOf(tag);

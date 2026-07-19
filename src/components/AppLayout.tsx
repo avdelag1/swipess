@@ -85,17 +85,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [mountPassportMap, keepMapMounted]);
 
   useEffect(() => {
-    // Warm Mapbox + GPS on dashboard so map open snaps to you instantly.
-    if (showPassportMapModal || isSwipeDashboard) {
-      prefetchPassportMapImmediate();
+    // Aggressively pre-warm Mapbox + GPS immediately on app boot 
+    // so the map opens instantly when the user taps the map button.
+    prefetchPassportMapImmediate();
 
-      // Seed GPS cache from store only — no geolocation API on boot (caused iOS crashes).
-      const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
-      if (!passportMode && userLatitude != null && userLongitude != null) {
-        seedGpsCache(userLatitude, userLongitude);
-      }
+    // Seed GPS cache from store only — no geolocation API on boot (caused iOS crashes).
+    const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
+    if (!passportMode && userLatitude != null && userLongitude != null) {
+      seedGpsCache(userLatitude, userLongitude);
     }
-  }, [showPassportMapModal, isSwipeDashboard]);
+  }, []);
 
   // Chrome visibility policy:
   //   • Dashboard "picking phase" (no quick filter selected yet): chrome

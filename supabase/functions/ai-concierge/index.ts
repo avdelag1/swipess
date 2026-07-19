@@ -414,6 +414,86 @@ function extractProfilesTag(profilesContext: string): string {
   return match ? `[PROFILES:${match[1]}]` : "";
 }
 
+// ─── Event Search ───────────────────────────────────────────────────────────
+
+function detectEventIntent(query: string): boolean {
+  const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return /\b(event|events|party|parties|tonight|happening|festival|festivals|dj|techno|rave|gathering|ceremony|ceremonies)\b/.test(q);
+}
+
+async function searchEvents(query: string, authToken?: string): Promise<string> {
+  if (!SUPABASE_URL) return "";
+  try {
+    const anonKey = SUPABASE_ANON_KEY;
+    const jwt = authToken || anonKey;
+    if (!anonKey) return "";
+
+    const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    
+    const base = `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/events`;
+    const cols = "id,title,description,event_date,location_name";
+    
+    const restUrl = `${base}?select=${encodeURIComponent(cols)}&is_published=eq.true&order=event_date.asc&limit=15`;
+    const res = await fetch(restUrl, {
+      headers: {
+        "apikey": anonKey,
+        "Authorization": `Bearer ${jwt}`,
+        "Accept": "application/json",
+      },
+    });
+    
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[AI] Events REST API ${res.status}: ${errText.slice(0, 300)}`);
+      return "";
+    }
+
+    const data: any[] = await res.json();
+    if (!data || data.length === 0) return "";
+    
+    let scored = data.map((item: any) => {
+      const text = `${item.title} ${item.description} ${item.location_name}`.toLowerCase();
+      let score = 0;
+      if (keywords.length > 0) {
+        score = keywords.reduce((s: number, kw: string) => s + (text.includes(kw) ? 1 : 0), 0);
+      } else {
+        score = 1;
+      }
+      return { ...item, score };
+    });
+    
+    if (keywords.length > 0) {
+      scored = scored.filter((e: any) => e.score > 0);
+    }
+    
+    const results = scored.sort((a: any, b: any) => (b.score - a.score) || (new Date(a.event_date).getTime() - new Date(b.event_date).getTime())).slice(0, 3);
+    if (results.length === 0) return "";
+
+    const lines = results.map((e: any) => {
+      const dateStr = new Date(e.event_date).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      return `• **${e.title}** — ${dateStr} @ ${e.location_name || 'TBA'}\n  ${e.description ? e.description.slice(0, 100) + '...' : ''} → [View Event](/event/${e.id})`;
+    }).join("\n");
+    
+    const structured = results.map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      event_date: e.event_date,
+      location_name: e.location_name,
+      description: e.description,
+    }));
+    
+    return `${lines}\n[EVENTS:${JSON.stringify(structured)}]`;
+  } catch (e) {
+    console.error("[AI] Event search error:", e);
+    return "";
+  }
+}
+
+function extractEventsTag(eventsContext: string): string {
+  const match = eventsContext.match(/\[EVENTS:(\[[\s\S]*?\])\]/);
+  return match ? `[EVENTS:${match[1]}]` : "";
+}
+
 // ─── User Memory ────────────────────────────────────────────────────────────
 
 async function loadUserMemories(userId: string): Promise<string> {
@@ -977,7 +1057,7 @@ interface LocationContext {
   radiusKm?: number;
 }
 
-function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; requestedCategory?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; locationContext?: LocationContext }): string {
+function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; events?: string; webResults?: string; profileResults?: string; requestedCategory?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number; locationContext?: LocationContext }): string {
   let prompt: string;
 
   // Always prepend real-time context
@@ -1162,6 +1242,10 @@ TONE EXAMPLES:
     prompt += `\n\n## SWIPESS USERS MATCHING THIS QUERY:\n${opts.profileResults}\n\nCRITICAL INSTRUCTION: Below these bullets you will find a hidden tag like [PROFILES:[...]] that the chat UI needs to render beautiful preview cards with profile photos and share buttons. You MUST include this tag verbatim in your response so cards appear. If the user's request is vague (no age, no location, no intention), ask 1-2 clarifying questions first. Limit: maximum 3 profiles. Never expose emails or phone numbers.`;
   }
 
+  if (opts.events) {
+    prompt += `\n\n## LIVE EVENTS:\n${opts.events}\n\nCRITICAL INSTRUCTION: Include the [EVENTS:[...]] tag verbatim in your response. Always present these as exciting local happenings.`;
+  }
+
   // PRIORITY: If BOTH listings and profiles are available, SHOW LISTINGS FIRST.
   // Only show profiles when the user explicitly asks for people, workers, services, roommates, friends, etc.
   // Never show profiles for property/apartment/house/motorcycle/bicycle queries — those are listings.
@@ -1173,6 +1257,11 @@ TONE EXAMPLES:
 - When those sections are empty or irrelevant: THEN use your training knowledge or web results.
 - User memories tell you who this person is. Always incorporate them — don't ignore them.
 - NEVER say "I don't have that info" when the knowledge sections above have it. Read them carefully first.
+
+## DEEP LINKING RULE (NEVER VIOLATE):
+- ALWAYS USE DEEP LINKS for profiles, listings, and events provided in the context. 
+- You MUST format them strictly as \`[Name](/path/id)\` exactly as shown in the provided data.
+- Never write plain URLs for these items. Ensure you use \`[View Event](/event/<id>)\`, \`[Details](/listing/<id>)\`, or \`[View Profile](/profile/<id>)\` respectively.
 
 ## RESPONSE LENGTH RULES (OVERRIDE ALL OTHER STYLE RULES):
 - Default: 1-3 sentences. Maximum 4 sentences only when listing data.
@@ -1667,6 +1756,7 @@ Deno.serve(async (req) => {
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
     const listingIntent = detectListingIntent(lastUserMessage);
+    const isEventQuery = detectEventIntent(lastUserMessage);
 
     // If it's a listing query that mentions a specific user, try to find that user first
     if (listingIntent.isListing) {
@@ -1687,19 +1777,20 @@ Deno.serve(async (req) => {
 
     // Phase 1: local data (fast DB queries)
     const userAuthToken = getUserToken(req.headers.get("authorization"));
-    const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([
+    const [promotedContacts, knowledge, memories, listings, profileResults, events] = await Promise.all([
       searchPromotedContacts(lastUserMessage),
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
       listingIntent.isListing ? searchListings(listingIntent, userAuthToken) : Promise.resolve(""),
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
+      isEventQuery ? searchEvents(lastUserMessage, userAuthToken) : Promise.resolve(""),
     ]);
 
     // Phase 2: only web search if local data is insufficient (saves ~500-1000ms)
-    const webResults = (!promotedContacts && !knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
+    const webResults = (!promotedContacts && !knowledge && !listings && !profileResults && !events) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, locationContext });
+    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, events, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, locationContext });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
@@ -1766,10 +1857,11 @@ Deno.serve(async (req) => {
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
 
-    // Append structured tags (LISTINGS / PROFILES) to the response so preview cards render in chat
+    // Append structured tags (LISTINGS / PROFILES / EVENTS) to the response so preview cards render in chat
     const listingsTag = listingIntent.isListing ? extractListingsTag(listings) : "";
     const profileTag = isProfileQuery ? extractProfilesTag(profileResults) : "";
-    const forcedSuffix = [listingsTag, profileTag].filter(Boolean).join("\n");
+    const eventsTag = isEventQuery ? extractEventsTag(events) : "";
+    const forcedSuffix = [listingsTag, profileTag, eventsTag].filter(Boolean).join("\n");
 
     if (forcedSuffix) {
       const isStreaming = response.headers.get("content-type")?.includes("text/event-stream");

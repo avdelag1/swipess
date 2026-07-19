@@ -32,6 +32,7 @@ export function parseNavActions(content: string): {
   passportAction: PassportAction | null;
   listings: any[];
   profiles: any[];
+  events: any[];
 } {
   const navPaths: string[] = [];
   const draftActions: { category: string; data: any }[] = [];
@@ -39,6 +40,7 @@ export function parseNavActions(content: string): {
   let passportAction: PassportAction | null = null;
   let listings: any[] = [];
   let profiles: any[] = [];
+  let events: any[] = [];
 
   let cleanContent = content.replace(NAV_PATTERN, (_, path) => {
     navPaths.push(path);
@@ -96,7 +98,18 @@ export function parseNavActions(content: string): {
     return '';
   });
 
+  const EVENTS_PATTERN = /\[EVENTS:(\[[\s\S]*?\])\]/g;
+  cleanContent = cleanContent.replace(EVENTS_PATTERN, (_, jsonData) => {
+    try {
+      const parsed = JSON.parse(jsonData);
+      if (Array.isArray(parsed)) events = parsed;
+    } catch (e) {
+      logger.error('Failed to parse events JSON:', e);
+    }
+    return '';
+  });
+
   cleanContent = cleanContent.replace(/\n{3,}/g, '\n\n').trim();
 
-  return { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles };
+  return { cleanContent, navPaths, draftActions, filterAction, passportAction, listings, profiles, events };
 }

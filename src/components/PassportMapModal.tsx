@@ -1161,6 +1161,47 @@ export const PassportMapModal = memo(() => {
           style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
         />
 
+        {/* Instant Map Skeleton — Visible while Mapbox GL initializes */}
+        <AnimatePresence>
+          {isOpen && !mapReady && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
+            >
+              {/* Map grid pattern background */}
+              <div 
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
+                  backgroundSize: '40px 40px'
+                }}
+              />
+              {/* Center crosshair pulse */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-white/10 flex items-center justify-center skeleton-pulse">
+                <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-brand-primary rounded-full animate-ping" />
+                </div>
+              </div>
+              {/* Floating skeleton pins */}
+              {[
+                { top: '30%', left: '20%' },
+                { top: '60%', left: '75%' },
+                { top: '40%', left: '60%' },
+                { top: '75%', left: '30%' },
+                { top: '20%', left: '80%' },
+              ].map((pos, i) => (
+                <div 
+                  key={i} 
+                  className="absolute w-8 h-8 rounded-full bg-white/[0.03] border border-white/[0.05] backdrop-blur-md skeleton-pulse"
+                  style={{ top: pos.top, left: pos.left, animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {isOpen && (
         <div ref={mapHudRef} data-map-hud data-skip-press-engine className="absolute inset-0 z-10 pointer-events-none">
         {/* Gradients removed for a cleaner map view as requested */}
