@@ -73,6 +73,7 @@ interface FilterState {
   serviceTypes: string[];
   motoTypes: string[];
   bicycleTypes: string[];
+  yachtTypes: string[];
   furnished: boolean;
   petFriendly: boolean;
   
@@ -112,6 +113,7 @@ interface FilterState {
   setServiceTypes: (types: string[]) => void;
   setMotoTypes: (types: string[]) => void;
   setBicycleTypes: (types: string[]) => void;
+  setYachtTypes: (types: string[]) => void;
   setFilters: (filters: Partial<QuickFilters>) => void;
   updateFilters: (filters: Partial<FilterState>) => void;
   resetClientFilters: () => void;
@@ -140,6 +142,7 @@ interface ClientFiltersShape {
   propertyTypes?: string[];
   motoTypes?: string[];
   bicycleTypes?: string[];
+  yachtTypes?: string[];
 }
 
 export const useFilterStore = create<FilterState>()(
@@ -168,6 +171,7 @@ export const useFilterStore = create<FilterState>()(
     serviceTypes: [],
     motoTypes: [],
     bicycleTypes: [],
+    yachtTypes: [],
     furnished: false,
     petFriendly: false,
     filterVersion: 0,
@@ -392,16 +396,13 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setMotoTypes: (types) => {
-      set((state) => ({
-        motoTypes: types,
-        filterVersion: state.filterVersion + 1,
-      }));
+      set((state) => ({ motoTypes: types, filterVersion: state.filterVersion + 1 }));
     },
     setBicycleTypes: (types) => {
-      set((state) => ({
-        bicycleTypes: types,
-        filterVersion: state.filterVersion + 1,
-      }));
+      set((state) => ({ bicycleTypes: types, filterVersion: state.filterVersion + 1 }));
+    },
+    setYachtTypes: (types) => {
+      set((state) => ({ yachtTypes: types, filterVersion: state.filterVersion + 1 }));
     },
     setFilters: (filters: Record<string, unknown>) => {
       set((state) => ({
@@ -427,6 +428,7 @@ export const useFilterStore = create<FilterState>()(
         ...(filters.petFriendly !== undefined && { petFriendly: filters.petFriendly as boolean }),
         ...(filters.motoTypes !== undefined && { motoTypes: filters.motoTypes as string[] }),
         ...(filters.bicycleTypes !== undefined && { bicycleTypes: filters.bicycleTypes as string[] }),
+        ...(filters.yachtTypes !== undefined && { yachtTypes: filters.yachtTypes as string[] }),
         ...(filters.clientAgeRange !== undefined && { clientAgeRange: filters.clientAgeRange as [number, number] | null }),
         ...(filters.clientBudgetRange !== undefined && { clientBudgetRange: filters.clientBudgetRange as [number, number] | null }),
         ...(filters.clientNationalities !== undefined && { clientNationalities: filters.clientNationalities as string[] }),
@@ -448,6 +450,7 @@ export const useFilterStore = create<FilterState>()(
         serviceTypes: [],
         motoTypes: [],
         bicycleTypes: [],
+        yachtTypes: [],
         furnished: false,
         petFriendly: false,
         radiusKm: DEFAULT_RADIUS_KM,
@@ -495,7 +498,7 @@ export const useFilterStore = create<FilterState>()(
     },
     getListingFilters: () => {
       const state = get();
-      return {
+      const result: any = {
         category: state.activeCategory ?? undefined,
         categories: state.categories.map(mapCategoryToDb),
         listingType: state.listingType,
@@ -514,12 +517,15 @@ export const useFilterStore = create<FilterState>()(
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
         passportMode: state.passportMode,
-        serviceCategory: state.serviceTypes.length > 0 ? state.serviceTypes : undefined,
-        motoTypes: state.motoTypes.length > 0 ? state.motoTypes : undefined,
-        bicycleTypes: state.bicycleTypes.length > 0 ? state.bicycleTypes : undefined,
         petFriendly: state.petFriendly || undefined,
         furnished: state.furnished || undefined,
       };
+      if (state.serviceTypes.length > 0) result.serviceTypes = state.serviceTypes;
+      if (state.motoTypes.length > 0) result.motoTypes = state.motoTypes;
+      if (state.bicycleTypes.length > 0) result.bicycleTypes = state.bicycleTypes;
+      if (state.yachtTypes.length > 0) result.yachtTypes = state.yachtTypes;
+
+      return result;
     },
     getClientFilters: () => {
       const state = get();

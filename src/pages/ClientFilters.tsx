@@ -9,6 +9,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
+import { YachtClientFilters } from '@/components/filters/YachtClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import { useFilterStore } from '@/state/filterStore';
@@ -37,7 +38,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   
   const getMappedCategory = () => {
     if (storeActiveCategory === 'pros') return 'services';
-    if (['property', 'motorcycle', 'bicycle', 'services', 'buyers', 'renters', 'leads'].includes(storeActiveCategory || '')) {
+    if (['property', 'motorcycle', 'bicycle', 'yacht', 'services', 'buyers', 'renters', 'leads'].includes(storeActiveCategory || '')) {
       return storeActiveCategory as QuickFilterCategory | 'buyers' | 'renters' | 'leads';
     }
     return null;
@@ -76,6 +77,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     { id: 'property', label: 'Properties', desc: 'Settle Anywhere', icon: Home },
     { id: 'motorcycle', label: 'Motos', desc: 'High Velocity', icon: MotorcycleIcon },
     { id: 'bicycle', label: 'Bikes', desc: 'Urban Agility', icon: Bike },
+    { id: 'yacht', label: 'Yachts', desc: 'Open Waters', icon: () => <span className="text-xl">⛵</span> },
     { id: 'services', label: 'Workers', desc: 'Elite Skillset', icon: Briefcase },
     { id: 'buyers', label: 'Buyers', desc: 'Purchase Ready', icon: Tag },
     { id: 'renters', label: 'Renters', desc: 'Looking to Move', icon: Key },
@@ -124,10 +126,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   onClick={() => setActiveCategory(cat.id)}
                   className="group relative h-28 w-full text-card-foreground transition-all duration-300"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative h-full px-8 flex items-center justify-between">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]" />
+                  <div className="relative h-full px-8 flex items-center justify-between bg-card/60 backdrop-blur-xl border border-white/5 rounded-[2rem] hover:border-primary/30 transition-colors">
                     <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-foreground text-background shadow-lg">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 bg-foreground text-background shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                         <cat.icon className="w-7 h-7" />
                       </div>
                       <div className="text-left">
@@ -183,6 +185,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'property' && 'Property'}
                 {activeCategory === 'motorcycle' && 'Moto'}
                 {activeCategory === 'bicycle' && 'Bicycle'}
+                {activeCategory === 'yacht' && 'Yacht'}
                 {activeCategory === 'services' && 'Worker'}
                 {activeCategory === 'buyers' && 'Buyers'}
                 {activeCategory === 'renters' && 'Renters'}
@@ -194,6 +197,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 {activeCategory === 'property' && <PropertyClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'motorcycle' && <MotoClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'bicycle' && <BicycleClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
+                {activeCategory === 'yacht' && <YachtClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'services' && <WorkerClientFilters onApply={handleFilterApply} initialFilters={localFilters} activeCount={0} />}
                 {activeCategory === 'buyers' && <DiscoveryFilters category="property" onApply={handleFilterApply} initialFilters={{ ...localFilters, interest_type: 'buy' }} activeCount={0} />}
                 {activeCategory === 'renters' && <DiscoveryFilters category="property" onApply={handleFilterApply} initialFilters={{ ...localFilters, interest_type: 'rent' }} activeCount={0} />}
@@ -203,7 +207,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               <div className="flex flex-col gap-4 pt-6">
                 <button
                   onClick={handleScan}
-                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group press-snappy"
+                  className="w-full h-20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,77,0,0.3)] flex items-center justify-center gap-4 group press-snappy active:scale-95 transition-transform"
                   style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)', color: '#ffffff' }}
                 >
                   <Search className="w-6 h-6" />
