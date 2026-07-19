@@ -184,12 +184,12 @@ export const radioStations: RadioStation[] = [
   // Miami - 10 Stations
   {
     id: 'miami-1',
-    name: 'Miami Deep House',
-    frequency: '93.1',
-    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    name: 'WLRN Miami',
+    frequency: '91.3',
+    streamUrl: 'https://wlrn.streamguys1.com/wlrn',
     city: 'miami',
-    genre: 'Deep House',
-    description: 'Ultra-lux house vibes',
+    genre: 'News/Talk',
+    description: 'South Florida Public Radio - Live Talk & News',
     albumArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?auto=format&fit=crop&q=80&w=400'
   },
   {
@@ -563,12 +563,12 @@ export const radioStations: RadioStation[] = [
   // California - 10 Stations
   {
     id: 'cali-1',
-    name: 'LA Chill',
-    frequency: '104.3',
-    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    name: 'KQED SF',
+    frequency: '88.5',
+    streamUrl: 'https://streams.kqed.org/kqedradio',
     city: 'california',
-    genre: 'Chillout',
-    description: 'West Coast Calm'
+    genre: 'News/Talk',
+    description: 'Bay Area Live Talk & NPR News'
   },
   {
     id: 'cali-2',
@@ -1376,12 +1376,12 @@ export const radioStations: RadioStation[] = [
   // London - 10 Stations
   {
     id: 'london-1',
-    name: 'London Underground',
-    frequency: '106.8',
-    streamUrl: 'https://ice1.somafm.com/missioncontrol-128-mp3',
+    name: 'BBC Radio 4',
+    frequency: '92.4',
+    streamUrl: 'http://stream.live.vc.bbcmedia.co.uk/bbc_radio_fourfm',
     city: 'london',
-    genre: 'Grime/Dubstep',
-    description: 'The heartbeat of London underground',
+    genre: 'News/Talk',
+    description: 'Intelligent speech, news, and drama from the BBC',
     albumArt: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=800'
   },
   {
