@@ -3,7 +3,7 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
 import {
   Anchor, ArrowLeft, Bath, Bed, Bike, Briefcase, Calendar, Car, CheckCircle,
-  Clock, DollarSign, Eye, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
+  Clock, DollarSign, Flag, Fuel, Gauge, Home, MapPin, MessageCircle, Ruler,
   Share2, ShieldCheck, Square, User, Wrench, Zap,
 } from 'lucide-react';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
@@ -295,7 +295,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     ];
                     const gradient = gradients[i % gradients.length];
                     return (
-                      <div key={i} className={cn("p-4 rounded-[1.8rem] flex flex-col gap-3 shadow-sm border", isLight ? "bg-white border-slate-100" : "bg-white/[0.03] border-white/[0.06]")}>
+                      <div key={i} className={cn("p-4 rounded-[1.8rem] flex flex-col gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.04)] border transition-all duration-300", isLight ? "bg-white/70 backdrop-blur-xl border-black/5" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]")}>
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg" style={{ background: gradient }}>
                           {s.icon}
                         </div>
@@ -371,6 +371,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
               style={{
                 background: 'rgba(24, 24, 28, 0.55)',
                 border: '1px solid rgba(255, 255, 255, 0.20)',
+                backdropFilter: 'blur(32px) saturate(1.8)',
+                WebkitBackdropFilter: 'blur(32px) saturate(1.8)',
                 boxShadow: '0 8px 32px -6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
               }}
             >

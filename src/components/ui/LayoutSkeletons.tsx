@@ -85,23 +85,18 @@ export function ProfileSkeleton() {
  */
 export function MessageSkeleton() {
   return (
-    <div className="flex flex-col h-full w-full animate-pulse">
-      {/* Search/Header */}
-      <div className="p-4 border-b border-white/5">
-        <Skeleton className="h-10 w-full rounded-xl" />
-      </div>
-
+    <div className="flex flex-col h-full w-full bg-background/50 rounded-[32px] overflow-hidden border border-black/5 dark:border-white/10 shadow-2xl backdrop-blur-3xl">
       {/* Inbox Items */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden pt-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 p-4 border-b border-white/5">
-            <Skeleton className="w-14 h-14 rounded-full shrink-0" />
-            <div className="flex-1 space-y-2">
-              <div className="flex justify-between">
-                <Skeleton className="h-5 w-32 rounded-md" />
-                <Skeleton className="h-3 w-10 rounded-md" />
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-black/5 dark:border-white/5">
+            <div className="w-14 h-14 rounded-full shrink-0 bg-black/5 dark:bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+            <div className="flex-1 space-y-3">
+              <div className="flex justify-between items-end">
+                <div className="h-5 w-32 rounded-lg bg-black/10 dark:bg-white/10 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+                <div className="h-3 w-10 rounded-lg bg-black/5 dark:bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.15}s` }} />
               </div>
-              <Skeleton className="h-4 w-full rounded-md" />
+              <div className="h-4 w-[85%] rounded-lg bg-black/5 dark:bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
             </div>
           </div>
         ))}

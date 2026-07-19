@@ -17,7 +17,7 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
   const MAX_PULL = 120;
   const REFRESH_THRESHOLD = 75;
 
-  const yOffset = useTransform(pullY, [0, MAX_PULL], [0, MAX_PULL]);
+  const yOffsetSpinner = useTransform(pullY, [0, MAX_PULL], [-50, 40]);
   const spinnerOpacity = useTransform(pullY, [0, REFRESH_THRESHOLD], [0, 1]);
   const spinnerRotate = useTransform(pullY, [0, REFRESH_THRESHOLD], [0, 360]);
   const spinnerScale = useTransform(pullY, [0, REFRESH_THRESHOLD], [0.5, 1]);
@@ -121,7 +121,7 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
         <motion.div
           className="bg-white/90 dark:bg-black/90 backdrop-blur-md rounded-full shadow-lg p-2.5 border border-black/5 dark:border-white/10"
           style={{
-            y: isRefreshing ? 20 : useTransform(pullY, [0, MAX_PULL], [-50, 40]),
+            y: isRefreshing ? 20 : yOffsetSpinner,
             scale: isRefreshing ? 1 : spinnerScale,
             rotate: isRefreshing ? undefined : spinnerRotate,
           }}

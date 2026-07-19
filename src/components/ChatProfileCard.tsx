@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ChatProfileData {

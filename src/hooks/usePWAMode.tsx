@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 /**
@@ -137,7 +137,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState(() => detectPWAMode());
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  const promptInstall = async () => {
+  const promptInstall = useCallback(async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -145,7 +145,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
         setDeferredPrompt(null);
       }
     }
-  };
+  }, [deferredPrompt]);
 
   useEffect(() => {
     // Re-detect on display-mode change (rare but possible)
@@ -187,7 +187,7 @@ export function PWAProvider({ children }: { children: ReactNode }) {
       deferredPrompt,
       promptInstall
     }),
-    [mode.isPWA, mode.isIOS, mode.isAndroid, deferredPrompt]
+    [mode.isPWA, mode.isIOS, mode.isAndroid, deferredPrompt, promptInstall]
   );
 
   return (

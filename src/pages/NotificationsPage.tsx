@@ -143,8 +143,8 @@ const NotificationsPage = () => {
             </motion.div>
           ) : (
             <div className={cn(
-              "rounded-[24px] overflow-hidden border",
-              isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+              "rounded-[24px] overflow-hidden border transition-all duration-300",
+              isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
             )}>
             {notifications.map((notif, idx) => (
               <motion.div

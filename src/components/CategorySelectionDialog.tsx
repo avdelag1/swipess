@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { triggerHaptic } from "@/utils/haptics";
 
 interface CategorySelectionDialogProps {
   open: boolean;
@@ -127,6 +128,7 @@ export function CategorySelectionDialog({
   }, []);
 
   const handleCategorySelect = (category: Category) => {
+    triggerHaptic('light');
     setSelectedCategory(category);
     if (category.id === 'worker') {
       if (navigateToNewPage) {
@@ -150,6 +152,7 @@ export function CategorySelectionDialog({
 
   const handleModeSelect = (mode: 'rent' | 'sale' | 'both') => {
     if (!selectedCategory) return;
+    triggerHaptic('light');
 
     if (navigateToNewPage) {
       navigate(`/owner/listings/new?category=${selectedCategory.id}&mode=${mode}`);
@@ -185,6 +188,7 @@ export function CategorySelectionDialog({
   };
 
   const handleOpenAI = () => {
+    triggerHaptic('medium');
     onOpenChange(false);
     requestAnimationFrame(() => {
       if (onAIOpen) onAIOpen();
@@ -201,10 +205,10 @@ export function CategorySelectionDialog({
         className={cn(
         "!w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none !p-0",
         "sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[3rem]",
-        "flex flex-col p-0 gap-0 overflow-hidden border dark:bg-black/95 bg-white dark:border-white/10 border-slate-200 dark:shadow-[0_40px_100px_rgba(0,0,0,1)] shadow-[0_40px_100px_rgba(0,0,0,0.2)]"
+        "flex flex-col p-0 gap-0 overflow-hidden border bg-white dark:bg-black dark:border-white/10 border-slate-200/50 shadow-[0_40px_100px_rgba(0,0,0,0.5)]"
       )}>
         
-        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-slate-200 relative z-10">
+        <DialogHeader className="shrink-0 px-6 sm:px-8 pt-[calc(env(safe-area-inset-top)+1.5rem)] sm:pt-8 pb-4 sm:pb-6 border-b dark:border-white/5 border-slate-200/50 relative z-10 bg-slate-50 dark:bg-zinc-950">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <DialogTitle className="text-xl sm:text-2xl font-black uppercase italic tracking-tighter text-foreground">

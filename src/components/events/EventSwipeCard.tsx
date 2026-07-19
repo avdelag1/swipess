@@ -220,7 +220,7 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
                 e.stopPropagation();
                 onExit?.();
               }}
-              className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+              className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
               aria-label="Back"
             >
               <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
@@ -352,7 +352,7 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
               )}
             />
 
-            <div className="flex flex-col gap-2 p-1.5 rounded-full deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-2 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
               {[
                 { icon: Eye, onClick: onDetails, label: 'Details' },
                 { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },

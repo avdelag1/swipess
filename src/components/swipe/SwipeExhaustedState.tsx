@@ -1,7 +1,8 @@
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { DistanceSlider } from './DistanceSlider';
-import { Map, MapPin, SlidersHorizontal } from 'lucide-react';
+import { Map, MapPin, SlidersHorizontal, Sparkles, Zap } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +19,7 @@ interface SwipeExhaustedStateProps {
   onOpenFilters?: () => void;
   onOpenMap?: () => void;
   onBack?: () => void;
+  onOpenAIWizard?: () => void;
   role?: 'client' | 'owner';
   [key: string]: any;
 }
@@ -35,6 +37,7 @@ export const SwipeExhaustedState = ({
   onOpenFilters,
   onOpenMap,
   onBack,
+  onOpenAIWizard,
   role = 'client',
 }: SwipeExhaustedStateProps) => {
   const { isLight } = useAppTheme();
@@ -73,37 +76,70 @@ export const SwipeExhaustedState = ({
   // Action buttons — always high-contrast regardless of theme
   const actionBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
-    : { backgroundColor: 'rgba(255,255,255,0.12)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.3)' };
+    : {
+        backgroundColor: 'rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(16px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+        color: '#ffffff',
+        borderColor: 'rgba(255,255,255,0.18)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
+      };
 
   const filterBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
     : { backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: '#ffffff' };
 
-  const mapBtnStyle: React.CSSProperties = isLight
-    ? { backgroundColor: '#4f46e5', color: '#ffffff', borderColor: '#4f46e5' }
-    : { backgroundColor: '#6366f1', color: '#ffffff', borderColor: '#6366f1' };
+  const mapBtnStyle: React.CSSProperties = {
+    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent,244 63% 70%)))',
+    color: '#fff',
+    border: '1px solid rgba(255,255,255,0.15)',
+    boxShadow: '0 8px 24px hsl(var(--primary)/0.35)',
+  };
 
   const backBtnStyle: React.CSSProperties = isLight
-    ? { backgroundColor: '#f1f5f9', color: '#000000' }
-    : { backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff' };
+    ? { backgroundColor: 'rgba(241,245,249,0.9)', color: '#000000', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }
+    : { backgroundColor: 'rgba(255,255,255,0.10)', color: '#ffffff', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' };
 
   return (
     <div
       style={{ backgroundColor: bgColor, borderColor }}
       className="relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border"
     >
-      {/* Top Left Back Button */}
+      {/* ── Animated radar rings background ─────────────────────────────── */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-[2.5rem]">
+        {/* Pulsing concentric rings */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              'absolute w-40 h-40 rounded-full border-2',
+              i === 0 ? 'animate-radar-ring' : i === 1 ? 'animate-radar-ring-2' : 'animate-radar-ring-3'
+            )}
+            style={{
+              borderColor: isLight ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.4)',
+            }}
+          />
+        ))}
+        {/* Centre dot */}
+        <div
+          className="absolute w-3 h-3 rounded-full animate-radar-pulse"
+          style={{ background: isLight ? '#6366f1' : '#818cf8', boxShadow: '0 0 12px 4px rgba(99,102,241,0.6)' }}
+        />
+      </div>
+
+      {/* Top Left Back Button — Glass */}
       {onBack && (
         <button
           onClick={() => {
             triggerHaptic('light');
             onBack();
           }}
-          style={backBtnStyle}
-          className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90"
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[110] w-11 h-11 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] transition-all duration-300 active:scale-85"
           aria-label="Go back to dashboard"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 opacity-90"><path d="m15 18-6-6 6-6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
         </button>
       )}
 
@@ -124,19 +160,18 @@ export const SwipeExhaustedState = ({
             style={{ backgroundColor: radiusCardBg, borderColor: radiusCardBorder }}
             className="w-full rounded-[2.25rem] p-5 pt-6 relative border"
           >
-            {/* Filter pill — top-right, isolated */}
+            {/* Filter pill — top-right, glass */}
             {onOpenFilters && (
               <button
                 onClick={() => {
                   triggerHaptic('light');
                   onOpenFilters();
                 }}
-                style={filterBtnStyle}
-                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full border transition-all active:scale-90"
+                className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-all duration-300 active:scale-85"
                 title="Open advanced filters"
                 aria-label="Open advanced filters"
               >
-                <SlidersHorizontal style={{ color: filterBtnStyle.color }} className="w-4 h-4" />
+                <SlidersHorizontal className="w-4 h-4 text-white" />
               </button>
             )}
 
@@ -171,6 +206,56 @@ export const SwipeExhaustedState = ({
             <Map style={{ color: mapBtnStyle.color }} className="w-4 h-4" />
             {t('deck.exhausted.exploreMap')}
           </button>
+        )}
+
+        {/* AI CTA Banner */}
+        {onOpenAIWizard && (
+          <div className="w-full">
+            <button
+              onClick={() => {
+                triggerHaptic('heavy');
+                onOpenAIWizard();
+              }}
+              className="w-full relative overflow-hidden rounded-[2rem] p-px active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #6366F1 55%, #8B5CF6 100%)' }}
+            >
+              <div
+                className="relative w-full rounded-[calc(2rem-1px)] px-5 py-4 flex items-center gap-4"
+                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(99,102,241,0.15) 55%, rgba(139,92,246,0.15) 100%)', backdropFilter: 'blur(24px)' }}
+              >
+                {/* Glow orb */}
+                <div className="absolute inset-0 rounded-[calc(2rem-1px)] overflow-hidden pointer-events-none">
+                  <div className="absolute -top-6 -left-6 w-32 h-32 rounded-full blur-2xl opacity-40" style={{ background: '#06B6D4' }} />
+                  <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full blur-2xl opacity-30" style={{ background: '#8B5CF6' }} />
+                </div>
+
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #06B6D4, #8B5CF6)' }}>
+                  {role === 'owner' ? (
+                    <Zap className="w-5 h-5 text-white" />
+                  ) : (
+                    <Sparkles className="w-5 h-5 text-white" />
+                  )}
+                </div>
+
+                <div className="flex-1 text-left">
+                  <p className="text-[13px] font-black text-white tracking-tight">
+                    {role === 'owner' ? 'Post a Listing with AI' : 'Let AI Find Your Match'}
+                  </p>
+                  <p className="text-[11px] font-semibold mt-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                    {role === 'owner'
+                      ? 'One sentence is all it takes'
+                      : 'Describe what you\'re looking for'}
+                  </p>
+                </div>
+
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          </div>
         )}
 
         {/* Category switcher */}

@@ -124,8 +124,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const cardOpacity = useTransform([x, y] as any, () => 1);
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
-  const rotate = useTransform(x, [-800, 800], [-25, 25]);
+  const rotate = useTransform(x, [-800, 800], [-15, 15]); // reduced flat rotation for 3D realism
+  const rotateX = useTransform(y, [-800, 800], [20, -20]); // 3D tilt up/down
+  const rotateY = useTransform(x, [-800, 800], [-20, 20]); // 3D tilt left/right
   const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
+
+  const dynamicBoxShadow = useTransform(
+    x,
+    [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD],
+    [
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(239,68,68,0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 0px rgba(0,0,0,0), inset 0 1px 0 rgba(255,255,255,0.1)',
+      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.1)'
+    ]
+  );
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -221,6 +233,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       }
     }
     magnifierPointerHandlers.onPointerMove(e);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMagnifierActive, isMagnifierHoldPending, magnifierPointerHandlers]);
 
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
@@ -294,6 +307,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       }
       triggerHaptic('light');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageCount, onTap, isMagnifierActive, wasMagnifierActive]);
 
   const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
@@ -338,14 +352,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerCancel={handleUnifiedPointerUp}
         className={cn("swipe-live-card flex-1 select-none touch-none relative w-full h-full overflow-hidden border-none gpu-ultra", isTop && !disableDrag ? "cursor-grab active:cursor-grabbing" : "")}
         style={{
-          x, y, rotate: isTop ? rotate : 0, scale: isTop ? scale : 0.95, opacity: isTop ? cardOpacity : 0.6,
-          willChange: 'transform, opacity',
+          x, y,
+          rotate: isTop ? rotate : 0,
+          rotateX: isTop ? rotateX : 0,
+          rotateY: isTop ? rotateY : 0,
+          scale: isTop ? scale : 0.95,
+          opacity: isTop ? cardOpacity : 0.6,
+          willChange: 'transform, opacity, box-shadow',
           transform: 'translate3d(0,0,0)',
-          transformOrigin: '50% 120%',
+          transformStyle: 'preserve-3d',
+          transformOrigin: 'center center',
           backfaceVisibility: 'hidden',
           borderRadius: fullScreen ? 0 : 48,
           boxShadow: isTop
-            ? '0 25px 50px -12px rgba(0,0,0,0.45), 0 10px 30px -5px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+            ? dynamicBoxShadow
             : '0 4px 10px rgba(0,0,0,0.1)',
           background: 'hsl(var(--swipe-deck-frame))',
         }}
@@ -387,7 +407,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     e.stopPropagation();
                     if (onBack) onBack();
                   }}
-                  className="pointer-events-auto flex items-center justify-center w-12 h-12 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                  className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
                   aria-label="Back"
                 >
                   <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
@@ -401,7 +421,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                       e.stopPropagation();
                       if (onUndo) onUndo();
                     }}
-                    className="pointer-events-auto flex items-center justify-center w-10 h-10 deck-hud-solid rounded-full text-white border border-white/20 active:scale-90 transition-transform shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-auto flex items-center justify-center w-11 h-11 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
                     aria-label="Undo"
                   >
                     <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
@@ -419,16 +439,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <GestureHints hidden={isZoomed} />
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity, scale: likeOpacity }}>
-          <div className="flex flex-col items-center gap-1.5">
-             <div className="px-5 py-2.5 rounded-2xl border-2 border-orange-500/80 bg-orange-500/20">
-               <span className="font-black text-4xl text-white  tracking-tighter whitespace-nowrap">I LIKE IT</span>
-             </div>
+          <div className="px-6 py-3 rounded-2xl border-[3px] border-emerald-400 relative overflow-hidden"
+            style={{ background: 'rgba(16,185,129,0.18)', boxShadow: '0 0 40px rgba(16,185,129,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
+            <span className="font-black text-4xl tracking-tighter whitespace-nowrap relative z-10"
+              style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>I LIKE IT</span>
           </div>
         </motion.div>
 
         <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity, scale: passOpacity }}>
-          <div className="px-5 py-2.5 rounded-2xl border-2 border-rose-500/80 bg-rose-500/20">
-            <span className="font-black text-4xl text-white  tracking-tighter">NOPE</span>
+          <div className="px-6 py-3 rounded-2xl border-[3px] border-rose-400 relative overflow-hidden"
+            style={{ background: 'rgba(244,63,94,0.18)', boxShadow: '0 0 40px rgba(244,63,94,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
+            <span className="font-black text-4xl tracking-tighter relative z-10"
+              style={{ color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>NOPE</span>
           </div>
         </motion.div>
 
@@ -521,10 +545,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               tone="onPhoto"
               size="lg"
               guardSwipe
-              className="w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+              className="w-[58px] h-[58px] shadow-[0_16px_48px_rgba(0,0,0,0.5)] bg-black/30 backdrop-blur-3xl border border-white/30 active:scale-90 transition-all duration-300"
             />
 
-            <div className="flex flex-col gap-1 p-1.5 rounded-3xl deck-hud-solid border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+            <div className="flex flex-col gap-1 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
               {[
                 { glyph: 'AI', onClick: () => useModalStore.getState().openAIChat(), label: 'AI Chat' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
@@ -540,12 +564,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   data-no-cinematic=""
                   onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); triggerHaptic('light'); btn.onClick?.(); }}
-                  className="flex items-center justify-center w-[44px] h-[44px] rounded-full bg-transparent text-white hover:bg-white/10 active:scale-95 transition-transform"
+                  className="flex items-center justify-center w-[46px] h-[46px] rounded-[1.25rem] bg-transparent text-white hover:bg-white/10 active:scale-85 active:bg-white/20 transition-all duration-300"
                 >
                   {btn.glyph ? (
                     <span className="text-[15px] font-black tracking-tight leading-none">{btn.glyph}</span>
                   ) : btn.icon ? (
-                    <btn.icon size={20} strokeWidth={1.8} aria-hidden="true" />
+                    <btn.icon size={20} strokeWidth={2} aria-hidden="true" />
                   ) : null}
                 </button>
               ))}
@@ -559,4 +583,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 });
 
 SimpleOwnerSwipeCardComponent.displayName = 'SimpleOwnerSwipeCard';
-export const SimpleOwnerSwipeCard = memo(SimpleOwnerSwipeCardComponent);
+export const SimpleOwnerSwipeCard = memo(SimpleOwnerSwipeCardComponent, (prev, next) => {
+  return (
+    prev.client.user_id === next.client.user_id &&
+    prev.isTop === next.isTop &&
+    prev.fullScreen === next.fullScreen &&
+    prev.canUndo === next.canUndo &&
+    prev.disableDrag === next.disableDrag &&
+    prev.renderTopRail === next.renderTopRail
+  );
+});

@@ -5,10 +5,12 @@ import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
 import { SmartSelector } from './listing/SmartSelector';
 import { FormFieldLabel, FormSection } from './listing/FormSection';
+import { AITextarea } from '@/components/ui/AITextarea';
 import {
-  buildYachtDescription,
   buildVehicleTitleFromChips,
+  buildYachtDescription,
   getModelsForBrand,
+  PROPERTY_ADJECTIVES,
   YACHT_BRANDS,
   YACHT_CONDITION,
   YACHT_CONDITION_DB,
@@ -17,7 +19,6 @@ import {
   YACHT_INCLUDED,
   YACHT_MODELS,
   YACHT_TYPE,
-  PROPERTY_ADJECTIVES,
 } from '@/constants/listingTaxonomies';
 import { DescriptionPreview } from './listing/DescriptionPreview';
 import { PredictiveInput } from './listing/PredictiveInput';
@@ -131,9 +132,37 @@ export function YachtListingForm({ onDataChange, initialData }: YachtListingForm
   const yachtType = watch('yacht_type') ? [watch('yacht_type')!] : [];
   const condition = watch('condition') ? [watch('condition')!] : [];
   const fuel = watch('fuel_type') ? [watch('fuel_type')!] : [];
+  const descValue = watch('description') || '';
 
   return (
     <div className="space-y-5">
+      <FormSection title="Listing Title & AI Description" accent="orange">
+        <FormFieldLabel>Title</FormFieldLabel>
+        <Input
+          {...register('title')}
+          placeholder={buildVehicleTitleFromChips({
+            adjective: watch('adjectives')?.[0],
+            type: watch('yacht_type'),
+            brand: watch('brand'),
+            model: watch('model'),
+            year: watch('year'),
+            city: watch('city'),
+          }) || 'e.g. 2018 Sea Ray Sundancer in Miami…'}
+          className="h-12 text-base"
+        />
+        <p className="text-[10px] text-muted-foreground/50 -mt-1 ml-1">Leave blank to auto-generate from your chips below.</p>
+
+        <FormFieldLabel className="mt-3">Description override (optional)</FormFieldLabel>
+        <AITextarea
+          value={descValue}
+          onChange={(v) => setValue('description', v)}
+          enhanceType="listing"
+          placeholder="Optional — chips below build a description automatically."
+          maxLength={800}
+          rows={4}
+        />
+      </FormSection>
+
       <FormSection title="Describe Your Vessel" accent="orange">
         <FormFieldLabel>Pick a vibe word</FormFieldLabel>
         <ChipMultiSelect

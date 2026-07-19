@@ -212,7 +212,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-white/10 text-white">
+      <DialogContent className="sm:max-w-3xl h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-white/10 text-white">
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-white/10">
           <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
             Saved Searches & Alerts

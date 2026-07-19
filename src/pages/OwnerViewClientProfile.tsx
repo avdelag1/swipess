@@ -171,8 +171,8 @@ export default function OwnerViewClientProfile() {
       )}
     >
       <div className={cn(
-        "sticky top-[var(--top-bar-height)] z-50 border-b",
-        isLight ? "bg-background/80 border-border/60" : "bg-black/40 border-white/5",
+        "sticky top-[var(--top-bar-height)] z-50 border-b transition-all duration-300",
+        isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-sm" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
       )}>
         <div className="container max-w-[440px] mx-auto px-6 py-4 flex items-center justify-between">
           <button 
@@ -200,8 +200,8 @@ export default function OwnerViewClientProfile() {
         
         {/* ðŸ’Ž PROFILE HERO CARD */}
         <div className={cn(
-          "p-6 rounded-[2.5rem] border relative overflow-hidden group",
-          isLight ? "surface-section" : "bg-zinc-950/40 border-white/10 shadow-xl",
+          "p-6 rounded-[2.5rem] border relative overflow-hidden group transition-all duration-300",
+          isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
         )}>
           <div className="space-y-6 relative z-10">
             <div className="flex items-start justify-between">
@@ -249,7 +249,7 @@ export default function OwnerViewClientProfile() {
 
         {/* 📝 ABOUT + LOOKING FOR — what the client wrote and what they want */}
         {((client as any).bio || (Array.isArray((client as any).intentions) && (client as any).intentions.length > 0)) && (
-          <div className={cn("p-6 rounded-[32px] shadow-xl space-y-4", isLight ? "surface-section" : "bg-zinc-950/40 backdrop-blur-xl border border-white/10")}>
+          <div className={cn("p-6 rounded-[32px] shadow-xl space-y-4 transition-all duration-300", isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]")}>
             {(client as any).bio && (
               <div className="space-y-2">
                 <span className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight ? "text-black/40" : "text-white/30")}>About</span>

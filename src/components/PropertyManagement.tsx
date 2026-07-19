@@ -365,10 +365,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               {filteredListings.map((listing) => (
                 <div key={listing.id} className="group">
                   <div className={cn(
-                    "overflow-hidden rounded-[3rem] transition-all border shadow-2xl hover:shadow-3xl group-hover:-translate-y-2",
+                    "overflow-hidden rounded-[3rem] transition-all duration-300 border shadow-2xl hover:shadow-[0_20px_60px_rgba(0,0,0,0.6)] group-hover:-translate-y-2",
                     isLight
-                      ? 'bg-white border-slate-200'
-                      : 'bg-white/[0.03] border-white/5 hover:border-white/10'
+                      ? 'bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]'
+                      : 'bg-black/40 backdrop-blur-xl border-white/10 hover:border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
                   )}>
                     {/* 🛸 ASSET MEDIA */}
                     <div className={cn("relative aspect-[16/10] overflow-hidden", isLight ? 'bg-slate-50' : 'bg-white/5')}>

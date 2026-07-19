@@ -34,16 +34,16 @@ export const VerifiedBadge = memo(({ size = 'md', showLabel = false, className }
         <BadgeCheck 
           className={cn(
             sizeClasses[size], 
-            'text-blue-500 fill-blue-500/20'
+            'text-blue-400 drop-shadow-[0_0_6px_rgba(96,165,250,0.7)]'
           )} 
         />
-        {/* Subtle pulse animation */}
-        <div className="absolute inset-0 animate-ping opacity-70">
-          <BadgeCheck className={cn(sizeClasses[size], 'text-blue-400')} />
+        {/* Subtle soft glow pulse */}
+        <div className="absolute inset-0 animate-pulse opacity-60">
+          <BadgeCheck className={cn(sizeClasses[size], 'text-blue-300')} />
         </div>
       </div>
       {showLabel && (
-        <span className="text-xs font-medium text-blue-500">Verified</span>
+        <span className="text-xs font-medium text-blue-400">Verified</span>
       )}
     </div>
   );

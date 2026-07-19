@@ -213,6 +213,7 @@ export function usePullDownToDismiss(opts?: { threshold?: number; onRefresh?: ()
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commitDismiss, threshold, y]);
 
   // Safety: cancel on unmount

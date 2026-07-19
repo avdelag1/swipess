@@ -73,7 +73,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       {/* Main Stats Grid */}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 stagger-enter">
         {stats.map((stat) => (
-            <div key={stat.title} className={cn("relative rounded-[2.2rem] overflow-hidden border", isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/[0.08]")}>
+            <div key={stat.title} className={cn("relative rounded-[2.2rem] overflow-hidden border transition-all duration-300", isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]")}>
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
 
       {/* Category Breakdown - Only show if there are listings */}
       {totalListings > 0 && categoryBreakdown.length > 0 && (
-        <div className={cn("rounded-[2.5rem] relative overflow-hidden border", isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/[0.08]")}>
+        <div className={cn("rounded-[2.5rem] relative overflow-hidden border transition-all duration-300", isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]")}>
             <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-4">
                 <h4 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? 'text-black opacity-50' : 'text-white opacity-50')}>Asset Breakdown</h4>

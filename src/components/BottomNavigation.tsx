@@ -302,7 +302,7 @@ export const BottomNavigation = memo(({
     return active ? `${iconShadow} ${activeGlow}` : `${iconShadow} ${inactiveGlow}`;
   };
 
-  const getNavLabelShadow = (itemId: string, active: boolean) => {
+  const _getNavLabelShadow = (itemId: string, active: boolean) => {
     if (itemId === 'add') return '0 0 8px rgba(255,51,102,0.4)';
     if (!useLightIcons) return undefined;
     return active ? '0 0 6px rgba(255,255,255,0.35)' : '0 1px 3px rgba(0,0,0,0.35)';
@@ -331,9 +331,9 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
-          "px-2 py-1.5 border",
-          "bg-white/95 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
-          "dark:bg-black dark:border-white/10 dark:shadow-none"
+          "px-2 py-1.5 border backdrop-blur-[32px]",
+          "bg-white/70 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
+          "dark:bg-white/5 dark:border-white/15 dark:shadow-[0_16px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12)]"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -468,17 +468,16 @@ export const BottomNavigation = memo(({
                     {active && (
                       <motion.div
                         layoutId="nav-active-indicator"
-                        initial={{ opacity: 0, y: 10, scale: 0.5 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.5 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
                         transition={{
                           type: 'spring',
-                          stiffness: 500,
-                          damping: 30,
+                          stiffness: 400,
+                          damping: 25,
                           mass: 0.5,
                         }}
-                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                        style={{ backgroundColor: baseColor }}
+                        className="absolute inset-0 z-[-1] rounded-full bg-black/5 dark:bg-white/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.2)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.05)]"
                       />
                     )}
                   </AnimatePresence>

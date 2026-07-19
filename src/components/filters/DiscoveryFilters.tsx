@@ -182,6 +182,7 @@ export const DiscoveryFilters = memo(function DiscoveryFilters({ category, onApp
     }, 400);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, interestType, selectedBudgetRange, locationNeighborhoods, propertyTypes, bedrooms, motoTypes, engineRange, localRadiusKm]);
 
   const toggleItem = (arr: string[], item: string, setter: (val: string[]) => void) => {

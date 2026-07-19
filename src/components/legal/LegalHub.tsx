@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { clientTemplates, ContractTemplate, getTemplateById, LEASE_TEMPLATES, ownerTemplates } from '@/data/contractTemplates';
 import { DocumentEditorToolbar } from '@/components/legal/DocumentEditorToolbar';
-import { getFontCss, type DocumentFontId } from '@/lib/document-fonts';
+import { type DocumentFontId, getFontCss } from '@/lib/document-fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
@@ -89,6 +89,7 @@ export function ContractsVault() {
   useEffect(() => {
     if (!user) return;
     fetchContracts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {

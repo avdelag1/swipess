@@ -19,6 +19,6 @@ async function test() {
         })
         .select()
         .single();
-  console.log("Result:", error || data);
+  console.warn("Result:", error || data);
 }
 test();

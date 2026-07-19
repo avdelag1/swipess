@@ -5,6 +5,7 @@ import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
 import { SmartSelector } from './listing/SmartSelector';
 import { FormFieldLabel, FormSection } from './listing/FormSection';
+import { AITextarea } from '@/components/ui/AITextarea';
 import {
   BICYCLE_BRANDS,
   BICYCLE_MODELS,
@@ -162,6 +163,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
   const brakeType = watch('brake_type') ? [watch('brake_type')!] : [];
   const suspension = watch('suspension_type') ? [watch('suspension_type')!] : [];
   const isElectric = watch('electric_assist');
+  const descValue = watch('description') || '';
 
   const syncIncluded = (selected: string[]) => {
     for (const [label, key] of Object.entries(INCLUDED_FIELDS)) {
@@ -171,6 +173,33 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
 
   return (
     <div className="space-y-5">
+      <FormSection title="Listing Title & AI Description" accent="purple">
+        <FormFieldLabel>Title</FormFieldLabel>
+        <Input
+          {...register('title')}
+          placeholder={buildVehicleTitleFromChips({
+            adjective: watch('adjectives')?.[0],
+            type: watch('bicycle_type'),
+            brand: watch('brand'),
+            model: watch('model'),
+            year: watch('year'),
+            city: watch('city'),
+          }) || 'e.g. 2023 Specialized Tarmac in Paris…'}
+          className="h-12 text-base"
+        />
+        <p className="text-[10px] text-muted-foreground/50 -mt-1 ml-1">Leave blank to auto-generate from your chips below.</p>
+
+        <FormFieldLabel className="mt-3">Description override (optional)</FormFieldLabel>
+        <AITextarea
+          value={descValue}
+          onChange={(v) => setValue('description', v)}
+          enhanceType="listing"
+          placeholder="Optional — chips below build a description automatically."
+          maxLength={800}
+          rows={4}
+        />
+      </FormSection>
+
       <FormSection title="Describe Your Bike" accent="purple">
         <FormFieldLabel>Pick a vibe word</FormFieldLabel>
         <ChipMultiSelect

@@ -48,7 +48,7 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 flex-1 content-start">
-          {FILTERS.map((cat, i) => (
+          {FILTERS.map((cat, _i) => (
             <button
               key={cat.label}
               onClick={() => setActiveCategory(cat)}

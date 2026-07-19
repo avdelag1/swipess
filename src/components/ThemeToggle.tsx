@@ -7,7 +7,7 @@ import { useContext } from 'react';
 
 import { triggerHaptic } from '@/utils/haptics';
 import { useLocation } from 'react-router-dom';
-import { getHeaderChrome, HEADER_CHROME_PILL_CLASS, isDashboardPath } from '@/utils/headerChrome';
+import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
 
 type Theme = 'light' | 'dark';
 

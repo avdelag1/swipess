@@ -20,11 +20,11 @@ export const SwipeLoadingSkeleton = () => (
 
         <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
           {[1, 2, 3, 4].map((num) => (
-            <div key={`skeleton-dot-${num}`} className="flex-1 h-[2px] rounded-full bg-white/10" />
+            <div key={`skeleton-dot-${num}`} className="flex-1 h-[3px] rounded-full bg-white/[0.14] route-skeleton-bar" style={{ animationDelay: `${num * 0.15}s` }} />
           ))}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 deck-hud-solid border-t border-white/5 p-6 pt-8">
+        <div className="absolute bottom-0 left-0 right-0 bg-black/40 backdrop-blur-3xl border-t border-white/10 rounded-t-[24px] p-6 pt-8">
           <div className="flex justify-between items-end mb-4">
             <div className="flex-1 space-y-3">
               <div className="h-6 w-3/4 bg-white/10 rounded-lg route-skeleton-bar" />
@@ -44,7 +44,7 @@ export const SwipeLoadingSkeleton = () => (
     <div className="flex-shrink-0 flex justify-center items-center py-5 px-4">
       <div className="flex items-center gap-4">
         {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="w-10 h-10 rounded-full border border-white/10 bg-white/5 route-skeleton-bar" />
+          <div key={n} className="w-10 h-10 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl animate-pulse" />
         ))}
       </div>
     </div>

@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
-  ArrowLeft, Scale, FileText, Clock, ChevronRight, ShieldCheck, Check,
-  Building2, Home, Gavel, HeartCrack, FileLock2, Briefcase, Landmark,
-  type LucideIcon,
+  ArrowLeft, Briefcase, Building2, Check, ChevronRight, Clock, FileLock2,
+  FileText, Gavel, HeartCrack, Home, Landmark, type LucideIcon, Scale,
+  ShieldCheck,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -14,8 +14,8 @@ import { haptics } from '@/utils/microPolish';
 import { AtmosphericLayer } from '@/components/AtmosphericLayer';
 import { useLegalPackages } from '@/hooks/useLegalPackages';
 import {
-  LegalPackage, CONTRACT_TYPES, CATEGORY_ORDER, categoryMeta,
-  formatPrice, formatDuration,
+  CATEGORY_ORDER, categoryMeta, CONTRACT_TYPES, formatDuration,
+  formatPrice, LegalPackage,
 } from '@/data/legalPackages';
 import { LegalPackageRequestModal } from '@/components/legal/LegalPackageRequestModal';
 

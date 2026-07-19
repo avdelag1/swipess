@@ -19,7 +19,8 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: hsl(var(--background));
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv03", "cv04", "cv11";
   /* 🏎️ GPU ACCELERATION — only on compositing-friendly containers */
   overscroll-behavior-y: none;
   scroll-behavior: smooth;
@@ -496,7 +497,17 @@ body.hw-high .floating-dock-nav {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
   transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.glass-icon-btn:active { transform: scale(0.85); }
+.glass-icon-btn:active {
+  transform: scale(0.88);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)) brightness(0.85);
+  transition: transform 0.08s ease-out, filter 0.08s ease-out;
+}
+@media (hover: hover) {
+  .glass-icon-btn:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.28));
+  }
+}
 .glass-icon-btn[data-tone="photo"] {
   color: #ffffff;
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
@@ -694,7 +705,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --hud-active-bg: rgba(0, 0, 0, 0.05);
   }
   .dark {
-    --background: 327 10% 8%; /* Very dark with a hint of pink */
+    --background: 0 0% 0%; /* OLED Black */
     --foreground: 0 0% 98%;
     --primary: 327 100% 60%; /* Brighter Mexican Pink for dark mode */
     --primary-foreground: 0 0% 100%;
@@ -784,7 +795,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
   .black-matte {
     /* Background colors - Deep black palette */
-    --background: 0 0% 5%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 96%;
     --card: 0 0% 10%;
     --card-foreground: 0 0% 96%;
@@ -1396,6 +1407,29 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   .animate-radar-pulse {
     animation: radar-pulse 2.5s ease-in-out infinite;
   }
+
+  /* Expanding radar ring — used in SwipeExhaustedState */
+  @keyframes radar-ring-expand {
+    0%   { transform: scale(0.3); opacity: 0.8; }
+    80%  { opacity: 0.0; }
+    100% { transform: scale(3.2); opacity: 0; }
+  }
+
+  .animate-radar-ring {
+    animation: radar-ring-expand 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .animate-radar-ring-2 {
+    animation: radar-ring-expand 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation-delay: 1s;
+    will-change: transform, opacity;
+  }
+  .animate-radar-ring-3 {
+    animation: radar-ring-expand 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation-delay: 2s;
+    will-change: transform, opacity;
+  }
+
 
   /* Optimized card interactions - GAME-LIKE INSTANT FEEL */
   .fast-card {

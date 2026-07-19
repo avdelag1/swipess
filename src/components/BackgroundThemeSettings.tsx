@@ -8,7 +8,7 @@ import { uiSounds } from "@/utils/uiSounds";
 
 const STORAGE_KEY = 'Swipess_bg_theme';
 
-export const bgThemeDisplayNames: Record<EffectMode, string> = {
+const bgThemeDisplayNames: Record<EffectMode, string> = {
   off:    'Off',
   stars:  'Starry Night',
   sunset: 'Serene Sunset Shore',
@@ -20,7 +20,7 @@ const bgThemeDescriptions: Record<EffectMode, string> = {
   sunset: 'Coastal sunset with pelicans, waves, and rainbow on tap',
 };
 
-export const bgSoundDisplayNames = {
+const bgSoundDisplayNames = {
   off: 'Silent',
   bells: 'Wind Bells',
   bowls: 'Meditation Bowls',
@@ -28,7 +28,7 @@ export const bgSoundDisplayNames = {
 };
 export type BgSoundMode = keyof typeof bgSoundDisplayNames;
 
-export function getStoredBgTheme(): EffectMode {
+function getStoredBgTheme(): EffectMode {
   try {
     const val = localStorage.getItem(STORAGE_KEY);
     if (val === 'stars' || val === 'sunset' || val === 'off') return val;
@@ -36,7 +36,7 @@ export function getStoredBgTheme(): EffectMode {
   return 'sunset';
 }
 
-export function getStoredBgSound(): BgSoundMode {
+function getStoredBgSound(): BgSoundMode {
   try {
     const val = localStorage.getItem('Swipess_bg_sound');
     if (val === 'bells' || val === 'bowls' || val === 'waves' || val === 'off') return val;

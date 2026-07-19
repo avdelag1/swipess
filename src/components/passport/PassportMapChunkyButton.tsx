@@ -46,7 +46,7 @@ export const PassportMapChunkyButton = memo(({
             size,
             active
               ? 'text-white shadow-[0_8px_16px_rgba(0,0,0,0.15)] scale-105'
-              : 'bg-[#161b27]/95 border border-white/10 text-white/90 hover:bg-[#202738]/95 hover:scale-105',
+              : 'bg-black/30 border border-white/10 text-white/90 hover:bg-black/50 hover:border-white/20 hover:scale-105 backdrop-blur-xl',
             className,
           )}
           style={active ? { background: gradient } : undefined}

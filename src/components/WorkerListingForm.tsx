@@ -7,6 +7,7 @@ import { OwnerLocationSelector } from './location/OwnerLocationSelector';
 import { ChipMultiSelect } from './listing/ChipMultiSelect';
 import { SmartSelector } from './listing/SmartSelector';
 import { FormFieldLabel, FormSection } from './listing/FormSection';
+import { AITextarea } from '@/components/ui/AITextarea';
 import { cn } from '@/lib/utils';
 import { getGroupedCategories, SERVICE_GROUPS, SERVICE_SUBSPECIALTIES } from '@/data/serviceCategories';
 import {
@@ -209,9 +210,35 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   const watchedSkills = watch('skills') || [];
   const watchedLanguages = watch('languages') || [];
   const traits = watch('traits') || [];
+  const descValue = watch('description') || '';
 
   return (
     <div className="space-y-5">
+      <FormSection title="Listing Title & AI Description" accent="amber">
+        <FormFieldLabel>Title</FormFieldLabel>
+        <Input
+          {...register('title')}
+          placeholder={buildWorkerTitle({
+            category: watch('service_category'),
+            subspecialty: watch('skills')?.[0],
+            experience: watch('experience_level'),
+            city: watch('city'),
+          }) || 'e.g. Master Electrician in Austin…'}
+          className="h-12 text-base"
+        />
+        <p className="text-[10px] text-muted-foreground/50 -mt-1 ml-1">Leave blank to auto-generate from your choices below.</p>
+
+        <FormFieldLabel className="mt-3">Description override (optional)</FormFieldLabel>
+        <AITextarea
+          value={descValue}
+          onChange={(v) => setValue('description', v)}
+          enhanceType="listing"
+          placeholder="Optional — choices below build a description automatically."
+          maxLength={800}
+          rows={4}
+        />
+      </FormSection>
+
       <FormSection title="Service Details" accent="amber">
         <SmartSelector
           label="Service Category"

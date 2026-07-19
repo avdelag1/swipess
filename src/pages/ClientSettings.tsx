@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
 import {
   ChevronRight, FileText, Globe, HelpCircle, Info,
-  MessageSquarePlus, Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench, Ticket
+  Scale as ScaleIcon, Shield, ShieldCheck, Volume2, Wrench
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,8 +13,7 @@ import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
-import { FeedbackSection } from "@/components/FeedbackSection";
-import { PromoCodeSection } from "@/components/PromoCodeSection";
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SwipessLogo } from "@/components/SwipessLogo";
@@ -231,8 +230,8 @@ const ClientSettings = () => {
               </div>
 
               <div className={cn(
-                "rounded-[24px] overflow-hidden border",
-                isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+                "rounded-[24px] overflow-hidden border transition-all duration-300",
+                isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
               )}>
                 {group.items.map((item, idx) => (
                   <div key={item.label} className={cn(

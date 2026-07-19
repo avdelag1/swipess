@@ -793,6 +793,7 @@ export const PassportMapModal = memo(() => {
     return () => {
       if (deferHandle) clearTimeout(deferHandle);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizeMap]);
 
   // If the user opens the map before the deferred warm-start fired, init now.
@@ -838,6 +839,7 @@ export const PassportMapModal = memo(() => {
     })();
 
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mapReady, deviceGps, lat, lng]);
 
   // Keep geocoder proximity near user as GPS warms up after mount.
@@ -893,6 +895,7 @@ export const PassportMapModal = memo(() => {
     canvas.style.visibility = 'hidden';
     clearPinPreview();
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mapReady]);
 
   const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {
@@ -1253,7 +1256,7 @@ export const PassportMapModal = memo(() => {
                   type="button"
                   data-no-cinematic
                   onClick={onClose}
-                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full bg-[#161b27]/95 border border-white/10 text-white shadow-lg hover:bg-[#202738]/95 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn pointer-events-auto relative flex shrink-0 items-center justify-center rounded-full bg-black/30 backdrop-blur-xl border border-white/10 text-white shadow-lg hover:bg-black/50 hover:border-white/20 transition-all', MAP_HUD_BTN)}
                   aria-label="Close map"
                 >
                   <X className={cn(MAP_HUD_ICON, 'relative z-10')} strokeWidth={2.0} />
@@ -1263,7 +1266,7 @@ export const PassportMapModal = memo(() => {
                   <motion.div
                     animate={{ width: isSearchOpen ? 200 : 34 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-                    className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-lg overflow-hidden bg-[#161b27]/95"
+                    className="pointer-events-auto relative flex items-center h-[34px] rounded-full border border-white/10 shadow-lg overflow-hidden bg-black/30 backdrop-blur-xl"
                   >
                     <button
                       type="button"
@@ -1308,7 +1311,7 @@ export const PassportMapModal = memo(() => {
                       setIsSearchOpen(false);
                     }
                   }}
-                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-[#161b27]/95 border border-white/10 shadow-lg text-white hover:bg-[#202738]/95 transition-all', MAP_HUD_BTN)}
+                  className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 shadow-lg text-white hover:bg-black/50 hover:border-white/20 transition-all', MAP_HUD_BTN)}
                   aria-label={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                   title={hudExpanded ? t('map.collapseControls') : t('map.expandControls')}
                 >
@@ -1330,7 +1333,7 @@ export const PassportMapModal = memo(() => {
                         data-no-cinematic
                         onClick={handleGPS}
                         disabled={gpsLoading}
-                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-[#161b27]/95 border border-white/10 shadow-lg transition-all text-white hover:bg-[#202738]/95 disabled:opacity-60', MAP_HUD_BTN)}
+                        className={cn('map-hud-btn relative flex items-center justify-center shrink-0 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 shadow-lg transition-all text-white hover:bg-black/50 hover:border-white/20 disabled:opacity-60', MAP_HUD_BTN)}
                         aria-label={t('map.myLocation')}
                         title={t('map.myLocation')}
                       >

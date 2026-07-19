@@ -30,6 +30,8 @@ import { logger } from '@/utils/prodLogger';
 import { useTranslation } from 'react-i18next';
 import { validateImageFile } from '@/utils/fileValidation';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
+import { WizardWelcomeScreen } from './WizardWelcomeScreen';
+import { DraggablePhotoGrid } from './DraggablePhotoGrid';
 
 const AI_MAX_PHOTOS: Record<string, number> = {
   property: 30,
@@ -43,7 +45,7 @@ function photoFileKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-type WizardStep = 'compose' | 'processing';
+type WizardStep = 'welcome' | 'compose' | 'processing';
 type ProgressPhase = 'upload' | 'optimize' | 'publish' | 'redirect';
 
 const CATEGORIES = [
@@ -207,6 +209,11 @@ export function AIListingWizard() {
     } else if (aiListingCategory) {
       setCategory(aiListingCategory);
       setStep('compose');
+    } else {
+      // Show welcome screen only on first-ever open (no draft/category deep-link)
+      const hasSeen = localStorage.getItem('hasSeenListingWelcome');
+      if (!hasSeen) setStep('welcome');
+      else setStep('compose');
     }
   }, [aiListingCategory, aiListingDraft]);
 
@@ -547,6 +554,18 @@ export function AIListingWizard() {
               <div className="absolute bottom-[-12%] right-[-12%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#6366F1]/10 blur-[100px] rounded-full mix-blend-screen" />
             </div>
 
+            <AnimatePresence>
+              {step === 'welcome' && (
+                <WizardWelcomeScreen
+                  title="AI Listing Builder"
+                  description="Snap a photo, say a sentence — and our AI will craft a stunning listing that sells in seconds."
+                  onContinue={() => {
+                    localStorage.setItem('hasSeenListingWelcome', 'true');
+                    setStep('compose');
+                  }}
+                />
+              )}
+            </AnimatePresence>
             <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25 shadow-inner">
@@ -635,42 +654,53 @@ export function AIListingWizard() {
                             </button>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                          <AnimatePresence>
-                            {imageFiles.map((file, i) => (
-                              <motion.div
-                                key={photoFileKey(file)}
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className={cn("aspect-square rounded-3xl overflow-hidden border relative group shadow-2xl", isLight ? "border-slate-200" : "border-white/10")}
-                              >
-                                <img src={previewUrls[i]} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                                <button
-                                  type="button"
-                                  onClick={() => setImageFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/80 rounded-full border border-white/15 shadow-lg"
-                                  aria-label="Remove photo"
-                                >
-                                  <X className="w-3.5 h-3.5 text-white" />
-                                </button>
-                              </motion.div>
-                            ))}
-                          </AnimatePresence>
-                          {imageFiles.length < maxPhotos && (
+
+                        {imageFiles.length === 0 ? (
                           <button
                             type="button"
                             onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", photoAddCls)}
+                            className={cn("w-full aspect-[2/1] rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", photoAddCls)}
                           >
                             <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
                               <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
                             </div>
-                            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photos</span>
+                            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Tap to add photos</span>
                           </button>
-                          )}
-                        </div>
-                      </div>
+                        ) : (
+                          <DraggablePhotoGrid
+                            photos={previewUrls}
+                            isLight={isLight}
+                            onReorder={(newPreviewOrder) => {
+                              // Map reordered preview URLs back to the corresponding File objects
+                              const reordered = newPreviewOrder.map(
+                                (url) => imageFiles[previewUrls.indexOf(url)]
+                              ).filter(Boolean) as File[];
+                              setImageFiles(reordered);
+                            }}
+                            onRemove={(index) => setImageFiles(prev => prev.filter((_, idx) => idx !== index))}
+                            addSlot={
+                              imageFiles.length < maxPhotos ? (
+                                <button
+                                  type="button"
+                                  onClick={handleImageAdd}
+                                  className={cn("w-full h-full rounded-[1.5rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group", photoAddCls)}
+                                >
+                                  <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
+                                    <Camera className="w-5 h-5 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
+                                  </div>
+                                  <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add More</span>
+                                </button>
+                              ) : undefined
+                            }
+                          />
+                        )}
 
+                        {imageFiles.length > 0 && (
+                          <p className={cn("text-[10px] font-semibold text-center", textMuted)}>
+                            Hold &amp; drag any photo to reorder · First photo is the cover
+                          </p>
+                        )}
+                      </div>
 
                       <div className="space-y-4">
                         <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>

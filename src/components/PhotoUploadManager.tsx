@@ -1,15 +1,16 @@
 import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-// import { } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Plus, Sparkles, X } from 'lucide-react';
+import { Camera, Plus, Sparkles } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 import { validateImageFile } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
-import { AnimatePresence, motion, Reorder } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import useAppTheme from '@/hooks/useAppTheme';
+import { DraggablePhotoGrid } from './DraggablePhotoGrid';
 
 interface PhotoUploadManagerProps {
   maxPhotos: number;
@@ -36,6 +37,7 @@ export function PhotoUploadManager({
   const [dragOver, setDragOver] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLight } = useAppTheme();
   // Direct ref to THIS instance's file input. A global getElementById lookup
   // can hit the wrong element (portals, duplicate mounts) on Android WebView.
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -108,9 +110,6 @@ export function PhotoUploadManager({
       if (failedCount > 0) {
         appToast.error("Upload Issue");
       }
-      if (failedCount > 0) {
-        toast.error("Upload Issue", { description: `${failedCount} photo${failedCount > 1 ? 's' : ''} failed to upload. Try again.` });
-      }
     } catch (error) {
       logger.error('Upload Error:', error);
       appToast.error("Transmission Error");
@@ -133,78 +132,32 @@ export function PhotoUploadManager({
                 </span>
               </div>
             </div>
-            
-            <Reorder.Group
-              axis="x"
-              values={currentPhotos}
-              onReorder={(newOrder) => {
-                triggerHaptic('light');
-                onPhotosChange(newOrder);
-              }}
-              className="flex gap-4 overflow-x-auto pb-4 no-scrollbar list-none p-0 m-0"
-            >
-              {currentPhotos.map((photo, index) => (
-                <Reorder.Item
-                  key={photo}
-                  value={photo}
-                  className="relative shrink-0 list-none"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.5 }}
-                >
-                  <motion.div
-                    className={cn(
-                      "force-white w-48 h-64 relative rounded-[2rem] overflow-hidden border-2 cursor-grab active:cursor-grabbing shadow-2xl transition-all",
-                      index === 0 ? "border-primary/60 shadow-primary/10" : "border-border"
-                    )}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <img src={photo} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
-                    {/* 🛸 MAIN ASSET INDICATOR */}
-                    {index === 0 && (
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-primary text-primary-foreground text-[9px] font-black uppercase italic tracking-widest px-2 py-1 shadow-[0_0_15px_hsl(var(--primary)/0.45)]">
-                          Primary
-                        </Badge>
-                      </div>
-                    )}
-
-                    {/* 🛸 REMOVE CONTROL */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerHaptic('medium');
-                        onPhotosChange(currentPhotos.filter((_, i) => i !== index));
-                      }}
-                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:bg-red-500/50 transition-all"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-
-                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                       <span className="text-[10px] font-black text-white/70 italic uppercase tracking-widest">Asset #{index + 1}</span>
-                    </div>
-                  </motion.div>
-                </Reorder.Item>
-              ))}
-
-              {/* 🛸 INLINE ADD BUTTON */}
-              {currentPhotos.length < maxPhotos && (
-                 <button
+            {/* 🛸 DRAGGABLE GRID */}
+            <DraggablePhotoGrid
+              photos={currentPhotos}
+              isLight={isLight}
+              onReorder={onPhotosChange}
+              onRemove={(index) => onPhotosChange(currentPhotos.filter((_, i) => i !== index))}
+              addSlot={
+                currentPhotos.length < maxPhotos ? (
+                  <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                    className="w-48 h-64 rounded-[2rem] border-2 border-dashed border-primary/35 bg-secondary flex flex-col items-center justify-center gap-3 hover:bg-accent transition-all group shrink-0"
-                 >
-                    <div className="w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all">
-                       <Plus className="w-6 h-6 text-foreground/70 group-hover:text-primary" />
+                    className="w-full h-full rounded-[1.5rem] border-2 border-dashed border-primary/35 bg-secondary flex flex-col items-center justify-center gap-3 hover:bg-accent transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all">
+                      <Plus className="w-5 h-5 text-foreground/70 group-hover:text-primary" />
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest italic text-secondary-foreground">Upload Asset</span>
-                 </button>
-              )}
-            </Reorder.Group>
+                    <span className="text-[9px] font-black uppercase tracking-widest italic text-secondary-foreground">Add Photo</span>
+                  </button>
+                ) : undefined
+              }
+            />
+
+            <p className="text-[10px] font-semibold text-center text-muted-foreground">
+              Hold &amp; drag any photo to reorder · First photo is the cover
+            </p>
           </div>
         )}
       </AnimatePresence>
@@ -267,7 +220,7 @@ export function PhotoUploadManager({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
            {[
-             { label: 'Primary Asset', desc: 'The first photo is your global representational ID.' },
+             { label: 'Drag to Reorder', desc: 'Hold & drag any photo to rearrange. First photo is always the cover.' },
              { label: 'High Fidelity', desc: 'Clear, well-lit assets significantly increase match parity.' },
              { label: 'Lifestyle', desc: 'Show your natural environments for authentic resonance.' },
              { label: 'Swipess Ready', desc: 'Optimized for mobile-first edge-to-edge viewing.' }
@@ -296,5 +249,3 @@ export function PhotoUploadManager({
     setDragOver(false);
   }
 }
-
-

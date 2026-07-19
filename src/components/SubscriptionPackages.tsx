@@ -162,7 +162,7 @@ export function SubscriptionPackages({
             message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
             is_read: false
           }]);
-        } catch (e) {
+        } catch (_e) {
           // ignore
         }
       };

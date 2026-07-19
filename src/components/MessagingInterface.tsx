@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Ban, ChevronLeft, Coins, FileText, Info, Mic, MicOff, MoreVertical, Search, Send, Share2, ShieldAlert, Smile, Sparkles, Star, Timer, X } from 'lucide-react';
 import { MessageDocumentsPanel } from '@/components/messaging/MessageDocumentsPanel';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { appToast } from '@/utils/appNotification';
@@ -30,7 +30,7 @@ import { useModalStore } from '@/state/modalStore';
 import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
-import { useBlockUser, useUnblockUser, useBlockedUsers } from '@/hooks/useBlocking';
+import { useBlockedUsers, useBlockUser, useUnblockUser } from '@/hooks/useBlocking';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import {
@@ -78,7 +78,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showDocumentsPanel, setShowDocumentsPanel] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
+  const [_showBlockConfirm, _setShowBlockConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [showChatInfo, setShowChatInfo] = useState(false);
@@ -104,7 +104,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { data: messages = [], isLoading, isError, error, refetch: refetchMessages } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
   const _queryClient = useQueryClient();
-  const blockUser = useBlockUser();
+  const _blockUser = useBlockUser();
   const unblock = useUnblockUser();
   const { data: blockedList = [] } = useBlockedUsers();
   // True when *I* have blocked the person in this chat — listings stay visible,
@@ -590,21 +590,26 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               onClick={() => { setShowDocumentsPanel(true); triggerHaptic('light'); }}
               aria-label="Send documents"
               className={cn(
-                "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm",
+                "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 border shadow-sm backdrop-blur-xl relative overflow-hidden",
                 showDocumentsPanel
-                  ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500"
-                  : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white hover:bg-white/0.09"),
+                  ? "bg-rose-500/20 border-rose-500/40 text-rose-500 shadow-[0_4px_16px_rgba(244,63,94,0.3)]"
+                  : (isThemeLight ? "bg-white/60 border-black/5 text-black/50 hover:bg-white/90 hover:shadow-md" : "bg-white/5 border-white/10 text-white/70 hover:bg-white/15 hover:shadow-[0_4px_12px_rgba(255,255,255,0.1)]"),
               )}
             >
-              <FileText className="z-[10000] w-5 h-5 stroke-[1.5]" />
+              <FileText className="z-[10] w-5 h-5 stroke-[1.5]" />
             </button>
 
             <button
               type="button"
               onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn("shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-sm", showEmojiPicker ? "bg-rose-500/[0.12] border-rose-500/30 text-rose-500" : (isThemeLight ? "surface-3 text-black/50 hover:shadow-[var(--elev-4)]" : "bg-white/[0.03] border-white/[0.07] text-white hover:bg-white/[0.09]"))}
+              className={cn(
+                "shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 active:scale-90 border shadow-sm backdrop-blur-xl relative overflow-hidden", 
+                showEmojiPicker 
+                  ? "bg-rose-500/20 border-rose-500/40 text-rose-500 shadow-[0_4px_16px_rgba(244,63,94,0.3)]" 
+                  : (isThemeLight ? "bg-white/60 border-black/5 text-black/50 hover:bg-white/90 hover:shadow-md" : "bg-white/5 border-white/10 text-white/70 hover:bg-white/15 hover:shadow-[0_4px_12px_rgba(255,255,255,0.1)]")
+              )}
             >
-              <Smile className="z-[10000] w-6 h-6 stroke-[1.5]" />
+              <Smile className="z-[10] w-6 h-6 stroke-[1.5]" />
             </button>
 
             <div className="flex-1 relative flex items-center group min-w-0">
@@ -627,8 +632,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 rows={1}
                 style={{ resize: 'none' }}
                 className={cn(
-                  "flex-1 w-full min-h-[48px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all border shadow-inner focus:ring-4 focus:ring-[#EB4898]/10",
-                  isThemeLight ? "surface-inset text-black placeholder:text-slate-400" : "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 focus:border-white/20 focus:bg-white/[0.05]"
+                  "flex-1 w-full min-h-[48px] py-3.5 pl-5 pr-12 rounded-[1.5rem] text-[15px] font-medium outline-none transition-all duration-300 border shadow-inner focus:shadow-md backdrop-blur-xl",
+                  isThemeLight 
+                    ? "bg-white/60 border-black/5 text-black placeholder:text-black/40 focus:bg-white/90 focus:border-[#EB4898]/30 focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.02),0_8px_24px_rgba(235,72,152,0.1)]" 
+                    : "bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:bg-white/15 focus:border-[#EB4898]/40 focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.2),0_8px_24px_rgba(235,72,152,0.15)]"
                 )}
                 disabled={sendMessage.isPending}
               />

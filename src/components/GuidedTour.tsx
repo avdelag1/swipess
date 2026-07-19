@@ -2,111 +2,134 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronRight, X, Sparkles, Building, MapPin, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 /**
- * Bottom-anchored coachmark sheet.
- *
- * Why the redesign: the previous tooltip popped over the page and blocked
- * interaction; tapping outside fired skipTour, which collided with the
- * floating Concierge bubble underneath and caused unwanted navigation. The
- * new layout slides a slim translucent strip up from the bottom safe-area
- * so the user can keep seeing the page being explained while reading the
- * guide. The dim layer is fully click-through (`pointer-events-none`); only
- * the strip itself receives pointer events.
+ * Full-screen Cinematic Welcome Tutorial
  */
 export function GuidedTour() {
   const { user } = useAuth();
-  const { isActive, currentStep, totalSteps, step, nextStep, prevStep, skipTour } = useGuidedTour(undefined, !!user);
+  const { isActive, currentStep, totalSteps, step, nextStep, skipTour } = useGuidedTour(undefined, !!user);
 
   if (!isActive || !step) return null;
+
+  // Cinematic backgrounds for each step
+  const backgrounds = [
+    NEXUS_GRADIENTS.warm,
+    NEXUS_GRADIENTS.ai,
+    NEXUS_GRADIENTS.cta,
+    NEXUS_GRADIENTS.owner,
+    'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
+  ];
+
+  const currentBg = backgrounds[currentStep % backgrounds.length];
+
+  // Map step index to an icon for visual flair
+  const getIconForStep = (index: number) => {
+    switch (index) {
+      case 0: return <MapPin className="w-16 h-16 text-white mb-6 animate-bounce" />;
+      case 1: return <Sparkles className="w-16 h-16 text-white mb-6" />;
+      case 2: return <ShieldCheck className="w-16 h-16 text-white mb-6" />;
+      case 3: return <Building className="w-16 h-16 text-white mb-6" />;
+      default: return <CheckCircle2 className="w-16 h-16 text-white mb-6" />;
+    }
+  };
 
   return createPortal(
     <AnimatePresence>
       <motion.div
-        key="guided-tour-root"
+        key="guided-tour-cinematic"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9998] pointer-events-none"
+        exit={{ opacity: 0, transition: { duration: 0.5 } }}
+        className="fixed inset-0 z-[99999] flex flex-col items-center justify-center overflow-hidden bg-black"
       >
-        {/* Soft top + bottom vignette so the strip reads cleanly without blocking taps */}
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+        {/* Animated Gradient Background */}
+        <motion.div 
+          className="absolute inset-0 opacity-80"
+          animate={{ background: currentBg }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
         />
+        
+        {/* Particle/Glow overlays */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/20 via-transparent to-black/60" />
 
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-          className="pointer-events-auto absolute left-3 right-3 rounded-[28px] overflow-hidden border border-white/10 backdrop-blur-2xl"
-          style={{
-            bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
-            background: 'linear-gradient(180deg, rgba(20,20,22,0.92) 0%, rgba(8,8,10,0.96) 100%)',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.55)',
-          }}
-        >
-          {/* Progress strip */}
-          <div className="flex items-center justify-between px-4 pt-3">
-            <div className="flex gap-1.5">
-              {Array.from({ length: totalSteps }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-1 rounded-full transition-all"
-                  style={{
-                    width: i === currentStep ? 18 : 6,
-                    backgroundColor: i <= currentStep ? '#ffffff' : 'rgba(255,255,255,0.22)',
-                  }}
-                />
-              ))}
-            </div>
-            <button
-              onClick={skipTour}
-              aria-label="Close tour"
-              className="w-7 h-7 -mr-1 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+        {/* Content Container */}
+        <div className="relative z-10 w-full max-w-md px-8 flex flex-col items-center text-center">
+          
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -40, scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="flex flex-col items-center"
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
+              {getIconForStep(currentStep)}
+              
+              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-[1.1] mb-6 drop-shadow-xl">
+                {step.title}
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-medium drop-shadow-md max-w-[320px]">
+                {step.description}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom Navigation Strip */}
+        <div className="absolute bottom-0 inset-x-0 p-8 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] flex flex-col items-center gap-8">
+          
+          {/* Dot Indicators */}
+          <div className="flex gap-3">
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={false}
+                animate={{
+                  width: i === currentStep ? 32 : 8,
+                  backgroundColor: i === currentStep ? '#ffffff' : 'rgba(255,255,255,0.3)'
+                }}
+                className="h-2 rounded-full"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            ))}
           </div>
 
-          <div className="px-4 pt-2 pb-3">
-            <p className="text-[15px] font-bold tracking-tight text-white">{step.title}</p>
-            <p className="text-[13px] mt-1 leading-snug text-white/75">{step.description}</p>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 pb-3">
-            {currentStep > 0 && (
-              <button
-                onClick={prevStep}
-                className="inline-flex items-center gap-1 rounded-2xl text-[12px] h-10 px-3.5 font-semibold text-white bg-white/8 border border-white/12 active:scale-95 transition-transform"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                Back
-              </button>
-            )}
-            <button
-              onClick={skipTour}
-              className="inline-flex items-center rounded-2xl text-[12px] h-10 px-3 font-semibold text-white/65 active:scale-95 transition-transform whitespace-nowrap"
-            >
-              Explore on my own
-            </button>
-            <div className="flex-1" />
+          <div className="flex flex-col items-center gap-4 w-full max-w-[280px]">
+            {/* Primary Action */}
             <button
               onClick={nextStep}
-              className="inline-flex items-center gap-1.5 rounded-2xl text-[12px] h-10 px-5 font-bold text-black bg-white shadow-[0_8px_20px_rgba(0,0,0,0.35)] active:scale-95 transition-transform whitespace-nowrap"
+              className="w-full h-14 rounded-full bg-white text-black font-black text-lg shadow-[0_8px_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
-              {currentStep === totalSteps - 1 ? 'Done' : 'Keep Guiding Me'}
-              {currentStep < totalSteps - 1 && <ChevronRight className="w-3.5 h-3.5" />}
+              {currentStep === totalSteps - 1 ? 'Start Exploring' : 'Next'}
+              {currentStep < totalSteps - 1 && <ChevronRight className="w-5 h-5" />}
             </button>
+
+            {/* Subtle Skip Button */}
+            {currentStep < totalSteps - 1 && (
+              <button
+                onClick={skipTour}
+                className="text-white/60 font-semibold text-sm hover:text-white transition-colors py-2 px-4 rounded-full active:bg-white/10"
+              >
+                Skip intro
+              </button>
+            )}
           </div>
-        </motion.div>
+        </div>
+
+        {/* Top Right Close (Redundant but good for escape hatches) */}
+        <button
+          onClick={skipTour}
+          className="absolute top-safe right-4 mt-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white/70 hover:bg-black/40 hover:text-white backdrop-blur-md transition-all active:scale-90"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </motion.div>
     </AnimatePresence>,
     document.body
   );
 }
-
-

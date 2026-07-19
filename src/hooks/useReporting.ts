@@ -62,16 +62,7 @@ export function useCreateReport() {
       // Due to schema drift on the live database (missing columns like description, 
       // or older columns like report_reason being required), we try a sequence of payloads
       // from most complete to bare minimum, until one succeeds.
-      const basePayload = {
-        id: crypto.randomUUID(),
-        reporter_id: user.id,
-        reported_user_id: params.reportedUserId || null,
-        reported_listing_id: params.reportedListingId || null,
-        report_type: params.reportType,
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+
 
       // Self-healing payload algorithm:
       // Start with a maximal payload containing ALL historical and modern columns.

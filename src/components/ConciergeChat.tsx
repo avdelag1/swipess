@@ -336,7 +336,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
-                  isLight && !isSwipess ? "border-slate-200 bg-white chrome-solid" : "border-white/5 bg-black/90 chrome-solid"
+                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-xl chrome-solid" : "border-white/5 bg-black/50 backdrop-blur-3xl chrome-solid"
                 )}>
                   <div className="flex items-center gap-4">
                     <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
@@ -457,7 +457,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
-                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-colors duration-200 border border-border/50 bg-secondary/40 shadow-inner focus-within:bg-background focus-within:border-foreground/15 group overflow-hidden">
+                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/40 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus-within:bg-background/80 focus-within:border-foreground/15 group overflow-hidden">
                        <div className="pl-2 flex items-center gap-0.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>

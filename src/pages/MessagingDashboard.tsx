@@ -373,10 +373,10 @@ export function MessagingDashboard() {
             <input 
               placeholder={getText('search_placeholder', 'Search conversations...')} 
               className={cn(
-                "w-full pl-12 pr-12 h-14 rounded-2xl text-[14px] outline-none transition-all font-semibold border",
+                "w-full pl-12 pr-12 h-14 rounded-[1.5rem] text-[14px] outline-none transition-all duration-300 font-semibold border",
                 isLight
-                  ? "bg-black/[0.04] border-black/5 text-black placeholder:text-black/30 focus:bg-black/[0.06] focus:border-[#EB4898]/30"
-                  : "bg-white/[0.05] border-white/8 text-white placeholder:text-white/20 focus:border-[#EB4898]/30"
+                  ? "bg-white/60 border-black/5 text-black placeholder:text-black/30 focus:bg-white/90 focus:border-[#EB4898]/30 focus:shadow-[0_8px_30px_rgba(235,72,152,0.15)] shadow-sm backdrop-blur-xl"
+                  : "bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:bg-white/10 focus:border-[#EB4898]/40 focus:shadow-[0_8px_30px_rgba(235,72,152,0.2)] shadow-xl backdrop-blur-xl"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -401,10 +401,12 @@ export function MessagingDashboard() {
                 key={section.id}
                 onClick={() => { setInboxSection(section.id); triggerHaptic('light'); }}
                 className={cn(
-                  "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border shadow-sm",
-                  inboxSection === section.id ? "border-0" : "surface-2 text-foreground/50 hover:shadow-[var(--elev-3)]",
+                  "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300 active:scale-95 shrink-0 border relative overflow-hidden",
+                  inboxSection === section.id 
+                    ? "border-white/20 text-white shadow-[0_8px_24px_rgba(235,72,152,0.35)]" 
+                    : (isLight ? "bg-white/60 border-black/5 text-black/50 hover:bg-white/90 hover:text-black/80 hover:shadow-md backdrop-blur-xl" : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80 hover:shadow-lg backdrop-blur-xl"),
                 )}
-                style={inboxSection === section.id ? { background: 'linear-gradient(135deg, #FF4D00, #EB4898)', boxShadow: '0 8px 24px rgba(255, 77, 0, 0.35)', color: 'white' } : {}}
+                style={inboxSection === section.id ? { background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent,244 63% 70%)))' } : {}}
               >
                 <section.icon className={cn("w-3.5 h-3.5", inboxSection === section.id ? "text-white" : "text-[#EB4898]")} />
                 {section.label}
@@ -423,10 +425,10 @@ export function MessagingDashboard() {
                   key={filter.id}
                   onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
                   className={cn(
-                    "flex items-center gap-2.5 px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
+                    "flex items-center gap-2.5 px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 shrink-0 border",
                     activeFilter === filter.id
-                      ? "border-rose-500/30 bg-rose-500/10 text-rose-400"
-                      : "surface-2 text-foreground/40",
+                      ? (isLight ? "border-rose-400/40 bg-rose-50 text-rose-500 shadow-sm" : "border-rose-400/30 bg-rose-500/15 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.2)]")
+                      : (isLight ? "bg-white/60 border-black/5 text-black/40 hover:bg-white/90 hover:text-black/70 backdrop-blur-lg" : "bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white/70 backdrop-blur-lg"),
                   )}
                 >
                   <filter.icon className="w-3 h-3" />
@@ -508,8 +510,8 @@ export function MessagingDashboard() {
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
             <div className={cn(
-              "rounded-[24px] overflow-hidden border",
-              isLight ? "bg-white/80 border-black/5 shadow-sm" : "bg-white/[0.03] border-white/8"
+              "rounded-[32px] overflow-hidden border backdrop-blur-3xl shadow-2xl relative",
+              isLight ? "bg-white/70 border-black/5" : "bg-black/40 border-white/10"
             )}>
             <AnimatePresence initial={false}>
             {filteredConversations.map((conversation, convIdx) => {

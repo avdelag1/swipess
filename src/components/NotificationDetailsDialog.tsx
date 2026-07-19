@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Sparkles } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { AppNotification } from '@/state/notificationStore';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useNavigate } from 'react-router-dom';
@@ -53,7 +53,7 @@ export function NotificationDetailsDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent hideCloseButton className="sm:max-w-[425px] rounded-[2rem] p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
+      <DialogContent hideCloseButton className="sm:max-w-[425px] rounded-[2rem] p-0 overflow-hidden bg-background border-border/40 shadow-2xl">
         <DialogTitle className="sr-only">Notification Details</DialogTitle>
         <div className="px-5 pt-6 pb-5 border-b border-border/10 flex items-start justify-between">
           <div className="flex items-center gap-3">

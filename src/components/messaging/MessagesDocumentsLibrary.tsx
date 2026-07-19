@@ -31,7 +31,7 @@ export const MessagesDocumentsLibrary = memo(() => {
   const [filter, setFilter] = useState<LibraryFilter>('all');
 
   const { data, isLoading } = useUserVaultDocuments();
-  const contracts = data?.contracts || [];
+  const contracts = useMemo(() => data?.contracts || [], [data?.contracts]);
 
   const contractsPath = role === 'owner' ? '/owner/contracts' : '/client/contracts';
 

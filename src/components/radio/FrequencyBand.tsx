@@ -68,6 +68,7 @@ export function FrequencyBand({
       offsetRef.current = target;
       setRenderOffset(target);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFrequency]);
 
   const clampOffset = (x: number) => Math.max(0, Math.min(totalWidth, x));
@@ -99,6 +100,7 @@ export function FrequencyBand({
     cancelAnimationFrame(animFrame.current);
     animFrame.current = requestAnimationFrame(spring);
     triggerHaptic('medium');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stationFrequencies, currentFrequency, onFrequencyChange]);
 
   // Momentum deceleration after release
@@ -119,6 +121,7 @@ export function FrequencyBand({
     }
 
     animFrame.current = requestAnimationFrame(decelerate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapToNearest]);
 
   useEffect(() => {
@@ -195,6 +198,7 @@ export function FrequencyBand({
       window.removeEventListener('mousemove', mm);
       window.removeEventListener('mouseup', mu);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decelerate, snapToNearest]);
 
   // Generate tick marks

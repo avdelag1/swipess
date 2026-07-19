@@ -111,11 +111,11 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                 {/* Floating Heart Button */}
                 <button
                   onClick={handleLikeToggle}
-                  className="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-md border border-white/20 transition-all active:scale-90 hover:bg-black/30 shadow-lg"
+                  className="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-xl border border-white/20 transition-all duration-300 active:scale-90 hover:bg-black/40 hover:border-white/30 shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
                   aria-label={isLiked ? "Unlike property" : "Like property"}
                 >
                   <Heart 
-                    className={`w-[22px] h-[22px] transition-colors duration-300 ${isLiked ? 'fill-rose-500 text-rose-500' : 'fill-transparent text-white'}`} 
+                    className={`w-[22px] h-[22px] transition-colors duration-300 ${isLiked ? 'fill-rose-500 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'fill-transparent text-white'}`} 
                   />
                 </button>
               </div>
@@ -210,13 +210,13 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
 
             {/* Action Buttons - Premium Minimal Design */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md z-50 pointer-events-none">
-              <div className="flex gap-4 p-2 bg-background/80 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.4)] pointer-events-auto">
+              <div className="flex gap-4 p-2.5 bg-black/40 backdrop-blur-[32px] border border-white/10 rounded-full shadow-[0_24px_48px_rgba(0,0,0,0.5)] pointer-events-auto">
                 <Button
                   variant="outline"
-                  className="flex-shrink-0 w-14 h-14 rounded-full border-border/50 bg-secondary/30 hover:bg-secondary/60 backdrop-blur-md"
+                  className="flex-shrink-0 w-[52px] h-[52px] rounded-full border-white/10 bg-white/5 hover:bg-white/15 backdrop-blur-xl active:scale-95 transition-all duration-300 shadow-sm"
                   onClick={() => { triggerHaptic('light'); }}
                 >
-                  <Share2 className="w-5 h-5 opacity-80" />
+                  <Share2 className="w-5 h-5 text-white" />
                 </Button>
                 
                 {/* Check if direct messaging is available for this listing category */}
@@ -225,7 +225,12 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   const canMessage = hasPremiumMessaging || isDirectMessaging;
                   return (
                     <Button
-                      className="flex-1 gap-2 h-14 rounded-full bg-foreground text-background hover:scale-[1.02] transition-all font-black uppercase tracking-widest border-none shadow-lg"
+                      className={cn(
+                        "flex-1 gap-2 h-[52px] rounded-full active:scale-95 transition-all duration-300 font-black uppercase tracking-widest border-none shadow-[0_8px_20px_rgba(0,0,0,0.3)]",
+                        canMessage 
+                          ? "bg-gradient-to-tr from-[#EB4898] to-[#FF4D00] text-white hover:opacity-90 hover:shadow-[0_8px_24px_rgba(235,72,152,0.4)]"
+                          : "bg-white/10 text-white/50 backdrop-blur-xl"
+                      )}
                       onClick={() => {
                         if (canMessage) {
                           triggerHaptic('medium');
@@ -234,7 +239,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                       }}
                       disabled={!canMessage}
                     >
-                      {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400" />}
+                      {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" />}
                       <MessageCircle className="w-5 h-5" />
                       <span className="font-bold tracking-wide">{isDirectMessaging ? 'Contact Host' : (hasPremiumMessaging ? 'Contact' : 'Locked')}</span>
                     </Button>
