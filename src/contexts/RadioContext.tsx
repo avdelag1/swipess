@@ -730,6 +730,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         // sees the new station, not the old one.
         currentStationRef.current = targetStation;
 
+        // Reset crossOrigin to allow Web Audio API (visualizer/EQ) to work.
+        // If the new station fails CORS, the fallback will temporarily strip it again.
+        audioRef.current.crossOrigin = "anonymous";
         audioRef.current.src = targetStation.streamUrl;
         audioRef.current.load();
 
