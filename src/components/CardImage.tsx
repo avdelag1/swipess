@@ -223,7 +223,7 @@ const CardImage = memo(({
           srcSet={srcSet || undefined}
           sizes={srcSet ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px' : undefined}
           alt={alt ?? ''}
-          data-swipe-card-image={animate ? "true" : undefined}
+          data-swipe-card-image={_animate ? "true" : undefined}
           draggable={false}
           // Render is already gated by the IntersectionObserver above, so by the
           // time this mounts the image is near/in view — load it now rather than
