@@ -16,13 +16,13 @@ export const ConversationSidebar = memo(({
   onClose: () => void;
   isSwipess: boolean;
 }) => (
-  <>
+  <motion.div className="absolute inset-0 z-50 pointer-events-none" initial={false}>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="absolute inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden"
+      className="absolute inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden pointer-events-auto"
     />
     <motion.div
       initial={{ x: -300, opacity: 0 }}
@@ -30,7 +30,7 @@ export const ConversationSidebar = memo(({
       exit={{ x: -300, opacity: 0 }}
       transition={{ type: 'spring', damping: 28, stiffness: 350 }}
       className={cn(
-        "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r",
+        "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r pointer-events-auto",
         isSwipess ? "bg-black border-white/5" : "bg-background border-border"
       )}
     >
@@ -78,6 +78,6 @@ export const ConversationSidebar = memo(({
       ))}
     </div>
   </motion.div>
-  </>
+  </motion.div>
 ));
 ConversationSidebar.displayName = 'ConversationSidebar';

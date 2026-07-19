@@ -111,12 +111,14 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       }
       const lastActivity = parseInt(localStorage.getItem(LAST_ACTIVITY_KEY) || '0', 10);
       const now = Date.now();
-      if (now - lastActivity > 600000) createConversation();
+      // Only auto-create a fresh session if inactive AND the current
+      // conversation already has messages (don't stack empty convos).
+      if (now - lastActivity > 600000 && messages.length > 0) createConversation();
       localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [isOpen, createConversation]);
+  }, [isOpen, createConversation, messages.length]);
 
   useEffect(() => {
     if (messages.length > 0) localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());

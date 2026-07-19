@@ -276,10 +276,24 @@ export function useConciergeAI() {
       if (cancelled) return;
 
       if (cloudConvos.length > 0) {
-        // Merge: cloud is source of truth, but keep local-only convos
+        const localConvos = loadConversationsLocal();
+        const localMap = new Map(localConvos.map(c => [c.id, c]));
         const cloudIds = new Set(cloudConvos.map(c => c.id));
-        const localOnly = loadConversationsLocal().filter(c => !cloudIds.has(c.id));
-        const merged = [...cloudConvos, ...localOnly]
+
+        // Merge cloud + local: prefer whichever source has actual messages.
+        // If cloud returned a conversation with 0 messages but local has
+        // messages for the same id, keep the local messages (cloud msg
+        // fetch may have failed due to RLS / network).
+        const mergedCloud = cloudConvos.map(cc => {
+          const local = localMap.get(cc.id);
+          if (cc.messages.length === 0 && local && local.messages.length > 0) {
+            return { ...cc, messages: local.messages };
+          }
+          return cc;
+        });
+
+        const localOnly = localConvos.filter(c => !cloudIds.has(c.id));
+        const merged = [...mergedCloud, ...localOnly]
           .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
           .slice(0, MAX_CONVERSATIONS);
 
@@ -371,6 +385,9 @@ export function useConciergeAI() {
 
   const switchConversation = useCallback((id: string) => {
     setActiveConversationId(id);
+    // Reset activity timer so auto-create doesn't immediately override the
+    // user's deliberate conversation selection.
+    try { localStorage.setItem('Swipess_ai_last_activity', Date.now().toString()); } catch { /* ignore */ }
   }, []);
 
   const deleteConversation = useCallback((id: string) => {
