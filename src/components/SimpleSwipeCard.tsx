@@ -32,7 +32,6 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { cn } from '@/lib/utils';
 import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, RotateCcw, Share2 } from 'lucide-react';
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
-import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { EXIT_SPRING, SNAP_BACK_SPRING } from '@/components/swipe/SwipeConstants';
 

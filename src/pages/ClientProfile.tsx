@@ -93,29 +93,19 @@ const ClientProfile = () => {
     <AmbientPageBackground className={cn("w-full min-h-screen text-foreground")}>
       <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10">
 
-        {/* SWIPESS MEMBER BADGE */}
-        <div className="flex items-center justify-center">
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#EB4898]/20 bg-[#EB4898]/5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Swipes Member</span>
-          </div>
-        </div>
-
         {/* IDENTITY CORE */}
         <div className="flex flex-col items-center text-center gap-6">
           <div className="relative">
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-36 h-36 p-[2px]"
+              className="w-36 h-36 p-[2px] rounded-full"
               style={{
-                borderRadius: '3rem',
                 background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
               }}
             >
               <div
-                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border", isLight ? "surface-2" : "bg-[#080C14] border-white/5")}
-                style={{ borderRadius: '3rem' }}
+                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border rounded-full", isLight ? "surface-2" : "bg-[#080C14] border-white/5")}
                 onClick={() => { triggerHaptic('light'); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
                 {profile?.profile_images?.[0] ? (

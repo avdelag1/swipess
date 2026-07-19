@@ -152,13 +152,10 @@ export const LocationRadiusSelector = memo(({
           type="button"
           data-skip-press-engine
           onClick={toggleExpand}
-          className={cn(
-            "h-[38px] px-4 flex items-center justify-center rounded-full border shadow-xl backdrop-blur-2xl transition-transform active:scale-95",
-            "bg-black/30 dark:bg-white/10 border-white/20 text-white gap-1.5 tap-css-only"
-          )}
+          className="flex flex-col items-center justify-center w-[46px] h-[46px] rounded-[1.25rem] bg-black/30 backdrop-blur-3xl border border-white/30 text-white hover:bg-white/10 active:scale-85 transition-all duration-300 shadow-[0_16px_48px_rgba(0,0,0,0.5)] tap-css-only"
         >
-          <MapPin className="w-3.5 h-3.5 opacity-90" strokeWidth={2.5} />
-          <span className="text-[11px] font-black uppercase tracking-widest leading-none pt-0.5">{radiusKm}km Radius</span>
+          <MapPin className="w-5 h-5 mb-0.5" strokeWidth={2} />
+          <span className="text-[8px] font-black uppercase tracking-tighter leading-none">{radiusKm}km</span>
         </button>
         
         {renderExpandedPanel()}
