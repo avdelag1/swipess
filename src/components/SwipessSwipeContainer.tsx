@@ -1004,14 +1004,30 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
                 >
                   <AnimatePresence>
-                    {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((listing) => {
+                    {deckQueue.slice(currentIndex, currentIndex + 3).reverse().map((listing, reversedIdx) => {
                       const listingId = getCardId(listing);
                       const isTopCard = listingId === getCardId(topCard);
+                      // Stack depth: cards behind the top card appear progressively smaller/offset
+                      const totalVisible = Math.min(deckQueue.length - currentIndex, 3);
+                      const stackPosition = totalVisible - 1 - reversedIdx; // 0 = top, 1 = second, 2 = third
+                      const stackScale = 1 - stackPosition * 0.04;
+                      const stackTranslateY = stackPosition * 8;
+                      const stackOpacity = 1 - stackPosition * 0.15;
+                      const stackZIndex = 20 - stackPosition * 5;
+
                       return (
                         <motion.div
                           key={listingId || Math.random().toString()}
                           exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                          className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                          className={cn("absolute inset-0 w-full h-full")}
+                          style={{
+                            zIndex: stackZIndex,
+                            transform: isTopCard ? undefined : `scale(${stackScale}) translateY(${stackTranslateY}px)`,
+                            opacity: isTopCard ? 1 : stackOpacity,
+                            transformOrigin: 'center top',
+                            transition: 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease',
+                            pointerEvents: isTopCard ? 'auto' : 'none',
+                          }}
                         >
                         {dataType === 'people' ? (
                           <SimpleOwnerSwipeCard

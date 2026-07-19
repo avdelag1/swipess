@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getBlurDataUrl, getCardImageUrl } from '@/utils/imageOptimization';
+import { createSrcSet, getBlurDataUrl, getCardImageUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -30,6 +30,7 @@ const CardImage = memo(({
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
   const cacheKey = isMarketingSlide ? src : (optimizedSrc || src);
   const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
+  const srcSet = useMemo(() => (!isMarketingSlide && src ? createSrcSet(src) : ''), [src, isMarketingSlide]);
 
   const [imgSrc, setImgSrc] = useState<string | null>(() => optimizedSrc || src || null);
   const [loaded, setLoaded] = useState<boolean>(() => {
@@ -219,6 +220,8 @@ const CardImage = memo(({
       {imgSrc && isInView && (
         <motion.img
           src={imgSrc}
+          srcSet={srcSet || undefined}
+          sizes={srcSet ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px' : undefined}
           alt={alt ?? ''}
           data-swipe-card-image="true"
           draggable={false}

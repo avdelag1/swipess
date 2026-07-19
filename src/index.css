@@ -223,6 +223,15 @@ html[data-theme-transition] ::view-transition-new(root) {
   100% { clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
 }
 
+/* Fallback: smooth color transitions for browsers without View Transitions API */
+@supports not (view-transition-name: root) {
+  html[data-theme-transition] *,
+  html[data-theme-transition] *::before,
+  html[data-theme-transition] *::after {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+  }
+}
+
 /* Kill the iOS 300ms double-tap delay on any tappable control. */
 :where(button, [role="button"], a) {
   touch-action: manipulation;
@@ -1867,6 +1876,16 @@ a {
 /* Shimmer animation utility */
 .animate-shimmer {
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Premium skeleton pulse — staggered breathing effect */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.15; }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.8s ease-in-out infinite;
 }
 
 /* ===== IMAGE LAZY LOADING WITH BLUR PLACEHOLDER ===== */
