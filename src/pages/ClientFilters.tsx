@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  Bike, Briefcase, ChevronLeft, ChevronRight, Home, Key, RotateCcw, Search, Tag, Users
+  Bike, Briefcase, ChevronLeft, ChevronRight, Home, Key, RotateCcw, Search, Tag, Users, Anchor
 } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -77,7 +77,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     { id: 'property', label: 'Properties', desc: 'Settle Anywhere', icon: Home },
     { id: 'motorcycle', label: 'Motos', desc: 'High Velocity', icon: MotorcycleIcon },
     { id: 'bicycle', label: 'Bikes', desc: 'Urban Agility', icon: Bike },
-    { id: 'yacht', label: 'Yachts', desc: 'Open Waters', icon: () => <span className="text-xl">⛵</span> },
+    { id: 'yacht', label: 'Yachts', desc: 'Open Waters', icon: Anchor },
     { id: 'services', label: 'Workers', desc: 'Elite Skillset', icon: Briefcase },
     { id: 'buyers', label: 'Buyers', desc: 'Purchase Ready', icon: Tag },
     { id: 'renters', label: 'Renters', desc: 'Looking to Move', icon: Key },
