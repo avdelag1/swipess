@@ -468,8 +468,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
         {isTop && (listing as any).category !== 'events' && (
           <>
-            <GestureHints hidden={isZoomed} />
-            
             <div
               className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,72px)+10px)] inset-x-4 z-[100] flex items-center justify-between pointer-events-none"
               style={{ opacity: isZoomed ? 0 : 1 }}
