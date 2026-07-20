@@ -50,7 +50,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const textarea = (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-md px-4 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground/60 hover:border-black/20 dark:hover:border-white/20 hover:bg-black/10 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:border-primary/50 focus-visible:bg-transparent focus-visible:shadow-[0_0_0_2px_rgba(var(--primary),0.2)] disabled:cursor-not-allowed disabled:opacity-50 transition-[border-color,box-shadow,background-color,height] duration-150 ease-out",
+          "flex min-h-[80px] w-full rounded-[1.25rem] border border-black/[0.08] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl px-5 py-4 text-[15px] font-medium text-foreground shadow-sm placeholder:text-muted-foreground/50 hover:border-black/20 dark:hover:border-white/20 hover:bg-black/[0.05] dark:hover:bg-white/[0.05] hover:shadow-md focus-visible:outline-none focus-visible:bg-transparent dark:focus-visible:bg-transparent focus-visible:border-[var(--color-brand-accent-2)] focus-visible:shadow-[0_0_0_4px_rgba(228,0,124,0.15)] disabled:cursor-not-allowed disabled:opacity-50 transition-[border-color,box-shadow,background-color,height] duration-200 ease-out",
           autoGrow && "resize-none",
           className
         )}
