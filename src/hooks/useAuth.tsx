@@ -620,8 +620,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         } catch (nativeErr: unknown) {
           localStorage.removeItem('pendingOAuthRole');
           if (isUserCancellation(nativeErr)) {
-            // User dismissed the Apple sheet — not an error worth surfacing.
-            return { error: null };
+            // User dismissed the Apple sheet — return CANCELLED so caller can reset loading state
+            return { error: new Error('CANCELLED') };
           }
           logger.error('[Auth] Native Apple sign-in error:', nativeErr);
           appToast.error('Apple Sign In Failed', 'Could not complete Apple sign in. Please try again.');

@@ -252,13 +252,15 @@ export const StoreKitService = {
           return;
         }
         store.order(offer).catch((err: any) => {
-          const errMsg = err?.message ?? '';
-          if (errMsg === 'CANCELLED' || errMsg.includes('cancelled') || errMsg.includes('CANCELLED')) {
-            const pending = pendingPurchases.get(productId);
-            if (pending) {
-              pendingPurchases.delete(productId);
-              clearTimeout(timer);
+          const errMsg = err?.message ?? String(err);
+          const pending = pendingPurchases.get(productId);
+          if (pending) {
+            pendingPurchases.delete(productId);
+            clearTimeout(timer);
+            if (errMsg === 'CANCELLED' || errMsg.toLowerCase().includes('cancelled')) {
               resolve({ success: false, error: 'CANCELLED' });
+            } else {
+              resolve({ success: false, error: errMsg || 'Purchase failed' });
             }
           }
         });

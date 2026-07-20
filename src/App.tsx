@@ -38,6 +38,7 @@ const LawyerServicesPage = lazyWithRetry(() => import("./pages/LawyerServicesPag
 const AboutPage = lazyWithRetry(() => import("./pages/AboutPage"));
 const FAQClientPage = lazyWithRetry(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
+const ContactPage = lazyWithRetry(() => import("./pages/ContactPage"));
 
 // CLIENT PAGES
 // ClientDashboard and EnhancedOwnerDashboard are now mounted persistently
@@ -236,6 +237,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/legal" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LegalHub /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/dashboard" element={<DashboardRedirect />} />
             <Route path="/about" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/contact" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ContactPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/faq/client" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/faq/owner" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ProfileDetailPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />

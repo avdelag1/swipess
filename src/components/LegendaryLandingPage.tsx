@@ -526,7 +526,14 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
 
             <button
-              onClick={() => { if (!requireAgreement()) return; triggerHaptic('medium'); signInWithOAuth('apple'); }}
+              disabled={isLoading}
+              onClick={async () => { 
+                if (!requireAgreement()) return; 
+                triggerHaptic('medium'); 
+                setIsLoading(true);
+                const { error } = await signInWithOAuth('apple');
+                if (error) setIsLoading(false);
+              }}
               style={{
                 backgroundColor: '#ffffff',
                 color: '#000000',
@@ -541,7 +548,14 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
             {!isNativeIOS && (
               <button
-                onClick={() => { if (!requireAgreement()) return; triggerHaptic('medium'); signInWithOAuth('google'); }}
+                disabled={isLoading}
+                onClick={async () => { 
+                  if (!requireAgreement()) return; 
+                  triggerHaptic('medium'); 
+                  setIsLoading(true);
+                  const { error } = await signInWithOAuth('google');
+                  if (error) setIsLoading(false);
+                }}
                 style={{
                   backgroundColor: '#ffffff',
                   color: '#000000',

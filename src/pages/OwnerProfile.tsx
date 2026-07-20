@@ -206,7 +206,7 @@ const OwnerProfile = () => {
 
         {/* PROMO CODES */}
         <div className="mt-6 mb-6">
-           <PromoCodeSection />
+           {/* PromoCodeSection removed to comply with App Store Guideline 3.1.1 */}
         </div>
 
         {/* FEEDBACK & CONTACT ADMINS */}
