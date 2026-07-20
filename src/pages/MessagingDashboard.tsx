@@ -48,6 +48,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
 import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { appToast } from '@/utils/appNotification';
@@ -640,50 +641,56 @@ export function MessagingDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className={cn(
-                "py-24 flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm",
+                "flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm overflow-hidden",
                 isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
               )}
             >
               {searchQuery ? (
                 <>
-                  <div className="w-20 h-20 rounded-[1.8rem] bg-slate-500/10 flex items-center justify-center mb-8 border border-slate-500/20">
-                    <Search className="w-9 h-9 text-slate-400" />
+                  <div className="py-24 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 rounded-[1.8rem] bg-slate-500/10 flex items-center justify-center mb-8 border border-slate-500/20">
+                      <Search className="w-9 h-9 text-slate-400" />
+                    </div>
+                    <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>No results</h3>
+                    <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
+                      No chats matching "{searchQuery}"
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
+                    >
+                      Clear search
+                    </button>
                   </div>
-                  <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>No results</h3>
-                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
-                    No chats matching "{searchQuery}"
-                  </p>
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
-                  >
-                    Clear search
-                  </button>
                 </>
               ) : activeFilter !== 'all' ? (
                 <>
-                  <div className="w-20 h-20 rounded-[1.8rem] bg-amber-500/10 flex items-center justify-center mb-8 border border-amber-500/20">
-                    <MessageCircle className="w-9 h-9 text-amber-400" />
+                  <div className="py-24 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 rounded-[1.8rem] bg-amber-500/10 flex items-center justify-center mb-8 border border-amber-500/20">
+                      <MessageCircle className="w-9 h-9 text-amber-400" />
+                    </div>
+                    <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>Nothing here</h3>
+                    <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
+                      No {activeFilter} chats yet
+                    </p>
+                    <button
+                      onClick={() => setActiveFilter('all')}
+                      className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
+                    >
+                      Show all chats
+                    </button>
                   </div>
-                  <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-2", isLight ? "text-black" : "text-white")}>Nothing here</h3>
-                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-40 text-center max-w-xs leading-relaxed mb-8", isLight ? "text-black" : "text-white")}>
-                    No {activeFilter} chats yet
-                  </p>
-                  <button
-                    onClick={() => setActiveFilter('all')}
-                    className="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary text-white active:scale-95 transition-transform"
-                  >
-                    Show all chats
-                  </button>
                 </>
               ) : (
-                <>
-                  <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
-                    <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
-                  </div>
-                  <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{t('messages.noMessages')}</h3>
-                  <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>{t('messages.startConversation')}</p>
-                </>
+                <EmptyState
+                  icon={MessageCircle}
+                  title="Your inbox awaits."
+                  description="Swipe right on properties or clients to start a conversation. Your chats will appear here."
+                  actionLabel="START SWIPING"
+                  onAction={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
+                  variant="messages"
+                  className="border-0 rounded-none"
+                />
               )}
             </motion.div>
           )}

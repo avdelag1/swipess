@@ -299,6 +299,7 @@ const OwnerInterestedClients = () => {
             description="When someone likes your listings, they'll appear here for you to connect."
             actionLabel="GO TO DASHBOARD"
             onAction={() => navigate("/owner/dashboard")}
+            variant="likes"
           />
         )}
       </div>

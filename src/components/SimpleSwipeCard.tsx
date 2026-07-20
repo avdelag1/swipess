@@ -451,6 +451,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   priority={idx === 0 || idx === currentImageIndex}
                   fullScreen={true}
                   animate={!isZoomed && isActive}
+                  layoutId={isTop && idx === currentImageIndex ? `hero-${listing.id || (listing as any).user_id}` : undefined}
                 />
               </div>
             );

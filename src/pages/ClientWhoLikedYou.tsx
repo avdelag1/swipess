@@ -272,6 +272,7 @@ const ClientWhoLikedYou = () => {
             description="When an owner likes your profile, they will appear here instantly."
             actionLabel="EXPLORE WORLD"
             onAction={() => navigate("/client/dashboard")}
+            variant="likes"
           />
         )}
       </div>

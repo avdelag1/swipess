@@ -25,6 +25,7 @@ const CardImage = memo(({
   fullScreen?: boolean;
   animate?: boolean;
   priority?: boolean;
+  layoutId?: string;
 }) => {
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
@@ -140,6 +141,7 @@ const CardImage = memo(({
           fullScreen={fullScreen}
           animate={_animate}
           priority={priority}
+          layoutId={layoutId}
         />
       );
     }
@@ -153,7 +155,7 @@ const CardImage = memo(({
   const br = 'inherit';
 
   return (
-      <div
+      <motion.div
         ref={containerRef}
         style={{
           position: 'absolute',
@@ -165,6 +167,7 @@ const CardImage = memo(({
           zIndex: 1,
           contain: 'layout size style',
         }}
+        layoutId={layoutId ? `${layoutId}-container` : undefined}
       >
       {!loaded && !prevLoadedSrc && (
         <div
@@ -236,6 +239,7 @@ const CardImage = memo(({
             alt={alt ?? ''}
             data-swipe-card-image={_animate ? "true" : undefined}
             draggable={false}
+            layoutId={layoutId}
             // Render is already gated by the IntersectionObserver above, so by the
             // time this mounts the image is near/in view — load it now rather than
             // deferring again to the browser's narrower native-lazy threshold.
@@ -270,7 +274,7 @@ const CardImage = memo(({
           />
         </picture>
       )}
-    </div>
+    </motion.div>
   );
 });
 

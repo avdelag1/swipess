@@ -341,6 +341,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             description="Your favorite listings will appear here. Start swiping to fill your world."
             actionLabel="EXPLORE WORLD"
             onAction={() => navigate("/client/dashboard")}
+            variant="likes"
           />
         )}
       </div>

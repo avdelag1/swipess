@@ -9,6 +9,8 @@ import {
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useEffect, useMemo, useState } from 'react';
+import { CATEGORY_META } from '@/constants/categories';
+import { motion } from 'framer-motion';
 import { Capacitor } from '@capacitor/core';
 import { cn } from '@/lib/utils';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -220,10 +222,14 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hide pb-16">
 
             {/* ── Luxury Card Hero ── */}
-            <div className="z-10 shrink-0 relative w-full h-[50vh] min-h-[400px] rounded-b-[2.5rem] overflow-hidden bg-black/50 shadow-2xl">
+            <motion.div 
+              layoutId={`hero-${(profile as any)?.user_id || (profile as any)?.id || (listing as any)?.id}-container`}
+              className="z-10 shrink-0 relative w-full h-[50vh] min-h-[400px] rounded-b-[2.5rem] overflow-hidden bg-black/50 shadow-2xl"
+            >
                 {images.length > 0 ? (
                   <>
-                    <img
+                    <motion.img
+                      layoutId={imageIndex === 0 ? `hero-${(profile as any)?.user_id || (profile as any)?.id || (listing as any)?.id}` : undefined}
                       src={images[imageIndex]}
                       alt={title || ''}
                       className="w-full h-full object-cover"
@@ -261,7 +267,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                     <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white">{meta.label}</span>
                   </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* ── Content ── */}
             <div className="px-5 mt-2 relative z-10 space-y-8">
