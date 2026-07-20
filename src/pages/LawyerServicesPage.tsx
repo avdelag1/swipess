@@ -191,12 +191,12 @@ export default function LawyerServicesPage() {
                     )}
                   </div>
 
-                  <div className={cn('mt-5 pt-4 border-t flex items-end justify-between', isLight ? 'border-black/5' : 'border-white/5')}>
+                  <div className={cn('mt-5 pt-4 border-t flex flex-col gap-3', isLight ? 'border-black/5' : 'border-white/5')}>
                     <div>
                       <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 block', isLight ? 'text-black' : 'text-white')}>From</span>
                       <span className={cn('text-2xl font-black tracking-tighter', isLight ? 'text-black' : 'text-white')}>{formatPrice(pkg.price)}</span>
                     </div>
-                    <div className={cn('flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-[10px] font-black uppercase tracking-widest shadow-lg transition-transform group-hover:scale-105', meta.accentBg)}>
+                    <div className={cn('flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-[10px] font-black uppercase tracking-widest shadow-lg transition-transform group-hover:scale-105 w-full justify-center', meta.accentBg)}>
                       Request <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                   </div>

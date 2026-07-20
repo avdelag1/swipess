@@ -102,7 +102,7 @@ export const CONTRACT_TYPES: ContractType[] = [
 ];
 
 export function formatPrice(price: number): string {
-  return `$${price.toLocaleString('en-US')}`;
+  return `$${price.toLocaleString('en-US')} USD`;
 }
 
 export function formatDuration(days: number | null | undefined): string {
