@@ -429,11 +429,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMode, user?.id, resetClientDeck, queryClient]);
 
-  // Clear deck refs before paint when filters change — avoids old card photo flash.
   useLayoutEffect(() => {
     if (filterSignature === prevFilterSignatureRef.current) return;
     prevFilterSignatureRef.current = filterSignature;
     filterChangedRef.current = true;
+    setIsCategoryTransitioning(true);
+    isMountSettledRef.current = false;
+    setIsMountSettled(false);
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
@@ -445,9 +447,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   useEffect(() => {
     if (!filterChangedRef.current) return;
     filterChangedRef.current = false;
-    isMountSettledRef.current = false;
-    setIsMountSettled(false);
-    setIsCategoryTransitioning(true);
     const settledTimer = setTimeout(() => { isMountSettledRef.current = true; setIsMountSettled(true); }, 100);
 
     deckQueueRef.current = [];

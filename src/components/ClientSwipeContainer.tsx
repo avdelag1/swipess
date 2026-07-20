@@ -297,6 +297,7 @@ const ClientSwipeContainerComponent = ({
     currentIndexRef.current = 0;
     swipedIdsRef.current.clear();
     prevProfileIdsRef.current = '';
+    setIsCategoryTransitioning(true);
   }
 
   // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)

@@ -105,27 +105,7 @@ export const SwipeExhaustedState = ({
       style={{ backgroundColor: bgColor, borderColor }}
       className="relative z-50 h-full w-full flex flex-col items-center justify-center px-6 py-8 overflow-hidden rounded-[2.5rem] border"
     >
-      {/* ── Animated radar rings background ─────────────────────────────── */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden rounded-[2.5rem]">
-        {/* Pulsing concentric rings */}
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className={cn(
-              'absolute w-40 h-40 rounded-full border-2',
-              i === 0 ? 'animate-radar-ring' : i === 1 ? 'animate-radar-ring-2' : 'animate-radar-ring-3'
-            )}
-            style={{
-              borderColor: isLight ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.4)',
-            }}
-          />
-        ))}
-        {/* Centre dot */}
-        <div
-          className="absolute w-3 h-3 rounded-full animate-radar-pulse"
-          style={{ background: isLight ? '#6366f1' : '#818cf8', boxShadow: '0 0 12px 4px rgba(99,102,241,0.6)' }}
-        />
-      </div>
+
 
       {/* Top Left Back Button — Glass */}
       {onBack && (
