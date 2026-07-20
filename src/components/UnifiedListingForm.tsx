@@ -41,6 +41,8 @@ import {
 import { buildDescriptionFromChips } from '@/constants/listingTaxonomies';
 import { PremiumSortableGrid } from './PremiumSortableGrid';
 import { WaterDropLoader } from './ui/WaterDropLoader';
+import { Capacitor } from '@capacitor/core';
+import { AppleVision } from '@/lib/plugins/AppleVision';
 
 interface EditingListing {
   id?: string;
@@ -544,7 +546,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     input.accept = 'image/*';
     input.multiple = true;
 
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
       if (files.length === 0) return;
 
@@ -573,6 +575,50 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       });
 
       setPhotoList(prev => [...prev, ...newPhotos]);
+
+      // Perform on-device Apple Vision ML tagging if on native iOS
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && validatedFiles.length > 0) {
+        try {
+          // Just analyze the first uploaded photo for tags as a smart default
+          const fileToAnalyze = validatedFiles[0];
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const result = event.target?.result as string;
+            if (result && result.includes('base64,')) {
+              const base64Data = result.split('base64,')[1];
+              try {
+                const visionResult = await AppleVision.analyzeImage({ base64: base64Data });
+                if (visionResult.tags && visionResult.tags.length > 0) {
+                  // Clean tags (Vision returns PascalCase identifiers like "SwimmingPool")
+                  const cleanTags = visionResult.tags.map(t => 
+                    t.replace(/([A-Z])/g, ' $1').trim().toLowerCase()
+                  );
+                  
+                  // Add them to the form data's features array
+                  const currentFeatures = Array.isArray(formDataRef.current.features) 
+                    ? formDataRef.current.features 
+                    : [];
+                  
+                  // Only add tags that aren't already there
+                  const newUniqueTags = cleanTags.filter(t => !currentFeatures.includes(t));
+                  
+                  if (newUniqueTags.length > 0) {
+                    handleDataChange({ 
+                      features: [...currentFeatures, ...newUniqueTags] 
+                    });
+                    appToast.success(`Apple Vision added ${newUniqueTags.length} tags`);
+                  }
+                }
+              } catch (err) {
+                logger.error('Apple Vision analysis failed:', err);
+              }
+            }
+          };
+          reader.readAsDataURL(fileToAnalyze);
+        } catch (err) {
+          logger.error('Failed to read file for Vision analysis', err);
+        }
+      }
     };
 
     input.click();
