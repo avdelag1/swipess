@@ -40,6 +40,8 @@
 	<string>Swipess uses your location to show nearby listings and match you with local services.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Swipess uses the microphone so you can dictate messages to the AI concierge and record voice notes on listings. For example, say 'Show me 2-bedroom apartments under $1500' and Swipess will search for you.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Swipess uses speech recognition to convert your voice into text for creating listings, searching properties, and dictating messages — all processed on your device for privacy.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Swipess saves downloaded receipts and QR codes to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

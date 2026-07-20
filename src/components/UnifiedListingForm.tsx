@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
-import { AlertCircle, Bike, Check, ChevronRight, FileText, Film, LayoutGrid, Shield, Upload, X } from 'lucide-react';
+import { AlertCircle, Bike, Check, ChevronRight, FileText, Film, LayoutGrid, Mic, Shield, Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,7 @@ import { PremiumSortableGrid } from './PremiumSortableGrid';
 import { WaterDropLoader } from './ui/WaterDropLoader';
 import { Capacitor } from '@capacitor/core';
 import { AppleVision } from '@/lib/plugins/AppleVision';
+import { AppleSpeech } from '@/lib/plugins/AppleSpeech';
 
 interface EditingListing {
   id?: string;
@@ -1054,6 +1055,40 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   </button>
                 </div>
               )}
+              {/* Voice Dictation Button */}
+              <div className="flex items-center justify-between p-4 rounded-3xl bg-purple-500/10 border border-purple-500/20">
+                <div className="flex-1 space-y-1">
+                  <h4 className="text-sm font-black text-purple-400 uppercase tracking-wide">Voice Description</h4>
+                  <p className="text-xs text-purple-300/80">Speak your listing description aloud.</p>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      triggerHaptic('medium');
+                      appToast.info('Listening... speak now');
+                      const result = await AppleSpeech.startRecognition();
+                      if (result.transcript) {
+                        const currentDesc = (formDataRef.current.description as string) || '';
+                        const newDesc = currentDesc
+                          ? `${currentDesc}\n\n${result.transcript}`
+                          : result.transcript;
+                        handleDataChange({ description: newDesc });
+                        setFormData(prev => ({ ...prev, description: newDesc }));
+                        triggerHaptic('success');
+                        appToast.success('Voice transcribed!');
+                      } else {
+                        appToast.error('No speech detected.');
+                      }
+                    } catch (err) {
+                      logger.error('Speech recognition failed', err);
+                      appToast.error('Voice input failed.');
+                    }
+                  }}
+                  className="ml-4 shrink-0 w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center hover:bg-purple-500/30 active:scale-90 transition-all border border-purple-500/30"
+                >
+                  <Mic className="w-5 h-5" />
+                </button>
+              </div>
               {selectedCategory === 'property' && <PropertyListingForm onDataChange={handleDataChange} initialData={formData} />}
               {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as MotorcycleFormData} />}
               {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as BicycleFormData} />}
