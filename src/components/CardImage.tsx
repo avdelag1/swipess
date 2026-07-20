@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createSrcSet, getBlurDataUrl, getCardImageUrl } from '@/utils/imageOptimization';
+import { createSrcSet, generatePictureSources, getBlurDataUrl, getCardImageUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -29,10 +29,12 @@ const CardImage = memo(({
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
   const cacheKey = isMarketingSlide ? src : (optimizedSrc || src);
-  const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
-  const srcSet = useMemo(() => (!isMarketingSlide && src ? createSrcSet(src) : ''), [src, isMarketingSlide]);
-
   const [imgSrc, setImgSrc] = useState<string | null>(() => optimizedSrc || src || null);
+
+  const blurSrc = useMemo(() => (!isMarketingSlide && imgSrc ? getBlurDataUrl(imgSrc) : null), [imgSrc, isMarketingSlide]);
+  const srcSet = useMemo(() => (!isMarketingSlide && imgSrc ? createSrcSet(imgSrc, 'webp') : ''), [imgSrc, isMarketingSlide]);
+  const pictureSources = useMemo(() => (!isMarketingSlide && imgSrc ? generatePictureSources(imgSrc) : []), [imgSrc, isMarketingSlide]);
+
   const [loaded, setLoaded] = useState<boolean>(() => {
     if (!src) return false;
     if (isMarketingSlide) return true;
@@ -218,45 +220,55 @@ const CardImage = memo(({
         />
       )}
       {imgSrc && isInView && (
-        <motion.img
-          src={imgSrc}
-          srcSet={srcSet || undefined}
-          sizes={srcSet ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px' : undefined}
-          alt={alt ?? ''}
-          data-swipe-card-image={_animate ? "true" : undefined}
-          draggable={false}
-          // Render is already gated by the IntersectionObserver above, so by the
-          // time this mounts the image is near/in view — load it now rather than
-          // deferring again to the browser's narrower native-lazy threshold.
-          loading="eager"
-          decoding="async"
-          fetchpriority={priority ? "high" : "auto"}
-          initial={false}
-          animate={{ opacity: loaded ? 1 : 0 }}
-          transition={{ duration: CROSSFADE_MS / 1000 }}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: br,
-            zIndex: 3,
-            willChange: 'opacity',
-            WebkitTouchCallout: 'none',
-            WebkitUserSelect: 'none',
-            userSelect: 'none',
-            touchAction: 'none',
-          }}
-          onDragStart={e => e.preventDefault()}
-          onContextMenu={e => e.preventDefault()}
-          onLoad={() => {
-            if (cacheKey) imageCache.set(cacheKey, true);
-            setPrevLoadedSrc(imgSrc);
-            setLoaded(true);
-          }}
-          onError={handleImgError}
-        />
+        <picture>
+          {pictureSources.map((source, idx) => (
+            <source
+              key={idx}
+              type={source.type}
+              srcSet={source.srcSet}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
+            />
+          ))}
+          <motion.img
+            src={imgSrc}
+            srcSet={srcSet || undefined}
+            sizes={srcSet ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px' : undefined}
+            alt={alt ?? ''}
+            data-swipe-card-image={_animate ? "true" : undefined}
+            draggable={false}
+            // Render is already gated by the IntersectionObserver above, so by the
+            // time this mounts the image is near/in view — load it now rather than
+            // deferring again to the browser's narrower native-lazy threshold.
+            loading="eager"
+            decoding="async"
+            fetchpriority={priority ? "high" : "auto"}
+            initial={false}
+            animate={{ opacity: loaded ? 1 : 0 }}
+            transition={{ duration: CROSSFADE_MS / 1000 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              borderRadius: br,
+              zIndex: 3,
+              willChange: 'opacity',
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'none',
+              userSelect: 'none',
+              touchAction: 'none',
+            }}
+            onDragStart={e => e.preventDefault()}
+            onContextMenu={e => e.preventDefault()}
+            onLoad={() => {
+              if (cacheKey) imageCache.set(cacheKey, true);
+              setPrevLoadedSrc(imgSrc);
+              setLoaded(true);
+            }}
+            onError={handleImgError}
+          />
+        </picture>
       )}
     </div>
   );

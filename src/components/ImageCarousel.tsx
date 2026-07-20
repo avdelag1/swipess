@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { generatePictureSources, createSrcSet } from '@/utils/imageOptimization';
 
 interface ImageCarouselProps {
   images: string[];
@@ -60,12 +61,7 @@ function preloadImageImmediate(url: string): void {
     // Decode immediately for instant display
     if ('decode' in img) {
       img.decode().then(() => {
-        globalImageCache.set(url, {
-          loaded: true,
-          decoded: true,
-          lastAccessed: Date.now(),
-          element: img
-        });
+        globalImageCache.set(url, { loaded: true, decoded: true, lastAccessed: Date.now(), element: img });
       }).catch(() => {
         globalImageCache.set(url, { loaded: true, decoded: true, lastAccessed: Date.now() });
       });
@@ -78,6 +74,10 @@ function preloadImageImmediate(url: string): void {
     preloadingUrls.delete(url);
   };
 
+  img.srcset = createSrcSet(url, 'webp');
+  img.sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px";
+  // We use WebP for the preloader. If the browser supports AVIF, the DOM <picture> will fetch AVIF natively. 
+  // It's acceptable if it causes a background fetch of AVIF later because WebP is already super small.
   img.src = url;
 }
 
@@ -107,6 +107,8 @@ function preloadImageBackground(url: string): void {
     img.onerror = () => {
       preloadingUrls.delete(url);
     };
+    img.srcset = createSrcSet(url, 'webp');
+    img.sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px";
     img.src = url;
   };
 
@@ -129,6 +131,8 @@ async function decodeImageFastFast(src: string): Promise<boolean> {
     const img = new Image();
     (img as any).fetchPriority = 'high';
     img.decoding = 'sync'; // Synchronous for faster response
+    img.srcset = createSrcSet(src, 'webp');
+    img.sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px";
     img.src = src;
 
     img.onload = () => {
@@ -340,49 +344,66 @@ const ImageCarouselComponent = ({
 
         {/* LAYER 3: Previous image - stays visible during transition */}
         {previousSrc && isTransitioning && (
-          <img
-            src={previousSrc}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{
-              zIndex: 3,
-              opacity: 1,
-            }}
-            aria-hidden="true"
-          />
+          <picture>
+            {generatePictureSources(previousSrc).map((source, idx) => (
+              <source key={idx} type={source.type} srcSet={source.srcSet} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px" />
+            ))}
+            <img
+              src={previousSrc}
+              srcSet={createSrcSet(previousSrc, 'webp') || undefined}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{
+                zIndex: 3,
+                opacity: 1,
+              }}
+              aria-hidden="true"
+            />
+          </picture>
         )}
 
         {/* LAYER 4: Current image - INSTANT display for cached images */}
         {displayedSrc && (
-          <img
-            src={displayedSrc}
-            alt={`${alt} ${currentIndex + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover ${
-              startedCachedRef.current ? '' : 'transition-opacity duration-100'
-            }`}
-            loading="eager"
-            decoding="sync"
-            fetchPriority="high"
-            style={{
-              zIndex: 4,
-              opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
-              transform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-            }}
-            onLoad={() => {
-              if (!showImage) {
+          <picture>
+            {generatePictureSources(displayedSrc).map((source, idx) => (
+              <source key={idx} type={source.type} srcSet={source.srcSet} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px" />
+            ))}
+            <img
+              src={displayedSrc}
+              srcSet={createSrcSet(displayedSrc, 'webp') || undefined}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px"
+              alt={`${alt} ${currentIndex + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover ${
+                startedCachedRef.current ? '' : 'transition-opacity duration-100'
+              }`}
+              loading="eager"
+              decoding="sync"
+              fetchPriority="high"
+              style={{
+                zIndex: 4,
+                opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
+                transform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+              }}
+              onLoad={() => {
+                if (!showImage) {
+                  setShowImage(true);
+                  // After first load, allow transitions for subsequent images
+                  startedCachedRef.current = false;
+                }
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg';
+                // Remove srcSet so it doesn't break the fallback
+                target.removeAttribute('srcset');
+                target.removeAttribute('sizes');
+                setHasError(true);
                 setShowImage(true);
-                // After first load, allow transitions for subsequent images
-                startedCachedRef.current = false;
-              }
-            }}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = '/placeholder.svg';
-              setHasError(true);
-              setShowImage(true);
-            }}
-          />
+              }}
+            />
+          </picture>
         )}
 
         {/* Click Areas - Visual hints on hover (desktop only) - matches 35% tap zones */}

@@ -259,7 +259,7 @@ export const imagePreloadQueue = new ImagePreloadQueue();
  * Create responsive srcset for optimal image loading
  * Returns empty string for signed URLs (cannot be transformed)
  */
-export function createSrcSet(url: string): string {
+export function createSrcSet(url: string, format?: 'avif' | 'webp' | 'auto'): string {
   // Skip non-Supabase URLs - cannot generate srcset
   if (!url || !url.includes('supabase.co/storage')) {
     return '';
@@ -273,8 +273,29 @@ export function createSrcSet(url: string): string {
 
   const sizes = [320, 640, 960, 1280, 1920];
   return sizes
-    .map(size => `${optimizeImageUrl(url, { width: size })} ${size}w`)
+    .map(size => `${optimizeImageUrl(url, { width: size, format: format || 'webp' })} ${size}w`)
     .join(', ');
+}
+
+export interface PictureSource {
+  type: string;
+  srcSet: string;
+}
+
+/**
+ * Generate <source> tags data for <picture> element content negotiation
+ * Provides AVIF first, falling back to WebP
+ */
+export function generatePictureSources(url: string): PictureSource[] {
+  if (!url || !url.includes('supabase.co/storage')) return [];
+
+  const signedUrlPatterns = ['token=', 'Signature=', 'X-Amz-Signature=', 'X-Goog-Signature=', 'sig=', 'sv='];
+  if (signedUrlPatterns.some(pattern => url.includes(pattern))) return [];
+
+  return [
+    { type: 'image/avif', srcSet: createSrcSet(url, 'avif') },
+    { type: 'image/webp', srcSet: createSrcSet(url, 'webp') },
+  ];
 }
 
 /**

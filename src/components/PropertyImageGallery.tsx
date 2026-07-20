@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react';
-import { getFullImageUrl, getThumbnailUrl } from '@/utils/imageOptimization';
+import { getFullImageUrl, getThumbnailUrl, generatePictureSources, createSrcSet } from '@/utils/imageOptimization';
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -207,24 +207,31 @@ function PropertyImageGalleryComponent({
                   <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 </div>
               )}
-              <img
-                src={currentImageUrl}
-                alt={`${alt} ${currentIndex + 1}`}
-                className={`max-w-full max-h-full object-contain ${
-                  isZoomed ? 'scale-150 cursor-grab' : 'cursor-zoom-in'
-                }`}
-                style={{
-                  transform: 'translateZ(0)',
-                  backfaceVisibility: 'hidden',
-                  // GPU acceleration
-                  contain: 'paint',
-                }}
-                onClick={() => setIsZoomed(!isZoomed)}
-                draggable={false}
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-              />
+              <picture>
+                {generatePictureSources(currentImageUrl).map((source, idx) => (
+                  <source key={idx} type={source.type} srcSet={source.srcSet} sizes="100vw" />
+                ))}
+                <img
+                  src={currentImageUrl}
+                  srcSet={createSrcSet(currentImageUrl, 'webp') || undefined}
+                  sizes="100vw"
+                  alt={`${alt} ${currentIndex + 1}`}
+                  className={`max-w-full max-h-full object-contain ${
+                    isZoomed ? 'scale-150 cursor-grab' : 'cursor-zoom-in'
+                  }`}
+                  style={{
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                    // GPU acceleration
+                    contain: 'paint',
+                  }}
+                  onClick={() => setIsZoomed(!isZoomed)}
+                  draggable={false}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </picture>
             </div>
           </div>
 
