@@ -49,7 +49,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
   const [imageIndex, setImageIndex] = useState(0);
   const [translatedDesc, setTranslatedDesc] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [detectedLang, setDetectedLang] = useState<string | null>(null);
+  const [, setDetectedLang] = useState<string | null>(null);
 
   // Reset translation state when the viewed listing changes
   useEffect(() => {

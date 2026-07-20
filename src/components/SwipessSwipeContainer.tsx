@@ -206,6 +206,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const topCardY = useMotionValue(0);
   // Map horizontal drag distance (-200 to 200) into a 0 to 1 progress value
   const dragProgress = useTransform(topCardX, [-200, 0, 200], [1, 0, 1]);
+
+  // Pre-calculate stack depth transforms for cards behind the top card
+  // Stack card 1 (second from top, stackPosition = 1)
+  const stack1Scale = useTransform(dragProgress, [0, 1], [0.96, 1]);
+  const stack1Y = useTransform(dragProgress, [0, 1], [8, 0]);
+  const stack1Opacity = useTransform(dragProgress, [0, 1], [0.85, 1]);
+  // Stack card 2 (third from top, stackPosition = 2)
+  const stack2Scale = useTransform(dragProgress, [0, 1], [0.92, 0.96]);
+  const stack2Y = useTransform(dragProgress, [0, 1], [16, 8]);
+  const stack2Opacity = useTransform(dragProgress, [0, 1], [0.70, 0.85]);
   const [_deckLength, setDeckLength] = useState(0);
   // True from the moment a quick-filter changes until the new query settles.
   // Keeps the clean loader on screen so the "No results" exhausted card can
@@ -1054,20 +1064,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                       const totalVisible = Math.min(deckQueue.length - currentIndex, 3);
                       const stackPosition = totalVisible - 1 - reversedIdx; // 0 = top, 1 = second, 2 = third
                       
-                      // Base scale/y before any drag
-                      const baseScale = 1 - stackPosition * 0.04;
-                      const baseY = stackPosition * 8;
-                      const baseOpacity = 1 - stackPosition * 0.15;
-
-                      // Next state scale/y (what it will be when top card is gone)
-                      const nextScale = 1 - Math.max(0, stackPosition - 1) * 0.04;
-                      const nextY = Math.max(0, stackPosition - 1) * 8;
-                      const nextOpacity = 1 - Math.max(0, stackPosition - 1) * 0.15;
-
                       // Interpolate between base and next state based on dragProgress
-                      const stackScale = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseScale, nextScale]);
-                      const stackTranslateY = isTopCard ? 0 : useTransform(dragProgress, [0, 1], [baseY, nextY]);
-                      const stackOpacityVal = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseOpacity, nextOpacity]);
+                      const stackScale = isTopCard ? 1 : stackPosition === 1 ? stack1Scale : stack2Scale;
+                      const stackTranslateY = isTopCard ? 0 : stackPosition === 1 ? stack1Y : stack2Y;
+                      const stackOpacityVal = isTopCard ? 1 : stackPosition === 1 ? stack1Opacity : stack2Opacity;
 
                       const stackZIndex = 20 - stackPosition * 5;
 
