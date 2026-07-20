@@ -150,6 +150,7 @@ export function SubscriptionPackages({
   if (!isOpen) return null;
 
   const handleSubscribe = async (plan: Plan) => {
+    if (purchasingId) return;
     setPurchasingId(plan.id);
 
     if (user?.id) {
@@ -264,7 +265,7 @@ export function SubscriptionPackages({
                   type="button"
                   whileTap={{ scale: 0.96 }}
                   onClick={() => handleSubscribe(pkg)}
-                  disabled={purchasingId !== null}
+                  disabled={purchasingId === pkg.id}
                   style={pkgData?.cta_color?.text_value ? { background: pkgData.cta_color.text_value, color: 'white' } : {}}
                   className={cn(
                     'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5',

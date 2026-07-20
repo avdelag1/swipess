@@ -69,6 +69,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
 
   const handlePurchase = async (pkg: AppleTokenPackage) => {
+    if (purchasingId) return;
     setPurchasingId(pkg.productId);
 
     await PaymentOrchestrator.purchase({
@@ -209,7 +210,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                               </div>
                               <button
                                 onClick={(e) => { e.preventDefault(); haptics.tap(); handlePurchase(pkg); }}
-                                disabled={purchasingId !== null}
+                                disabled={purchasingId === pkg.productId}
                                 aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
                                 className={cn(
                                   "flex-shrink-0 h-11 px-5 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
