@@ -940,7 +940,7 @@ const ClientSwipeContainerComponent = ({
   // All conditions use derived flags - NO hooks called after this point
 
   if (showLoadingSkeleton || !deckReady) {
-    return <SwipeLoadingSkeleton />;
+    return <SwipeLoadingSkeleton category={category} />;
   }
 
   return (
@@ -1074,7 +1074,7 @@ const ClientSwipeContainerComponent = ({
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettled) ? (
-                  <SwipeLoadingSkeleton />
+                  <SwipeLoadingSkeleton category={category} />
                 ) : error && deckQueue.length === 0 ? (
                   <SwipeErrorState
                     isRetrying={isLoading || isFetching}

@@ -986,7 +986,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     deckQueue.length === 0
     && (isLoading || isFetching || isCategoryTransitioning || !isMountSettled)
   ) {
-    return <SwipeLoadingSkeleton />;
+    return <SwipeLoadingSkeleton category={deckCategory} />;
   }
 
   return (
@@ -1145,7 +1145,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 className="w-full h-full z-50 overflow-hidden"
               >
                 {(isLoading || isFetching || isCategoryTransitioning || !isMountSettledRef.current) && deckQueue.length === 0 ? (
-                  <SwipeLoadingSkeleton />
+                  <SwipeLoadingSkeleton category={deckCategory} />
                 ) : error && deckQueue.length === 0 ? (
                   <SwipeErrorState
                     isRetrying={isLoading || isFetching}
