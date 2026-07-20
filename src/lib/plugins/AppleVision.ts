@@ -14,6 +14,13 @@ export interface AppleVisionPlugin {
    * @param options Object containing the base64 string of the image (without the data:image/... prefix).
    */
   extractText(options: { base64: string }): Promise<{ text: string }>;
+
+  /**
+   * Analyzes an image for explicit/sensitive content using Apple's SensitiveContentAnalysis framework.
+   * @param options Object containing the base64 string of the image.
+   * @returns { isSensitive: boolean } True if explicit content is detected.
+   */
+  detectSensitiveContent(options: { base64: string }): Promise<{ isSensitive: boolean }>;
 }
 
 export const AppleVision = registerPlugin<AppleVisionPlugin>('AppleVision', {

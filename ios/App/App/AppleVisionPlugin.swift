@@ -2,6 +2,9 @@ import Foundation
 import Capacitor
 import Vision
 import CoreImage
+#if canImport(SensitiveContentAnalysis)
+import SensitiveContentAnalysis
+#endif
 
 @objc(AppleVisionPlugin)
 public class AppleVisionPlugin: CAPPlugin {
@@ -93,5 +96,41 @@ public class AppleVisionPlugin: CAPPlugin {
         } else {
             call.reject("Text recognition requires iOS 13.0+")
         }
+    }
+    
+    @objc func detectSensitiveContent(_ call: CAPPluginCall) {
+        guard let base64String = call.getString("base64"),
+              let data = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters),
+              let ciImage = CIImage(data: data),
+              let cgImage = ciImage.cgImage else {
+            call.reject("Must provide a valid base64 image string")
+            return
+        }
+        
+        #if canImport(SensitiveContentAnalysis)
+        if #available(iOS 17.0, *) {
+            let analyzer = SCSensitivityAnalyzer()
+            
+            if analyzer.analysisPolicy == .disabled {
+                // If the user has disabled sensitive content analysis system-wide, we return false
+                call.resolve(["isSensitive": false])
+                return
+            }
+            
+            Task {
+                do {
+                    let response = try await analyzer.analyzeImage(cgImage)
+                    call.resolve(["isSensitive": response.isSensitive])
+                } catch {
+                    call.reject("Failed to analyze sensitive content: \(error.localizedDescription)")
+                }
+            }
+        } else {
+            // Fallback for iOS < 17.0
+            call.resolve(["isSensitive": false])
+        }
+        #else
+        call.resolve(["isSensitive": false])
+        #endif
     }
 }

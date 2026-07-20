@@ -11,4 +11,9 @@ export class AppleVisionWeb extends WebPlugin implements AppleVisionPlugin {
     console.warn('AppleVision.extractText is only available on iOS natively. Returning mock data.');
     return { text: '' };
   }
+
+  async detectSensitiveContent(_options: { base64: string }): Promise<{ isSensitive: boolean }> {
+    console.warn('AppleVision.detectSensitiveContent is only available on iOS natively. Returning safe default.');
+    return { isSensitive: false };
+  }
 }

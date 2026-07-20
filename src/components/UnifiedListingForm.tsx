@@ -564,7 +564,43 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         return validation.isValid;
       });
 
-      const newPhotos: UnifiedPhoto[] = validatedFiles.map(file => {
+      // Optional iOS native explicit content check
+      let safeFiles = validatedFiles;
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+        const checkedFiles: File[] = [];
+        for (const file of validatedFiles) {
+          try {
+            const base64Data = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const result = e.target?.result as string;
+                if (result && result.includes('base64,')) {
+                  resolve(result.split('base64,')[1]);
+                } else {
+                  reject(new Error('Failed to read base64'));
+                }
+              };
+              reader.onerror = () => reject(reader.error);
+              reader.readAsDataURL(file);
+            });
+            
+            const sensitivityResult = await AppleVision.detectSensitiveContent({ base64: base64Data });
+            if (sensitivityResult.isSensitive) {
+              appToast.error('Explicit content detected and blocked');
+            } else {
+              checkedFiles.push(file);
+            }
+          } catch (e) {
+            logger.warn('Failed to analyze sensitivity, allowing file by default', e);
+            checkedFiles.push(file);
+          }
+        }
+        safeFiles = checkedFiles;
+      }
+
+      if (safeFiles.length === 0) return;
+
+      const newPhotos: UnifiedPhoto[] = safeFiles.map(file => {
         const uniqueId = `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 9)}`;
         return {
           id: uniqueId,
@@ -577,10 +613,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setPhotoList(prev => [...prev, ...newPhotos]);
 
       // Perform on-device Apple Vision ML tagging if on native iOS
-      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && validatedFiles.length > 0) {
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && safeFiles.length > 0) {
         try {
           // Just analyze the first uploaded photo for tags as a smart default
-          const fileToAnalyze = validatedFiles[0];
+          const fileToAnalyze = safeFiles[0];
           const reader = new FileReader();
           reader.onload = async (event) => {
             const result = event.target?.result as string;
@@ -966,6 +1002,58 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {currentStep === 3 && (
             <div className="space-y-8">
+              {Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && (
+                <div className="flex items-center justify-between p-4 rounded-3xl bg-blue-500/10 border border-blue-500/20">
+                  <div className="flex-1 space-y-1">
+                    <h4 className="text-sm font-black text-blue-400 uppercase tracking-wide">Auto-fill via Scan</h4>
+                    <p className="text-xs text-blue-300/80">Scan a brochure or document to auto-fill details.</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = async (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (!file) return;
+                        
+                        try {
+                          const base64Data = await new Promise<string>((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                              const res = ev.target?.result as string;
+                              if (res && res.includes('base64,')) resolve(res.split('base64,')[1]);
+                              else reject(new Error('Failed base64'));
+                            };
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                          });
+                          
+                          const result = await AppleVision.extractText({ base64: base64Data });
+                          if (result.text) {
+                            const currentDesc = (formDataRef.current.description as string) || '';
+                            const newDesc = currentDesc ? `${currentDesc}\n\n[Scanned Info]\n${result.text}` : result.text;
+                            handleDataChange({ description: newDesc });
+                            
+                            // To force re-render of sub-forms, update the state
+                            setFormData(prev => ({ ...prev, description: newDesc }));
+                            appToast.success('Text extracted successfully!');
+                          } else {
+                            appToast.error('No text found in scan.');
+                          }
+                        } catch (err) {
+                          logger.error('OCR failed', err);
+                          appToast.error('Scanning failed.');
+                        }
+                      };
+                      input.click();
+                    }}
+                    className="ml-4 shrink-0 px-4 py-2 rounded-xl bg-blue-500/20 text-blue-400 font-black text-xs uppercase hover:bg-blue-500/30 active:scale-95 transition-all"
+                  >
+                    Scan Document
+                  </button>
+                </div>
+              )}
               {selectedCategory === 'property' && <PropertyListingForm onDataChange={handleDataChange} initialData={formData} />}
               {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as MotorcycleFormData} />}
               {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={handleDataChange} initialData={formData as unknown as BicycleFormData} />}

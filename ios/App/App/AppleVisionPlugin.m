@@ -6,4 +6,5 @@
 CAP_PLUGIN(AppleVisionPlugin, "AppleVision",
     CAP_PLUGIN_METHOD(analyzeImage, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(extractText, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(detectSensitiveContent, CAPPluginReturnPromise);
 )
