@@ -17,6 +17,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { canNativeShare, copyToClipboard, generateShareUrl, shareViaNavigator } from '@/hooks/useSharing';
 import { appToast } from '@/utils/appNotification';
+import { AppleLanguage } from '@/lib/plugins/AppleLanguage';
+import { logger } from '@/utils/prodLogger';
 
 interface SwipeInsightsModalProps {
   open: boolean;
@@ -45,6 +47,16 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
   const { isLight } = useAppTheme();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
+  const [translatedDesc, setTranslatedDesc] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [detectedLang, setDetectedLang] = useState<string | null>(null);
+
+  // Reset translation state when the viewed listing changes
+  useEffect(() => {
+    setTranslatedDesc(null);
+    setIsTranslating(false);
+    setDetectedLang(null);
+  }, [listing?.id, profile?.id]);
 
   const isClientProfile = !!profile;
 
@@ -321,9 +333,43 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile, onCon
                   <div className="flex items-center gap-4">
                     <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em]", textTer)}>Overview</h3>
                     <div className={cn("flex-1 h-px", isLight ? "bg-slate-200" : "bg-white/10")} />
+                    {/* Native Translation Button */}
+                    {Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && (
+                      <button
+                        onClick={async () => {
+                          if (translatedDesc) {
+                            // Toggle back to original
+                            setTranslatedDesc(null);
+                            return;
+                          }
+                          setIsTranslating(true);
+                          try {
+                            const result = await AppleLanguage.translateText({ text: description });
+                            if (result.translatedText && result.translatedText !== description) {
+                              setTranslatedDesc(result.translatedText);
+                            } else {
+                              appToast.info('Already in your language');
+                            }
+                          } catch (err) {
+                            logger.error('Translation failed', err);
+                          } finally {
+                            setIsTranslating(false);
+                          }
+                        }}
+                        disabled={isTranslating}
+                        className={cn(
+                          "shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95",
+                          translatedDesc
+                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                            : "bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
+                        )}
+                      >
+                        {isTranslating ? '...' : translatedDesc ? 'Original' : 'Translate'}
+                      </button>
+                    )}
                   </div>
                   <p className={cn("text-[16px] italic leading-[1.6] whitespace-pre-wrap font-medium", textSec)}>
-                    {description}
+                    {translatedDesc || description}
                   </p>
                 </div>
               )}
