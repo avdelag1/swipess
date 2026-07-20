@@ -36,15 +36,15 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
 
   const pillStyle: CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(20,20,30,0.60)',
+    background: isLight ? 'rgba(255,255,255,0.60)' : 'rgba(26,26,28,0.40)',
     border: isLight
-      ? '1px solid rgba(0,0,0,0.06)'
-      : '1px solid rgba(255,255,255,0.12)',
+      ? '1px solid rgba(0,0,0,0.05)'
+      : '1px solid rgba(255,255,255,0.10)',
     boxShadow: isLight
-      ? '0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)'
-      : '0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(28px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(28px) saturate(1.8)',
+      ? '0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)'
+      : '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
+    backdropFilter: 'blur(48px) saturate(1.8)',
+    WebkitBackdropFilter: 'blur(48px) saturate(1.8)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',

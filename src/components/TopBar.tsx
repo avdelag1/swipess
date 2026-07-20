@@ -147,13 +147,13 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className={HEADER_PILL_BASE}
+              className={cn(HEADER_PILL_BASE, "group")}
               style={glassPillStyle}
               aria-label="Back"
             >
               <HeaderIconSlot>
                 <ChevronLeft
-                  className={HEADER_ICON}
+                  className={cn(HEADER_ICON, "group-active:stroke-[3px] transition-all duration-150")}
                   strokeWidth={2.2}
                   style={{ color: iconColor, filter: iconShadow }}
                 />
@@ -167,12 +167,12 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className={HEADER_PILL_BASE}
+                className={cn(HEADER_PILL_BASE, "group")}
                 style={glassPillStyle}
                 aria-label="Open profile"
               >
                 <div
-                  className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative"
+                  className="w-[32px] h-[32px] rounded-full overflow-hidden shrink-0 flex items-center justify-center relative group-active:scale-[0.92] transition-transform duration-150"
                   style={{
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                     boxShadow: useLightIcons
@@ -204,13 +204,13 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className={HEADER_PILL_BASE}
+              className={cn(HEADER_PILL_BASE, "group")}
               style={glassPillStyle}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
                 <Sparkles
-                  className={HEADER_ICON}
+                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
@@ -231,7 +231,7 @@ function TopBarComponent({
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
               onPointerDown={(e) => { e.stopPropagation(); }}
-              className={HEADER_PILL_BASE}
+              className={cn(HEADER_PILL_BASE, "group")}
               style={glassPillStyle}
               aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
@@ -249,7 +249,7 @@ function TopBarComponent({
                 )}
               >
                 <Crown
-                  className={HEADER_ICON}
+                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
@@ -262,13 +262,13 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className={HEADER_PILL_BASE}
+              className={cn(HEADER_PILL_BASE, "group")}
               style={glassPillStyle}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
                 <Globe
-                  className={HEADER_ICON}
+                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),

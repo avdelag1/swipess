@@ -331,9 +331,9 @@ export const BottomNavigation = memo(({
         className={cn(
           "pointer-events-auto floating-dock-nav",
           "w-[calc(100vw-16px)]",
-          "px-2 py-1.5 border backdrop-blur-[32px]",
-          "bg-white/70 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08)]",
-          "dark:bg-white/5 dark:border-white/15 dark:shadow-[0_16px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.12)]"
+          "px-2 py-1.5 border backdrop-blur-[48px] saturate-[1.8]",
+          "bg-white/60 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)]",
+          "dark:bg-[#1a1a1c]/40 dark:border-white/10 dark:shadow-[0_16px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.2)]"
         )}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -444,10 +444,10 @@ export const BottomNavigation = memo(({
                           width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
                           color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
-                          fill: 'none',
+                          fill: active ? (item.id === 'add' ? '#FF3366' : baseColor) : 'none',
                           strokeWidth: active ? 2.5 : 2.0,
                           filter: getNavIconFilter(item.id, active),
-                          transition: 'color 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
+                          transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
                     );
