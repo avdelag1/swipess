@@ -1,5 +1,5 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -367,6 +367,7 @@ const ClientSwipeContainerComponent = ({
   // ÔöÇÔöÇÔöÇ PREDICTIVE CARD TRANSITIONS ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
   const topCardX = useMotionValue(0);
   const topCardY = useMotionValue(0);
+  const dragProgress = useTransform(topCardX, [-200, 0, 200], [1, 0, 1]);
 
   // The under-card stays fully sized and opaque as a static backdrop ÔÇö no
   // reactive transforms or willChange churn, so it never pops or flashes when
@@ -996,8 +997,28 @@ const ClientSwipeContainerComponent = ({
                 className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-0 mx-auto transform-gpu"
               >
                 <AnimatePresence>
-                {deckQueue.slice(currentIndex, currentIndex + 2).reverse().map((profile) => {
+                {deckQueue.slice(currentIndex, currentIndex + 3).reverse().map((profile, reversedIdx) => {
                   const isTopCard = profile.user_id === topCard.user_id;
+                  
+                  const totalVisible = Math.min(deckQueue.length - currentIndex, 3);
+                  const stackPosition = totalVisible - 1 - reversedIdx; // 0 = top, 1 = second, 2 = third
+                  
+                  // Base scale/y before any drag
+                  const baseScale = 1 - stackPosition * 0.04;
+                  const baseY = stackPosition * 8;
+                  const baseOpacity = 1 - stackPosition * 0.15;
+
+                  // Next state scale/y (what it will be when top card is gone)
+                  const nextScale = 1 - Math.max(0, stackPosition - 1) * 0.04;
+                  const nextY = Math.max(0, stackPosition - 1) * 8;
+                  const nextOpacity = 1 - Math.max(0, stackPosition - 1) * 0.15;
+
+                  // Interpolate between base and next state based on dragProgress
+                  const stackScale = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseScale, nextScale]);
+                  const stackTranslateY = isTopCard ? 0 : useTransform(dragProgress, [0, 1], [baseY, nextY]);
+                  const stackOpacityVal = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseOpacity, nextOpacity]);
+
+                  const stackZIndex = 20 - stackPosition * 5;
 
                   return (
                     <motion.div
@@ -1007,7 +1028,15 @@ const ClientSwipeContainerComponent = ({
                         y: 0,
                         transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
                       }}
-                      className={cn("absolute inset-0 w-full h-full", isTopCard ? "z-20" : "z-10")}
+                      className="absolute inset-0 w-full h-full"
+                      style={{
+                        zIndex: stackZIndex,
+                        scale: stackScale,
+                        y: stackTranslateY,
+                        opacity: stackOpacityVal,
+                        transformOrigin: 'center top',
+                        pointerEvents: isTopCard ? 'auto' : 'none',
+                      }}
                     >
                       <SimpleOwnerSwipeCard
                         ref={isTopCard ? cardRef : undefined}

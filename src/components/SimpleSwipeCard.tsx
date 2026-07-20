@@ -61,6 +61,8 @@ interface SimpleSwipeCardProps {
   disableDrag?: boolean;
   fullScreen?: boolean;
   renderTopRail?: React.ReactNode;
+  externalX?: import('framer-motion').MotionValue<number>;
+  externalY?: import('framer-motion').MotionValue<number>;
 }
 
 // ActionRailButton now lives in the shared <GlassIconButton /> primitive
@@ -83,6 +85,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   disableDrag,
   fullScreen = false,
   renderTopRail,
+  externalX,
+  externalY,
 }, ref) => {
   const { isLight } = useAppTheme();
    
@@ -94,8 +98,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const internalX = useMotionValue(0);
+  const internalY = useMotionValue(0);
+  const x = externalX || internalX;
+  const y = externalY || internalY;
 
   // Strict story-feed motion: horizontal = like/pass, vertical = browse next card.
   // Vertical browse keeps the card fully opaque so up/down feels like a clean

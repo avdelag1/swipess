@@ -50,7 +50,7 @@ import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
 import { categoryToClientType, resolveClientType } from '@/utils/clientType';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
@@ -201,6 +201,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const deckCategory = activeCategory;
 
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const topCardX = useMotionValue(0);
+  const topCardY = useMotionValue(0);
+  // Map horizontal drag distance (-200 to 200) into a 0 to 1 progress value
+  const dragProgress = useTransform(topCardX, [-200, 0, 200], [1, 0, 1]);
   const [_deckLength, setDeckLength] = useState(0);
   // True from the moment a quick-filter changes until the new query settles.
   // Keeps the clean loader on screen so the "No results" exhausted card can
@@ -763,6 +768,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!listing) return;
 
     const newIndex = currentIndexRef.current + 1;
+    
+    // Reset motion values when a swipe completes
+    topCardX.stop();
+    topCardX.set(0);
+    topCardY.stop();
+    topCardY.set(0);
+
     isSwipeAnimatingRef.current = true;
     pendingSwipeRef.current = { listing, direction, newIndex };
     currentIndexRef.current = newIndex;
@@ -1041,9 +1053,22 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                       // Stack depth: cards behind the top card appear progressively smaller/offset
                       const totalVisible = Math.min(deckQueue.length - currentIndex, 3);
                       const stackPosition = totalVisible - 1 - reversedIdx; // 0 = top, 1 = second, 2 = third
-                      const stackScale = 1 - stackPosition * 0.04;
-                      const stackTranslateY = stackPosition * 8;
-                      const stackOpacity = 1 - stackPosition * 0.15;
+                      
+                      // Base scale/y before any drag
+                      const baseScale = 1 - stackPosition * 0.04;
+                      const baseY = stackPosition * 8;
+                      const baseOpacity = 1 - stackPosition * 0.15;
+
+                      // Next state scale/y (what it will be when top card is gone)
+                      const nextScale = 1 - Math.max(0, stackPosition - 1) * 0.04;
+                      const nextY = Math.max(0, stackPosition - 1) * 8;
+                      const nextOpacity = 1 - Math.max(0, stackPosition - 1) * 0.15;
+
+                      // Interpolate between base and next state based on dragProgress
+                      const stackScale = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseScale, nextScale]);
+                      const stackTranslateY = isTopCard ? 0 : useTransform(dragProgress, [0, 1], [baseY, nextY]);
+                      const stackOpacityVal = isTopCard ? 1 : useTransform(dragProgress, [0, 1], [baseOpacity, nextOpacity]);
+
                       const stackZIndex = 20 - stackPosition * 5;
 
                       return (
@@ -1053,16 +1078,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                           className={cn("absolute inset-0 w-full h-full")}
                           style={{
                             zIndex: stackZIndex,
-                            transform: isTopCard ? undefined : `scale(${stackScale}) translateY(${stackTranslateY}px)`,
-                            opacity: isTopCard ? 1 : stackOpacity,
+                            scale: stackScale,
+                            y: stackTranslateY,
+                            opacity: stackOpacityVal,
                             transformOrigin: 'center top',
-                            transition: 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease',
                             pointerEvents: isTopCard ? 'auto' : 'none',
                           }}
                         >
                         {dataType === 'people' ? (
                           <SimpleOwnerSwipeCard
                             ref={isTopCard ? cardRef as any : undefined}
+                            externalX={isTopCard ? topCardX : undefined}
+                            externalY={isTopCard ? topCardY : undefined}
                             profile={listing}
                             onSwipe={isTopCard ? handleSwipe : () => {}}
                             onTap={isTopCard ? handleInsights : undefined}
@@ -1085,6 +1112,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                         ) : (
                           <SimpleSwipeCard
                             ref={isTopCard ? cardRef : undefined}
+                            externalX={isTopCard ? topCardX : undefined}
+                            externalY={isTopCard ? topCardY : undefined}
                             listing={listing}
                             isTop={isTopCard}
                             fullScreen={false}
