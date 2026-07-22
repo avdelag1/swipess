@@ -156,7 +156,6 @@ export const BottomNavigation = memo(({
   ], [t, openAIChat, openVapId, onFilterClick, openAddListing, unreadMessages]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [pressedId, setPressedId] = useState<string | null>(null);
 
 
   // Auto-scroll active item into view
@@ -371,19 +370,14 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onPointerDown={(e) => {
-                  setPressedId(item.id);
+                onTouchStart={() => {
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   if (item.id === 'add') prefetchListingFlowModule();
                   if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
                 }}
-                onPointerUp={() => setPressedId(null)}
-                onPointerCancel={() => setPressedId(null)}
-                onPointerLeave={() => setPressedId(null)}
                 onClick={(e) => handleNavClick(item, e)}
-                onKeyDown={(e) => handleNavKeyDown(e, item)}
 
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
@@ -453,7 +447,7 @@ export const BottomNavigation = memo(({
                     return (
                       <MotionIcon
                         id={motionId}
-                        active={pressedId === item.id}
+                        active={false}
                         loop={active}
                       >
                         {iconEl}
