@@ -352,7 +352,7 @@ export const BottomNavigation = memo(({
             scrollbarWidth: 'none' as const,
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x',
+            touchAction: 'pan-x pan-y',
             overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'none',
             scrollBehavior: 'smooth',
@@ -372,6 +372,7 @@ export const BottomNavigation = memo(({
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
+                  e.stopPropagation();
                   setPressedId(item.id);
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
@@ -403,6 +404,7 @@ export const BottomNavigation = memo(({
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
+                  WebkitTapHighlightColor: 'transparent',
                   transition: 'none',
                 }}
               >
