@@ -251,7 +251,7 @@ export function SeekerAdSection() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={v => { if (!v) closeModal(); }}>
-        <DialogContent hideCloseButton className="p-0 overflow-hidden rounded-[2rem] border-border bg-background max-w-sm w-full max-h-[92vh] flex flex-col">
+        <DialogContent hideCloseButton={true} className="max-w-md w-full p-0 gap-0 overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-900 via-slate-800 to-black border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]">
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
             <div>

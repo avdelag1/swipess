@@ -123,7 +123,7 @@ export function SeekerRequestDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
-      <DialogContent className="max-w-md w-full p-0 gap-0 overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-900 via-slate-800 to-black border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]">
+      <DialogContent hideCloseButton={true} className="max-w-md w-full p-0 gap-0 overflow-hidden rounded-[32px] bg-gradient-to-br from-slate-900 via-slate-800 to-black border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]">
         {/* Header */}
         <div className="p-6 pb-2 relative z-10 flex justify-between items-start bg-white/5 backdrop-blur-md border-b border-white/5">
           <div>
