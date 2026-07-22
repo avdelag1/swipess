@@ -23,7 +23,7 @@ import {
   MessageCircle,
   PartyPopper,
   PlusCircle,
-  Radio,
+  Users,
   Scale as ScaleIcon,
   ShieldCheck,
   SlidersHorizontal,
@@ -149,7 +149,7 @@ export const BottomNavigation = memo(({
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadMessages || undefined },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
-    { id: 'radio', icon: Radio, label: t('nav.radio', 'RADIO'), path: '/radio' },
+    { id: 'seekers', icon: Users, label: t('nav.seekers', 'SEEKERS'), path: '/explore/seekers' },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: EVENTS_FEED_PATH },
@@ -194,10 +194,8 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — ignore only real drags on this button (dock scroll drifts included).
   const handleNavClick = useCallback(
     (item: NavItem, _event?: React.MouseEvent | React.PointerEvent) => {
-      if (pointerTravelRef.current > 42) {
-        pointerTravelRef.current = 0;
-        return;
-      }
+      // Disabled pointer travel limit to ensure clicks always register
+      pointerTravelRef.current = 0;
       pointerTravelRef.current = 0;
 
       haptics.tap();
