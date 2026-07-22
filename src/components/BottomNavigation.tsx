@@ -372,18 +372,16 @@ export const BottomNavigation = memo(({
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onPointerDown={(e) => {
-                  e.stopPropagation();
                   setPressedId(item.id);
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   if (item.id === 'add') prefetchListingFlowModule();
                   if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
-                  handlePointerDown(e);
                 }}
-                onPointerMove={handlePointerMove}
-                onPointerUp={() => { setPressedId(null); handlePointerUp(); }}
-                onPointerCancel={() => { setPressedId(null); handlePointerUp(); }}
+                onPointerUp={() => setPressedId(null)}
+                onPointerCancel={() => setPressedId(null)}
+                onPointerLeave={() => setPressedId(null)}
                 onClick={(e) => handleNavClick(item, e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
 
