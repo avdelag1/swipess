@@ -19,7 +19,7 @@ import { useDeepLinks } from '@/hooks/useDeepLinks';
 import { cn } from '@/lib/utils';
 const TopBar = lazyWithRetry(() => import('./TopBar').then(m => ({ default: m.TopBar })));
 const BottomNavigation = lazyWithRetry(() => import('./BottomNavigation').then(m => ({ default: m.BottomNavigation })));
-const RadioMiniPlayer = lazyWithRetry(() => import('./RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer })));
+
 const SwipessHud = lazyWithRetry(() => import('./SwipessHud').then(m => ({ default: m.SwipessHud })));
 const PassportMapModal = lazyWithRetry(() =>
   import('./PassportMapModal').then(m => ({ default: m.PassportMapModal })),
@@ -378,7 +378,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* 📻 CONNECTED RADIO: Floating player bubble - Hidden on radio/full-screen routes */}
       {showAppChrome && !isFullScreen && !hideFloatingForSwipe && (
         <Suspense fallback={null}>
-          <RadioMiniPlayer />
+
         </Suspense>
       )}
       

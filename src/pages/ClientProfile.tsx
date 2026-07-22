@@ -200,17 +200,7 @@ const ClientProfile = () => {
               <span>{t('nav.promote')}</span>
             </motion.button>
 
-            {/* World Radio */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/radio'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #F59E0B, #EF4444)' }}
-            >
-              <Radio className="w-7 h-7 text-white" />
-              <span>Radio</span>
-            </motion.button>
-            
+
             {/* Tokens */}
             <motion.button
               whileTap={{ scale: 0.97 }}

@@ -77,8 +77,7 @@ const OwnerFilters = lazyWithRetry(() => import("./pages/OwnerFilters"));
 const MessagingDashboard = lazyWithRetry(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazyWithRetry(() => import("./pages/SubscriptionPackagesPage"));
-const WorldRadioDirectory = lazyWithRetry(() => import("./pages/WorldRadioDirectory"));
-const DJTurntableRadio = lazyWithRetry(() => import("./pages/DJTurntableRadio"));
+
 const EventosFeed = lazyWithRetry(() => import("./pages/EventosFeed"));
 const EventoDetail = lazyWithRetry(() => import("./pages/EventoDetail"));
 const EventosLikes = lazyWithRetry(() => import("./pages/EventosLikes"));
@@ -204,8 +203,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/messages/:conversationId" element={<MessagesRedirect />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/subscription/packages" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback />}><SubscriptionPackagesPage /></Suspense></ChunkErrorBoundary>} />
-              <Route path="/radio" element={<DJTurntableRadio />} />
-              <Route path="/radio/directory" element={<WorldRadioDirectory />} />
+
 
               {/* Explore/Events */}
               <Route path="/explore/events" element={<EventosFeed />} />
