@@ -428,26 +428,34 @@ export function SeekerAdSection() {
                 Back
               </button>
             )}
-            {step === 0 ? (
-              <button
-                disabled={!canAdvance}
-                onClick={() => setStep(1)}
-                className="flex-1 h-12 rounded-xl font-black text-sm text-white flex items-center justify-center gap-1.5 disabled:opacity-40 transition-opacity"
-                style={{ background: activeCat?.color ?? 'hsl(var(--foreground))' }}
-              >
-                Continue
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                disabled={saveMutation.isPending || !form.location.trim()}
-                onClick={() => saveMutation.mutate()}
-                className="flex-1 h-12 rounded-xl font-black text-sm text-white flex items-center justify-center gap-1.5 disabled:opacity-40 transition-opacity"
-                style={{ background: activeCat?.color ?? 'hsl(var(--foreground))' }}
-              >
-                {saveMutation.isPending ? 'Posting...' : editingId ? 'Save Changes' : 'Post Request'}
-              </button>
-            )}
+          {step === 0 ? (
+            <button
+              disabled={!canAdvance}
+              onClick={() => setStep(1)}
+              className={cn(
+                "flex-1 h-14 rounded-2xl font-black text-[15px] uppercase tracking-widest text-white flex items-center justify-center gap-2 transition-all shadow-xl",
+                canAdvance 
+                  ? "bg-gradient-to-r from-[#FF4D00] to-[#EB4898] hover:scale-[0.98] shadow-pink-500/25" 
+                  : "bg-background text-foreground/40 shadow-none cursor-not-allowed border border-border"
+              )}
+            >
+              Continue to Details
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          ) : (
+            <button
+              disabled={saveMutation.isPending || !form.location.trim()}
+              onClick={() => saveMutation.mutate()}
+              className={cn(
+                "flex-1 h-14 rounded-2xl font-black text-[15px] uppercase tracking-widest text-white flex items-center justify-center gap-2 transition-all shadow-xl",
+                !saveMutation.isPending && form.location.trim()
+                  ? "bg-gradient-to-r from-[#FF4D00] to-[#EB4898] hover:scale-[0.98] shadow-pink-500/25"
+                  : "bg-background text-foreground/40 shadow-none cursor-not-allowed border border-border"
+              )}
+            >
+              {saveMutation.isPending ? 'Posting...' : editingId ? 'Save Changes' : 'Post Request'}
+            </button>
+          )}
           </div>
         </DialogContent>
       </Dialog>

@@ -33,6 +33,7 @@ const SupportDialog = lazyWithRetry(() => import('@/components/SupportDialog').t
 const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })));
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
+const SeekerRequestDialog = lazyWithRetry(() => import('@/components/dialogs/SeekerRequestDialog').then(m => ({ default: m.SeekerRequestDialog })));
 
 const AIProfileWizard = lazyWithRetry(() => import('@/components/AIProfileWizard').then(m => ({ default: m.AIProfileWizard })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
@@ -185,6 +186,12 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             />
           </DeferredDialog>
         </>
+      )}
+
+      {store.showSeekerRequestDialog && (
+        <DeferredDialog when={store.showSeekerRequestDialog}>
+          <SeekerRequestDialog />
+        </DeferredDialog>
       )}
 
       {userRole === 'owner' && (

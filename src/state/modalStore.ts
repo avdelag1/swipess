@@ -57,7 +57,7 @@ interface ModalState {
   showInviteFriends: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll'>, value: boolean) => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll' | 'showSeekerRequestDialog'>, value: boolean) => void;
   openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker', draft?: any) => void;
   openAddListing: () => void;
   openAIProfile: (mode: 'client' | 'owner', draft?: any) => void;
@@ -103,6 +103,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showTokensModal: false,
   showPassportMapModal: false,
   passportMapShowCities: false,
+  showSeekerRequestDialog: false,
   showInviteFriends: false,
 
   setModal: (key, value) => set({ [key]: value }),
@@ -177,6 +178,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showInviteFriends: false,
     showPassportMapModal: false,
     passportMapShowCities: false,
+    showSeekerRequestDialog: false,
   }),
 }));
 

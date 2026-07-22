@@ -149,7 +149,7 @@ export const BottomNavigation = memo(({
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadMessages || undefined },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
-    { id: 'seekers', icon: Users, label: t('nav.seekers', 'SEEKERS'), path: '/explore/seekers' },
+    { id: 'seekers', icon: Users, label: t('nav.seekers', 'SEEKERS'), onClick: () => useModalStore.getState().setModal('showSeekerRequestDialog', true) },
     { id: 'search', icon: SlidersHorizontal, label: t('nav.filter'), onClick: onFilterClick },
     { id: 'legal', icon: ScaleIcon, label: t('nav.legal'), path: '/client/legal-services' },
     { id: 'events', icon: PartyPopper, label: t('nav.events'), path: EVENTS_FEED_PATH },
