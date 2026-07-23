@@ -299,13 +299,9 @@ export const BottomNavigation = memo(({
           immersive screen real estate. */}
       <div
         className={cn(
-          "pointer-events-auto floating-dock-nav",
+          "pointer-events-none floating-dock-nav",
           "w-[calc(100vw-16px)]"
         )}
-        style={{
-          ...pillStyle,
-          padding: '6px 8px', // Override the default padding since this holds multiple buttons
-        }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
@@ -329,6 +325,7 @@ export const BottomNavigation = memo(({
             overscrollBehaviorY: 'none',
             scrollBehavior: 'smooth',
             padding: '2px 4px',
+            pointerEvents: 'auto', // Explicitly enable pointer events on the scroll container
           }}
         >
           {navItems.map((item) => {
@@ -357,20 +354,22 @@ export const BottomNavigation = memo(({
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0 h-full',
-                  'focus-visible:outline-none transform-gpu rounded-full',
+                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0',
+                  'focus-visible:outline-none transform-gpu rounded-3xl pointer-events-auto',
                 )}
                 style={{
-                  flex: '1 1 0',
-                  minWidth: isTablet ? '56px' : '44px',
-                  minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
+                  ...pillStyle,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: '0 0 auto',
+                  minWidth: isTablet ? '64px' : '52px',
+                  minHeight: isTablet ? '64px' : '52px',
                   padding: isTablet ? '10px' : '8px 6px',
+                  marginRight: '8px',
                   cursor: 'pointer',
-                  flexShrink: 1,
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
                   WebkitTapHighlightColor: 'transparent',
-                  transition: 'none',
                 }}
               >
                 <div
