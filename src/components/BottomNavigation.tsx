@@ -291,6 +291,7 @@ export const BottomNavigation = memo(({
         transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
@@ -324,16 +325,14 @@ export const BottomNavigation = memo(({
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
 
-            const triggerItem = (e: React.SyntheticEvent) => {
-              e.preventDefault(); // Prevent double firing if both touchEnd and click trigger
-              e.stopPropagation();
+            const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
               if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
               if (item.id === 'ai') prefetchConciergeChatModule();
               if (item.id === 'add') prefetchListingFlowModule();
               if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
               
-              handleNavClick(item, e as any);
+              handleNavClick(item, e);
             };
 
             return (
@@ -345,7 +344,6 @@ export const BottomNavigation = memo(({
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
                 onClick={triggerItem}
-                onTouchEnd={triggerItem}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}

@@ -359,7 +359,10 @@ export function AIProfileWizard() {
           "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
           isLight ? "bg-white/40" : "bg-black/80"
         )}
-        style={{ paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))' }}
+        style={{ 
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}
       >
         <motion.div
           initial={{ opacity: 0, y: 8 }}
