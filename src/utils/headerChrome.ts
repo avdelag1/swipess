@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
 
 export const HEADER_PILL_BASE =
-  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[28px] w-[28px]`;
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[26px] w-[26px]`;
 
 export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 

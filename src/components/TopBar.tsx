@@ -167,7 +167,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="group relative flex items-center justify-center shrink-0 pointer-events-auto w-[28px] h-[28px] rounded-full overflow-hidden group-active:scale-[0.92] transition-transform duration-150"
+                className="group relative flex items-center justify-center shrink-0 pointer-events-auto w-[26px] h-[26px] rounded-full overflow-hidden group-active:scale-[0.92] transition-transform duration-150"
                 style={{
                   background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                   boxShadow: useLightIcons

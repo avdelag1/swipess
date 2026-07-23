@@ -311,20 +311,13 @@ export const BottomNavigation = memo(({
         <div
           ref={scrollRef}
           data-no-swipe-nav
-          data-scroll-axis="x"
           className={cn(
-            'relative flex items-center justify-between w-full transform-gpu select-none nav-scroll-hide',
+            'relative flex items-center justify-between w-full transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
             padding: '2px 4px',
             pointerEvents: 'auto',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            touchAction: 'pan-x pan-y',
-            overscrollBehaviorX: 'contain',
           }}
         >
           {navItems.map((item) => {
@@ -361,9 +354,9 @@ export const BottomNavigation = memo(({
                   'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
                 )}
                 style={{
-                  flex: '0 0 auto',
-                  minWidth: isTablet ? '56px' : '44px',
-                  minHeight: isTablet ? '56px' : '44px',
+                  flex: '1 1 0',
+                  minWidth: isTablet ? '56px' : (isNarrow ? '28px' : '34px'),
+                  minHeight: isTablet ? '56px' : (isNarrow ? '36px' : '44px'),
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
