@@ -231,6 +231,9 @@ export const BottomNavigation = memo(({
       } else if (item.path) {
         navigate(item.path);
       }
+      
+      // Ensure we don't double fire if both onPointerUp and onClick trigger
+      pointerTravelRef.current = 100;
     },
     [navigate, location.pathname, setCategories, closeAll],
   );
@@ -370,14 +373,27 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onTouchStart={() => {
+                onPointerDown={(e) => {
+                  handlePointerDown(e);
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   if (item.id === 'add') prefetchListingFlowModule();
                   if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
                 }}
-                onClick={(e) => handleNavClick(item, e)}
+                onPointerUp={(e) => {
+                  if (activePointerIdRef.current === e.pointerId && pointerTravelRef.current < 15) {
+                    handleNavClick(item, e);
+                  }
+                  handlePointerUp();
+                }}
+                onClick={(e) => {
+                  // Prevent duplicate firing if pointer event handled it,
+                  // but also allow click to work if pointer events didn't catch it
+                  if (pointerTravelRef.current < 15) {
+                     handleNavClick(item, e);
+                  }
+                }}
 
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
