@@ -167,36 +167,9 @@ export const BottomNavigation = memo(({
       activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
     }
   }, [location.pathname]);
-
-  const pointerTravelRef = useRef(0);
-  const activePointerIdRef = useRef<number | null>(null);
-  const pointerOriginRef = useRef<{ x: number; y: number } | null>(null);
-
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    activePointerIdRef.current = e.pointerId;
-    pointerOriginRef.current = { x: e.clientX, y: e.clientY };
-    pointerTravelRef.current = 0;
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (activePointerIdRef.current !== e.pointerId || !pointerOriginRef.current) return;
-    const dx = e.clientX - pointerOriginRef.current.x;
-    const dy = e.clientY - pointerOriginRef.current.y;
-    pointerTravelRef.current = Math.max(pointerTravelRef.current, Math.hypot(dx, dy));
-  }, []);
-
-  const handlePointerUp = useCallback(() => {
-    activePointerIdRef.current = null;
-    pointerOriginRef.current = null;
-  }, []);
-
-  // Primary navigation handler — ignore only real drags on this button (dock scroll drifts included).
+  // Primary navigation handler
   const handleNavClick = useCallback(
     (item: NavItem, _event?: React.MouseEvent | React.PointerEvent) => {
-      // Disabled pointer travel limit to ensure clicks always register
-      pointerTravelRef.current = 0;
-      pointerTravelRef.current = 0;
-
       haptics.tap();
 
       // Re-tapping the nav button for the section you're already in returns you
@@ -231,9 +204,6 @@ export const BottomNavigation = memo(({
       } else if (item.path) {
         navigate(item.path);
       }
-      
-      // Ensure we don't double fire if both onPointerUp and onClick trigger
-      pointerTravelRef.current = 100;
     },
     [navigate, location.pathname, setCategories, closeAll],
   );
@@ -341,7 +311,6 @@ export const BottomNavigation = memo(({
           ref={scrollRef}
           data-no-swipe-nav
           data-scroll-axis="x"
-          onPointerMove={handlePointerMove}
           className={cn(
             // Evenly distribute items across the full pill width — no scrolling.
             // On very small screens the items are spread across available space.
@@ -373,26 +342,14 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onPointerDown={(e) => {
-                  handlePointerDown(e);
+                onClick={(e) => {
                   if (item.path) prefetchRoute(item.path);
                   if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
                   if (item.id === 'ai') prefetchConciergeChatModule();
                   if (item.id === 'add') prefetchListingFlowModule();
                   if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
-                }}
-                onPointerUp={(e) => {
-                  if (activePointerIdRef.current === e.pointerId && pointerTravelRef.current < 15) {
-                    handleNavClick(item, e);
-                  }
-                  handlePointerUp();
-                }}
-                onClick={(e) => {
-                  // Prevent duplicate firing if pointer event handled it,
-                  // but also allow click to work if pointer events didn't catch it
-                  if (pointerTravelRef.current < 15) {
-                     handleNavClick(item, e);
-                  }
+                  
+                  handleNavClick(item, e);
                 }}
 
                 aria-label={item.label}
@@ -400,7 +357,7 @@ export const BottomNavigation = memo(({
                 data-active={active ? 'true' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu rounded-full',
+                  'focus-visible:outline-none transform-gpu rounded-full',
                 )}
                 style={{
                   flex: '1 1 0',
@@ -409,7 +366,6 @@ export const BottomNavigation = memo(({
                   padding: isTablet ? '10px' : '8px 6px',
                   cursor: 'pointer',
                   flexShrink: 1,
-                  touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
                   WebkitTapHighlightColor: 'transparent',
