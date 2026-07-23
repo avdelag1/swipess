@@ -2,9 +2,8 @@ import type { CSSProperties } from 'react';
 
 export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
 
-/** Shared TopBar pill — dark contrast wells on light pages. */
 export const HEADER_PILL_BASE =
-  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[38px] w-[38px]`;
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[32px] w-[32px]`;
 
 export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 

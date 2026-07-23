@@ -299,38 +299,43 @@ export const BottomNavigation = memo(({
           immersive screen real estate. */}
       <div
         className={cn(
-          "pointer-events-none floating-dock-nav",
-          "w-[calc(100vw-16px)]"
+          "pointer-events-auto floating-dock-nav",
+          "w-[calc(100vw-16px)]",
+          "max-w-md mx-auto"
         )}
+        style={{
+          ...pillStyle,
+          padding: '6px 8px', // Override the default padding since this holds multiple buttons
+        }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
           ref={scrollRef}
           data-no-swipe-nav
-          data-scroll-axis="x"
           className={cn(
-            // Evenly distribute items across the full pill width — no scrolling.
-            // On very small screens the items are spread across available space.
-            'relative flex items-center justify-between w-full nav-scroll-hide transform-gpu select-none',
+            'relative flex items-center justify-between w-full transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
-            transform: 'translateZ(0)',
-            overflowX: 'auto',
-            scrollbarWidth: 'none' as const,
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x pan-y',
-            overscrollBehaviorX: 'contain',
-            overscrollBehaviorY: 'none',
-            scrollBehavior: 'smooth',
             padding: '2px 4px',
-            pointerEvents: 'auto', // Explicitly enable pointer events on the scroll container
+            pointerEvents: 'auto',
           }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
+
+            const triggerItem = (e: React.SyntheticEvent) => {
+              e.preventDefault(); // Prevent double firing if both touchEnd and click trigger
+              e.stopPropagation();
+              if (item.path) prefetchRoute(item.path);
+              if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
+              if (item.id === 'ai') prefetchConciergeChatModule();
+              if (item.id === 'add') prefetchListingFlowModule();
+              if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
+              
+              handleNavClick(item, e as any);
+            };
 
             return (
               <button
@@ -340,32 +345,20 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onClick={(e) => {
-                  if (item.path) prefetchRoute(item.path);
-                  if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
-                  if (item.id === 'ai') prefetchConciergeChatModule();
-                  if (item.id === 'add') prefetchListingFlowModule();
-                  if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
-                  
-                  handleNavClick(item, e);
-                }}
-
+                onClick={triggerItem}
+                onTouchEnd={triggerItem}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-0',
-                  'focus-visible:outline-none transform-gpu rounded-3xl pointer-events-auto',
+                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-1',
+                  'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
                 )}
                 style={{
-                  ...pillStyle,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  flex: '0 0 auto',
-                  minWidth: isTablet ? '64px' : '52px',
-                  minHeight: isTablet ? '64px' : '52px',
-                  padding: isTablet ? '10px' : '8px 6px',
-                  marginRight: '8px',
+                  flex: '1 1 0',
+                  minWidth: isTablet ? '56px' : (isNarrow ? '28px' : '34px'),
+                  minHeight: isTablet ? '56px' : (isNarrow ? '36px' : '44px'),
+                  padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
