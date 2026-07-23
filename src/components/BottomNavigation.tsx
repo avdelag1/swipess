@@ -251,7 +251,7 @@ export const BottomNavigation = memo(({
   const baseColor = isLight ? '#000000' : '#ffffff';
   // Pure black for inactive icons in light mode so they don't look grey
   const inactiveIconColor = isLight ? '#000000' : 'rgba(255,255,255,0.6)';
-  const { iconShadow } = getHeaderChrome(
+  const { iconShadow, pillStyle } = getHeaderChrome(
     isLight,
     isDashboard,
   );
@@ -300,11 +300,12 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto floating-dock-nav",
-          "w-[calc(100vw-16px)]",
-          "px-2 py-1.5 border backdrop-blur-[48px] saturate-[1.8]",
-          "bg-white/60 border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)]",
-          "dark:bg-[#1a1a1c]/40 dark:border-white/10 dark:shadow-[0_16px_48px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.2)]"
+          "w-[calc(100vw-16px)]"
         )}
+        style={{
+          ...pillStyle,
+          padding: '6px 8px', // Override the default padding since this holds multiple buttons
+        }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
