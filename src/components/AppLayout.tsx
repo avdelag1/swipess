@@ -362,7 +362,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" pointerEvents="auto" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole as any}
               onFilterClick={handleFilterClick}

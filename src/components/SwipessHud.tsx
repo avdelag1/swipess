@@ -15,6 +15,7 @@ interface SwipessHudProps {
   className?: string;
   alwaysVisible?: boolean;
   revealMode?: boolean;
+  pointerEvents?: 'none' | 'auto';
 }
 
 export function SwipessHud({
@@ -26,6 +27,7 @@ export function SwipessHud({
   className,
   alwaysVisible = false,
   revealMode = false,
+  pointerEvents = 'none',
 }: SwipessHudProps) {
   const location = useLocation();
   const { _isFocused } = useFocusMode(7000);
@@ -46,7 +48,7 @@ export function SwipessHud({
     const yHide = side === 'top' ? -20 : 20;
     return (
       <motion.div
-        className={cn('pointer-events-none will-change-transform relative', className)}
+        className={cn(pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto', 'will-change-transform relative', className)}
         animate={{
           opacity: isVisible ? 1 : 0,
           y: isVisible ? 0 : yHide,
@@ -72,7 +74,8 @@ export function SwipessHud({
   return (
     <div
       className={cn(
-        'pointer-events-none will-change-transform relative',
+        pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto',
+        'will-change-transform relative',
         !isVisible && isFade && 'opacity-0',
         !isVisible && isTranslate && side === 'top' && '-translate-y-[120%]',
         !isVisible && isTranslate && side === 'bottom' && 'translate-y-[120%]',
