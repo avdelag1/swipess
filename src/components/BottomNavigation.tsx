@@ -321,6 +321,9 @@ export const BottomNavigation = memo(({
             zIndex: 2,
             padding: '2px 4px',
             pointerEvents: 'auto',
+            touchAction: 'pan-x', // Critical: Overrides global pan-y to allow horizontal slide
+            overscrollBehaviorX: 'contain',
+            WebkitOverflowScrolling: 'touch', // Heavy, smooth iOS momentum bounce
           }}
         >
           {navItems.map((item) => {
