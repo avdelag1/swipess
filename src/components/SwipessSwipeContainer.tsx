@@ -139,7 +139,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
-  const { setActiveCategory } = useFilterActions();
+  const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
+  const { setCategories, selectDeckCategory } = useFilterActions();
 
   const { incrementQuest } = useDailyQuests();
 
