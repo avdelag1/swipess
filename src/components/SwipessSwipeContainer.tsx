@@ -55,7 +55,7 @@ import { logger } from '@/utils/prodLogger';
 const MessageConfirmationDialog = lazyWithRetry(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 const DirectMessageDialog = lazyWithRetry(() => import('./DirectMessageDialog').then(m => ({ default: m.DirectMessageDialog })));
 import { useQueryClient } from '@tanstack/react-query';
-
+import { useDailyQuests } from '@/hooks/useDailyQuests';
 import { BentoCategoryDashboard } from './swipe/BentoCategoryDashboard';
 
 import { usePullDownToDismiss } from './swipe/usePullDownToDismiss';
@@ -139,8 +139,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
-  const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
-  const { setCategories, selectDeckCategory } = useFilterActions();
+  const { setActiveCategory } = useFilterActions();
+
+  const { incrementQuest } = useDailyQuests();
+
   const listingType = useFilterStore((state) => state.listingType);
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
@@ -711,6 +713,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       direction,
       targetType: dataType === 'people' ? 'profile' : 'listing',
     });
+
+    if (direction === 'right') {
+      incrementQuest('swipe', 1);
+    }
 
     if (direction === 'left') {
       dismissTarget(listingId).catch(() => { });

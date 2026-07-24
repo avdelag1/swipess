@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useDailyQuests } from '@/hooks/useDailyQuests';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { logSupabaseError } from '@/lib/supabaseError';
@@ -536,6 +537,7 @@ export function useStartConversation() {
 export function useSendMessage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { incrementQuest } = useDailyQuests();
 
   return useMutation({
     onMutate: async ({ conversationId, message }) => {
