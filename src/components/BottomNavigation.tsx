@@ -314,6 +314,7 @@ export const BottomNavigation = memo(({
         <div
           ref={scrollRef}
           data-no-swipe-nav
+          data-scroll-axis="x"
           className={cn(
             'relative flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-1',
           )}
