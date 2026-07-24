@@ -291,7 +291,7 @@ export const BottomNavigation = memo(({
         transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingBottom: 'calc(max(env(safe-area-inset-bottom) - 8px, 8px))',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
@@ -301,11 +301,13 @@ export const BottomNavigation = memo(({
       <div
         className={cn(
           "pointer-events-auto floating-dock-nav",
-          "w-[calc(100vw-16px)] sm:w-max sm:max-w-[600px] mx-auto"
+          "max-w-[340px] w-[90vw] mx-auto overflow-hidden rounded-[32px]"
         )}
         style={{
           ...pillStyle,
-          padding: '6px 8px', // Override the default padding since this holds multiple buttons
+          WebkitBackdropFilter: 'blur(48px) saturate(1.8)', // Force webkit prefix just in case
+          transform: 'translateZ(0)', // Force GPU compositing for blur
+          padding: '6px 8px',
         }}
       >
         {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
@@ -313,7 +315,7 @@ export const BottomNavigation = memo(({
           ref={scrollRef}
           data-no-swipe-nav
           className={cn(
-            'relative flex items-center justify-between w-full transform-gpu select-none',
+            'relative flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-1',
           )}
           style={{
             zIndex: 2,
@@ -343,26 +345,23 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={(e) => {
                   triggerItem(e);
                 }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 w-auto flex-shrink-1',
+                  'relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
                   'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
                 )}
                 style={{
-                  flex: '1 1 0',
-                  minWidth: isTablet ? '56px' : (isNarrow ? '28px' : '34px'),
-                  minHeight: isTablet ? '56px' : (isNarrow ? '36px' : '44px'),
+                  minWidth: isTablet ? '56px' : '44px',
+                  minHeight: isTablet ? '56px' : '44px',
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
-                  WebkitUserSelect: 'none' as any,
+                  WebkitUserSelect: 'none',
                   WebkitTapHighlightColor: 'transparent',
                 }}
               >
