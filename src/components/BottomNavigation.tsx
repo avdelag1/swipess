@@ -291,7 +291,7 @@ export const BottomNavigation = memo(({
         transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
@@ -343,7 +343,11 @@ export const BottomNavigation = memo(({
                 data-instant-feedback
                 data-skip-press-engine
                 {...(item.path ? createHoverPrefetch(item.path) : {})}
-                onClick={triggerItem}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  triggerItem(e);
+                }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
