@@ -8,7 +8,6 @@ import { useOnboardingStore } from '@/state/onboardingStore';
 import { useModalStore } from '@/state/modalStore';
 import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { revealChrome } from '@/hooks/useChromeReveal';
-import { DailyQuestBoard } from '@/components/quests/DailyQuestBoard';
 
 interface ClientDashboardProps {
   onMessageClick?: () => void;
@@ -54,9 +53,6 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
       className={cn('relative w-full min-h-0 bg-swipe-frame')}
       variant="subtle"
     >
-      <div className="absolute top-[72px] left-4 right-4 z-50 pointer-events-auto">
-        <DailyQuestBoard />
-      </div>
       <SwipessSwipeContainer
         onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
         onInsights={() => {}}

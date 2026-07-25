@@ -5,6 +5,7 @@ import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
 import { PromoCodeSection } from '@/components/PromoCodeSection';
 import { FeedbackSection } from '@/components/FeedbackSection';
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
+import { DailyQuestBoard } from '@/components/quests/DailyQuestBoard';
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
@@ -110,6 +111,11 @@ const OwnerProfile = () => {
             {tokenBalance || 0}
           </div>
         </motion.div>
+
+        {/* DAILY QUESTS GAMIFICATION */}
+        <div className="w-full">
+          <DailyQuestBoard />
+        </div>
 
         {/* PRIMARY ACTIONS */}
         <div className={cn("space-y-3", isLight && "surface-section")}>

@@ -23,6 +23,7 @@ import {
 import { PromoCodeSection } from '@/components/PromoCodeSection';
 import { FeedbackSection } from '@/components/FeedbackSection';
 import { SeekerAdSection } from '@/components/SeekerAdSection';
+import { DailyQuestBoard } from '@/components/quests/DailyQuestBoard';
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { AnimatePresence, motion } from "framer-motion";
@@ -160,6 +161,11 @@ const ClientProfile = () => {
               <div className={cn("text-[9px] font-black uppercase tracking-[0.2em] mt-2", isLight ? "text-slate-500" : "text-white/30")}>{stat.label}</div>
             </motion.div>
           ))}
+        </div>
+
+        {/* DAILY QUESTS GAMIFICATION */}
+        <div className="w-full">
+          <DailyQuestBoard />
         </div>
 
         {/* FEATURE HUB */}
