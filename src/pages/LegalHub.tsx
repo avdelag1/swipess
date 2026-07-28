@@ -517,7 +517,7 @@ const LegalHub = () => {
                         Third-Party Services
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases){Capacitor.getPlatform() !== 'ios' && <>, <strong>PayPal</strong> (web checkout)</>}, and AI providers (<strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the concierge assistant. These services process only the minimum data needed to perform their function.
+                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases){Capacitor.getPlatform() !== 'ios' && <>, <strong>PayPal</strong> (web checkout)</>}, and AI providers (<strong>OpenAI</strong>, <strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the profile/listing builders and concierge assistant. These services process only the minimum data needed to perform their function and are securely transmitted.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Account Deletion & Data Removal

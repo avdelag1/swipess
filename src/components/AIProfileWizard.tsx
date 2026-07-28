@@ -623,7 +623,10 @@ export function AIProfileWizard() {
                       </div>
                     </div>
 
-                    <div className="pt-4 px-1 pb-10">
+                    <div className="pt-4 px-1 pb-10 space-y-4">
+                      <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-50 px-4", isLight ? "text-black" : "text-white")}>
+                        By continuing, your data is securely sent to OpenAI for processing to generate your profile. See our Legal Hub for privacy details.
+                      </p>
                       <Button
                         onClick={handleProcess}
                         disabled={!narrative.trim() || isProcessing || imageFiles.length === 0}
