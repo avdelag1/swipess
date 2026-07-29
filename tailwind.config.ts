@@ -128,9 +128,10 @@ export default {
 				'theme-lg': 'var(--shadow-lg)',
 				'glow': 'var(--shadow-glow)',
 				'card': 'var(--shadow-card)',
-				'neumorph': '6px 6px 14px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.04)',
-				'neumorph-inset': 'inset 4px 4px 10px rgba(0, 0, 0, 0.8), inset -4px -4px 10px rgba(255, 255, 255, 0.05)',
-				'neumorph-sm': '3px 3px 8px rgba(0, 0, 0, 0.5), -3px -3px 8px rgba(255, 255, 255, 0.05)',
+				/* Neumorphism / Claymorphism — raised clay effect */
+				'neumorph': '8px 8px 20px rgba(0,0,0,0.75), -4px -4px 12px rgba(255,255,255,0.12), inset 0 1px 0 rgba(255,255,255,0.18)',
+				'neumorph-inset': 'inset 5px 5px 14px rgba(0,0,0,0.85), inset -3px -3px 8px rgba(255,255,255,0.10)',
+				'neumorph-sm': '4px 4px 12px rgba(0,0,0,0.65), -2px -2px 8px rgba(255,255,255,0.10), inset 0 1px 0 rgba(255,255,255,0.14)',
 			},
 			keyframes: {
 				'accordion-down': {
