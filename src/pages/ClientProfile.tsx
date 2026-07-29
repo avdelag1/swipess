@@ -106,7 +106,8 @@ const ClientProfile = () => {
               }}
             >
               <div
-                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border rounded-full", isLight ? "surface-2" : "bg-[#080C14] border-white/5")}
+                className={cn("w-full h-full overflow-hidden cursor-pointer flex items-center justify-center border", isLight ? "surface-2" : "bg-[#080C14] border-white/5")}
+                style={{ borderRadius: '9999px' }}
                 onClick={() => { triggerHaptic('light'); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
                 {profile?.profile_images?.[0] ? (

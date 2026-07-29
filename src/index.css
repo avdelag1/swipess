@@ -377,8 +377,9 @@ html[data-theme-transition] ::view-transition-new(root) {
   backdrop-filter: blur(32px) saturate(220%);
   border: 1px solid rgba(255, 255, 255, 0.34);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.28),
-    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    8px 8px 20px rgba(0, 0, 0, 0.55),
+    -4px -4px 10px rgba(255, 255, 255, 0.08),
+    inset 0 2px 1px rgba(255, 255, 255, 0.35);
   isolation: isolate;
 }
 .glass-surface { border-radius: 2rem; }
@@ -456,9 +457,9 @@ html[data-theme-transition] ::view-transition-new(root) {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    8px 8px 22px rgba(0, 0, 0, 0.65),
+    -3px -3px 10px rgba(255, 255, 255, 0.06),
+    inset 0 2px 1px rgba(255, 255, 255, 0.12);
 }
 
 body.hw-high .floating-dock-nav {
@@ -552,8 +553,9 @@ body.hw-high .floating-dock-nav {
   background: rgba(24, 24, 30, 0.85);
   border-color: rgba(255, 255, 255, 0.18);
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.50),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    8px 8px 22px rgba(0, 0, 0, 0.70),
+    -3px -3px 10px rgba(255, 255, 255, 0.06),
+    inset 0 2px 1px rgba(255, 255, 255, 0.16);
 }
 
 .dark .glass-surface::before,
@@ -572,8 +574,9 @@ body.hw-high .floating-dock-nav {
   background: rgba(255, 255, 255, 0.86);
   border-color: rgba(0, 0, 0, 0.14);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    6px 6px 16px rgba(0, 0, 0, 0.18),
+    -3px -3px 8px rgba(255, 255, 255, 0.65),
+    inset 0 2px 1px rgba(255, 255, 255, 0.80);
 }
 
 .light .glass-surface::before,
