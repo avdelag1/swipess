@@ -73,7 +73,7 @@ const OwnerProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                 "flex flex-col items-center justify-center text-center p-5 rounded-3xl cursor-pointer transition-all",
-                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
               )}
               style={isLight ? undefined : { borderColor: `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
@@ -93,7 +93,7 @@ const OwnerProfile = () => {
           whileTap={{ scale: 0.99 }}
           className={cn(
             "flex items-center justify-between p-6 rounded-3xl cursor-pointer transition-all",
-            isLight ? "surface-3" : "border border-white/[0.06] bg-white/[0.02] shadow-xl backdrop-blur-xl"
+            isLight ? "surface-3" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
           )}
           style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.06)' }}
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
@@ -121,7 +121,7 @@ const OwnerProfile = () => {
         <div className={cn("space-y-3", isLight && "surface-section")}>
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
-            className="force-white w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl bg-gradient-to-br from-cyan-500 to-indigo-600 hover:brightness-110"
+            className="force-white w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-neumorph active:shadow-neumorph-inset bg-gradient-to-br from-cyan-500 to-indigo-600 hover:brightness-110"
           >
             <div className="relative z-10 flex items-center justify-center gap-4">
               <Sparkles className="w-7 h-7 text-white" />
@@ -134,7 +134,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAddListing(); }}
-            className="force-white w-full h-16 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-2xl bg-gradient-to-br from-[#FF4D00] to-[#EB4898] hover:brightness-110"
+            className="force-white w-full h-16 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-neumorph active:shadow-neumorph-inset bg-gradient-to-br from-[#FF4D00] to-[#EB4898] hover:brightness-110"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.35),transparent_70%)] pointer-events-none" />
             <div className="relative z-10 flex items-center justify-center gap-4">
@@ -158,7 +158,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95", isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/10 bg-white/5 shadow-sm hover:border-white/20")}
+            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95", isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/10 bg-white/5 hover:border-white/20")}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
@@ -179,7 +179,7 @@ const OwnerProfile = () => {
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
               className={cn(
                 "rounded-3xl p-7 flex flex-col gap-5 text-left transition-all",
-                isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] shadow-sm backdrop-blur-xl"
+                isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] backdrop-blur-xl"
               )}
               style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${nav.glow}` }}
             >
@@ -257,7 +257,7 @@ const OwnerProfile = () => {
                   else navigate(btn.path);
                 }}
                 className={cn(
-                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border shadow-sm backdrop-blur-xl",
+                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border backdrop-blur-xl",
                   (btn as any).urgent
                     ? "bg-red-500/10 border-red-500/20 text-red-400"
                     : (btn as any).premium

@@ -100,7 +100,7 @@ const ClientProfile = () => {
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-36 h-36 p-[2px] rounded-full"
+              className="w-36 h-36 p-[3px] rounded-full shadow-neumorph"
               style={{
                 background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
               }}
@@ -120,7 +120,7 @@ const ClientProfile = () => {
             <button
               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
               aria-label="Edit profile photo"
-              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20 rounded-[1.5rem] border border-white/10"
+              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-neumorph transition-all active:shadow-neumorph-inset active:scale-90 z-20 rounded-[1.5rem] border border-white/10"
               style={{ background: 'linear-gradient(135deg, #FF4D00, #FF6B00)' }}
             >
               <Camera className="w-5 h-5 text-white" />
@@ -149,7 +149,7 @@ const ClientProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                 "flex flex-col items-center justify-center p-5 text-center rounded-3xl cursor-pointer transition-all",
-                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
               )}
               style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${stat.glow}` }}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
@@ -174,7 +174,7 @@ const ClientProfile = () => {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => { triggerHaptic('medium'); useModalStore.getState().openAIProfile('client'); }}
-            className="w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl border-none relative overflow-hidden"
+            className="w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-shadow"
             style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
@@ -188,7 +188,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
             >
               <User className="w-7 h-7 text-white" />
@@ -199,7 +199,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #FF8C00)' }}
             >
               <Megaphone className="w-7 h-7 text-white" />
@@ -211,7 +211,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/explore/seekers'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)' }}
             >
               <Users className="w-7 h-7 text-white" />
@@ -222,7 +222,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); useModalStore.getState().setModal('showTokensModal', true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #10B981, #06B6D4)' }}
             >
               <Coins className="w-7 h-7 text-white" />
@@ -233,7 +233,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/client/settings'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #64748B, #334155)' }}
             >
               <Settings className="w-7 h-7 text-white" />
@@ -244,7 +244,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); signOut(); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #EF4444, #991B1B)' }}
             >
               <LogOut className="w-7 h-7 text-white" />
@@ -255,7 +255,7 @@ const ClientProfile = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/subscription/packages'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-lg transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
               style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }}
             >
               <Crown className="w-7 h-7 text-white" />
@@ -311,7 +311,7 @@ const ClientProfile = () => {
               exit={{ opacity: 0, y: -10 }}
               className={cn(
                 "rounded-3xl p-7 space-y-5",
-                isLight ? "surface-2" : "border border-white/[0.06] bg-white/[0.02] shadow-sm backdrop-blur-xl"
+                isLight ? "surface-2" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
               )}
               style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.03)' }}
             >

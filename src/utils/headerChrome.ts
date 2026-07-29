@@ -3,9 +3,9 @@ import type { CSSProperties } from 'react';
 export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
 
 export const HEADER_PILL_BASE =
-  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[28px] w-[28px]`;
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[36px] w-[36px] shadow-neumorph transition-all active:shadow-neumorph-inset`;
 
-export const HEADER_ICON = 'w-[16px] h-[16px]';
+export const HEADER_ICON = 'w-[20px] h-[20px]';
 
 export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 
@@ -31,19 +31,13 @@ export function getHeaderIconFilter(
 
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons. */
 export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
-  // The header buttons should always match the bottom nav bar.
-  // In light theme, they use a crisp white pill with dark icons.
-  // In dark theme, they use a dark pill with white icons.
   const useLightIcons = !isLight;
 
   const pillStyle: CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.60)' : 'rgba(26,26,28,0.40)',
+    background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(26,26,28,0.85)',
     border: isLight
-      ? '1px solid rgba(0,0,0,0.05)'
-      : '1px solid rgba(255,255,255,0.10)',
-    boxShadow: isLight
-      ? '0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)'
-      : '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
+      ? '1px solid rgba(0,0,0,0.02)'
+      : '1px solid rgba(255,255,255,0.05)',
     backdropFilter: 'blur(48px) saturate(1.8)',
     WebkitBackdropFilter: 'blur(48px) saturate(1.8)',
     borderRadius: '9999px',
@@ -52,7 +46,7 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1)',
+    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
     overflow: 'visible',
   };
 

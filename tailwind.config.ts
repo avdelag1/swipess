@@ -128,6 +128,9 @@ export default {
 				'theme-lg': 'var(--shadow-lg)',
 				'glow': 'var(--shadow-glow)',
 				'card': 'var(--shadow-card)',
+				'neumorph': '6px 6px 14px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.04)',
+				'neumorph-inset': 'inset 4px 4px 10px rgba(0, 0, 0, 0.8), inset -4px -4px 10px rgba(255, 255, 255, 0.05)',
+				'neumorph-sm': '3px 3px 8px rgba(0, 0, 0, 0.5), -3px -3px 8px rgba(255, 255, 255, 0.05)',
 			},
 			keyframes: {
 				'accordion-down': {

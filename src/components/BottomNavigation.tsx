@@ -300,7 +300,7 @@ export const BottomNavigation = memo(({
           immersive screen real estate. */}
       <div
         className={cn(
-          "pointer-events-auto floating-dock-nav",
+          "pointer-events-auto floating-dock-nav shadow-neumorph",
           "max-w-[340px] w-[90vw] mx-auto overflow-hidden rounded-[32px]"
         )}
         style={{
@@ -424,7 +424,7 @@ export const BottomNavigation = memo(({
                     );
                   })()}
 
-                  {/* Active Indicator Pill */}
+                  {/* Active Indicator Pill — Neumorphic carved-in effect */}
                   <AnimatePresence>
                     {active && (
                       <motion.div
@@ -438,7 +438,8 @@ export const BottomNavigation = memo(({
                           damping: 25,
                           mass: 0.5,
                         }}
-                        className="absolute inset-0 z-[-1] rounded-full bg-black/5 dark:bg-white/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.2)] dark:shadow-[inset_0_1px_3px_rgba(255,255,255,0.05)]"
+                        className="absolute inset-0 z-[-1] rounded-full shadow-neumorph-inset"
+                        style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)' }}
                       />
                     )}
                   </AnimatePresence>

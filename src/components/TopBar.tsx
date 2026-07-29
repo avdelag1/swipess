@@ -167,12 +167,10 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="group relative flex items-center justify-center shrink-0 pointer-events-auto w-[28px] h-[28px] rounded-full overflow-hidden group-active:scale-[0.92] transition-transform duration-150"
+                className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
                 style={{
+                  ...glassPillStyle,
                   background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
-                  boxShadow: useLightIcons
-                    ? '0 0 0 1px rgba(255,255,255,0.2) inset, 0 4px 12px rgba(0,0,0,0.35)'
-                    : '0 0 0 1px rgba(255,255,255,0.2) inset, 0 2px 6px rgba(0,0,0,0.15)',
                 }}
                 aria-label="Open profile"
               >
