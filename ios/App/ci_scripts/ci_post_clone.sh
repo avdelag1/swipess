@@ -1,7 +1,13 @@
 #!/bin/sh
-echo "Navigating to ios/App directory..."
-cd ..
+set -e
 
-echo "Running pod install..."
-# Xcode Cloud already has CocoaPods installed, no need to use brew.
-pod install
+echo "Navigating to project root..."
+cd ../../../
+
+echo "Installing Node dependencies..."
+npm install
+
+echo "Syncing Capacitor plugins and running pod install..."
+npx cap sync ios
+
+echo "Done!"
