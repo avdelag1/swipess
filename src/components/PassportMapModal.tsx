@@ -634,7 +634,7 @@ export const PassportMapModal = memo(() => {
         const flyPitch = cinematicPitchForViewport();
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/outdoors-v12',
+          style: 'mapbox://styles/mapbox/dark-v11',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           pitch: flyPitch,
@@ -785,7 +785,7 @@ export const PassportMapModal = memo(() => {
     if (useModalStore.getState().showPassportMapModal) {
       beginInit();
     } else {
-      deferHandle = setTimeout(beginInit, 900);
+      deferHandle = setTimeout(beginInit, 200);
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
