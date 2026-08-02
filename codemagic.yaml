@@ -31,10 +31,8 @@ workflows:
       groups:
         - swipess_env
       ios_signing:
-        provisioning_profiles:
-          - profile
-        certificates:
-          - CERT
+        distribution_type: app_store
+        bundle_identifier: com.swipess.mobile
       vars:
         VITE_MAPBOX_ACCESS_TOKEN: "pk.eyJ1IjoiYXZkZWxhZyIsImEiOiJjbW81OWZvbmkxb284MnNwdmUxcjBwdzZzIn0.g6nNTESXekEIpz2GSwOMLg"
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
