@@ -63,8 +63,6 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
     justifyContent: 'center',
     transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
     overflow: 'visible',
-    transform: 'translateZ(0)',
-    willChange: 'transform',
   };
 
   const iconColor = useLightIcons ? '#FFFFFF' : '#111111';

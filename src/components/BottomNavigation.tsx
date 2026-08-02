@@ -305,7 +305,6 @@ export const BottomNavigation = memo(({
         )}
         style={{
           ...pillStyle,
-          transform: 'translateZ(0)', // Force GPU compositing for blur
           padding: '6px 8px',
         }}
       >
