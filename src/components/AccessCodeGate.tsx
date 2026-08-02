@@ -66,7 +66,7 @@ export function AccessCodeGate({ onGranted }: Props) {
   const gateFontFamily = getContentValue(siteContent, 'gate_font_family');
   const gateTitleColor = getContentValue(siteContent, 'gate_title_color', '#ffffff');
   const gateSubtitleColor = getContentValue(siteContent, 'gate_subtitle_color', 'rgba(255,255,255,0.6)');
-  const btnColor = getContentValue(siteContent, 'gate_btn_color', '#8B5CF6');
+  const btnColor = getContentValue(siteContent, 'gate_btn_color', '#FFFFFF');
   
   const inputWidth = getContentValue(siteContent, 'input_width', '100%');
   const inputHeight = getContentValue(siteContent, 'input_height', 56);
@@ -248,7 +248,7 @@ export function AccessCodeGate({ onGranted }: Props) {
                   <button
                     type="button"
                     onClick={() => setRevealed(v => !v)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
                     aria-label={revealed ? 'Hide access code' : 'Show access code'}
                     style={{ color: inputPlaceholderColor }}
                   >
@@ -269,8 +269,8 @@ export function AccessCodeGate({ onGranted }: Props) {
                 <button
                   type="submit"
                   disabled={verifying}
-                  style={btnColor ? { background: btnColor, height: `${inputHeight}px` } : { height: `${inputHeight}px` }}
-                  className={`w-full rounded-full font-black uppercase tracking-[0.25em] text-[12px] text-white shadow-[0_10px_30px_rgba(255,77,0,0.35)] hover:brightness-110 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-gradient-to-r from-[#FF4D00] to-[#EB4898]'}`}
+                  style={btnColor ? { background: btnColor, height: `${inputHeight}px`, color: btnColor === '#FFFFFF' ? '#000000' : '#ffffff' } : { height: `${inputHeight}px` }}
+                  className={`w-full rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-lg hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white text-black'}`}
                 >
                   <Sparkles className={`w-4 h-4 ${verifying ? 'animate-spin' : ''}`} />
                   {verifying ? 'Verifying…' : btnText}

@@ -99,9 +99,13 @@ export const StoreKitService = {
         try {
           const tx = receipt.transactions?.[0];
           const productId = tx?.products?.[0]?.id ?? tx?.products?.[0] ?? null;
-          const appStoreReceipt = tx?.appStoreReceipt ?? null;
+          
+          // In CdvPurchase v13, the base64 App Store receipt is often found at receipt.id 
+          // or receipt.nativeData.appStoreReceipt
+          const appStoreReceipt = tx?.appStoreReceipt ?? receipt?.id ?? receipt?.nativeData?.appStoreReceipt ?? null;
 
           if (!productId || !appStoreReceipt) {
+            logger.error('[IAP] Validator missing data. productId:', productId, 'receipt object keys:', Object.keys(receipt || {}));
             callback({ ok: false, code: 6778001, message: 'Missing receipt data or product ID' });
             return;
           }

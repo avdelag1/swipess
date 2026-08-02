@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>27</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -30,8 +30,6 @@
 	<string>Swipess needs camera access to take profile photos and listing images.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Swipess can share listings with your contacts if you choose to.</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>Swipess can add event reminders to help you prepare for upcoming experiences.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Swipess uses Face ID for secure authentication.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -40,12 +38,14 @@
 	<string>Swipess uses your location to show nearby listings and match you with local services.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Swipess uses the microphone so you can dictate messages to the AI concierge and record voice notes on listings. For example, say 'Show me 2-bedroom apartments under $1500' and Swipess will search for you.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Swipess uses speech recognition to convert your voice into text for creating listings, searching properties, and dictating messages — all processed on your device for privacy.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Swipess saves downloaded receipts and QR codes to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Swipess needs access to your photo library to upload profile photos and listing images.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Swipess can add event reminders to help you prepare for upcoming experiences.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Swipess uses speech recognition to convert your voice into text for creating listings, searching properties, and dictating messages — all processed on your device for privacy.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
