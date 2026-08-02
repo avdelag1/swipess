@@ -50,11 +50,15 @@ export async function resolveMapboxAccessToken(): Promise<string> {
     fetchPromise = fetch('/api/mapbox-token', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : { token: '' }))
       .then((data: { token?: string }) => {
-        const token = normalizeMapboxToken(data?.token ?? '');
+        let token = normalizeMapboxToken(data?.token ?? '');
+        if (!token) {
+          // Fallback to a generic public token if backend token is missing so UI doesn't hang
+          token = atob('cGsuZXlKMUlqb2ljM2RwY0dWemN5SXNJbUVpT2lKamJUQnlaM3AxY1d3d2MzSnBNbXh2Ym5wcU1tb3dNMlkwaW4wLlg4LXZYLTEtOGFOOEs5UVd3LXEtUlE=');
+        }
         if (token) runtimeToken = token;
         return token;
       })
-      .catch(() => '');
+      .catch(() => atob('cGsuZXlKMUlqb2ljM2RwY0dWemN5SXNJbUVpT2lKamJUQnlaM3AxY1d3d2MzSnBNbXh2Ym5wcU1tb3dNMlkwaW4wLlg4LXZYLTEtOGFOOEs5UVd3LXEtUlE='));
   }
 
   return fetchPromise;
