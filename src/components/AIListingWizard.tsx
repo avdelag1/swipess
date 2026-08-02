@@ -41,7 +41,7 @@ const AI_MAX_PHOTOS: Record<string, number> = {
   worker: 3,
 };
 
-function photoFileKey(file: File) {
+function _photoFileKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 

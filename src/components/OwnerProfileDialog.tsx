@@ -7,7 +7,7 @@ import { Camera, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
-import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
+
 import { assertImageSafe, uploadPhoto } from '@/utils/photoUpload';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';

@@ -85,7 +85,7 @@ export const SwipeExhaustedState = ({
         boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
       };
 
-  const filterBtnStyle: React.CSSProperties = isLight
+  const _filterBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: '#000000', color: '#ffffff', borderColor: '#000000' }
     : { backgroundColor: '#ffffff', color: '#1a1a1a', borderColor: '#ffffff' };
 
@@ -96,7 +96,7 @@ export const SwipeExhaustedState = ({
     boxShadow: '0 8px 24px hsl(var(--primary)/0.35)',
   };
 
-  const backBtnStyle: React.CSSProperties = isLight
+  const _backBtnStyle: React.CSSProperties = isLight
     ? { backgroundColor: 'rgba(241,245,249,0.9)', color: '#000000', backdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }
     : { backgroundColor: 'rgba(255,255,255,0.10)', color: '#ffffff', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)' };
 

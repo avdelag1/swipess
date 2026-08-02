@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { Camera, Plus, Sparkles } from 'lucide-react';
 import { appToast } from '@/utils/appNotification';
 import { validateImageFile } from '@/utils/fileValidation';

@@ -6,9 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Baby, Calendar, Car, ChefHat, ChevronLeft, ChevronRight,
-  Clock, DollarSign, Dumbbell, Edit, Hammer, HeartPulse, Laptop,
-  Leaf, MapPin, Package, Paintbrush, Plus, Search,
-  Shield, Sparkles, Trash2, Wrench, X, Zap
+  Clock, DollarSign, Dumbbell, Hammer, HeartPulse, Laptop,
+  Leaf, MapPin, Package, Paintbrush,
+  Shield, Sparkles, Wrench, X, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';

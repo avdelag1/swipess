@@ -70,7 +70,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     await new Promise(resolve => setTimeout(resolve, 600));
   };
 
-  const isSwipeDashboard = useMemo(() => {
+  const _isSwipeDashboard = useMemo(() => {
     const path = location.pathname;
     return path.startsWith('/client/dashboard') || path.startsWith('/owner/dashboard');
   }, [location.pathname]);

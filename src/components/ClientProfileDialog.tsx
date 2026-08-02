@@ -36,7 +36,7 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { assertImageSafe, uploadPhoto } from '@/utils/photoUpload';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
-import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
+
 
 import {
   CLEANLINESS_OPTIONS,

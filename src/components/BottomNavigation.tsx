@@ -53,8 +53,8 @@ import { AIIcon } from '@/components/icons/AIIcon';
 const ICON_SIZE = 26;
 
 const ICON_SIZE_TABLET = 28;
-const TOUCH_TARGET = 34;
-const TOUCH_TARGET_TABLET = 42;
+const _TOUCH_TARGET = 34;
+const _TOUCH_TARGET_TABLET = 42;
 
 interface BottomNavigationProps {
   onFilterClick?: () => void;
@@ -208,7 +208,7 @@ export const BottomNavigation = memo(({
     [navigate, location.pathname, setCategories, closeAll],
   );
 
-  const handleNavKeyDown = useCallback(
+  const _handleNavKeyDown = useCallback(
     (event: React.KeyboardEvent, item: NavItem) => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault();
@@ -440,11 +440,11 @@ export const BottomNavigation = memo(({
                         }}
                         className="absolute inset-0 z-[-1] rounded-full"
                         style={{
-                          background: isLight ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.15)',
-                          border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
-                          boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8)' : '0 4px 15px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.2)',
-                          backdropFilter: 'blur(20px)',
-                          WebkitBackdropFilter: 'blur(20px)',
+                          background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(20, 20, 20, 0.5)',
+                          border: isLight ? '1px solid rgba(255, 255, 255, 0.8)' : '1px solid rgba(255, 255, 255, 0.25)',
+                          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.08), inset 0 2px 4px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.05)' : '0 8px 32px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)',
+                          backdropFilter: 'blur(20px) saturate(250%) brightness(1.1) contrast(1.2)',
+                          WebkitBackdropFilter: 'blur(20px) saturate(250%) brightness(1.1) contrast(1.2)',
                         }}
                       />
                     )}

@@ -20,7 +20,7 @@ import {
   User,
   Zap,
 } from 'lucide-react';
-import { PromoCodeSection } from '@/components/PromoCodeSection';
+
 import { FeedbackSection } from '@/components/FeedbackSection';
 import { SeekerAdSection } from '@/components/SeekerAdSection';
 import { DailyQuestBoard } from '@/components/quests/DailyQuestBoard';

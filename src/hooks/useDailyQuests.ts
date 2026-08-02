@@ -51,7 +51,7 @@ export function useDailyQuests() {
         console.error('Error fetching quest points:', error);
         return 0;
       }
-      // @ts-ignore
+      // @ts-expect-error
       return data?.quest_points || 0;
     },
     enabled: !!userId,

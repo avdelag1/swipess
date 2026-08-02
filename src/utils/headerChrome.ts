@@ -34,15 +34,15 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
 
   const pillStyle: CSSProperties = {
-    background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
+    background: isLight ? 'rgba(255, 255, 255, 0.25)' : 'rgba(20, 20, 20, 0.45)',
     border: isLight
-      ? '1px solid rgba(255, 255, 255, 0.6)'
-      : '1px solid rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(30px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(30px) saturate(1.8)',
+      ? '1px solid rgba(255, 255, 255, 0.8)'
+      : '1px solid rgba(255, 255, 255, 0.25)',
+    backdropFilter: 'blur(16px) saturate(250%) brightness(1.1) contrast(1.2)',
+    WebkitBackdropFilter: 'blur(16px) saturate(250%) brightness(1.1) contrast(1.2)',
     boxShadow: isLight
-      ? '0 4px 20px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9)'
-      : '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
+      ? '0 8px 32px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255, 255, 255, 1), inset 0 -2px 4px rgba(0,0,0,0.05)'
+      : '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0,0,0,0.2)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',

@@ -537,7 +537,7 @@ export function useStartConversation() {
 export function useSendMessage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { incrementQuest } = useDailyQuests();
+  const { incrementQuest: _incrementQuest } = useDailyQuests();
 
   return useMutation({
     onMutate: async ({ conversationId, message }) => {

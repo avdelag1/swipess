@@ -2,7 +2,7 @@ import { SharedProfileSection } from "@/components/SharedProfileSection";
 
 import { Button } from "@/components/ui/button";
 import { AmbientPageBackground } from "@/components/ui/AmbientPageBackground";
-import { PromoCodeSection } from '@/components/PromoCodeSection';
+
 import { FeedbackSection } from '@/components/FeedbackSection';
 import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { DailyQuestBoard } from '@/components/quests/DailyQuestBoard';
