@@ -48,7 +48,7 @@ export function SwipessHud({
     const yHide = side === 'top' ? -20 : 20;
     return (
       <motion.div
-        className={cn(pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto', 'will-change-transform relative', className)}
+        className={cn(pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto', 'relative', className)}
         animate={{
           opacity: isVisible ? 1 : 0,
           y: isVisible ? 0 : yHide,
@@ -75,7 +75,7 @@ export function SwipessHud({
     <div
       className={cn(
         pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto',
-        'will-change-transform relative',
+        'relative',
         !isVisible && isFade && 'opacity-0',
         !isVisible && isTranslate && side === 'top' && '-translate-y-[120%]',
         !isVisible && isTranslate && side === 'bottom' && 'translate-y-[120%]',
@@ -84,7 +84,6 @@ export function SwipessHud({
         className
       )}
       style={{
-        willChange: 'transform, opacity',
         transitionProperty: 'transform, opacity',
         transitionDuration: isVisible ? '180ms' : '150ms',
         transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)',

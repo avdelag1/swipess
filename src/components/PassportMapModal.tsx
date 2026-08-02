@@ -785,7 +785,10 @@ export const PassportMapModal = memo(() => {
     if (useModalStore.getState().showPassportMapModal) {
       beginInit();
     } else {
-      deferHandle = setTimeout(beginInit, 200);
+      // Delay longer on Safari to let the genie open animation settle before WebGL init.
+      // Safari fails to create a WebGL context if the canvas parent has a non-1 scale transform.
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      deferHandle = setTimeout(beginInit, isSafari ? 350 : 200);
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
@@ -1127,7 +1130,7 @@ export const PassportMapModal = memo(() => {
   return (
     <motion.div
       className={cn(
-        'force-white fixed inset-0 z-[10025] overflow-hidden will-change-transform gpu-ultra',
+        'force-white fixed inset-0 z-[10025] overflow-hidden',
         !isOpen && 'pointer-events-none',
       )}
       role="dialog"
