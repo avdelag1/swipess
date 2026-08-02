@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
 import { compressImage, PROFILE_COMPRESSION } from '@/utils/imageCompression';
-import { assertImageSafe } from '@/utils/photoUpload';
+import { assertImageSafe, uploadPhoto } from '@/utils/photoUpload';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { cn } from '@/lib/utils';
@@ -53,17 +53,17 @@ export function OwnerProfileDialog({ open, onOpenChange }: { open: boolean, onOp
   const handleImageUpload = async (file: File): Promise<string> => {
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error('Not authenticated');
-    const prepared = await compressImage(file, PROFILE_COMPRESSION);
-    const fileExt = prepared.type === 'image/webp' ? 'webp' : prepared.type === 'image/png' ? 'png' : 'jpg';
-    const uuid = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
-    const filePath = `${user.data.user.id}/${uuid}.${fileExt}`;
-    const { error } = await supabase.storage.from('profile-images').upload(filePath, prepared, { contentType: prepared.type || 'image/jpeg' });
-    if (error) throw error;
-    const publicUrl = supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
+    
+    const { publicUrl, path } = await uploadPhoto({
+      userId: user.data.user.id,
+      blob: file,
+      bucket: 'profile-images',
+    });
+
     try {
       await assertImageSafe(publicUrl);
     } catch (e) {
-      await supabase.storage.from('profile-images').remove([filePath]).catch(() => {});
+      await supabase.storage.from('profile-images').remove([path]).catch(() => {});
       if ((e as Error & { moderationBlocked?: boolean })?.moderationBlocked) {
         appToast.error('Photo rejected', (e as Error).message);
       }

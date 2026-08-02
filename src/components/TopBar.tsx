@@ -170,6 +170,7 @@ function TopBarComponent({
                 className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
                 style={{
                   ...glassPillStyle,
+                  overflow: 'hidden',
                   background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
                 }}
                 aria-label="Open profile"
@@ -180,7 +181,7 @@ function TopBarComponent({
                       alt="Profile"
                       loading="eager"
                       decoding="async"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
                     initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (

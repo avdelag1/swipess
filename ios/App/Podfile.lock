@@ -120,30 +120,30 @@ EXTERNAL SOURCES:
     :path: "../capacitor-cordova-ios-plugins"
 
 SPEC CHECKSUMS:
-  AparajitaCapacitorBiometricAuth: 99cdefca494a247c5d728a66df21d6f0b02a658e
-  Capacitor: 05a1e43920a77b2607b6d7502734f70d182b01a8
-  CapacitorApp: 3ddbd30ac18c321531c3da5e707b60873d89dd60
-  CapacitorBrowser: 3bcddd9dd07cfff9105dcc88ad64853be9862e50
-  CapacitorCamera: 6ef67fd287de230ebd8cda05f2a7ffd44a48e568
-  CapacitorCommunityAppleSignIn: 59bc8ade5677e6ea60a14bdca8d3f4bdc91069e2
-  CapacitorCommunityContacts: 6011b4ace229c2e83ca3f18f00a86384d5ae6a37
-  CapacitorCommunityInAppReview: 3469e8228d723797ec890ff8c91cd0882becb0f8
-  CapacitorCommunityPrivacyScreen: 4889e5999a4f9a7ce91ee5007c9bed1e651afe33
+  AparajitaCapacitorBiometricAuth: c7edb43d80486150b81224d3ff7e950b37a3c2f1
+  Capacitor: 961efd309ab0e390a8081b63c561186f61a6714d
+  CapacitorApp: 63b237168fc869e758481dba283315a85743ee78
+  CapacitorBrowser: 6d09f59655e89aede71654ef08b98de55cf032b6
+  CapacitorCamera: 6746827d82376f31cea9224945c0458c9fd0b0b2
+  CapacitorCommunityAppleSignIn: 271cb2860576fd2961508bbfa7a82117d93eadca
+  CapacitorCommunityContacts: 12008d6650ba80d7bb948a70fe31fec6813d49dc
+  CapacitorCommunityInAppReview: 3756d05524c5cf2eccbc8ed460f77f8f8db6c141
+  CapacitorCommunityPrivacyScreen: b8fac08dc5137fce228c3cd666fdd4bbbc7c615e
   CapacitorCordova: 3a4e0027a89a59421c918d19aee9d6ba1c7a3556
-  CapacitorGeolocation: de4b0ccf90140528184e31676dd5e3a328eb589a
-  CapacitorHaptics: d17da7dd984cae34111b3f097ccd3e21f9feec62
-  CapacitorKeyboard: 45cae3956a6f4fb1753f9a4df3e884aeaed8fe82
-  CapacitorLocalNotifications: ae0b5008877d68731d693156fe21d786d30a4feb
-  CapacitorNetwork: 3d56050f929a8c86427a5b28558ce605e7cf61b3
-  CapacitorPreferences: 0fa33b3affebf12d96358b491ed7c2b39bec3270
-  CapacitorPushNotifications: c6158ba6f3777f281a675aa43e4011e9723e822b
-  CapacitorShare: 14b5d7f0a2c6de86dcad8995da80fb707ee32f62
-  CapacitorSplashScreen: 03d04ffe57d5b619cfc162efc7415a965c92cc3f
-  CapacitorStatusBar: 4bf126c3c01dbaca8a4e416a29c4899cf91d0626
-  CapawesomeCapacitorBadge: 48e5431c8b9909568ac5e5bf24163d92e1d9ed18
-  CordovaPlugins: 7995b67f6b1fb574e717ce54458f002dfcc3dcc5
+  CapacitorGeolocation: ab54d708e2fcf99a7bafe0219eaa6f7a932f001a
+  CapacitorHaptics: ce15be8f287fa2c61c7d2d9e958885b90cf0bebc
+  CapacitorKeyboard: 5660c760113bfa48962817a785879373cf5339c3
+  CapacitorLocalNotifications: 2e3f5b717ec9cd2bd64d93c99a9470941e1c80be
+  CapacitorNetwork: b719d692a8d1310da8d26d6648d3aa1ef1e100e1
+  CapacitorPreferences: cca2021f386efb75947c850334447d9ff22b14f1
+  CapacitorPushNotifications: b8e30637549ce91468b8c4dddbef2657be831f4c
+  CapacitorShare: 25f7fc5dd0e4edbde5d6801c6de5d14a8b450a41
+  CapacitorSplashScreen: 000f7591d546907dda5cbb514bd6b6d9e6048cf8
+  CapacitorStatusBar: d0e0151c89c001a9c7125bac59ddedf76b664768
+  CapawesomeCapacitorBadge: 7fc1fa00c920b88eabb8451ddc92bdc75da2cffa
+  CordovaPlugins: 24e27ee66251d046b1f71c3d727b75afc77b2e32
   IONGeolocationLib: 20f9d0248a0b5264511fb57a37e25dd2badf797a
 
 PODFILE CHECKSUM: ef19d6ebb6dbec98b047d87165a20b39eeb78dcb
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
