@@ -229,10 +229,11 @@ export function SubscriptionPackages({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+              style={{ WebkitBackdropFilter: 'blur(32px) saturate(1.5)' }}
               className={cn(
-                'flex-1 flex flex-col rounded-[2rem] border bg-background p-6 relative overflow-hidden',
+                'flex-1 flex flex-col rounded-[32px] border bg-background/40 backdrop-blur-3xl p-6 relative overflow-hidden',
                 style.border,
-                isHighlight && 'ring-2 ring-amber-500/20 shadow-[0_20px_60px_rgba(245,158,11,0.15)]'
+                isHighlight ? 'ring-2 ring-amber-500/30 shadow-[0_32px_64px_-12px_rgba(245,158,11,0.25)]' : 'shadow-[0_24px_48px_-12px_rgba(0,0,0,0.2)]'
               )}
             >
               <div className={cn('absolute inset-0 rounded-[2rem] bg-gradient-to-b pointer-events-none', style.topGradient)} />
@@ -263,14 +264,14 @@ export function SubscriptionPackages({
 
                 <motion.button
                   type="button"
-                  whileTap={{ scale: 0.96 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleSubscribe(pkg)}
                   disabled={purchasingId === pkg.id}
-                  style={pkgData?.cta_color?.text_value ? { background: pkgData.cta_color.text_value, color: 'white' } : {}}
+                  style={pkgData?.cta_color?.text_value ? { background: pkgData.cta_color.text_value, color: 'white' } : (isHighlight ? { boxShadow: '0 12px 24px rgba(245,158,11,0.3), inset 0 2px 4px rgba(255,255,255,0.4)' } : { boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)' })}
                   className={cn(
-                    'w-full h-14 rounded-2xl font-black transition-opacity hover:opacity-90 shadow-xl flex items-center justify-center gap-1.5',
-                    purchasingId === pkg.id && 'opacity-70',
-                    !pkgData?.cta_color?.text_value && style.button, 'uppercase tracking-[0.2em] text-[13px] text-white', isHighlight && 'shadow-amber-500/20'
+                    'w-full h-14 rounded-2xl font-black transition-all hover:brightness-110 flex items-center justify-center gap-1.5 touch-manipulation',
+                    purchasingId === pkg.id && 'opacity-60 cursor-not-allowed',
+                    !pkgData?.cta_color?.text_value && style.button, 'uppercase tracking-[0.25em] text-[12px] text-white'
                   )}
                 >
                   {purchasingId === pkg.id ? 'Connecting...' : getText('cta_text', 'Choose Plan')}

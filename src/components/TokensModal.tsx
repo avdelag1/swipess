@@ -24,27 +24,27 @@ const formatUSD = (price: number) =>
 const tokenTierConfig = {
   starter: {
     icon: MessageCircle,
-    iconBg: 'bg-indigo-500/10 text-indigo-500 rounded-xl p-2 shadow-inner',
-    border: 'border-indigo-500/20 shadow-lg shadow-indigo-500/5',
-    accent: 'bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent backdrop-blur-md',
+    iconBg: 'bg-indigo-500/10 text-indigo-400 rounded-2xl p-3 shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] border border-indigo-500/20',
+    border: 'border-indigo-500/30 shadow-[0_20px_40px_-15px_rgba(99,102,241,0.2)]',
+    accent: 'bg-gradient-to-br from-indigo-500/15 via-indigo-500/5 to-transparent backdrop-blur-[40px] saturate-[1.5]',
   },
   plus: {
     icon: Zap,
-    iconBg: 'bg-purple-500/10 text-purple-500 rounded-xl p-2 shadow-inner',
-    border: 'border-purple-500/30 shadow-xl shadow-purple-500/10',
-    accent: 'bg-gradient-to-br from-purple-500/15 via-purple-500/5 to-transparent backdrop-blur-md',
+    iconBg: 'bg-purple-500/10 text-purple-400 rounded-2xl p-3 shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] border border-purple-500/20',
+    border: 'border-purple-500/30 shadow-[0_20px_40px_-15px_rgba(168,85,247,0.2)]',
+    accent: 'bg-gradient-to-br from-purple-500/15 via-purple-500/5 to-transparent backdrop-blur-[40px] saturate-[1.5]',
   },
   power: {
     icon: Crown,
-    iconBg: 'bg-amber-500/10 text-amber-500 rounded-xl p-2 shadow-inner',
-    border: 'border-amber-500/40 shadow-2xl shadow-amber-500/15',
-    accent: 'bg-gradient-to-br from-amber-500/20 via-amber-500/5 to-transparent backdrop-blur-md',
+    iconBg: 'bg-amber-500/10 text-amber-400 rounded-2xl p-3 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-amber-500/30',
+    border: 'border-amber-500/40 shadow-[0_24px_50px_-15px_rgba(245,158,11,0.25)]',
+    accent: 'bg-gradient-to-br from-amber-500/20 via-amber-500/5 to-transparent backdrop-blur-[40px] saturate-[1.5]',
   },
   mega: {
     icon: Sparkles,
-    iconBg: 'bg-rose-500/10 text-rose-500 rounded-xl p-2 shadow-inner',
-    border: 'border-rose-500/50 shadow-2xl shadow-rose-500/20',
-    accent: 'bg-gradient-to-br from-rose-500/25 via-rose-500/10 to-transparent backdrop-blur-md',
+    iconBg: 'bg-rose-500/10 text-rose-400 rounded-2xl p-3 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-rose-500/30',
+    border: 'border-rose-500/40 shadow-[0_24px_50px_-15px_rgba(244,63,94,0.25)]',
+    accent: 'bg-gradient-to-br from-rose-500/20 via-rose-500/5 to-transparent backdrop-blur-[40px] saturate-[1.5]',
   },
 } as const;
 
@@ -176,55 +176,52 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                         return (
                           <motion.div
                             key={pkg.productId}
-                            initial={{ opacity: 0, y: 8 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                            style={{ WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}
                             className={cn(
-                              // overflow-visible so the "Popular" / "Best Value" badge sitting
-                              // at -top-3 isn't clipped in half by the rounded card edge.
-                              "relative rounded-[20px] border p-4 transition-all overflow-visible",
+                              "relative rounded-[24px] border p-5 transition-all overflow-visible flex items-center gap-4",
                               config.accent, config.border,
-                              isPopular && "ring-2 ring-primary/40 scale-[1.02]"
+                              isPopular && "ring-1 ring-primary/50 scale-[1.02] shadow-[0_20px_50px_-15px_rgba(255,255,255,0.1)]"
                             )}
                           >
                             {pkg.badge && (
-                              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 text-[10px] font-black bg-primary text-primary-foreground px-3 py-1 rounded-full shadow-lg border border-primary-foreground/10 uppercase tracking-widest leading-none whitespace-nowrap">
+                              <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 text-[10px] font-black bg-primary text-primary-foreground px-4 py-1.5 rounded-full shadow-lg border border-primary-foreground/10 uppercase tracking-[0.2em] leading-none whitespace-nowrap">
                                 {pkg.badge}
                               </span>
                             )}
-                            <div className="flex items-center gap-3">
-                              <div className={cn("flex-shrink-0 flex items-center justify-center", config.iconBg)}>
-                                <Icon className="w-5 h-5" aria-hidden="true" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline gap-1.5 flex-wrap">
-                                  <span className="font-black text-sm uppercase tracking-tight text-foreground">{pkg.name}</span>
-                                  <span className="text-[10px] font-black text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded-md">{pkg.tokens} tokens</span>
-                                </div>
-                                <div className="flex items-baseline gap-1 mt-1 flex-wrap">
-                                  <span className="font-black text-lg tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
-                                  <span className="text-[10px] font-black text-muted-foreground">USD</span>
-                                  <span className="text-[10px] font-bold text-muted-foreground ml-1">{formatUSD(pricePerToken)} / token</span>
-                                </div>
-                                <p className="text-[11px] font-medium text-muted-foreground mt-1 leading-snug">{pkg.description}</p>
-                              </div>
-                              <button
-                                onClick={(e) => { e.preventDefault(); haptics.tap(); handlePurchase(pkg); }}
-                                disabled={purchasingId === pkg.productId}
-                                aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
-                                className={cn(
-                                  "flex-shrink-0 h-11 px-5 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
-                                  purchasingId === pkg.productId
-                                    ? "opacity-60 cursor-not-allowed"
-                                    : "active:scale-95 touch-manipulation hover:shadow-lg",
-                                  "bg-primary text-primary-foreground shadow-lg"
-                                )}
-                              >
-                                {purchasingId === pkg.productId ? 'Processing...' : (
-                                  <span className="text-[11px] uppercase tracking-widest">Get Offer</span>
-                                )}
-                              </button>
+                            <div className={cn("flex-shrink-0 flex items-center justify-center", config.iconBg)}>
+                              <Icon className="w-6 h-6" aria-hidden="true" />
                             </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline gap-2 flex-wrap mb-0.5">
+                                <span className="font-black text-sm uppercase tracking-widest text-foreground">{pkg.name}</span>
+                                <span className="text-[9px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md tracking-wider border border-primary/20">{pkg.tokens} tokens</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 mt-1 flex-wrap">
+                                <span className="font-black text-2xl tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
+                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">USD</span>
+                                <span className="text-[10px] font-bold text-muted-foreground ml-1">{formatUSD(pricePerToken)} / tk</span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => { e.preventDefault(); haptics.tap(); handlePurchase(pkg); }}
+                              disabled={purchasingId === pkg.productId}
+                              aria-label={`Get offer: ${pkg.tokens} tokens for ${formatUSD(pkg.priceUsd)} USD`}
+                              style={isPopular ? { boxShadow: '0 8px 24px rgba(255,255,255,0.15), inset 0 2px 4px rgba(255,255,255,0.3)' } : { boxShadow: '0 4px 12px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1)' }}
+                              className={cn(
+                                "flex-shrink-0 h-12 px-6 rounded-full font-black text-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5",
+                                purchasingId === pkg.productId
+                                  ? "opacity-60 cursor-not-allowed"
+                                  : "active:scale-95 touch-manipulation hover:brightness-110",
+                                isPopular ? "bg-primary text-primary-foreground" : "bg-white/10 text-white border border-white/20"
+                              )}
+                            >
+                              {purchasingId === pkg.productId ? 'Processing...' : (
+                                <span className="text-[11px] uppercase tracking-[0.2em]">Select</span>
+                              )}
+                            </button>
                           </motion.div>
                         );
                       })}
