@@ -172,6 +172,7 @@ export function useVoiceTranscribe(options?: UseVoiceTranscribeOptions): UseVoic
         const recognition = new SpeechRec();
         recognition.continuous = true;
         recognition.interimResults = true;
+        recognition.lang = typeof navigator !== 'undefined' ? navigator.language || 'en-US' : 'en-US';
         recognition.onresult = (e: any) => {
           // Accumulate the whole transcript (finalized + in-progress) from index
           // 0 so already-spoken words stay on screen instead of disappearing as
