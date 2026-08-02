@@ -634,7 +634,7 @@ export const PassportMapModal = memo(() => {
         const flyPitch = cinematicPitchForViewport();
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
-          style: 'mapbox://styles/mapbox/dark-v11',
+          style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,
           pitch: flyPitch,
