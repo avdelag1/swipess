@@ -3,9 +3,9 @@ import type { CSSProperties } from 'react';
 export const HEADER_CHROME_PILL_CLASS = 'header-chrome-pill';
 
 export const HEADER_PILL_BASE =
-  `tap-css-only flex shrink-0 items-center justify-center rounded-full glass-pill pointer-events-auto h-[36px] w-[36px] shadow-neumorph transition-all active:shadow-neumorph-inset`;
+  `tap-css-only flex shrink-0 items-center justify-center rounded-full pointer-events-auto h-[32px] w-[32px] transition-all`;
 
-export const HEADER_ICON = 'w-[20px] h-[20px]';
+export const HEADER_ICON = 'w-[16px] h-[16px]';
 
 export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 
@@ -34,12 +34,15 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
 
   const pillStyle: CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(26,26,28,0.85)',
+    background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
     border: isLight
-      ? '1px solid rgba(0,0,0,0.02)'
-      : '1px solid rgba(255,255,255,0.05)',
-    backdropFilter: 'blur(48px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(48px) saturate(1.8)',
+      ? '1px solid rgba(255, 255, 255, 0.6)'
+      : '1px solid rgba(255, 255, 255, 0.15)',
+    backdropFilter: 'blur(30px) saturate(1.8)',
+    WebkitBackdropFilter: 'blur(30px) saturate(1.8)',
+    boxShadow: isLight
+      ? '0 4px 20px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9)'
+      : '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',

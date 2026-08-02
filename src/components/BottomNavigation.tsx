@@ -438,8 +438,14 @@ export const BottomNavigation = memo(({
                           damping: 25,
                           mass: 0.5,
                         }}
-                        className="absolute inset-0 z-[-1] rounded-full shadow-neumorph-inset"
-                        style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)' }}
+                        className="absolute inset-0 z-[-1] rounded-full"
+                        style={{
+                          background: isLight ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.15)',
+                          border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
+                          boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8)' : '0 4px 15px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.2)',
+                          backdropFilter: 'blur(20px)',
+                          WebkitBackdropFilter: 'blur(20px)',
+                        }}
                       />
                     )}
                   </AnimatePresence>
