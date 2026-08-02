@@ -44,6 +44,16 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
+      # Prevent Swift compiler crash (Bus Error 10) on Xcode Cloud
+      config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+      config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
+      # Strip invalid MetalToolchain search paths that break Xcode Cloud
+      paths = config.build_settings['LIBRARY_SEARCH_PATHS']
+      if paths
+        paths = [paths] if paths.is_a?(String)
+        paths.reject! { |path| path.include?('MetalToolchain') }
+        config.build_settings['LIBRARY_SEARCH_PATHS'] = paths
+      end
     end
   end
 end
