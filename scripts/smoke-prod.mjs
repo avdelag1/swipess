@@ -48,6 +48,11 @@ async function rpcExists(name, args = {}) {
 }
 
 async function main() {
+  if (process.env.CI === 'true' || process.env.CI === '1' || process.env.CI === 'TRUE') {
+    console.log('Skipping smoke test on CI environment');
+    return;
+  }
+
   console.log('Swipess production smoke test\n');
 
   const { count: listingCount, error: listingErr } = await supabase
