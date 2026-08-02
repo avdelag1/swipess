@@ -305,7 +305,6 @@ export const BottomNavigation = memo(({
         )}
         style={{
           ...pillStyle,
-          WebkitBackdropFilter: 'blur(48px) saturate(1.8)', // Force webkit prefix just in case
           transform: 'translateZ(0)', // Force GPU compositing for blur
           padding: '6px 8px',
         }}
@@ -440,11 +439,13 @@ export const BottomNavigation = memo(({
                         }}
                         className="absolute inset-0 z-[-1] rounded-full"
                         style={{
-                          background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(20, 20, 20, 0.5)',
-                          border: isLight ? '1px solid rgba(255, 255, 255, 0.8)' : '1px solid rgba(255, 255, 255, 0.25)',
-                          boxShadow: isLight ? '0 8px 32px rgba(0,0,0,0.08), inset 0 2px 4px rgba(255,255,255,1), inset 0 -2px 4px rgba(0,0,0,0.05)' : '0 8px 32px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)',
-                          backdropFilter: 'blur(20px) saturate(250%) brightness(1.1) contrast(1.2)',
-                          WebkitBackdropFilter: 'blur(20px) saturate(250%) brightness(1.1) contrast(1.2)',
+                          background: isLight ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.1)',
+                          border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.2)',
+                          boxShadow: isLight
+                            ? '0 1px 8px rgba(0,0,0,0.05), inset 0 0.5px 0 rgba(255,255,255,0.7)'
+                            : '0 2px 12px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.12)',
+                          backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+                          WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
                         }}
                       />
                     )}

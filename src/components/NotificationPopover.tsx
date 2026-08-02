@@ -345,11 +345,18 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
         <DialogContent
           hideCloseButton
           className={cn(
-            "z-[10003] w-[min(calc(100vw-1rem),440px)] p-0 rounded-3xl border border-white/20 shadow-[0_0_40px_rgba(0,0,0,0.3)]",
-            "backdrop-blur-3xl bg-background/70 saturate-150 overflow-hidden gap-0",
+            "z-[10003] w-[min(calc(100vw-1rem),440px)] p-0 rounded-3xl overflow-hidden gap-0",
+            isLight ? "bg-white/70" : "bg-zinc-900/60",
             className
           )}
-          style={{ WebkitBackdropFilter: 'blur(64px)', backdropFilter: 'blur(64px)' }}
+          style={{
+            backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+            border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: isLight
+              ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
+              : '0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+          }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}

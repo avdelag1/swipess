@@ -351,30 +351,39 @@ export function AIProfileWizard() {
   return (
     <AnimatePresence>
       {showAIProfile && (
-      <motion.div
-        key="ai-profile-wizard"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        transition={{ duration: 0.1 }}
-        className={cn(
-          "fixed inset-0 z-[2147483000] backdrop-blur-2xl flex items-start sm:items-center justify-center p-0 sm:p-6",
-          isLight ? "bg-white/40" : "bg-black/80"
-        )}
-        style={{ 
-          paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'env(safe-area-inset-bottom)'
-        }}
-      >
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
-          transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          key="ai-profile-wizard"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
           className={cn(
-            "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col relative",
-            isLight ? "shadow-[0_40px_100px_rgba(0,0,0,0.2)]" : "shadow-[0_40px_100px_rgba(255,255,255,0.05)] shadow-2xl",
-            modalBg
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6",
+            isLight && "modal-scrim--lux"
           )}
+          style={{ 
+            paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)'
+          }}
         >
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+              "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden rounded-[2rem] sm:rounded-[3rem] flex flex-col relative",
+              isLight ? "bg-white/70" : "bg-zinc-900/60"
+            )}
+            style={{
+              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: isLight
+                ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
+                : '0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+            }}
+          >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
              <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
              <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#EB4898]/10 blur-[100px] rounded-full mix-blend-screen" />

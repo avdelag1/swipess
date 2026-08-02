@@ -104,7 +104,12 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onPointerDown={close}
-            className="fixed inset-0 z-[10001] bg-black/70"
+            className="fixed inset-0 z-[10001]"
+            style={{
+              background: 'rgba(0, 0, 0, 0.3)',
+              backdropFilter: 'blur(30px) saturate(180%) brightness(0.85)',
+              WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(0.85)',
+            }}
           />
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -118,9 +123,18 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             }}
           >
             <div className={cn(
-              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto shadow-2xl",
-              isLight ? "bg-background border border-border" : "bg-zinc-950 border border-white/10"
-            )}>
+              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto",
+              isLight ? "bg-white/70 border border-white/40" : "bg-zinc-900/60 border border-white/10"
+            )}
+            style={{
+              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              boxShadow: isLight
+                ? '0 4px 24px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
+                : '0 4px 32px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+            }}>
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
                 <div>
@@ -179,7 +193,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}
+                            style={{ WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)' }}
                             className={cn(
                               "relative rounded-[24px] border p-5 transition-all overflow-visible flex items-center gap-4",
                               config.accent, config.border,

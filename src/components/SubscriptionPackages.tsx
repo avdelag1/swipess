@@ -229,11 +229,11 @@ export function SubscriptionPackages({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              style={{ WebkitBackdropFilter: 'blur(32px) saturate(1.5)' }}
+              style={{ WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)', transform: 'translateZ(0)', willChange: 'transform' }}
               className={cn(
-                'flex-1 flex flex-col rounded-[32px] border bg-background/40 backdrop-blur-3xl p-6 relative overflow-hidden',
+                'flex-1 flex flex-col rounded-[32px] border bg-white/10 backdrop-blur-3xl p-6 relative overflow-hidden',
                 style.border,
-                isHighlight ? 'ring-2 ring-amber-500/30 shadow-[0_32px_64px_-12px_rgba(245,158,11,0.25)]' : 'shadow-[0_24px_48px_-12px_rgba(0,0,0,0.2)]'
+                isHighlight ? 'ring-1 ring-amber-500/20 shadow-[0_4px_24px_rgba(245,158,11,0.12)]' : 'shadow-[0_2px_16px_rgba(0,0,0,0.1)]'
               )}
             >
               <div className={cn('absolute inset-0 rounded-[2rem] bg-gradient-to-b pointer-events-none', style.topGradient)} />

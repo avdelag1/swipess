@@ -20,7 +20,12 @@ export function WizardWelcomeScreen({ title, description, onContinue }: WizardWe
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 1.05 }}
-      className="absolute inset-0 z-50 flex flex-col items-center justify-center p-8 text-center bg-black overflow-hidden rounded-[2rem]"
+      className="absolute inset-0 z-50 flex flex-col items-center justify-center p-8 text-center overflow-hidden rounded-[2rem]"
+      style={{
+        background: 'rgba(0, 0, 0, 0.4)',
+        backdropFilter: 'blur(30px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+      }}
     >
       {/* Dynamic AI Background Gradient */}
       <motion.div 

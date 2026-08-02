@@ -454,31 +454,29 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  /* Pill-shaped floating nav bar — wide, close to the edges, fully immersive.
-     Bottom margin floats it just above the home indicator for a premium look. */
+  /* iOS 26 Liquid Glass — pill-shaped floating nav bar.
+     Ultra-heavy blur + saturation makes background vivid through the glass. */
   margin-bottom: max(4px, calc(env(safe-area-inset-bottom, 34px) - 26px));
   padding-bottom: 0;
   border-radius: 999px;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
   box-shadow:
-    8px 8px 22px rgba(0, 0, 0, 0.65),
-    -3px -3px 10px rgba(255, 255, 255, 0.06),
-    inset 0 2px 1px rgba(255, 255, 255, 0.12);
+    0 2px 16px rgba(0, 0, 0, 0.18),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
 }
 
 body.hw-high .floating-dock-nav {
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
 }
 
 .glass-pill[data-active="true"],
 .glass-pill.is-active {
-  border-color: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.12);
+    0 2px 12px rgba(0, 0, 0, 0.15),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.4);
 }
 
 /* ─── Unified glass HUD icon button ──────────────────────────────────
@@ -3192,8 +3190,8 @@ body.hw-high .glass-pill {
 /* ── Bottom Navigation Bar ───────────────────────────────────────────────── */
 .floating-dock-nav {
   background: var(--navbar_bg, var(--default-navbar-bg)) !important;
-  backdrop-filter: blur(12px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.05) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05) !important;
   transform: translateY(var(--navbar_offset_y, 0px)) !important;
 }
 

@@ -529,15 +529,18 @@ body.hw-high [data-map-hud] .glass-pill {
     backdrop-filter: none !important;
 }
 
+/* iOS 26 Liquid Glass — dialog backdrop uses deep gaussian blur
+   so the background looks vivid and softened through frosted glass,
+   not just darkened with an opaque tint. */
 .modal-scrim {
-    background: rgba(0, 0, 0, 0.72) !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(0.85) !important;
+    backdrop-filter: blur(30px) saturate(180%) brightness(0.85) !important;
 }
 
 body.hw-high .modal-scrim--lux {
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(0.8);
+    backdrop-filter: blur(40px) saturate(200%) brightness(0.8);
 }
 
 .tap-css-only {

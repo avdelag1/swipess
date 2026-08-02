@@ -182,10 +182,11 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.6 } }}
-          className="fixed inset-x-0 top-0 z-[10001] flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-x-0 top-0 z-[10001] flex items-center justify-center p-4"
           style={{ 
-            WebkitBackdropFilter: 'blur(24px)', 
-            backdropFilter: 'blur(24px)',
+            background: 'rgba(0, 0, 0, 0.3)',
+            WebkitBackdropFilter: 'blur(30px) saturate(180%) brightness(0.85)', 
+            backdropFilter: 'blur(30px) saturate(180%) brightness(0.85)',
             bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)'
           }}
           onClick={triggerGenieClose}

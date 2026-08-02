@@ -69,7 +69,14 @@ export const LegendaryOnboarding = ({ onFinish }: { onFinish: () => void }) => {
                  initial={{ y: 20, opacity: 0, rotate: -2 }}
                  animate={{ y: 0, opacity: 1, rotate: 0 }}
                  transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 25 }}
-                 className="w-full max-w-[300px] rounded-[2rem] backdrop-blur-xl bg-white/10 border border-white/20 p-6 shadow-2xl relative overflow-hidden"
+                 className="w-full max-w-[300px] rounded-[2rem] p-6 shadow-2xl relative overflow-hidden"
+                 style={{
+                   background: 'rgba(255, 255, 255, 0.1)',
+                   backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+                   WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+                   border: '0.5px solid rgba(255, 255, 255, 0.4)',
+                   boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 0.5px 0 rgba(255, 255, 255, 0.4)',
+                 }}
                >
                  <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2" />
                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />

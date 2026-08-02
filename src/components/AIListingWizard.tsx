@@ -531,9 +531,13 @@ export function AIListingWizard() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.08 }}
           className={cn(
-            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-0 sm:p-6",
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6",
             isLight && "modal-scrim--lux"
           )}
+          style={{
+            paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)'
+          }}
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -541,10 +545,19 @@ export function AIListingWizard() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.08, ease: 'easeOut' }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-[100dvh] sm:h-[90vh] overflow-hidden rounded-none sm:rounded-[3rem] border-0 sm:border flex flex-col relative isolate",
-            isLight && "shadow-[0_40px_100px_rgba(0,0,0,0.2)]",
-            modalBg
+              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden rounded-[2rem] sm:rounded-[3rem] flex flex-col relative isolate",
+              isLight ? "bg-white/70" : "bg-zinc-900/60"
             )}
+            style={{
+              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
+              border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: isLight
+                ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
+                : '0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+            }}
           >
 
             {/* Ambient nexus orbs for depth — mirrors the Magic Profile wizard
