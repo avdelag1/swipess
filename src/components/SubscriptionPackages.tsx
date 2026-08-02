@@ -216,7 +216,7 @@ export function SubscriptionPackages({
       </div>
 
       <div className={cn(
-        'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-6 items-stretch',
+        'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-12 items-stretch',
         showAsPage ? 'overflow-visible' : 'overflow-y-auto no-scrollbar'
       )}>
         {plans.map((pkg) => {

@@ -145,7 +145,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
               </div>
 
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto overscroll-y-contain px-5 pb-8 space-y-6">
+              <div className="flex-1 overflow-y-auto overscroll-y-contain px-5 pb-16 space-y-6">
                 {PREMIUM_FOR_EVERYONE && (
                   <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center flex-shrink-0">

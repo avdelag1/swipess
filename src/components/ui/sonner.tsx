@@ -2,12 +2,14 @@
 import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 import useAppTheme from "@/hooks/useAppTheme"
 
+import { createPortal } from "react-dom"
+
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme } = useAppTheme();
 
-  return (
+  return createPortal(
     <Sonner
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
@@ -34,7 +36,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
         },
       }}
       {...props}
-    />
+    />,
+    document.body
   )
 }
 
