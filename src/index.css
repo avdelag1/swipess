@@ -15,9 +15,10 @@ html, body, #root {
   overflow-x: hidden;
   padding-right: 0 !important;
   -webkit-touch-callout: none;
-  text-rendering: optimizeSpeed;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: auto !important;
+  -moz-osx-font-smoothing: auto !important;
+  letter-spacing: -0.015em;
   background-color: hsl(var(--background));
   font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-feature-settings: "cv03", "cv04", "cv11";

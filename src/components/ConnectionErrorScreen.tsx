@@ -88,9 +88,9 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
             transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.3 }}
             whileTap={{ scale: 0.95 }}
             onClick={onRetry}
-            className="w-full h-12 bg-foreground text-background rounded-2xl font-semibold text-base flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
+            className="w-full h-14 bg-white text-black hover:bg-gray-100 rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2 active:scale-[0.97] transition-transform shadow-[0_4px_14px_rgba(255,255,255,0.25)]"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-5 h-5" />
             Try Again
           </motion.button>
         )}
