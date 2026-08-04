@@ -222,9 +222,6 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         if (!email.trim()) errs.email = 'Email is required';
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Enter a valid email address';
         if (!password.trim()) errs.password = 'Password is required';
-        // Guideline 1.2: the Terms of Use (EULA) must be agreed before login too,
-        // not only at signup, so the agreement is presented for every entry path.
-        if (!agreed18 || !agreedTerms) errs.agree = 'Please confirm you are 18+ and agree to the Terms of Use (EULA) & Privacy Policy';
 
         if (Object.keys(errs).length > 0) {
           setFieldErrors(errs);
@@ -277,10 +274,10 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
     }
   };
 
-  // Guideline 1.2: gate the social sign-in buttons (Apple / Google) behind the
-  // same Terms of Use (EULA) + Privacy agreement the email forms enforce, so the
-  // EULA is presented before registering or logging in via ANY method.
+  // Gate social sign-up buttons (Apple / Google) behind the Terms of Use (EULA)
+  // + Privacy agreement. Only enforced during signup — sign-in skips this.
   const requireAgreement = (): boolean => {
+    if (isLogin) return true;
     if (agreed18 && agreedTerms) return true;
     setFieldErrors(p => ({ ...p, agree: 'Please confirm you are 18+ and agree to the Terms of Use (EULA) & Privacy Policy' }));
     triggerHaptic('error');
@@ -428,7 +425,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
             </div>
           )}
 
-          {!isForgotPassword && (
+          {!isLogin && !isForgotPassword && (
             <div className="px-1 pt-0.5">
               <div className="space-y-2.5">
                 {/* Box 1 — age confirmation */}

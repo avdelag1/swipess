@@ -245,15 +245,17 @@ export function AccessCodeGate({ onGranted }: Props) {
                       WebkitTextSecurity: revealed ? 'none' : 'disc' 
                     } as any}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setRevealed(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                    aria-label={revealed ? 'Hide access code' : 'Show access code'}
-                    style={{ color: inputPlaceholderColor }}
-                  >
-                    {revealed ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
-                  </button>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setRevealed(v => !v)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                      aria-label={revealed ? 'Hide access code' : 'Show access code'}
+                      style={{ color: inputPlaceholderColor }}
+                    >
+                      {revealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
                 
                 {error && (
