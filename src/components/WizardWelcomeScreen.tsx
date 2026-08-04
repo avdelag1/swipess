@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -7,9 +7,10 @@ interface WizardWelcomeScreenProps {
   title: string;
   description: string;
   onContinue: () => void;
+  onSkip?: () => void;
 }
 
-export function WizardWelcomeScreen({ title, description, onContinue }: WizardWelcomeScreenProps) {
+export function WizardWelcomeScreen({ title, description, onContinue, onSkip }: WizardWelcomeScreenProps) {
   const handleContinue = () => {
     triggerHaptic('medium');
     onContinue();
@@ -27,6 +28,19 @@ export function WizardWelcomeScreen({ title, description, onContinue }: WizardWe
         WebkitBackdropFilter: 'blur(30px) saturate(180%)',
       }}
     >
+      {/* Skip button — top right, safe-area aware */}
+      {onSkip && (
+        <button
+          onClick={() => { triggerHaptic('light'); onSkip(); }}
+          aria-label="Skip"
+          className="absolute right-5 z-[60] flex items-center gap-1.5 pl-4 pr-3 py-2.5 rounded-full bg-black/45 border border-white/30 text-white text-[13px] font-bold uppercase tracking-wider backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.45)] active:scale-95 transition-all"
+          style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+        >
+          Skip
+          <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.75} />
+        </button>
+      )}
+
       {/* Dynamic AI Background Gradient */}
       <motion.div 
         className="absolute inset-0 opacity-40"

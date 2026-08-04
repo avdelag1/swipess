@@ -576,10 +576,14 @@ export function AIListingWizard() {
                     localStorage.setItem('hasSeenListingWelcome', 'true');
                     setStep('compose');
                   }}
+                  onSkip={handleClose}
                 />
               )}
             </AnimatePresence>
-            <div className={cn("shrink-0 flex items-center justify-between px-8 py-6 border-b relative z-10", headerBorder)}>
+            <div
+              className={cn("shrink-0 flex items-center justify-between px-8 pb-5 border-b relative z-10", headerBorder)}
+              style={{ paddingTop: 'max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
+            >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25 shadow-inner">
                   <MotionIcon id="ai-sparkle" loop={isProcessing}>
