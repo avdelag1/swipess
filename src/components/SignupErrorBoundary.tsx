@@ -79,7 +79,7 @@ class SignupErrorBoundary extends Component<Props, State> {
               <p className="text-zinc-500 text-sm font-bold leading-relaxed mb-10 max-w-[280px] mx-auto uppercase tracking-wider">
                 We encountered an error setting up your account. 
                 <span className="block mt-2 opacity-60 font-normal normal-case tracking-normal">
-                  This might be due to a network issue or temporary problem.
+                  {this.state.error?.message || "This might be due to a network issue or temporary problem."}
                 </span>
               </p>
 

@@ -108,18 +108,18 @@ export function PublicLandingPage({ onSecretAccess }: PublicLandingPageProps) {
 
   const handleSecretTap = useCallback(() => {
     const now = Date.now();
-    if (now - lastTapRef.current > 5000) {
-      setTapCount(1);
+    if (now - lastTap.current > 5000) {
+      tapCount.current = 1;
     } else {
-      setTapCount(prev => prev + 1);
+      tapCount.current += 1;
     }
-    lastTapRef.current = now;
+    lastTap.current = now;
 
-    if (tapCount + 1 >= 10) {
+    if (tapCount.current >= 10) {
       onSecretAccess();
-      setTapCount(0);
+      tapCount.current = 0;
     }
-  }, [tapCount, onSecretAccess]);
+  }, [onSecretAccess]);
 
   const flyingVariants = {
     hidden: { opacity: 0, x: -200 },
