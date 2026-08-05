@@ -211,8 +211,27 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
           <motion.div
             key="code-entry"
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative z-50 flex flex-col items-center justify-center min-h-[100dvh] px-6 py-10"
+            className="relative z-50 flex flex-col lg:flex-row items-center justify-center min-h-[100dvh] px-6 py-10 gap-12 lg:gap-24 max-w-[1200px] mx-auto w-full"
           >
+            {/* Advertising Block */}
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left text-white max-w-md lg:max-w-lg lg:-mt-10">
+              <SwipessLogo size="3xl" variant="transparent" className="w-[70vw] max-w-[280px] lg:max-w-[340px] mb-8 drop-shadow-2xl" />
+              <h1 className="text-3xl lg:text-5xl font-black mb-6 leading-tight tracking-tight text-white drop-shadow-md">
+                The exclusive ecosystem for visionaries.
+              </h1>
+              <p className="text-lg text-white/80 font-medium mb-10 leading-relaxed drop-shadow">
+                Discover trusted properties, luxury experiences, and high-end services. All one swipe away. Join the private network today.
+              </p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store" className="h-[45px] lg:h-[50px]" />
+                </a>
+                <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" className="h-[45px] lg:h-[50px]" />
+                </a>
+              </div>
+            </div>
+
             {onClose && (
               <button 
                 onClick={onClose}
@@ -226,13 +245,16 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center gap-6 w-full max-w-sm rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 p-8 shadow-2xl"
             >
-              <SwipessLogo size="lg" variant="transparent" className="w-[60vw] max-w-[240px]" />
-
-              {gateTitle && (
-                <h1 className="text-2xl font-bold text-center tracking-wide" style={{ color: gateTitleColor }}>
-                  {gateTitle}
-                </h1>
-              )}
+              <div className="flex flex-col items-center gap-2 mb-2 w-full">
+                <Lock className="w-8 h-8 text-white/80 mb-1 drop-shadow-md" />
+                {gateTitle ? (
+                  <h1 className="text-2xl font-bold text-center tracking-wide drop-shadow-md" style={{ color: gateTitleColor }}>
+                    {gateTitle}
+                  </h1>
+                ) : (
+                  <h2 className="text-xl font-bold text-white tracking-widest uppercase drop-shadow-md text-center">Enter Access Code</h2>
+                )}
+              </div>
 
               <form onSubmit={handleSubmit} className="w-full flex flex-col items-center space-y-4">
                 <div 
@@ -394,20 +416,11 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
               </AnimatePresence>
 
               <p 
-                className="text-[9px] font-black uppercase tracking-[0.35em] italic text-center drop-shadow-md"
+                className="text-[9px] font-black uppercase tracking-[0.35em] italic text-center drop-shadow-md mt-2"
                 style={{ color: gateSubtitleColor }}
               >
                 {gateSubtitle}
               </p>
-
-              <div className="flex items-center justify-center gap-4 mt-2 w-full">
-                <a href="#" className="opacity-70 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store" className="h-[34px]" />
-                </a>
-                <a href="#" className="opacity-70 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" className="h-[34px]" />
-                </a>
-              </div>
             </motion.div>
           </motion.div>
         ) : (
