@@ -376,16 +376,10 @@ export const BottomNavigation = memo(({
                 }}
               >
                 <div
-                  className="relative z-10"
+                  className="relative z-10 flex items-center justify-center"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     transform: active ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1), background 200ms ease, box-shadow 200ms ease',
-                    width: isTablet ? '44px' : '36px',
-                    height: isTablet ? '44px' : '36px',
-                    ...getWaterDropStyle(isLight, active)
+                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                 >
 

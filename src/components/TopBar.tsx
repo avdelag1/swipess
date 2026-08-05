@@ -149,7 +149,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={getWaterDropStyle(isLight, false)}
+              style={pillStyle}
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -169,7 +169,7 @@ function TopBarComponent({
                   navigate('/client/profile');
                 }}
                 className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
-                style={getWaterDropStyle(isLight, false)}
+                style={pillStyle}
                 aria-label="Open profile"
               >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -196,7 +196,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={getWaterDropStyle(isLight, false)}
+              style={pillStyle}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -223,7 +223,7 @@ function TopBarComponent({
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
               onPointerDown={(e) => { e.stopPropagation(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={getWaterDropStyle(isLight, false)}
+              style={pillStyle}
               aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
               <HeaderIconSlot
@@ -254,7 +254,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={getWaterDropStyle(isLight, false)}
+              style={pillStyle}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -269,9 +269,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={getWaterDropStyle(isLight, false)} className={HEADER_PILL_BASE} />
+            <ThemeToggle glassPillStyle={pillStyle} className={HEADER_PILL_BASE} />
 
-            <NotificationPopover glassPillStyle={getWaterDropStyle(isLight, false)} pillClassName={HEADER_PILL_BASE} />
+            <NotificationPopover glassPillStyle={pillStyle} pillClassName={HEADER_PILL_BASE} />
           </div>
         )}
 
