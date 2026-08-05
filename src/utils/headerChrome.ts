@@ -45,19 +45,22 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
 
   const pillStyle: CSSProperties = {
     background: isLight
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%)',
+      ? 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)'
+      : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.01) 100%)',
     border: isLight
       ? '1px solid rgba(255, 255, 255, 0.8)'
-      : '1px solid rgba(255, 255, 255, 0.2)',
+      : '1px solid rgba(255, 255, 255, 0.1)',
     borderTop: isLight
       ? '1px solid rgba(255, 255, 255, 1)'
       : '1px solid rgba(255, 255, 255, 0.3)',
+    borderBottom: isLight
+      ? '1px solid rgba(255, 255, 255, 0.4)'
+      : '1px solid rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(32px) saturate(200%)',
     WebkitBackdropFilter: 'blur(32px) saturate(200%)',
     boxShadow: isLight
-      ? '0 8px 32px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255,255,255,0.8)'
-      : '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1)',
+      ? '0 10px 40px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(255,255,255,0.3)'
+      : '0 10px 40px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
