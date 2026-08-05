@@ -123,7 +123,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                 data-skip-press-engine
                 className={cn(
                   "force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/50 group cursor-pointer transition-all duration-500",
-                  "shadow-[0_20px_40px_-10px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.2)] md:hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.3)] md:hover:-translate-y-2",
+                  "shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.2)] md:hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,1),0_0_40px_rgba(255,255,255,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] md:hover:-translate-y-2 hover:z-10",
                   SIZE_CLASS[item.size]
                 )}
                 style={{ contain: 'paint', touchAction: 'pan-y' }}
