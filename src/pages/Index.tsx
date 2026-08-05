@@ -9,8 +9,7 @@ import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { lazy, Suspense } from "react";
 import { AccessCodeGate, isAccessGranted } from "@/components/AccessCodeGate";
 import { Capacitor } from "@capacitor/core";
-const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
-const PublicLandingPage = lazy(() => import("@/components/PublicLandingPage"));
+const SwipessLandingPage = lazy(() => import("@/components/SwipessLandingPage"));
 
 /** Check if the app is running as a standalone PWA (installed on home screen) */
 function isPWA(): boolean {
@@ -239,23 +238,12 @@ const Index = () => {
   }
 
   if (!user) {
-    const showAppEntrance = runningAsPWA || developerAccess;
-
-    if (showAppEntrance) {
-      return (
-        <div className="fixed inset-0 bg-black overflow-hidden">
-          <Suspense fallback={<SuspenseFallback />}>
-            <LegendaryLandingPage />
-          </Suspense>
-        </div>
-      );
-    }
-
     return (
       <Suspense fallback={<SuspenseFallback />}>
-        <PublicLandingPage
+        <SwipessLandingPage 
           onSecretAccess={() => {
             setDeveloperAccess(true);
+            try { localStorage.setItem(DEVELOPER_ACCESS_KEY, 'true'); } catch { /* empty */ }
           }}
         />
       </Suspense>
