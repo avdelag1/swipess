@@ -681,6 +681,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       localStorage.removeItem('rememberMe');
       localStorage.removeItem('onboarding_step');
       localStorage.removeItem('has_seen_welcome');
+      localStorage.removeItem('swipess_developer_access');
+      localStorage.removeItem('swipess_access_granted');
 
       // Clear all session storage
       sessionStorage.clear();
