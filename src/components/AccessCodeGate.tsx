@@ -395,16 +395,16 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                             style={{ 
                               backgroundColor: '#ffffff', 
                               color: '#000000',
-                              opacity: (submitting || !form.name.trim() || !form.email.trim()) ? 0.7 : 1
+                              opacity: (submitting || !form.name.trim() || !form.email.trim()) ? 0.9 : 1
                             }}
-                            className="w-full min-h-11 py-2.5 rounded-xl font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-all drop-shadow-xl"
+                            className="w-full min-h-12 py-3 rounded-xl font-black text-sm flex items-center justify-center gap-3 active:scale-[0.97] transition-all drop-shadow-xl disabled:cursor-not-allowed"
                           >
                             {submitting ? (
                               <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                             ) : (
                               <>
-                                <Send className="w-3.5 h-3.5 shrink-0" />
-                                <span className="text-center leading-none">Request Code</span>
+                                <Send className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+                                <span className="text-center leading-none text-[15px]">Request Code</span>
                               </>
                             )}
                           </button>
