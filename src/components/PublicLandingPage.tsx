@@ -1,509 +1,422 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Car, Ship, Users, CalendarDays, Scale, Bot, CreditCard, CheckCircle2, XCircle } from 'lucide-react';
+import { 
+  Menu, X, Search, Star, CheckCircle, MapPin, 
+  Briefcase, Bike, Home, Anchor, Calendar, FileText, Bot, CreditCard,
+  ChefHat, Apple, Grip, Hammer, Smartphone, ChevronRight
+} from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
-import LandingBackgroundEffects from '@/components/LandingBackgroundEffects';
 
 interface PublicLandingPageProps {
   onSecretAccess: () => void;
 }
 
-const fadeUp = {
-  initial: { opacity: 0, y: 40 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-100px' as const },
-  transition: { duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }
-};
-
-const staggerContainer = {
-  initial: { opacity: 0 },
-  whileInView: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  },
-  viewport: { once: true, margin: '-50px' as const }
-};
-
-const fadeItem = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-};
-
 export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageProps) {
-  const clickCount = useRef(0);
-  const lastClickTime = useRef(0);
+  const tapCountRef = useRef(0);
+  const lastTapTimeRef = useRef(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleSecretClick = useCallback(() => {
+  const handleSecretTap = () => {
     const now = Date.now();
-    if (now - lastClickTime.current > 5000) {
-      clickCount.current = 1;
-    } else {
-      clickCount.current += 1;
+    if (now - lastTapTimeRef.current > 5000) {
+      tapCountRef.current = 0;
     }
-    lastClickTime.current = now;
-
-    if (clickCount.current >= 10) {
+    lastTapTimeRef.current = now;
+    tapCountRef.current += 1;
+    if (tapCountRef.current >= 10) {
+      tapCountRef.current = 0;
       onSecretAccess();
-      clickCount.current = 0;
     }
-  }, [onSecretAccess]);
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
 
   return (
-    <div className="swp-container">
-      <style>{`
-        .swp-container {
-          background-color: #0a0a0b;
-          color: #ffffff;
-          min-height: 100vh;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          overflow-x: hidden;
-          position: relative;
-        }
-        
-        .swp-accent { color: #c9a55a; }
-        .swp-bg-accent { background-color: #c9a55a; }
-        
-        .swp-glass {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-radius: 20px;
-        }
+    <div style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#fdfdfd', color: '#111', overflowX: 'hidden' }}>
+      <style>
+        {`
+          .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+          }
+          .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: #fff;
+            border-radius: 40px;
+            border: 12px solid #222;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+          }
+          .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #222;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 10;
+          }
+          .grid-layout {
+            display: grid;
+            gap: 1.5rem;
+          }
+          .hover-scale {
+            transition: transform 0.3s ease;
+          }
+          .hover-scale:hover {
+            transform: translateY(-5px);
+          }
+          .gradient-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+          }
+          .vip-card {
+            background: linear-gradient(135deg, #222 0%, #000 100%);
+            border-radius: 20px;
+            color: white;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+          }
+          .vip-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-20deg);
+            animation: shine 5s infinite;
+          }
+          @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+          }
+        `}
+      </style>
 
-        .swp-hero {
-          position: relative;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          padding: 2rem;
-          z-index: 10;
-        }
+      {/* Navigation */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(253,253,253,0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #eaeaea' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <SwipessLogo variant="black" className="w-8 h-8 mr-2" />
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px' }}>SWIPESS</span>
+          </div>
+          
+          <div className="desktop-nav" style={{ display: 'flex', gap: '24px', fontWeight: 500, fontSize: '0.95rem' }}>
+            <a href="#" style={{ textDecoration: 'none', color: '#111' }}>Home</a>
+            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>Categories</a>
+            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>For Locals</a>
+            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>For Professionals</a>
+            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>How it works</a>
+          </div>
 
-        .swp-hero h1 {
-          font-size: clamp(2.5rem, 5vw, 4.5rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          line-height: 1.1;
-          margin: 2rem 0 1rem;
-          max-width: 900px;
-        }
-
-        .swp-hero p {
-          font-size: clamp(1.1rem, 2vw, 1.3rem);
-          color: #a0a0a5;
-          max-width: 600px;
-          margin-bottom: 3rem;
-          line-height: 1.6;
-        }
-
-        .swp-store-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: #111112;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: white;
-          padding: 12px 24px;
-          border-radius: 14px;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-
-        .swp-store-btn:hover {
-          background: #1a1a1c;
-          border-color: rgba(255, 255, 255, 0.2);
-          transform: translateY(-2px);
-        }
-        
-        .swp-store-btn svg { width: 24px; height: 24px; fill: currentColor; }
-
-        .swp-categories {
-          padding: 6rem 2rem;
-          text-align: center;
-          position: relative;
-          z-index: 10;
-        }
-
-        .swp-cat-scroll {
-          display: flex;
-          gap: 2rem;
-          overflow-x: auto;
-          padding: 2rem;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          scroll-snap-type: x mandatory;
-        }
-        .swp-cat-scroll::-webkit-scrollbar { display: none; }
-
-        .swp-cat-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-          min-width: 120px;
-          scroll-snap-align: center;
-        }
-
-        .swp-cat-icon {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(201, 165, 90, 0.3);
-          background: rgba(201, 165, 90, 0.05);
-          color: #c9a55a;
-          transition: all 0.3s ease;
-        }
-
-        .swp-cat-item:hover .swp-cat-icon {
-          background: rgba(201, 165, 90, 0.15);
-          transform: scale(1.05);
-          box-shadow: 0 0 20px rgba(201, 165, 90, 0.2);
-        }
-
-        .swp-features {
-          padding: 6rem 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 10;
-        }
-
-        .swp-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
-          margin-top: 3rem;
-        }
-
-        .swp-feature-card {
-          padding: 2.5rem;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .swp-feature-card::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
-          border-radius: 20px;
-          padding: 2px;
-          background: linear-gradient(135deg, rgba(201, 165, 90, 0.5), transparent, transparent, rgba(201, 165, 90, 0.1));
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
-        }
-
-        .swp-ai-section {
-          padding: 8rem 2rem;
-          text-align: center;
-          background: radial-gradient(circle at center, rgba(201, 165, 90, 0.05) 0%, transparent 70%);
-        }
-
-        .swp-bullets {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 1.5rem;
-          margin-top: 3rem;
-        }
-
-        .swp-bullet {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          background: rgba(255, 255, 255, 0.05);
-          padding: 0.75rem 1.5rem;
-          border-radius: 100px;
-          font-size: 0.95rem;
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .swp-comparison {
-          padding: 6rem 2rem;
-          max-width: 1000px;
-          margin: 0 auto;
-        }
-
-        .swp-comp-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2rem;
-          margin-top: 3rem;
-        }
-
-        @media (max-width: 768px) {
-          .swp-comp-grid { grid-template-columns: 1fr; }
-        }
-
-        .swp-comp-col { padding: 2rem; border-radius: 20px; }
-        .swp-comp-others { background: rgba(255, 50, 50, 0.03); border: 1px solid rgba(255, 50, 50, 0.1); }
-        .swp-comp-us { background: rgba(201, 165, 90, 0.05); border: 1px solid rgba(201, 165, 90, 0.2); }
-        
-        .swp-comp-item {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1.25rem;
-          font-size: 1.1rem;
-        }
-
-        .swp-invite-code {
-          display: flex;
-          gap: 0.5rem;
-          justify-content: center;
-          margin: 2rem 0;
-        }
-
-        .swp-code-box {
-          width: 40px;
-          height: 50px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-          font-weight: bold;
-          border: 1px solid rgba(201, 165, 90, 0.4);
-          border-radius: 8px;
-          background: rgba(0,0,0,0.5);
-          color: #c9a55a;
-        }
-
-        .swp-footer {
-          padding: 4rem 2rem 2rem;
-          text-align: center;
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
-      `}</style>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button style={{ background: '#111', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>
+              Get Early Access
+            </button>
+            <Menu style={{ display: 'none', cursor: 'pointer' }} />
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100vh', zIndex: 0, overflow: 'hidden' }}>
-        <LandingBackgroundEffects mode="stars" />
-      </div>
-      
-      <section className="swp-hero">
-        <motion.div {...fadeUp} style={{ marginBottom: '2rem' }}>
-          <SwipessLogo size="3xl" variant="transparent" />
-        </motion.div>
-        
-        <motion.h1 {...fadeUp} transition={{ delay: 0.1 }}>
-          One App. Everything.<br />
-          <span className="swp-accent">You Have Full Control.</span>
-        </motion.h1>
-        
-        <motion.p {...fadeUp} transition={{ delay: 0.2 }}>
-          Access the world's best experiences, services, professionals and opportunities.<br />
-          All in one private ecosystem.
-        </motion.p>
-
-        <motion.div {...fadeUp} transition={{ delay: 0.3 }} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a href="https://apps.apple.com/app/swipess" className="swp-store-btn">
-            <svg viewBox="0 0 384 512"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-            <div>
-              <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>Download on the</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>App Store</div>
-            </div>
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=com.swipess" className="swp-store-btn">
-            <svg viewBox="0 0 512 512"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
-            <div>
-              <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>GET IT ON</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>Google Play</div>
-            </div>
-          </a>
+      <section style={{ maxWidth: 1200, margin: '60px auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
+        <motion.div initial="hidden" whileInView="visible" variants={fadeUp} style={{ flex: '1 1 400px' }}>
+          <h1 style={{ fontSize: '4.5rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-2px' }}>
+            Your world.<br/>Your people.<br/>
+            <span style={{ color: '#e83e8c' }}>Your way.</span>
+          </h1>
+          <p style={{ fontSize: '1.25rem', color: '#555', marginBottom: '32px', maxWidth: '480px', lineHeight: 1.6 }}>
+            The all-in-one app to discover trusted people, services, experiences and opportunities wherever life takes you.
+          </p>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#111', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 600 }}>
+              <Smartphone size={20} /> App Store
+            </button>
+            <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#111', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 600 }}>
+              <Smartphone size={20} /> Google Play
+            </button>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>
+            🔒 Private Access - Invitation Code Required
+          </p>
         </motion.div>
 
-        <motion.div {...fadeUp} transition={{ delay: 0.5 }} style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#888' }}>
-          🔒 Private Access — Invitation Code Required
+        <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} style={{ flex: '1 1 400px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'radial-gradient(circle at center, #fce4ec 0%, transparent 70%)', zIndex: -1, top: '-10%', left: '10%' }}></div>
+          
+          <div className="phone-mockup">
+            <div className="phone-notch"></div>
+            <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80" alt="People having fun" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            
+            {/* Inner Phone UI overlay */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '50%', background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px' }}>
+              <h3 style={{ color: 'white', margin: '0 0 8px 0', fontSize: '1.5rem' }}>Miami Beach Meetup</h3>
+              <p style={{ color: '#ccc', margin: 0, fontSize: '0.9rem' }}>Join 24 others locally</p>
+            </div>
+          </div>
+
+          <div className="glass-card" style={{ position: 'absolute', bottom: '10%', left: '-10%', padding: '16px', width: '260px', zIndex: 10 }}>
+            <div style={{ display: 'flex', gap: '4px', color: '#fbbf24', marginBottom: '8px' }}>
+              <Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} />
+            </div>
+            <p style={{ fontSize: '0.9rem', margin: '0 0 8px 0', fontStyle: 'italic' }}>"Swipess makes it easy to find amazing people..."</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#666', fontWeight: 600 }}>
+              <CheckCircle size={14} color="#10b981" /> Verified Member
+            </div>
+          </div>
         </motion.div>
       </section>
 
-      {/* Categories Section */}
-      <section className="swp-categories">
-        <motion.h2 {...fadeUp} style={{ fontSize: '1.2rem', letterSpacing: '0.1em', color: '#c9a55a', marginBottom: '3rem' }}>
-          EVERYTHING YOU NEED. PEOPLE YOU TRUST.
-        </motion.h2>
-        
-        <motion.div className="swp-cat-scroll" variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true }}>
+      {/* Categories Nav */}
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+        <motion.div initial="hidden" whileInView="visible" variants={fadeUp} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 32px', overflowX: 'auto', gap: '32px' }}>
           {[
-            { icon: Building2, label: "Properties" },
-            { icon: Car, label: "Vehicles" },
-            { icon: Ship, label: "Yachts & Jets" },
-            { icon: Users, label: "Workers" },
-            { icon: CalendarDays, label: "Events" },
-            { icon: Scale, label: "Legal" },
-            { icon: Bot, label: "AI Assistant" },
-            { icon: CreditCard, label: "VIP Card" },
-          ].map((cat, i) => (
-            <motion.div key={i} className="swp-cat-item" variants={fadeItem}>
-              <div className="swp-cat-icon">
-                <cat.icon size={36} />
+            { icon: Briefcase, label: 'Workers' },
+            { icon: Bike, label: 'Bikes' },
+            { icon: Home, label: 'Properties' },
+            { icon: Anchor, label: 'Yachts' },
+            { icon: Calendar, label: 'Events' },
+            { icon: FileText, label: 'Legal' },
+            { icon: Bot, label: 'AI Assistant' },
+            { icon: CreditCard, label: 'VIP Card' },
+          ].map((item, idx) => (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '80px', cursor: 'pointer' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#f5f5f5', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <item.icon size={24} color="#333" />
               </div>
-              <span style={{ fontWeight: 500 }}>{cat.label}</span>
-            </motion.div>
+              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#444' }}>{item.label}</span>
+            </div>
           ))}
         </motion.div>
       </section>
 
-      {/* Features Grid */}
-      <section className="swp-features">
-        <motion.h2 {...fadeUp} style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '1rem' }}>
-          Real People. Real Services.
-        </motion.h2>
-        
-        <div className="swp-grid">
-          <motion.div className="swp-glass swp-feature-card" {...fadeUp} transition={{ delay: 0.1 }}>
-            <Building2 size={40} className="swp-accent" style={{ marginBottom: '1.5rem' }} />
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Your Assets, Your Rules</h3>
-            <p style={{ color: '#a0a0a5', lineHeight: 1.6 }}>Properties, vehicles, yachts. Direct connection. Zero middlemen fees inflating the cost.</p>
-          </motion.div>
-          
-          <motion.div className="swp-glass swp-feature-card" {...fadeUp} transition={{ delay: 0.2 }}>
-            <Users size={40} className="swp-accent" style={{ marginBottom: '1.5rem' }} />
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Promote Your Skills</h3>
-            <p style={{ color: '#a0a0a5', lineHeight: 1.6 }}>Find clients or hire elite talent instantly. A direct, vetted network for professionals.</p>
-          </motion.div>
-          
-          <motion.div className="swp-glass swp-feature-card" {...fadeUp} transition={{ delay: 0.3 }}>
-            <CreditCard size={40} className="swp-accent" style={{ marginBottom: '1.5rem' }} />
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>The Key to the City</h3>
-            <p style={{ color: '#a0a0a5', lineHeight: 1.6 }}>Unlock VIP Cards for exclusive events, massive discounts, and priority access globally.</p>
-          </motion.div>
+      {/* Workers Section */}
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '40px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 300px' }}>
+            <h2 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>Trusted people,<br/>real services.</h2>
+            <button style={{ background: '#e83e8c', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+              Explore Workers
+            </button>
+          </div>
+          <div style={{ flex: '2 1 600px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+            {[
+              { name: 'Chef Maria', rating: '4.9', img: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=400&q=80', loc: 'Miami, FL' },
+              { name: 'Cleaning Pro', rating: '4.8', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' },
+              { name: 'Massage Ther.', rating: '5.0', img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=400&q=80', loc: 'South Beach' },
+              { name: 'Handyman', rating: '4.7', img: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80', loc: 'Downtown' }
+            ].map((worker, idx) => (
+              <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale" style={{ height: '240px', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
+                <img src={worker.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={worker.name} />
+                <div className="gradient-overlay" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px', color: 'white' }}>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{worker.name}</h4>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#eee' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={12} color="#fbbf24" fill="#fbbf24" /> {worker.rating}</span>
+                    <span>{worker.loc}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            <div style={{ background: '#f5f5f5', borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '240px', fontWeight: 600, color: '#555', cursor: 'pointer' }}>
+              +25 more services
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* AI Section */}
-      <section className="swp-ai-section">
-        <motion.div {...fadeUp}>
-          <Bot size={60} className="swp-accent" style={{ margin: '0 auto 2rem' }} />
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>AI THAT WORKS FOR YOU.</h2>
-          <p style={{ color: '#a0a0a5', maxWidth: '600px', margin: '0 auto', fontSize: '1.2rem' }}>
-            Our AI understands what you need, connects you to the right people, and gets things done faster than ever.
-          </p>
-        </motion.div>
-        
-        <motion.div className="swp-bullets" variants={staggerContainer} initial="initial" whileInView="whileInView">
-          {["Smart recommendations", "Real-time matching", "Personalized results", "Saves you time and money"].map((text, i) => (
-            <motion.div key={i} className="swp-bullet" variants={fadeItem}>
-              <CheckCircle2 size={18} className="swp-accent" />
-              <span>{text}</span>
+      {/* Vehicles Section */}
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', background: '#fafafa', borderRadius: '32px', paddingTop: '60px', paddingBottom: '60px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 300px' }}>
+            <h2 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>Move and explore<br/>with ease.</h2>
+            <button style={{ background: '#8b5cf6', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+              View Vehicles
+            </button>
+          </div>
+          <div style={{ flex: '2 1 600px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px' }}>
+            {[
+              { title: 'Beach Cruiser', price: '$20/day', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80', loc: 'South Beach' },
+              { title: 'Yamaha FZ 25', price: '$45/day', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=400&q=80', loc: 'Downtown' },
+              { title: 'Honda PCX', price: '$35/day', img: 'https://images.unsplash.com/photo-1621214023775-6b80d0d8294a?auto=format&fit=crop&w=400&q=80', loc: 'Wynwood' },
+              { title: 'Electric Bike', price: '$25/day', img: 'https://images.unsplash.com/photo-1572334005072-4687d98eeec1?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' }
+            ].map((v, idx) => (
+              <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px' }}>
+                  <img src={v.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={v.title} />
+                </div>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>{v.title}</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666', fontSize: '0.9rem', marginTop: 'auto' }}>
+                  <span style={{ fontWeight: 600, color: '#8b5cf6' }}>{v.price}</span>
+                  <span>{v.loc}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Properties Section */}
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+        <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px' }}>Stay, invest or rent.</h2>
+        <button style={{ background: '#d97706', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer', marginBottom: '40px' }}>
+          Explore Properties
+        </button>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+          {[
+            { title: 'Modern Villa', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', tag: 'For Rent' },
+            { title: 'Oceanview Apt', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', tag: 'For Sale' },
+            { title: 'Downtown Loft', img: 'https://images.unsplash.com/photo-1502672260266-1c1e52d1590c?auto=format&fit=crop&w=800&q=80', tag: 'Investment' }
+          ].map((prop, idx) => (
+            <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale" style={{ height: '300px', borderRadius: '24px', overflow: 'hidden', position: 'relative' }}>
+              <img src={prop.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prop.title} />
+              <div className="gradient-overlay" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px', color: 'white' }}>
+                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, backdropFilter: 'blur(4px)', marginBottom: '12px', display: 'inline-block' }}>{prop.tag}</span>
+                <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{prop.title}</h3>
+              </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
+      </section>
+
+      {/* Mixed Section */}
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+          
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', zIndex: 1 }}></div>
+            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>Events that bring<br/>people together.</h3>
+            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: 'black', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Explore Events</button>
+          </motion.div>
+
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=600&q=80" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 1 }}></div>
+            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>Legal services<br/>made simple.</h3>
+            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: 'black', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Find a Lawyer</button>
+          </motion.div>
+
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', background: 'linear-gradient(135deg, #4c1d95 0%, #2e1065 100%)', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '300px', height: '300px', background: '#a78bfa', filter: 'blur(80px)', opacity: 0.5, borderRadius: '50%' }}></div>
+            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>AI Assistant<br/>that works for you.</h3>
+            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: '#4c1d95', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Ask AI</button>
+          </motion.div>
+
+        </div>
       </section>
 
       {/* VIP Card Section */}
-      <section className="swp-ai-section" style={{ background: 'none', padding: '4rem 2rem' }}>
-        <motion.div {...fadeUp}>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#c9a55a' }}>VIP CARD. UNLOCK MORE.</h2>
-        </motion.div>
+      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+        <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '40px', textAlign: 'center' }}>VIP Card. Your digital ID.</h2>
         
-        <motion.div className="swp-bullets" variants={staggerContainer} initial="initial" whileInView="whileInView">
-          {["Exclusive Access", "Priority Service", "Special Benefits", "Personal Concierge", "Global Network"].map((text, i) => (
-            <motion.div key={i} className="swp-bullet" variants={fadeItem} style={{ background: 'rgba(201, 165, 90, 0.1)', borderColor: 'rgba(201, 165, 90, 0.3)', color: '#c9a55a' }}>
-              <CreditCard size={18} />
-              <span style={{ fontWeight: 600 }}>{text}</span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* Comparison Section */}
-      <section className="swp-comparison">
-        <motion.h2 {...fadeUp} style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: '1rem' }}>
-          WHY SWIPESS?
-        </motion.h2>
-        
-        <div className="swp-comp-grid">
-          <motion.div className="swp-comp-col swp-comp-others" {...fadeUp} transition={{ delay: 0.1 }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '2rem', color: '#ff6b6b' }}>THE OLD WAY</h3>
-            {[
-              "Hidden fees inflating costs",
-              "Unnecessary middlemen",
-              "Limited, biased options",
-              "Slow responses and friction",
-              "No personal touch or privacy"
-            ].map((text, i) => (
-              <div key={i} className="swp-comp-item">
-                <XCircle size={24} color="#ff6b6b" />
-                <span>{text}</span>
+        <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ flex: '1 1 400px' }}>
+            <div className="vip-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                <SwipessLogo variant="white" className="w-10 h-10" />
+                <span style={{ letterSpacing: '2px', fontWeight: 600, color: '#e83e8c' }}>VIP</span>
               </div>
-            ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 600 }}>Alejandro Villarreal</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <CheckCircle size={16} /> Verified Member
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div style={{ fontSize: '0.7rem', color: '#888', letterSpacing: '1px' }}>MEMBER SINCE 2024</div>
+                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '4px' }}></div> {/* QR Placeholder */}
+              </div>
+            </div>
           </motion.div>
 
-          <motion.div className="swp-comp-col swp-comp-us" {...fadeUp} transition={{ delay: 0.2 }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '2rem', color: '#c9a55a' }}>SWIPESS</h3>
-            {[
-              "No hidden fees or markups",
-              "Direct P2P connections",
-              "Unlimited premium options",
-              "Fast, reliable AI matching",
-              "Personal & completely private"
-            ].map((text, i) => (
-              <div key={i} className="swp-comp-item">
-                <CheckCircle2 size={24} className="swp-accent" />
-                <span>{text}</span>
-              </div>
-            ))}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ flex: '1 1 400px' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '24px' }}>Verified Documents</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+              {['Passport', 'ID Card', 'Driver License', 'Lease Agreement'].map((doc, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f5f5f5', borderRadius: '12px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></div>
+                  <span style={{ fontWeight: 500, color: '#333' }}>{doc}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><Star size={18} color="#fbbf24" /> Local Discounts</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><Calendar size={18} color="#8b5cf6" /> Exclusive Events</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><CheckCircle size={18} color="#10b981" /> Trusted Member</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}>+ More Benefits</div>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* CTA Footer */}
-      <section className="swp-hero" style={{ minHeight: '60vh' }}>
-        <motion.h2 {...fadeUp} style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-          READY TO TAKE CONTROL?
-        </motion.h2>
-        <motion.p {...fadeUp} style={{ color: '#a0a0a5', fontSize: '1.2rem', marginBottom: '3rem' }}>
-          Join Swipess and unlock a world of possibilities.
-        </motion.p>
-        
-        <motion.div {...fadeUp} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '3rem' }}>
-          <a href="https://apps.apple.com/app/swipess" className="swp-store-btn">
-             <svg viewBox="0 0 384 512"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-            <div>
-              <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>Download on the</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>App Store</div>
+      {/* Footer */}
+      <footer style={{ background: '#111', color: 'white', padding: '80px 24px 24px 24px', position: 'relative' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
+            <div style={{ flex: '1 1 300px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+                <SwipessLogo variant="white" className="w-8 h-8 mr-2" />
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>SWIPESS</span>
+              </div>
+              <p style={{ fontSize: '1.2rem', color: '#aaa', marginBottom: '32px' }}>One app. Infinite possibilities.</p>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <button style={{ background: 'white', color: 'black', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600 }}>App Store</button>
+                <button style={{ background: 'white', color: 'black', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600 }}>Google Play</button>
+              </div>
             </div>
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=com.swipess" className="swp-store-btn">
-             <svg viewBox="0 0 512 512"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>
-            <div>
-              <div style={{ fontSize: '0.65rem', opacity: 0.8 }}>GET IT ON</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 600 }}>Google Play</div>
+            
+            <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>Company</h4>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>About</a>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Careers</a>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Press</a>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>Support</h4>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Help Center</a>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Safety</a>
+                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Terms of Service</a>
+              </div>
             </div>
-          </a>
-        </motion.div>
-
-        <motion.div {...fadeUp} style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-          <div style={{ fontSize: '0.9rem', color: '#a0a0a5', marginBottom: '1rem' }}>Enter your invitation code to join</div>
-          <div className="swp-invite-code">
-            {['S','W','I','P','E','S','S'].map((letter, i) => (
-              <div key={i} className="swp-code-box">{letter}</div>
-            ))}
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '1rem' }}>
-            🔒 Private Access — Invitation Code Required
-          </div>
-        </motion.div>
-      </section>
 
-      {/* Footer / Backdoor */}
-      <footer className="swp-footer">
-        <p 
-          onClick={handleSecretClick}
-          style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.2)', cursor: 'default', userSelect: 'none' }}
-        >
-          © {new Date().getFullYear()} Swipess. All rights reserved.
-        </p>
+          <div style={{ borderTop: '1px solid #333', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#666' }}>
+            <span>© 2024 Swipess Inc. All rights reserved.</span>
+            
+            {/* SECRET BACKDOOR */}
+            <div 
+              onClick={handleSecretTap}
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.3, userSelect: 'none' }}
+              title="Tap 10 times quickly"
+            >
+              <span>Tap this corner 10 times For private access</span>
+              <Bot size={14} />
+            </div>
+          </div>
+
+        </div>
       </footer>
     </div>
   );
