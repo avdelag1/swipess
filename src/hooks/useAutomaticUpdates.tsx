@@ -285,15 +285,20 @@ export function UpdateNotification() {
       {isVisible && (
         <motion.div
           key="update-notification"
-          initial={{ y: -100, opacity: 0, scale: 0.95 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: -100, opacity: 0, scale: 0.9 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 1 }}
-          className="fixed top-24 left-4 right-4 z-[999] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:w-[340px]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4"
+          style={{ backdropFilter: 'blur(20px)' }}
         >
           {/* Main Glass Container */}
-          <div 
-             className="relative overflow-hidden rounded-[2.2rem] border p-[1px] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+          <motion.div 
+             initial={{ y: 40, opacity: 0, scale: 0.9 }}
+             animate={{ y: 0, opacity: 1, scale: 1 }}
+             exit={{ y: -40, opacity: 0, scale: 0.9 }}
+             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+             className="relative overflow-hidden rounded-[2.2rem] border p-[1px] shadow-[0_32px_80px_rgba(0,0,0,0.8)] w-full max-w-[340px]"
              style={{
                background: 'rgba(8, 8, 10, 0.85)',
                borderColor: 'rgba(255,255,255,0.08)',
@@ -360,7 +365,7 @@ export function UpdateNotification() {
                  Build: {BUILD_TIMESTAMP.slice(-8)}
                </span>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
