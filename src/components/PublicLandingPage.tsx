@@ -251,8 +251,8 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
             {[
               { title: 'Beach Cruiser', price: '$20/day', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80', loc: 'South Beach' },
               { title: 'Yamaha FZ 25', price: '$45/day', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=400&q=80', loc: 'Downtown' },
-              { title: 'Honda PCX', price: '$35/day', img: 'https://images.unsplash.com/photo-1621214023775-6b80d0d8294a?auto=format&fit=crop&w=400&q=80', loc: 'Wynwood' },
-              { title: 'Electric Bike', price: '$25/day', img: 'https://images.unsplash.com/photo-1572334005072-4687d98eeec1?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' }
+              { title: 'Honda PCX', price: '$35/day', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3c87?auto=format&fit=crop&w=400&q=80', loc: 'Wynwood' },
+              { title: 'Electric Bike', price: '$25/day', img: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' }
             ].map((v, idx) => (
               <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px' }}>
@@ -279,7 +279,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
           {[
             { title: 'Modern Villa', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', tag: 'For Rent' },
             { title: 'Oceanview Apt', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', tag: 'For Sale' },
-            { title: 'Downtown Loft', img: 'https://images.unsplash.com/photo-1502672260266-1c1e52d1590c?auto=format&fit=crop&w=800&q=80', tag: 'Investment' }
+            { title: 'Downtown Loft', img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', tag: 'Investment' }
           ].map((prop, idx) => (
             <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale" style={{ height: '300px', borderRadius: '24px', overflow: 'hidden', position: 'relative' }}>
               <img src={prop.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prop.title} />
