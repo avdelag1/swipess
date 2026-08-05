@@ -219,10 +219,10 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store" className="h-[45px] lg:h-[50px]" />
+                  <img src="/icons/app-store-badge.svg" alt="Download on the App Store" className="h-[45px] lg:h-[50px]" />
                 </a>
                 <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" className="h-[45px] lg:h-[50px]" />
+                  <img src="/icons/google-play-badge.svg" alt="Get it on Google Play" className="h-[45px] lg:h-[50px]" />
                 </a>
               </div>
             </div>
@@ -392,7 +392,11 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                           <button
                             type="submit"
                             disabled={submitting || !form.name.trim() || !form.email.trim()}
-                            className="w-full min-h-11 py-2.5 rounded-xl font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:bg-white/10 disabled:text-white/40 bg-white text-black drop-shadow-xl"
+                            style={{ 
+                              backgroundColor: (submitting || !form.name.trim() || !form.email.trim()) ? 'rgba(255,255,255,0.15)' : '#ffffff', 
+                              color: (submitting || !form.name.trim() || !form.email.trim()) ? 'rgba(255,255,255,0.4)' : '#000000' 
+                            }}
+                            className="w-full min-h-11 py-2.5 rounded-xl font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-all drop-shadow-xl"
                           >
                             {submitting ? (
                               <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
