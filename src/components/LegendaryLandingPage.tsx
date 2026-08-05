@@ -129,7 +129,7 @@ const LandingView = memo(({
           style={{
             backgroundColor: '#ffffff',
             color: '#000000',
-            boxShadow: '0 0 0 2px rgba(255,255,255,0.9), 0 8px_40px_rgba(255,255,255,0.4)',
+            boxShadow: '0 0 0 2px rgba(255,255,255,0.9), 0 8px 40px rgba(255,255,255,0.4)',
           }}
           className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >

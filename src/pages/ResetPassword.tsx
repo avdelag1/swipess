@@ -27,7 +27,7 @@ const checkPasswordStrength = (password: string) => {
     checks,
     score,
     label: score <= 1 ? 'Weak' : score === 2 ? 'Fair' : score === 3 ? 'Good' : 'Strong',
-    color: score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-orange-500' : score === 3 ? 'bg-yellow-500' : 'bg-rose-500',
+    color: score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-orange-500' : score === 3 ? 'bg-yellow-500' : 'bg-emerald-500',
   };
 };
 
@@ -104,7 +104,7 @@ const ResetPassword = () => {
       }, 1500);
     } catch (err) {
       logger.error('[ResetPassword] update error:', err);
-      appToast.info("Sync Error");
+      appToast.error("Sync Error", "Could not update your password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -226,7 +226,7 @@ const ResetPassword = () => {
                           "flex items-center gap-2 text-[9px] font-black tracking-widest transition-colors",
                           passwordStrength.checks[key as keyof typeof passwordStrength.checks]
                             ? 'text-[#EB4898]'
-                            : isLight ? 'text-black/30' : 'text-white/30'
+                            : 'text-white/30'
                         )}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
