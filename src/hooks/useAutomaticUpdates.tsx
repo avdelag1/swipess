@@ -221,27 +221,16 @@ export function useAutomaticUpdates() {
     let intervalId: ReturnType<typeof setInterval> | null = null;
     let registration: ServiceWorkerRegistration | null = null;
 
-    const surfaceIfReady = (worker: ServiceWorker | null) => {
-      if (!worker) return;
-      const handle = () => {
-        if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then((reg) => {
+      registration = reg;
+
+      // Listen for the SW_UPDATED message sent by sw.js when a new worker activates
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SW_UPDATED') {
           if (sessionStorage.getItem('Swipess_update_seen') !== 'true') {
             _setUpdateInfo({ available: true, needsRefresh: true });
           }
         }
-      };
-      worker.addEventListener('statechange', handle);
-      handle();
-    };
-
-    navigator.serviceWorker.ready.then((reg) => {
-      registration = reg;
-
-      // If a worker is already waiting (deploy happened while app was closed)
-      surfaceIfReady(reg.waiting);
-
-      reg.addEventListener('updatefound', () => {
-        surfaceIfReady(reg.installing);
       });
 
       // Poll every 30s so PWAs pick up new web deployments quickly

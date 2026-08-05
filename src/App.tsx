@@ -13,6 +13,7 @@ import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { UpdateNotification } from "@/hooks/useAutomaticUpdates";
 
 const Index = lazyWithRetry(() => import("./pages/Index"));
 
@@ -143,6 +144,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
             <GuidedTourLazy />
             <PWAInstallPrompt />
+            <UpdateNotification />
           </Suspense>
 
           <Routes>
