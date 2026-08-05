@@ -1,7 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Car, Ship, Users, CalendarDays, Scale, Bot, CreditCard, CheckCircle2, XCircle } from 'lucide-react';
-import SwipessLogo from '@/components/SwipessLogo';
+import { SwipessLogo } from '@/components/SwipessLogo';
 import LandingBackgroundEffects from '@/components/LandingBackgroundEffects';
 
 interface PublicLandingPageProps {
