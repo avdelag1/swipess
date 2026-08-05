@@ -31,9 +31,7 @@ const Index = () => {
   const hasNavigated = useRef(false);
   const [showEscapeHatch, setShowEscapeHatch] = useState(false);
   const [accessGranted, setAccessGranted] = useState(isAccessGranted);
-  const [developerAccess, setDeveloperAccess] = useState(() => {
-    try { return localStorage.getItem(DEVELOPER_ACCESS_KEY) === 'true'; } catch { return false; }
-  });
+  const [developerAccess, setDeveloperAccess] = useState(false);
   const runningAsPWA = useMemo(() => isPWA(), []);
 
   // Capture referral code from URL if present (works for app-wide referral links)
@@ -264,7 +262,6 @@ const Index = () => {
       <Suspense fallback={<SuspenseFallback />}>
         <PublicLandingPage
           onSecretAccess={() => {
-            try { localStorage.setItem(DEVELOPER_ACCESS_KEY, 'true'); } catch { /* empty */ }
             setDeveloperAccess(true);
           }}
         />
