@@ -38,6 +38,10 @@ import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
+import { useHaptics } from '@/hooks/useHaptics';
+import { useLocationMode } from '@/contexts/LocationModeContext';
+import { getWaterDropStyle, isDashboardPath } from '@/utils/headerChrome';
+
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
