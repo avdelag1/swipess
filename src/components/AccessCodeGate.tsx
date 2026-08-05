@@ -392,7 +392,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                           <button
                             type="submit"
                             disabled={submitting || !form.name.trim() || !form.email.trim()}
-                            className="w-full min-h-11 py-2.5 rounded-xl bg-white text-black font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-transform disabled:opacity-60"
+                            className="w-full min-h-11 py-2.5 rounded-xl font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:bg-white/10 disabled:text-white/40 bg-white text-black drop-shadow-xl"
                           >
                             {submitting ? (
                               <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
