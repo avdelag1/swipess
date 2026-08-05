@@ -95,7 +95,7 @@ export function useConversations() {
         // Last messages use a single IN query; JS deduplicates by conversation_id keeping
         // the latest row (results come back ordered by created_at DESC globally).
         const [clientsResult, ownersResult, listingsResult, blockedResult, messagesResult] = await Promise.all([
-          supabase.from('client_profiles').select('user_id, name, full_name, age, profile_images').in('user_id', Array.from(userIds)),
+          supabase.from('client_profiles').select('user_id, name, age, profile_images').in('user_id', Array.from(userIds)),
           supabase.from('owner_profiles').select('user_id, business_name, profile_images').in('user_id', Array.from(userIds)),
           listingIds.length > 0
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', listingIds)
@@ -300,7 +300,7 @@ export function useConversations() {
       const isClient = data.client_id === user.id;
 
       const [clientResult, ownerResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId ? supabase.from('client_profiles').select('user_id, name, full_name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('client_profiles').select('user_id, name, profile_images, age').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         otherUserId ? supabase.from('owner_profiles').select('user_id, business_name, profile_images').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
         supabase.from('conversation_messages').select('id, conversation_id, content, message_text, message_type, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
