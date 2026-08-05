@@ -47,7 +47,11 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import {
+  getHeaderChrome,
+  getNavIconFilter,
+  getWaterDropStyle
+} from '@/utils/headerChrome';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 26;
@@ -374,7 +378,10 @@ export const BottomNavigation = memo(({
                     alignItems: 'center',
                     justifyContent: 'center',
                     transform: active ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1)',
+                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1), background 200ms ease, box-shadow 200ms ease',
+                    width: isTablet ? '44px' : '36px',
+                    height: isTablet ? '44px' : '36px',
+                    ...getWaterDropStyle(isLight, active)
                   }}
                 >
 

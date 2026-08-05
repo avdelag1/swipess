@@ -45,22 +45,22 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
 
   const pillStyle: CSSProperties = {
     background: isLight
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.01) 100%)',
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 100%)'
+      : 'linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%)',
     border: isLight
-      ? '1px solid rgba(255, 255, 255, 0.8)'
-      : '1px solid rgba(255, 255, 255, 0.1)',
+      ? '1px solid rgba(255, 255, 255, 0.9)'
+      : '1px solid rgba(255, 255, 255, 0.2)',
     borderTop: isLight
       ? '1px solid rgba(255, 255, 255, 1)'
-      : '1px solid rgba(255, 255, 255, 0.3)',
+      : '1px solid rgba(255, 255, 255, 0.4)',
     borderBottom: isLight
-      ? '1px solid rgba(255, 255, 255, 0.4)'
-      : '1px solid rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(32px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+      ? '1px solid rgba(255, 255, 255, 0.5)'
+      : '1px solid rgba(0, 0, 0, 0.7)',
+    backdropFilter: 'blur(28px) saturate(250%) contrast(110%) brightness(1.15)',
+    WebkitBackdropFilter: 'blur(28px) saturate(250%) contrast(110%) brightness(1.15)',
     boxShadow: isLight
-      ? '0 10px 40px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(255,255,255,0.3)'
-      : '0 10px 40px rgba(0, 0, 0, 0.8), inset 0 2px 6px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
+      ? '0 12px 30px rgba(0, 0, 0, 0.1), inset 0 4px 8px rgba(255,255,255,0.9), inset 0 -4px 8px rgba(0,0,0,0.08)'
+      : '0 12px 30px rgba(0, 0, 0, 0.8), inset 0 4px 8px rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.5)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: 'hsl(var(--foreground))',
@@ -83,6 +83,31 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
     iconShadow: useLightIcons
       ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
       : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+  };
+}
+
+/** Water Drop Style for individual icons (Bottom Nav, TopBar) */
+export function getWaterDropStyle(isLight: boolean, active: boolean): CSSProperties {
+  return {
+    background: active
+      ? (isLight 
+          ? 'radial-gradient(circle at 35% 35%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0.15) 100%)'
+          : 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.02) 100%)')
+      : (isLight
+          ? 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%)'
+          : 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.0) 100%)'),
+    boxShadow: active
+      ? (isLight
+          ? 'inset 0 4px 8px rgba(255,255,255,0.9), inset 0 -4px 8px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.15)'
+          : 'inset 0 4px 8px rgba(255,255,255,0.4), inset 0 -4px 8px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.5)')
+      : (isLight
+          ? 'inset 0 4px 8px rgba(255,255,255,0.9), inset 0 -4px 8px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1)'
+          : 'inset 0 4px 8px rgba(255,255,255,0.25), inset 0 -4px 8px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3)'),
+    border: isLight 
+      ? '1px solid rgba(255,255,255,0.8)' 
+      : '1px solid rgba(255,255,255,0.2)',
+    backdropFilter: 'blur(24px) saturate(250%) contrast(110%) brightness(1.2)',
+    WebkitBackdropFilter: 'blur(24px) saturate(250%) contrast(110%) brightness(1.2)',
   };
 }
 

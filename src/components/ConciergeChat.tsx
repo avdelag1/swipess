@@ -286,11 +286,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
             animate={{
-              opacity: 1,
-              scale: 1,
-              transition: { duration: 0.14, ease: [0.22, 1, 0.36, 1] },
+              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
+              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
             }}
             exit={{ 
               scale: 0.04,

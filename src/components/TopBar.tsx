@@ -21,6 +21,7 @@ import {
   getHeaderIconFilter,
   HEADER_PILL_BASE,
   isDashboardPath,
+  getWaterDropStyle,
 } from '@/utils/headerChrome';
 // AIIcon removed
 
@@ -148,7 +149,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              style={getWaterDropStyle(isLight, false)}
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -168,11 +169,7 @@ function TopBarComponent({
                   navigate('/client/profile');
                 }}
                 className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
-                style={{
-                  ...glassPillStyle,
-                  overflow: 'hidden',
-                  background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
-                }}
+                style={getWaterDropStyle(isLight, false)}
                 aria-label="Open profile"
               >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -199,7 +196,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              style={getWaterDropStyle(isLight, false)}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -226,7 +223,7 @@ function TopBarComponent({
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
               onPointerDown={(e) => { e.stopPropagation(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              style={getWaterDropStyle(isLight, false)}
               aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
               <HeaderIconSlot
@@ -257,7 +254,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              style={getWaterDropStyle(isLight, false)}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -272,9 +269,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
+            <ThemeToggle glassPillStyle={getWaterDropStyle(isLight, false)} className={HEADER_PILL_BASE} />
 
-            <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
+            <NotificationPopover glassPillStyle={getWaterDropStyle(isLight, false)} pillClassName={HEADER_PILL_BASE} />
           </div>
         )}
 

@@ -181,16 +181,19 @@ function getCurrentTimeContext(): string {
 
 function detectProfileIntent(query: string): boolean {
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  // Only search profiles when the query is about PEOPLE or SERVICES.
-  // Exclude property/item/vehicle queries — those go to listings search only.
+  
+  // 1. Explicitly check for people/workers FIRST
+  const isExplicitPeople = /\b(people|someone|anyone|who|person|roommate|roomies?|friend|buddy|partner|amig[oa]s?|gente|personas?|alguien|trabajador(?:es|as)?|emplead[oa]s?|profesional|professional|contractor|contratista|buyer|buyers|renter|renters|seeker|seekers|worker|workers)\b/.test(q);
+  if (isExplicitPeople) return true;
+
+  // 2. Only exclude property/vehicle queries if it wasn't explicitly a people search
   const isPropertyQuery = /\b(apartment|apartments|house|houses|property|properties|studio|studios|condo|condos|villa|villas|penthouse|duplex|loft|townhouse|bungalow|cabin|listing|listings|bedroom|bedrooms|rent|rental|sale|buy|casa|departamento|cuarto|pisos|chalet)\b/.test(q);
-  if (isPropertyQuery) return false;
-
   const isVehicleQuery = /\b(motorcycle|motorbike|moto|scooter|bicycle|bike|bici|bicicleta|yacht|boat|sailboat|catamaran|yate|barco|velero|car|vehicle)\b/.test(q);
-  if (isVehicleQuery) return false;
 
-  // Now match only people/service/social queries
-  return /\b(?:find|looking|search|show|need|want|quiero|busco|necesito|dame|hay|mostrar|conocer|conoces|recomienda|rooms?|roommate|roomies?|compa|amigo|amiga|gente|personas|alguien|alquien|gente que|gente para|friend|buddy|partner|housemate|flatmate|people|someone|anyone|who (?:wants|is|needs|can|could|would)|match me|cleaner|clean|cleaning|limpieza|limpiador|limpiadora|maid|housekeeper|domestica|domestico|mantenimiento|maintenance|mantenimient|handyman|reparacion|reparaciones|repair|fix|jardinero|gardener|lawn|garden|cook|cocinero|cocinera|chef|cocina|driver|chofer|conduct|nanny|niñera|babysitter|childcare|baby|care|cuidador|cuidadora|cuidado|tutor|teacher|profesor|profesora|maestro|maestra|trainer|entrenador|personal training|masseuse|masseur|masaje|masajista|spa|mechanic|mecanico|mecanica|mecánico|plumber|plomero|plomer|electrician|electricista|painter|pintor|carpenter|carpintero|welder|soldador|technician|tecnico|técnico|servicio|service|services|worker|trabajador|trabajadora|empleado|empleada|helper|ayuda|ayudante|freelancer|profesional|professional|contractor|contratista)\b/.test(q);
+  if (isPropertyQuery || isVehicleQuery) return false;
+
+  // 3. Fallback to service action verbs
+  return /\b(?:find|looking|search|show|need|want|quiero|busco|necesito|dame|hay|mostrar|conocer|conoces|recomienda|cleaner|clean|cleaning|limpieza|limpiador|limpiadora|maid|housekeeper|domestica|domestico|mantenimiento|maintenance|mantenimient|handyman|reparacion|reparaciones|repair|fix|jardinero|gardener|lawn|garden|cook|cocinero|cocinera|chef|cocina|driver|chofer|conduct|nanny|niñera|babysitter|childcare|baby|care|cuidador|cuidadora|cuidado|tutor|teacher|profesor|profesora|maestro|maestra|trainer|entrenador|personal training|masseuse|masseur|masaje|masajista|spa|mechanic|mecanico|mecanica|mecánico|plumber|plomero|plomer|electrician|electricista|painter|pintor|carpenter|carpintero|welder|soldador|technician|tecnico|técnico|servicio|service|services|helper|ayuda|ayudante)\b/.test(q);
 }
 
 async function searchProfiles(query: string): Promise<string> {
@@ -310,9 +313,12 @@ async function searchProfiles(query: string): Promise<string> {
 function detectListingIntent(query: string): { isListing: boolean; category?: string; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // strip accents for fuzzy matching
 
+  // If they explicitly asked for people, workers, buyers, renters, etc... they want PROFILES, not listings.
+  const isExplicitPeople = /\b(people|someone|anyone|who|person|roommate|roomies?|friend|buddy|partner|amig[oa]s?|gente|personas?|alguien|trabajador(?:es|as)?|emplead[oa]s?|profesional|professional|contractor|contratista|buyer|buyers|renter|renters|seeker|seekers|worker|workers)\b/.test(q);
+
   // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
   // This covers English, Spanish, French, Portuguese, misspellings, and slang.
-  const isListing = /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|yacht|yachts|boat|boats|sailboat|catamaran|yate|yates|barco|velero|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
+  const isListing = !isExplicitPeople && /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|yacht|yachts|boat|boats|sailboat|catamaran|yate|yates|barco|velero|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
 
   // Category detection — values must match listings.category in the DB:
   // 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker'.

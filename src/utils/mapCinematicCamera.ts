@@ -205,7 +205,9 @@ export function fitMapToPins(
 }
 
 /** Zoom step per double-tap — punchy on phones (small screens felt under-zoomed at 3.0). */
-export const DOUBLE_TAP_ZOOM_STEP = 4.0;
+export function getDoubleTapZoomStep(): number {
+  return typeof window !== 'undefined' && window.innerWidth < 768 ? 6.5 : 4.0;
+}
 export const DOUBLE_TAP_MAX_ZOOM = 20;
 const DOUBLE_TAP_ZOOM_MS = 380;
 
@@ -215,7 +217,7 @@ export function incrementalDoubleTapZoom(
   center: [number, number],
 ): boolean {
   const current = map.getZoom();
-  const next = Math.min(DOUBLE_TAP_MAX_ZOOM, current + DOUBLE_TAP_ZOOM_STEP);
+  const next = Math.min(DOUBLE_TAP_MAX_ZOOM, current + getDoubleTapZoomStep());
   if (next <= current + 0.01) return false;
 
   map.easeTo({
