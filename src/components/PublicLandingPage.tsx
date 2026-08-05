@@ -38,6 +38,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
     <div style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#fdfdfd', color: '#111', overflowX: 'hidden' }}>
       <style>
         {`
+          html { scroll-behavior: smooth; }
           .glass-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -72,10 +73,13 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
             gap: 1.5rem;
           }
           .hover-scale {
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
           }
           .hover-scale:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02) rotateX(2deg) rotateY(2deg);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            z-index: 10;
           }
           .gradient-overlay {
             background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
@@ -117,10 +121,10 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
           
           <div className="desktop-nav" style={{ display: 'flex', gap: '24px', fontWeight: 500, fontSize: '0.95rem' }}>
             <a href="#" style={{ textDecoration: 'none', color: '#111' }}>Home</a>
-            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>Categories</a>
-            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>For Locals</a>
-            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>For Professionals</a>
-            <a href="#" style={{ textDecoration: 'none', color: '#555' }}>How it works</a>
+            <a href="#categories" style={{ textDecoration: 'none', color: '#555' }}>Categories</a>
+            <a href="#workers" style={{ textDecoration: 'none', color: '#555' }}>For Locals</a>
+            <a href="#properties" style={{ textDecoration: 'none', color: '#555' }}>For Professionals</a>
+            <a href="#footer" style={{ textDecoration: 'none', color: '#555' }}>How it works</a>
           </div>
 
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -182,7 +186,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
       </section>
 
       {/* Categories Nav */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+      <section id="categories" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
         <motion.div initial="hidden" whileInView="visible" variants={fadeUp} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 32px', overflowX: 'auto', gap: '32px' }}>
           {[
             { icon: Briefcase, label: 'Workers' },
@@ -205,7 +209,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
       </section>
 
       {/* Workers Section */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+      <section id="workers" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
         <div style={{ display: 'flex', flexDirection: 'row', gap: '40px', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 300px' }}>
             <h2 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>Trusted people,<br/>real services.</h2>
@@ -270,7 +274,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
       </section>
 
       {/* Properties Section */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
+      <section id="properties" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
         <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px' }}>Stay, invest or rent.</h2>
         <button style={{ background: '#d97706', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer', marginBottom: '40px' }}>
           Explore Properties
@@ -332,10 +336,10 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                 <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80" alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div>
-                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 600 }}>Alejandro Villarreal</h3>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 600 }}>Elena Rossi</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.9rem', fontWeight: 600 }}>
                     <CheckCircle size={16} /> Verified Member
                   </div>
@@ -370,7 +374,7 @@ export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageP
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#111', color: 'white', padding: '80px 24px 24px 24px', position: 'relative' }}>
+      <footer id="footer" style={{ background: '#111', color: 'white', padding: '80px 24px 24px 24px', position: 'relative' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
