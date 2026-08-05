@@ -54,9 +54,9 @@ const queryClient = new QueryClient({
       retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnReconnect: true,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 60 * 1000,
       gcTime: 1000 * 60 * 60 * 24,
       networkMode: 'offlineFirst',
       // Keep showing the last results while a query with a CHANGED key refetches

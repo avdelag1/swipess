@@ -26,7 +26,6 @@ export const GENIE_SHEET_OPEN = {
   y: '72vh',
   opacity: 0,
   borderRadius: 56,
-  filter: 'blur(15px)'
 };
 
 export const GENIE_SHEET_VISIBLE = {
@@ -35,7 +34,6 @@ export const GENIE_SHEET_VISIBLE = {
   y: 0,
   opacity: 1,
   borderRadius: 24,
-  filter: 'blur(0px)'
 };
 
 export const GENIE_SHEET_EXIT = {
@@ -44,7 +42,6 @@ export const GENIE_SHEET_EXIT = {
   y: '88vh',
   opacity: 0,
   borderRadius: 999,
-  filter: 'blur(20px)'
 };
 
 /** Full-screen genie (live map) — carpet flies up from bottom */
@@ -54,7 +51,6 @@ export const GENIE_FULLSCREEN_OPEN = {
   y: '45vh',
   opacity: 0,
   borderRadius: 40,
-  filter: 'blur(15px)'
 };
 
 export const GENIE_FULLSCREEN_VISIBLE = {
@@ -63,7 +59,6 @@ export const GENIE_FULLSCREEN_VISIBLE = {
   y: 0,
   opacity: 1,
   borderRadius: 0,
-  filter: 'blur(0px)'
 };
 
 export const GENIE_FULLSCREEN_EXIT = {
@@ -72,7 +67,6 @@ export const GENIE_FULLSCREEN_EXIT = {
   y: '55vh',
   opacity: 0,
   borderRadius: 999,
-  filter: 'blur(20px)'
 };
 
 export const GENIE_ORIGIN_BOTTOM = { transformOrigin: 'bottom center' } as const;
