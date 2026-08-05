@@ -255,7 +255,6 @@ const Index = () => {
         <AccessCodeGate 
           onGranted={() => {
             setDeveloperAccess(true);
-            try { localStorage.setItem(DEVELOPER_ACCESS_KEY, 'true'); } catch { /* empty */ }
           }}
         />
       </Suspense>

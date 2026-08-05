@@ -14,17 +14,12 @@ const ACCESS_GRANTED_KEY = 'swipess_access_granted';
 const PROMO_UNLOCK_KEY = 'swipess_promo_unlocked';
 
 function persistAccessGrant() {
-  try { localStorage.setItem(ACCESS_GRANTED_KEY, 'true'); } catch { /* empty */ }
-  try { localStorage.setItem(PROMO_UNLOCK_KEY, 'true'); } catch { /* empty */ }
-  try { sessionStorage.setItem('swipess_promo_session_unlocked', 'true'); } catch { /* empty */ }
+  // No longer persisting to localStorage to enforce gate on every new session/refresh
 }
 
 export function isAccessGranted(): boolean {
   if (Capacitor.isNativePlatform()) return true;
-  try {
-    if (localStorage.getItem(ACCESS_GRANTED_KEY) === 'true') return true;
-    if (localStorage.getItem(PROMO_UNLOCK_KEY) === 'true') return true;
-  } catch { /* empty */ }
+  // Removed localStorage checks to ensure gate is always shown when unauthenticated
   return false;
 }
 
