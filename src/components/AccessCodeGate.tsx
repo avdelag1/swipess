@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles, X } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
@@ -37,9 +37,10 @@ interface RequestForm {
 
 interface Props {
   onGranted: () => void;
+  onClose?: () => void;
 }
 
-export function AccessCodeGate({ onGranted }: Props) {
+export function AccessCodeGate({ onGranted, onClose }: Props) {
   const [code, setCode] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [error, setError] = useState('');
@@ -210,8 +211,16 @@ export function AccessCodeGate({ onGranted }: Props) {
           <motion.div
             key="code-entry"
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 py-10"
+            className="relative z-50 flex flex-col items-center justify-center min-h-[100dvh] px-6 py-10"
           >
+            {onClose && (
+              <button 
+                onClick={onClose}
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-50"
+              >
+                <X size={24} />
+              </button>
+            )}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -30,7 +30,6 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const hasNavigated = useRef(false);
   const [showEscapeHatch, setShowEscapeHatch] = useState(false);
-  const [accessGranted, setAccessGranted] = useState(isAccessGranted);
   const [developerAccess, setDeveloperAccess] = useState(false);
   const runningAsPWA = useMemo(() => isPWA(), []);
 
@@ -240,14 +239,9 @@ const Index = () => {
   }
 
   if (!user) {
-    // PWA users or users who triggered the backdoor bypass the marketing page
     const showAppEntrance = runningAsPWA || developerAccess;
 
     if (showAppEntrance) {
-      // Show the access code gate → login flow
-      if (!accessGranted) {
-        return <AccessCodeGate onGranted={() => setAccessGranted(true)} />;
-      }
       return (
         <div className="fixed inset-0 bg-black overflow-hidden">
           <Suspense fallback={<SuspenseFallback />}>
@@ -257,7 +251,6 @@ const Index = () => {
       );
     }
 
-    // Browser users see the public marketing landing page
     return (
       <Suspense fallback={<SuspenseFallback />}>
         <PublicLandingPage

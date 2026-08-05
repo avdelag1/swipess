@@ -1,427 +1,441 @@
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Menu, X, Search, Star, CheckCircle, MapPin, 
-  Briefcase, Bike, Home, Anchor, Calendar, FileText, Bot, CreditCard,
-  ChefHat, Apple, Grip, Hammer, Smartphone, ChevronRight
-} from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { Mic, ArrowRight, MapPin, Heart, X, Shield, Zap, Globe, Ticket, Crown, CheckCircle2 } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
+import { AccessCodeGate } from './AccessCodeGate';
+
+const swipeCardsData = [
+  { id: 1, title: 'Tulum Beach House', subtitle: '$400/night', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=600&q=80' },
+  { id: 2, title: 'Luxury Yacht', subtitle: '$2,000/day', image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=600&q=80' },
+  { id: 3, title: 'Pro Cleaner', subtitle: '$30/hour', image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=80' },
+  { id: 4, title: 'Full Moon Party', subtitle: '$50 Entry', image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80' },
+  { id: 5, title: 'Ducati Panigale', subtitle: '$150/day', image: 'https://images.unsplash.com/photo-1568772585407-9361f9bfce94?auto=format&fit=crop&w=600&q=80' },
+];
+
+const changingWords = ['Properties', 'Yachts', 'Workers', 'Events', 'Motorcycles'];
 
 interface PublicLandingPageProps {
   onSecretAccess: () => void;
 }
 
-export default function PublicLandingPage({ onSecretAccess }: PublicLandingPageProps) {
-  const tapCountRef = useRef(0);
-  const lastTapTimeRef = useRef(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const SwipeCard = ({ card, index, removeCard }: { card: any, index: number, removeCard: (id: number, action: 'like' | 'nope') => void }) => {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-15, 15]);
+  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const likeOpacity = useTransform(x, [0, 100], [0, 1]);
+  const nopeOpacity = useTransform(x, [-100, 0], [1, 0]);
 
-  const handleSecretTap = () => {
-    const now = Date.now();
-    if (now - lastTapTimeRef.current > 5000) {
-      tapCountRef.current = 0;
-    }
-    lastTapTimeRef.current = now;
-    tapCountRef.current += 1;
-    if (tapCountRef.current >= 10) {
-      tapCountRef.current = 0;
-      onSecretAccess();
+  const handleDragEnd = (e: any, info: any) => {
+    if (info.offset.x > 100) {
+      removeCard(card.id, 'like');
+    } else if (info.offset.x < -100) {
+      removeCard(card.id, 'nope');
     }
   };
 
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  const isFront = index === 0;
+
+  return (
+    <motion.div
+      style={{
+        x: isFront ? x : 0,
+        rotate: isFront ? rotate : 0,
+        opacity: isFront ? opacity : 1,
+        scale: isFront ? 1 : 1 - index * 0.05,
+        y: isFront ? 0 : index * 10,
+        zIndex: 10 - index,
+      }}
+      drag={isFront ? "x" : false}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      onDragEnd={handleDragEnd}
+      className="absolute top-0 left-0 w-full h-full bg-white rounded-2xl shadow-xl overflow-hidden cursor-grab active:cursor-grabbing border border-gray-200"
+      initial={false}
+      animate={{ scale: isFront ? 1 : 1 - index * 0.05, y: isFront ? 0 : index * 10 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+    >
+      <img src={card.image} alt={card.title} className="w-full h-full object-cover pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
+        <h3 className="text-2xl font-bold">{card.title}</h3>
+        <p className="text-lg opacity-90">{card.subtitle}</p>
+      </div>
+
+      {isFront && (
+        <>
+          <motion.div
+            style={{ opacity: likeOpacity }}
+            className="absolute top-8 right-8 border-4 border-green-500 text-green-500 px-4 py-2 rounded-lg text-4xl font-black rotate-12 pointer-events-none"
+          >
+            LIKE
+          </motion.div>
+          <motion.div
+            style={{ opacity: nopeOpacity }}
+            className="absolute top-8 left-8 border-4 border-red-500 text-red-500 px-4 py-2 rounded-lg text-4xl font-black -rotate-12 pointer-events-none"
+          >
+            NOPE
+          </motion.div>
+        </>
+      )}
+    </motion.div>
+  );
+};
+
+export function PublicLandingPage({ onSecretAccess }: PublicLandingPageProps) {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [cards, setCards] = useState(swipeCardsData);
+  const tapCount = useRef(0);
+  const lastTap = useRef(0);
+  const [showGate, setShowGate] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % changingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const removeCard = (id: number, action: 'like' | 'nope') => {
+    setCards((prev) => prev.filter(c => c.id !== id));
+    if (cards.length <= 1) {
+      setTimeout(() => setCards(swipeCardsData), 500);
+    }
+  };
+
+  const handleProgrammaticSwipe = (direction: 'left' | 'right') => {
+    if (cards.length > 0) {
+      removeCard(cards[0].id, direction === 'right' ? 'like' : 'nope');
+    }
+  };
+
+  const handleSecretTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current > 5000) {
+      setTapCount(1);
+    } else {
+      setTapCount(prev => prev + 1);
+    }
+    lastTapRef.current = now;
+
+    if (tapCount + 1 >= 10) {
+      onSecretAccess();
+      setTapCount(0);
+    }
+  }, [tapCount, onSecretAccess]);
+
+  const flyingVariants = {
+    hidden: { opacity: 0, x: -200 },
+    visible: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } },
   };
 
   return (
-    <div style={{ fontFamily: 'Inter, system-ui, sans-serif', backgroundColor: '#fdfdfd', color: '#111', overflowX: 'hidden' }}>
-      <style>
-        {`
-          html { scroll-behavior: smooth; }
-          .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-          }
-          .phone-mockup {
-            width: 300px;
-            height: 600px;
-            background: #fff;
-            border-radius: 40px;
-            border: 12px solid #222;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-          }
-          .phone-notch {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 25px;
-            background: #222;
-            border-bottom-left-radius: 16px;
-            border-bottom-right-radius: 16px;
-            z-index: 10;
-          }
-          .grid-layout {
-            display: grid;
-            gap: 1.5rem;
-          }
-          .hover-scale {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform-style: preserve-3d;
-          }
-          .hover-scale:hover {
-            transform: translateY(-10px) scale(1.02) rotateX(2deg) rotateY(2deg);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-            z-index: 10;
-          }
-          .gradient-overlay {
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-          }
-          .vip-card {
-            background: linear-gradient(135deg, #222 0%, #000 100%);
-            border-radius: 20px;
-            color: white;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.1);
-          }
-          .vip-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: skewX(-20deg);
-            animation: shine 5s infinite;
-          }
-          @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-          }
-        `}
-      </style>
-
-      {/* Navigation */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(253,253,253,0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #eaeaea' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <SwipessLogo variant="black" className="w-8 h-8 mr-2" />
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.5px' }}>SWIPESS</span>
-          </div>
-          
-          <div className="desktop-nav" style={{ display: 'flex', gap: '24px', fontWeight: 500, fontSize: '0.95rem' }}>
-            <a href="#" style={{ textDecoration: 'none', color: '#111' }}>Home</a>
-            <a href="#categories" style={{ textDecoration: 'none', color: '#555' }}>Categories</a>
-            <a href="#workers" style={{ textDecoration: 'none', color: '#555' }}>For Locals</a>
-            <a href="#properties" style={{ textDecoration: 'none', color: '#555' }}>For Professionals</a>
-            <a href="#footer" style={{ textDecoration: 'none', color: '#555' }}>How it works</a>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <button style={{ background: '#111', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>
-              Get Early Access
-            </button>
-            <Menu style={{ display: 'none', cursor: 'pointer' }} />
-          </div>
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 font-sans overflow-x-hidden selection:bg-black selection:text-white">
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <SwipessLogo className="h-8" />
+          <nav className="hidden md:flex gap-8 font-medium">
+            <a href="#" className="hover:text-neutral-500 transition-colors">Platform</a>
+            <a href="#" className="hover:text-neutral-500 transition-colors">VIP</a>
+            <a href="#" className="hover:text-neutral-500 transition-colors">Enterprise</a>
+          </nav>
+          <button onClick={() => setShowGate(true)} className="bg-black text-white px-6 py-2.5 rounded-full font-medium hover:bg-neutral-800 transition-colors">
+            Get Access
+          </button>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section style={{ maxWidth: 1200, margin: '60px auto', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
-        <motion.div initial="hidden" whileInView="visible" variants={fadeUp} style={{ flex: '1 1 400px' }}>
-          <h1 style={{ fontSize: '4.5rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-2px' }}>
-            Your world.<br/>Your people.<br/>
-            <span style={{ color: '#e83e8c' }}>Your way.</span>
-          </h1>
-          <p style={{ fontSize: '1.25rem', color: '#555', marginBottom: '32px', maxWidth: '480px', lineHeight: 1.6 }}>
-            The all-in-one app to discover trusted people, services, experiences and opportunities wherever life takes you.
-          </p>
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#111', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 600 }}>
-              <Smartphone size={20} /> App Store
+      <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto min-h-[90vh] flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex-1 space-y-8 z-10">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl lg:text-7xl font-black leading-tight tracking-tight"
+          >
+            Swipe to find <br/> your best deal in
+            <div className="text-black overflow-hidden h-[1.2em] relative mt-2">
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={wordIndex}
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -50, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="absolute block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
+                >
+                  {changingWords[wordIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-neutral-500 max-w-lg"
+          >
+            The premium network for high-end real estate, exclusive services, and curated experiences.
+          </motion.p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex gap-4"
+          >
+            <button 
+              onClick={() => handleProgrammaticSwipe('right')}
+              className="bg-black text-white px-8 py-4 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform"
+            >
+              Start Swiping <ArrowRight size={20} />
             </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#111', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 600 }}>
-              <Smartphone size={20} /> Google Play
-            </button>
-          </div>
-          <p style={{ fontSize: '0.85rem', color: '#888', fontWeight: 500 }}>
-            🔒 Private Access - Invitation Code Required
-          </p>
-        </motion.div>
+          </motion.div>
+        </div>
 
-        <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} style={{ flex: '1 1 400px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
-          <div style={{ position: 'absolute', width: '100%', height: '100%', background: 'radial-gradient(circle at center, #fce4ec 0%, transparent 70%)', zIndex: -1, top: '-10%', left: '10%' }}></div>
-          
-          <div className="phone-mockup">
-            <div className="phone-notch"></div>
-            <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80" alt="People having fun" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div className="flex-1 relative flex justify-center items-center">
+          {/* Phone Mockup */}
+          <div className="relative w-[320px] h-[650px] bg-black rounded-[3rem] p-4 shadow-2xl border-[8px] border-neutral-900 z-10">
+            {/* Notch */}
+            <div className="absolute top-0 inset-x-0 h-6 bg-black rounded-b-3xl w-40 mx-auto z-20"></div>
             
-            {/* Inner Phone UI overlay */}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '50%', background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px' }}>
-              <h3 style={{ color: 'white', margin: '0 0 8px 0', fontSize: '1.5rem' }}>Miami Beach Meetup</h3>
-              <p style={{ color: '#ccc', margin: 0, fontSize: '0.9rem' }}>Join 24 others locally</p>
-            </div>
-          </div>
-
-          <div className="glass-card" style={{ position: 'absolute', bottom: '10%', left: '-10%', padding: '16px', width: '260px', zIndex: 10 }}>
-            <div style={{ display: 'flex', gap: '4px', color: '#fbbf24', marginBottom: '8px' }}>
-              <Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} /><Star fill="currentColor" size={16} />
-            </div>
-            <p style={{ fontSize: '0.9rem', margin: '0 0 8px 0', fontStyle: 'italic' }}>"Swipess makes it easy to find amazing people..."</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#666', fontWeight: 600 }}>
-              <CheckCircle size={14} color="#10b981" /> Verified Member
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Categories Nav */}
-      <section id="categories" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
-        <motion.div initial="hidden" whileInView="visible" variants={fadeUp} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 32px', overflowX: 'auto', gap: '32px' }}>
-          {[
-            { icon: Briefcase, label: 'Workers' },
-            { icon: Bike, label: 'Bikes' },
-            { icon: Home, label: 'Properties' },
-            { icon: Anchor, label: 'Yachts' },
-            { icon: Calendar, label: 'Events' },
-            { icon: FileText, label: 'Legal' },
-            { icon: Bot, label: 'AI Assistant' },
-            { icon: CreditCard, label: 'VIP Card' },
-          ].map((item, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '80px', cursor: 'pointer' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#f5f5f5', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <item.icon size={24} color="#333" />
+            {/* Screen */}
+            <div className="relative w-full h-full bg-neutral-100 rounded-[2rem] overflow-hidden flex flex-col">
+              <div className="flex-1 relative">
+                <AnimatePresence>
+                  {cards.slice(0, 3).map((card, i) => (
+                    <SwipeCard key={card.id} card={card} index={i} removeCard={removeCard} />
+                  ))}
+                </AnimatePresence>
               </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#444' }}>{item.label}</span>
-            </div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* Workers Section */}
-      <section id="workers" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '40px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 300px' }}>
-            <h2 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>Trusted people,<br/>real services.</h2>
-            <button style={{ background: '#e83e8c', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
-              Explore Workers
-            </button>
-          </div>
-          <div style={{ flex: '2 1 600px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-            {[
-              { name: 'Chef Maria', rating: '4.9', img: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=400&q=80', loc: 'Miami, FL' },
-              { name: 'Cleaning Pro', rating: '4.8', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' },
-              { name: 'Massage Ther.', rating: '5.0', img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=400&q=80', loc: 'South Beach' },
-              { name: 'Handyman', rating: '4.7', img: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80', loc: 'Downtown' }
-            ].map((worker, idx) => (
-              <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale" style={{ height: '240px', borderRadius: '16px', overflow: 'hidden', position: 'relative' }}>
-                <img src={worker.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={worker.name} />
-                <div className="gradient-overlay" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px', color: 'white' }}>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '1.1rem' }}>{worker.name}</h4>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#eee' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={12} color="#fbbf24" fill="#fbbf24" /> {worker.rating}</span>
-                    <span>{worker.loc}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-            <div style={{ background: '#f5f5f5', borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '240px', fontWeight: 600, color: '#555', cursor: 'pointer' }}>
-              +25 more services
+              <div className="h-24 bg-white flex justify-center items-center gap-6 pb-2">
+                <button onClick={() => handleProgrammaticSwipe('left')} className="w-14 h-14 bg-red-100 text-red-500 rounded-full flex justify-center items-center shadow-sm hover:bg-red-200 transition-colors">
+                  <X size={28} />
+                </button>
+                <button onClick={() => handleProgrammaticSwipe('right')} className="w-14 h-14 bg-green-100 text-green-500 rounded-full flex justify-center items-center shadow-sm hover:bg-green-200 transition-colors">
+                  <Heart size={28} fill="currentColor" />
+                </button>
+              </div>
             </div>
           </div>
+          {/* Background decorative blobs */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-3xl z-0"></div>
+          <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/4 w-[400px] h-[400px] bg-purple-400/20 rounded-full blur-3xl z-0"></div>
         </div>
       </section>
 
-      {/* Vehicles Section */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', background: '#fafafa', borderRadius: '32px', paddingTop: '60px', paddingBottom: '60px' }}>
-        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 300px' }}>
-            <h2 style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px' }}>Move and explore<br/>with ease.</h2>
-            <button style={{ background: '#8b5cf6', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
-              View Vehicles
-            </button>
-          </div>
-          <div style={{ flex: '2 1 600px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px' }}>
-            {[
-              { title: 'Beach Cruiser', price: '$20/day', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80', loc: 'South Beach' },
-              { title: 'Yamaha FZ 25', price: '$45/day', img: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=400&q=80', loc: 'Downtown' },
-              { title: 'Honda PCX', price: '$35/day', img: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3c87?auto=format&fit=crop&w=400&q=80', loc: 'Wynwood' },
-              { title: 'Electric Bike', price: '$25/day', img: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=400&q=80', loc: 'Brickell' }
-            ].map((v, idx) => (
-              <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px' }}>
-                  <img src={v.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={v.title} />
-                </div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>{v.title}</h4>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666', fontSize: '0.9rem', marginTop: 'auto' }}>
-                  <span style={{ fontWeight: 600, color: '#8b5cf6' }}>{v.price}</span>
-                  <span>{v.loc}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      {/* Events Section */}
+      <section className="py-32 bg-neutral-900 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-16">
+          <motion.div
+            variants={flyingVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ margin: "-100px" }}
+          >
+            <h2 className="text-4xl lg:text-6xl font-black mb-4">Curated Events</h2>
+            <p className="text-xl text-neutral-400">Exclusive access to global happenings.</p>
+          </motion.div>
         </div>
-      </section>
-
-      {/* Properties Section */}
-      <section id="properties" style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px', scrollMarginTop: '100px' }}>
-        <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '16px' }}>Stay, invest or rent.</h2>
-        <button style={{ background: '#d97706', color: 'white', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, cursor: 'pointer', marginBottom: '40px' }}>
-          Explore Properties
-        </button>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+        <div className="flex gap-6 px-6 overflow-x-auto pb-12 snap-x snap-mandatory hide-scrollbar">
           {[
-            { title: 'Modern Villa', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', tag: 'For Rent' },
-            { title: 'Oceanview Apt', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80', tag: 'For Sale' },
-            { title: 'Downtown Loft', img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80', tag: 'Investment' }
-          ].map((prop, idx) => (
-            <motion.div key={idx} variants={fadeUp} initial="hidden" whileInView="visible" className="hover-scale" style={{ height: '300px', borderRadius: '24px', overflow: 'hidden', position: 'relative' }}>
-              <img src={prop.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={prop.title} />
-              <div className="gradient-overlay" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '24px', color: 'white' }}>
-                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, backdropFilter: 'blur(4px)', marginBottom: '12px', display: 'inline-block' }}>{prop.tag}</span>
-                <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{prop.title}</h3>
+            { title: 'Full Moon Beach Party', loc: 'Tulum', img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Art Basel Exclusive', loc: 'Miami', img: 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Yacht Week Finale', loc: 'Croatia', img: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=600&q=80' },
+            { title: 'Underground Tech', loc: 'Berlin', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80' },
+          ].map((event, i) => (
+            <motion.div
+              key={i}
+              variants={flyingVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ margin: "-100px" }}
+              className="min-w-[300px] md:min-w-[400px] h-[500px] rounded-3xl overflow-hidden relative snap-center flex-shrink-0 group"
+            >
+              <img src={event.img} alt={event.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8">
+                <span className="bg-white/20 backdrop-blur-md text-white w-fit px-3 py-1 rounded-full text-sm font-medium mb-3 flex items-center gap-1"><MapPin size={14}/> {event.loc}</span>
+                <h3 className="text-3xl font-bold">{event.title}</h3>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Mixed Section */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+      {/* VIP Card Section */}
+      <section className="py-32 bg-white overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center gap-20">
+          <motion.div 
+            variants={flyingVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ margin: "-100px" }}
+            className="flex-1"
+          >
+            <h2 className="text-4xl lg:text-6xl font-black mb-6">The Swipess VIP</h2>
+            <p className="text-xl text-neutral-500 mb-8 leading-relaxed">
+              Unlock unparalleled access. Flash your digital Swipess card at partner venues globally for line-skips, exclusive menus, and private lounge access.
+            </p>
+            <ul className="space-y-4">
+              {['Priority matching on all assets', 'Zero service fees on bookings', '24/7 dedicated concierge'].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-lg font-medium">
+                  <CheckCircle2 className="text-blue-600" /> {item}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
           
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', zIndex: 1 }}></div>
-            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>Events that bring<br/>people together.</h3>
-            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: 'black', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Explore Events</button>
+          <motion.div 
+            variants={flyingVariants}
+            initial={{ opacity: 0, x: 200 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ margin: "-100px" }}
+            className="flex-1 relative h-[400px] flex justify-center items-center"
+          >
+            {/* The VIP Card */}
+            <motion.div 
+              whileHover={{ rotateY: 15, rotateX: 10, scale: 1.05 }}
+              className="w-full max-w-[400px] h-[250px] bg-gradient-to-br from-neutral-900 to-black rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden border border-neutral-800 z-10 perspective-1000"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+              <div className="flex justify-between items-start relative z-10">
+                <SwipessLogo className="h-6 opacity-80 filter invert" />
+                <Crown className="text-yellow-500" size={32} />
+              </div>
+              <div className="absolute bottom-8 left-8 right-8 z-10">
+                <div className="text-sm tracking-[0.2em] text-neutral-400 mb-1">VIP MEMBER</div>
+                <div className="text-2xl font-mono tracking-widest">ALEJANDRO V.</div>
+              </div>
+            </motion.div>
+            
+            {/* Flying Icons around card */}
+            <motion.div animate={{ y: [0, -20, 0] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute top-10 right-10 bg-white p-4 rounded-2xl shadow-xl z-20">
+              <Ticket className="text-purple-600" size={32} />
+            </motion.div>
+            <motion.div animate={{ y: [0, 20, 0] }} transition={{ repeat: Infinity, duration: 5 }} className="absolute bottom-10 left-10 bg-white p-4 rounded-2xl shadow-xl z-20">
+              <Shield className="text-blue-600" size={32} />
+            </motion.div>
           </motion.div>
-
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=600&q=80" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', zIndex: 1 }}></div>
-            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>Legal services<br/>made simple.</h3>
-            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: 'black', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Find a Lawyer</button>
-          </motion.div>
-
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ height: '320px', borderRadius: '24px', background: 'linear-gradient(135deg, #4c1d95 0%, #2e1065 100%)', position: 'relative', overflow: 'hidden', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div style={{ position: 'absolute', top: '-20%', right: '-20%', width: '300px', height: '300px', background: '#a78bfa', filter: 'blur(80px)', opacity: 0.5, borderRadius: '50%' }}></div>
-            <h3 style={{ position: 'relative', zIndex: 2, color: 'white', fontSize: '2rem', fontWeight: 800, margin: 0 }}>AI Assistant<br/>that works for you.</h3>
-            <button style={{ position: 'relative', zIndex: 2, background: 'white', color: '#4c1d95', padding: '12px 24px', borderRadius: '30px', border: 'none', fontWeight: 600, width: 'fit-content', cursor: 'pointer' }}>Ask AI</button>
-          </motion.div>
-
         </div>
       </section>
 
-      {/* VIP Card Section */}
-      <section style={{ maxWidth: 1200, margin: '0 auto 80px', padding: '0 24px' }}>
-        <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '40px', textAlign: 'center' }}>VIP Card. Your digital ID.</h2>
-        
-        <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ flex: '1 1 400px' }}>
-            <div className="vip-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                <SwipessLogo variant="white" className="w-10 h-10" />
-                <span style={{ letterSpacing: '2px', fontWeight: 600, color: '#e83e8c' }}>VIP</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
-                  <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80" alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-                <div>
-                  <h3 style={{ margin: '0 0 4px 0', fontSize: '1.5rem', fontWeight: 600 }}>Elena Rossi</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.9rem', fontWeight: 600 }}>
-                    <CheckCircle size={16} /> Verified Member
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div style={{ fontSize: '0.7rem', color: '#888', letterSpacing: '1px' }}>MEMBER SINCE 2024</div>
-                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '4px' }}></div> {/* QR Placeholder */}
-              </div>
+      {/* INTEL CORE AI Section */}
+      <section className="py-32 bg-black text-white relative border-y border-neutral-800">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <motion.div
+            variants={flyingVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ margin: "-100px" }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-12">
+              <Zap className="text-blue-500" size={24} />
+              <h2 className="text-xl md:text-2xl font-mono tracking-widest text-neutral-400">
+                INTEL CORE / INITIALIZE SEARCH PARAMETERS
+              </h2>
             </div>
-          </motion.div>
-
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" style={{ flex: '1 1 400px' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '24px' }}>Verified Documents</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-              {['Passport', 'ID Card', 'Driver License', 'Lease Agreement'].map((doc, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f5f5f5', borderRadius: '12px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></div>
-                  <span style={{ fontWeight: 500, color: '#333' }}>{doc}</span>
-                </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+              {['PROPERTIES', 'WORKERS', 'MOTORCYCLES', 'BICYCLES', 'YACHTS', 'BUYERS', 'RENTERS', 'SEEKERS'].map((cat, i) => (
+                <button key={i} className="py-4 rounded-full border border-neutral-800 bg-neutral-900/50 hover:bg-white hover:text-black hover:border-white transition-all font-mono text-sm tracking-widest">
+                  {cat}
+                </button>
               ))}
             </div>
-            
-            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><Star size={18} color="#fbbf24" /> Local Discounts</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><Calendar size={18} color="#8b5cf6" /> Exclusive Events</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}><CheckCircle size={18} color="#10b981" /> Trusted Member</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666' }}>+ More Benefits</div>
+
+            <div className="relative max-w-3xl mx-auto">
+              <input 
+                type="text" 
+                placeholder="Inquire for discovery..."
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-full py-6 pl-8 pr-32 text-xl font-mono focus:outline-none focus:border-blue-500 transition-colors placeholder:text-neutral-600"
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                <button className="w-12 h-12 rounded-full bg-neutral-800 flex justify-center items-center hover:bg-neutral-700 transition-colors">
+                  <Mic size={20} />
+                </button>
+                <button className="w-12 h-12 rounded-full bg-white text-black flex justify-center items-center hover:bg-neutral-200 transition-colors">
+                  <ArrowRight size={20} />
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer id="footer" style={{ background: '#111', color: 'white', padding: '80px 24px 24px 24px', position: 'relative' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+      {/* Live Global Map Section */}
+      <section className="py-32 bg-neutral-950 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 text-center mb-16 relative z-10">
+          <motion.div
+             variants={flyingVariants}
+             initial="hidden"
+             whileInView="visible"
+             viewport={{ margin: "-100px" }}
+          >
+            <h2 className="text-4xl lg:text-6xl font-black text-white mb-6 flex items-center justify-center gap-4">
+              <Globe className="text-blue-500" size={48} /> Global Presence
+            </h2>
+            <p className="text-2xl text-neutral-400 font-light">
+              Discover Mykonos, Ibiza, Paris, Tulum.
+            </p>
+          </motion.div>
+        </div>
+        
+        <div className="w-full h-[60vh] relative">
+          <img 
+            src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=2000&q=80" 
+            alt="Global Map" 
+            className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 to-transparent"></div>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px' }}>
-            <div style={{ flex: '1 1 300px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-                <SwipessLogo variant="white" className="w-8 h-8 mr-2" />
-                <span style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px' }}>SWIPESS</span>
-              </div>
-              <p style={{ fontSize: '1.2rem', color: '#aaa', marginBottom: '32px' }}>One app. Infinite possibilities.</p>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <button style={{ background: 'white', color: 'black', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600 }}>App Store</button>
-                <button style={{ background: 'white', color: 'black', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 600 }}>Google Play</button>
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>Company</h4>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>About</a>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Careers</a>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Press</a>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#fff' }}>Support</h4>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Help Center</a>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Safety</a>
-                <a href="#" style={{ color: '#888', textDecoration: 'none' }}>Terms of Service</a>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ borderTop: '1px solid #333', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: '#666' }}>
-            <span>© 2024 Swipess Inc. All rights reserved.</span>
-            
-            {/* SECRET BACKDOOR */}
-            <div 
-              onClick={handleSecretTap}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.3, userSelect: 'none' }}
-              title="Tap 10 times quickly"
+          {/* Glowing Pins */}
+          {[
+            { top: '30%', left: '45%' }, // Paris
+            { top: '40%', left: '50%' }, // Ibiza
+            { top: '45%', left: '55%' }, // Mykonos
+            { top: '50%', left: '25%' }, // Tulum
+          ].map((pos, i) => (
+            <motion.div 
+              key={i}
+              initial={{ scale: 0, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ margin: "-50px" }}
+              transition={{ delay: i * 0.2, type: 'spring' }}
+              className="absolute flex justify-center items-center"
+              style={{ top: pos.top, left: pos.left }}
             >
-              <span>Tap this corner 10 times For private access</span>
-              <Bot size={14} />
-            </div>
-          </div>
+              <div className="w-8 h-8 bg-blue-500 rounded-full animate-ping absolute opacity-50"></div>
+              <MapPin className="text-blue-500 relative z-10" fill="currentColor" size={32} />
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
+      {/* Footer & Secret Backdoor */}
+      <footer className="bg-[#111] text-neutral-500 py-12 relative border-t border-neutral-900">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <SwipessLogo className="h-6 opacity-50 grayscale" />
+          <div className="flex gap-6 text-sm">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Contact</a>
+          </div>
+          <p className="text-sm">© 2026 Swipess. All rights reserved.</p>
+        </div>
+
+        {/* SECRET BACKDOOR */}
+        <div 
+          onClick={handleSecretTap}
+          className="absolute bottom-4 right-4 text-[10px] text-neutral-800 hover:text-neutral-600 cursor-pointer select-none flex items-center gap-1 transition-colors z-50 p-4"
+        >
+          <Shield size={10} />
+          Tap this corner 10 times For private access
         </div>
       </footer>
+
+      {showGate && (
+        <AccessCodeGate 
+          onGranted={onSecretAccess} 
+          onClose={() => setShowGate(false)} 
+        />
+      )}
     </div>
   );
 }
