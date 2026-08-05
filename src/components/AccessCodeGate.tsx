@@ -393,8 +393,9 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                             type="submit"
                             disabled={submitting || !form.name.trim() || !form.email.trim()}
                             style={{ 
-                              backgroundColor: (submitting || !form.name.trim() || !form.email.trim()) ? 'rgba(255,255,255,0.15)' : '#ffffff', 
-                              color: (submitting || !form.name.trim() || !form.email.trim()) ? 'rgba(255,255,255,0.4)' : '#000000' 
+                              backgroundColor: '#ffffff', 
+                              color: '#000000',
+                              opacity: (submitting || !form.name.trim() || !form.email.trim()) ? 0.7 : 1
                             }}
                             className="w-full min-h-11 py-2.5 rounded-xl font-black text-sm grid grid-cols-[18px_1fr] items-center justify-center gap-2 active:scale-[0.97] transition-all drop-shadow-xl"
                           >
