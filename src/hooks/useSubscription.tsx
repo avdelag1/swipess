@@ -2,6 +2,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { isGodModeUser } from '@/utils/godModeUsers';
+import { useAuth } from '@/hooks/useAuth';
 
 // Lightweight types to avoid deep Supabase type inference and match DB shapes
 type SubscriptionPackageLite = {
@@ -103,7 +105,12 @@ export function useUserSubscription() {
 }
 
 export function useHasPremiumFeature(feature: string) {
+  const { user } = useAuth();
   const { data: subscription } = useUserSubscription();
+
+  // God Mode users have all features unlocked
+  if (isGodModeUser(user?.id)) return true;
+
   if (!subscription) return false;
 
   const featuresRaw = subscription.subscription_packages?.features;

@@ -129,15 +129,24 @@ export function AccessCodeGate({ onGranted }: Props) {
     setSubmitting(true);
     setSubmitError('');
     try {
+      const requestData = {
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        whatsapp: form.whatsapp.trim() || null,
+        message: form.message.trim() || null,
+      };
+
       const { error: dbError } = await supabase
         .from('code_requests' as 'profiles')
-        .insert({
-          name: form.name.trim(),
-          email: form.email.trim().toLowerCase(),
-          whatsapp: form.whatsapp.trim() || null,
-          message: form.message.trim() || null,
-        });
+        .insert(requestData);
+      
       if (dbError) throw dbError;
+
+      // Fire off the email notification silently in the background
+      supabase.functions.invoke('notify-code-request', {
+        body: requestData,
+      }).catch(err => console.error('Failed to send notification email:', err));
+
       setSubmitted(true);
       triggerHaptic('success');
     } catch {

@@ -8,7 +8,21 @@ import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { lazy, Suspense } from "react";
 import { AccessCodeGate, isAccessGranted } from "@/components/AccessCodeGate";
+import { Capacitor } from "@capacitor/core";
 const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
+const PublicLandingPage = lazy(() => import("@/components/PublicLandingPage"));
+
+/** Check if the app is running as a standalone PWA (installed on home screen) */
+function isPWA(): boolean {
+  if (Capacitor.isNativePlatform()) return true;
+  try {
+    if (window.matchMedia('(display-mode: standalone)').matches) return true;
+    if ((navigator as any).standalone === true) return true; // iOS Safari
+  } catch { /* empty */ }
+  return false;
+}
+
+const DEVELOPER_ACCESS_KEY = 'swipess_developer_access';
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -17,6 +31,10 @@ const Index = () => {
   const hasNavigated = useRef(false);
   const [showEscapeHatch, setShowEscapeHatch] = useState(false);
   const [accessGranted, setAccessGranted] = useState(isAccessGranted);
+  const [developerAccess, setDeveloperAccess] = useState(() => {
+    try { return localStorage.getItem(DEVELOPER_ACCESS_KEY) === 'true'; } catch { return false; }
+  });
+  const runningAsPWA = useMemo(() => isPWA(), []);
 
   // Capture referral code from URL if present (works for app-wide referral links)
   useEffect(() => {
@@ -224,15 +242,33 @@ const Index = () => {
   }
 
   if (!user) {
-    if (!accessGranted) {
-      return <AccessCodeGate onGranted={() => setAccessGranted(true)} />;
+    // PWA users or users who triggered the backdoor bypass the marketing page
+    const showAppEntrance = runningAsPWA || developerAccess;
+
+    if (showAppEntrance) {
+      // Show the access code gate → login flow
+      if (!accessGranted) {
+        return <AccessCodeGate onGranted={() => setAccessGranted(true)} />;
+      }
+      return (
+        <div className="fixed inset-0 bg-black overflow-hidden">
+          <Suspense fallback={<SuspenseFallback />}>
+            <LegendaryLandingPage />
+          </Suspense>
+        </div>
+      );
     }
+
+    // Browser users see the public marketing landing page
     return (
-      <div className="fixed inset-0 bg-black overflow-hidden">
-        <Suspense fallback={<SuspenseFallback />}>
-          <LegendaryLandingPage />
-        </Suspense>
-      </div>
+      <Suspense fallback={<SuspenseFallback />}>
+        <PublicLandingPage
+          onSecretAccess={() => {
+            try { localStorage.setItem(DEVELOPER_ACCESS_KEY, 'true'); } catch { /* empty */ }
+            setDeveloperAccess(true);
+          }}
+        />
+      </Suspense>
     );
   }
 

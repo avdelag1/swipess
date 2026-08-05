@@ -121,8 +121,9 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-5"
+      className="space-y-5 p-6 rounded-[32px] bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl relative overflow-hidden"
     >
+      <div className="absolute inset-0 pointer-events-none rounded-[32px] ring-1 ring-inset ring-white/5" />
       {/* Title */}
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Issue Title</label>

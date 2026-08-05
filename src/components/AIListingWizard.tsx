@@ -120,9 +120,7 @@ export function AIListingWizard() {
   const { isOnboardingActive, setOnboardingActive } = useOnboardingStore();
   const { t } = useTranslation();
 
-  const modalBg = isLight
-    ? 'surface-5 chrome-solid saturate-150 border-border'
-    : 'surface-5 border border-white/12 shadow-[0_40px_100px_rgba(0,0,0,0.85)]';
+
   const headerBorder = isLight ? 'border-border' : 'border-white/12';
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/75';

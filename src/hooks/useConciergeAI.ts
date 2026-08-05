@@ -33,6 +33,7 @@ const MAX_MESSAGES = 50;
 
 const AGREE_PATTERN = /\b(right|yeah|yes|exactly|true|good point|facts|for real|that's it|makes sense|you're right)\b/i;
 const CHALLENGE_PATTERN = /\b(no|wrong|disagree|that doesn't|are you sure|I don't think|nah|cap|doubt)\b/i;
+const PROFILE_INTENT_PATTERN = /\b(seekers|workers|buyers|renters|people|users|pros|professionals)\b/i;
 
 // ─── localStorage helpers (fallback) ───────────────────────────────────────
 
@@ -506,6 +507,7 @@ export function useConciergeAI() {
           ...(activeCharacter === 'botbetter' ? { character: 'botbetter', sassLevel: egoLevel } : {}),
           ...(activeCharacter === 'lunashanti' ? { character: 'lunashanti', zenLevel: egoLevel } : {}),
           ...(activeCharacter === 'ezriyah' ? { character: 'ezriyah', flowLevel: egoLevel } : {}),
+          ...(PROFILE_INTENT_PATTERN.test(content) ? { preferredIntent: 'profiles' } : {}),
         }),
         signal: abortController.signal,
       });

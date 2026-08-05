@@ -51,7 +51,7 @@ export function useDailyQuests() {
         console.error('Error fetching quest points:', error);
         return 0;
       }
-      // @ts-expect-error
+      // @ts-expect-error Suppressing missing type for quest_points in profiles
       return data?.quest_points || 0;
     },
     enabled: !!userId,
@@ -70,7 +70,7 @@ export function useDailyQuests() {
       if (error) throw error;
       return { newQuests: data as unknown as DailyQuest[], questId, amount };
     },
-    onSuccess: ({ newQuests, questId, amount }) => {
+    onSuccess: ({ newQuests, questId }) => {
       if (newQuests) {
         // Find the quest to show progress in a toast
         const updatedQuest = newQuests.find(q => q.id === questId);

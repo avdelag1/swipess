@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { isGodModeUser } from '@/utils/godModeUsers';
 
 type PlanLimits = {
   messages_per_month: number;
@@ -37,7 +38,7 @@ export const NO_TOKENS_ERROR =
  * (user_has_unlimited_messaging() always returns true). Flip this to false AND
  * restore that SQL function to re-enable paid messaging.
  */
-export const PREMIUM_FOR_EVERYONE = true;
+export const PREMIUM_FOR_EVERYONE = false;
 
 export async function fetchTokenBalance(userId: string): Promise<number> {
   try {
@@ -92,8 +93,10 @@ export function computeCanStartNewConversation(input: {
   planName: string;
   tokenBalance: number;
   conversationsStartedThisMonth?: number;
+  userId?: string;
 }): boolean {
   if (PREMIUM_FOR_EVERYONE) return true;
+  if (isGodModeUser(input.userId)) return true;
   const limits = PLAN_LIMITS[input.planName] || PLAN_LIMITS.free;
   if (limits.unlimited_messages) return true;
 
@@ -129,10 +132,10 @@ export async function assertCanStartNewConversation(
   userId: string,
   otherUserId: string,
 ): Promise<void> {
-  // Promo: everyone can message for free. Skip the existence/token/plan network
-  // round-trips entirely so opening a chat is instant instead of "stuck loading"
-  // while three extra queries resolve.
+  // Promo override (currently disabled)
   if (PREMIUM_FOR_EVERYONE) return;
+  // God Mode users always get unlimited access
+  if (isGodModeUser(userId)) return;
 
   if (await conversationExistsBetween(userId, otherUserId)) return;
 

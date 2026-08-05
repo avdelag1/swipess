@@ -17,7 +17,7 @@ export const CINEMATIC_OPEN_ALTITUDE_ZOOM = 5;
 export const CINEMATIC_OPEN_GLIDE_MS = 2200;
 /** Fast snap when map opens — user expects immediate centering, not a 2s flight. */
 export const OPEN_CENTER_MS = 380;
-export const CINEMATIC_MAX_PITCH_MOBILE = 58;
+export const CINEMATIC_MAX_PITCH_MOBILE = 60;
 export const CINEMATIC_MAX_PITCH_DESKTOP = 65;
 
 export function cinematicPitchForViewport(): number {
@@ -206,7 +206,7 @@ export function fitMapToPins(
 
 /** Zoom step per double-tap — punchy on phones (small screens felt under-zoomed at 3.0). */
 export function getDoubleTapZoomStep(): number {
-  return typeof window !== 'undefined' && window.innerWidth < 768 ? 6.5 : 4.0;
+  return typeof window !== 'undefined' && window.innerWidth < 768 ? 8.0 : 4.0;
 }
 export const DOUBLE_TAP_MAX_ZOOM = 20;
 const DOUBLE_TAP_ZOOM_MS = 380;

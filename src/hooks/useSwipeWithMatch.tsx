@@ -4,12 +4,13 @@ import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
-const COOLDOWN_HOURS = 24;
+const COOLDOWN_HOURS = 120; // 5 days
 
 /**
- * Soft-dismiss with 24h cooldown.
- * - First left-swipe: cooldown_until = now + 24h, dismiss_count = 1
+ * Soft-dismiss with 5-day cooldown.
+ * - First left-swipe: cooldown_until = now + 5 days, dismiss_count = 1
  * - Second left-swipe (after the card came back): cooldown_until = NULL (permanent)
+ *   UNLESS the listing/profile updates after permanent dismiss → update recovery kicks in
  */
 async function applySoftDismiss(
   userId: string,

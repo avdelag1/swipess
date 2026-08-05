@@ -21,7 +21,6 @@ import {
   getHeaderIconFilter,
   HEADER_PILL_BASE,
   isDashboardPath,
-  getWaterDropStyle,
 } from '@/utils/headerChrome';
 // AIIcon removed
 

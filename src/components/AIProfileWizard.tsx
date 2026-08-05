@@ -116,7 +116,7 @@ export function AIProfileWizard() {
     };
   }, [imagePreview]);
 
-  const modalBg = isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0b] border-white/[0.08]';
+
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
