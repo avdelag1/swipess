@@ -240,8 +240,8 @@ const Index = () => {
   if (!user) {
     return (
       <Suspense fallback={<SuspenseFallback />}>
-        <SwipessLandingPage 
-          onSecretAccess={() => {
+        <AccessCodeGate 
+          onGranted={() => {
             setDeveloperAccess(true);
             try { localStorage.setItem(DEVELOPER_ACCESS_KEY, 'true'); } catch { /* empty */ }
           }}

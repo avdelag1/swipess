@@ -399,6 +399,15 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
               >
                 {gateSubtitle}
               </p>
+
+              <div className="flex items-center justify-center gap-4 mt-2 w-full">
+                <a href="#" className="opacity-70 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store" className="h-[34px]" />
+                </a>
+                <a href="#" className="opacity-70 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" className="h-[34px]" />
+                </a>
+              </div>
             </motion.div>
           </motion.div>
         ) : (
