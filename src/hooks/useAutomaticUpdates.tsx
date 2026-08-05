@@ -62,13 +62,12 @@ export function checkForUpdates(): UpdateInfo {
 
   const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
 
-  // First visit or version changed (always true on new deployment)
+  // If stored version doesn't match the currently running JS, it means we just loaded
+  // a new version! We don't need to prompt the user to update, because they are already
+  // running the new code. Just mark it as installed.
   if (!storedVersion || storedVersion !== BUILD_TIMESTAMP) {
-    return {
-      available: true,
-      version: APP_VERSION,
-      needsRefresh: true,
-    };
+    markVersionAsInstalled();
+    return { available: false, needsRefresh: false };
   }
 
   return { available: false, needsRefresh: false };
@@ -290,7 +289,7 @@ export function UpdateNotification() {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: -100, opacity: 0, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 1 }}
-          className="fixed top-24 left-4 right-4 z-[999] sm:left-6 sm:right-auto sm:w-[340px]"
+          className="fixed top-24 left-4 right-4 z-[999] sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:w-[340px]"
         >
           {/* Main Glass Container */}
           <div 
