@@ -149,7 +149,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={pillStyle}
+              style={glassPillStyle}
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -169,7 +169,7 @@ function TopBarComponent({
                   navigate('/client/profile');
                 }}
                 className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
-                style={pillStyle}
+                style={glassPillStyle}
                 aria-label="Open profile"
               >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -196,7 +196,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={pillStyle}
+              style={glassPillStyle}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -223,7 +223,7 @@ function TopBarComponent({
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
               onPointerDown={(e) => { e.stopPropagation(); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={pillStyle}
+              style={glassPillStyle}
               aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
             >
               <HeaderIconSlot
@@ -254,7 +254,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className={cn(HEADER_PILL_BASE, "group")}
-              style={pillStyle}
+              style={glassPillStyle}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -269,9 +269,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={pillStyle} className={HEADER_PILL_BASE} />
+            <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
 
-            <NotificationPopover glassPillStyle={pillStyle} pillClassName={HEADER_PILL_BASE} />
+            <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
           </div>
         )}
 
