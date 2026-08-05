@@ -1263,11 +1263,15 @@ export const PassportMapModal = memo(() => {
                               flyToCity();
                             }}
                             className={cn(
-                              'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap overflow-hidden focus:outline-none outline-none',
+                              'map-hud-btn tap-highlight-transparent pointer-events-auto shrink-0 flex items-center gap-2 pl-1 pr-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest border whitespace-nowrap overflow-hidden focus:outline-none outline-none transition-all duration-300',
                               isActive
-                                ? 'bg-white border-slate-200 text-slate-900 shadow-lg ring-1 ring-slate-200'
-                                : 'bg-[#1e2433] border-white/12 text-white hover:bg-[#2a3142]',
+                                ? 'bg-white border-white text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.6)] ring-2 ring-white/50 scale-105'
+                                : 'bg-black/60 backdrop-blur-2xl border-white/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.8)] hover:bg-black/80 hover:scale-105',
                             )}
+                            style={{ 
+                              textShadow: isActive ? 'none' : '0 2px 8px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,1)',
+                              boxShadow: isActive ? undefined : 'inset 0 1px 1px rgba(255,255,255,0.2)'
+                            }}
                           >
                             <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-1 ring-white/25">
                               <img
