@@ -189,7 +189,7 @@ function TopBarComponent({
                 </button>
                 <div className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
                   <span className="text-[12px] font-bold leading-none tracking-tight">
-                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'}
+                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || ''}
                   </span>
                 </div>
               </div>
