@@ -82,8 +82,8 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
 }
 
 export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
-  // Keeping bottom nav consistent with the header rule: black on dashboard, white everywhere else
-  const useLightIcons = !_isDashboard;
+  // The bottom nav pill is always a dark glass gradient, so icons MUST always be light
+  const useLightIcons = true;
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 
