@@ -106,10 +106,11 @@ const LandingView = memo(({
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        <SwipessLogo
-          size="3xl"
-          variant="transparent"
-          className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/1] min-h-[70px] sm:min-h-[85px] md:min-h-[105px]"
+        <img
+          src="/icons/Swipess-brand-logo.webp"
+          alt="Swipess"
+          draggable={false}
+          className="w-[50vw] max-w-[220px] sm:max-w-[260px] md:max-w-[320px] aspect-square object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]"
         />
         {title && (
           <h1 className="mt-6 text-white text-3xl font-black tracking-wide drop-shadow-xl">
