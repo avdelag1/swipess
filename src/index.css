@@ -3189,7 +3189,6 @@ body.hw-high .glass-pill {
 
 /* ── Bottom Navigation Bar ───────────────────────────────────────────────── */
 .floating-dock-nav {
-  background: var(--navbar_bg, var(--default-navbar-bg)) !important;
   backdrop-filter: blur(40px) saturate(200%) brightness(1.05) !important;
   -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05) !important;
   transform: translateY(var(--navbar_offset_y, 0px)) !important;

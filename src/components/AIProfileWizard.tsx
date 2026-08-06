@@ -120,11 +120,11 @@ export function AIProfileWizard() {
   const textPrimary = isLight ? 'text-black' : 'text-white';
   const textMuted = isLight ? 'text-black/80' : 'text-white/90';
   const inputCls = isLight
-    ? 'bg-white border-2 border-slate-300 focus:border-[#8B5CF6] focus:ring-0 text-black placeholder:text-black/60 font-medium'
-    : 'bg-white/[0.15] border-2 border-white/30 focus:border-[#8B5CF6] focus:ring-0 text-white placeholder:text-white/70 font-medium shadow-inner';
+    ? 'bg-white shadow-sm border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-black placeholder:text-black/50 font-medium text-lg px-5 py-4 rounded-2xl'
+    : 'bg-[#1c1c22] shadow-md border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-white placeholder:text-white/45 font-medium text-lg px-5 py-4 rounded-2xl';
   const closeBtnCls = isLight
-    ? 'bg-white hover:bg-slate-50 border border-slate-200'
-    : 'bg-white/10 hover:bg-white/20 border border-white/20';
+    ? 'bg-white hover:bg-slate-50 border-transparent shadow-sm'
+    : 'bg-[#1c1c22] hover:bg-[#26262e] border-transparent shadow-md';
 
   const handleClose = () => {
     setModal('showAIProfile', false);
@@ -404,7 +404,7 @@ export function AIProfileWizard() {
           </AnimatePresence>
 
           <div
-            className={cn("shrink-0 flex items-center justify-between px-8 pb-5 border-b relative z-10", isLight ? "border-slate-200" : "border-white/5")}
+            className="shrink-0 flex items-center justify-between px-8 pb-5 border-transparent relative z-10"
             style={{ paddingTop: 'max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
           >
             <div className="flex items-center gap-4">
@@ -418,11 +418,6 @@ export function AIProfileWizard() {
                 <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-[#8B5CF6]">One-Step Setup</span>
               </div>
             </div>
-            {!isOnboardingActive && (
-              <button onClick={handleClose} aria-label="Close" className={cn("w-11 h-11 flex items-center justify-center rounded-2xl press-snappy", closeBtnCls)}>
-                <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
-              </button>
-            )}
           </div>
 
           <ScrollArea className="flex-1 overflow-hidden relative z-10">
@@ -433,7 +428,7 @@ export function AIProfileWizard() {
                     
                     {/* Onboarding Banner */}
                     {isOnboardingActive && (
-                      <div className="bg-[#6366F1]/10 border border-[#8B5CF6]/20 p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
+                      <div className="bg-[#6366F1]/10 border-transparent p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#8B5CF6]/10 blur-[50px] rounded-full pointer-events-none" />
                         <h3 className="text-[#A5B4FC] font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
                           <MotionIcon id="ai-sparkle" loop>
@@ -464,12 +459,12 @@ export function AIProfileWizard() {
                                   setSelectedClientType(option.id);
                                 }}
                                 className={cn(
-                                  'flex items-center gap-4 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+                                  'flex items-center gap-4 p-5 rounded-3xl border-transparent transition-all active:scale-[0.98]',
                                   active
-                                    ? 'border-[#8B5CF6]/50 bg-[#8B5CF6]/10 shadow-[0_0_24px_rgba(139,92,246,0.2)]'
+                                    ? 'bg-[#8B5CF6]/10 shadow-[0_0_24px_rgba(139,92,246,0.2)] ring-2 ring-[#8B5CF6]'
                                     : isLight
-                                      ? 'border-slate-200 bg-slate-50 hover:border-slate-300'
-                                      : 'border-white/10 bg-white/[0.03] hover:border-white/20',
+                                      ? 'shadow-sm bg-white hover:shadow-md'
+                                      : 'shadow-md bg-[#1c1c22] hover:bg-[#26262e]',
                                 )}
                               >
                                 <span className="text-2xl">{option.emoji}</span>

@@ -52,7 +52,6 @@ function SwipessLogoComponent({
             draggable={false}
             {...({ fetchpriority: 'high' } as any)}
             decoding={isIcon ? 'async' : 'sync'}
-            style={{ mixBlendMode: 'screen' }}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               if (target.src.endsWith('.png')) {

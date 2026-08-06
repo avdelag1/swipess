@@ -121,27 +121,27 @@ export function AIListingWizard() {
   const { t } = useTranslation();
 
 
-  const headerBorder = isLight ? 'border-border' : 'border-white/12';
+  const headerBorder = 'border-transparent';
   const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/80' : 'text-white/75';
+  const textMuted = isLight ? 'text-black/70' : 'text-white/70';
   const chipIdleCls = isLight
-    ? 'bg-slate-50 border-slate-200 hover:border-[#8B5CF6]/30'
-    : 'bg-[#141418] border-white/12 hover:border-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]';
+    ? 'bg-white shadow-sm border-transparent hover:shadow-md'
+    : 'bg-[#1c1c22] border-transparent shadow-md hover:bg-[#26262e]';
   const inputCls = isLight
-    ? 'surface-inset focus:border-[#8B5CF6] focus:ring-0 text-black placeholder:text-black/50 font-medium'
-    : 'bg-[#141418] border border-white/12 focus:border-[#8B5CF6] focus:ring-0 text-white placeholder:text-white/45 font-medium shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)]';
+    ? 'bg-white shadow-sm border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-black placeholder:text-black/50 font-medium text-lg px-5 py-4 rounded-2xl'
+    : 'bg-[#1c1c22] border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-white placeholder:text-white/45 font-medium text-lg px-5 py-4 rounded-2xl shadow-md';
   const closeBtnCls = isLight
-    ? 'surface-3 hover:shadow-[var(--elev-4)] rounded-2xl transition-all'
-    : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-2xl transition-all border border-white/15 shadow-lg';
+    ? 'bg-white shadow-sm hover:shadow-md rounded-full transition-all border-transparent'
+    : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-full transition-all border-transparent shadow-md';
   const photoAddCls = isLight
-    ? 'border-slate-300 bg-slate-50'
-    : 'border-white/20 bg-[#141418]';
+    ? 'border-transparent bg-white shadow-sm hover:shadow-md'
+    : 'border-transparent bg-[#1c1c22] shadow-md hover:bg-[#26262e]';
   const photoAddInnerCls = isLight
-    ? 'bg-slate-50 border-slate-200'
-    : 'bg-[#1c1c22] border-white/10';
+    ? 'bg-slate-50 border-transparent'
+    : 'bg-[#141418] border-transparent';
   const enhanceDisabledCls = isLight
-    ? 'opacity-50 bg-slate-50 border-slate-200 text-black/50'
-    : 'opacity-60 bg-[#141418] border-white/12 text-white/70';
+    ? 'opacity-50 bg-white border-transparent text-black/50'
+    : 'opacity-60 bg-[#1c1c22] border-transparent text-white/70';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -549,10 +549,10 @@ export function AIListingWizard() {
             style={{
               backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
               WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.15)',
+              border: 'none',
               boxShadow: isLight
-                ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
-                : '0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+                ? '0 20px 60px rgba(0, 0, 0, 0.1)'
+                : '0 20px 60px rgba(0, 0, 0, 0.5)',
               transform: 'translateZ(0)',
               willChange: 'transform',
             }}
@@ -596,15 +596,6 @@ export function AIListingWizard() {
                   </div>
                 </div>
               </div>
-              {!isOnboardingActive && (
-                <button 
-                  onClick={handleClose}
-                  aria-label="Close"
-                  className={cn("w-11 h-11 flex items-center justify-center press-snappy", closeBtnCls)}
-                >
-                  <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
-                </button>
-              )}
             </div>
 
             <ScrollArea className="flex-1 overflow-hidden relative z-10">
@@ -643,7 +634,7 @@ export function AIListingWizard() {
                               key={cat.id}
                               onClick={() => { setCategory(cat.id); triggerHaptic('light'); }}
                               className={cn(
-                                "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all active:scale-[0.98]",
+                                "flex flex-col items-center gap-2 p-5 rounded-3xl transition-all active:scale-[0.98]",
                                 category === cat.id
                                   ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_6px_26px_rgba(99,102,241,0.42)] ring-1 ring-white/20"
                                   : chipIdleCls
@@ -676,7 +667,7 @@ export function AIListingWizard() {
                           <button
                             type="button"
                             onClick={handleImageAdd}
-                            className={cn("w-full aspect-[2/1] rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", photoAddCls)}
+                            className={cn("w-full aspect-[2/1] rounded-[2rem] border-transparent flex flex-col items-center justify-center gap-3 transition-all group", photoAddCls)}
                           >
                             <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
                               <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
@@ -700,7 +691,7 @@ export function AIListingWizard() {
                                 <button
                                   type="button"
                                   onClick={handleImageAdd}
-                                  className={cn("w-full h-full rounded-[1.5rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group", photoAddCls)}
+                                  className={cn("w-full h-full rounded-[1.5rem] border-transparent flex flex-col items-center justify-center gap-3 transition-all group", photoAddCls)}
                                 >
                                   <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
                                     <Camera className="w-5 h-5 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
