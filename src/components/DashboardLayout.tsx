@@ -256,7 +256,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          (isSwipeDeck || isFullScreenRoute || isBentoDashboard) ? "overflow-hidden touch-none" : "overflow-y-auto",
+          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : isBentoDashboard ? "overflow-hidden" : "overflow-y-auto dashboard-scroll-target",
 
           isSwipeDeck && "bg-swipe-frame"
         )}
