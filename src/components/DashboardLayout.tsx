@@ -100,13 +100,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
   // Every other route scrolls inside this container.
   const activeCategory = useFilterStore((s) => s.activeCategory);
+  const isDashRoute = location.pathname === '/client/dashboard' || location.pathname === '/client/dashboard/' ||
+         location.pathname === '/owner/dashboard'  || location.pathname === '/owner/dashboard/';
   const isSwipeDeck = useMemo(() => {
-    const path = location.pathname;
-    const isDashRoute = path === '/client/dashboard' || path === '/client/dashboard/' ||
-           path === '/owner/dashboard'  || path === '/owner/dashboard/';
     // Only lock touch when actually swiping cards, NOT on the bento quick filter page
     return isDashRoute && !!activeCategory;
-  }, [location.pathname, activeCategory]);
+  }, [isDashRoute, activeCategory]);
+  
+  const isBentoDashboard = isDashRoute && !activeCategory;
 
   const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
   const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
@@ -255,7 +256,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : "overflow-y-auto",
+          (isSwipeDeck || isFullScreenRoute || isBentoDashboard) ? "overflow-hidden touch-none" : "overflow-y-auto",
 
           isSwipeDeck && "bg-swipe-frame"
         )}
@@ -267,7 +268,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       >
         <div className={cn(
           "w-full",
-          (isSwipeDeck || isFullScreenRoute)
+          (isSwipeDeck || isFullScreenRoute || isBentoDashboard)
             ? "flex flex-col flex-1 min-h-0 overflow-hidden"
             : "block min-h-full pb-[var(--bottom-nav-height)]"
         )}>

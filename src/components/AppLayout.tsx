@@ -344,7 +344,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col min-h-0",
-          (swipeDeckActive || isFullScreen) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
+          (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
         style={(!isInsideDashboard && !isFullScreen && !isProfile && !isListing && !location.pathname.startsWith('/messages')) ? {
           paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',

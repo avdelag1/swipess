@@ -100,7 +100,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       className="absolute inset-0 w-full h-full px-4 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)',
+        paddingBottom: 'calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom) + 24px)',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
         touchAction: 'pan-y',
