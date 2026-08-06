@@ -47,14 +47,24 @@ export function usePullToRefresh({
     try {
       if (onRefresh) {
         await Promise.all([onRefresh(), minWait]);
+        setIsRefreshing(false);
+        pullDistanceRef.current = 0;
+        setPullDistance(0);
       } else {
         await minWait;
         // Simple, reliable hard reload for PWA
         window.location.reload();
+        
+        // Failsafe: if the PWA environment blocks the reload for some reason, 
+        // at least dismiss the spinner so the app doesn't hang forever.
+        setTimeout(() => {
+          setIsRefreshing(false);
+          pullDistanceRef.current = 0;
+          setPullDistance(0);
+        }, 1000);
       }
     } catch (e) {
       logger.error("Refresh failed", e);
-    } finally {
       setIsRefreshing(false);
       pullDistanceRef.current = 0;
       setPullDistance(0);
