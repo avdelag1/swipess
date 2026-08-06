@@ -147,9 +147,9 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                     onFilterClick?.();
                   }}
                   className="flex items-center justify-center w-10 h-10 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
-                  aria-label="Filters"
+                  aria-label="Search"
                 >
-                  <SlidersHorizontal className="w-5 h-5" strokeWidth={2} />
+                  <Search className="w-5 h-5" strokeWidth={2} />
                 </button>
               </div>
             </motion.div>
