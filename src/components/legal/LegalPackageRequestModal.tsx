@@ -180,7 +180,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                     onClick={() => { triggerHaptic('light'); setRequestType('request'); }}
                     className={cn('p-4 rounded-2xl border text-left transition-all',
                       requestType === 'request'
-                        ? cn(meta.accentBg, 'text-white border-transparent shadow-lg')
+                        ? cn(meta.accentBg, 'text-white force-white border-transparent shadow-lg')
                         : isLight ? 'bg-white border-black/10 text-black/70' : 'bg-white/5 border-white/10 text-white/70')}
                   >
                     <Send className="w-4 h-4 mb-2" />
@@ -192,7 +192,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                     onClick={() => { triggerHaptic('light'); setRequestType('custom_quote'); }}
                     className={cn('p-4 rounded-2xl border text-left transition-all',
                       requestType === 'custom_quote'
-                        ? cn(meta.accentBg, 'text-white border-transparent shadow-lg')
+                        ? cn(meta.accentBg, 'text-white force-white border-transparent shadow-lg')
                         : isLight ? 'bg-white border-black/10 text-black/70' : 'bg-white/5 border-white/10 text-white/70')}
                   >
                     <Sparkles className="w-4 h-4 mb-2" />
@@ -241,7 +241,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                         onClick={() => { triggerHaptic('light'); setPreferredContact(opt.id); }}
                         className={cn('px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border',
                           preferredContact === opt.id
-                            ? cn(meta.accentBg, 'text-white border-transparent')
+                            ? cn(meta.accentBg, 'text-white force-white border-transparent')
                             : isLight ? 'bg-white border-black/10 text-black/60' : 'bg-white/5 border-white/10 text-white/60')}
                       >
                         {opt.label}
@@ -253,7 +253,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                 <Button
                   type="submit"
                   disabled={loading || !situation.trim() || !phone.trim()}
-                  className={cn('w-full h-14 rounded-2xl text-white font-black uppercase tracking-[0.15em] text-xs shadow-xl active:scale-[0.98] transition-all', meta.accentBg)}
+                  className={cn('w-full h-14 rounded-2xl text-white force-white font-black uppercase tracking-[0.15em] text-xs shadow-xl active:scale-[0.98] transition-all', meta.accentBg)}
                 >
                   {loading ? 'Sending…' : requestType === 'custom_quote' ? 'Request Custom Quote' : 'Send Request to Lawyer'}
                   {!loading && <Send className="w-4 h-4 ml-2" />}
@@ -280,7 +280,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                     {phone ? <> at <strong>{phone}</strong></> : ''} to discuss your situation and confirm everything.
                   </p>
                 </div>
-                <Button onClick={onClose} className={cn('w-full h-12 rounded-2xl text-white font-black uppercase tracking-widest text-[11px]', meta.accentBg)}>
+                <Button onClick={onClose} className={cn('w-full h-12 rounded-2xl text-white force-white font-black uppercase tracking-widest text-[11px]', meta.accentBg)}>
                   Done
                 </Button>
               </div>
