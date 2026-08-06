@@ -374,10 +374,9 @@ export const BottomNavigation = memo(({
                 <div
                   className="relative z-10 flex items-center justify-center rounded-full"
                   style={{
-                    width: isAddBtn ? '48px' : '40px',
-                    height: isAddBtn ? '48px' : '40px',
-                    transform: active && !isAddBtn ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1)',
+                    width: isAddBtn ? '48px' : (active ? '46px' : '40px'),
+                    height: isAddBtn ? '48px' : (active ? '46px' : '40px'),
+                    transition: 'width 140ms ease, height 140ms ease',
                     ...(isAddBtn ? {} : getGlassBubbleStyle(isLight, false))
                   }}
                 >

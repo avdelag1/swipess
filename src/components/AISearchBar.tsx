@@ -109,9 +109,9 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       >
         <div className="shrink-0 flex items-center justify-center w-[48px] h-[48px]">
           {isExpanded ? (
-            <Search className="w-[18px] h-[18px] opacity-50" strokeWidth={2.5} />
+            <Sparkles className="w-[18px] h-[18px] opacity-60 text-purple-500" strokeWidth={2.5} />
           ) : (
-            <Sparkles className="w-[20px] h-[20px]" strokeWidth={2.5} />
+            <Search className="w-[20px] h-[20px]" strokeWidth={2.5} />
           )}
         </div>
         
