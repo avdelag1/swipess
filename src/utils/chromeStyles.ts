@@ -107,7 +107,7 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   };
 
   const iconColor = useLightIcons ? '#ffffff' : '#111111';
-  const inactiveIconColor = useLightIcons ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.45)';
+  const inactiveIconColor = useLightIcons ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.45)'; // Enhanced inactive whiteness
 
   return {
     useLightIcons,
@@ -115,7 +115,7 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
     inactiveIconColor,
     pillStyle,
     iconShadow: useLightIcons
-      ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
+      ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(255,255,255,0.2))' // Enhanced glow and shadow
       : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
   };
 }
