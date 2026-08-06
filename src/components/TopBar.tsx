@@ -141,20 +141,19 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
-        {/* LEFT: profile/back and AI — separate pills with breathing room */}
-        <div className="flex items-center gap-1.5 min-w-0 pointer-events-auto">
+        {/* LEFT: profile/back and AI — Grouped in a single pill */}
+        <div className="flex items-center px-1 py-1 rounded-full pointer-events-auto shadow-sm" style={glassPillStyle}>
           {onBack && !isSwipeDeck ? (
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:bg-white/20 transition-all group"
               aria-label="Back"
             >
               <HeaderIconSlot>
                 <ChevronLeft
                   className={cn(HEADER_ICON, "group-active:stroke-[3px] transition-all duration-150")}
-                  strokeWidth={2.2}
+                  strokeWidth={2.5}
                   style={{ color: iconColor, filter: iconShadow }}
                 />
               </HeaderIconSlot>
@@ -167,8 +166,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className={cn(HEADER_PILL_BASE, "group overflow-hidden p-0")}
-                style={glassPillStyle}
+                className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden hover:bg-white/10 active:bg-white/20 transition-all group"
                 aria-label="Open profile"
               >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -194,8 +192,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:bg-white/20 transition-all group"
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -205,7 +202,7 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
                   }}
-                  strokeWidth={1.9}
+                  strokeWidth={2.5}
                 />
               </HeaderIconSlot>
             </button>
@@ -214,29 +211,25 @@ function TopBarComponent({
 
         <div className="flex-grow flex-1" />
 
-        {/* RIGHT: each action in its own pill — 44px targets, gap between */}
+        {/* RIGHT: Notifications, map, tokens, theme toggles */}
         {!minimal && (
-          <div className="flex items-center gap-1 shrink-0 pointer-events-auto">
+          <div className="flex items-center px-1 py-1 rounded-full pointer-events-auto shadow-sm shrink-0 z-50" style={glassPillStyle}>
+            {/* Tokens/Premium removed for now, or keep Crown */}
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); setModal('showTokensModal', true); }}
-              onPointerDown={(e) => { e.stopPropagation(); }}
-              className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
-              aria-label={`Tokens${tokensLow ? ' — running low' : ''}`}
+              onClick={() => { haptics.tap(); navigate('/premium'); }}
+              className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:bg-white/20 transition-all group"
+              aria-label="Premium"
             >
               <HeaderIconSlot
-                badge={(
-                  <span
-                    className={cn(
-                      'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-background/80',
-                      tokensLow
-                        ? 'bg-amber-400 animate-pulse'
-                        : 'bg-brand-primary',
-                    )}
-                    aria-hidden
-                  />
-                )}
+                badge={
+                  tokensLow && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                    </span>
+                  )
+                }
               >
                 <Crown
                   className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
@@ -244,7 +237,7 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
                   }}
-                  strokeWidth={1.9}
+                  strokeWidth={2.5}
                 />
               </HeaderIconSlot>
             </button>
@@ -252,8 +245,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className={cn(HEADER_PILL_BASE, "group")}
-              style={glassPillStyle}
+              className="flex items-center justify-center h-8 w-8 rounded-full hover:bg-white/10 active:bg-white/20 transition-all group"
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -263,14 +255,14 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
                   }}
-                  strokeWidth={1.9}
+                  strokeWidth={2.5}
                 />
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={glassPillStyle} className={HEADER_PILL_BASE} />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="hover:bg-white/10 active:bg-white/20 rounded-full h-8 w-8" />
 
-            <NotificationPopover glassPillStyle={glassPillStyle} pillClassName={HEADER_PILL_BASE} />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="hover:bg-white/10 active:bg-white/20 rounded-full h-8 w-8" />
           </div>
         )}
 

@@ -151,12 +151,12 @@ export function SeekerRequestDialog() {
           style={{ background: headerGradient }}
         >
           <div>
-            <span className="text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 block"
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] mb-1.5 block opacity-90"
               style={{ color: activeCat?.color ?? '#A5B4FC' }}
             >
               Step {step + 1} of 2
             </span>
-            <h2 className="text-2xl font-black text-white tracking-tight italic">
+            <h2 className="text-3xl font-black text-white tracking-tight leading-none drop-shadow-sm">
               {step === 0 ? 'What do you need?' : `${activeCat?.label ?? 'Details'}`}
             </h2>
           </div>
@@ -180,21 +180,36 @@ export function SeekerRequestDialog() {
                       whileTap={{ scale: 0.92 }}
                       onClick={() => setForm(f => ({ ...f, categoryId: cat.id, subcategory: '' }))}
                       className={cn(
-                        'flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all border relative overflow-hidden',
+                        'flex flex-col items-center justify-center gap-2.5 p-3.5 rounded-2xl transition-all border relative overflow-hidden',
                         isSelected
-                          ? 'text-white border-white/25 shadow-neumorph'
-                          : 'bg-white/[0.04] border-white/[0.06] text-white/50 hover:bg-white/[0.08] hover:text-white/80'
+                          ? 'text-white border-white/30 shadow-neumorph scale-[1.02]'
+                          : 'bg-white/[0.05] border-white/[0.1] text-white hover:bg-white/[0.1] hover:text-white hover:scale-[1.02]'
                       )}
                       style={isSelected ? {
-                        background: `linear-gradient(135deg, ${cat.color}dd, ${cat.color}88)`,
-                        boxShadow: `0 8px 32px ${cat.color}40, inset 0 1px 0 rgba(255,255,255,0.15)`,
-                      } : undefined}
+                        background: `linear-gradient(135deg, ${cat.color}ee, ${cat.color}99)`,
+                        boxShadow: `0 8px 24px ${cat.color}60, inset 0 1px 0 rgba(255,255,255,0.25)`,
+                      } : {
+                        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.05)`,
+                      }}
                     >
                       {isSelected && (
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.3),transparent_60%)] pointer-events-none" />
                       )}
-                      <Icon className="w-6 h-6 mb-0.5 relative z-10" style={{ color: isSelected ? '#fff' : cat.color }} />
-                      <span className="text-[9px] font-black uppercase tracking-wider text-center relative z-10">{cat.label}</span>
+                      <Icon 
+                        className="w-7 h-7 mb-0.5 relative z-10 transition-colors" 
+                        strokeWidth={2.5}
+                        style={{ 
+                          color: isSelected ? '#ffffff' : cat.color,
+                          filter: isSelected ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : `drop-shadow(0 0 8px ${cat.color}40)`,
+                          opacity: isSelected ? 1 : 0.95
+                        }} 
+                      />
+                      <span 
+                        className="text-[10px] font-extrabold uppercase tracking-wider text-center relative z-10"
+                        style={{ color: isSelected ? '#ffffff' : 'rgba(255,255,255,0.85)' }}
+                      >
+                        {cat.label}
+                      </span>
                     </motion.button>
                   );
                 })}
@@ -206,26 +221,26 @@ export function SeekerRequestDialog() {
                 {/* Subcategory chips */}
                 {activeCat?.subcategories && (
                   <div>
-                    <Label className="text-[10px] uppercase tracking-[0.2em] font-black mb-2.5 block"
-                      style={{ color: activeCat.color }}
+                    <Label className="text-[11px] uppercase tracking-[0.15em] font-black mb-3 block"
+                      style={{ color: activeCat.color, textShadow: `0 2px 8px ${activeCat.color}40` }}
                     >
                       Specific service
                     </Label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2.5">
                       {activeCat.subcategories.map(sub => (
                         <motion.button
                           key={sub}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setForm(f => ({ ...f, subcategory: sub }))}
                           className={cn(
-                            'px-3.5 py-2 rounded-2xl text-[11px] font-bold transition-all border',
+                            'px-4 py-2.5 rounded-2xl text-[12px] font-extrabold transition-all border',
                             form.subcategory === sub
-                              ? 'text-white border-transparent shadow-lg'
-                              : 'bg-white/[0.04] border-white/[0.08] text-white/60 hover:bg-white/[0.08] hover:text-white/90'
+                              ? 'text-white border-transparent shadow-lg scale-105'
+                              : 'bg-white/[0.05] border-white/[0.1] text-white/80 hover:bg-white/[0.1] hover:text-white'
                           )}
                           style={form.subcategory === sub ? {
-                            background: `linear-gradient(135deg, ${activeCat.color}cc, ${activeCat.color}88)`,
-                            boxShadow: `0 4px 20px ${activeCat.color}30`,
+                            background: `linear-gradient(135deg, ${activeCat.color}ee, ${activeCat.color}aa)`,
+                            boxShadow: `0 6px 24px ${activeCat.color}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
                           } : undefined}
                         >
                           {sub}
