@@ -221,8 +221,8 @@ function TopBarComponent({
 
         {/* RIGHT: Notifications, map, tokens, theme toggles */}
         {!minimal && (
-          <div className="flex items-center px-1 py-1 rounded-full pointer-events-auto shadow-sm shrink-0 z-50" style={glassPillStyle}>
-            {/* Tokens/Premium removed for now, or keep Crown */}
+          <div className="flex items-center gap-1 pointer-events-auto shrink-0 z-50">
+            {/* Tokens/Premium */}
             <button
               type="button"
               onClick={() => { haptics.tap(); navigate('/premium'); }}

@@ -32,8 +32,8 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
   };
 
   return (
-    <div className="w-full mb-6 relative">
-      <div className="flex flex-row flex-nowrap items-center overflow-x-auto hide-scrollbar gap-2 px-4 -mx-4 w-[100vw] justify-start sm:justify-center snap-x snap-mandatory pb-1">
+    <div className="w-full mb-6">
+      <div className="grid grid-cols-3 gap-2 w-full">
         {filters.map((filter, index) => {
           const Icon = filter.icon;
           return (
@@ -47,7 +47,7 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
                 haptics.tap();
                 setModal('showFilters', true);
               }}
-              className="flex-shrink-0 flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm snap-center px-5 min-w-[110px]"
+              className="flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm"
               style={glassStyle}
             >
               <Icon className="w-[15px] h-[15px]" strokeWidth={2.5} />

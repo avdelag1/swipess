@@ -12,14 +12,8 @@ interface AISearchBarProps {
 }
 
 export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit }: AISearchBarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Handle click outside to collapse
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         if (isExpanded) {
           setIsExpanded(false);
@@ -47,15 +41,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     };
   }, [isExpanded]);
 
-  const handleExpand = () => {
-    if (!isExpanded) {
-      haptics.tap();
-      setIsExpanded(true);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100); // slight delay to let animation start
-    }
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
@@ -89,41 +74,18 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       ref={containerRef}
       className={cn("relative flex items-center justify-end h-[48px] w-full", className)}
     >
-      <motion.div
-        layout
-        onClick={handleExpand}
-        className={cn(
-          "absolute right-0 flex items-center rounded-full overflow-hidden cursor-pointer",
-          isExpanded ? "w-full" : "w-[48px]"
-        )}
+      <div
+        className="absolute right-0 flex items-center rounded-full overflow-hidden w-full"
         style={{
           height: '48px',
           ...glassStyle,
-          transformOrigin: 'right center',
         }}
-        initial={false}
-        animate={{
-          width: isExpanded ? '100%' : '48px',
-        }}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         <div className="shrink-0 flex items-center justify-center w-[48px] h-[48px]">
-          {isExpanded ? (
-            <Sparkles className="w-[18px] h-[18px] opacity-60 text-purple-500" strokeWidth={2.5} />
-          ) : (
-            <Search className="w-[20px] h-[20px]" strokeWidth={2.5} />
-          )}
+          <Sparkles className="w-[18px] h-[18px] opacity-60 text-purple-500" strokeWidth={2.5} />
         </div>
         
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15, delay: 0.05 }}
-              className="flex-1 flex items-center h-full"
-            >
+        <div className="flex-1 flex items-center h-full">
               <input
                 ref={inputRef}
                 type="text"
@@ -152,10 +114,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                   <Search className="w-5 h-5" strokeWidth={2} />
                 </button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+            </div>
+      </div>
     </div>
   );
 }

@@ -419,7 +419,11 @@ export const BottomNavigation = memo(({
                         style={{
                           width: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
                           height: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
-                          color: isAddBtn ? '#FFFFFF' : (active ? baseColor : inactiveIconColor),
+                          color: isAddBtn 
+                            ? '#FFFFFF' 
+                            : (isLight 
+                              ? (active ? '#000000' : 'rgba(0,0,0,0.7)') 
+                              : (active ? '#ffffff' : 'rgba(255,255,255,0.95)')),
                           fill: active && !isAddBtn ? baseColor : 'none',
                           strokeWidth: active || isAddBtn ? 2.5 : 2.0,
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
