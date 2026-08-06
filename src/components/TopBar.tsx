@@ -191,7 +191,6 @@ function TopBarComponent({
                   <span className="text-[12px] font-bold leading-none tracking-tight">
                     {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'}
                   </span>
-                  <span className="text-[11px]">👋</span>
                 </div>
               </div>
             )

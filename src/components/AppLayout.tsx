@@ -323,7 +323,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
+          <SwipessHud side="top" className="fixed top-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" revealMode={useRevealMode}>
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
@@ -365,7 +365,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {showAppChrome && (
         <Suspense fallback={null}>
-          <SwipessHud side="bottom" pointerEvents="auto" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" alwaysVisible={isDashboardPage && !useRevealMode} revealMode={useRevealMode}>
+          <SwipessHud side="bottom" pointerEvents="auto" className="fixed bottom-0 left-0 right-0 z-[40]" scrollTargetSelector="#dashboard-scroll-container" revealMode={useRevealMode}>
             <BottomNavigation
               userRole={userRole as any}
               onFilterClick={handleFilterClick}
