@@ -651,7 +651,7 @@ html {
   -webkit-overflow-scrolling: touch;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --top-bar-height: 58px;
+  --top-bar-height: 48px;
   --bottom-nav-height: 64px;
   --keyboard-height: 0px;
 }

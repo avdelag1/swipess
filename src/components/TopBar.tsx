@@ -134,8 +134,8 @@ function TopBarComponent({
       )}
       style={{
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
-        paddingTop: 'calc(var(--safe-top, 0px) + 6px)',
-        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) - 2px)',
+        paddingTop: 'calc(var(--safe-top, 0px) + 4px)',
+        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) - 10px)',
         background: 'transparent',
         border: 'none',
         viewTransitionName: 'swipess-header',
@@ -149,24 +149,24 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex items-center justify-center h-10 w-10 rounded-full transition-all group shadow-sm"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm"
               style={glassPillStyle}
               aria-label="Back"
             >
               <HeaderIconSlot>
                 <ChevronLeft
-                  className={cn(HEADER_ICON, "group-active:stroke-[3px] transition-all duration-150")}
-                  strokeWidth={2.5}
+                  className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
+                  strokeWidth={1.5}
                   style={{ color: iconColor, filter: iconShadow }}
                 />
               </HeaderIconSlot>
             </button>
           ) : (
             user && (
-              <div className="flex items-center gap-2 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
+              <div className="flex items-center gap-1.5 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -178,20 +178,20 @@ function TopBarComponent({
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
-                      initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
+                      initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
                         <div className="w-full h-full bg-white/20 flex items-center justify-center">
-                          <span className="text-[14px] font-black drop-shadow-sm" style={{ color: iconColor }}>
+                          <span className="text-[12px] font-black drop-shadow-sm" style={{ color: iconColor }}>
                             {initials}
                           </span>
                         </div>
                       )
                     )}
                 </button>
-                <div className="flex flex-col justify-center select-none" style={{ color: iconColor }}>
-                  <span className="text-[12px] font-medium opacity-80 leading-tight">Good afternoon,</span>
-                  <span className="text-[15px] font-bold leading-tight flex items-center gap-1">
-                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'} <span className="text-[14px]">👋</span>
+                <div className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
+                  <span className="text-[13px] font-bold leading-none tracking-tight">
+                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'}
                   </span>
+                  <span className="text-[12px]">👋</span>
                 </div>
               </div>
             )
@@ -201,7 +201,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-10 w-10 rounded-full transition-all group shadow-sm shrink-0"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm shrink-0"
               style={glassPillStyle}
               aria-label="AI Listing"
             >
@@ -212,7 +212,7 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
                   }}
-                  strokeWidth={2.5}
+                  strokeWidth={1.5}
                 />
               </HeaderIconSlot>
             </button>
@@ -223,7 +223,7 @@ function TopBarComponent({
 
         {/* RIGHT: Notifications, map, tokens, theme toggles */}
         {!minimal && (
-          <div className="flex items-center gap-1 pointer-events-auto shrink-0 z-50">
+          <div className="flex items-center gap-0.5 pointer-events-auto shrink-0 z-50">
             {/* Tokens/Premium */}
             <button
               type="button"
@@ -247,7 +247,7 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
                   }}
-                  strokeWidth={2.5}
+                  strokeWidth={1.5}
                 />
               </HeaderIconSlot>
             </button>
@@ -265,14 +265,14 @@ function TopBarComponent({
                     color: iconColor,
                     filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
                   }}
-                  strokeWidth={2.5}
+                  strokeWidth={1.5}
                 />
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-7 w-7" />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-6 w-6" />
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-7 w-7" />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-6 w-6" />
           </div>
         )}
 

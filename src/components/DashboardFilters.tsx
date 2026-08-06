@@ -15,6 +15,7 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
   ];
   
   const setModal = useModalStore(state => state.setModal);
+  const openPassportMap = useModalStore(state => state.openPassportMap);
 
   // True iOS Liquid Glass styles for Filters
   const glassStyle = {
@@ -45,7 +46,13 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 haptics.tap();
-                setModal('showFilters', true);
+                if (filter.id === 'location') {
+                  openPassportMap({ showCities: true });
+                } else if (filter.id === 'date') {
+                  setModal('showDatesModal', true);
+                } else if (filter.id === 'guests') {
+                  setModal('showGuestsModal', true);
+                }
               }}
               className="flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm"
               style={glassStyle}

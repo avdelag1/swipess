@@ -40,6 +40,8 @@ const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').t
 const ReportDialog = lazyWithRetry(() => import('@/components/ReportDialog').then(m => ({ default: m.ReportDialog })));
 const InviteFriendsDialog = lazyWithRetry(() => import('@/components/InviteFriendsDialog').then(m => ({ default: m.InviteFriendsDialog })));
 const NotificationDetailsDialog = lazyWithRetry(() => import('@/components/NotificationDetailsDialog').then(m => ({ default: m.NotificationDetailsDialog })));
+const DatesModal = lazyWithRetry(() => import('@/components/dialogs/QuickFilterModals').then(m => ({ default: m.DatesModal })));
+const GuestsModal = lazyWithRetry(() => import('@/components/dialogs/QuickFilterModals').then(m => ({ default: m.GuestsModal })));
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -140,6 +142,24 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           userRole={userRole}
           currentFilters={{}}
         />
+      </DeferredDialog>
+
+      <DeferredDialog when={store.showDatesModal} keepMounted threshold={0}>
+        <Suspense fallback={null}>
+          <DatesModal
+            isOpen={store.showDatesModal}
+            onClose={() => store.setModal('showDatesModal', false)}
+          />
+        </Suspense>
+      </DeferredDialog>
+
+      <DeferredDialog when={store.showGuestsModal} keepMounted threshold={0}>
+        <Suspense fallback={null}>
+          <GuestsModal
+            isOpen={store.showGuestsModal}
+            onClose={() => store.setModal('showGuestsModal', false)}
+          />
+        </Suspense>
       </DeferredDialog>
 
       <DeferredDialog when={store.showSubscriptionPackages}>

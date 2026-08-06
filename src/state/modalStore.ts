@@ -42,6 +42,8 @@ interface ModalState {
   showSupport: boolean;
   showMessageActivations: boolean;
   showFilters: boolean;
+  showDatesModal: boolean;
+  showGuestsModal: boolean;
   showAIChat: boolean;
   showAIListing: boolean;
   aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker' | null;
@@ -92,6 +94,8 @@ export const useModalStore = create<ModalState>((set) => ({
   showSupport: false,
   showMessageActivations: false,
   showFilters: false,
+  showDatesModal: false,
+  showGuestsModal: false,
   showAIChat: false,
   showAIListing: false,
   aiListingCategory: null,
