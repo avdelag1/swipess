@@ -44,16 +44,16 @@ export function PersistentDashboardScene() {
         pointerEvents: isDashboard ? 'auto' : 'none',
       }}
     >
-      {/* Solid Dark Base for Dashboard */}
-      <div className="absolute inset-0 z-[-1] bg-[#0a0a0f]" />
+      {/* Solid White Base for Dashboard */}
+      <div className="absolute inset-0 z-[-1] bg-white" />
 
-      {/* Ambient Dark Nebula / Sunset Gradient for Dashboard */}
+      {/* Ambient Tornasol / Sunset Gradient for Dashboard */}
       <div 
-        className="absolute inset-0 z-[0] pointer-events-none opacity-50"
+        className="absolute inset-0 z-[0] pointer-events-none opacity-40"
         style={{
-          background: 'linear-gradient(135deg, #b91c1c 0%, #ea580c 25%, #7e22ce 50%, #4338ca 75%, #1e1b4b 100%)',
-          backgroundSize: '400% 400%',
-          animation: 'tornasol-move 35s ease-in-out infinite',
+          background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 25%, #fb923c 50%, #f472b6 75%, #c084fc 100%)',
+          backgroundSize: '300% 300%',
+          animation: 'tornasol-move 15s ease infinite',
         }}
       />
       <style>{`
