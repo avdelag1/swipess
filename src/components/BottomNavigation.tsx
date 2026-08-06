@@ -293,7 +293,7 @@ export const BottomNavigation = memo(({
         transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
-        paddingBottom: 'calc(max(env(safe-area-inset-bottom) - 8px, 8px))',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
@@ -307,7 +307,7 @@ export const BottomNavigation = memo(({
         )}
         style={{
           ...pillStyle,
-          padding: '6px 8px',
+          padding: '4px 6px',
         }}
       >
         <div
@@ -361,8 +361,8 @@ export const BottomNavigation = memo(({
                   isAddBtn ? '-translate-y-3 shadow-lg' : ''
                 )}
                 style={{
-                  minWidth: isTablet ? '56px' : (isAddBtn ? '52px' : '44px'),
-                  minHeight: isTablet ? '56px' : (isAddBtn ? '52px' : '44px'),
+                  minWidth: isTablet ? '56px' : (isAddBtn ? '48px' : '42px'),
+                  minHeight: isTablet ? '56px' : (isAddBtn ? '48px' : '42px'),
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',

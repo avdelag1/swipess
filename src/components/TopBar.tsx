@@ -141,13 +141,14 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
-        {/* LEFT: profile/back and AI — Grouped in a single pill */}
-        <div className="flex items-center px-1 py-1 rounded-full pointer-events-auto shadow-sm" style={glassPillStyle}>
+        {/* LEFT: profile/back and AI — Separate elements */}
+        <div className="flex items-center gap-3 pointer-events-auto">
           {onBack && !isSwipeDeck ? (
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
+              className="flex items-center justify-center h-11 w-11 rounded-full transition-all group shadow-sm"
+              style={glassPillStyle}
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -160,10 +161,10 @@ function TopBarComponent({
             </button>
           ) : (
             user && (
-              <div className="flex items-center gap-2 pr-2 rounded-full overflow-hidden transition-all group glass-bubble-hover" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
+              <div className="flex items-center gap-2 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden shrink-0 pointer-events-none"
+                  className="flex items-center justify-center h-11 w-11 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -176,16 +177,18 @@ function TopBarComponent({
                       />
                     ) : (
                       initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
-                        <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
-                          {initials}
-                        </span>
+                        <div className="w-full h-full bg-white/20 flex items-center justify-center">
+                          <span className="text-[14px] font-black drop-shadow-sm" style={{ color: iconColor }}>
+                            {initials}
+                          </span>
+                        </div>
                       )
                     )}
                 </button>
                 <div className="flex flex-col justify-center select-none" style={{ color: iconColor }}>
-                  <span className="text-[9px] font-medium opacity-80 leading-tight">Good afternoon,</span>
-                  <span className="text-[13px] font-bold leading-tight flex items-center gap-1">
-                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'} <span className="text-[10px]">👋</span>
+                  <span className="text-[12px] font-medium opacity-80 leading-tight">Good afternoon,</span>
+                  <span className="text-[15px] font-bold leading-tight flex items-center gap-1">
+                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'} <span className="text-[14px]">👋</span>
                   </span>
                 </div>
               </div>
@@ -196,7 +199,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover ml-1 shrink-0"
+              className="flex items-center justify-center h-11 w-11 rounded-full transition-all group shadow-sm shrink-0"
+              style={glassPillStyle}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>

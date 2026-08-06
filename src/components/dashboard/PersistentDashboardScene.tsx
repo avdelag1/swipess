@@ -47,13 +47,13 @@ export function PersistentDashboardScene() {
       {/* Solid White Base for Dashboard */}
       <div className="absolute inset-0 z-[-1] bg-white" />
 
-      {/* Ambient Matte Red/Sunset Gradient for Dashboard */}
+      {/* Ambient Sunset Gradient for Dashboard */}
       <div 
-        className="absolute inset-0 z-[0] pointer-events-none opacity-35"
+        className="absolute inset-0 z-[0] pointer-events-none opacity-70"
         style={{
-          background: 'linear-gradient(135deg, #ffffff 0%, #fca5a5 20%, #ef4444 50%, #fb923c 80%, #ffffff 100%)',
+          background: 'linear-gradient(135deg, #FFFDD0 0%, #FFDAB9 25%, #FFB6C1 50%, #E6E6FA 75%, #ADD8E6 100%)',
           backgroundSize: '300% 300%',
-          animation: 'tornasol-move 25s ease-in-out infinite',
+          animation: 'tornasol-move 20s ease-in-out infinite',
         }}
       />
       <style>{`

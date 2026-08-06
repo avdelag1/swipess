@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SlidersHorizontal, Search } from 'lucide-react';
+import { SlidersHorizontal, Search, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -69,42 +69,47 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     }
   };
 
-  // Glass styles
+  // True iOS Liquid Glass styles for Search Bar
   const glassStyle = {
-    background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(15, 15, 20, 0.4)',
-    border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.1)',
-    boxShadow: '0 4px 16px rgba(0,0,0,0.05), inset 0 1px 2px rgba(255,255,255,0.2)',
-    backdropFilter: 'blur(20px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+    background: isLight 
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 100%)' 
+      : 'linear-gradient(145deg, rgba(15,15,20,0.6) 0%, rgba(15,15,20,0.3) 100%)',
+    border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.7)' : '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: isLight
+      ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 2px 10px rgba(255,255,255,0.6)'
+      : '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(40px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
     color: isLight ? '#000' : '#fff',
   };
 
   return (
     <div 
       ref={containerRef}
-      className={cn("relative flex items-center h-[46px] w-full max-w-[500px]", className)}
+      className={cn("relative flex items-center justify-end h-[48px] w-full", className)}
     >
       <motion.div
         layout
         onClick={handleExpand}
         className={cn(
-          "absolute left-0 flex items-center rounded-full overflow-hidden cursor-pointer shadow-sm",
-          isExpanded ? "w-full" : "w-[46px]"
+          "absolute right-0 flex items-center rounded-full overflow-hidden cursor-pointer",
+          isExpanded ? "w-full" : "w-[48px]"
         )}
         style={{
-          height: '46px',
+          height: '48px',
           ...glassStyle,
-          transformOrigin: 'left center',
+          transformOrigin: 'right center',
         }}
         initial={false}
         animate={{
-          width: isExpanded ? '100%' : '46px',
+          width: isExpanded ? '100%' : '48px',
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[46px] h-[46px]">
+        <div className="shrink-0 flex items-center justify-center w-[48px] h-[48px]">
           {isExpanded ? (
-            <Search className="w-[18px] h-[18px] opacity-60" strokeWidth={2} />
+            <Search className="w-[18px] h-[18px] opacity-50" strokeWidth={2.5} />
           ) : (
             <Search className="w-[20px] h-[20px]" strokeWidth={2.5} />
           )}
@@ -126,22 +131,25 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask AI to find anything..."
-                className="w-full h-full bg-transparent outline-none border-none text-[15px] font-medium placeholder:italic placeholder:opacity-50"
+                className="w-full h-full bg-transparent outline-none border-none text-[15px] font-medium placeholder:opacity-50"
                 style={{ color: 'inherit' }}
               />
               
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  haptics.tap();
-                  onFilterClick?.();
-                }}
-                className="shrink-0 flex items-center justify-center w-[46px] h-[46px] opacity-70 hover:opacity-100 transition-opacity"
-                aria-label="Filters"
-              >
-                <SlidersHorizontal className="w-5 h-5" strokeWidth={2} />
-              </button>
+              <div className="shrink-0 flex items-center pr-1">
+                <Sparkles className="w-4 h-4 mr-2 opacity-60 text-purple-500" strokeWidth={2.5} />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    haptics.tap();
+                    onFilterClick?.();
+                  }}
+                  className="flex items-center justify-center w-10 h-10 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
+                  aria-label="Filters"
+                >
+                  <SlidersHorizontal className="w-5 h-5" strokeWidth={2} />
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -37,7 +37,7 @@ export interface BentoCategoryDashboardProps {
 // grid stays balanced (no ragged gap at the bottom).
 const BENTO_ITEMS = [
   { id: 'property',    label: 'PROPERTIES',  description: 'Find properties to buy or rent',  size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
-  { id: 'recommended', label: 'RECOMMENDED', description: 'Curated just for you',            size: 'big',    imageId: 'events',     icon: Star,         delay: '4s' },
+  { id: 'recommended', label: 'FEATURED',    description: 'Swipess Picks',                   size: 'big',    imageId: 'events',     icon: Star,         delay: '4s' },
   { id: 'services',    label: 'WORKERS',     description: 'Find people offering services',   size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '8s' },
   { id: 'yacht',       label: 'YACHTS',      description: 'Yachts & boats to charter or buy', size: 'normal', imageId: 'yacht',      icon: Anchor,       delay: '12s' },
   { id: 'motorcycle',  label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',    size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '16s' },
@@ -93,15 +93,15 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     <div
       className="absolute inset-0 w-full h-full px-4 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
-        paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 12px)',
+        paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
         touchAction: 'pan-y',
       }}
     >
-      <div className="w-full max-w-3xl mx-auto mb-6 flex flex-col items-center">
-        <AISearchBar isLight={isLight} className="mb-4" />
+      <div className="w-full max-w-3xl mx-auto mb-3 flex flex-col gap-3 items-end">
+        <AISearchBar isLight={isLight} />
         <DashboardFilters isLight={isLight} />
       </div>
 

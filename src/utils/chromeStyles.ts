@@ -46,15 +46,16 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)' // Lighter glass on dashboard so black icons are visible
-      : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)', // Dark glass everywhere else so white icons pop
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.3)',
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)' // Stronger white fill for liquid glass
+      : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
+    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.15)',
+    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.7)' : '1px solid rgba(255, 255, 255, 0.3)',
+    borderLeft: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : undefined,
+    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.5)',
+    backdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(32px) saturate(180%) contrast(110%)',
+    WebkitBackdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(32px) saturate(180%) contrast(110%)',
     boxShadow: _isDashboard 
-      ? '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255,255,255,0.5)'
+      ? '0 10px 40px rgba(0, 0, 0, 0.12), inset 0 2px 10px rgba(255,255,255,0.6)'
       : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
@@ -86,15 +87,16 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)'
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)'
       : 'linear-gradient(145deg, rgba(15,15,20,0.85) 0%, rgba(15,15,20,0.6) 100%)',
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(0, 0, 0, 0.8)',
-    backdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
+    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.7)' : '1px solid rgba(255, 255, 255, 0.2)',
+    borderLeft: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : undefined,
+    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.8)',
+    backdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(40px) saturate(180%) contrast(110%)',
+    WebkitBackdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(40px) saturate(180%) contrast(110%)',
     boxShadow: _isDashboard
-      ? '0 12px 40px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255,255,255,0.5)'
+      ? '0 12px 40px rgba(0, 0, 0, 0.12), inset 0 2px 10px rgba(255,255,255,0.6)'
       : '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.6)',
     borderRadius: '9999px',
     pointerEvents: 'auto',

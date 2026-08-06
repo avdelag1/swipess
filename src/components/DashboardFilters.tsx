@@ -13,35 +13,41 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
     { id: 'guests', label: '2 guests', icon: Users },
   ];
 
-  const pillStyle = {
-    background: isLight ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.1)',
-    border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(20px) saturate(150%)',
-    WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+  // True iOS Liquid Glass styles for Filters
+  const glassStyle = {
+    background: isLight 
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)' 
+      : 'linear-gradient(145deg, rgba(15,15,20,0.6) 0%, rgba(15,15,20,0.3) 100%)',
+    border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.8)' : '1px solid rgba(255, 255, 255, 0.2)',
+    boxShadow: isLight
+      ? '0 10px 30px rgba(0, 0, 0, 0.08), inset 0 2px 10px rgba(255,255,255,0.7)'
+      : '0 10px 30px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(40px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
     color: isLight ? '#000' : '#fff',
   };
 
   return (
-    <div className="w-full overflow-x-auto hide-scrollbar mb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-      <div className="flex items-center gap-2 px-1 min-w-max">
+    <div className="w-full mb-6">
+      <div className="grid grid-cols-3 gap-2 w-full">
         {filters.map((filter, index) => {
           const Icon = filter.icon;
           return (
             <motion.button
               key={filter.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05, duration: 0.3 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 haptics.tap();
-                // We will connect this to real state later
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full shadow-sm"
-              style={pillStyle}
+              className="flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm"
+              style={glassStyle}
             >
-              <Icon className="w-3.5 h-3.5 opacity-70" />
-              <span className="text-[13px] font-medium whitespace-nowrap">{filter.label}</span>
+              <Icon className="w-[15px] h-[15px]" strokeWidth={2.5} />
+              <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap">{filter.label}</span>
             </motion.button>
           );
         })}
