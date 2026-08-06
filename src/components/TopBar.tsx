@@ -22,7 +22,7 @@ import {
   HEADER_PILL_BASE,
   isDashboardPath,
 } from '@/utils/chromeStyles';
-// AIIcon removed
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -78,7 +78,9 @@ function TopBarComponent({
   const { tokens } = useTokens();
   const { t } = useTranslation();
 
-  const isActuallyVisible = true;
+  const { isVisible: isScrollVisible } = useScrollDirection({ threshold: 20 });
+  const isActuallyVisible = isScrollVisible;
+
   const isDashboard = isDashboardPath(location.pathname);
   const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getTopBarChrome(isLight, isDashboard);
 
@@ -147,7 +149,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex items-center justify-center h-11 w-11 rounded-full transition-all group shadow-sm"
+              className="flex items-center justify-center h-10 w-10 rounded-full transition-all group shadow-sm"
               style={glassPillStyle}
               aria-label="Back"
             >
@@ -164,7 +166,7 @@ function TopBarComponent({
               <div className="flex items-center gap-2 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-11 w-11 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-10 w-10 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -199,7 +201,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-11 w-11 rounded-full transition-all group shadow-sm shrink-0"
+              className="flex items-center justify-center h-10 w-10 rounded-full transition-all group shadow-sm shrink-0"
               style={glassPillStyle}
               aria-label="AI Listing"
             >
@@ -226,7 +228,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); navigate('/premium'); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
+              className="flex items-center justify-center h-7 w-7 rounded-full transition-all group"
               aria-label="Premium"
             >
               <HeaderIconSlot
@@ -253,7 +255,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
+              className="flex items-center justify-center h-7 w-7 rounded-full transition-all group"
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -268,9 +270,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-8 w-8 glass-bubble-hover" />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-7 w-7" />
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-8 w-8 glass-bubble-hover" />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-7 w-7" />
           </div>
         )}
 

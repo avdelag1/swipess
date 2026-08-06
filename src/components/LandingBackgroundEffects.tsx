@@ -360,7 +360,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     };
 
     const drawSunset = () => {
-      time += 0.005;
+      time += 0.015;
       
       // Sky Gradient
       const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);

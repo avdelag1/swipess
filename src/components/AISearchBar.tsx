@@ -14,42 +14,13 @@ interface AISearchBarProps {
 export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit }: AISearchBarProps) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        if (isExpanded) {
-          setIsExpanded(false);
-          inputRef.current?.blur();
-        }
-      }
-    }
-    
-    // Handle scroll to collapse
-    function handleScroll() {
-      if (isExpanded) {
-        setIsExpanded(false);
-        inputRef.current?.blur();
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [isExpanded]);
-
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
       haptics.success();
       onSearchSubmit?.(query);
-      setIsExpanded(false);
+      inputRef.current?.blur();
     }
     if (e.key === 'Escape') {
-      setIsExpanded(false);
       inputRef.current?.blur();
     }
   };

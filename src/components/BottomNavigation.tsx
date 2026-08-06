@@ -35,6 +35,7 @@ import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -52,9 +53,9 @@ import { getNavMotionId } from '@/lib/motion-constants';
 import { getBottomNavChrome, getGlassBubbleStyle } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
-const ICON_SIZE = 26;
-
-const ICON_SIZE_TABLET = 28;
+const ICON_SIZE = 20;
+const ICON_SIZE_TABLET = 24;
+const ADD_BTN_SIZE = 40;
 const _TOUCH_TARGET = 34;
 const _TOUCH_TARGET_TABLET = 42;
 
@@ -101,7 +102,7 @@ export const BottomNavigation = memo(({
   const showVapId = useModalStore((s) => s.showVapId);
   const showTokensModal = useModalStore((s) => s.showTokensModal);
   const showFilters = useModalStore((s) => s.showFilters);
-  const closeAll = useModalStore((s) => s.closeAll);
+  const closeAll = useModalStore((s) => closeAll);
   const { isLight } = useAppTheme();
 
   // Always visible on every page — no chrome-reveal hiding
@@ -143,6 +144,8 @@ export const BottomNavigation = memo(({
     }
     navigate('/owner/properties?add=1');
   }, [userRole, onAddListingClick, navigate]);
+
+  const { isVisible: isScrollVisible } = useScrollDirection({ threshold: 20 });
 
   const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
@@ -285,12 +288,11 @@ export const BottomNavigation = memo(({
       aria-label="Main navigation"
       data-skip-press-engine
       className={cn(
-        'app-bottom-bar transition-all duration-150 w-full flex justify-center',
-        isActuallyVisible ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
+        'app-bottom-bar transition-all duration-300 ease-out w-full flex justify-center',
+        (isActuallyVisible && isScrollVisible) ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
         className
       )}
       style={{
-        transitionTimingFunction: 'ease-out',
         paddingLeft: 'max(0px, env(safe-area-inset-left))',
         paddingRight: 'max(0px, env(safe-area-inset-right))',
         paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
@@ -374,8 +376,8 @@ export const BottomNavigation = memo(({
                 <div
                   className="relative z-10 flex items-center justify-center rounded-full"
                   style={{
-                    width: isAddBtn ? '48px' : (active ? '46px' : '40px'),
-                    height: isAddBtn ? '48px' : (active ? '46px' : '40px'),
+                    width: isAddBtn ? `${ADD_BTN_SIZE}px` : (active ? '40px' : '36px'),
+                    height: isAddBtn ? `${ADD_BTN_SIZE}px` : (active ? '40px' : '36px'),
                     transition: 'width 140ms ease, height 140ms ease',
                     ...(isAddBtn ? {} : getGlassBubbleStyle(isLight, false))
                   }}
@@ -417,8 +419,8 @@ export const BottomNavigation = memo(({
                     const iconEl = (
                       <Icon
                         style={{
-                          width: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
-                          height: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
+                          width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                           color: isAddBtn 
                             ? '#FFFFFF' 
                             : (isLight 
