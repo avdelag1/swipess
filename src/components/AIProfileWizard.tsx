@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AudioLines, Camera, Loader2, Mic, Search, Sparkles, Wand2, X } from 'lucide-react';
+import { Camera, Loader2, Mic, Sparkles, Wand2, X, AlertCircle, ArrowRight, Wallet, Key, Users } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { Button } from '@/components/ui/button';
@@ -330,23 +330,21 @@ export function AIProfileWizard() {
         openAIListing('property');
       } else {
         setModal('showAIProfile', false);
-        if (mode === 'client') {
-          navigate(`/profile/${user.id}`);
-        } else {
-          // owner_profiles have no public /profile/:id page
-          navigate('/client/profile');
-        }
-      }
-    } catch (err: any) {
-      logger.error('Process failed', err);
-      appToast.error('Could not create your profile. Try again.');
+      
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      setTimeout(() => handleClose(), 600);
+
+    } catch (err) {
+      logger.error('Profile creation failed:', err);
+      appToast.error('Failed to create profile. Try again.');
       setStep('compose');
-    } finally {
       setIsProcessing(false);
     }
   };
 
-  const placeholder = "e.g. I'm Maria, 28, designer. Looking for a 2-bedroom in Miami under $1500. I also have a small beachfront condo I host sometimes. Pet-friendly, English & Spanish.";
+  const placeholder = mode === 'client' 
+    ? "e.g. I'm Alex, a software engineer moving to Miami next month. Looking for a modern 2-bed apartment near the beach. I love surfing and need high-speed internet." 
+    : "e.g. I'm Sarah, I own a beautiful renovated villa in Tuscany with 4 bedrooms, a pool, and stunning vineyard views. Perfect for families.";
 
   return (
     <AnimatePresence>
@@ -354,10 +352,9 @@ export function AIProfileWizard() {
         <motion.div
           key="ai-profile-wizard"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.15 }}
           className={cn(
-            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6",
-            isLight && "modal-scrim--lux"
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6 modal-scrim--dark"
           )}
           style={{ 
             paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
@@ -365,28 +362,25 @@ export function AIProfileWizard() {
           }}
         >
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden rounded-[2rem] sm:rounded-[3rem] flex flex-col relative",
-              isLight ? "bg-white/70" : "bg-zinc-900/60"
+              "w-full max-w-2xl mx-auto h-full sm:h-[85vh] overflow-hidden rounded-[2.5rem] flex flex-col relative",
+              "bg-[#0a0a0f]/80"
             )}
             style={{
-              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              border: isLight ? '0.5px solid rgba(255, 255, 255, 0.6)' : '0.5px solid rgba(255, 255, 255, 0.15)',
-              boxShadow: isLight
-                ? '0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
-                : '0 10px 40px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
-              transform: 'translateZ(0)',
-              willChange: 'transform',
+              backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2)',
             }}
           >
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
-             <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#EB4898]/10 blur-[100px] rounded-full mix-blend-screen" />
+             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 blur-[120px] rounded-full mix-blend-screen" />
+             <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-gradient-to-tr from-violet-600/20 to-[#EB4898]/20 blur-[120px] rounded-full mix-blend-screen" />
           </div>
           
           <AnimatePresence>
@@ -404,52 +398,67 @@ export function AIProfileWizard() {
           </AnimatePresence>
 
           <div
-            className="shrink-0 flex items-center justify-between px-8 pb-5 border-transparent relative z-10"
-            style={{ paddingTop: 'max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
+            className="shrink-0 flex items-center justify-between px-8 pb-4 pt-6 border-b border-white/10 relative z-10 bg-white/5"
+            style={{ paddingTop: 'max(1.5rem, calc(env(safe-area-inset-top, 0px) + 1rem))' }}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25">
+              <div className="w-14 h-14 rounded-[1.25rem] bg-gradient-to-br from-[#6366F1]/20 to-[#8B5CF6]/20 flex items-center justify-center border border-[#8B5CF6]/40 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                 <MotionIcon id="ai-sparkle" loop={isProcessing}>
-                  <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
+                  <Sparkles className="w-7 h-7 text-[#A5B4FC]" />
                 </MotionIcon>
               </div>
               <div>
-                <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>Magic Profile</h2>
-                <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-[#8B5CF6]">One-Step Setup</span>
+                <h2 className="text-xl font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>Magic Profile</h2>
+                <span className="text-[11px] opacity-80 font-bold uppercase tracking-widest text-[#A5B4FC]">One-Step AI Setup</span>
               </div>
             </div>
+            
+            <button
+              onClick={handleClose}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90 group",
+                closeBtnCls
+              )}
+            >
+              <X className="w-6 h-6 text-white/80 group-hover:text-white group-hover:rotate-90 transition-all duration-300" />
+            </button>
           </div>
 
           <ScrollArea className="flex-1 overflow-hidden relative z-10">
-            <div className="px-8 pt-8 pb-32">
+            <div className="px-6 sm:px-10 pt-8 pb-32">
               <AnimatePresence mode="sync">
                 {step === 'compose' && (
-                  <motion.div key="compose" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                  <motion.div key="compose" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
                     
-                    {/* Onboarding Banner */}
                     {isOnboardingActive && (
-                      <div className="bg-[#6366F1]/10 border-transparent p-5 rounded-3xl mb-6 shadow-inner relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#8B5CF6]/10 blur-[50px] rounded-full pointer-events-none" />
-                        <h3 className="text-[#A5B4FC] font-black uppercase tracking-widest text-xs mb-1.5 flex items-center gap-2">
+                      <div className="bg-gradient-to-br from-[#6366F1]/20 to-purple-600/10 border border-[#8B5CF6]/30 p-6 rounded-[2rem] shadow-[inset_0_0_40px_rgba(99,102,241,0.1)] relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#8B5CF6]/30 blur-[60px] rounded-full pointer-events-none" />
+                        <h3 className="text-[#A5B4FC] font-black uppercase tracking-[0.15em] text-sm mb-2 flex items-center gap-2">
                           <MotionIcon id="ai-sparkle" loop>
-                            <Sparkles className="w-4 h-4" />
+                            <Sparkles className="w-5 h-5" />
                           </MotionIcon>
-                          Welcome! Let's get started.
+                          Welcome to the Future
                         </h3>
-                        <p className={cn("text-xs font-bold leading-relaxed", textPrimary)}>
-                          Upload a photo and tell us a bit about yourself to complete your profile. We'll set everything up for you automatically!
+                        <p className={cn("text-sm font-medium leading-relaxed opacity-90", textPrimary)}>
+                          Upload a photo and tell us a bit about yourself. Our AI will analyze your inputs and set up your entire profile automatically!
                         </p>
                       </div>
                     )}
 
                     {mode === 'client' && (
-                      <div className="space-y-4">
-                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>
-                          1. What are you looking for?
+                      <div className="space-y-5">
+                        <label className={cn("text-[11px] font-black uppercase tracking-[0.25em] ml-2 text-[#A5B4FC]")}>
+                          1. Your Intention
                         </label>
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 gap-4">
                           {CLIENT_TYPE_OPTIONS.map((option) => {
                             const active = selectedClientType === option.id;
+                            
+                            // Map to sleek Lucide icons instead of emojis
+                            let IconComponent = Wallet;
+                            if (option.id === 'renter') IconComponent = Key;
+                            else if (option.id === 'hire') IconComponent = Users;
+
                             return (
                               <button
                                 key={option.id}
@@ -459,18 +468,21 @@ export function AIProfileWizard() {
                                   setSelectedClientType(option.id);
                                 }}
                                 className={cn(
-                                  'flex items-center gap-4 p-5 rounded-3xl border-transparent transition-all active:scale-[0.98]',
+                                  'flex items-center gap-5 p-6 rounded-[2rem] border transition-all duration-300 active:scale-[0.98] group relative overflow-hidden',
                                   active
-                                    ? 'bg-[#8B5CF6]/10 shadow-[0_0_24px_rgba(139,92,246,0.2)] ring-2 ring-[#8B5CF6]'
-                                    : isLight
-                                      ? 'shadow-sm bg-white hover:shadow-md'
-                                      : 'shadow-md bg-[#1c1c22] hover:bg-[#26262e]',
+                                    ? 'bg-gradient-to-br from-[#8B5CF6]/20 to-[#6366F1]/20 border-[#8B5CF6]/50 shadow-[0_0_30px_rgba(139,92,246,0.3)]'
+                                    : 'bg-[#13131a] border-white/5 hover:border-white/20 hover:bg-[#1a1a24]',
                                 )}
                               >
-                                <span className="text-2xl">{option.emoji}</span>
-                                <div className="min-w-0">
-                                  <p className={cn('text-sm font-bold', textPrimary)}>{option.label}</p>
-                                  <p className={cn('text-[11px] mt-0.5', textMuted)}>{option.description}</p>
+                                {active && (
+                                  <motion.div layoutId="client-active-glow" className="absolute inset-0 bg-[#8B5CF6]/10 mix-blend-screen pointer-events-none" />
+                                )}
+                                <div className={cn("p-4 rounded-2xl transition-all z-10", active ? "bg-[#8B5CF6]/20 text-[#A5B4FC]" : "bg-white/5 text-white/50 group-hover:bg-white/10 group-hover:text-white/80")}>
+                                  <IconComponent className="w-8 h-8" />
+                                </div>
+                                <div className="min-w-0 text-left relative z-10">
+                                  <p className={cn('text-lg font-black tracking-tight', active ? 'text-white' : 'text-white/90')}>{option.label}</p>
+                                  <p className={cn('text-xs font-medium mt-1 leading-relaxed', active ? 'text-[#A5B4FC]' : 'text-white/50 group-hover:text-white/70 transition-colors')}>{option.description}</p>
                                 </div>
                               </button>
                             );
@@ -479,66 +491,65 @@ export function AIProfileWizard() {
                       </div>
                     )}
                     
-                    {/* Photos */}
-                    <div className="space-y-4">
-                      <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>
+                    <div className="space-y-5">
+                      <label className={cn("text-[11px] font-black uppercase tracking-[0.25em] ml-2 text-[#A5B4FC]")}>
                         {mode === 'client' ? '2. Photo' : '1. Photo'}
                       </label>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-5">
                         {imageFiles[0] && imagePreview ? (
-                          <div className={cn("aspect-square rounded-3xl overflow-hidden border relative shadow-2xl", isLight ? "border-slate-200" : "border-white/10")}>
+                          <div className={cn("aspect-square rounded-[2rem] overflow-hidden border-2 relative shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-white/20")}>
                             <img src={imagePreview} alt="Profile photo preview" className="w-full h-full object-cover" />
-                            <button onClick={() => setImageFiles([])} className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/60 rounded-full border border-white/10">
-                              <X className="w-4 h-4 text-white" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                            <button onClick={() => setImageFiles([])} className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full border border-white/20 transition-all active:scale-90">
+                              <X className="w-5 h-5 text-white" />
                             </button>
                           </div>
                         ) : (
                           <button onClick={handleImageAdd}
-                            className={cn("aspect-square rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-3 hover:bg-[#6366F1]/5 hover:border-[#8B5CF6]/40 transition-all group shadow-inner", isLight ? "border-slate-300" : "border-white/10")}>
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/5")}>
-                              <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
+                            className={cn("aspect-square rounded-[2.5rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 hover:bg-[#6366F1]/10 hover:border-[#8B5CF6]/50 transition-all group shadow-inner border-white/15 bg-[#13131a]")}>
+                            <div className={cn("p-4 rounded-[1.5rem] border group-hover:bg-[#6366F1]/30 group-hover:border-[#8B5CF6]/50 group-hover:scale-110 transition-all duration-300 bg-white/5 border-white/10")}>
+                              <Camera className="w-8 h-8 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
                             </div>
-                            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Add Photo</span>
+                            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-70 group-hover:opacity-100 transition-opacity", textPrimary)}>Upload Photo</span>
                           </button>
                         )}
-                        <div className={cn("aspect-square rounded-[2rem] border flex items-center justify-center text-center p-4", isLight ? "border-slate-200" : "border-white/8")}>
-                          <p className={cn("text-[10px] font-bold uppercase tracking-widest leading-relaxed", textMuted)}>One photo required for your profile</p>
+                        <div className={cn("aspect-square rounded-[2.5rem] border flex items-center justify-center text-center p-6 border-white/5 bg-[#13131a]/50")}>
+                          <p className={cn("text-xs font-bold uppercase tracking-widest leading-loose", textMuted)}>We just need one great photo of you to get started.</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Description */}
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="flex items-center justify-between ml-2">
-                        <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>
-                          {mode === 'client' ? '3. Description' : '2. Description'}
+                        <span className={cn("text-[11px] font-black uppercase tracking-[0.25em] text-[#A5B4FC]")}>
+                          {mode === 'client' ? '3. Tell us about you' : '2. Tell us about you'}
                         </span>
                         <button
                           type="button"
                           onClick={handleEnhanceNarrative}
                           disabled={!narrative.trim() || isEnhancing}
                           className={cn(
-                            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
+                            "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                             narrative.trim() && !isEnhancing
-                              ? "bg-[#6366F1]/12 border-[#8B5CF6]/30 text-[#A5B4FC] hover:bg-[#6366F1]/20"
-                              : "opacity-40 bg-white/5 border-white/10 text-white/70 cursor-not-allowed"
+                              ? "bg-gradient-to-r from-[#6366F1]/20 to-purple-500/20 border-[#8B5CF6]/50 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] hover:border-white/50"
+                              : "opacity-40 bg-white/5 border-white/10 text-white/50 cursor-not-allowed"
                           )}
                         >
-                          {isEnhancing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
-                          {isEnhancing ? 'Improving...' : '✨ Improve Description'}
+                          {isEnhancing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+                          {isEnhancing ? 'Improving...' : 'AI Enhance'}
                         </button>
                       </div>
 
                       <div className="relative group">
                         <Popover open={micTipOpen} onOpenChange={setMicTipOpen}>
                           <PopoverTrigger asChild>
-                            <div className="absolute right-4 top-4 z-10 flex items-center justify-center">
+                            <div className="absolute right-5 top-5 z-10 flex items-center justify-center">
                               {isRecording && (
                                 <motion.div
-                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] blur-md pointer-events-none"
+                                  className="absolute inset-0 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] blur-xl pointer-events-none"
                                   animate={{ 
-                                    scale: 1 + (micVolume / 255) * 1.5,
-                                    opacity: 0.4 + (micVolume / 255) * 0.6 
+                                    scale: 1 + (micVolume / 255) * 2,
+                                    opacity: 0.5 + (micVolume / 255) * 0.5 
                                   }}
                                   transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                 />
@@ -546,10 +557,10 @@ export function AIProfileWizard() {
                               <button
                                 onClick={handleVoiceToggle}
                                 className={cn(
-                                  "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
+                                  "relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-2xl overflow-hidden",
                                   isRecording 
-                                    ? "text-white shadow-[0_0_30px_rgba(99,102,241,0.55)] scale-110" 
-                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-105"
+                                    ? "text-white shadow-[0_0_40px_rgba(99,102,241,0.8)] scale-110" 
+                                    : "bg-white/10 hover:bg-white/20 border border-white/20 hover:scale-110"
                                 )}
                                 style={isRecording ? { background: NEXUS_GRADIENTS.ai } : undefined}
                               >
@@ -557,75 +568,75 @@ export function AIProfileWizard() {
                                   <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 )}
                                 {isRecording ? (
-                                  <Mic className="w-5 h-5 relative z-10 text-white animate-pulse" />
+                                  <Mic className="w-6 h-6 relative z-10 text-white animate-pulse" />
                                 ) : (
-                                  <Mic className="w-5 h-5 relative z-10 text-white" />
+                                  <Mic className="w-6 h-6 relative z-10 text-white" />
                                 )}
                               </button>
                             </div>
                           </PopoverTrigger>
                           <PopoverContent
                             side="top"
-                            sideOffset={12}
-                            className="w-72 p-4 rounded-2xl border border-[#8B5CF6]/30 bg-black/95 text-white shadow-2xl backdrop-blur-xl"
+                            sideOffset={16}
+                            className="w-72 p-5 rounded-3xl border border-[#8B5CF6]/40 bg-[#13131a]/95 text-white shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl"
                           >
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <AudioLines className="w-4 h-4 text-[#A5B4FC]" />
-                                <span className="text-[11px] font-black uppercase tracking-widest text-[#A5B4FC]">Voice to Text</span>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3">
+                                <AudioLines className="w-5 h-5 text-[#A5B4FC]" />
+                                <span className="text-xs font-black uppercase tracking-[0.2em] text-[#A5B4FC]">Voice to Text</span>
                               </div>
-                              <p className="text-[12px] leading-relaxed text-white">
-                                Tap to describe yourself out loud. The visualizer reacts to your voice!
+                              <p className="text-sm font-medium leading-relaxed text-white/90">
+                                Tap the mic to describe yourself out loud. Our AI will transcribe your voice into the perfect profile description!
                               </p>
                             </div>
                           </PopoverContent>
                         </Popover>
 
                         <div className="relative">
-                          <Search className="absolute left-5 top-5 w-4 h-4 text-[#A5B4FC] opacity-90" />
+                          <Search className="absolute left-6 top-6 w-5 h-5 text-[#A5B4FC] opacity-70" />
                           <textarea
                             value={narrative}
                             onChange={(e) => setNarrative(e.target.value)}
                             placeholder={placeholder}
-                            className={cn("w-full h-44 p-5 pl-14 pr-16 rounded-[2rem] text-sm leading-relaxed resize-none italic outline-none focus:ring-1 focus:ring-[#8B5CF6]/30", inputCls)}
+                            className={cn("w-full h-56 p-6 pl-14 pr-20 resize-none italic outline-none", inputCls)}
                           />
                           {isRecording && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-[2rem] border border-[#8B5CF6]/50 z-20 overflow-hidden">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-lg rounded-[2rem] border border-[#8B5CF6]/50 z-20 overflow-hidden">
                               <motion.div
-                                className="absolute inset-0 bg-gradient-to-r from-[#06B6D4]/20 to-[#8B5CF6]/20 mix-blend-overlay"
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="absolute inset-0 bg-gradient-to-r from-[#06B6D4]/30 to-[#8B5CF6]/30 mix-blend-screen"
+                                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                                transition={{ repeat: Infinity, duration: 2 }}
                               />
-                              <div className="flex items-center gap-2 mb-3 relative z-10">
-                                <Mic className="w-6 h-6 text-white animate-pulse" />
-                                <span className="text-sm font-black uppercase tracking-widest text-white">Listening...</span>
+                              <div className="flex items-center gap-3 mb-4 relative z-10">
+                                <Mic className="w-8 h-8 text-white animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                                <span className="text-base font-black uppercase tracking-[0.2em] text-white drop-shadow-md">Listening...</span>
                               </div>
-                              <div className="flex gap-1 items-end h-8 relative z-10">
-                                {[...Array(12)].map((_, i) => (
+                              <div className="flex gap-1.5 items-end h-10 relative z-10">
+                                {[...Array(16)].map((_, i) => (
                                   <motion.div
                                     key={i}
-                                    className="w-1.5 bg-gradient-to-t from-[#06B6D4] to-[#8B5CF6] rounded-full"
+                                    className="w-2 bg-gradient-to-t from-[#06B6D4] to-[#8B5CF6] rounded-full shadow-[0_0_10px_rgba(139,92,246,0.8)]"
                                     animate={{
-                                      height: isRecording ? Math.max(4, (micVolume / 255) * 32 * (Math.random() * 0.5 + 0.5)) : 4
+                                      height: isRecording ? Math.max(6, (micVolume / 255) * 40 * (Math.random() * 0.6 + 0.4)) : 6
                                     }}
                                     transition={{ type: "spring", bounce: 0, duration: 0.1 }}
                                   />
                                 ))}
                               </div>
                               {interimTranscript ? (
-                                <p className="mt-3 px-6 max-h-24 overflow-hidden text-center text-sm font-semibold text-white leading-snug relative z-10 line-clamp-3">
-                                  {interimTranscript}
+                                <p className="mt-5 px-8 max-h-24 overflow-hidden text-center text-sm font-bold text-white leading-relaxed relative z-10 line-clamp-3 drop-shadow-md">
+                                  "{interimTranscript}"
                                 </p>
                               ) : (
-                                <p className="mt-3 text-[10px] font-bold text-white/70 uppercase tracking-widest relative z-10">Speak — your words appear live</p>
+                                <p className="mt-5 text-[11px] font-black text-white/50 uppercase tracking-[0.2em] relative z-10">Speak your thoughts loud & clear</p>
                               )}
                             </div>
                           )}
                           {isTranscribing && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm rounded-[2rem]">
-                              <div className="flex items-center gap-3 px-4 py-2 bg-black rounded-full border border-[#8B5CF6]/30 shadow-2xl">
-                                <Loader2 className="w-4 h-4 text-[#A5B4FC] animate-spin" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#A5B4FC]">Transcribing...</span>
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md rounded-[2rem]">
+                              <div className="flex items-center gap-4 px-6 py-4 bg-[#13131a] rounded-full border border-[#8B5CF6]/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                                <Loader2 className="w-5 h-5 text-[#A5B4FC] animate-spin" />
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#A5B4FC]">Processing Audio...</span>
                               </div>
                             </div>
                           )}
@@ -633,57 +644,81 @@ export function AIProfileWizard() {
                       </div>
                     </div>
 
-                    <div className="pt-4 px-1 pb-10 space-y-4">
-                      <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-50 px-4", isLight ? "text-black" : "text-white")}>
-                        By continuing, your data is securely sent to OpenAI for processing to generate your profile. See our Legal Hub for privacy details.
+                    <div className="pt-6 px-2 pb-10 space-y-6">
+                      <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-40 px-6", textPrimary)}>
+                        Your data is securely processed by OpenAI to generate your premium profile.
                       </p>
                       <motion.button
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={handleProcess}
                         disabled={!narrative.trim() || isProcessing || imageFiles.length === 0}
                         className={cn(
-                          "w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[14px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-all",
-                          (!narrative.trim() || isProcessing || imageFiles.length === 0) ? "opacity-40 saturate-50 shadow-none cursor-not-allowed" : ""
+                          "w-full h-20 rounded-[2.5rem] flex items-center justify-center gap-4 text-white font-black uppercase tracking-[0.2em] text-base shadow-[0_15px_40px_rgba(99,102,241,0.4)] border border-white/20 relative overflow-hidden transition-all duration-300",
+                          (!narrative.trim() || isProcessing || imageFiles.length === 0) ? "opacity-30 saturate-0 shadow-none cursor-not-allowed border-white/5" : "hover:shadow-[0_20px_50px_rgba(99,102,241,0.6)] hover:scale-[1.02]"
                         )}
-                        style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+                        style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1, #8B5CF6)' }}
                       >
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent_60%)] pointer-events-none" />
                         {isProcessing ? (
                           <MotionIcon id="ai-sparkle" loop className="relative z-10">
-                            <PremiumSpinner className="w-5 h-5" />
+                            <PremiumSpinner className="w-6 h-6" />
                           </MotionIcon>
                         ) : (
                           <MotionIcon id="ai-sparkle" className="relative z-10">
-                            <Wand2 className="w-5 h-5" />
+                            <Wand2 className="w-6 h-6" />
                           </MotionIcon>
                         )}
-                        <span className="relative z-10">Create Profile</span>
+                        <span className="relative z-10 drop-shadow-md">Generate AI Profile</span>
                       </motion.button>
+                      
+                      {isOnboardingActive && (
+                        <div className="pt-2">
+                          <button
+                            onClick={handleClose}
+                            className="w-full text-center text-sm font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest py-3"
+                          >
+                            Skip for now
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
 
                 {step === 'processing' && (
-                  <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="h-full flex flex-col items-center justify-center space-y-12 py-20">
-                    <div className="relative w-40 h-40">
+                  <motion.div key="processing" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.1 }}
+                    className="h-full flex flex-col items-center justify-center space-y-16 py-24">
+                    <div className="relative w-48 h-48">
                         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
+                          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="4" fill="none" className="text-white/10" />
                           <motion.circle
                             cx="50" cy="50" r="44"
-                            stroke="#6366F1" strokeWidth="6" fill="none"
+                            stroke="url(#ai-gradient)" strokeWidth="6" fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 44}
                             initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
                             animate={{ strokeDashoffset: 2 * Math.PI * 44 * (1 - progressPct / 100) }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                           />
+                          <defs>
+                            <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#06B6D4" />
+                              <stop offset="50%" stopColor="#6366F1" />
+                              <stop offset="100%" stopColor="#8B5CF6" />
+                            </linearGradient>
+                          </defs>
                         </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className={cn("text-3xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
+                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                          <MotionIcon id="ai-sparkle" loop>
+                             <Sparkles className="w-8 h-8 text-[#A5B4FC] mb-2" />
+                          </MotionIcon>
+                          <span className="text-4xl font-black tabular-nums text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">{Math.round(progressPct)}%</span>
                         </div>
                       </div>
-                    <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter", textPrimary)}>Building your profile</h3>
+                    <div className="text-center space-y-3">
+                      <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-white drop-shadow-md">Crafting Persona</h3>
+                      <p className="text-sm font-bold text-[#A5B4FC] uppercase tracking-widest">Please wait a moment...</p>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -138,10 +138,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
                 <div>
-                  <h2 className="text-lg font-black tracking-tight text-foreground">
+                  <h2 className="text-lg font-black tracking-tight text-white">
                     {PREMIUM_FOR_EVERYONE ? 'Premium Messaging' : 'Message Tokens'}
                   </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-white/70 mt-0.5">
                     {PREMIUM_FOR_EVERYONE ? (
                       <span className="font-bold text-primary">Premium · Unlimited messaging</span>
                     ) : (
@@ -151,10 +151,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                 </div>
                 <button
                   onClick={close}
-                  className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                  className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
                   aria-label="Close"
                 >
-                  <X className="w-5 h-5 text-muted-foreground" />
+                  <X className="w-5 h-5 text-white/70" />
                 </button>
               </div>
 
@@ -167,15 +167,15 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[9px] font-black uppercase tracking-[0.25em] text-primary">Premium unlocked</p>
-                      <h3 className="text-lg font-black tracking-tight text-foreground leading-tight">Unlimited Messages</h3>
-                      <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">Free for everyone right now — message anyone, no tokens needed.</p>
+                      <h3 className="text-lg font-black tracking-tight text-white leading-tight">Unlimited Messages</h3>
+                      <p className="text-[10px] text-center text-white/50 leading-snug px-6 pb-4">Free for everyone right now — message anyone, no tokens needed.</p>
                     </div>
                   </div>
                 )}
                 <>
                 {/* TOKEN PACKAGES */}
                 <div>
-                  <p className="text-xs text-muted-foreground mb-4">
+                  <p className="text-xs text-white/70 mb-4">
                     {PREMIUM_FOR_EVERYONE
                       ? 'Messaging is free for everyone right now — no tokens needed. You can still grab a pack to support Swipess or stock up for later.'
                       : 'Tokens are used to message owners or unlock chat actions. One token = one new conversation.'}
@@ -210,13 +210,13 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-2 flex-wrap mb-0.5">
-                                <span className="font-black text-sm uppercase tracking-widest text-foreground">{pkg.name}</span>
+                                <span className="font-black text-sm uppercase tracking-widest text-white">{pkg.name}</span>
                                 <span className="text-[9px] font-black text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md tracking-wider border border-primary/20">{pkg.tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-1 flex-wrap">
-                                <span className="font-black text-2xl tracking-tighter text-foreground">{formatUSD(pkg.priceUsd)}</span>
-                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">USD</span>
-                                <span className="text-[10px] font-bold text-muted-foreground ml-1">{formatUSD(pricePerToken)} / tk</span>
+                                <span className="font-black text-2xl tracking-tighter text-white">{formatUSD(pkg.priceUsd)}</span>
+                                <span className="text-[10px] font-black text-white/70 uppercase tracking-widest">USD</span>
+                                <span className="text-[10px] font-bold text-white/70 ml-1">{formatUSD(pricePerToken)} / tk</span>
                               </div>
                             </div>
                             <button
@@ -246,8 +246,8 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                 <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
                   <Crown className="w-6 h-6 text-primary flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black text-foreground">Explore Premium plans</p>
-                    <p className="text-[11px] text-muted-foreground">See all Swipess premium options.</p>
+                    <p className="text-sm font-black text-white">Explore Premium plans</p>
+                    <p className="text-[11px] text-white/70">See all Swipess premium options.</p>
                   </div>
                   <button
                     type="button"

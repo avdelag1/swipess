@@ -121,27 +121,15 @@ export function AIListingWizard() {
   const { t } = useTranslation();
 
 
-  const headerBorder = 'border-transparent';
-  const textPrimary = isLight ? 'text-black' : 'text-white';
-  const textMuted = isLight ? 'text-black/70' : 'text-white/70';
-  const chipIdleCls = isLight
-    ? 'bg-white shadow-sm border-transparent hover:shadow-md'
-    : 'bg-[#1c1c22] border-transparent shadow-md hover:bg-[#26262e]';
-  const inputCls = isLight
-    ? 'bg-white shadow-sm border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-black placeholder:text-black/50 font-medium text-lg px-5 py-4 rounded-2xl'
-    : 'bg-[#1c1c22] border-transparent focus:ring-2 focus:ring-[#8B5CF6] text-white placeholder:text-white/45 font-medium text-lg px-5 py-4 rounded-2xl shadow-md';
-  const closeBtnCls = isLight
-    ? 'bg-white shadow-sm hover:shadow-md rounded-full transition-all border-transparent'
-    : 'bg-[#1c1c22] hover:bg-[#26262e] rounded-full transition-all border-transparent shadow-md';
-  const photoAddCls = isLight
-    ? 'border-transparent bg-white shadow-sm hover:shadow-md'
-    : 'border-transparent bg-[#1c1c22] shadow-md hover:bg-[#26262e]';
-  const photoAddInnerCls = isLight
-    ? 'bg-slate-50 border-transparent'
-    : 'bg-[#141418] border-transparent';
-  const enhanceDisabledCls = isLight
-    ? 'opacity-50 bg-white border-transparent text-black/50'
-    : 'opacity-60 bg-[#1c1c22] border-transparent text-white/70';
+  const headerBorder = 'border-white/10';
+  const textPrimary = 'text-white';
+  const textMuted = 'text-white/70';
+  const chipIdleCls = 'bg-[#13131a] border-white/5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] hover:border-white/20 hover:bg-[#1a1a24]';
+  const inputCls = 'bg-[#13131a] shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] border border-white/10 focus:border-[#8B5CF6]/50 focus:ring-4 focus:ring-[#8B5CF6]/20 text-white placeholder:text-white/40 font-medium text-lg px-6 py-5 rounded-[2rem] transition-all';
+  const closeBtnCls = 'bg-black/40 hover:bg-black/60 border border-white/10 hover:border-white/25 shadow-lg backdrop-blur-md';
+  const photoAddCls = 'border-white/15 bg-[#13131a] shadow-inner hover:border-[#8B5CF6]/50 hover:bg-[#6366F1]/10';
+  const photoAddInnerCls = 'bg-white/5 border-white/10 group-hover:bg-[#6366F1]/30 group-hover:border-[#8B5CF6]/50 group-hover:scale-110';
+  const enhanceDisabledCls = 'opacity-40 bg-white/5 border-white/10 text-white/50';
   
   const [step, setStep] = useState<WizardStep>('compose');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>('property');
@@ -529,8 +517,7 @@ export function AIListingWizard() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.08 }}
           className={cn(
-            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6",
-            isLight && "modal-scrim--lux"
+            "fixed inset-0 z-[2147483000] modal-scrim flex items-start sm:items-center justify-center p-4 sm:p-6 modal-scrim--dark"
           )}
           style={{
             paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
@@ -538,31 +525,28 @@ export function AIListingWizard() {
           }}
         >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.08, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={cn(
-              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden rounded-[2rem] sm:rounded-[3rem] flex flex-col relative isolate",
-              isLight ? "bg-white/70" : "bg-zinc-900/60"
+              "w-full max-w-2xl mx-auto h-full sm:h-[90vh] overflow-hidden rounded-[2.5rem] flex flex-col relative isolate",
+              "bg-[#0a0a0f]/80"
             )}
             style={{
-              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              border: 'none',
-              boxShadow: isLight
-                ? '0 20px 60px rgba(0, 0, 0, 0.1)'
-                : '0 20px 60px rgba(0, 0, 0, 0.5)',
-              transform: 'translateZ(0)',
-              willChange: 'transform',
+              backdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              WebkitBackdropFilter: 'blur(60px) saturate(200%) brightness(1.1)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2)',
             }}
           >
 
             {/* Ambient nexus orbs for depth — mirrors the Magic Profile wizard
                 so both AI builders share the same premium glow. */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-              <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/15 to-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
-              <div className="absolute bottom-[-12%] right-[-12%] w-[60%] h-[60%] bg-gradient-to-tr from-violet-500/20 to-[#6366F1]/10 blur-[100px] rounded-full mix-blend-screen" />
+               <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 blur-[120px] rounded-full mix-blend-screen" />
+               <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-gradient-to-tr from-violet-600/20 to-[#EB4898]/20 blur-[120px] rounded-full mix-blend-screen" />
             </div>
 
             <AnimatePresence>
@@ -579,23 +563,33 @@ export function AIListingWizard() {
               )}
             </AnimatePresence>
             <div
-              className={cn("shrink-0 flex items-center justify-between px-8 pb-5 border-b relative z-10", headerBorder)}
-              style={{ paddingTop: 'max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))' }}
+              className={cn("shrink-0 flex items-center justify-between px-8 pb-4 pt-6 relative z-10 bg-white/5 border-b border-white/10")}
+              style={{ paddingTop: 'max(1.5rem, calc(env(safe-area-inset-top, 0px) + 1rem))' }}
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#6366F1]/15 flex items-center justify-center border border-[#8B5CF6]/25 shadow-inner">
+                <div className="w-14 h-14 rounded-[1.25rem] bg-gradient-to-br from-[#6366F1]/20 to-[#8B5CF6]/20 flex items-center justify-center border border-[#8B5CF6]/40 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                   <MotionIcon id="ai-sparkle" loop={isProcessing}>
-                    <Sparkles className="w-6 h-6 text-[#A5B4FC]" />
+                    <Sparkles className="w-7 h-7 text-[#A5B4FC]" />
                   </MotionIcon>
                 </div>
                 <div>
-                  <h2 className="text-base font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Listing Builder</h2>
+                  <h2 className="text-xl font-black uppercase tracking-[0.1em] italic bg-clip-text text-transparent" style={{ backgroundImage: NEXUS_GRADIENTS.ai }}>AI Listing Builder</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", textMuted)}>One-Step Builder</span>
+                    <span className={cn("text-[11px] font-bold uppercase tracking-widest text-[#A5B4FC] opacity-80")}>One-Step AI Setup</span>
                     <div className="w-1 h-1 rounded-full animate-pulse bg-[#8B5CF6]" />
                   </div>
                 </div>
               </div>
+              
+              <button
+                onClick={handleClose}
+                className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90 group",
+                  closeBtnCls
+                )}
+              >
+                <X className="w-6 h-6 text-white/80 group-hover:text-white group-hover:rotate-90 transition-all duration-300" />
+              </button>
             </div>
 
             <ScrollArea className="flex-1 overflow-hidden relative z-10">
@@ -627,21 +621,23 @@ export function AIListingWizard() {
                       )}
                       
                       <div className="space-y-4">
-                        <label className={cn("text-[10px] font-black uppercase tracking-[0.2em] ml-2", textMuted)}>1. Category</label>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           {CATEGORIES.map((cat) => (
                             <button
                               key={cat.id}
                               onClick={() => { setCategory(cat.id); triggerHaptic('light'); }}
                               className={cn(
-                                "flex flex-col items-center gap-2 p-5 rounded-3xl transition-all active:scale-[0.98]",
+                                "flex flex-col items-center gap-3 p-6 rounded-[2rem] border transition-all duration-300 active:scale-[0.98] group relative overflow-hidden",
                                 category === cat.id
-                                  ? "bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white border-transparent shadow-[0_6px_26px_rgba(99,102,241,0.42)] ring-1 ring-white/20"
+                                  ? "bg-gradient-to-br from-[#8B5CF6]/20 to-[#6366F1]/20 border-[#8B5CF6]/50 shadow-[0_0_30px_rgba(139,92,246,0.3)]"
                                   : chipIdleCls
                               )}
                             >
-                              <cat.icon className={cn("w-6 h-6", category === cat.id ? "text-white" : textMuted)} />
-                              <span className={cn("text-[10px] font-bold uppercase tracking-wider text-center", category === cat.id ? "text-white" : textPrimary)}>{cat.label}</span>
+                              {category === cat.id && (
+                                <motion.div layoutId="listing-cat-active-glow" className="absolute inset-0 bg-[#8B5CF6]/10 mix-blend-screen pointer-events-none" />
+                              )}
+                              <cat.icon className={cn("w-8 h-8 relative z-10", category === cat.id ? "text-white" : textMuted)} />
+                              <span className={cn("text-[11px] font-black uppercase tracking-wider text-center relative z-10", category === cat.id ? "text-white" : textPrimary)}>{cat.label}</span>
                             </button>
                           ))}
                         </div>
@@ -667,12 +663,12 @@ export function AIListingWizard() {
                           <button
                             type="button"
                             onClick={handleImageAdd}
-                            className={cn("w-full aspect-[2/1] rounded-[2rem] border-transparent flex flex-col items-center justify-center gap-3 transition-all group", photoAddCls)}
+                            className={cn("w-full aspect-[2/1] rounded-[2.5rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all group", photoAddCls)}
                           >
-                            <div className={cn("p-3 rounded-2xl border group-hover:bg-[#6366F1]/20 group-hover:border-[#8B5CF6]/30 transition-all", photoAddInnerCls)}>
-                              <Camera className="w-6 h-6 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
+                            <div className={cn("p-4 rounded-[1.5rem] border transition-all duration-300", photoAddInnerCls)}>
+                              <Camera className="w-8 h-8 text-[#A5B4FC] opacity-70 group-hover:opacity-100" />
                             </div>
-                            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] opacity-70", textPrimary)}>Tap to add photos</span>
+                            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-70 group-hover:opacity-100 transition-opacity", textPrimary)}>Tap to add photos</span>
                           </button>
                         ) : (
                           <DraggablePhotoGrid
@@ -732,26 +728,26 @@ export function AIListingWizard() {
                         </p>
                       </div>
 
-                      <div className="space-y-4">
+                       <div className="space-y-4">
                         <div className="flex items-center justify-between ml-2">
-                           <label className={cn("text-[10px] font-black uppercase tracking-[0.2em]", textMuted)}>4. Description</label>
+                           <label className={cn("text-[11px] font-black uppercase tracking-[0.2em]", textMuted)}>4. Description</label>
                            <button
                              type="button"
                              onClick={handleEnhance}
                              disabled={!prompt.trim() || isEnhancing}
                              className={cn(
-                               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
+                               "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border active:scale-95",
                                prompt.trim() && !isEnhancing
-                                 ? "bg-[#6366F1]/12 border-[#8B5CF6]/30 text-[#A5B4FC] hover:bg-[#6366F1]/20"
+                                 ? "bg-gradient-to-r from-[#6366F1]/20 to-purple-500/20 border-[#8B5CF6]/50 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] hover:border-white/50"
                                  : cn("cursor-not-allowed", enhanceDisabledCls)
                              )}
                            >
                              {isEnhancing ? (
-                               <PremiumSpinner className="w-3 h-3" />
+                               <PremiumSpinner className="w-3.5 h-3.5" />
                              ) : (
-                               <Wand2 className="w-3 h-3" />
+                               <Wand2 className="w-3.5 h-3.5" />
                              )}
-                             {isEnhancing ? 'Enhancing...' : '✨ Improve Description'}
+                             {isEnhancing ? 'Enhancing...' : 'AI Enhance'}
                            </button>
                         </div>
 
@@ -863,32 +859,32 @@ export function AIListingWizard() {
                         </div>
                       </div>
 
-                      <div className="pt-4 px-1 pb-10 space-y-4">
-                        <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-50 px-4", isLight ? "text-black" : "text-white")}>
-                          By continuing, your data is securely sent to OpenAI for processing to generate your listing. See our Legal Hub for privacy details.
+                      <div className="pt-6 px-2 pb-10 space-y-6">
+                        <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-40 px-6", textPrimary)}>
+                          Your data is securely processed by OpenAI to generate your premium listing.
                         </p>
                         <motion.button
-                          whileTap={{ scale: 0.97 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
                           className={cn(
-                            "w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[14px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-all",
-                            (isProcessing || imageFiles.length === 0 || !cityLocation.trim()) ? "opacity-40 saturate-50 shadow-none cursor-not-allowed" : ""
+                            "w-full h-20 rounded-[2.5rem] flex items-center justify-center gap-4 text-white font-black uppercase tracking-[0.2em] text-base shadow-[0_15px_40px_rgba(99,102,241,0.4)] border border-white/20 relative overflow-hidden transition-all duration-300",
+                            (isProcessing || imageFiles.length === 0 || !cityLocation.trim()) ? "opacity-30 saturate-0 shadow-none cursor-not-allowed border-white/5" : "hover:shadow-[0_20px_50px_rgba(99,102,241,0.6)] hover:scale-[1.02]"
                           )}
-                          style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+                          style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1, #8B5CF6)' }}
                         >
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent_60%)] pointer-events-none" />
                           {isProcessing ? (
                             <>
-                              <PremiumSpinner className="w-5 h-5 relative z-10" />
-                              <span className="relative z-10">Publishing...</span>
+                              <PremiumSpinner className="w-6 h-6 relative z-10" />
+                              <span className="relative z-10 drop-shadow-md">Publishing...</span>
                             </>
                           ) : (
                             <>
                               <MotionIcon id="ai-sparkle" className="relative z-10">
-                                <Zap className="w-5 h-5" />
+                                <Zap className="w-6 h-6" />
                               </MotionIcon>
-                              <span className="relative z-10">Create Listing</span>
+                              <span className="relative z-10 drop-shadow-md">Create AI Listing</span>
                             </>
                           )}
                         </motion.button>
@@ -904,24 +900,31 @@ export function AIListingWizard() {
                       exit={{ opacity: 0 }}
                       className="h-full flex flex-col items-center justify-center space-y-10 py-20"
                     >
-                      <div className="relative w-40 h-40">
+                      <div className="relative w-48 h-48">
                         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="6" fill="none" className={cn(isLight ? "text-black/10" : "text-white/10")} />
+                          <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="4" fill="none" className="text-white/10" />
                           <motion.circle
                             cx="50" cy="50" r="44"
-                            stroke="#6366F1" strokeWidth="6" fill="none"
+                            stroke="url(#ai-gradient)" strokeWidth="6" fill="none"
                             strokeLinecap="round"
                             strokeDasharray={2 * Math.PI * 44}
                             initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
                             animate={{ strokeDashoffset: 2 * Math.PI * 44 * (1 - progressPct / 100) }}
                             transition={{ duration: 0.6, ease: 'easeOut' }}
                           />
+                          <defs>
+                            <linearGradient id="ai-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#06B6D4" />
+                              <stop offset="50%" stopColor="#6366F1" />
+                              <stop offset="100%" stopColor="#8B5CF6" />
+                            </linearGradient>
+                          </defs>
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                           <MotionIcon id="ai-sparkle" loop>
-                            <Sparkles className="w-8 h-8 text-[#A5B4FC]" />
+                             <Sparkles className="w-8 h-8 text-[#A5B4FC] mb-2" />
                           </MotionIcon>
-                          <span className={cn("text-2xl font-black tabular-nums", textPrimary)}>{Math.round(progressPct)}%</span>
+                          <span className="text-4xl font-black tabular-nums text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">{Math.round(progressPct)}%</span>
                         </div>
                       </div>
 

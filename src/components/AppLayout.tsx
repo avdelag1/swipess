@@ -89,6 +89,9 @@ export function AppLayout({ children }: AppLayoutProps) {
     // so the map opens instantly when the user taps the map button.
     prefetchPassportMapImmediate();
 
+    // Clear old location data if it is older than 24 hours.
+    useFilterStore.getState().clearStaleLocation();
+
     // Seed GPS cache from store only — no geolocation API on boot (caused iOS crashes).
     const { userLatitude, userLongitude, passportMode } = useFilterStore.getState();
     if (!passportMode && userLatitude != null && userLongitude != null) {

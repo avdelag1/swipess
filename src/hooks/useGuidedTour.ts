@@ -17,7 +17,7 @@ const eliteSteps: TourStep[] = [
   {
     target: 'body',
     title: 'Welcome to Swipess',
-    description: 'Right here you will be able to find properties, motorcycles, bicycles, and workers. You can also promote your job or work by posting your own listings.',
+    description: 'Right here you will be able to find properties, yachts, motorcycles, bicycles, and workers. You can also promote your job or work by posting your own listings.',
     welcome: true,
   },
   {

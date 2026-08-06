@@ -103,31 +103,23 @@ export function GuidedTour() {
             {/* Primary Action */}
             <button
               onClick={nextStep}
-              className="w-full h-14 rounded-full bg-white text-black font-black text-lg shadow-[0_8px_30px_rgba(255,255,255,0.3)] active:scale-95 transition-transform flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-full bg-white text-black font-black text-lg shadow-[0_8px_30px_rgba(255,255,255,0.4)] active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
               {currentStep === totalSteps - 1 ? 'Start Exploring' : 'Next'}
-              {currentStep < totalSteps - 1 && <ChevronRight className="w-5 h-5" />}
+              {currentStep < totalSteps - 1 && <ChevronRight className="w-5 h-5 text-black" />}
             </button>
 
             {/* Subtle Skip Button */}
             {currentStep < totalSteps - 1 && (
               <button
                 onClick={skipTour}
-                className="text-white/60 font-semibold text-sm hover:text-white transition-colors py-2 px-4 rounded-full active:bg-white/10"
+                className="text-black font-bold text-sm bg-white/70 hover:bg-white transition-colors py-2.5 px-6 rounded-full active:scale-95 shadow-md"
               >
                 Skip intro
               </button>
             )}
           </div>
         </div>
-
-        {/* Top Right Close (Redundant but good for escape hatches) */}
-        <button
-          onClick={skipTour}
-          className="absolute top-safe right-4 mt-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white/70 hover:bg-black/40 hover:text-white backdrop-blur-md transition-all active:scale-90"
-        >
-          <X className="w-5 h-5" />
-        </button>
       </motion.div>
     </AnimatePresence>,
     document.body

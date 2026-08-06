@@ -59,6 +59,7 @@ interface FilterState {
   radiusKm: number;
   userLatitude: number | null;
   userLongitude: number | null;
+  userLocationUpdatedAt: number | null;
   /** True when user teleported via Global Passport (not physical GPS). */
   passportMode: boolean;
   /** Display label for passport destination, e.g. "Paris, France". */
@@ -102,6 +103,7 @@ interface FilterState {
   setClientNationalities: (nationalities: string[]) => void;
   setRadiusKm: (radius: number) => void;
   setUserLocation: (lat: number, lon: number) => void;
+  clearStaleLocation: () => void;
   setPassportLocation: (lat: number, lon: number, label?: string) => void;
   clearPassportLocation: () => void;
   clearUserLocation: () => void;
@@ -161,6 +163,7 @@ export const useFilterStore = create<FilterState>()(
     radiusKm: DEFAULT_RADIUS_KM,
     userLatitude: null,
     userLongitude: null,
+    userLocationUpdatedAt: null,
     passportMode: false,
     passportLabel: null,
     priceRange: null,
@@ -195,10 +198,24 @@ export const useFilterStore = create<FilterState>()(
       set((state) => ({
         userLatitude: lat,
         userLongitude: lon,
+        userLocationUpdatedAt: Date.now(),
         passportMode: false,
         passportLabel: null,
         filterVersion: state.filterVersion + 1,
       }));
+    },
+    clearStaleLocation: () => {
+      set((state) => {
+        if (!state.userLocationUpdatedAt || Date.now() - state.userLocationUpdatedAt > 24 * 60 * 60 * 1000) {
+          return {
+            userLatitude: null,
+            userLongitude: null,
+            userLocationUpdatedAt: null,
+            filterVersion: state.filterVersion + 1,
+          };
+        }
+        return {};
+      });
     },
     setPassportLocation: (lat, lon, label) => {
       set((state) => ({

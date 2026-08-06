@@ -160,12 +160,12 @@ function NotificationItem({ notification, onClick, onDismiss, index: _index }: N
                 </Button>
               </div>
 
-              <p className="text-xs font-normal line-clamp-2 mb-2 text-muted-foreground leading-relaxed">
+              <p className="text-xs font-normal line-clamp-2 mb-2 text-white/80 leading-relaxed">
                 {notification.message}
               </p>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-medium text-muted-foreground/70 flex items-center gap-1">
+                <span className="text-[11px] font-medium text-white/60 flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
                   {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                 </span>
@@ -196,16 +196,16 @@ function EmptyState({ filter }: { filter: string }) {
       className="flex flex-col items-center justify-center py-12 px-4 text-center"
     >
       <div className="mb-5 relative">
-        <div className="w-20 h-20 rounded-2xl bg-muted/30 flex items-center justify-center">
-          <Bell className="w-9 h-9 text-muted-foreground/30" />
+        <div className="w-20 h-20 rounded-2xl bg-white/10 flex items-center justify-center">
+          <Bell className="w-9 h-9 text-white/30" />
         </div>
       </div>
-      <h3 className="text-base font-semibold mb-2 text-foreground">
+      <h3 className="text-base font-semibold mb-2 text-white">
         {filter === 'all' ? 'No notifications yet' : 
          filter === 'unread' ? 'All caught up!' :
          `No ${filter} notifications`}
       </h3>
-      <p className="text-sm text-muted-foreground/70 max-w-[220px]">
+      <p className="text-sm text-white/60 max-w-[220px]">
         {filter === 'all' 
           ? 'When you get new notifications, they\'ll show up here'
           : 'You\'ve seen all your notifications in this category'}
@@ -371,12 +371,12 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-primary/10">
+                  <div className="p-2.5 rounded-xl bg-primary/20">
                     <Bell className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold tracking-tight">Notifications</h2>
-                    <p className="text-sm text-muted-foreground">
+                    <h2 className="text-lg font-bold tracking-tight text-white">Notifications</h2>
+                    <p className="text-sm text-white/70">
                       {unreadCount > 0 ? (
                         <span className="font-medium text-primary">{unreadCount} unread</span>
                       ) : (
@@ -395,7 +395,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
                         haptics.tap();
                         markAllAsRead();
                       }}
-                      className="gap-2 h-9 px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      className="gap-2 h-9 px-3 text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors"
                     >
                       <CheckCheck className="w-4 h-4" />
                       <span className="hidden sm:inline">Mark all read</span>
@@ -404,7 +404,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                    className="h-8 w-8 rounded-lg text-white/70 hover:text-white hover:bg-white/10"
                     onClick={() => setIsOpen(false)}
                   >
                     <X className="w-4 h-4" />
@@ -414,18 +414,18 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
+            <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full text-white">
               <div className="px-2 py-2">
-                <TabsList className="flex w-full rounded-xl p-1 h-auto gap-0.5 bg-muted/40">
+                <TabsList className="flex w-full rounded-xl p-1 h-auto gap-0.5 bg-white/5">
                   <TabsTrigger
                     value="all"
-                    className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all"
+                    className="flex-1 min-w-0 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/60 data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all"
                   >
                     All
                   </TabsTrigger>
                   <TabsTrigger
                     value="unread"
-                    className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                    className="flex-1 min-w-0 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/60 data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                   >
                     <span>Unread</span>
                     {unreadCount > 0 && (
@@ -434,14 +434,14 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
                   </TabsTrigger>
                   <TabsTrigger
                     value="like"
-                    className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                    className="flex-1 min-w-0 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/60 data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
                   >
                     <Flame className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Likes</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="message"
-                    className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                    className="flex-1 min-w-0 data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/60 data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Msgs</span>
