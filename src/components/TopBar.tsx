@@ -134,8 +134,8 @@ function TopBarComponent({
       )}
       style={{
         transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
-        paddingTop: 'calc(var(--safe-top, 0px) + 4px)',
-        height: 'calc(var(--top-bar-height) + var(--safe-top, 0px) - 10px)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)',
+        height: 'calc(var(--top-bar-height) + env(safe-area-inset-top, 0px) - 6px)',
         background: 'transparent',
         border: 'none',
         viewTransitionName: 'swipess-header',
@@ -166,7 +166,7 @@ function TopBarComponent({
               <div className="flex items-center gap-1.5 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-[28px] w-[28px] rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-5 w-5 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
