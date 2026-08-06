@@ -330,6 +330,7 @@ export function AIProfileWizard() {
         openAIListing('property');
       } else {
         setModal('showAIProfile', false);
+      }
       
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       setTimeout(() => handleClose(), 600);
