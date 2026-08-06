@@ -23,18 +23,10 @@ export function AnimatedOutlet() {
 
   const SuspenseFallback = () => (
     <div
-      className="route-skeleton"
-      style={{
-        viewTransitionName: isSupported ? 'swipess-page-skeleton' : undefined,
-        contain: 'layout style paint',
-      }}
+      className="flex-1 w-full"
       aria-busy="true"
       aria-label="Loading content"
-    >
-      <div className="route-skeleton-bar w-48 max-w-[70%]" />
-      <div className="route-skeleton-bar w-32 max-w-[50%] opacity-70" />
-      <div className="route-skeleton-bar w-64 max-w-[85%] h-24 rounded-2xl opacity-50" />
-    </div>
+    />
   );
 
   if (isSupported && !isDashboardRoute) {

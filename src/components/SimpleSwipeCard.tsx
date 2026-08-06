@@ -518,21 +518,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             </div>
 
         <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity, scale: likeOpacity }}>
-          <div className="px-6 py-3 rounded-2xl border-[3px] border-emerald-400 relative overflow-hidden"
-            style={{ background: 'rgba(16,185,129,0.18)', boxShadow: '0 0 40px rgba(16,185,129,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
-            <span className="font-black text-4xl tracking-tighter whitespace-nowrap relative z-10"
-              style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>I LIKE IT</span>
-          </div>
+          <span className="font-black text-5xl tracking-tighter whitespace-nowrap"
+            style={{ color: '#34d399', textShadow: '0 0 30px rgba(52,211,153,0.7), 0 2px 4px rgba(0,0,0,0.5)' }}>LIKE</span>
         </motion.div>
 
         <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity, scale: passOpacity }}>
-          <div className="px-6 py-3 rounded-2xl border-[3px] border-rose-400 relative overflow-hidden"
-            style={{ background: 'rgba(244,63,94,0.18)', boxShadow: '0 0 40px rgba(244,63,94,0.5), inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-shimmer" />
-            <span className="font-black text-4xl tracking-tighter relative z-10"
-              style={{ color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.8), 0 2px 4px rgba(0,0,0,0.5)' }}>NOPE</span>
-          </div>
+          <span className="font-black text-5xl tracking-tighter"
+            style={{ color: '#fb7185', textShadow: '0 0 30px rgba(244,63,94,0.7), 0 2px 4px rgba(0,0,0,0.5)' }}>NOPE</span>
         </motion.div>
           </>
         )}
