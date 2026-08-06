@@ -42,17 +42,17 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
 
   return (
     <div 
-      className={cn("relative flex items-center justify-end h-[48px] w-full", className)}
+      className={cn("relative flex items-center justify-end h-[38px] w-full", className)}
     >
       <div
         className="absolute right-0 flex items-center rounded-full overflow-hidden w-full"
         style={{
-          height: '48px',
+          height: '38px',
           ...glassStyle,
         }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[48px] h-[48px]">
-          <Search className="w-[18px] h-[18px] opacity-50" strokeWidth={2.5} />
+        <div className="shrink-0 flex items-center justify-center w-[38px] h-[38px]">
+          <Search className="w-[15px] h-[15px] opacity-50" strokeWidth={1.5} />
         </div>
         
         <div className="flex-1 flex items-center h-full">
@@ -66,7 +66,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                 spellCheck={false}
                 autoComplete="off"
                 autoCorrect="off"
-                className="w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[15px] font-medium placeholder:opacity-50"
+                className="w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[13px] font-medium placeholder:opacity-50"
                 style={{ color: 'inherit' }}
               />
               
@@ -78,10 +78,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                     haptics.tap();
                     onFilterClick?.();
                   }}
-                  className="flex items-center justify-center w-10 h-10 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
+                  className="flex items-center justify-center w-8 h-8 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
                   aria-label="Search"
                 >
-                  <Sparkles className="w-5 h-5 text-purple-500" strokeWidth={2} />
+                  <Sparkles className="w-4 h-4 text-purple-500" strokeWidth={1.5} />
                 </button>
               </div>
             </div>

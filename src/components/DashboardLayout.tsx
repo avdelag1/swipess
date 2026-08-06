@@ -15,6 +15,7 @@ import { logger } from '@/utils/prodLogger'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useOnboardingStore } from '@/state/onboardingStore'
 import { useModalStore } from '@/state/modalStore'
+import { useFilterStore } from '@/state/filterStore'
 
 
 
@@ -98,11 +99,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // SINGLE SOURCE OF TRUTH: only the two swipe deck routes are locked.
   // Every other route scrolls inside this container.
+  const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = useMemo(() => {
     const path = location.pathname;
-    return path === '/client/dashboard' || path === '/client/dashboard/' ||
+    const isDashRoute = path === '/client/dashboard' || path === '/client/dashboard/' ||
            path === '/owner/dashboard'  || path === '/owner/dashboard/';
-  }, [location.pathname]);
+    // Only lock touch when actually swiping cards, NOT on the bento quick filter page
+    return isDashRoute && !!activeCategory;
+  }, [location.pathname, activeCategory]);
 
   const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
   const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);

@@ -33,7 +33,7 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
   };
 
   return (
-    <div className="w-full mb-6">
+    <div className="w-full mb-3">
       <div className="grid grid-cols-3 gap-2 w-full">
         {filters.map((filter, index) => {
           const Icon = filter.icon;
@@ -54,11 +54,11 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
                   setModal('showGuestsModal', true);
                 }
               }}
-              className="flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm"
+              className="flex items-center justify-center gap-1 h-[36px] rounded-full shadow-sm"
               style={glassStyle}
             >
-              <Icon className="w-[15px] h-[15px]" strokeWidth={2.5} />
-              <span className="text-[13px] font-semibold tracking-tight whitespace-nowrap">{filter.label}</span>
+              <Icon className="w-[13px] h-[13px]" strokeWidth={1.5} />
+              <span className="text-[12px] font-semibold tracking-tight whitespace-nowrap">{filter.label}</span>
             </motion.button>
           );
         })}
