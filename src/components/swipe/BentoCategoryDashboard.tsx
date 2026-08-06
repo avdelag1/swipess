@@ -20,7 +20,8 @@ import {
   ShoppingCart,
   UserCheck,
   Users,
-  Star
+  Star,
+  TrendingUp
 } from 'lucide-react';
 import { AISearchBar } from '@/components/AISearchBar';
 import { DashboardFilters } from '@/components/DashboardFilters';
@@ -36,16 +37,17 @@ export interface BentoCategoryDashboardProps {
 // and not predictable, while both columns still end at the same height so the
 // grid stays balanced (no ragged gap at the bottom).
 const BENTO_ITEMS = [
-  { id: 'property',    label: 'PROPERTIES',  description: 'Find properties to buy or rent',  size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
-  { id: 'recommended', label: 'FEATURED',    description: 'Swipess Picks',                   size: 'big',    imageId: 'events',     icon: Star,         delay: '4s' },
-  { id: 'services',    label: 'WORKERS',     description: 'Find people offering services',   size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '8s' },
-  { id: 'yacht',       label: 'YACHTS',      description: 'Yachts & boats to charter or buy', size: 'normal', imageId: 'yacht',      icon: Anchor,       delay: '12s' },
-  { id: 'motorcycle',  label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',    size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '16s' },
-  { id: 'events',      label: 'EVENTS',      description: 'Discover local events',           size: 'normal', imageId: 'events',     icon: Calendar,     delay: '20s' },
-  { id: 'seekers',     label: 'SEEKERS',     description: 'People looking for workers',      size: 'normal', imageId: 'seekers',    icon: Search,       delay: '24s' },
-  { id: 'buyers',      label: 'BUYERS',      description: 'People looking to buy',           size: 'big',    imageId: 'buyers',     icon: ShoppingCart, delay: '28s' },
-  { id: 'renters',     label: 'RENTERS',     description: 'People looking to rent',          size: 'normal', imageId: 'renters',    icon: Key,          delay: '32s' },
-  { id: 'bicycle',     label: 'BICYCLES',    description: 'Bicycles for sale or rent',       size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '36s' },
+  { id: 'recommended', label: 'RECOMMENDED FOR YOU', description: 'Curated listings',               size: 'big',    imageId: 'events',     icon: Star,         delay: '0s' },
+  { id: 'popular',     label: 'POPULAR',             description: 'Trending now',                   size: 'big',    imageId: 'property',   icon: TrendingUp,   delay: '4s' },
+  { id: 'property',    label: 'PROPERTIES',          description: 'Find properties to buy or rent', size: 'normal', imageId: 'property',   icon: Home,         delay: '8s' },
+  { id: 'services',    label: 'WORKERS',             description: 'Find people offering services',  size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '12s' },
+  { id: 'yacht',       label: 'YACHTS',              description: 'Yachts & boats to charter or buy', size: 'big',  imageId: 'yacht',      icon: Anchor,       delay: '16s' },
+  { id: 'motorcycle',  label: 'MOTORCYCLES',         description: 'Motorcycles for sale or rent',   size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '20s' },
+  { id: 'events',      label: 'EVENTS',              description: 'Discover local events',          size: 'normal', imageId: 'events',     icon: Calendar,     delay: '24s' },
+  { id: 'seekers',     label: 'SEEKERS',             description: 'People looking for workers',     size: 'normal', imageId: 'seekers',    icon: Search,       delay: '28s' },
+  { id: 'buyers',      label: 'BUYERS',              description: 'People looking to buy',          size: 'big',    imageId: 'buyers',     icon: ShoppingCart, delay: '32s' },
+  { id: 'renters',     label: 'RENTERS',             description: 'People looking to rent',         size: 'big',    imageId: 'renters',    icon: Key,          delay: '36s' },
+  { id: 'bicycle',     label: 'BICYCLES',            description: 'Bicycles for sale or rent',      size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '40s' },
 ] as const;
 
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered
@@ -84,8 +86,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       prefetchEventCategoryPhotosImmediate();
       navigate(EVENTS_FEED_PATH);
     }
-    // "Recommended" will eventually map to a personalized feed, for now just show all or trending.
-    else if (id === 'recommended') setCategories('property'); // Fallback for now
+    // Temporary fallbacks for new discovery categories
+    else if (id === 'recommended' || id === 'popular') setCategories('property'); 
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
@@ -94,7 +96,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       className="absolute inset-0 w-full h-full px-4 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 110px)',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
         touchAction: 'pan-y',

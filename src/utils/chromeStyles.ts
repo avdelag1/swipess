@@ -124,14 +124,23 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
 
 /** Glass Bubble Style for active icons (Bottom Nav, TopBar hover) */
 export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): CSSProperties {
-  if (!active) return { background: 'transparent' };
+  if (!active) {
+    return {
+      background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+      boxShadow: isLight
+        ? 'inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.02)'
+        : 'inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -1px 2px rgba(0,0,0,0.1)',
+      border: isLight ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
+      borderRadius: '9999px',
+    };
+  }
   
   return {
-    background: isLight ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+    background: isLight ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)',
     boxShadow: isLight
-      ? 'inset 0 1px 4px rgba(255,255,255,0.7), inset 0 -2px 6px rgba(0,0,0,0.05)'
-      : 'inset 0 1px 4px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3)',
-    border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+      ? 'inset 0 1px 4px rgba(255,255,255,0.8), inset 0 -2px 6px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)'
+      : 'inset 0 1px 4px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.3)',
+    border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
     borderRadius: '9999px',
   };
 }
