@@ -150,8 +150,8 @@ export const BottomNavigation = memo(({
   const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.likes'), path: '/client/liked-properties' },
-    { id: 'ai', icon: AIIcon, label: t('nav.aiBot', 'AI BOT'), onClick: openAIChat, isSpecial: true },
     { id: 'add', icon: PlusCircle, label: t('nav.add', 'ADD'), onClick: openAddListing, isSpecial: true },
+    { id: 'ai', icon: AIIcon, label: t('nav.aiBot', 'AI BOT'), onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadMessages || undefined },
     { id: 'vapid', icon: ShieldCheck, label: t('nav.idCard', 'ID CARD'), onClick: openVapId },
     { id: 'seekers', icon: Users, label: t('nav.seekers', 'SEEKERS'), onClick: () => useModalStore.getState().setModal('showSeekerRequestDialog', true) },
