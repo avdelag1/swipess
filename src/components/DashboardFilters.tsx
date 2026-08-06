@@ -1,14 +1,12 @@
 import { motion } from 'framer-motion';
 import { MapPin, Calendar, Users } from 'lucide-react';
-import { useHaptics } from '@/hooks/useHaptics';
+import { haptics } from '@/utils/microPolish';
 
 interface DashboardFiltersProps {
   isLight: boolean;
 }
 
 export function DashboardFilters({ isLight }: DashboardFiltersProps) {
-  const haptics = useHaptics();
-
   const filters = [
     { id: 'location', label: 'Tulum, Mexico', icon: MapPin },
     { id: 'date', label: 'Any date', icon: Calendar },

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useHaptics } from '@/hooks/useHaptics';
+import { haptics } from '@/utils/microPolish';
 
 interface AISearchBarProps {
   className?: string;
@@ -16,7 +16,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const haptics = useHaptics();
 
   // Handle click outside to collapse
   useEffect(() => {
