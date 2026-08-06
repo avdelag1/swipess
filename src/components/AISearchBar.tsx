@@ -42,7 +42,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
 
   return (
     <div 
-      ref={containerRef}
       className={cn("relative flex items-center justify-end h-[48px] w-full", className)}
     >
       <div
