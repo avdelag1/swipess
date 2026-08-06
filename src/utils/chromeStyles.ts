@@ -41,25 +41,21 @@ export function getHeaderIconFilter(
  *   • Delicate inner catch-light at top edge — no heavy neumorphic shadows
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
-  // Adapt to the theme: light icons on dark theme/dashboard, dark icons on light theme.
-  const useLightIcons = _isDashboard ? true : !isLight; 
+  // As requested: header buttons back to white, only black on the dashboard
+  const useLightIcons = !_isDashboard; 
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 100%)'
-      : isLight 
-        ? 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)'
-        : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : isLight ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.15)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.2)' : isLight ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid rgba(255, 255, 255, 0.3)',
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.2)' : isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(0, 0, 0, 0.5)',
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)' // Lighter glass on dashboard so black icons are visible
+      : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)', // Dark glass everywhere else so white icons pop
+    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)',
+    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.3)',
+    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
     WebkitBackdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
     boxShadow: _isDashboard 
-      ? '0 8px 32px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255,255,255,0.2)'
-      : isLight
-        ? '0 8px 32px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255,255,255,0.8)'
-        : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
+      ? '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255,255,255,0.5)'
+      : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: useLightIcons ? '#ffffff' : '#000000',
@@ -80,30 +76,26 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
     pillStyle,
     iconShadow: useLightIcons
       ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
-      : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+      : 'drop-shadow(0 1px 2px rgba(255,255,255,0.6))', // Light shadow for black icons
   };
 }
 
 export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
-  // Adapt to the theme: light icons on dark theme/dashboard, dark icons on light theme.
-  const useLightIcons = _isDashboard ? true : !isLight;
+  // Keeping bottom nav consistent with the header rule: black on dashboard, white everywhere else
+  const useLightIcons = !_isDashboard;
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 100%)'
-      : isLight
-        ? 'linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.6) 100%)'
-        : 'linear-gradient(145deg, rgba(15,15,20,0.85) 0%, rgba(15,15,20,0.6) 100%)',
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.1)' : isLight ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.2)' : isLight ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid rgba(255, 255, 255, 0.2)',
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.2)' : isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(0, 0, 0, 0.8)',
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)'
+      : 'linear-gradient(145deg, rgba(15,15,20,0.85) 0%, rgba(15,15,20,0.6) 100%)',
+    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
+    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(0, 0, 0, 0.8)',
     backdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
     WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
     boxShadow: _isDashboard
-      ? '0 12px 40px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255,255,255,0.2)'
-      : isLight
-        ? '0 12px 40px rgba(0, 0, 0, 0.08), inset 0 2px 4px rgba(255,255,255,0.8)'
-        : '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.6)',
+      ? '0 12px 40px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255,255,255,0.5)'
+      : '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.6)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: useLightIcons ? '#ffffff' : '#000000',
