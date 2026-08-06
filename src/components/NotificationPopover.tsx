@@ -81,17 +81,17 @@ function NotificationItem({ notification, onClick, onDismiss, index: _index }: N
       className="relative overflow-hidden rounded-xl"
     >
       {/* Swipe to dismiss indicator — shown behind card */}
-      <div className="absolute inset-0 bg-foreground/10 flex items-center justify-end px-6 pointer-events-none rounded-xl">
-        <Trash2 className="w-5 h-5 text-foreground/50 drop-shadow-md" />
+      <div className="absolute inset-0 bg-red-500/80 flex items-center justify-end px-6 pointer-events-none rounded-xl">
+        <Trash2 className="w-5 h-5 text-white drop-shadow-md" />
       </div>
       
       <Card
         className={cn(
           "group cursor-pointer transition-all duration-300 border overflow-hidden",
           !notification.read
-            ? 'bg-background/60 backdrop-blur-xl border-border/60 shadow-[0_8px_30px_rgb(0,0,0,0.12)]'
-            : 'bg-background/40 backdrop-blur-md border-border/20 shadow-none',
-          "relative z-10 hover:bg-background/80" // Ensure card is above indicator
+            ? 'bg-white/10 backdrop-blur-xl border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)]'
+            : 'bg-white/5 backdrop-blur-md border-white/5 shadow-none',
+          "relative z-10 hover:bg-white/15" // Ensure card is above indicator
         )}
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -111,21 +111,21 @@ function NotificationItem({ notification, onClick, onDismiss, index: _index }: N
                     )}
                   />
                   {/* Type indicator badge */}
-                  <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-background border-none shadow-none flex items-center justify-center">
-                    <Icon className="w-3 h-3 text-foreground" />
+                  <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-[#1e1b4b] border-none shadow-none flex items-center justify-center">
+                    <Icon className="w-3 h-3 text-white" />
                   </div>
                 </div>
               ) : (
                 <div className={cn(
-                  "p-2.5 rounded-xl bg-muted"
+                  "p-2.5 rounded-xl bg-white/10"
                 )}>
-                  <Icon className="w-5 h-5 text-foreground" />
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
               )}
               
               {/* Unread indicator dot */}
               {!notification.read && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-foreground" />
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary" />
               )}
             </div>
 
@@ -135,7 +135,7 @@ function NotificationItem({ notification, onClick, onDismiss, index: _index }: N
                 <div className="flex items-center gap-2 min-w-0">
                   <h4 className={cn(
                     "font-semibold text-sm leading-tight truncate",
-                    !notification.read ? 'text-foreground' : 'text-foreground/80'
+                    !notification.read ? 'text-white' : 'text-white/80'
                   )}>
                     {notification.title}
                   </h4>
@@ -147,7 +147,7 @@ function NotificationItem({ notification, onClick, onDismiss, index: _index }: N
                   size="sm"
                   className={cn(
                     "h-9 w-9 p-0 flex-shrink-0 transition-all duration-200 rounded-full",
-                    "hover:bg-foreground/10 hover:text-foreground",
+                    "hover:bg-white/10 hover:text-white",
                     isHovered ? "opacity-100" : "opacity-60 sm:opacity-0"
                   )}
                   onClick={(e) => {
@@ -363,12 +363,12 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col w-full h-full"
+            className="flex flex-col w-full h-full text-white"
           >
-            <DialogTitle className="sr-only">Notifications</DialogTitle>
-
+            <div className="absolute inset-0 bg-[#0a0a0f]/90 backdrop-blur-3xl rounded-3xl" />
+            
             {/* Header */}
-            <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-transparent">
+            <div className="relative px-4 pt-4 pb-3 border-b border-white/10 bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-primary/20">
@@ -414,7 +414,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full text-white">
+            <Tabs value={activeFilter} onValueChange={setActiveFilter} className="relative w-full text-white">
               <div className="px-2 py-2">
                 <TabsList className="flex w-full rounded-xl p-1 h-auto gap-0.5 bg-white/5">
                   <TabsTrigger
@@ -477,13 +477,17 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 bg-muted/20">
+            <div className="relative px-4 py-3 bg-white/5">
               <Button
-                variant="outline"
-                className="w-full gap-2 h-10 text-sm font-semibold border-border/40 hover:bg-muted/50 transition-colors"
-                onClick={handleViewAll}
+                variant="ghost"
+                className="w-full text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                onClick={() => {
+                  haptics.tap();
+                  navigate('/dashboard/notifications');
+                  setIsOpen(false);
+                }}
               >
-                <Eye className="w-4 h-4" />
+                <Eye className="w-4 h-4 mr-2" />
                 View All Notifications
               </Button>
             </div>

@@ -124,14 +124,12 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
           >
             <div className={cn(
               "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto",
-              isLight ? "bg-white/70 border border-white/40" : "bg-zinc-900/60 border border-white/10"
+              "bg-[#0a0a0f]/90 border border-white/10"
             )}
             style={{
               backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
               WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              boxShadow: isLight
-                ? '0 4px 24px rgba(0, 0, 0, 0.1), inset 0 0.5px 0 rgba(255, 255, 255, 0.8)'
-                : '0 4px 32px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0.5px 0 rgba(255, 255, 255, 0.15)',
               transform: 'translateZ(0)',
               willChange: 'transform',
             }}>
@@ -264,7 +262,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                 <div className="pt-4 pb-2 text-center">
                   <button 
                     onClick={handleRestore}
-                    className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-foreground transition-colors"
+                    className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
                   >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Restore Purchases
