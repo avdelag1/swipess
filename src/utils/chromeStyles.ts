@@ -130,8 +130,6 @@ export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): 
       ? 'inset 0 1px 4px rgba(255,255,255,0.7), inset 0 -2px 6px rgba(0,0,0,0.05)'
       : 'inset 0 1px 4px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3)',
     border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(20px) saturate(150%) brightness(1.1)',
-    WebkitBackdropFilter: 'blur(20px) saturate(150%) brightness(1.1)',
     borderRadius: '9999px',
   };
 }
