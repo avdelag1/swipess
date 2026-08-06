@@ -166,7 +166,7 @@ function TopBarComponent({
               <div className="flex items-center gap-1.5 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-6 w-6 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -180,7 +180,7 @@ function TopBarComponent({
                     ) : (
                       initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
                         <div className="w-full h-full bg-white/20 flex items-center justify-center">
-                          <span className="text-[12px] font-black drop-shadow-sm" style={{ color: iconColor }}>
+                          <span className="text-[10px] font-black drop-shadow-sm" style={{ color: iconColor }}>
                             {initials}
                           </span>
                         </div>
