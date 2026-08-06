@@ -102,7 +102,7 @@ export const BottomNavigation = memo(({
   const showVapId = useModalStore((s) => s.showVapId);
   const showTokensModal = useModalStore((s) => s.showTokensModal);
   const showFilters = useModalStore((s) => s.showFilters);
-  const closeAll = useModalStore((s) => closeAll);
+  const closeAll = useModalStore((s) => s.closeAll);
   const { isLight } = useAppTheme();
 
   // Always visible on every page — no chrome-reveal hiding
