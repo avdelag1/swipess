@@ -7,7 +7,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
-import { useAppTheme } from '@/components/ThemeProvider';
+import useAppTheme from '@/hooks/useAppTheme';
 import { useFilterStore } from '@/store/filterStore';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
