@@ -191,8 +191,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const imageCount = images.length;
 
   useEffect(() => {
-    if (!isTop || images.length <= 1) return;
-    images.forEach((imageUrl) => {
+    if (images.length === 0) return;
+    
+    // Only aggressive preload ALL images if this is the active top card.
+    // Otherwise, just eagerly fetch the FIRST image so the next card in the stack is ready.
+    const imagesToPreload = isTop ? images : [images[0]];
+    
+    imagesToPreload.forEach((imageUrl) => {
       if (!imageUrl || imageUrl === FALLBACK_PLACEHOLDER) return;
       const optimizedUrl = getCardImageUrl(imageUrl);
       if (imageCache.has(optimizedUrl)) return;
@@ -520,14 +525,18 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </AnimatePresence>
             </div>
 
-        <motion.div className="absolute top-10 right-6 z-50 pointer-events-none rotate-[-12deg]" style={{ opacity: likeOpacity, scale: likeOpacity }}>
-          <span className="font-black text-5xl tracking-tighter whitespace-nowrap"
-            style={{ color: '#34d399', textShadow: '0 0 30px rgba(52,211,153,0.7), 0 2px 4px rgba(0,0,0,0.5)' }}>LIKE</span>
+        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: likeOpacity, scale: useTransform(likeOpacity, [0, 1], [0.6, 1.2]) }}>
+          <motion.div className="rotate-[-12deg]">
+             <span className="font-black text-6xl tracking-tighter whitespace-nowrap px-8 py-3 rounded-3xl border-4 border-[#34d399]"
+               style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.7)', boxShadow: '0 0 30px rgba(52,211,153,0.4), inset 0 0 20px rgba(52,211,153,0.4)', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>LIKE</span>
+          </motion.div>
         </motion.div>
 
-        <motion.div className="absolute top-10 left-6 z-50 pointer-events-none rotate-[12deg]" style={{ opacity: passOpacity, scale: passOpacity }}>
-          <span className="font-black text-5xl tracking-tighter"
-            style={{ color: '#fb7185', textShadow: '0 0 30px rgba(244,63,94,0.7), 0 2px 4px rgba(0,0,0,0.5)' }}>NOPE</span>
+        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: passOpacity, scale: useTransform(passOpacity, [0, 1], [0.6, 1.2]) }}>
+          <motion.div className="rotate-[12deg]">
+             <span className="font-black text-6xl tracking-tighter whitespace-nowrap px-10 py-6 rounded-full border-0"
+               style={{ color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.8)', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)', filter: 'drop-shadow(0 0 20px rgba(244,63,94,0.3)) blur(0.5px)' }}>NOPE</span>
+          </motion.div>
         </motion.div>
           </>
         )}

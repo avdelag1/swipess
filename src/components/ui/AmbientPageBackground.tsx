@@ -28,12 +28,18 @@ function AmbientBackdrop({
     <div
       aria-hidden
       className={cn(
-        'ambient-page-bg pointer-events-none absolute inset-0 -z-10',
-        tone === 'light' ? 'ambient-page-bg--light' : 'ambient-page-bg--dark',
+        'ambient-page-bg pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-background',
         variant === 'subtle' && 'opacity-80',
         className,
       )}
-    />
+    >
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-40 mix-blend-screen blur-[80px] animate-orb-1" 
+           style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.8) 0%, rgba(255,200,0,0) 70%)' }} />
+      <div className="absolute top-[20%] right-[-20%] w-[70%] h-[70%] rounded-full opacity-30 mix-blend-screen blur-[100px] animate-orb-2" 
+           style={{ background: 'radial-gradient(circle, rgba(138,43,226,0.6) 0%, rgba(255,0,128,0) 70%)' }} />
+      <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full opacity-50 mix-blend-screen blur-[90px] animate-orb-3" 
+           style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,165,0,0) 70%)' }} />
+    </div>
   );
 }
 

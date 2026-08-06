@@ -42,6 +42,11 @@ export function zoomForRadiusKm(km: number): number {
 }
 
 export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {
+  // Safari (especially iOS) has known WebGL issues with Mapbox 3D Fog that causes
+  // the map to render completely foggy or blank. Disable fog specifically for Safari.
+  const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (isSafari) return;
+
   map.setFog({
     color: 'rgb(200, 220, 240)',
     'high-color': 'rgb(50, 120, 220)',

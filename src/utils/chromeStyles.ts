@@ -41,8 +41,8 @@ export function getHeaderIconFilter(
  *   • Delicate inner catch-light at top edge — no heavy neumorphic shadows
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
-  // Always use light icons as requested by the user, and make the pill darker
-  const useLightIcons = true; 
+  // Use dark icons as requested by the user for header buttons
+  const useLightIcons = false; 
 
   const pillStyle: CSSProperties = {
     background: _isDashboard 

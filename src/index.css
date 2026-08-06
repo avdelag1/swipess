@@ -420,18 +420,37 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 /* Ambient page backgrounds — depth behind floating surfaces */
-.ambient-page-bg--dark {
-  background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 77, 0, 0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 50%),
-    linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 0%) 100%);
+.ambient-page-bg--dark, .ambient-page-bg--light {
+  /* No longer used as static classes, replaced by dynamic AmbientBackdrop component */
 }
 
-.ambient-page-bg--light {
-  background:
-    radial-gradient(ellipse 70% 45% at 15% -5%, rgba(255, 77, 0, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 55% 35% at 85% 5%, rgba(236, 72, 153, 0.04) 0%, transparent 45%),
-    linear-gradient(180deg, hsl(240 6% 96%) 0%, hsl(240 5% 94%) 100%);
+@keyframes orb-float-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(15%, 15%) scale(1.1); }
+  66% { transform: translate(-10%, 20%) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes orb-float-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-20%, 15%) scale(1.15); }
+  66% { transform: translate(15%, -10%) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes orb-float-3 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(25%, -20%) scale(1.1); }
+  66% { transform: translate(-15%, -15%) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-orb-1 {
+  animation: orb-float-1 22s ease-in-out infinite alternate;
+}
+.animate-orb-2 {
+  animation: orb-float-2 28s ease-in-out infinite alternate;
+}
+.animate-orb-3 {
+  animation: orb-float-3 25s ease-in-out infinite alternate;
 }
 
 /* Floating dock nav */

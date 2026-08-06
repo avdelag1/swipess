@@ -9,6 +9,7 @@ import { EXIT_SPRING, SNAP_BACK_SPRING } from '@/components/swipe/SwipeConstants
 import { CATEGORIES } from '@/data/eventsData';
 import type { EventItem } from '@/types/events';
 import CardImage from '@/components/CardImage';
+import { LoopVideo } from '@/components/video/LoopVideo';
 
 export interface EventSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -99,34 +100,32 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
       onSwipe(direction);
     };
     animate(x, exitX, { ...EXIT_SPRING, velocity: velocityX, onComplete: fireSwipe });
-    setTimeout(fireSwipe, 800);
+    setTimeout(fireSwipe, 400);
   }, [onSwipe, x, y]);
 
-  const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
+  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     if (hasExited.current) return;
     const dx = info.offset.x;
     const vx = info.velocity.x;
     const horizCommit = Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(vx) > VELOCITY_THRESHOLD;
+    
     if (horizCommit) {
-      fireExit(dx > 0 ? 'right' : 'left', vx);
+      fireExit(dx > 0 ? 'right' : 'left', info.velocity.x);
     } else {
-      animate(x, 0, { ...SNAP_BACK_SPRING, velocity: vx });
+      animate(x, 0, { ...SNAP_BACK_SPRING, velocity: info.velocity.x });
       animate(y, 0, SNAP_BACK_SPRING);
     }
     isDragging.current = false;
   }, [fireExit, x, y]);
 
-  const handleButtonSwipe = useCallback((direction: 'left' | 'right') => {
-    if (hasExited.current) return;
-    fireExit(direction);
-  }, [fireExit]);
-
   useImperativeHandle(ref, () => ({
-    triggerSwipe: handleButtonSwipe,
-  }), [handleButtonSwipe]);
+    triggerSwipe: (direction) => {
+      if (hasExited.current) return;
+      fireExit(direction);
+    },
+  }), [fireExit]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
-    if (isDragging.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     const height = rect.height;
@@ -179,7 +178,15 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
           style={{ borderRadius: 'inherit', touchAction: 'none' }}
           onClick={handleImageTap}
         >
-          {imageUrl ? (
+          {event.video_url ? (
+            <div className="absolute inset-0 bg-black z-1">
+              <LoopVideo
+                src={event.video_url}
+                className="absolute inset-0 w-full h-full object-cover"
+                active={isTop}
+              />
+            </div>
+          ) : imageUrl ? (
             <CardImage
               src={imageUrl}
               alt={event.title}
