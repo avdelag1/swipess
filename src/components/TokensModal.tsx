@@ -123,7 +123,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             }}
           >
             <div className={cn(
-              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto",
+              "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto force-white",
               "bg-black/30 border border-white/20"
             )}
             style={{

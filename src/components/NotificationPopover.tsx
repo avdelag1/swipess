@@ -363,7 +363,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col w-full h-full text-white"
+            className="flex flex-col w-full h-full text-white force-white"
           >
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[30px] rounded-3xl" style={{ backdropFilter: 'blur(30px) saturate(150%)', WebkitBackdropFilter: 'blur(30px) saturate(150%)' }} />
             
