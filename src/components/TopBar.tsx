@@ -147,7 +147,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -166,7 +166,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/client/profile');
                 }}
-                className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden transition-all group"
+                className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden transition-all group glass-bubble-hover"
                 aria-label="Open profile"
               >
                   {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
@@ -192,7 +192,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -218,7 +218,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); navigate('/premium'); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
               aria-label="Premium"
             >
               <HeaderIconSlot
@@ -245,7 +245,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -260,9 +260,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-8 w-8" />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-8 w-8 glass-bubble-hover" />
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-8 w-8" />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-8 w-8 glass-bubble-hover" />
           </div>
         )}
 

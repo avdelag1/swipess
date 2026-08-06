@@ -120,28 +120,19 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   };
 }
 
-/** Water Drop Style for individual icons (Bottom Nav, TopBar) */
-export function getWaterDropStyle(isLight: boolean, active: boolean): CSSProperties {
+/** Glass Bubble Style for active icons (Bottom Nav, TopBar hover) */
+export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): CSSProperties {
+  if (!active) return { background: 'transparent' };
+  
   return {
-    background: active
-      ? (isLight 
-          ? 'radial-gradient(circle at 35% 35%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.45) 40%, rgba(255,255,255,0.15) 100%)'
-          : 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.02) 100%)')
-      : (isLight
-          ? 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%)'
-          : 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.0) 100%)'),
-    boxShadow: active
-      ? (isLight
-          ? 'inset 0 4px 8px rgba(255,255,255,0.9), inset 0 -4px 8px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.15)'
-          : 'inset 0 4px 8px rgba(255,255,255,0.4), inset 0 -4px 8px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.5)')
-      : (isLight
-          ? 'inset 0 4px 8px rgba(255,255,255,0.9), inset 0 -4px 8px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1)'
-          : 'inset 0 4px 8px rgba(255,255,255,0.25), inset 0 -4px 8px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3)'),
-    border: isLight 
-      ? '1px solid rgba(255,255,255,0.8)' 
-      : '1px solid rgba(255,255,255,0.2)',
-    backdropFilter: 'blur(24px) saturate(250%) contrast(110%) brightness(1.2)',
-    WebkitBackdropFilter: 'blur(24px) saturate(250%) contrast(110%) brightness(1.2)',
+    background: isLight ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+    boxShadow: isLight
+      ? 'inset 0 1px 4px rgba(255,255,255,0.7), inset 0 -2px 6px rgba(0,0,0,0.05)'
+      : 'inset 0 1px 4px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3)',
+    border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(20px) saturate(150%) brightness(1.1)',
+    WebkitBackdropFilter: 'blur(20px) saturate(150%) brightness(1.1)',
+    borderRadius: '9999px',
   };
 }
 

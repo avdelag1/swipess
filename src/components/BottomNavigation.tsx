@@ -49,7 +49,7 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import { getBottomNavChrome } from '@/utils/chromeStyles';
+import { getBottomNavChrome, getGlassBubbleStyle } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 26;
@@ -394,6 +394,20 @@ export const BottomNavigation = memo(({
                     )}
                   </AnimatePresence>
 
+                  {/* LIQUID GLASS HIGHLIGHT BUBBLE */}
+                  {active && (
+                    <motion.div
+                      layoutId="nav-active-indicator"
+                      className="absolute inset-0 z-0 pointer-events-none"
+                      initial={false}
+                      transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
+                      style={{
+                        ...getGlassBubbleStyle(isLight, true),
+                        transformOrigin: 'center'
+                      }}
+                    />
+                  )}
+
                   {(() => {
                     const motionId = getNavMotionId(item.id);
                     const iconEl = (
@@ -404,7 +418,6 @@ export const BottomNavigation = memo(({
                           color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
                           fill: active ? (item.id === 'add' ? '#FF3366' : baseColor) : 'none',
                           strokeWidth: active ? 2.5 : 2.0,
-                          filter: getNavIconFilter(item.id, active),
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
