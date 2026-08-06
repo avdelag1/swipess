@@ -111,7 +111,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           {isExpanded ? (
             <Search className="w-[18px] h-[18px] opacity-50" strokeWidth={2.5} />
           ) : (
-            <Search className="w-[20px] h-[20px]" strokeWidth={2.5} />
+            <Sparkles className="w-[20px] h-[20px]" strokeWidth={2.5} />
           )}
         </div>
         
@@ -131,12 +131,14 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask AI to find anything..."
-                className="w-full h-full bg-transparent outline-none border-none text-[15px] font-medium placeholder:opacity-50"
+                spellCheck={false}
+                autoComplete="off"
+                autoCorrect="off"
+                className="w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[15px] font-medium placeholder:opacity-50"
                 style={{ color: 'inherit' }}
               />
               
               <div className="shrink-0 flex items-center pr-1">
-                <Sparkles className="w-4 h-4 mr-2 opacity-60 text-purple-500" strokeWidth={2.5} />
                 <button
                   type="button"
                   onClick={(e) => {

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { MapPin, Calendar, Users } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
+import { useModalStore } from '@/state/modalStore';
 
 interface DashboardFiltersProps {
   isLight: boolean;
@@ -12,6 +13,8 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
     { id: 'date', label: 'Any date', icon: Calendar },
     { id: 'guests', label: '2 guests', icon: Users },
   ];
+  
+  const setModal = useModalStore(state => state.setModal);
 
   // True iOS Liquid Glass styles for Filters
   const glassStyle = {
@@ -42,6 +45,7 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 haptics.tap();
+                setModal('showFilters', true);
               }}
               className="flex items-center justify-center gap-1.5 h-[48px] rounded-full shadow-sm"
               style={glassStyle}
