@@ -7,7 +7,8 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
-import useAppTheme from '@/hooks/useAppTheme';
+import { useAppTheme } from '@/components/ThemeProvider';
+import { useFilterStore } from '@/store/filterStore';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
@@ -120,8 +121,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   );
   const isClientDash = location.pathname.startsWith('/client/dashboard');
   const isOwnerDash = location.pathname.startsWith('/owner/dashboard');
+  const activeCategory = useFilterStore((s) => s.activeCategory);
   const swipeDeckActive =
-    isClientDash ||
+    (isClientDash && !!activeCategory) ||
     (isOwnerDash && ownerPhase === 'swipe') ||
     isRoommatesRoute;
   // Immersive single-card detail pages (a listing or profile opened on its

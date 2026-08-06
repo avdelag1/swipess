@@ -200,7 +200,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group shrink-0"
+              className="flex items-center justify-center h-8 w-8 transition-all group shrink-0 outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -226,7 +227,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); navigate('/premium'); }}
-              className="flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              className="flex items-center justify-center h-7 w-7 transition-all group outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label="Premium"
             >
               <HeaderIconSlot
@@ -253,7 +255,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              className="flex items-center justify-center h-7 w-7 transition-all group outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
