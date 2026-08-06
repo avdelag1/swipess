@@ -378,7 +378,7 @@ export const BottomNavigation = memo(({
                     width: active ? '40px' : '36px',
                     height: active ? '40px' : '36px',
                     transition: 'width 140ms ease, height 140ms ease',
-                    ...(isAddBtn ? { background: '#FF3366' } : getGlassBubbleStyle(isLight, false))
+                    ...(isAddBtn ? { background: '#FF3366' } : { background: 'transparent' })
                   }}
                 >
 
@@ -420,13 +420,9 @@ export const BottomNavigation = memo(({
                         style={{
                           width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                           height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          color: isAddBtn 
-                            ? '#FFFFFF' 
-                            : (isLight 
-                              ? (active ? '#000000' : '#222222') 
-                              : (active ? '#ffffff' : '#EEEEEE')),
+                          color: isAddBtn ? '#FFFFFF' : (active ? iconColor : inactiveIconColor),
                           fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 1.75 : 1.5,
+                          strokeWidth: active || isAddBtn ? 2 : 1.75,
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
