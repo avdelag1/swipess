@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
-import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { revealChrome } from '@/hooks/useChromeReveal';
 
 interface ClientDashboardProps {
@@ -26,17 +25,12 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, []);
 
   return (
-    <AmbientPageBackground
-      layout="fill"
-      className={cn('relative w-full min-h-0 bg-transparent')}
-      variant="subtle"
-    >
+    <div className={cn('relative w-full flex-1 min-h-0 bg-transparent')}>
       <SwipessSwipeContainer
         onListingTap={(listingId) => navigate(`/listing/${listingId}`)}
         onInsights={() => {}}
         onMessageClick={onMessageClick}
       />
-    </AmbientPageBackground>
+    </div>
   );
 }
-
