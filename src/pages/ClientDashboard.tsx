@@ -28,7 +28,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   return (
     <AmbientPageBackground
       layout="fill"
-      className={cn('relative w-full min-h-0 bg-swipe-frame')}
+      className={cn('relative w-full min-h-0 bg-transparent')}
       variant="subtle"
     >
       <SwipessSwipeContainer

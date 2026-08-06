@@ -1009,7 +1009,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     <>
     <div className={cn(
       "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
-      "bg-swipe-frame"
+      activeCategory ? "bg-black" : "bg-transparent"
     )}>
       <div className={cn(
         "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
@@ -1020,7 +1020,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           {/* Pull-down backdrop: dashboard category picker revealed behind the deck */}
       <motion.div
         aria-hidden
-        className="absolute inset-0 pointer-events-none z-[1] bg-swipe-frame"
+        className={cn("absolute inset-0 pointer-events-none z-[1]", activeCategory ? "bg-black" : "bg-transparent")}
         style={{
           opacity: pullDown.backdropOpacity,
           scale: pullDown.backdropScale,
@@ -1047,7 +1047,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               aria-hidden
               className={cn(
                 "absolute inset-0 -z-10 transition-colors duration-500",
-                "bg-swipe-frame"
+                activeCategory ? "bg-black" : "bg-transparent"
               )}
               style={{ borderRadius: 48 }}
             />
