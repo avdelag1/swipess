@@ -124,12 +124,12 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
           >
             <div className={cn(
               "w-full max-w-md h-full sm:max-h-[80vh] rounded-3xl overflow-hidden flex flex-col pointer-events-auto",
-              "bg-[#0a0a0f]/90 border border-white/10"
+              "bg-black/30 border border-white/20"
             )}
             style={{
-              backdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0.5px 0 rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(30px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(150%)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0.5px 0 rgba(255, 255, 255, 0.2)',
               transform: 'translateZ(0)',
               willChange: 'transform',
             }}>

@@ -365,10 +365,10 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col w-full h-full text-white"
           >
-            <div className="absolute inset-0 bg-[#0a0a0f]/90 backdrop-blur-3xl rounded-3xl" />
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-[30px] rounded-3xl" style={{ backdropFilter: 'blur(30px) saturate(150%)', WebkitBackdropFilter: 'blur(30px) saturate(150%)' }} />
             
             {/* Header */}
-            <div className="relative px-4 pt-4 pb-3 border-b border-white/10 bg-transparent">
+            <div className="relative px-4 pt-4 pb-3 border-b border-white/20 bg-transparent">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-primary/20">
