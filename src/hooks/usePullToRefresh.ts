@@ -49,10 +49,8 @@ export function usePullToRefresh({
         await Promise.all([onRefresh(), minWait]);
       } else {
         await minWait;
-        // Clean full page reload with cache buster to ensure PWA asset refresh
-        const url = new URL(window.location.href);
-        url.searchParams.set('reload_v', Date.now().toString());
-        window.location.replace(url.toString());
+        // Simple, reliable hard reload for PWA
+        window.location.reload();
       }
     } catch (e) {
       logger.error("Refresh failed", e);
