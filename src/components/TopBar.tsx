@@ -17,11 +17,11 @@ import { PREMIUM_FOR_EVERYONE } from '@/utils/messagingEntitlements';
 import { useFilterStore } from '@/state/filterStore';
 import { getParentRoute } from '@/utils/sectionNavigation';
 import {
-  getHeaderChrome,
+  getTopBarChrome,
   getHeaderIconFilter,
   HEADER_PILL_BASE,
   isDashboardPath,
-} from '@/utils/headerChrome';
+} from '@/utils/chromeStyles';
 // AIIcon removed
 
 interface TopBarProps {
@@ -80,7 +80,7 @@ function TopBarComponent({
 
   const isActuallyVisible = true;
   const isDashboard = isDashboardPath(location.pathname);
-  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getHeaderChrome(isLight, isDashboard);
+  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getTopBarChrome(isLight, isDashboard);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';

@@ -38,7 +38,7 @@ import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
-import { isDashboardPath } from '@/utils/headerChrome';
+import { isDashboardPath } from '@/utils/chromeStyles';
 
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
@@ -49,9 +49,7 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import {
-  getHeaderChrome
-} from '@/utils/headerChrome';
+import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 26;
@@ -257,7 +255,7 @@ export const BottomNavigation = memo(({
     useLightIcons, 
     iconColor: baseColor, 
     inactiveIconColor 
-  } = getHeaderChrome(isLight, isDashboard);
+  } = getBottomNavChrome(isLight, isDashboard);
   
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
