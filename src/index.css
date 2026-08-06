@@ -686,7 +686,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 240 5% 97%; /* Soft off-white to allow cards to float */
     --foreground: 0 0% 10%;
     --primary: 327 100% 45%; /* Mexican Pink */
     --primary-foreground: 0 0% 100%;
@@ -711,7 +711,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
     --hud-active-bg: rgba(0, 0, 0, 0.05);
   }
   .dark {
-    --background: 0 0% 0%; /* OLED Black */
+    --background: 240 5% 8%; /* Deep grey to allow floating 3D effect */
     --foreground: 0 0% 98%;
     --primary: 327 100% 60%; /* Brighter Mexican Pink for dark mode */
     --primary-foreground: 0 0% 100%;
@@ -801,7 +801,7 @@ button:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible) {
   /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
   .black-matte {
     /* Background colors - Deep black palette */
-    --background: 0 0% 0%;
+    --background: 240 5% 6%;
     --foreground: 0 0% 96%;
     --card: 0 0% 10%;
     --card-foreground: 0 0% 96%;
