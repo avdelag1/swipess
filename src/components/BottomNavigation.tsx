@@ -250,15 +250,15 @@ export const BottomNavigation = memo(({
 
 
   const isDashboard = isDashboardPath(location.pathname);
-  // Match the header: in light theme use dark icons, in dark theme use light icons
-  const useLightIcons = !isLight;
-  const baseColor = isLight ? '#000000' : '#ffffff';
-  // Pure black for inactive icons in light mode so they don't look grey
-  const inactiveIconColor = isLight ? '#000000' : 'rgba(255,255,255,0.6)';
-  const { iconShadow, pillStyle } = getHeaderChrome(
-    isLight,
-    isDashboard,
-  );
+  
+  const { 
+    iconShadow, 
+    pillStyle, 
+    useLightIcons, 
+    iconColor: baseColor, 
+    inactiveIconColor 
+  } = getHeaderChrome(isLight, isDashboard);
+  
   const activeGlow = useLightIcons
     ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
     : 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))';

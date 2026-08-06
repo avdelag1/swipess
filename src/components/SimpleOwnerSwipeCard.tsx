@@ -407,6 +407,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     e.stopPropagation();
                     if (onBack) onBack();
                   }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                  }}
                   className="pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full bg-black/30 backdrop-blur-3xl border border-white/30 text-white shadow-[0_16px_48px_rgba(0,0,0,0.5)] active:scale-85 transition-all duration-300"
                   aria-label="Back"
                 >

@@ -1011,22 +1011,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       "absolute inset-0 w-full h-full flex flex-col transition-colors duration-500 overflow-hidden",
       "bg-swipe-frame"
     )}>
-      {/* Ambient Tornasol / Sunset Gradient */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none opacity-40"
-        style={{
-          background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 25%, #fb923c 50%, #f472b6 75%, #c084fc 100%)',
-          backgroundSize: '300% 300%',
-          animation: 'tornasol-move 15s ease infinite',
-        }}
-      />
-      <style>{`
-        @keyframes tornasol-move {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
       <div className={cn(
         "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
       )} />

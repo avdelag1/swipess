@@ -44,9 +44,26 @@ export function PersistentDashboardScene() {
         pointerEvents: isDashboard ? 'auto' : 'none',
       }}
     >
+      {/* Ambient Tornasol / Sunset Gradient for Dashboard */}
+      <div 
+        className="absolute inset-0 z-[0] pointer-events-none opacity-40"
+        style={{
+          background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 25%, #fb923c 50%, #f472b6 75%, #c084fc 100%)',
+          backgroundSize: '300% 300%',
+          animation: 'tornasol-move 15s ease infinite',
+        }}
+      />
+      <style>{`
+        @keyframes tornasol-move {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+      
       {clientMountedRef.current && (
         <div
-          className="absolute inset-0 flex flex-col flex-1 min-h-0 h-full w-full"
+          className="absolute inset-0 flex flex-col flex-1 min-h-0 h-full w-full z-[1]"
           style={{ display: isDashboard ? 'flex' : 'none' }}
         >
           <Suspense fallback={null}>
