@@ -55,13 +55,13 @@ class GlobalErrorBoundary extends Component<Props, State> {
       }
 
       const now = Date.now();
-      const lastTs = parseInt(sessionStorage.getItem(RELOAD_TS_KEY) || '0', 10);
-      let count = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0', 10);
+      const lastTs = parseInt(localStorage.getItem(RELOAD_TS_KEY) || '0', 10);
+      let count = parseInt(localStorage.getItem(RELOAD_KEY) || '0', 10);
       if (now - lastTs > 60_000) count = 0;
       
       if (count < MAX_RELOADS_PER_MINUTE) {
-        sessionStorage.setItem(RELOAD_KEY, String(count + 1));
-        sessionStorage.setItem(RELOAD_TS_KEY, String(now));
+        localStorage.setItem(RELOAD_KEY, String(count + 1));
+        localStorage.setItem(RELOAD_TS_KEY, String(now));
         // Add timestamp to bypass standard browser cache
         setTimeout(() => {
           window.location.href = window.location.pathname + '?v=' + Date.now();

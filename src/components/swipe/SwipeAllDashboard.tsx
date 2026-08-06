@@ -114,26 +114,22 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           boxSizing: 'border-box',
         }}
       >
-        {/* Ambient Tornasol / Sunset Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <motion.div
-            animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full mix-blend-multiply blur-[100px] opacity-70"
-            style={{ background: 'linear-gradient(to right, #fca5a5, #fcd34d)' }}
-          />
-          <motion.div
-            animate={{ scale: [1, 1.1, 1], x: [0, -40, 0], y: [0, -50, 0] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full mix-blend-multiply blur-[100px] opacity-70"
-            style={{ background: 'linear-gradient(to right, #c084fc, #f472b6)' }}
-          />
-          <motion.div
-            animate={{ scale: [1, 1.3, 1], x: [0, 30, 0], y: [0, -30, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[30%] left-[20%] w-[50%] h-[50%] rounded-full mix-blend-multiply blur-[80px] opacity-50"
-            style={{ background: 'linear-gradient(to right, #fb923c, #fbcfe8)' }}
-          />
+        {/* Lightweight Ambient Tornasol / Sunset Background */}
+        <div 
+          className="absolute inset-0 z-0 pointer-events-none opacity-40"
+          style={{
+            background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 33%, #fb923c 66%, #c084fc 100%)',
+            backgroundSize: '300% 300%',
+            animation: 'tornasol-move 15s ease infinite',
+          }}
+        >
+          <style>{`
+            @keyframes tornasol-move {
+              0% { background-position: 0% 50%; }
+              50% { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+          `}</style>
         </div>
 
         <motion.div
