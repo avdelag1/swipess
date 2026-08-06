@@ -360,22 +360,22 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     };
 
     const drawSunset = () => {
-      time += 0.015;
+      time += 0.04; // Faster animation
       
-      // Sky Gradient
+      // Sky Gradient (More red)
       const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
       const shift = Math.sin(time) * 0.05;
-      skyGrad.addColorStop(0, `hsl(${260 + shift * 50}, 40%, 15%)`);
-      skyGrad.addColorStop(0.5, `hsl(${340 + shift * 30}, 50%, 40%)`);
-      skyGrad.addColorStop(1, `hsl(${20 + shift * 20}, 80%, 65%)`);
+      skyGrad.addColorStop(0, `hsl(${300 + shift * 50}, 40%, 15%)`);
+      skyGrad.addColorStop(0.5, `hsl(${355 + shift * 30}, 60%, 40%)`);
+      skyGrad.addColorStop(1, `hsl(${5 + shift * 20}, 90%, 55%)`);
       
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, w, h * 0.6);
 
-      // Ocean Gradient (Zen smooth flow)
+      // Ocean Gradient (Zen smooth flow, reflecting red)
       const oceanGrad = ctx.createLinearGradient(0, h * 0.6, 0, h);
-      oceanGrad.addColorStop(0, `hsl(${200 + shift * 10}, 60%, 40%)`);
-      oceanGrad.addColorStop(1, `hsl(${240 + shift * 10}, 80%, 15%)`);
+      oceanGrad.addColorStop(0, `hsl(${355 + shift * 10}, 50%, 30%)`);
+      oceanGrad.addColorStop(1, `hsl(${260 + shift * 10}, 70%, 15%)`);
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(0, h * 0.6, w, h * 0.4);
 

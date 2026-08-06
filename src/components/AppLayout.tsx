@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
+import LandingBackgroundEffects from '@/components/LandingBackgroundEffects';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -316,6 +317,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       "bg-background",
       theme === 'Swipess-style' && "Swipess-style"
     )}>
+      {(theme === 'sunset' || theme === 'stars') && (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <LandingBackgroundEffects mode={theme} disableSounds />
+        </div>
+      )}
       <SkipToMainContent />
 
       

@@ -37,7 +37,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       : '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
     backdropFilter: 'blur(40px) saturate(200%)',
     WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-    color: isLight ? '#000' : '#fff',
+    color: '#fff',
   };
 
   return (
@@ -52,7 +52,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
         }}
       >
         <div className="shrink-0 flex items-center justify-center w-[38px] h-[38px]">
-          <Search className="w-[15px] h-[15px] opacity-50" strokeWidth={1.5} />
+          <Search className="w-[15px] h-[15px] text-white/90" strokeWidth={2} />
         </div>
         
         <div className="flex-1 flex items-center h-full">
@@ -66,7 +66,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                 spellCheck={false}
                 autoComplete="off"
                 autoCorrect="off"
-                className="w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[13px] font-medium placeholder:opacity-50"
+                className="w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[13px] font-medium placeholder:text-white/80"
                 style={{ color: 'inherit' }}
               />
               
