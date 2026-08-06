@@ -444,13 +444,13 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .animate-orb-1 {
-  animation: orb-float-1 22s ease-in-out infinite alternate;
+  animation: orb-float-1 8s ease-in-out infinite alternate;
 }
 .animate-orb-2 {
-  animation: orb-float-2 28s ease-in-out infinite alternate;
+  animation: orb-float-2 11s ease-in-out infinite alternate;
 }
 .animate-orb-3 {
-  animation: orb-float-3 25s ease-in-out infinite alternate;
+  animation: orb-float-3 9s ease-in-out infinite alternate;
 }
 
 /* Floating dock nav */
