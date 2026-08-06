@@ -78,10 +78,15 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                     haptics.tap();
                     onFilterClick?.();
                   }}
-                  className="flex items-center justify-center w-8 h-8 rounded-full opacity-100 hover:opacity-100 hover:bg-white/10 transition-all"
+                  className="flex items-center justify-center w-8 h-8 outline-none bg-transparent shrink-0"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                   aria-label="Search"
                 >
-                  <Sparkles className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                  <Sparkles 
+                    className="w-[18px] h-[18px] text-[#fff0f5]" 
+                    strokeWidth={2} 
+                    style={{ filter: 'drop-shadow(0 0 5px rgba(255, 180, 200, 0.9))' }}
+                  />
                 </button>
               </div>
             </div>
