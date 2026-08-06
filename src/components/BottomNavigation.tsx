@@ -426,7 +426,7 @@ export const BottomNavigation = memo(({
                               ? (active ? '#000000' : '#222222') 
                               : (active ? '#ffffff' : '#EEEEEE')),
                           fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 2.5 : 2.0,
+                          strokeWidth: active || isAddBtn ? 1.75 : 1.5,
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />

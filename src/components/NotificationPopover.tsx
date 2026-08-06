@@ -315,9 +315,9 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
     >
       <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
         <Bell
-          strokeWidth={1.9}
+          strokeWidth={1.5}
           className={cn(
-            "h-[20px] w-[20px] transition-colors duration-150",
+            "h-[18px] w-[18px] transition-colors duration-150",
             "opacity-90 group-hover:opacity-100"
           )}
           style={{ color: bellColor, filter: iconShadow }}

@@ -37,9 +37,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor, filter: iconShadow }} />
+            <Sun strokeWidth={1.5} className="h-[18px] w-[18px]" style={{ color: iconColor, filter: iconShadow }} />
         ) : (
-            <Moon strokeWidth={1.9} className="h-[20px] w-[20px]" style={{ color: iconColor, filter: iconShadow }} />
+            <Moon strokeWidth={1.5} className="h-[18px] w-[18px]" style={{ color: iconColor, filter: iconShadow }} />
         );
 
 
