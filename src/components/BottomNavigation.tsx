@@ -243,7 +243,7 @@ export const BottomNavigation = memo(({
       case 'ai-listing': return showAIListing;
       case 'tokens': return showTokensModal;
       case 'search':
-      case 'filters': return showFilters;
+      case 'filters': return showFilters || location.pathname.includes('/filters');
       default: return false;
     }
   };
