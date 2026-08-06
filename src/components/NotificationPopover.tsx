@@ -23,7 +23,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import { getTopBarChrome, isDashboardPath } from '@/utils/headerChrome';
 
 // Notification type configurations for visual consistency
 
@@ -295,7 +295,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
   }, [navigate]);
 
   const isDashboard = isDashboardPath(_location.pathname);
-  const { iconColor: bellColor, iconShadow } = getHeaderChrome(isLight, isDashboard || isLight);
+  const { iconColor: bellColor, iconShadow } = getTopBarChrome(isLight, isDashboard || isLight);
   const triggerButton = children || (
     <Button
       variant="ghost"

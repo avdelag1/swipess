@@ -7,7 +7,7 @@ import { useContext } from 'react';
 
 import { triggerHaptic } from '@/utils/haptics';
 import { useLocation } from 'react-router-dom';
-import { getHeaderChrome, isDashboardPath } from '@/utils/headerChrome';
+import { getTopBarChrome, isDashboardPath } from '@/utils/headerChrome';
 
 type Theme = 'light' | 'dark';
 
@@ -25,7 +25,7 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const isLight = theme === 'light';
     const location = useLocation();
-    const { iconColor, iconShadow } = getHeaderChrome(isLight, isDashboardPath(location.pathname) || isLight);
+    const { iconColor, iconShadow } = getTopBarChrome(isLight, isDashboardPath(location.pathname) || isLight);
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
