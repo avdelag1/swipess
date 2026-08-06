@@ -107,18 +107,40 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative h-full min-h-0 overflow-visible flex flex-col items-center justify-start bg-transparent"
+        className="relative h-full min-h-0 overflow-visible flex flex-col items-center justify-start bg-white"
         style={{
           paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
           paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))',
           boxSizing: 'border-box',
         }}
       >
+        {/* Ambient Tornasol / Sunset Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], x: [0, 50, 0], y: [0, 30, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full mix-blend-multiply blur-[100px] opacity-70"
+            style={{ background: 'linear-gradient(to right, #fca5a5, #fcd34d)' }}
+          />
+          <motion.div
+            animate={{ scale: [1, 1.1, 1], x: [0, -40, 0], y: [0, -50, 0] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full mix-blend-multiply blur-[100px] opacity-70"
+            style={{ background: 'linear-gradient(to right, #c084fc, #f472b6)' }}
+          />
+          <motion.div
+            animate={{ scale: [1, 1.3, 1], x: [0, 30, 0], y: [0, -30, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[30%] left-[20%] w-[50%] h-[50%] rounded-full mix-blend-multiply blur-[80px] opacity-50"
+            style={{ background: 'linear-gradient(to right, #fb923c, #fbcfe8)' }}
+          />
+        </div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.12, ease: 'easeOut' }}
-          className="relative flex-none flex items-center justify-center overflow-hidden rounded-[2.5rem]"
+          className="relative z-10 flex-none flex items-center justify-center overflow-hidden rounded-[2.5rem]"
           style={{
             height: 'calc(100% - 24px)',
             width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 24px) * 0.66667)',

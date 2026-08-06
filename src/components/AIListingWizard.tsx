@@ -596,13 +596,15 @@ export function AIListingWizard() {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={handleClose}
-                aria-label="Close"
-                className={cn("w-11 h-11 flex items-center justify-center press-snappy", closeBtnCls)}
-              >
-                <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
-              </button>
+              {!isOnboardingActive && (
+                <button 
+                  onClick={handleClose}
+                  aria-label="Close"
+                  className={cn("w-11 h-11 flex items-center justify-center press-snappy", closeBtnCls)}
+                >
+                  <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
+                </button>
+              )}
             </div>
 
             <ScrollArea className="flex-1 overflow-hidden relative z-10">
@@ -874,28 +876,31 @@ export function AIListingWizard() {
                         <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-50 px-4", isLight ? "text-black" : "text-white")}>
                           By continuing, your data is securely sent to OpenAI for processing to generate your listing. See our Legal Hub for privacy details.
                         </p>
-                        <Button
+                        <motion.button
+                          whileTap={{ scale: 0.97 }}
                           onClick={handleProcess}
                           disabled={isProcessing || imageFiles.length === 0 || !cityLocation.trim()}
                           className={cn(
-                            "w-full h-16 rounded-[2.5rem] bg-gradient-to-br from-[#06B6D4] via-[#6366F1] to-[#8B5CF6] text-white hover:brightness-110 font-black uppercase tracking-[0.3em] text-[12px] transition-all shadow-[0_20px_60px_-10px_rgba(99,102,241,0.5)]",
-                            "disabled:opacity-40 disabled:saturate-50 disabled:shadow-none disabled:cursor-not-allowed"
+                            "w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[14px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-all",
+                            (isProcessing || imageFiles.length === 0 || !cityLocation.trim()) ? "opacity-40 saturate-50 shadow-none cursor-not-allowed" : ""
                           )}
+                          style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
                         >
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
                           {isProcessing ? (
                             <>
-                              <PremiumSpinner className="w-5 h-5 mr-4" />
-                              Publishing...
+                              <PremiumSpinner className="w-5 h-5 relative z-10" />
+                              <span className="relative z-10">Publishing...</span>
                             </>
                           ) : (
                             <>
-                              <MotionIcon id="ai-sparkle" className="mr-4">
+                              <MotionIcon id="ai-sparkle" className="relative z-10">
                                 <Zap className="w-5 h-5" />
                               </MotionIcon>
-                              Create Listing
+                              <span className="relative z-10">Create Listing</span>
                             </>
                           )}
-                        </Button>
+                        </motion.button>
                       </div>
                     </motion.div>
                   )}

@@ -585,7 +585,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 SimpleOwnerSwipeCardComponent.displayName = 'SimpleOwnerSwipeCard';
 export const SimpleOwnerSwipeCard = memo(SimpleOwnerSwipeCardComponent, (prev, next) => {
   return (
-    prev.client.user_id === next.client.user_id &&
+    prev.profile.user_id === next.profile.user_id &&
     prev.isTop === next.isTop &&
     prev.fullScreen === next.fullScreen &&
     prev.canUndo === next.canUndo &&

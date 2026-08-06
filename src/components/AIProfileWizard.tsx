@@ -418,9 +418,11 @@ export function AIProfileWizard() {
                 <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest text-[#8B5CF6]">One-Step Setup</span>
               </div>
             </div>
-            <button onClick={handleClose} aria-label="Close" className={cn("w-11 h-11 flex items-center justify-center rounded-2xl press-snappy", closeBtnCls)}>
-              <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
-            </button>
+            {!isOnboardingActive && (
+              <button onClick={handleClose} aria-label="Close" className={cn("w-11 h-11 flex items-center justify-center rounded-2xl press-snappy", closeBtnCls)}>
+                <X className={cn("w-5 h-5", isLight ? "text-black/80" : "text-white/90")} />
+              </button>
+            )}
           </div>
 
           <ScrollArea className="flex-1 overflow-hidden relative z-10">
@@ -640,23 +642,28 @@ export function AIProfileWizard() {
                       <p className={cn("text-[10px] font-bold text-center uppercase tracking-widest opacity-50 px-4", isLight ? "text-black" : "text-white")}>
                         By continuing, your data is securely sent to OpenAI for processing to generate your profile. See our Legal Hub for privacy details.
                       </p>
-                      <Button
+                      <motion.button
+                        whileTap={{ scale: 0.97 }}
                         onClick={handleProcess}
                         disabled={!narrative.trim() || isProcessing || imageFiles.length === 0}
-                        className="w-full h-16 rounded-[2.5rem] hover:brightness-110 text-white font-black uppercase tracking-[0.3em] text-[12px] shadow-[0_20px_60px_rgba(99,102,241,0.35)] disabled:opacity-20"
-                        style={{ background: NEXUS_GRADIENTS.ai }}
+                        className={cn(
+                          "w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[14px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-all",
+                          (!narrative.trim() || isProcessing || imageFiles.length === 0) ? "opacity-40 saturate-50 shadow-none cursor-not-allowed" : ""
+                        )}
+                        style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
                       >
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
                         {isProcessing ? (
-                          <MotionIcon id="ai-sparkle" loop className="mr-3">
+                          <MotionIcon id="ai-sparkle" loop className="relative z-10">
                             <PremiumSpinner className="w-5 h-5" />
                           </MotionIcon>
                         ) : (
-                          <MotionIcon id="ai-sparkle" className="mr-3">
+                          <MotionIcon id="ai-sparkle" className="relative z-10">
                             <Wand2 className="w-5 h-5" />
                           </MotionIcon>
                         )}
-                        Create Profile
-                      </Button>
+                        <span className="relative z-10">Create Profile</span>
+                      </motion.button>
                     </div>
                   </motion.div>
                 )}
