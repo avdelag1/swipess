@@ -40,22 +40,27 @@ export function getHeaderIconFilter(
  *     light like actual glass
  *   • Delicate inner catch-light at top edge — no heavy neumorphic shadows
  */
-export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
-  // On the dashboard, the background can be bright (white cards, etc), so we use a dark glass frame and white icons for clarity.
-  const useLightIcons = _isDashboard ? true : !isLight;
+export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
+  // On the dashboard, we use a light translucent glass frame and black icons.
+  // On the swipe cards, it's a black immersive background, so we use a dark glass frame and white icons.
+  const useLightIcons = _isDashboard ? false : true; // Swipe cards are always immersive black
 
   const pillStyle: CSSProperties = {
-    // Dark Liquid glass effect: deep translucent core, refractive subtle edges
-    background: 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
-    border: '1px solid rgba(255, 255, 255, 0.15)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.3)',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
+    // Light gray liquid glass on dashboard, dark glass on swipe cards
+    background: _isDashboard 
+      ? 'linear-gradient(145deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.03) 100%)'
+      : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
+    border: _isDashboard ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.15)',
+    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.3)',
+    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
     WebkitBackdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4)',
+    boxShadow: _isDashboard 
+      ? '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255,255,255,0.5)'
+      : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
-    color: 'hsl(var(--foreground))',
+    color: useLightIcons ? '#ffffff' : '#000000',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -63,18 +68,52 @@ export function getHeaderChrome(isLight: boolean, _isDashboard = false) {
     overflow: 'visible',
   };
 
-  const iconColor = useLightIcons ? '#FFFFFF' : '#111111';
+  const iconColor = useLightIcons ? '#ffffff' : '#111111';
+  const inactiveIconColor = useLightIcons ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.45)';
 
   return {
     useLightIcons,
     iconColor,
-    inactiveIconColor: useLightIcons
-      ? 'rgba(255,255,255,0.7)'
-      : 'rgba(0,0,0,0.45)',
+    inactiveIconColor,
     pillStyle,
     iconShadow: useLightIcons
       ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
       : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+  };
+}
+
+export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
+  // Navigation bar buttons whiter because we have a black frame effect, glassmorphic
+  const useLightIcons = true; // Always white icons on bottom nav due to black frame
+
+  const pillStyle: CSSProperties = {
+    // Dark Liquid glass effect
+    background: 'linear-gradient(145deg, rgba(15,15,20,0.85) 0%, rgba(15,15,20,0.6) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.8)',
+    backdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(110%)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.6)',
+    borderRadius: '9999px',
+    pointerEvents: 'auto',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
+    overflow: 'visible',
+  };
+
+  const iconColor = '#ffffff';
+  const inactiveIconColor = 'rgba(255,255,255,0.65)';
+
+  return {
+    useLightIcons,
+    iconColor,
+    inactiveIconColor,
+    pillStyle,
+    iconShadow: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))',
   };
 }
 

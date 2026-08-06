@@ -44,9 +44,12 @@ export function PersistentDashboardScene() {
         pointerEvents: isDashboard ? 'auto' : 'none',
       }}
     >
+      {/* Solid White Base for Dashboard */}
+      <div className="absolute inset-0 z-[-1] bg-white" />
+
       {/* Ambient Tornasol / Sunset Gradient for Dashboard */}
       <div 
-        className="absolute inset-0 z-[0] pointer-events-none opacity-30"
+        className="absolute inset-0 z-[0] pointer-events-none opacity-40"
         style={{
           background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 25%, #fb923c 50%, #f472b6 75%, #c084fc 100%)',
           backgroundSize: '300% 300%',
