@@ -76,9 +76,10 @@ export function usePullToRefresh({
     const onTouchStart = (e: TouchEvent) => {
       if (disabled) return;
       // Only start pull if we're at the very top of the scroll container
-      // AND the touch starts below the 80px top bar region
+      // AND the touch starts at the very top of the screen (top 120px)
+      // This prevents accidental refreshes when scrolling from the middle of the screen
       const touchY = e.touches[0].clientY;
-      if (el.scrollTop <= 0 && !isRefreshing && touchY > 80) {
+      if (el.scrollTop <= 0 && !isRefreshing && touchY <= 120) {
         startY.current = touchY;
         startX.current = e.touches[0].clientX;
         pulling.current = true;

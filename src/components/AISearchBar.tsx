@@ -78,10 +78,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                     haptics.tap();
                     onFilterClick?.();
                   }}
-                  className="flex items-center justify-center w-8 h-8 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
+                  className="flex items-center justify-center w-8 h-8 rounded-full opacity-100 hover:opacity-100 hover:bg-white/10 transition-all"
                   aria-label="Search"
                 >
-                  <Sparkles className="w-4 h-4 text-purple-500" strokeWidth={1.5} />
+                  <Sparkles className="w-[18px] h-[18px] text-white" strokeWidth={2} />
                 </button>
               </div>
             </div>

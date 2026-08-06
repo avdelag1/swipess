@@ -166,7 +166,7 @@ function TopBarComponent({
               <div className="flex items-center gap-1.5 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
                 <button
                   type="button"
-                  className="flex items-center justify-center h-6 w-6 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-5 w-5 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
                   aria-label="Open profile"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
