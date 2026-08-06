@@ -19,8 +19,12 @@ import {
   Search,
   ShoppingCart,
   UserCheck,
-  Users
+  Users,
+  Star
 } from 'lucide-react';
+import { AISearchBar } from '@/components/AISearchBar';
+import { DashboardFilters } from '@/components/DashboardFilters';
+import useAppTheme from '@/hooks/useAppTheme';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -32,17 +36,16 @@ export interface BentoCategoryDashboardProps {
 // and not predictable, while both columns still end at the same height so the
 // grid stays balanced (no ragged gap at the bottom).
 const BENTO_ITEMS = [
-  { id: 'property',   label: 'PROPERTIES',  description: 'Find properties to buy or rent',  size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
-  { id: 'yacht',      label: 'YACHTS',      description: 'Yachts & boats to charter or buy', size: 'big',   imageId: 'yacht',      icon: Anchor,       delay: '4s' },
-  { id: 'services',   label: 'WORKERS',     description: 'Find people offering services',   size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '8s' },
-  { id: 'motorcycle', label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',    size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '12s' },
-  { id: 'bicycle',    label: 'BICYCLES',    description: 'Bicycles for sale or rent',       size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '16s' },
-  { id: 'buyers',     label: 'BUYERS',      description: 'People looking to buy',           size: 'normal', imageId: 'buyers',     icon: ShoppingCart, delay: '20s' },
-  { id: 'renters',    label: 'TENANTS',     description: 'People looking to rent',          size: 'normal', imageId: 'renters',    icon: Key,          delay: '24s' },
-  { id: 'seekers',    label: 'SEEKERS',     description: 'People looking for workers',      size: 'big',    imageId: 'seekers',    icon: Search,       delay: '28s' },
-  { id: 'roommates',  label: 'ROOMMATES',   description: 'Find your perfect roommate',      size: 'normal', imageId: 'roommates',  icon: Users,        delay: '32s' },
-  { id: 'premium',    label: 'PREMIUM',     description: 'Unlock exclusive features',       size: 'normal', imageId: 'premium',    icon: Crown,        delay: '36s' },
-  { id: 'events',     label: 'EVENTS',      description: 'Discover local events',           size: 'normal', imageId: 'events',     icon: Calendar,     delay: '40s' },
+  { id: 'property',    label: 'PROPERTIES',  description: 'Find properties to buy or rent',  size: 'big',    imageId: 'property',   icon: Home,         delay: '0s' },
+  { id: 'recommended', label: 'RECOMMENDED', description: 'Curated just for you',            size: 'big',    imageId: 'events',     icon: Star,         delay: '4s' },
+  { id: 'services',    label: 'WORKERS',     description: 'Find people offering services',   size: 'normal', imageId: 'services',   icon: UserCheck,    delay: '8s' },
+  { id: 'yacht',       label: 'YACHTS',      description: 'Yachts & boats to charter or buy', size: 'normal', imageId: 'yacht',      icon: Anchor,       delay: '12s' },
+  { id: 'motorcycle',  label: 'MOTORCYCLES', description: 'Motorcycles for sale or rent',    size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '16s' },
+  { id: 'events',      label: 'EVENTS',      description: 'Discover local events',           size: 'normal', imageId: 'events',     icon: Calendar,     delay: '20s' },
+  { id: 'seekers',     label: 'SEEKERS',     description: 'People looking for workers',      size: 'normal', imageId: 'seekers',    icon: Search,       delay: '24s' },
+  { id: 'buyers',      label: 'BUYERS',      description: 'People looking to buy',           size: 'big',    imageId: 'buyers',     icon: ShoppingCart, delay: '28s' },
+  { id: 'renters',     label: 'RENTERS',     description: 'People looking to rent',          size: 'normal', imageId: 'renters',    icon: Key,          delay: '32s' },
+  { id: 'bicycle',     label: 'BICYCLES',    description: 'Bicycles for sale or rent',       size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '36s' },
 ] as const;
 
 // Two height tiers. "big" is noticeably taller than "normal" so the staggered
@@ -69,6 +72,8 @@ const itemVariants = {
 
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
+  const { theme } = useAppTheme();
+  const isLight = theme === 'light';
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
@@ -79,25 +84,32 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       prefetchEventCategoryPhotosImmediate();
       navigate(EVENTS_FEED_PATH);
     }
+    // "Recommended" will eventually map to a personalized feed, for now just show all or trending.
+    else if (id === 'recommended') setCategories('property'); // Fallback for now
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
   return (
     <div
-      className="absolute inset-0 w-full h-full px-2 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
+      className="absolute inset-0 w-full h-full px-4 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
-        paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 8px)',
+        paddingTop: 'calc(var(--top-bar-height, 64px) + var(--safe-top, 0px) + 12px)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
         touchAction: 'pan-y',
       }}
     >
+      <div className="w-full max-w-3xl mx-auto mb-6 flex flex-col items-center">
+        <AISearchBar isLight={isLight} className="mb-4" />
+        <DashboardFilters isLight={isLight} />
+      </div>
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full max-w-3xl mx-auto flex items-start gap-2 sm:gap-4 pb-4"
+        className="w-full max-w-3xl mx-auto flex items-start gap-3 sm:gap-4 pb-4"
       >
         {[
           BENTO_ITEMS.filter((_, i) => i % 2 === 0),

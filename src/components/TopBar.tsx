@@ -160,31 +160,35 @@ function TopBarComponent({
             </button>
           ) : (
             user && (
-              <button
-                type="button"
-                onClick={() => {
-                  haptics.tap();
-                  navigate('/client/profile');
-                }}
-                className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden transition-all group glass-bubble-hover"
-                aria-label="Open profile"
-              >
-                  {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                    <img
-                      src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                      alt="Profile"
-                      loading="eager"
-                      decoding="async"
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
-                      <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
-                        {initials}
-                      </span>
-                    )
-                  )}
-              </button>
+              <div className="flex items-center gap-2 pr-2 rounded-full overflow-hidden transition-all group glass-bubble-hover" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
+                <button
+                  type="button"
+                  className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden shrink-0 pointer-events-none"
+                  aria-label="Open profile"
+                >
+                    {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                      <img
+                        src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                        alt="Profile"
+                        loading="eager"
+                        decoding="async"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      initials === '?' ? <UserRound className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} /> : (
+                        <span className="text-[12px] font-black text-primary-foreground drop-shadow-sm">
+                          {initials}
+                        </span>
+                      )
+                    )}
+                </button>
+                <div className="flex flex-col justify-center select-none" style={{ color: iconColor }}>
+                  <span className="text-[9px] font-medium opacity-80 leading-tight">Good afternoon,</span>
+                  <span className="text-[13px] font-bold leading-tight flex items-center gap-1">
+                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || 'Alejandro'} <span className="text-[10px]">👋</span>
+                  </span>
+                </div>
+              </div>
             )
           )}
 
@@ -192,7 +196,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover"
+              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group glass-bubble-hover ml-1 shrink-0"
               aria-label="AI Listing"
             >
               <HeaderIconSlot>

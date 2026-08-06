@@ -310,7 +310,6 @@ export const BottomNavigation = memo(({
           padding: '6px 8px',
         }}
       >
-        {/* Nav items row — SCROLLABLE SWIPESS ARCHITECTURE */}
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -330,6 +329,7 @@ export const BottomNavigation = memo(({
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
+            const isAddBtn = item.id === 'add';
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
@@ -358,21 +358,23 @@ export const BottomNavigation = memo(({
                 className={cn(
                   'relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
                   'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
+                  isAddBtn ? '-translate-y-3 shadow-lg' : ''
                 )}
                 style={{
-                  minWidth: isTablet ? '56px' : '44px',
-                  minHeight: isTablet ? '56px' : '44px',
+                  minWidth: isTablet ? '56px' : (isAddBtn ? '52px' : '44px'),
+                  minHeight: isTablet ? '56px' : (isAddBtn ? '52px' : '44px'),
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
                   WebkitTapHighlightColor: 'transparent',
+                  background: isAddBtn ? '#FF3366' : 'transparent',
                 }}
               >
                 <div
                   className="relative z-10 flex items-center justify-center"
                   style={{
-                    transform: active ? 'scale(1.1)' : 'scale(1)',
+                    transform: active && !isAddBtn ? 'scale(1.1)' : 'scale(1)',
                     transition: 'transform 140ms cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                 >
@@ -395,7 +397,7 @@ export const BottomNavigation = memo(({
                   </AnimatePresence>
 
                   {/* LIQUID GLASS HIGHLIGHT BUBBLE */}
-                  {active && (
+                  {active && !isAddBtn && (
                     <motion.div
                       layoutId="nav-active-indicator"
                       className="absolute inset-0 z-0 pointer-events-none"
@@ -413,11 +415,11 @@ export const BottomNavigation = memo(({
                     const iconEl = (
                       <Icon
                         style={{
-                          width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                          height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE),
-                          color: item.id === 'add' ? '#FF3366' : (active ? baseColor : inactiveIconColor),
-                          fill: active ? (item.id === 'add' ? '#FF3366' : baseColor) : 'none',
-                          strokeWidth: active ? 2.5 : 2.0,
+                          width: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
+                          height: isAddBtn ? 26 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 20 : ICON_SIZE)),
+                          color: isAddBtn ? '#FFFFFF' : (active ? baseColor : inactiveIconColor),
+                          fill: active && !isAddBtn ? baseColor : 'none',
+                          strokeWidth: active || isAddBtn ? 2.5 : 2.0,
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
