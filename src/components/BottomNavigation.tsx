@@ -317,7 +317,7 @@ export const BottomNavigation = memo(({
           data-no-swipe-nav
           data-scroll-axis="x"
           className={cn(
-            'relative flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-5',
+            'relative flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-2',
           )}
           style={{
             zIndex: 2,
@@ -360,26 +360,25 @@ export const BottomNavigation = memo(({
                 className={cn(
                   'relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
                   'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
-                  isAddBtn ? '-translate-y-3 shadow-lg' : ''
                 )}
                 style={{
-                  minWidth: isTablet ? '56px' : (isAddBtn ? '48px' : '42px'),
-                  minHeight: isTablet ? '56px' : (isAddBtn ? '48px' : '42px'),
+                  minWidth: isTablet ? '56px' : '42px',
+                  minHeight: isTablet ? '56px' : '42px',
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
                   WebkitTapHighlightColor: 'transparent',
-                  background: isAddBtn ? '#FF3366' : 'transparent',
+                  background: 'transparent',
                 }}
               >
                 <div
                   className="relative z-10 flex items-center justify-center rounded-full"
                   style={{
-                    width: isAddBtn ? `${ADD_BTN_SIZE}px` : (active ? '40px' : '36px'),
-                    height: isAddBtn ? `${ADD_BTN_SIZE}px` : (active ? '40px' : '36px'),
+                    width: active ? '40px' : '36px',
+                    height: active ? '40px' : '36px',
                     transition: 'width 140ms ease, height 140ms ease',
-                    ...(isAddBtn ? {} : getGlassBubbleStyle(isLight, false))
+                    ...(isAddBtn ? { background: '#FF3366' } : getGlassBubbleStyle(isLight, false))
                   }}
                 >
 
@@ -424,8 +423,8 @@ export const BottomNavigation = memo(({
                           color: isAddBtn 
                             ? '#FFFFFF' 
                             : (isLight 
-                              ? (active ? '#000000' : 'rgba(0,0,0,0.7)') 
-                              : (active ? '#ffffff' : 'rgba(255,255,255,0.95)')),
+                              ? (active ? '#000000' : '#222222') 
+                              : (active ? '#ffffff' : '#EEEEEE')),
                           fill: active && !isAddBtn ? baseColor : 'none',
                           strokeWidth: active || isAddBtn ? 2.5 : 2.0,
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',

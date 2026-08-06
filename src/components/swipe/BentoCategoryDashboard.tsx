@@ -96,6 +96,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
 
   return (
     <div
+      id="dashboard-scroll-container"
       className="absolute inset-0 w-full h-full px-4 bg-transparent overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
         paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',

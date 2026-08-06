@@ -52,7 +52,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
         }}
       >
         <div className="shrink-0 flex items-center justify-center w-[48px] h-[48px]">
-          <Sparkles className="w-[18px] h-[18px] opacity-60 text-purple-500" strokeWidth={2.5} />
+          <Search className="w-[18px] h-[18px] opacity-50" strokeWidth={2.5} />
         </div>
         
         <div className="flex-1 flex items-center h-full">
@@ -81,7 +81,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                   className="flex items-center justify-center w-10 h-10 rounded-full opacity-80 hover:opacity-100 hover:bg-black/5 transition-all"
                   aria-label="Search"
                 >
-                  <Search className="w-5 h-5" strokeWidth={2} />
+                  <Sparkles className="w-5 h-5 text-purple-500" strokeWidth={2} />
                 </button>
               </div>
             </div>

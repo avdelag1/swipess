@@ -136,8 +136,8 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         className={cn(
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile
-            ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0 bg-background"
-            : "max-w-2xl w-[95vw] h-[85vh] max-h-[800px] top-[50%] bg-background border-border shadow-[0_30px_90px_rgba(0,0,0,0.6)] rounded-[3rem]"
+            ? "w-full h-full max-w-full max-h-full rounded-none border-0 bg-background"
+            : "max-w-2xl w-[95vw] h-[85vh] max-h-[800px] bg-background border-border shadow-[0_30px_90px_rgba(0,0,0,0.6)] rounded-[3rem]"
         )}
       >
         {/* Header - Theme Aware */}
