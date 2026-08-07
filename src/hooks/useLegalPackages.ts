@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
-import { FALLBACK_PACKAGES, LegalPackage } from '@/data/legalPackages';
+import { LegalPackage } from '@/data/legalPackages';
 
 // `legal_service_packages` / `legal_package_requests` are shared with the
 // Lawyer Portal and aren't part of this app's generated Supabase types, so we
@@ -24,9 +24,8 @@ function normalizeFeatures(raw: unknown): string[] {
 }
 
 /**
- * Loads the live legal service catalogue from the shared Supabase project.
- * Falls back to the bundled catalogue if the table is empty or unreachable so
- * the screen is never blank.
+ * Loads the live legal-service catalogue from the shared Supabase project.
+ * No synthetic packages are shown when the catalogue is empty or unavailable.
  */
 export function useLegalPackages() {
   return useQuery<LegalPackage[]>({
@@ -40,7 +39,7 @@ export function useLegalPackages() {
           .order('price', { ascending: true });
 
         if (error) throw error;
-        if (!data || data.length === 0) return FALLBACK_PACKAGES;
+        if (!data || data.length === 0) return [];
 
         return (data as any[]).map((row) => ({
           id: String(row.id),
@@ -53,8 +52,8 @@ export function useLegalPackages() {
           is_active: row.is_active ?? true,
         }));
       } catch (err) {
-        logger.error('Failed to load legal packages, using fallback catalogue', err);
-        return FALLBACK_PACKAGES;
+        logger.error('Failed to load legal packages', err);
+        return [];
       }
     },
     staleTime: 10 * 60 * 1000,
