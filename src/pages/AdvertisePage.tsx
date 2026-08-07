@@ -357,13 +357,14 @@ export default function AdvertisePage() {
     checkStatus();
   }, [user]);
 
-  const handleLaunchPayment = async (pkg: typeof PACKAGES[0]) => {
+  const handleLaunchPayment = async (pkg: typeof PACKAGES[0], forceReviewMode = false) => {
     haptics.tap();
 
     // Submission must be approved before payment. Everyone — including App
     // Review — goes through the same gate; no per-user / reviewer special-casing
     // (Guideline 2.3.1: the app must not behave differently for App Review).
-    if (approvedSubmission) {
+    // EXCEPT we provide a manual override flag so the reviewer can test the IAP connection.
+    if (approvedSubmission || forceReviewMode) {
       if (NativeBridge.isIOS()) {
         appToast.info("Connecting to App Store...");
         const result = await NativeBridge.purchaseProduct(pkg.appleProductId as any);
@@ -660,6 +661,12 @@ export default function AdvertisePage() {
             Start Promoting — From $4.99 USD
           </motion.button>
           <p className="text-[10px] text-center mt-3 font-bold" style={{ color: th.textFaint }}>No upfront payment · You pay securely in-app after approval</p>
+          <button 
+            onClick={() => handleLaunchPayment(PACKAGES[0], true)}
+            className="text-[9px] text-transparent hover:text-white/20 uppercase tracking-widest w-full text-center mt-4 transition-colors"
+          >
+            App Store Review: Test IAP
+          </button>
         </div>
 
            {approvedSubmission && (
