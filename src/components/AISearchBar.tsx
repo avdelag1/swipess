@@ -55,7 +55,20 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           <Search className="w-[15px] h-[15px] text-white/90" strokeWidth={2} />
         </div>
         
-        <div className="flex-1 flex items-center h-full">
+        <form 
+          className="flex-1 flex items-center h-full"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (query.trim()) {
+              haptics.success();
+              onSearchSubmit?.(query);
+              inputRef.current?.blur();
+            } else {
+              haptics.tap();
+              onFilterClick?.();
+            }
+          }}
+        >
               <input
                 ref={inputRef}
                 type="text"
@@ -72,15 +85,14 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               
               <div className="shrink-0 flex items-center pr-1">
                 <button
-                  type="button"
+                  type="submit"
                   onClick={(e) => {
+                    // Stop propagation so it doesn't bubble if we just want to tap
                     e.stopPropagation();
-                    haptics.tap();
-                    onFilterClick?.();
                   }}
                   className="flex items-center justify-center w-8 h-8 outline-none bg-transparent shrink-0"
                   style={{ WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Search"
+                  aria-label="Search or Open AI"
                 >
                   <Sparkles 
                     className="w-[18px] h-[18px] text-[#fff0f5]" 
@@ -89,7 +101,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
                   />
                 </button>
               </div>
-            </div>
+        </form>
       </div>
     </div>
   );
