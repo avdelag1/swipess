@@ -109,7 +109,7 @@ const LandingView = memo(({
         <img 
           src="/icons/Swipess-brand-logo-transparent.png"
           alt="Swipess"
-          className="w-[110%] max-w-[360px] sm:max-w-[420px] object-cover drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)] pointer-events-none scale-[2.5] sm:scale-[2.8]"
+          className="w-[340px] sm:w-[380px] max-w-none h-auto object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)] pointer-events-none"
         />
         {title && (
           <h1 className="mt-6 text-white text-3xl font-black tracking-wide drop-shadow-xl absolute top-full">
