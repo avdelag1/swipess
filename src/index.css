@@ -3310,3 +3310,9 @@ body.hw-high .glass-pill {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+/* Force bottom nav icons to be perfectly white in light mode */
+.white-matte .app-bottom-bar svg {
+  color: #ffffff !important;
+  fill: currentColor;
+}

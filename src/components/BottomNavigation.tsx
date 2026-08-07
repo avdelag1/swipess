@@ -423,6 +423,7 @@ export const BottomNavigation = memo(({
                           color: isAddBtn ? '#FFFFFF' : (active ? baseColor : inactiveIconColor),
                           fill: active && !isAddBtn ? baseColor : 'none',
                           strokeWidth: active || isAddBtn ? 2 : 1.75,
+                          filter: getNavIconFilter(item.id, active),
                           transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />

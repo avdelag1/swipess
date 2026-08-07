@@ -55,11 +55,13 @@ const ALL_THEME_CLASSES = [
 function applyThemeToDOM(theme: Theme) {
   if (typeof window === 'undefined') return;
   const root = window.document.documentElement;
-  root.style.colorScheme = (theme === 'light') ? 'light' : 'dark';
+  const isLightTheme = theme === 'light' || theme === 'white-matte';
+  root.style.colorScheme = isLightTheme ? 'light' : 'dark';
   root.classList.remove(...ALL_THEME_CLASSES, 'ivanna-style', 'ivana');
   root.classList.add(theme);
-  if (theme === 'dark') root.classList.add('black-matte');
-  else if (theme === 'light') root.classList.add('white-matte');
+  
+  if (theme === 'dark' || theme === 'black-matte') root.classList.add('black-matte', 'dark');
+  else if (isLightTheme) root.classList.add('white-matte', 'light');
   else root.classList.add('dark');
 
   let meta = document.querySelector('meta[name="theme-color"]');
