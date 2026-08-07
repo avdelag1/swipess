@@ -1,4 +1,5 @@
 import type { Map as MapboxMap } from 'mapbox-gl';
+import { getMapWebGLProfile } from '@/utils/mapWebGLProfile';
 
 /** Default "flying / plane" camera — pitched 3D view */
 export const CINEMATIC_PITCH = 60;
@@ -20,13 +21,18 @@ export const OPEN_CENTER_MS = 380;
 export const CINEMATIC_MAX_PITCH_MOBILE = 60;
 export const CINEMATIC_MAX_PITCH_DESKTOP = 65;
 
+/** Respect adaptive WebGL profile — weak Safari/iOS stay flat (pitch 0). */
 export function cinematicPitchForViewport(): number {
+  const profile = getMapWebGLProfile();
+  if (profile.tier !== 'full') return profile.pitch;
   return typeof window !== 'undefined' && window.innerWidth < 768
     ? CINEMATIC_PITCH_MOBILE
     : CINEMATIC_PITCH;
 }
 
 export function cinematicMaxPitchForViewport(): number {
+  const profile = getMapWebGLProfile();
+  if (profile.tier !== 'full') return profile.maxPitch;
   return typeof window !== 'undefined' && window.innerWidth < 768
     ? CINEMATIC_MAX_PITCH_MOBILE
     : CINEMATIC_MAX_PITCH_DESKTOP;
@@ -42,18 +48,23 @@ export function zoomForRadiusKm(km: number): number {
 }
 
 export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {
-  // Safari (especially iOS) has known WebGL issues with Mapbox 3D Fog that causes
-  // the map to render completely foggy or blank. Disable fog specifically for Safari.
-  const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  if (isSafari) return;
+  // Caller should only invoke when getMapWebGLProfile().enableFog is true.
+  // Extra Safari guard — fog + WebGL2 has blanked maps on iOS.
+  try {
+    const isSafari = typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) return;
+    if (typeof map.setFog !== 'function') return;
 
-  map.setFog({
-    color: 'rgb(200, 220, 240)',
-    'high-color': 'rgb(50, 120, 220)',
-    'horizon-blend': 0.03,
-    'space-color': 'rgb(220, 235, 250)',
-    'star-intensity': 0.15,
-  });
+    map.setFog({
+      color: 'rgb(200, 220, 240)',
+      'high-color': 'rgb(50, 120, 220)',
+      'horizon-blend': 0.03,
+      'space-color': 'rgb(220, 235, 250)',
+      'star-intensity': 0.15,
+    });
+  } catch {
+    /* weak GPUs may reject fog */
+  }
 }
 
 export function addCinematic3DBuildings(map: MapboxMap, _isLight: boolean): void {
@@ -128,11 +139,12 @@ export function cinematicFlyTo(
   zoom: number,
   opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number; duration?: number },
 ): void {
+  const profile = getMapWebGLProfile();
   const options: Parameters<MapboxMap['flyTo']>[0] = {
     center,
     zoom,
-    pitch: opts?.pitch ?? CINEMATIC_PITCH,
-    bearing: opts?.bearing ?? CINEMATIC_BEARING,
+    pitch: opts?.pitch ?? cinematicPitchForViewport(),
+    bearing: opts?.bearing ?? (profile.tier === 'full' ? CINEMATIC_BEARING : 0),
     essential: true,
   };
   
@@ -162,8 +174,21 @@ export function cinematicOpenGlide(
   zoom: number,
   opts?: { pitch?: number; bearing?: number; altitudeZoom?: number; duration?: number },
 ): void {
+  const profile = getMapWebGLProfile();
   const pitch = opts?.pitch ?? cinematicPitchForViewport();
-  const bearing = opts?.bearing ?? CINEMATIC_BEARING;
+  const bearing = opts?.bearing ?? (profile.tier === 'full' ? CINEMATIC_BEARING : 0);
+  // Weak devices: skip dramatic altitude dive — just ease to target flat
+  if (profile.tier !== 'full') {
+    map.easeTo({
+      center,
+      zoom,
+      pitch: 0,
+      bearing: 0,
+      duration: Math.min(opts?.duration ?? OPEN_CENTER_MS, 500),
+      essential: true,
+    });
+    return;
+  }
   map.jumpTo({
     center,
     zoom: opts?.altitudeZoom ?? CINEMATIC_OPEN_ALTITUDE_ZOOM,

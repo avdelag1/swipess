@@ -1,9 +1,11 @@
-// Same-origin worker URL (Vite emits this under /assets/…). Cross-origin
-// `new Worker('https://api.mapbox.com/...')` is blocked by browsers with:
-// SecurityError: Script cannot be accessed from origin 'https://www.swipess.com'
-// even when worker-src allows mapbox.com.
+// Same-origin worker URLs (Vite emits under /assets/…). Cross-origin
+// `new Worker('https://api.mapbox.com/...')` is blocked from www.swipess.com.
 // @ts-expect-error Vite ?url import
 import mapboxCspWorkerUrl from 'mapbox-gl/dist/mapbox-gl-csp-worker.js?url';
+// @ts-expect-error Vite ?url import
+import mapboxLegacyCspWorkerUrl from 'mapbox-gl-legacy/dist/mapbox-gl-csp-worker.js?url';
+
+import { getMapWebGLProfile } from '@/utils/mapWebGLProfile';
 
 type MapboxGL = typeof import('mapbox-gl').default;
 type MapboxGeocoder = typeof import('@mapbox/mapbox-gl-geocoder').default;
@@ -11,44 +13,64 @@ type MapboxGeocoder = typeof import('@mapbox/mapbox-gl-geocoder').default;
 let warmPromise: Promise<{
   mapboxgl: MapboxGL;
   MapboxGeocoder: MapboxGeocoder;
+  legacy: boolean;
 }> | null = null;
 
-function configureMapboxWorker(mapboxgl: MapboxGL): void {
+function configureMapboxWorker(mapboxgl: MapboxGL, legacy: boolean): void {
   try {
-    // Prefer bundled same-origin CSP worker (works on Chrome + Safari + Capacitor)
-    if (typeof mapboxCspWorkerUrl === 'string' && mapboxCspWorkerUrl.length > 0) {
-      mapboxgl.workerUrl = mapboxCspWorkerUrl;
+    const url = legacy ? mapboxLegacyCspWorkerUrl : mapboxCspWorkerUrl;
+    if (typeof url === 'string' && url.length > 0) {
+      mapboxgl.workerUrl = url;
       return;
     }
   } catch { /* fall through */ }
-
-  // Last resort: leave Mapbox defaults (blob worker). Do NOT point workerUrl at
-  // api.mapbox.com — that throws SecurityError from https://www.swipess.com.
+  // Leave Mapbox defaults (blob worker). Never set api.mapbox.com workerUrl.
 }
 
-/** Eagerly load Mapbox JS + CSS. Safe to call multiple times. */
+/**
+ * Load Mapbox + Geocoder. On weak WebGL (Safari UBO=0, old iPhones) loads
+ * mapbox-gl@2 (WebGL1) instead of v3 so the map still paints.
+ * Chrome / strong GPUs keep the modern full package.
+ */
 export function warmMapboxModules(): Promise<{
   mapboxgl: MapboxGL;
   MapboxGeocoder: MapboxGeocoder;
+  legacy: boolean;
 }> {
   if (!warmPromise) {
-    warmPromise = Promise.all([
-      import('mapbox-gl'),
-      import('@mapbox/mapbox-gl-geocoder'),
-      import('mapbox-gl/dist/mapbox-gl.css'),
-      import('@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'),
-    ]).then(([mapboxModule, geocoderModule]) => {
-      const mapboxgl = mapboxModule.default;
-      configureMapboxWorker(mapboxgl);
+    const profile = getMapWebGLProfile();
+    const legacy = profile.useLegacyGl;
+
+    warmPromise = (async () => {
+      const mapboxModule = legacy
+        ? await import('mapbox-gl-legacy')
+        : await import('mapbox-gl');
+
+      const [geocoderModule] = await Promise.all([
+        import('@mapbox/mapbox-gl-geocoder'),
+        legacy
+          ? import('mapbox-gl-legacy/dist/mapbox-gl.css')
+          : import('mapbox-gl/dist/mapbox-gl.css'),
+        import('@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'),
+      ]);
+
+      const mapboxgl = (mapboxModule as { default: MapboxGL }).default;
+      configureMapboxWorker(mapboxgl, legacy);
       return {
         mapboxgl,
         MapboxGeocoder: geocoderModule.default,
+        legacy,
       };
-    });
+    })();
   }
   return warmPromise;
 }
 
 export function isMapboxWarmed(): boolean {
   return warmPromise != null;
+}
+
+/** Drop warm cache so a recovery can re-pick tier after context loss. */
+export function resetWarmMapboxModules(): void {
+  warmPromise = null;
 }

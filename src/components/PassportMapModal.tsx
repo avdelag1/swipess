@@ -16,7 +16,6 @@ import {
   CINEMATIC_OPEN_ALTITUDE_ZOOM,
   cinematicEaseTo,
   cinematicFlyTo,
-  cinematicMaxPitchForViewport,
   cinematicOpenGlide,
   cinematicPitchForViewport,
   FLY_DURATION_OPEN_MS,
@@ -26,7 +25,8 @@ import {
 import { removeUserGpsDotFromMap, syncUserGpsDotOnMap } from '@/utils/mapUserGpsDot';
 import { usePassportMapData } from '@/hooks/usePassportMapData';
 import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
-import { warmMapboxModules } from '@/utils/mapWarmPool';
+import { resetWarmMapboxModules, warmMapboxModules } from '@/utils/mapWarmPool';
+import { forceLegacyMapProfile, getMapWebGLProfile } from '@/utils/mapWebGLProfile';
 import { PassportMapPinPreview } from '@/components/passport/PassportMapPinPreview';
 import { PassportMapResultsRail } from '@/components/passport/PassportMapResultsRail';
 import {
@@ -563,22 +563,11 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen, mapReady]);
 
-  // Detect Apple WebKit (Safari desktop + iOS Safari + Capacitor WKWebView).
-  // Capacitor's UA often omits the word "Safari", so Chrome-style sniffing fails.
-  const isAppleWebKitEnv = () => {
-    if (typeof navigator === 'undefined') return false;
-    const ua = navigator.userAgent || '';
-    const cap = (window as unknown as { Capacitor?: { getPlatform?: () => string; isNativePlatform?: () => boolean } }).Capacitor;
-    if (cap?.getPlatform?.() === 'ios' || (cap?.isNativePlatform?.() && /iPhone|iPad|iPod/i.test(ua))) return true;
-    // Safari / WebKit without Chromium or Firefox iOS
-    if (/AppleWebKit/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|FxiOS|OPR|Android/i.test(ua)) return true;
-    return /^((?!chrome|android).)*safari/i.test(ua);
-  };
-
   useEffect(() => {
     if (!shouldWarmMap) return;
     let cancelled = false;
     // Prefetch token + Mapbox JS/CSS only — create WebGL when the map opens.
+    // warmMapboxModules() picks v3 (full) or v2 (legacy WebGL1) from WebGL probe.
     void resolveMapboxAccessToken().then((token) => {
       if (!cancelled) setTokenReady(token.length > 0);
     });
@@ -653,36 +642,47 @@ export const PassportMapModal = memo(() => {
         const host = mapContainerRef.current;
         while (host.firstChild) host.removeChild(host.firstChild);
 
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-        const onWebKit = isAppleWebKitEnv();
-        const flyPitch = cinematicPitchForViewport();
+        // Adaptive profile: full (Chrome/modern) | lite (Safari) | legacy (UBO=0 / iPhone 8)
+        const profile = getMapWebGLProfile();
+        const safeLng = Number.isFinite(initialLng) ? initialLng : MAP_SEARCH_HUB.lng;
+        const safeLat = Number.isFinite(initialLat) ? initialLat : MAP_SEARCH_HUB.lat;
+        const safeZoom = Number.isFinite(initialZoom) ? initialZoom : 10;
+
         const map = new mapboxgl.Map({
           container: host,
-          style: 'mapbox://styles/mapbox/outdoors-v12',
-          center: [initialLng, initialLat],
-          zoom: initialZoom,
-          // Lower pitch on Apple WebKit — high pitch + WebGL is flaky on some GPUs
-          pitch: onWebKit ? Math.min(flyPitch, 45) : flyPitch,
-          bearing: CINEMATIC_BEARING,
+          style: profile.style,
+          center: [safeLng, safeLat],
+          zoom: safeZoom,
+          pitch: profile.pitch,
+          bearing: profile.bearing,
           attributionControl: false,
           fadeDuration: 0,
-          antialias: false,
-          projection: 'mercator',
+          antialias: profile.antialias,
+          // projection only on modern GL; omit on legacy mapbox-gl@2
+          ...(profile.useLegacyGl ? {} : { projection: 'mercator' as const }),
           doubleClickZoom: false,
-          maxPitch: cinematicMaxPitchForViewport(),
+          maxPitch: profile.maxPitch,
           refreshExpiredTiles: false,
           trackResize: true,
           preserveDrawingBuffer: false,
-          // 'low-power' breaks WebGL on some Safari / iOS devices → blank map
-          powerPreference: onWebKit ? 'default' : 'low-power',
-          pixelRatio: typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1,
-          // Render CJK labels with a local font instead of downloading huge glyph
-          // ranges from the network — meaningfully faster first paint on mobile.
-          localIdeographFontFamily: "'Noto Sans', 'Inter', sans-serif",
+          failIfMajorPerformanceCaveat: false,
+          powerPreference: profile.powerPreference,
+          pixelRatio: profile.pixelRatio,
+          localIdeographFontFamily: "'Noto Sans', 'Inter', system-ui, sans-serif",
         });
 
-        map.touchZoomRotate.enableRotation();
-        map.dragRotate.enable();
+        if (profile.enablePitchRotate) {
+          map.touchZoomRotate.enableRotation();
+          map.dragRotate.enable();
+          try { map.touchPitch.enable(); } catch { /* legacy may lack touchPitch */ }
+        } else {
+          // Flat 2D — pitch gestures on weak GPUs cause WebGL context loss
+          try {
+            map.touchZoomRotate.disableRotation();
+            map.dragRotate.disable();
+            map.touchPitch?.disable?.();
+          } catch { /* empty */ }
+        }
 
         // Mapbox sets tabindex=0 on the canvas — global [tabindex]:active CSS was
         // scaling the full-screen canvas on every tap (felt like the whole page
@@ -692,12 +692,31 @@ export const PassportMapModal = memo(() => {
         canvas.setAttribute('data-map-canvas', '');
         canvas.style.touchAction = 'none';
 
+        // Recover once if WebGL context is lost (common on old iOS after memory pressure)
+        let contextLossHandled = false;
+        canvas.addEventListener('webglcontextlost', (ev) => {
+          ev.preventDefault();
+          if (contextLossHandled || mapUnmountedRef.current) return;
+          contextLossHandled = true;
+          console.warn('[PassportMap] WebGL context lost — re-init with legacy GL');
+          try { map.remove(); } catch { /* empty */ }
+          mapRef.current = null;
+          mapboxRef.current = null;
+          initStartedRef.current = false;
+          setMapReady(false);
+          forceLegacyMapProfile();
+          resetWarmMapboxModules();
+          deferHandle = setTimeout(() => beginInitRef.current?.(), 300);
+        }, { once: true });
+
         map.on('load', () => {
           if (mapUnmountedRef.current) return;
 
           try {
-            applyCinematicFog(map, isLightRef.current);
-            if (!isMobile) {
+            if (profile.enableFog) {
+              applyCinematicFog(map, isLightRef.current);
+            }
+            if (profile.enable3dBuildings) {
               addCinematic3DBuildings(map, isLightRef.current);
             }
           } catch {
@@ -709,7 +728,7 @@ export const PassportMapModal = memo(() => {
             const fix = deviceGpsRef.current ?? getCachedGpsFix();
             const mapOpen = useModalStore.getState().showPassportMapModal;
             const { passportMode: pm } = useFilterStore.getState();
-            if (fix && mapOpen && !pm) {
+            if (fix && mapOpen && !pm && Number.isFinite(fix.lng) && Number.isFinite(fix.lat)) {
               try {
                 syncUserGpsDotOnMap(map, fix.lng, fix.lat);
               } catch {
@@ -730,6 +749,18 @@ export const PassportMapModal = memo(() => {
               setMapError('Mapbox token rejected — check URL restrictions in your Mapbox dashboard');
               setMapLoading(false);
             }
+          }
+          // UBO / WebGL failures → one automatic downgrade to Mapbox v2 (WebGL1)
+          if (/UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message) && !profile.useLegacyGl) {
+            console.warn('[PassportMap] WebGL error, falling back to legacy GL:', message);
+            try { map.remove(); } catch { /* empty */ }
+            mapRef.current = null;
+            mapboxRef.current = null;
+            initStartedRef.current = false;
+            setMapReady(false);
+            forceLegacyMapProfile();
+            resetWarmMapboxModules();
+            deferHandle = setTimeout(() => beginInitRef.current?.(), 200);
           }
         });
 
