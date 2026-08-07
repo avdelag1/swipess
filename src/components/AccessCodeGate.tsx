@@ -243,7 +243,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 >
                   <Lock 
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none transition-colors" 
-                    style={{ color: 'rgba(255,255,255,0.45)' }} 
+                    style={{ color: 'rgba(255,255,255,0.7)' }} 
                   />
                   <input
                     type="text"
@@ -258,9 +258,9 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                     spellCheck={false}
                     data-1p-ignore
                     data-lpignore="true"
-                    className="gate-input w-full h-full pl-12 pr-12 rounded-2xl border border-white/20 text-base font-semibold tracking-widest uppercase focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 transition-all shadow-inner"
+                    className="gate-input w-full h-full pl-12 pr-12 rounded-2xl border border-white/30 text-base font-semibold tracking-widest uppercase placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:ring-2 focus:ring-white/20 transition-all shadow-inner"
                     style={{ 
-                      backgroundColor: inputBgColor,
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
                       color: '#ffffff',
                       WebkitTextSecurity: revealed ? 'none' : 'disc' 
                     } as any}
@@ -269,9 +269,9 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                     <button
                       type="button"
                       onClick={() => setRevealed(v => !v)}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-white/10 transition-colors"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-white/20 transition-colors"
                       aria-label={revealed ? 'Hide access code' : 'Show access code'}
-                      style={{ color: 'rgba(255,255,255,0.45)' }}
+                      style={{ color: 'rgba(255,255,255,0.7)' }}
                     >
                       {revealed ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -358,7 +358,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                               onChange={updateForm('name')}
                               placeholder="Your full name *"
                               required
-                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                              className="w-full h-12 rounded-xl bg-white/10 border border-white/30 px-4 text-sm text-white placeholder:text-white/60 outline-none focus:border-white/60 focus:bg-white/15 transition-all"
                             />
                             <input
                               type="email"
@@ -366,21 +366,21 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                               onChange={updateForm('email')}
                               placeholder="Email address *"
                               required
-                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                              className="w-full h-12 rounded-xl bg-white/10 border border-white/30 px-4 text-sm text-white placeholder:text-white/60 outline-none focus:border-white/60 focus:bg-white/15 transition-all"
                             />
                             <input
                               type="tel"
                               value={form.whatsapp}
                               onChange={updateForm('whatsapp')}
                               placeholder="WhatsApp (optional)"
-                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                              className="w-full h-12 rounded-xl bg-white/10 border border-white/30 px-4 text-sm text-white placeholder:text-white/60 outline-none focus:border-white/60 focus:bg-white/15 transition-all"
                             />
                             <textarea
                               value={form.message}
                               onChange={updateForm('message')}
                               placeholder="How did you hear about us? (optional)"
                               rows={2}
-                              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all resize-none"
+                              className="w-full rounded-xl bg-white/10 border border-white/30 px-4 py-3 text-sm text-white placeholder:text-white/60 outline-none focus:border-white/60 focus:bg-white/15 transition-all resize-none"
                             />
                             {submitError && (
                               <p className="text-sm text-red-400 text-center">{submitError}</p>

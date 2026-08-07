@@ -42,12 +42,9 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const inputCls = (hasError: boolean) => cn(
-  // normal-case: never force-display uppercase — the user must see the exact
-  // case they type (critical for passwords). Opaque bg so the starfield behind
-  // doesn't bleed through and make the field hard to read.
-  "w-full h-14 pl-12 pr-6 rounded-2xl text-sm font-bold transition-colors normal-case bg-black/60 backdrop-blur-xl text-white placeholder:text-white/40 border",
-  hasError ? "border-red-500/50" : "border-white/20"
+const inputCls = (error: boolean) => cn(
+  "w-full h-14 bg-white/10 border-b-2 pl-12 pr-4 text-white text-[15px] font-medium tracking-wide placeholder:text-white/60 transition-all rounded-xl focus:outline-none focus:bg-white/15",
+  error ? "border-red-500 focus:border-red-400" : "border-white/30 focus:border-white/60 hover:border-white/40"
 );
 
 const LandingView = memo(({
@@ -335,7 +332,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
         >
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-white transition-colors" />
               <Input
                 value={name}
                 onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }}
@@ -348,7 +345,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
           )}
 
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-white transition-colors" />
             <Input
               type="email"
               inputMode="email"
@@ -366,7 +363,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
           {!isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-white transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
                 autoCapitalize="none"
@@ -394,7 +391,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
 
           {!isLogin && !isForgotPassword && (
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-white transition-colors" />
               <Input
                 type={showPassword ? "text" : "password"}
                 autoCapitalize="none"

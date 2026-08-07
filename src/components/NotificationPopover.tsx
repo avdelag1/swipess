@@ -317,17 +317,11 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
           )}
           style={{ color: bellColor, filter: iconShadow }}
         />
-        <AnimatePresence>
-          {unreadCount > 0 && (
-            <motion.span
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
-            />
-          )}
-        </AnimatePresence>
+        {unreadCount > 0 && (
+          <span
+            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
+          />
+        )}
       </span>
     </Button>
   );

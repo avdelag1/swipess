@@ -361,21 +361,15 @@ export const BottomNavigation = memo(({
                   }}
                 >
                   {/* Notification badge only */}
-                  <AnimatePresence>
-                    {item.badge && item.badge > 0 && (
-                      <motion.span
-                        key={`${item.id}-badge`}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="force-white absolute -top-0.5 -right-0.5 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white px-1"
-                        style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
-                      >
-                        {item.badge > 99 ? '99+' : item.badge}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
+                  {item.badge && item.badge > 0 && (
+                    <span
+                      key={`${item.id}-badge`}
+                      className="force-white absolute -top-0.5 -right-0.5 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white px-1"
+                      style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
 
                   {(() => {
                     const motionId = getNavMotionId(item.id);

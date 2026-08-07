@@ -22,31 +22,93 @@ interface DBNotification {
 
 // Map database notification types to frontend types
 const notificationTypeMap: Record<string, NotificationType> = {
+  // Core social
   'new_like': 'like',
   'new_match': 'match',
   'new_message': 'message',
   'new_review': 'like',
+  // Property / listing
   'property_inquiry': 'message',
+  'price_drop': 'like',
+  // Contracts / legal
   'contract_signed': 'like',
   'contract_pending': 'like',
+  'legal_document_signed': 'like',
+  'legal_document_sent': 'message',
+  'legal_update': 'like',
+  // Payments / subscriptions
   'payment_received': 'premium_purchase',
-  'profile_viewed': 'like',
-  'system_announcement': 'like',
-  'verification_approved': 'like',
   'subscription_expiring': 'premium_purchase',
+  'subscription_renewed': 'premium_purchase',
+  'token_purchase': 'premium_purchase',
+  // Profile
+  'profile_viewed': 'like',
+  'verification_approved': 'like',
+  'verification_rejected': 'like',
+  'account_warning': 'like',
+  // Admin / system broadcasts
+  'system_announcement': 'like',
+  'admin_message': 'message',
+  'admin_broadcast': 'message',
+  'admin_alert': 'like',
+  'platform_update': 'like',
+  // Business / owner side
+  'business_inquiry': 'message',
+  'booking_request': 'message',
+  'booking_confirmed': 'like',
+  'booking_cancelled': 'like',
+  'service_review': 'like',
+  // Lawyer side
+  'lawyer_message': 'message',
+  'case_update': 'like',
+  'document_request': 'message',
+  'consultation_scheduled': 'like',
 };
 
 const titleMap: Record<string, string> = {
+  // Core
   'new_like': 'New Like',
   'new_match': 'It\'s a Match!',
   'new_message': 'New Message',
   'new_review': 'New Review',
+  // Property
   'property_inquiry': 'Property Inquiry',
+  'price_drop': 'Price Drop Alert',
+  // Contracts / legal
   'contract_signed': 'Contract Signed',
+  'contract_pending': 'Contract Pending',
+  'legal_document_signed': 'Document Signed',
+  'legal_document_sent': 'Document Ready',
+  'legal_update': 'Legal Update',
+  // Payments
   'payment_received': 'Payment Received',
+  'subscription_expiring': 'Subscription Expiring',
+  'subscription_renewed': 'Subscription Renewed',
+  'token_purchase': 'Tokens Added',
+  // Profile
   'profile_viewed': 'Profile Viewed',
+  'verification_approved': 'Verification Approved',
+  'verification_rejected': 'Verification Issue',
+  'account_warning': 'Account Notice',
+  // Admin / system
   'system_announcement': 'Announcement',
+  'admin_message': 'Message from Swipess',
+  'admin_broadcast': 'Swipess Update',
+  'admin_alert': 'Important Notice',
+  'platform_update': 'Platform Update',
+  // Business
+  'business_inquiry': 'New Inquiry',
+  'booking_request': 'Booking Request',
+  'booking_confirmed': 'Booking Confirmed',
+  'booking_cancelled': 'Booking Cancelled',
+  'service_review': 'New Review',
+  // Lawyer
+  'lawyer_message': 'Message from Lawyer',
+  'case_update': 'Case Update',
+  'document_request': 'Document Requested',
+  'consultation_scheduled': 'Consultation Scheduled',
 };
+
 
 export function useNotificationSystem() {
   const { 
@@ -150,56 +212,58 @@ export function useNotificationSystem() {
 
           addNotification(notification);
 
-          // ─── Browser & Push Logic for New Messages ───
-          // If it's a message and we're not looking at it
-          if (dbNotification.notification_type === 'new_message') {
-            const senderName = dbNotification.metadata?.sender_name || 'Someone';
-            
-            // 1. Browser Notification (if app in background)
-            if (
-              typeof window !== 'undefined' &&
-              'Notification' in window &&
-              Notification.permission === 'granted' &&
-              document.visibilityState !== 'visible'
-            ) {
-              const browserNotif = new Notification(`Message from ${senderName}`, {
-                body: dbNotification.message?.slice(0, 100) || '',
-                icon: dbNotification.metadata?.sender_avatar || '/placeholder.svg',
-                tag: `notif-${dbNotification.id}`,
-                requireInteraction: false,
-              });
-              
-              browserNotif.onclick = () => {
-                window.focus();
-                // Navigate to the conversation
-                if (dbNotification.link_url) {
-                   navigate(dbNotification.link_url);
-                } else if (dbNotification.metadata?.conversation_id) {
-                   navigate(`/messages?conversationId=${dbNotification.metadata.conversation_id}`);
-                } else {
-                   navigate('/messages');
-                }
-                browserNotif.close();
-              };
-            }
+          // ─── Browser & Push notifications for ALL types ───
+          const notifTitle = notification.title || 'Notification';
+          const notifBody = dbNotification.message?.slice(0, 100) || '';
+          const notifIcon = dbNotification.metadata?.sender_avatar
+            || dbNotification.metadata?.liker_avatar
+            || dbNotification.metadata?.owner_avatar
+            || '/placeholder.svg';
 
-            // 2. Edge Function Push (to reach mobile/closed tabs)
-            supabase.functions.invoke('send-push-notification', {
-              body: {
-                user_id: user.id,
-                title: `Message from ${senderName}`,
-                body: dbNotification.message?.slice(0, 100) || '',
-                url: dbNotification.link_url || '/messages',
-                data: {
-                  type: 'message',
-                  conversation_id: dbNotification.metadata?.conversation_id,
-                  sender_id: dbNotification.related_user_id,
-                },
+          // 1. Browser Notification (if app is in background)
+          if (
+            typeof window !== 'undefined' &&
+            'Notification' in window &&
+            Notification.permission === 'granted' &&
+            document.visibilityState !== 'visible'
+          ) {
+            const browserNotif = new Notification(notifTitle, {
+              body: notifBody,
+              icon: notifIcon,
+              tag: `notif-${dbNotification.id}`,
+              requireInteraction: false,
+            });
+
+            browserNotif.onclick = () => {
+              window.focus();
+              if (dbNotification.link_url) {
+                navigate(dbNotification.link_url);
+              } else if (dbNotification.metadata?.conversation_id) {
+                navigate(`/messages?conversationId=${dbNotification.metadata.conversation_id}`);
+              } else {
+                navigate('/client/dashboard');
+              }
+              browserNotif.close();
+            };
+          }
+
+          // 2. Edge Function Push (to reach mobile / closed tabs)
+          supabase.functions.invoke('send-push-notification', {
+            body: {
+              user_id: user.id,
+              title: notifTitle,
+              body: notifBody,
+              url: dbNotification.link_url || '/client/dashboard',
+              data: {
+                type: dbNotification.notification_type,
+                notification_id: dbNotification.id,
+                conversation_id: dbNotification.metadata?.conversation_id,
+                sender_id: dbNotification.related_user_id,
               },
+            },
             }).catch((err) => {
               if (import.meta.env.DEV) logger.error('[NotificationSystem] Push failed:', err);
             });
-          }
         }
       )
       .on(
