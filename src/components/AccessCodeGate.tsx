@@ -187,17 +187,11 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
       ) : (
         <div
           aria-hidden
-          className="fixed inset-0 pointer-events-none ambient-page-bg ambient-page-bg--dark opacity-80"
+          className="fixed inset-0 pointer-events-none bg-black"
         />
       )}
       
       <LandingBackgroundEffects mode={shootingStarsEnabled ? "stars" : "off"} />
-      
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }}
-      />
-
       <AnimatePresence mode="sync">
         {!success ? (
           <motion.div

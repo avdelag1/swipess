@@ -671,11 +671,7 @@ function LegendaryLandingPage() {
             style={{ backgroundImage: `url(${bgImage})` }}
           />
         ) : (
-          <>
-            <div aria-hidden className="absolute inset-0 ambient-page-bg ambient-page-bg--dark opacity-80" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(224,30,42,0.1)_0%,transparent_70%)]" />
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,255,255,0.09) 0%, transparent 65%)' }} />
-          </>
+          <div className="absolute inset-0 bg-black" />
         )}
       </div>
       <LandingBackgroundEffects mode={getContentValue(landingData, 'shooting_stars_effect', true) ? "stars" : "off"} />
