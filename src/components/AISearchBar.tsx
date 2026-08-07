@@ -108,7 +108,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
             <button
               type="submit"
               className="chrome-icon-btn flex items-center justify-center w-8 h-8 rounded-full bg-transparent shrink-0 group"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label="Search with AI"
             >
               <Sparkles

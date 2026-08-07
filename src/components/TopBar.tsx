@@ -148,7 +148,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
               className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm"
-              style={glassPillStyle}
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label="Back"
             >
               <HeaderIconSlot>
@@ -202,7 +202,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
               className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shrink-0"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -232,7 +232,7 @@ function TopBarComponent({
                 useModalStore.getState().setModal('showTokensModal', true);
               }}
               className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label="Tokens"
             >
               <HeaderIconSlot
@@ -260,7 +260,7 @@ function TopBarComponent({
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
               className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>

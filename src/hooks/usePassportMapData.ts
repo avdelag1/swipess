@@ -41,14 +41,18 @@ function roundMapCoord(value: number, decimals = 3) {
   return Math.round(value * factor) / factor;
 }
 
-/** Stable per-id offset so pins at the same address stay separated and never drift on refetch. */
-function applyScatter(lat: number, lng: number, id: string) {
+/**
+ * Tiny deterministic offset only when coords are effectively identical.
+ * Real separation is handled by Supercluster (zoom out) + this micro-jitter
+ * at max zoom so two pins at the exact same lat/lng aren't a single pixel.
+ */
+function applySamePointJitter(lat: number, lng: number, id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = Math.imul(31, hash) + id.charCodeAt(i) | 0;
   }
-  // ~60–140m ring — visible separation without leaving the neighborhood
-  const radiusDeg = 0.00055 + (Math.abs(hash % 100) / 100) * 0.00075;
+  // ~8–18m — only visible when fully zoomed in on stacked points
+  const radiusDeg = 0.00008 + (Math.abs(hash % 100) / 100) * 0.00008;
   const angle = ((Math.abs(hash) % 360) * Math.PI) / 180;
   return {
     lat: lat + Math.sin(angle) * radiusDeg,
@@ -100,7 +104,7 @@ export function usePassportMapData(
       const listings: MapListingPin[] = listingsRaw.map((l) => {
         const imgs = Array.isArray(l.images) ? l.images : [];
         const first = imgs[0];
-        const scattered = applyScatter(l.latitude, l.longitude, l.id);
+        const scattered = applySamePointJitter(l.latitude, l.longitude, l.id);
         return {
           id: l.id,
           title: l.title || 'Listing',
@@ -127,7 +131,7 @@ export function usePassportMapData(
 
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
-        const scattered = applyScatter(p.latitude, p.longitude, p.user_id);
+        const scattered = applySamePointJitter(p.latitude, p.longitude, p.user_id);
         profiles.push({
           id: p.user_id,
           name: p.name || 'User',

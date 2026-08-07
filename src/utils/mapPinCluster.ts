@@ -37,17 +37,17 @@ export type ClusterGroup = {
 
 export type ClusterItem = ClusterLeaf | ClusterGroup;
 
-const indexCache = new WeakMap<object, Supercluster<PinProps>>();
-
 function buildIndex(pins: ClusterablePin[]): Supercluster<PinProps> {
   const index = new Supercluster<PinProps>({
-    radius: 56,
-    maxZoom: 16,
+    // Pixel radius at each zoom — larger groups nearby pins when zoomed out
+    // (Tulum/Akumal stacks become a single numbered bubble until you zoom in).
+    radius: 72,
+    maxZoom: 17,
     minZoom: 0,
     minPoints: 2,
   });
 
-  const features: Supercluster.PointFeature<PinProps>[] = pins
+  const features = pins
     .filter((p) => Number.isFinite(p.data.lat) && Number.isFinite(p.data.lng))
     .map((p) => ({
       type: 'Feature' as const,
@@ -57,7 +57,7 @@ function buildIndex(pins: ClusterablePin[]): Supercluster<PinProps> {
       },
       geometry: {
         type: 'Point' as const,
-        coordinates: [p.data.lng, p.data.lat],
+        coordinates: [p.data.lng, p.data.lat] as [number, number],
       },
     }));
 
@@ -108,7 +108,8 @@ export function getClusterItems(
   }
 
   const index = ensureIndex(pins);
-  const z = Math.max(0, Math.min(16, Math.floor(zoom)));
+  // Supercluster expects integer zoom; clamp to our index maxZoom
+  const z = Math.max(0, Math.min(17, Math.floor(zoom)));
   const clusters = index.getClusters(bbox, z);
   const items: ClusterItem[] = [];
 
@@ -123,8 +124,8 @@ export function getClusterItems(
     if (props.cluster && props.cluster_id != null) {
       const count = props.point_count ?? 0;
       const expansionZoom = Math.min(
-        16,
-        index.getClusterExpansionZoom(props.cluster_id),
+        18,
+        Math.max(z + 1, index.getClusterExpansionZoom(props.cluster_id)),
       );
       // Sample leaves for dominant color (cheap)
       let listingN = 0;
@@ -175,16 +176,17 @@ export function getClusterItems(
 /** World bbox when map bounds unavailable */
 export const WORLD_BBOX: [number, number, number, number] = [-180, -85, 180, 85];
 
-export function bboxFromMapboxMap(map: {
-  getBounds: () => { getWest: () => number; getSouth: () => number; getEast: () => number; getNorth: () => number };
-}): [number, number, number, number] {
+/** Accept Mapbox or Leaflet maps — both expose getBounds() with west/south/east/north. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function bboxFromMapboxMap(map: { getBounds: () => any }): [number, number, number, number] {
   try {
     const b = map.getBounds();
     // Pad slightly so edge pins don't pop in/out
-    const w = b.getWest();
-    const s = b.getSouth();
-    const e = b.getEast();
-    const n = b.getNorth();
+    const w = typeof b.getWest === 'function' ? b.getWest() : b._southWest?.lng ?? -180;
+    const s = typeof b.getSouth === 'function' ? b.getSouth() : b._southWest?.lat ?? -85;
+    const e = typeof b.getEast === 'function' ? b.getEast() : b._northEast?.lng ?? 180;
+    const n = typeof b.getNorth === 'function' ? b.getNorth() : b._northEast?.lat ?? 85;
+    if (![w, s, e, n].every(Number.isFinite)) return WORLD_BBOX;
     const padX = (e - w) * 0.08;
     const padY = (n - s) * 0.08;
     return [w - padX, s - padY, e + padX, n + padY];
@@ -193,8 +195,6 @@ export function bboxFromMapboxMap(map: {
   }
 }
 
-export function bboxFromLeafletMap(map: {
-  getBounds: () => { getWest: () => number; getSouth: () => number; getEast: () => number; getNorth: () => number };
-}): [number, number, number, number] {
-  return bboxFromMapboxMap(map);
+export function bboxFromLeafletMap(map: { getBounds: () => unknown }): [number, number, number, number] {
+  return bboxFromMapboxMap(map as { getBounds: () => unknown });
 }

@@ -33,31 +33,15 @@ const injectMarkerStyles = () => {
   const style = document.createElement('style');
   style.id = 'passport-marker-styles';
   style.innerHTML = `
-    @keyframes listing-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(0, 198, 255, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(0, 198, 255, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(0, 198, 255, 0); }
-    }
-    @keyframes profile-pulse {
-      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.65); }
-      70% { box-shadow: 0 0 0 18px rgba(99, 102, 241, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-    }
     .passport-map-marker {
-      transition: box-shadow 0.15s ease, filter 0.15s ease !important;
+      transition: transform 0.12s ease, opacity 0.15s ease !important;
       transform-origin: center bottom;
     }
     .passport-map-marker:hover {
-      filter: brightness(1.08);
-      box-shadow: 0 6px 18px rgba(0,114,255,0.35) !important;
       z-index: 1000 !important;
     }
-    .passport-map-marker--listing[data-selected="true"] {
-      animation: listing-pulse 2s infinite !important;
-      z-index: 1001 !important;
-    }
+    .passport-map-marker--listing[data-selected="true"],
     .passport-map-marker--profile[data-selected="true"] {
-      animation: profile-pulse 2s infinite !important;
       z-index: 1001 !important;
     }
   `;
@@ -69,19 +53,21 @@ export type MarkerVisualScale = 'normal' | 'large';
 
 function listingMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
   const large = scale === 'large';
-  const h = isSelected ? (large ? 36 : 28) : (large ? 32 : 24);
-  const font = isSelected ? (large ? 13 : 11) : (large ? 12 : 10);
+  const h = isSelected ? (large ? 34 : 26) : (large ? 30 : 22);
+  const font = isSelected ? (large ? 12 : 11) : (large ? 11 : 10);
+  // Clean flat pill — no heavy drop-shadows / glow halos that clutter the map
   return `
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
     height: ${h}px;
-    padding: 0 ${large ? 12 : 10}px 0 ${large ? 8 : 6}px; border-radius: ${large ? 18 : 14}px;
-    background: ${isSelected ? '#111827' : '#ffffff'};
+    padding: 0 ${large ? 10 : 8}px 0 ${large ? 7 : 5}px; border-radius: ${large ? 16 : 12}px;
+    background: ${isSelected ? '#0F172A' : 'rgba(255,255,255,0.96)'};
     color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: ${font}px; font-weight: 800; letter-spacing: 0.01em;
-    border: ${large ? 2 : 1}px solid ${isSelected ? '#374151' : '#E2E8F0'};
-    box-shadow: 0 ${isSelected ? '8' : '4'}px ${isSelected ? '20' : '12'}px rgba(0,0,0,${isSelected ? '0.35' : '0.18'});
+    font-size: ${font}px; font-weight: 700; letter-spacing: 0.01em;
+    border: 1px solid ${isSelected ? '#334155' : 'rgba(15,23,42,0.12)'};
+    box-shadow: 0 1px 3px rgba(15,23,42,0.12);
     cursor: pointer;
     white-space: nowrap;
+    filter: none;
   `;
 }
 
@@ -98,14 +84,14 @@ export function createListingMarkerEl(
   el.style.cssText = listingMarkerStyle(isSelected, scale);
   
   const large = scale === 'large';
-  const dotSize = large ? 10 : 8;
+  const dotSize = large ? 8 : 7;
   const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
-  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 6px ${dotColor}99; flex-shrink:0;"></span>`;
-  
+  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; flex-shrink:0;"></span>`;
+
   // Show title up to 15 chars to keep it neat
   const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
   el.innerHTML = `${dotHtml} <span>${shortTitle}</span>`;
-  
+
   el.dataset.pinId = listing.id;
   el.dataset.pinType = 'listing';
   el.dataset.selected = isSelected.toString();
@@ -122,9 +108,9 @@ export function updateListingMarkerEl(
   el.dataset.markerScale = s;
   applyMarkerStyle(el, listingMarkerStyle(isSelected, s));
   const large = s === 'large';
-  const dotSize = large ? 10 : 8;
+  const dotSize = large ? 8 : 7;
   const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
-  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 6px ${dotColor}99; flex-shrink:0;"></span>`;
+  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; flex-shrink:0;"></span>`;
   const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
   el.innerHTML = `${dotHtml} <span>${shortTitle}</span>`;
   el.dataset.selected = isSelected.toString();
@@ -132,18 +118,18 @@ export function updateListingMarkerEl(
 
 function profileMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
   const large = scale === 'large';
-  const size = isSelected ? (large ? 52 : 34) : (large ? 44 : 28);
-  const border = large ? 3 : 2;
+  const size = isSelected ? (large ? 48 : 32) : (large ? 40 : 28);
+  const border = large ? 2.5 : 2;
   return `
     width: ${size}px; height: ${size}px; border-radius: 50%;
-    border: ${border}px solid ${isSelected ? '#A5B4FC' : '#fff'};
-    outline: ${large ? 2 : 0}px solid ${isSelected ? '#818CF8' : '#6366F1'};
+    border: ${border}px solid ${isSelected ? '#C7D2FE' : '#fff'};
+    outline: ${isSelected ? 2 : 0}px solid ${isSelected ? '#818CF8' : 'transparent'};
     background: #111;
-    box-shadow: 0 ${isSelected ? '12' : '6'}px ${isSelected ? '28' : '16'}px rgba(99,102,241,${isSelected ? '0.65' : '0.5'}),
-      0 0 0 ${large ? 2 : 1}px rgba(255,255,255,0.35);
+    box-shadow: 0 1px 4px rgba(15,23,42,0.28);
     overflow: visible; cursor: pointer;
     background-size: cover; background-position: center;
     position: relative;
+    filter: none;
   `;
 }
 
@@ -175,13 +161,12 @@ export function createProfileMarkerEl(
   if (profile.recentlyActive) {
     const dot = document.createElement('span');
     dot.className = 'passport-map-marker-active-dot';
-    const d = large ? 14 : 12;
+    const d = large ? 12 : 10;
     dot.style.cssText = `
       position: absolute; bottom: -1px; right: -1px;
       width: ${d}px; height: ${d}px; border-radius: 50%;
-      background: linear-gradient(135deg, #10B981, #06B6D4);
+      background: #10B981;
       border: 2px solid #fff;
-      box-shadow: 0 0 8px rgba(16,185,129,0.8);
     `;
     el.appendChild(dot);
   }
@@ -222,13 +207,12 @@ export function updateProfileMarkerEl(
   if (profile.recentlyActive && !hasDot) {
     const dot = document.createElement('span');
     dot.className = 'passport-map-marker-active-dot';
-    const d = large ? 14 : 12;
+    const d = large ? 12 : 10;
     dot.style.cssText = `
       position: absolute; bottom: -1px; right: -1px;
       width: ${d}px; height: ${d}px; border-radius: 50%;
-      background: linear-gradient(135deg, #10B981, #06B6D4);
+      background: #10B981;
       border: 2px solid #fff;
-      box-shadow: 0 0 8px rgba(16,185,129,0.8);
     `;
     el.appendChild(dot);
   } else if (!profile.recentlyActive && hasDot) {
@@ -240,6 +224,76 @@ export function formatDistanceKm(km?: number): string | null {
   if (km == null || Number.isNaN(km)) return null;
   if (km < 1) return `${Math.round(km * 1000)}m away`;
   return `${km < 10 ? km.toFixed(1) : Math.round(km)} km away`;
+}
+
+/** Numbered cluster bubble — modern glass pill for zoomed-out map. */
+export function createClusterMarkerEl(
+  count: number,
+  dominant: 'listing' | 'profile' | 'mixed' = 'mixed',
+  scale: MarkerVisualScale = 'normal',
+): HTMLDivElement {
+  injectMarkerStyles();
+  const el = document.createElement('div');
+  el.className = 'passport-map-marker passport-map-marker--cluster';
+  el.dataset.pinType = 'cluster';
+  el.dataset.markerScale = scale;
+
+  const large = scale === 'large';
+  const size = count >= 100
+    ? (large ? 56 : 48)
+    : count >= 10
+      ? (large ? 50 : 42)
+      : (large ? 44 : 36);
+
+  const gradient =
+    dominant === 'profile'
+      ? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)'
+      : dominant === 'listing'
+        ? 'linear-gradient(135deg, #0072FF 0%, #00C6FF 100%)'
+        : 'linear-gradient(135deg, #0072FF 0%, #6366F1 55%, #8B5CF6 100%)';
+
+  el.style.cssText = `
+    width: ${size}px; height: ${size}px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: ${gradient};
+    color: #fff;
+    font-size: ${count >= 100 ? (large ? 13 : 11) : (large ? 15 : 13)}px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    border: 2px solid rgba(255,255,255,0.95);
+    box-shadow: 0 2px 8px rgba(15,23,42,0.28);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    filter: none;
+  `;
+  el.textContent = count > 999 ? '999+' : String(count);
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', `${count} places — tap to zoom in`);
+  return el;
+}
+
+export function updateClusterMarkerEl(
+  el: HTMLDivElement,
+  count: number,
+  dominant: 'listing' | 'profile' | 'mixed' = 'mixed',
+  scale?: MarkerVisualScale,
+): void {
+  const s = scale ?? (el.dataset.markerScale as MarkerVisualScale) ?? 'normal';
+  const fresh = createClusterMarkerEl(count, dominant, s);
+  // Preserve Mapbox transform / leaflet positioning styles
+  const { transform, opacity, transition, pointerEvents, zIndex } = el.style;
+  el.className = fresh.className;
+  el.style.cssText = fresh.style.cssText;
+  if (transform) el.style.transform = transform;
+  if (opacity) el.style.opacity = opacity;
+  if (transition) el.style.transition = transition;
+  if (pointerEvents) el.style.pointerEvents = pointerEvents;
+  if (zIndex) el.style.zIndex = zIndex;
+  el.textContent = fresh.textContent;
+  el.dataset.pinType = 'cluster';
+  el.dataset.markerScale = s;
+  el.setAttribute('aria-label', `${count} places — tap to zoom in`);
 }
 
 export function categoryLabel(category?: string): string {

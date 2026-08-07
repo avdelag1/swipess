@@ -42,7 +42,7 @@ export const PassportMapResultsRail = memo(({
 
   return (
     <div className="w-full pointer-events-none">
-      <p className="px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md flex items-center gap-2">
+      <p className="px-4 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex items-center gap-2">
         <span>{items.length} in your radius</span>
         {activePeopleCount > 0 && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] text-white" style={{ background: PASSPORT_GRADIENTS.tokens }}>
@@ -72,12 +72,10 @@ export const PassportMapResultsRail = memo(({
               )}
               className={cn(
                 'snap-start shrink-0 w-[152px] rounded-2xl overflow-hidden text-left transition-all active:scale-[0.96]',
-                isSelected ? 'ring-2 ring-white shadow-2xl scale-[1.02]' : 'ring-1 ring-white/20 shadow-xl',
+                isSelected ? 'ring-2 ring-white/90 scale-[1.02]' : 'ring-1 ring-white/15',
               )}
               style={{
-                boxShadow: isSelected
-                  ? '0 12px 32px rgba(99,102,241,0.45)'
-                  : '0 8px 24px rgba(0,0,0,0.35)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.22)',
               }}
             >
               <div className="relative h-24">

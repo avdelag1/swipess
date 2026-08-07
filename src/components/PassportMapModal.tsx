@@ -38,13 +38,21 @@ import {
 import { PassportMapPinPreview } from '@/components/passport/PassportMapPinPreview';
 import { PassportMapResultsRail } from '@/components/passport/PassportMapResultsRail';
 import {
+  createClusterMarkerEl,
   createListingMarkerEl,
   createProfileMarkerEl,
   type MapLayerFilter,
   type SelectedPin,
+  updateClusterMarkerEl,
   updateListingMarkerEl,
   updateProfileMarkerEl,
 } from '@/components/passport/passportMapMarkers';
+import {
+  bboxFromLeafletMap,
+  bboxFromMapboxMap,
+  getClusterItems,
+  type ClusterablePin,
+} from '@/utils/mapPinCluster';
 import {
   bindMapDoubleTapZoom,
   bindMapInteractionTracking,
@@ -133,9 +141,10 @@ export const PassportMapModal = memo(() => {
     marker: import('mapbox-gl').Marker;
     el: HTMLDivElement;
     cleanup: () => void;
-    pinType: 'listing' | 'profile';
+    pinType: 'listing' | 'profile' | 'cluster';
     pinId: string;
   }>>(new Map());
+  const unbindClusterViewRef = useRef<(() => void) | null>(null);
   const unbindMapDoubleTapRef = useRef<(() => void) | null>(null);
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -678,6 +687,12 @@ export const PassportMapModal = memo(() => {
     let deferHandle: ReturnType<typeof setTimeout> | null = null;
 
     const destroyMapInstance = (map?: import('mapbox-gl').Map | null) => {
+      unbindClusterViewRef.current?.();
+      unbindClusterViewRef.current = null;
+      markersRef.current.forEach((entry) => {
+        try { entry.cleanup(); entry.marker.remove(); } catch { /* empty */ }
+      });
+      markersRef.current.clear();
       try {
         const m = map ?? mapRef.current ?? pageMapInstance;
         if (m) m.remove();
@@ -1289,6 +1304,8 @@ export const PassportMapModal = memo(() => {
     unbindInteractionRef.current = null;
     unbindMapDoubleTapRef.current?.();
     unbindMapDoubleTapRef.current = null;
+    unbindClusterViewRef.current?.();
+    unbindClusterViewRef.current = null;
     resizeObserverRef.current?.disconnect();
     markersRef.current.forEach(entry => {
       entry.cleanup();
@@ -1388,6 +1405,12 @@ export const PassportMapModal = memo(() => {
   const syncMarkers = useCallback(() => {
     if (!shouldLoadMapPins) return;
 
+    const pins: ClusterablePin[] = [
+      ...visibleListings.map((data) => ({ kind: 'listing' as const, data })),
+      ...visibleProfiles.map((data) => ({ kind: 'profile' as const, data })),
+    ];
+    const sel = selectedRef.current;
+
     // ── Leaflet raster path (Safari / no WebGL) ──
     const raster = rasterHandleRef.current ?? pageRasterHandle;
     if (raster && pageRasterMode) {
@@ -1395,72 +1418,129 @@ export const PassportMapModal = memo(() => {
       const map = raster.map;
       const registry = rasterMarkersRef.current;
       const nextKeys = new Set<string>();
-      const sel = selectedRef.current;
-      // Top-down 2D needs larger pins so photos/names stay readable
       const pinScale = 'large' as const;
+      const zoom = map.getZoom();
+      const items = getClusterItems(pins, bboxFromLeafletMap(map), zoom);
 
-      const upsertListing = (l: (typeof visibleListings)[number]) => {
-        const key = `listing:${l.id}`;
-        nextKeys.add(key);
-        const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
-        const existing = registry.get(key);
-        if (existing) {
-          existing.marker.setLatLng([l.lat, l.lng]);
-          updateListingMarkerEl(existing.el, l, isSelected, pinScale);
-          return;
-        }
-        const el = createListingMarkerEl(l, isSelected, pinScale);
-        const cleanup = bindMarkerGestures(
-          el,
-          () => {
+      // Re-cluster on pan/zoom (bind once)
+      if (!unbindClusterViewRef.current) {
+        const onView = () => {
+          if (markerSyncRafRef.current != null) cancelAnimationFrame(markerSyncRafRef.current);
+          markerSyncRafRef.current = requestAnimationFrame(() => {
+            markerSyncRafRef.current = null;
+            syncMarkersRef.current();
+          });
+        };
+        map.on('zoomend', onView);
+        map.on('moveend', onView);
+        unbindClusterViewRef.current = () => {
+          map.off('zoomend', onView);
+          map.off('moveend', onView);
+          unbindClusterViewRef.current = null;
+        };
+      }
+
+      for (const item of items) {
+        nextKeys.add(item.key);
+        const existing = registry.get(item.key);
+
+        if (item.type === 'cluster') {
+          const expand = () => {
             triggerHaptic('light');
-            focusPinSheet({ type: 'listing', data: l });
-          },
-          () => {
-            triggerHaptic('medium');
-            focusPinSheet({ type: 'listing', data: l });
-          },
-          () => useModalStore.getState().showPassportMapModal,
-        );
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s ease-out';
-        const marker = addRasterHtmlMarker(L, map, el, l.lat, l.lng, { large: true });
-        requestAnimationFrame(() => { el.style.opacity = '1'; });
-        registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
-      };
-
-      const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
-        const key = `profile:${p.id}`;
-        nextKeys.add(key);
-        const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
-        const existing = registry.get(key);
-        if (existing) {
-          existing.marker.setLatLng([p.lat, p.lng]);
-          updateProfileMarkerEl(existing.el, p, isSelected, pinScale);
-          return;
+            markUserMapControlRef.current();
+            const targetZoom = Math.min(18, Math.max(zoom + 1.5, item.expansionZoom));
+            map.flyTo([item.lat, item.lng], targetZoom, { duration: 0.45 });
+          };
+          if (existing && existing.pinType === 'cluster') {
+            existing.marker.setLatLng([item.lat, item.lng]);
+            updateClusterMarkerEl(existing.el, item.count, item.dominant, pinScale);
+            continue;
+          }
+          if (existing) {
+            existing.cleanup();
+            existing.marker.remove();
+            registry.delete(item.key);
+          }
+          const el = createClusterMarkerEl(item.count, item.dominant, pinScale);
+          const cleanup = bindMarkerGestures(
+            el,
+            expand,
+            expand,
+            () => useModalStore.getState().showPassportMapModal,
+          );
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.2s ease-out';
+          const marker = addRasterHtmlMarker(L, map, el, item.lat, item.lng, {
+            large: true,
+            kind: 'cluster',
+          });
+          requestAnimationFrame(() => { el.style.opacity = '1'; });
+          registry.set(item.key, {
+            marker, el, cleanup, pinType: 'cluster', pinId: String(item.clusterId),
+          });
+          continue;
         }
-        const el = createProfileMarkerEl(p, isSelected, pinScale);
-        const cleanup = bindMarkerGestures(
-          el,
-          () => {
-            triggerHaptic('light');
-            focusPinSheet({ type: 'profile', data: p });
-          },
-          () => {
-            triggerHaptic('medium');
-            focusPinSheet({ type: 'profile', data: p });
-          },
-          () => useModalStore.getState().showPassportMapModal,
-        );
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s ease-out';
-        const marker = addRasterHtmlMarker(L, map, el, p.lat, p.lng, { large: true });
-        requestAnimationFrame(() => { el.style.opacity = '1'; });
-        registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
-      };
 
-      visibleListings.forEach(upsertListing);
-      visibleProfiles.forEach(upsertProfile);
+        // leaf
+        const pin = item.pin;
+        if (pin.kind === 'listing') {
+          const l = pin.data;
+          const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
+          if (existing && existing.pinType === 'listing') {
+            existing.marker.setLatLng([item.lat, item.lng]);
+            updateListingMarkerEl(existing.el, l, isSelected, pinScale);
+            continue;
+          }
+          if (existing) {
+            existing.cleanup();
+            existing.marker.remove();
+            registry.delete(item.key);
+          }
+          const el = createListingMarkerEl(l, isSelected, pinScale);
+          const cleanup = bindMarkerGestures(
+            el,
+            () => { triggerHaptic('light'); focusPinSheet({ type: 'listing', data: l }); },
+            () => { triggerHaptic('medium'); focusPinSheet({ type: 'listing', data: l }); },
+            () => useModalStore.getState().showPassportMapModal,
+          );
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.25s ease-out';
+          const marker = addRasterHtmlMarker(L, map, el, item.lat, item.lng, {
+            large: true,
+            kind: 'listing',
+          });
+          requestAnimationFrame(() => { el.style.opacity = '1'; });
+          registry.set(item.key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
+        } else {
+          const p = pin.data;
+          const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
+          if (existing && existing.pinType === 'profile') {
+            existing.marker.setLatLng([item.lat, item.lng]);
+            updateProfileMarkerEl(existing.el, p, isSelected, pinScale);
+            continue;
+          }
+          if (existing) {
+            existing.cleanup();
+            existing.marker.remove();
+            registry.delete(item.key);
+          }
+          const el = createProfileMarkerEl(p, isSelected, pinScale);
+          const cleanup = bindMarkerGestures(
+            el,
+            () => { triggerHaptic('light'); focusPinSheet({ type: 'profile', data: p }); },
+            () => { triggerHaptic('medium'); focusPinSheet({ type: 'profile', data: p }); },
+            () => useModalStore.getState().showPassportMapModal,
+          );
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.25s ease-out';
+          const marker = addRasterHtmlMarker(L, map, el, item.lat, item.lng, {
+            large: true,
+            kind: 'profile',
+          });
+          requestAnimationFrame(() => { el.style.opacity = '1'; });
+          registry.set(item.key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
+        }
+      }
 
       for (const [key, entry] of registry) {
         if (!nextKeys.has(key)) {
@@ -1482,78 +1562,127 @@ export const PassportMapModal = memo(() => {
     const mapboxgl = mapboxRef.current;
     const registry = markersRef.current;
     const nextKeys = new Set<string>();
-    const sel = selectedRef.current;
+    const zoom = map.getZoom();
+    const items = getClusterItems(pins, bboxFromMapboxMap(map), zoom);
 
-    const upsertListing = (l: (typeof visibleListings)[number]) => {
-      const key = `listing:${l.id}`;
-      nextKeys.add(key);
-      const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
-      const existing = registry.get(key);
+    if (!unbindClusterViewRef.current) {
+      const onView = () => {
+        if (markerSyncRafRef.current != null) cancelAnimationFrame(markerSyncRafRef.current);
+        markerSyncRafRef.current = requestAnimationFrame(() => {
+          markerSyncRafRef.current = null;
+          syncMarkersRef.current();
+        });
+      };
+      map.on('zoomend', onView);
+      map.on('moveend', onView);
+      unbindClusterViewRef.current = () => {
+        map.off('zoomend', onView);
+        map.off('moveend', onView);
+        unbindClusterViewRef.current = null;
+      };
+    }
 
-      if (existing) {
-        existing.marker.setLngLat([l.lng, l.lat]);
-        updateListingMarkerEl(existing.el, l, isSelected);
-        return;
+    for (const item of items) {
+      nextKeys.add(item.key);
+      const existing = registry.get(item.key);
+
+      if (item.type === 'cluster') {
+        const expand = () => {
+          triggerHaptic('light');
+          markUserMapControlRef.current();
+          const targetZoom = Math.min(18, Math.max(zoom + 1.5, item.expansionZoom));
+          map.easeTo({
+            center: [item.lng, item.lat],
+            zoom: targetZoom,
+            duration: 420,
+          });
+        };
+        if (existing && existing.pinType === 'cluster') {
+          existing.marker.setLngLat([item.lng, item.lat]);
+          updateClusterMarkerEl(existing.el, item.count, item.dominant);
+          continue;
+        }
+        if (existing) {
+          existing.cleanup();
+          existing.marker.remove();
+          registry.delete(item.key);
+        }
+        const el = createClusterMarkerEl(item.count, item.dominant);
+        const cleanup = bindMarkerGestures(
+          el,
+          expand,
+          expand,
+          () => useModalStore.getState().showPassportMapModal,
+        );
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.2s ease-out';
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([item.lng, item.lat])
+          .addTo(map);
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        registry.set(item.key, {
+          marker, el, cleanup, pinType: 'cluster', pinId: String(item.clusterId),
+        });
+        continue;
       }
 
-      const el = createListingMarkerEl(l, isSelected);
-      const cleanup = bindMarkerGestures(
-        el,
-        () => {
-          triggerHaptic('light');
-          focusPinSheet({ type: 'listing', data: l });
-        },
-        () => {
-          triggerHaptic('medium');
-          focusPinSheet({ type: 'listing', data: l });
-        },
-        () => useModalStore.getState().showPassportMapModal,
-      );
-      el.style.opacity = '0';
-      el.style.transition = 'opacity 0.25s ease-out';
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([l.lng, l.lat])
-        .addTo(map);
-      requestAnimationFrame(() => { el.style.opacity = '1'; });
-      registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
-    };
-
-    const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
-      const key = `profile:${p.id}`;
-      nextKeys.add(key);
-      const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
-      const existing = registry.get(key);
-
-      if (existing) {
-        existing.marker.setLngLat([p.lng, p.lat]);
-        updateProfileMarkerEl(existing.el, p, isSelected);
-        return;
+      const pin = item.pin;
+      if (pin.kind === 'listing') {
+        const l = pin.data;
+        const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
+        if (existing && existing.pinType === 'listing') {
+          existing.marker.setLngLat([item.lng, item.lat]);
+          updateListingMarkerEl(existing.el, l, isSelected);
+          continue;
+        }
+        if (existing) {
+          existing.cleanup();
+          existing.marker.remove();
+          registry.delete(item.key);
+        }
+        const el = createListingMarkerEl(l, isSelected);
+        const cleanup = bindMarkerGestures(
+          el,
+          () => { triggerHaptic('light'); focusPinSheet({ type: 'listing', data: l }); },
+          () => { triggerHaptic('medium'); focusPinSheet({ type: 'listing', data: l }); },
+          () => useModalStore.getState().showPassportMapModal,
+        );
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease-out';
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([item.lng, item.lat])
+          .addTo(map);
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        registry.set(item.key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
+      } else {
+        const p = pin.data;
+        const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
+        if (existing && existing.pinType === 'profile') {
+          existing.marker.setLngLat([item.lng, item.lat]);
+          updateProfileMarkerEl(existing.el, p, isSelected);
+          continue;
+        }
+        if (existing) {
+          existing.cleanup();
+          existing.marker.remove();
+          registry.delete(item.key);
+        }
+        const el = createProfileMarkerEl(p, isSelected);
+        const cleanup = bindMarkerGestures(
+          el,
+          () => { triggerHaptic('light'); focusPinSheet({ type: 'profile', data: p }); },
+          () => { triggerHaptic('medium'); focusPinSheet({ type: 'profile', data: p }); },
+          () => useModalStore.getState().showPassportMapModal,
+        );
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease-out';
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([item.lng, item.lat])
+          .addTo(map);
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        registry.set(item.key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
       }
-
-      const el = createProfileMarkerEl(p, isSelected);
-      const cleanup = bindMarkerGestures(
-        el,
-        () => {
-          triggerHaptic('light');
-          focusPinSheet({ type: 'profile', data: p });
-        },
-        () => {
-          triggerHaptic('medium');
-          focusPinSheet({ type: 'profile', data: p });
-        },
-        () => useModalStore.getState().showPassportMapModal,
-      );
-      el.style.opacity = '0';
-      el.style.transition = 'opacity 0.25s ease-out';
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([p.lng, p.lat])
-        .addTo(map);
-      requestAnimationFrame(() => { el.style.opacity = '1'; });
-      registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
-    };
-
-    visibleListings.forEach(upsertListing);
-    visibleProfiles.forEach(upsertProfile);
+    }
 
     for (const [key, entry] of registry) {
       if (!nextKeys.has(key)) {
@@ -1642,18 +1771,23 @@ export const PassportMapModal = memo(() => {
     const listingsById = new Map(visibleListings.map(l => [l.id, l]));
     const profilesById = new Map(visibleProfiles.map(p => [p.id, p]));
     for (const entry of registry.values()) {
+      if (entry.pinType === 'cluster') {
+        // Clusters stay visible while a pin sheet is open
+        entry.el.style.opacity = '1';
+        entry.el.style.pointerEvents = 'auto';
+        continue;
+      }
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
       const isHiddenBySelection = selected != null && !isSelected;
       
       entry.el.style.opacity = isHiddenBySelection ? '0' : '1';
       entry.el.style.pointerEvents = isHiddenBySelection ? 'none' : 'auto';
-      // Use standard CSS transition for a clean fade effect
       entry.el.style.transition = 'opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
 
       if (entry.pinType === 'listing') {
         const listing = listingsById.get(entry.pinId);
         if (listing) updateListingMarkerEl(entry.el, listing, isSelected);
-      } else {
+      } else if (entry.pinType === 'profile') {
         const profile = profilesById.get(entry.pinId);
         if (profile) updateProfileMarkerEl(entry.el, profile, isSelected);
       }

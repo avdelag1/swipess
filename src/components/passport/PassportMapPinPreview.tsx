@@ -56,7 +56,7 @@ export const PassportMapPinPreview = memo(({
     <div
       style={{ willChange: 'transform' }}
       className={cn(
-        'overflow-hidden z-30 shadow-[0_32px_64px_rgba(0,0,0,0.55)]',
+        'overflow-hidden z-30 shadow-[0_8px_24px_rgba(0,0,0,0.28)]',
         // On mobile: max-w-[420px], anchored bottom
         // On tablet/desktop: acts as a tall side panel
         'w-full max-w-[420px] shrink-0 mx-3 mb-[calc(env(safe-area-inset-bottom,0px)+12px)] rounded-[2.5rem]',
@@ -80,7 +80,7 @@ export const PassportMapPinPreview = memo(({
         <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3">
           <div className="flex flex-wrap items-start gap-2 min-w-0">
             <span
-              className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white shadow-md max-w-[150px] truncate"
+              className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white max-w-[150px] truncate"
               style={{ background: isListing ? PASSPORT_GRADIENTS.listings : PASSPORT_GRADIENTS.people }}
             >
               {isListing ? categoryLabel(data.category) : 'Person'}

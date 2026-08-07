@@ -362,7 +362,7 @@ export const BottomNavigation = memo(({
                     width: active ? '40px' : '36px',
                     height: active ? '40px' : '36px',
                     transition: 'width 140ms ease, height 140ms ease',
-                    ...(isAddBtn ? { background: '#FF3366' } : { background: 'transparent' })
+                    ...(isAddBtn ? { background: '#FF3366', boxShadow: '0 4px 12px rgba(255,51,102,0.5)' } : { background: 'transparent', boxShadow: 'none', border: 'none' })
                   }}
                 >
 

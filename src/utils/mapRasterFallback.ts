@@ -50,9 +50,9 @@ export function ensureRasterMapStyles(): void {
       pointer-events: auto;
       overflow: visible;
     }
+    /* No drop-shadow filters — listing pills + avatars stay flat and readable */
     .swipess-raster-marker .passport-map-marker {
-      /* Keep avatars crisp on top-down tiles */
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45));
+      filter: none !important;
     }
   `;
   document.head.appendChild(style);
@@ -274,7 +274,7 @@ export type RasterMarkerEntry = {
   marker: Marker;
   el: HTMLDivElement;
   cleanup: () => void;
-  pinType: 'listing' | 'profile';
+  pinType: 'listing' | 'profile' | 'cluster';
   pinId: string;
 };
 
@@ -288,11 +288,20 @@ export function addRasterHtmlMarker(
   el: HTMLDivElement,
   lat: number,
   lng: number,
-  opts?: { large?: boolean },
+  opts?: { large?: boolean; kind?: 'listing' | 'profile' | 'cluster' },
 ): Marker {
-  // Oversize hit box so large profile avatars (44–52px) are not clipped
-  const w = opts?.large ? 72 : 48;
-  const h = opts?.large ? 72 : 52;
+  // Listing pills need a wider host so titles aren't clipped to a 72px box
+  const kind = opts?.kind ?? (el.dataset.pinType as 'listing' | 'profile' | 'cluster' | undefined);
+  const large = !!opts?.large;
+  let w = large ? 72 : 48;
+  let h = large ? 72 : 52;
+  if (kind === 'listing') {
+    w = large ? 168 : 140;
+    h = large ? 44 : 36;
+  } else if (kind === 'cluster') {
+    w = large ? 64 : 52;
+    h = large ? 64 : 52;
+  }
   const icon = L.divIcon({
     html: '<div class="swipess-raster-marker-host"></div>',
     className: 'swipess-raster-marker',
