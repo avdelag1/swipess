@@ -687,6 +687,15 @@ body.hw-mid .animate-pulse {
     filter: brightness(0.95);
 }
 
+/* Icon-only chrome (header tokens/map/sparkles): never square-scale the hit box */
+.instant-active-element.chrome-icon-btn,
+.chrome-icon-btn.instant-active-element {
+    transform: none !important;
+    filter: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  GPU VIEW TRANSITIONS API (document.startViewTransition)            */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

@@ -107,12 +107,15 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           <div className="shrink-0 flex items-center pr-1">
             <button
               type="submit"
-              className="flex items-center justify-center w-8 h-8 outline-none focus:outline-none focus-visible:outline-none bg-transparent shrink-0"
-              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
+              className="chrome-icon-btn flex items-center justify-center w-8 h-8 rounded-full bg-transparent shrink-0 group"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label="Search with AI"
             >
               <Sparkles
-                className={cn('w-[18px] h-[18px]', isLight ? 'text-black/80' : 'text-[#fff0f5]')}
+                className={cn(
+                  'w-[18px] h-[18px] transition-transform duration-150 group-active:scale-[0.9]',
+                  isLight ? 'text-black/80' : 'text-[#fff0f5]',
+                )}
                 strokeWidth={2}
                 style={{
                   filter: isLight

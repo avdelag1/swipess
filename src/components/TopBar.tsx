@@ -147,7 +147,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm"
+              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm"
               style={glassPillStyle}
               aria-label="Back"
             >
@@ -161,36 +161,39 @@ function TopBarComponent({
             </button>
           ) : (
             user && (
-              <div className="flex items-center gap-1.5 transition-all group" role="button" tabIndex={0} onClick={() => { haptics.tap(); navigate('/client/profile'); }}>
-                <button
-                  type="button"
-                  className="flex items-center justify-center h-5 w-5 rounded-full overflow-hidden shrink-0 pointer-events-none shadow-sm shadow-black/10"
-                  aria-label="Open profile"
+              <button
+                type="button"
+                className="chrome-icon-btn flex items-center gap-1.5 transition-all group rounded-full"
+                onClick={() => { haptics.tap(); navigate('/client/profile'); }}
+                aria-label="Open profile"
+              >
+                <span
+                  className="flex items-center justify-center h-5 w-5 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                       <img
                         src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                        alt="Profile"
+                        alt=""
                         loading="eager"
                         decoding="async"
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
                       initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
-                        <div className="w-full h-full bg-white/20 flex items-center justify-center">
+                        <span className="w-full h-full bg-white/20 flex items-center justify-center rounded-full">
                           <span className="text-[10px] font-black drop-shadow-sm" style={{ color: iconColor }}>
                             {initials}
                           </span>
-                        </div>
+                        </span>
                       )
                     )}
-                </button>
-                <div className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
+                </span>
+                <span className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
                   <span className="text-[12px] font-bold leading-none tracking-tight">
                     {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || ''}
                   </span>
-                </div>
-              </div>
+                </span>
+              </button>
             )
           )}
 
@@ -198,8 +201,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 transition-all group shrink-0 outline-none focus:outline-none focus-visible:outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
+              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shrink-0"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -224,9 +227,12 @@ function TopBarComponent({
             {/* Tokens/Premium */}
             <button
               type="button"
-              onClick={() => { haptics.tap(); openSubscriptionPackages(); }}
-              className="flex items-center justify-center h-7 w-7 transition-all group outline-none focus:outline-none focus-visible:outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
+              onClick={() => {
+                haptics.tap();
+                useModalStore.getState().setModal('showTokensModal', true);
+              }}
+              className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label="Tokens"
             >
               <HeaderIconSlot
@@ -253,8 +259,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="flex items-center justify-center h-7 w-7 transition-all group outline-none focus:outline-none focus-visible:outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
+              className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
@@ -269,9 +275,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="rounded-full h-6 w-6" />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="chrome-icon-btn rounded-full h-6 w-6" />
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="rounded-full h-6 w-6" />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="chrome-icon-btn rounded-full h-6 w-6" />
           </div>
         )}
 
