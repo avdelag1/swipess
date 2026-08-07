@@ -64,7 +64,22 @@ function probeWebGL(): { hasWebGL2: boolean; maxUniformBlockSize: number; render
   if (typeof document === 'undefined') {
     return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: '' };
   }
-  // Never leave a live context behind — browsers cap ~8–16 WebGL contexts.
+  // Prefer UA heuristics over creating WebGL probe contexts on Safari —
+  // probing with getContext + loseContext was itself spamming "context lost"
+  // and counting toward the browser's WebGL context limit.
+  if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent || '';
+    const apple =
+      /AppleWebKit/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|FxiOS|OPR|Android/i.test(ua);
+    const cap = (window as unknown as { Capacitor?: { getPlatform?: () => string } }).Capacitor;
+    const isIos = cap?.getPlatform?.() === 'ios' || /iPhone|iPad|iPod/i.test(ua);
+    // Safari / iOS: treat as broken UBO unless we later prove otherwise — Mapbox v3
+    // was blanking maps with "UBO size 16384 exceeds device limit 0".
+    if (apple || isIos) {
+      return { hasWebGL2: true, maxUniformBlockSize: 0, renderer: 'apple-webgl-assume-weak' };
+    }
+  }
+
   let gl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
   try {
     const canvas = document.createElement('canvas');
@@ -85,21 +100,21 @@ function probeWebGL(): { hasWebGL2: boolean; maxUniformBlockSize: number; render
       const renderer = dbg
         ? String(gl2.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '')
         : String(gl2.getParameter(gl2.RENDERER) || '');
+      // Detach canvas; avoid loseContext() noise on Safari
+      canvas.width = 0;
+      canvas.height = 0;
       return { hasWebGL2: true, maxUniformBlockSize: maxUbo, renderer };
     }
 
     gl = (canvas.getContext('webgl', { antialias: false, depth: false })
       || canvas.getContext('experimental-webgl', { antialias: false, depth: false })) as WebGLRenderingContext | null;
     if (gl) {
+      canvas.width = 0;
+      canvas.height = 0;
       return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: 'webgl1' };
     }
   } catch {
     /* empty */
-  } finally {
-    try {
-      const lose = gl?.getExtension?.('WEBGL_lose_context') as { loseContext: () => void } | null;
-      lose?.loseContext();
-    } catch { /* context already lost */ }
   }
   return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: '' };
 }

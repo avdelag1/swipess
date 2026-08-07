@@ -56,6 +56,13 @@ const MAP_SEARCH_HUB = PASSPORT_QUICK_CITIES.find(c => c.name === 'Tulum') ?? {
   lat: 20.2114,
   lng: -87.4654,
 };
+
+// Page-level locks — React remounts reset useRef(0) and were re-creating Map
+// instances until Safari hit "too many active WebGL contexts".
+let pageMapInstance: import('mapbox-gl').Map | null = null;
+let pageMapInitCount = 0;
+let pageMapInitLock = false;
+let pageMapFallbackDone = false;
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
   coordsNearFix,
@@ -117,9 +124,6 @@ export const PassportMapModal = memo(() => {
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
-  /** Cap recovery re-inits — unlimited retries leaked WebGL contexts until Safari crashed. */
-  const mapInitAttemptsRef = useRef(0);
-  const mapFallbackDoneRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
   const framedOpenSessionRef = useRef(0);
   // Map init runs once and must survive isOpen toggles — see init effect below.
@@ -588,28 +592,40 @@ export const PassportMapModal = memo(() => {
 
     const destroyMapInstance = (map?: import('mapbox-gl').Map | null) => {
       try {
-        const m = map ?? mapRef.current;
+        const m = map ?? mapRef.current ?? pageMapInstance;
         if (m) m.remove();
       } catch { /* already removed */ }
+      if (pageMapInstance) {
+        try { pageMapInstance.remove(); } catch { /* empty */ }
+      }
+      pageMapInstance = null;
       mapRef.current = null;
       mapboxRef.current = null;
+      pageMapInitLock = false;
     };
 
     const beginInit = () => {
       // Never create WebGL while closed — host is visibility:hidden.
       if (!useModalStore.getState().showPassportMapModal) return;
-      if (mapUnmountedRef.current || initStartedRef.current || mapRef.current || !mapContainerRef.current) return;
-      // Hard stop after 2 attempts (initial + one legacy fallback) — prevents
-      // "too many active WebGL contexts" death spiral in Safari.
-      if (mapInitAttemptsRef.current >= 2) {
+      if (mapUnmountedRef.current || !mapContainerRef.current) return;
+      // Live map already exists (maybe from prior mount) — reattach ref only
+      if (pageMapInstance || mapRef.current) {
+        mapRef.current = pageMapInstance ?? mapRef.current;
+        setMapReady(true);
+        setMapLoading(false);
+        return;
+      }
+      if (initStartedRef.current || pageMapInitLock) return;
+      // Hard stop after 2 page-level attempts (survives React remount)
+      if (pageMapInitCount >= 2) {
         setMapError('Map could not start on this device. Close and try again, or use Chrome.');
         setMapLoading(false);
         return;
       }
-      // Synchronous lock: a pending defer-timer and the open-kick effect must
-      // never both create a Mapbox instance. Reset on any early-out below.
+
       initStartedRef.current = true;
-      mapInitAttemptsRef.current += 1;
+      pageMapInitLock = true;
+      pageMapInitCount += 1;
       setMapLoading(true);
       setMapError(null);
 
@@ -617,6 +633,7 @@ export const PassportMapModal = memo(() => {
       const token = await resolveMapboxAccessToken();
       if (mapUnmountedRef.current || !mapContainerRef.current || !useModalStore.getState().showPassportMapModal) {
         initStartedRef.current = false;
+        pageMapInitLock = false;
         setMapLoading(false);
         return;
       }
@@ -626,6 +643,7 @@ export const PassportMapModal = memo(() => {
         setTokenReady(false);
         setMapError('Mapbox token missing — set VITE_MAPBOX_ACCESS_TOKEN and redeploy');
         initStartedRef.current = false;
+        pageMapInitLock = false;
         return;
       }
 
@@ -640,12 +658,15 @@ export const PassportMapModal = memo(() => {
       const initialZoom = CINEMATIC_OPEN_ALTITUDE_ZOOM;
 
       try {
-        // Always tear down any orphan map before allocating a new WebGL context
-        destroyMapInstance();
+        // Tear down any orphan before allocating a new WebGL context
+        if (pageMapInstance || mapRef.current) {
+          destroyMapInstance();
+        }
 
         const { mapboxgl } = await warmMapboxModules();
         if (mapUnmountedRef.current || !mapContainerRef.current || !useModalStore.getState().showPassportMapModal) {
           initStartedRef.current = false;
+          pageMapInitLock = false;
           setMapLoading(false);
           return;
         }
@@ -654,8 +675,9 @@ export const PassportMapModal = memo(() => {
         const rect = mapContainerRef.current.getBoundingClientRect();
         if (rect.width < 8 || rect.height < 8) {
           initStartedRef.current = false;
-          mapInitAttemptsRef.current = Math.max(0, mapInitAttemptsRef.current - 1);
-          if (mapInitAttemptsRef.current < 2) {
+          pageMapInitLock = false;
+          pageMapInitCount = Math.max(0, pageMapInitCount - 1);
+          if (pageMapInitCount < 2) {
             deferHandle = setTimeout(beginInit, 120);
           }
           return;
@@ -696,6 +718,7 @@ export const PassportMapModal = memo(() => {
           pixelRatio: profile.pixelRatio,
           localIdeographFontFamily: "'Noto Sans', 'Inter', system-ui, sans-serif",
         });
+        pageMapInstance = map;
 
         if (profile.enablePitchRotate) {
           map.touchZoomRotate.enableRotation();
@@ -721,15 +744,19 @@ export const PassportMapModal = memo(() => {
         // Recover at most once → legacy GL. Never loop (context spam).
         canvas.addEventListener('webglcontextlost', (ev) => {
           ev.preventDefault();
-          if (mapUnmountedRef.current || mapFallbackDoneRef.current) return;
-          mapFallbackDoneRef.current = true;
+          if (mapUnmountedRef.current || pageMapFallbackDone) {
+            setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
+            setMapLoading(false);
+            return;
+          }
+          pageMapFallbackDone = true;
           console.warn('[PassportMap] WebGL context lost — one legacy re-init only');
           destroyMapInstance(map);
           initStartedRef.current = false;
           setMapReady(false);
           forceLegacyMapProfile();
           resetWarmMapboxModules();
-          if (mapInitAttemptsRef.current < 2) {
+          if (pageMapInitCount < 2) {
             deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
           } else {
             setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
@@ -782,16 +809,16 @@ export const PassportMapModal = memo(() => {
           if (
             /UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message)
             && !profile.useLegacyGl
-            && !mapFallbackDoneRef.current
+            && !pageMapFallbackDone
           ) {
-            mapFallbackDoneRef.current = true;
+            pageMapFallbackDone = true;
             console.warn('[PassportMap] WebGL error, one legacy fallback:', message);
             destroyMapInstance(map);
             initStartedRef.current = false;
             setMapReady(false);
             forceLegacyMapProfile();
             resetWarmMapboxModules();
-            if (mapInitAttemptsRef.current < 2) {
+            if (pageMapInitCount < 2) {
               deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
             } else {
               setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
@@ -857,17 +884,22 @@ export const PassportMapModal = memo(() => {
         });
 
         mapRef.current = map;
+        pageMapInstance = map;
+        pageMapInitLock = false;
 
         if (mapContainerRef.current && typeof ResizeObserver !== 'undefined') {
+          resizeObserverRef.current?.disconnect();
           resizeObserverRef.current = new ResizeObserver(() => resizeMap());
           resizeObserverRef.current.observe(mapContainerRef.current);
         }
       } catch (err) {
+        pageMapInitLock = false;
         if (!mapUnmountedRef.current) {
           console.error('[PassportMap] init failed', err);
           setMapError('Failed to initialize map — close and try again');
           setMapLoading(false);
           initStartedRef.current = false;
+          // Don't loop on throw — leave pageMapInitCount as-is
         }
       }
     })();
@@ -902,7 +934,7 @@ export const PassportMapModal = memo(() => {
       };
     }
 
-    if (!initStartedRef.current && mapInitAttemptsRef.current < 2) {
+    if (!initStartedRef.current && !pageMapInitLock && pageMapInitCount < 2 && !pageMapInstance) {
       const t = window.setTimeout(() => beginInitRef.current?.(), 0);
       return () => window.clearTimeout(t);
     }
@@ -975,9 +1007,18 @@ export const PassportMapModal = memo(() => {
       entry.marker.remove();
     });
     markersRef.current.clear();
-    geocoderRef.current?.onRemove();
-    if (mapRef.current) removeUserGpsDotFromMap(mapRef.current);
-    mapRef.current?.remove();
+    try { geocoderRef.current?.onRemove(); } catch { /* empty */ }
+    geocoderRef.current = null;
+    if (mapRef.current) {
+      try { removeUserGpsDotFromMap(mapRef.current); } catch { /* empty */ }
+    }
+    try {
+      (pageMapInstance ?? mapRef.current)?.remove();
+    } catch { /* empty */ }
+    pageMapInstance = null;
+    pageMapInitLock = false;
+    // Allow a fresh open later in this session, but never more than 2 tries per open cycle
+    pageMapInitCount = 0;
     mapRef.current = null;
     mapboxRef.current = null;
     initStartedRef.current = false;

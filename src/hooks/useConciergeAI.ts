@@ -151,85 +151,20 @@ async function loadConversationsCloud(userId: string): Promise<Conversation[]> {
   }
 }
 
-/** Cloud history is best-effort — localStorage is source of truth. RLS 42501
- *  used to spam the console on every message; log once then stay quiet. */
-let cloudSaveDisabled = false;
-let cloudSaveWarned = false;
+/**
+ * Cloud AI history is OFF until RLS migration is applied in Supabase.
+ * Chat works fully via localStorage. Re-enable after running:
+ *   supabase/migrations/20260807000000_fix_ai_chat_rls.sql
+ * (Set to true only after that migration succeeds in production.)
+ */
+const AI_CLOUD_HISTORY_ENABLED = false;
 
-async function ensureCloudAuthUserId(): Promise<string | null> {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id ?? null;
-  } catch {
-    return null;
-  }
+async function saveConversationCloud(_userId: string, _convo: Conversation) {
+  if (!AI_CLOUD_HISTORY_ENABLED) return;
 }
 
-async function saveConversationCloud(userId: string, convo: Conversation) {
-  if (cloudSaveDisabled) return;
-  try {
-    // Must match auth.uid() for RLS — never write with a stale/local-only id
-    const authId = await ensureCloudAuthUserId();
-    if (!authId || authId !== userId) {
-      cloudSaveDisabled = true;
-      return;
-    }
-    const { error } = await supabase.from('ai_conversations').upsert({
-      id: convo.id,
-      user_id: authId,
-      title: convo.title,
-      updated_at: convo.updatedAt.toISOString(),
-      created_at: convo.createdAt.toISOString(),
-    }, { onConflict: 'id' });
-    if (error) throw error;
-  } catch (e: any) {
-    // 42501 = RLS — cloud history unavailable; chat still works offline
-    if (e?.code === '42501' || /row-level security/i.test(String(e?.message || e))) {
-      cloudSaveDisabled = true;
-      if (!cloudSaveWarned) {
-        cloudSaveWarned = true;
-        logger.warn('[AI Cloud] History sync disabled (RLS). Using local chat only.');
-      }
-      return;
-    }
-    if (!cloudSaveWarned) {
-      cloudSaveWarned = true;
-      logger.warn('[AI Cloud] save convo failed (non-fatal):', e?.message || e);
-    }
-  }
-}
-
-async function saveMessageCloud(userId: string, conversationId: string, msg: ChatMessage) {
-  if (cloudSaveDisabled) return;
-  try {
-    const authId = await ensureCloudAuthUserId();
-    if (!authId || authId !== userId) {
-      cloudSaveDisabled = true;
-      return;
-    }
-    const { error } = await supabase.from('ai_messages').upsert({
-      id: msg.id,
-      conversation_id: conversationId,
-      user_id: authId,
-      role: msg.role,
-      content: msg.content,
-      created_at: msg.timestamp.toISOString(),
-    }, { onConflict: 'id' });
-    if (error) throw error;
-  } catch (e: any) {
-    if (e?.code === '42501' || /row-level security/i.test(String(e?.message || e))) {
-      cloudSaveDisabled = true;
-      if (!cloudSaveWarned) {
-        cloudSaveWarned = true;
-        logger.warn('[AI Cloud] History sync disabled (RLS). Using local chat only.');
-      }
-      return;
-    }
-    if (!cloudSaveWarned) {
-      cloudSaveWarned = true;
-      logger.warn('[AI Cloud] save msg failed (non-fatal):', e?.message || e);
-    }
-  }
+async function saveMessageCloud(_userId: string, _conversationId: string, _msg: ChatMessage) {
+  if (!AI_CLOUD_HISTORY_ENABLED) return;
 }
 
 async function deleteConversationCloud(convoId: string) {
