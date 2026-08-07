@@ -200,8 +200,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="flex items-center justify-center h-8 w-8 transition-all group shrink-0 outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              className="flex items-center justify-center h-8 w-8 transition-all group shrink-0 outline-none focus:outline-none focus-visible:outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
               aria-label="AI Listing"
             >
               <HeaderIconSlot>
@@ -226,9 +226,9 @@ function TopBarComponent({
             {/* Tokens/Premium */}
             <button
               type="button"
-              onClick={() => { haptics.tap(); useModalStore.getState().setModal('showTokensModal', true); }}
-              className="flex items-center justify-center h-7 w-7 transition-all group outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              onClick={() => { haptics.tap(); openSubscriptionPackages(); }}
+              className="flex items-center justify-center h-7 w-7 transition-all group outline-none focus:outline-none focus-visible:outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
               aria-label="Tokens"
             >
               <HeaderIconSlot
@@ -236,7 +236,7 @@ function TopBarComponent({
                   tokensLow && (
                     <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 border border-black/20"></span>
                     </span>
                   )
                 }
@@ -255,8 +255,8 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="flex items-center justify-center h-7 w-7 transition-all group outline-none"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              className="flex items-center justify-center h-7 w-7 transition-all group outline-none focus:outline-none focus-visible:outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent', outline: 'none' }}
               aria-label={t('map.liveMap')}
             >
               <HeaderIconSlot>
