@@ -19,7 +19,7 @@ interface ClientVerificationFlowProps {
 const steps = [
   { id: 'selfie', title: 'Selfie Check', description: 'Real-time face verification', icon: Camera, color: '#EB4898' },
   { id: 'document', title: 'Identity Verification', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#EB4898' },
+  { id: 'review', title: 'Manual Review', description: 'Approval is required before any badge', icon: ShieldCheck, color: '#EB4898' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
@@ -106,17 +106,20 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
 
       if (requestError) throw requestError;
 
-      // 2. Update client profile + grant verified badge
-      const [{ error: profileError }] = await Promise.all([
+      // 2. Mark the request as pending. Only an authorized reviewer may grant a badge.
+      const submittedAt = new Date().toISOString();
+      const [{ error: profileError }, { error: statusError }] = await Promise.all([
         supabase.from('client_profiles').update({
-          verification_submitted_at: new Date().toISOString(),
-          verified: true,
+          verification_submitted_at: submittedAt,
         }).eq('user_id', user.id),
-        supabase.from('profiles').update({ verified: true }).eq('user_id', user.id),
+        supabase.from('profiles').update({
+          verification_status: 'pending',
+          verification_submitted_at: submittedAt,
+        } as any).eq('user_id', user.id),
       ]);
-      if (profileError) throw profileError;
+      if (profileError || statusError) throw (profileError ?? statusError);
 
-      appToast.success('Identity verified — badge granted!');
+      appToast.success('Documents submitted. Verification is pending review.');
       onComplete?.();
     } catch (err) {
       logger.error('[Verification] Submission error:', err);
