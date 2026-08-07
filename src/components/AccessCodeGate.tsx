@@ -271,7 +271,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                       onClick={() => setRevealed(v => !v)}
                       className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-white/10 transition-colors"
                       aria-label={revealed ? 'Hide access code' : 'Show access code'}
-                      style={{ color: inputPlaceholderColor }}
+                      style={{ color: 'rgba(255,255,255,0.45)' }}
                     >
                       {revealed ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
