@@ -41,21 +41,21 @@ export function getHeaderIconFilter(
  *   • Delicate inner catch-light at top edge — no heavy neumorphic shadows
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
-  // As requested: header buttons back to white, only black on the dashboard
-  const useLightIcons = !_isDashboard; 
+  // Theme-aware: dark on light backgrounds, white on dark backgrounds
+  const useLightIcons = !isLight; 
 
   const pillStyle: CSSProperties = {
-    background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.15) 100%)' // Stronger white fill for liquid glass
+    background: isLight 
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)'
       : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.15)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.7)' : '1px solid rgba(255, 255, 255, 0.3)',
-    borderLeft: _isDashboard ? '1px solid rgba(255, 255, 255, 0.5)' : undefined,
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.5)',
-    backdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(32px) saturate(180%) contrast(110%)',
-    WebkitBackdropFilter: _isDashboard ? 'blur(40px) saturate(200%) contrast(100%)' : 'blur(32px) saturate(180%) contrast(110%)',
-    boxShadow: _isDashboard 
-      ? '0 10px 40px rgba(0, 0, 0, 0.12), inset 0 2px 10px rgba(255,255,255,0.6)'
+    border: isLight ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.15)',
+    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.9)' : '1px solid rgba(255, 255, 255, 0.3)',
+    borderLeft: isLight ? '1px solid rgba(255, 255, 255, 0.7)' : undefined,
+    borderBottom: isLight ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
+    boxShadow: isLight 
+      ? '0 8px 32px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255,255,255,0.8)'
       : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
     borderRadius: '9999px',
     pointerEvents: 'auto',
@@ -77,7 +77,7 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
     pillStyle,
     iconShadow: useLightIcons
       ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
-      : 'drop-shadow(0 1px 2px rgba(255,255,255,0.6))', // Light shadow for black icons
+      : 'drop-shadow(0 1px 1px rgba(255,255,255,0.5))', // Subtle white glow for dark icons
   };
 }
 
