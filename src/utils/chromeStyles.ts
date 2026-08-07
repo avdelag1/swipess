@@ -15,18 +15,7 @@ export function getHeaderIconFilter(
   useLightIcons: boolean,
   accent?: HeaderIconAccent,
 ): string {
-  if (!useLightIcons) return iconShadow;
-
-  const accentGlow =
-    accent === 'crown'
-      ? 'drop-shadow(0 0 8px rgba(228,0,124,0.55))'
-      : accent === 'globe'
-        ? 'drop-shadow(0 0 8px rgba(59,130,246,0.55))'
-        : accent === 'sparkles'
-          ? 'drop-shadow(0 0 8px rgba(168,85,247,0.55))'
-          : '';
-
-  return accent ? `${iconShadow} ${accentGlow}` : iconShadow;
+  return iconShadow;
 }
 
 /** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons.
@@ -77,7 +66,7 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
     pillStyle,
     iconShadow: useLightIcons
       ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
-      : 'drop-shadow(0 1px 1px rgba(255,255,255,0.5))', // Subtle white glow for dark icons
+      : 'drop-shadow(0 1px 1px rgba(0,0,0,0.1))',
   };
 }
 
@@ -117,7 +106,7 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
     inactiveIconColor,
     pillStyle,
     iconShadow: useLightIcons
-      ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(255,255,255,0.2))' // Enhanced glow and shadow
+      ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))'
       : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
   };
 }

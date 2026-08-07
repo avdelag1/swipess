@@ -259,27 +259,12 @@ export const BottomNavigation = memo(({
     inactiveIconColor 
   } = getBottomNavChrome(isLight, isDashboard);
   
-  const activeGlow = useLightIcons
-    ? 'drop-shadow(0 0 8px rgba(255,255,255,0.45))'
-    : 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))';
-  const inactiveGlow = useLightIcons
-    ? 'drop-shadow(0 0 4px rgba(255,255,255,0.22))'
-    : undefined;
-
   const getNavIconFilter = (itemId: string, active: boolean) => {
-    if (itemId === 'add') {
-      return `${iconShadow} drop-shadow(0 0 12px rgba(255,51,102,0.6))`;
-    }
-    if (!useLightIcons) {
-      return active ? activeGlow : undefined;
-    }
-    return active ? `${iconShadow} ${activeGlow}` : `${iconShadow} ${inactiveGlow}`;
+    return iconShadow;
   };
 
   const _getNavLabelShadow = (itemId: string, active: boolean) => {
-    if (itemId === 'add') return '0 0 8px rgba(255,51,102,0.4)';
-    if (!useLightIcons) return undefined;
-    return active ? '0 0 6px rgba(255,255,255,0.35)' : '0 1px 3px rgba(0,0,0,0.35)';
+    return 'none';
   };
   return (
     <nav
