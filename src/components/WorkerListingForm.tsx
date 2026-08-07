@@ -408,12 +408,15 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         <ChipMultiSelect accent="amber" options={[...LANGUAGE_OPTIONS]} value={watchedLanguages} onChange={(v) => setValue('languages', v)} />
       </FormSection>
 
-      <FormSection title="Verification & Trust" accent="amber">
+      <FormSection title="Service Declarations" accent="amber">
         <div className="space-y-2">
           <CheckboxRow id="emergency" checked={!!watch('offers_emergency_service')} onCheckedChange={(v) => setValue('offers_emergency_service', v)} label="I offer emergency / urgent service" />
-          <CheckboxRow id="bgcheck" checked={!!watch('background_check_verified')} onCheckedChange={(v) => setValue('background_check_verified', v)} label="Background check verified" />
-          <CheckboxRow id="insurance" checked={!!watch('insurance_verified')} onCheckedChange={(v) => setValue('insurance_verified', v)} label="Insurance verified" />
+          <CheckboxRow id="bgcheck" checked={!!watch('background_check_verified')} onCheckedChange={(v) => setValue('background_check_verified', v)} label="Background check completed (self-reported)" />
+          <CheckboxRow id="insurance" checked={!!watch('insurance_verified')} onCheckedChange={(v) => setValue('insurance_verified', v)} label="Insurance coverage (self-reported)" />
         </div>
+        <p className="text-xs text-muted-foreground">
+          These statements are provided by the service provider and are not verified by Swipess. Ask for current proof before hiring.
+        </p>
       </FormSection>
 
       <DescriptionPreview
