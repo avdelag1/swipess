@@ -15,7 +15,17 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
   const inputRef = useRef<HTMLInputElement>(null);
   
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (query.trim() || onSearchSubmit) {
+        haptics.success();
+        onSearchSubmit?.(query);
+        inputRef.current?.blur();
+      } else {
+        haptics.tap();
+        onFilterClick?.();
+      }
+    } else if (e.key === 'Escape') {
       inputRef.current?.blur();
     }
   };
@@ -70,10 +80,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
             autoComplete="off"
             autoCorrect="off"
             className={cn(
-              "w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 border-none text-[13px] font-medium",
+              "w-full h-full bg-transparent outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 border-none text-[13px] font-medium",
               isLight ? "placeholder:text-black/40 text-black" : "placeholder:text-white/80"
             )}
-            style={{ color: 'inherit' }}
+            style={{ color: 'inherit', boxShadow: 'none' }}
           />
           
           <div className="shrink-0 flex items-center pr-1">
