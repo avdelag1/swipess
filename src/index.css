@@ -33,6 +33,18 @@ html, body, #root {
   touch-action: pan-y;
 }
 
+/* Safari / WKWebView: global user-select:none blocks caret + typing in fields.
+   Explicitly re-enable text selection and editing on form controls. */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default;
+  pointer-events: auto;
+}
+
 /* iOS notch / status-bar strip — keep it BLACK even in light theme.
    With Capacitor ios.contentInset:'always', the <html> background paints
    behind the native status bar. The global StatusBar style is light icons

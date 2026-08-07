@@ -105,15 +105,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       }}
     >
       <div className="w-full max-w-3xl mx-auto mb-3 flex flex-col gap-3 items-end">
-        <AISearchBar 
-          isLight={isLight} 
-          onFilterClick={() => useModalStore.getState().setModal('showAIChat', true)}
+        <AISearchBar
+          isLight={isLight}
+          onFilterClick={() => useModalStore.getState().openAIChat()}
           onSearchSubmit={(query) => {
-            if (query.trim()) {
-              // Store initial query so the chat can pick it up when opened
-              localStorage.setItem('swipess_ai_initial_query', query);
-            }
-            useModalStore.getState().setModal('showAIChat', true);
+            // openAIChat stores the query in the modal store (and localStorage fallback)
+            // so ConciergeChat always receives it — no silent localStorage-only race.
+            useModalStore.getState().openAIChat(query);
           }}
         />
         <DashboardFilters isLight={isLight} />

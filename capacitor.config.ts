@@ -6,7 +6,14 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    allowNavigation: ['*.supabase.co'],
+    // Allow Mapbox tiles/styles/workers + Supabase from the native WebView.
+    // Without these, WKWebView can block mapbox.com while Chrome PWA still works.
+    allowNavigation: [
+      '*.supabase.co',
+      '*.mapbox.com',
+      'api.mapbox.com',
+      'events.mapbox.com',
+    ],
   },
   ios: {
     contentInset: 'always',

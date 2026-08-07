@@ -570,17 +570,34 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [isOpen, mapReady]);
 
+  // Detect Apple WebKit (Safari desktop + iOS Safari + Capacitor WKWebView).
+  // Capacitor's UA often omits the word "Safari", so Chrome-style sniffing fails.
+  const isAppleWebKitEnv = () => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const cap = (window as unknown as { Capacitor?: { getPlatform?: () => string; isNativePlatform?: () => boolean } }).Capacitor;
+    if (cap?.getPlatform?.() === 'ios' || (cap?.isNativePlatform?.() && /iPhone|iPad|iPod/i.test(ua))) return true;
+    // Safari / WebKit without Chromium or Firefox iOS
+    if (/AppleWebKit/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|FxiOS|OPR|Android/i.test(ua)) return true;
+    return /^((?!chrome|android).)*safari/i.test(ua);
+  };
+
   useEffect(() => {
     if (!shouldWarmMap) return;
     let cancelled = false;
-    resolveMapboxAccessToken().then((token) => {
+    // Prefetch token + Mapbox JS/CSS only — do NOT create a WebGL map while closed.
+    // Safari/WKWebView fail WebGL when the host is visibility:hidden or scaled by
+    // the genie open animation (scale ~0.05). Chrome is more tolerant, which is
+    // why the map "only works in Chrome / PWA Chrome".
+    void resolveMapboxAccessToken().then((token) => {
       if (!cancelled) setTokenReady(token.length > 0);
     });
+    void warmMapboxModules().catch(() => { /* retry on open */ });
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
-  // Create Mapbox once the host is mounted. Warm-start on dashboard (hidden) so
-  // the first open is instant; still defer if the genie sheet is animating open.
+  // Create Mapbox ONLY when the modal is open (visible, unscaled). Warm modules
+  // separately. Re-init is allowed if a previous attempt failed.
   useEffect(() => {
     if (!mapContainerRef.current) return undefined;
     // Effect (re)mounted — the map is alive again.
@@ -589,23 +606,27 @@ export const PassportMapModal = memo(() => {
     let deferHandle: ReturnType<typeof setTimeout> | null = null;
 
     const beginInit = () => {
-      if (mapUnmountedRef.current || initStartedRef.current || !mapContainerRef.current) return;
+      // Never create WebGL while closed — container is hidden + genie-scaled.
+      if (!useModalStore.getState().showPassportMapModal) return;
+      if (mapUnmountedRef.current || initStartedRef.current || mapRef.current || !mapContainerRef.current) return;
       // Synchronous lock: a pending defer-timer and the open-kick effect must
       // never both create a Mapbox instance. Reset on any early-out below.
       initStartedRef.current = true;
-      if (useModalStore.getState().showPassportMapModal) setMapLoading(true);
+      setMapLoading(true);
       setMapError(null);
 
     (async () => {
       const token = await resolveMapboxAccessToken();
-      if (mapUnmountedRef.current || !mapContainerRef.current) {
+      if (mapUnmountedRef.current || !mapContainerRef.current || !useModalStore.getState().showPassportMapModal) {
         initStartedRef.current = false;
+        setMapLoading(false);
         return;
       }
 
       if (!token) {
         setMapLoading(false);
         setTokenReady(false);
+        setMapError('Mapbox token missing — set VITE_MAPBOX_ACCESS_TOKEN and redeploy');
         initStartedRef.current = false;
         return;
       }
@@ -622,8 +643,17 @@ export const PassportMapModal = memo(() => {
 
       try {
         const { mapboxgl } = await warmMapboxModules();
-        if (mapUnmountedRef.current || !mapContainerRef.current) {
+        if (mapUnmountedRef.current || !mapContainerRef.current || !useModalStore.getState().showPassportMapModal) {
           initStartedRef.current = false;
+          setMapLoading(false);
+          return;
+        }
+
+        // Ensure container has real layout size (genie scale must be ~1).
+        const rect = mapContainerRef.current.getBoundingClientRect();
+        if (rect.width < 8 || rect.height < 8) {
+          initStartedRef.current = false;
+          deferHandle = setTimeout(beginInit, 80);
           return;
         }
 
@@ -631,13 +661,15 @@ export const PassportMapModal = memo(() => {
         mapboxgl.accessToken = token;
 
         const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+        const onWebKit = isAppleWebKitEnv();
         const flyPitch = cinematicPitchForViewport();
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,
-          pitch: flyPitch,
+          // Lower pitch on Apple WebKit — high pitch + WebGL is flaky on some GPUs
+          pitch: onWebKit ? Math.min(flyPitch, 45) : flyPitch,
           bearing: CINEMATIC_BEARING,
           attributionControl: false,
           fadeDuration: 0,
@@ -648,7 +680,8 @@ export const PassportMapModal = memo(() => {
           refreshExpiredTiles: false,
           trackResize: true,
           preserveDrawingBuffer: false,
-          powerPreference: 'low-power',
+          // 'low-power' breaks WebGL on some Safari / iOS devices → blank map
+          powerPreference: onWebKit ? 'default' : 'low-power',
           pixelRatio: typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 1,
           // Render CJK labels with a local font instead of downloading huge glyph
           // ranges from the network — meaningfully faster first paint on mobile.
@@ -766,9 +799,10 @@ export const PassportMapModal = memo(() => {
           resizeObserverRef.current = new ResizeObserver(() => resizeMap());
           resizeObserverRef.current.observe(mapContainerRef.current);
         }
-      } catch {
+      } catch (err) {
         if (!mapUnmountedRef.current) {
-          setMapError('Failed to initialize map — try refreshing the page');
+          console.error('[PassportMap] init failed', err);
+          setMapError('Failed to initialize map — close and try again');
           setMapLoading(false);
           initStartedRef.current = false;
         }
@@ -776,20 +810,14 @@ export const PassportMapModal = memo(() => {
     })();
     };
 
-    // Expose so the open-kick effect can start init the instant the user opens
-    // the map, without this effect re-running (which used to cancel an in-flight
-    // background init and leave mapReady stuck false → blank map, no pins).
+    // Expose so the open-kick effect can start init when the user opens the map.
     beginInitRef.current = beginInit;
 
-    // Init immediately when already open; otherwise defer the warm-start so a
-    // fresh WebGL context doesn't crash iOS during app boot.
+    // Only start WebGL when the modal is open. Defer past the genie tween
+    // (~100ms) so the host is at scale 1 / visible — required on Safari & iOS.
     if (useModalStore.getState().showPassportMapModal) {
-      beginInit();
-    } else {
-      // Delay longer on Safari to let the genie open animation settle before WebGL init.
-      // Safari fails to create a WebGL context if the canvas parent has a non-1 scale transform.
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      deferHandle = setTimeout(beginInit, isSafari ? 350 : 200);
+      const delay = isAppleWebKitEnv() ? 160 : 40;
+      deferHandle = setTimeout(beginInit, delay);
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
@@ -800,11 +828,26 @@ export const PassportMapModal = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizeMap]);
 
-  // If the user opens the map before the deferred warm-start fired, init now.
-  // Guarded by initStartedRef so this never double-creates the Mapbox instance.
+  // Open kick: when the user opens the map, init (or re-init after a failed try).
+  // Guarded by initStartedRef + mapRef so we never double-create Mapbox.
   useEffect(() => {
-    if (isOpen && !initStartedRef.current) beginInitRef.current?.();
-  }, [isOpen]);
+    if (!isOpen) return;
+    if (mapRef.current) {
+      // Already have a live map — force layout after genie expand.
+      const t1 = window.setTimeout(() => resizeMap(), 50);
+      const t2 = window.setTimeout(() => resizeMap(), 200);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
+    }
+    if (!initStartedRef.current) {
+      const delay = isAppleWebKitEnv() ? 160 : 40;
+      const t = window.setTimeout(() => beginInitRef.current?.(), delay);
+      return () => window.clearTimeout(t);
+    }
+    return undefined;
+  }, [isOpen, resizeMap]);
 
   // Geocoder mounts after map is ready — keeps first paint fast
   useEffect(() => {
@@ -887,12 +930,21 @@ export const PassportMapModal = memo(() => {
     const canvas = map.getCanvas();
     if (isOpen) {
       canvas.style.visibility = 'visible';
+      // Safari often leaves a blank WebGL buffer until an explicit resize after show
+      try {
+        map.resize();
+        map.triggerRepaint?.();
+      } catch { /* map mid-destroy */ }
       refreshMapVisualsRef.current();
       requestAnimationFrame(() => {
+        try { map.resize(); } catch { /* empty */ }
         refreshMapVisualsRef.current();
         requestAnimationFrame(refreshMapVisualsRef.current);
       });
-      const t = window.setTimeout(refreshMapVisualsRef.current, 80);
+      const t = window.setTimeout(() => {
+        try { map.resize(); map.triggerRepaint?.(); } catch { /* empty */ }
+        refreshMapVisualsRef.current();
+      }, 120);
       return () => window.clearTimeout(t);
     }
 

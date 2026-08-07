@@ -45,6 +45,8 @@ interface ModalState {
   showDatesModal: boolean;
   showGuestsModal: boolean;
   showAIChat: boolean;
+  /** Pending search query to auto-send when ConciergeChat opens. */
+  pendingAIQuery: string | null;
   showAIListing: boolean;
   aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker' | null;
   aiListingDraft: any | null;
@@ -59,7 +61,7 @@ interface ModalState {
   showInviteFriends: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll' | 'showSeekerRequestDialog'>, value: boolean) => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory' | 'aiListingDraft' | 'aiProfileMode' | 'aiProfileDraft' | 'pendingAIQuery' | 'openAIListing' | 'openAddListing' | 'openAIProfile' | 'openPropertyDetails' | 'openPropertyInsights' | 'openClientInsights' | 'openSubscription' | 'openPassportMap' | 'openAIChat' | 'consumePendingAIQuery' | 'openInviteFriends' | 'clearPassportMapFlags' | 'closeAll' | 'showSeekerRequestDialog'>, value: boolean) => void;
   openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker', draft?: any) => void;
   openAddListing: () => void;
   openAIProfile: (mode: 'client' | 'owner', draft?: any) => void;
@@ -68,7 +70,8 @@ interface ModalState {
   openClientInsights: (id: string) => void;
   openSubscription: (reason: string) => void;
   openPassportMap: (opts?: { showCities?: boolean }) => void;
-  openAIChat: () => void;
+  openAIChat: (initialQuery?: string) => void;
+  consumePendingAIQuery: () => string | null;
   openInviteFriends: () => void;
   clearPassportMapFlags: () => void;
   closeAll: () => void;
@@ -97,6 +100,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showDatesModal: false,
   showGuestsModal: false,
   showAIChat: false,
+  pendingAIQuery: null,
   showAIListing: false,
   aiListingCategory: null,
   aiListingDraft: null,
@@ -143,10 +147,25 @@ export const useModalStore = create<ModalState>((set) => ({
     });
   },
 
-  openAIChat: () => {
+  openAIChat: (initialQuery) => {
     if (useGuidedTourActive.getState().isActive) return;
     prefetchConciergeChatModule();
-    set({ showAIChat: true });
+    const q = typeof initialQuery === 'string' ? initialQuery.trim() : '';
+    set({
+      showAIChat: true,
+      pendingAIQuery: q || null,
+    });
+    // Back-compat for any remaining localStorage readers
+    if (q) {
+      try { localStorage.setItem('swipess_ai_initial_query', q); } catch { /* private mode */ }
+    }
+  },
+
+  consumePendingAIQuery: () => {
+    const q = useModalStore.getState().pendingAIQuery;
+    if (q) set({ pendingAIQuery: null });
+    try { localStorage.removeItem('swipess_ai_initial_query'); } catch { /* empty */ }
+    return q;
   },
 
   openInviteFriends: () => set({ showInviteFriends: true }),
@@ -156,6 +175,7 @@ export const useModalStore = create<ModalState>((set) => ({
   }),
 
   closeAll: () => set({
+    pendingAIQuery: null,
     showProfile: false,
     showPropertyDetails: false,
     showPropertyInsights: false,

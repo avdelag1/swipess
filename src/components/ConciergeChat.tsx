@@ -98,9 +98,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     return colorMap[activeCharacter] || 'var(--color-brand-primary)';
   }, [activeCharacter]);
 
+  // Always call latest sendMessage (avoids stale closure after open).
+  const sendMessageRef = useRef(sendMessage);
+  sendMessageRef.current = sendMessage;
+  const didConsumeInitialQueryRef = useRef(false);
+
   useEffect(() => {
     if (!isOpen) {
       hasPlayedOpenSound.current = false;
+      didConsumeInitialQueryRef.current = false;
       return;
     }
 
@@ -116,16 +122,47 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       if (now - lastActivity > 600000 && messages.length > 0) createConversation();
       localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
 
-      const initialQuery = localStorage.getItem('swipess_ai_initial_query');
-      if (initialQuery) {
-        localStorage.removeItem('swipess_ai_initial_query');
-        // Give it a tiny delay to ensure the chat UI is mounted before sending
-        setTimeout(() => sendMessage(initialQuery), 100);
+      if (didConsumeInitialQueryRef.current) return;
+      didConsumeInitialQueryRef.current = true;
+
+      // Prefer in-memory modal store (reliable); fall back to localStorage key.
+      let initialQuery = useModalStore.getState().consumePendingAIQuery?.() ?? null;
+      if (!initialQuery) {
+        initialQuery = localStorage.getItem('swipess_ai_initial_query');
+        if (initialQuery) localStorage.removeItem('swipess_ai_initial_query');
+      }
+
+      if (initialQuery?.trim()) {
+        // Defer past first paint + privacy sheet mount so the message isn't dropped
+        window.setTimeout(() => {
+          const q = initialQuery!.trim();
+          if (!hasAcceptedPrivacy) {
+            // Surface text in the composer; auto-send once privacy is accepted
+            setInput(q);
+            try { sessionStorage.setItem('swipess_ai_pending_after_privacy', q); } catch { /* empty */ }
+            return;
+          }
+          void sendMessageRef.current(q);
+        }, 180);
       }
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [isOpen, createConversation, messages.length]);
+  }, [isOpen, createConversation, messages.length, hasAcceptedPrivacy]);
+
+  // After privacy accept, flush search query that was parked in the composer
+  useEffect(() => {
+    if (!isOpen || !hasAcceptedPrivacy) return;
+    let parked: string | null = null;
+    try {
+      parked = sessionStorage.getItem('swipess_ai_pending_after_privacy');
+      if (parked) sessionStorage.removeItem('swipess_ai_pending_after_privacy');
+    } catch { /* empty */ }
+    if (!parked?.trim()) return;
+    const q = parked.trim();
+    setInput('');
+    window.setTimeout(() => void sendMessageRef.current(q), 80);
+  }, [isOpen, hasAcceptedPrivacy]);
 
   useEffect(() => {
     if (messages.length > 0) localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());

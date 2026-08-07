@@ -7,10 +7,14 @@ let warmPromise: Promise<{
 }> | null = null;
 
 function configureMapboxWorker(mapboxgl: MapboxGL): void {
-  // Vite code-splits mapbox into vendor-maps — blob workers can fail on some mobile
-  // browsers after deploy. CDN worker is reliable and allowed by our CSP.
-  if (!mapboxgl.workerUrl) {
-    mapboxgl.workerUrl = `https://api.mapbox.com/mapbox-gl-js/v${mapboxgl.version}/mapbox-gl-csp-worker.js`;
+  // Vite code-splits mapbox into vendor-maps — blob workers can fail on Safari /
+  // WKWebView (Capacitor) after deploy or under strict CSP. Force the CSP-safe
+  // CDN worker so tiles paint on iOS Safari and the native app, not only Chrome.
+  const cdnWorker = `https://api.mapbox.com/mapbox-gl-js/v${mapboxgl.version}/mapbox-gl-csp-worker.js`;
+  try {
+    mapboxgl.workerUrl = cdnWorker;
+  } catch {
+    if (!mapboxgl.workerUrl) mapboxgl.workerUrl = cdnWorker;
   }
 }
 
