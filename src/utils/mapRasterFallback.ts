@@ -40,6 +40,8 @@ export function ensureRasterMapStyles(): void {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
+      /* Leaflet defaults can clip custom HTML markers */
+      overflow: visible !important;
     }
     .swipess-raster-marker-host {
       width: 100%;
@@ -48,12 +50,16 @@ export function ensureRasterMapStyles(): void {
       align-items: flex-end;
       justify-content: center;
       pointer-events: auto;
-      overflow: visible;
+      overflow: visible !important;
     }
-    /* No drop-shadow filters — listing pills + avatars stay flat and readable */
     .swipess-raster-marker .passport-map-marker {
       filter: none !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
     }
+    .leaflet-marker-pane { z-index: 600 !important; }
+    .leaflet-overlay-pane { z-index: 400 !important; }
   `;
   document.head.appendChild(style);
 }

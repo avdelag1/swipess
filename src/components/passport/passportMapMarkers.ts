@@ -53,21 +53,23 @@ export type MarkerVisualScale = 'normal' | 'large';
 
 function listingMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
   const large = scale === 'large';
-  const h = isSelected ? (large ? 34 : 26) : (large ? 30 : 22);
+  const h = isSelected ? (large ? 34 : 28) : (large ? 30 : 24);
   const font = isSelected ? (large ? 12 : 11) : (large ? 11 : 10);
-  // Clean flat pill — no heavy drop-shadows / glow halos that clutter the map
+  // High-contrast pill so listings stay readable on light street tiles
   return `
     display: flex; align-items: center; justify-content: center; gap: 5px;
     height: ${h}px;
     padding: 0 ${large ? 10 : 8}px 0 ${large ? 7 : 5}px; border-radius: ${large ? 16 : 12}px;
-    background: ${isSelected ? '#0F172A' : 'rgba(255,255,255,0.96)'};
+    background: ${isSelected ? '#0F172A' : '#ffffff'};
     color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: ${font}px; font-weight: 700; letter-spacing: 0.01em;
-    border: 1px solid ${isSelected ? '#334155' : 'rgba(15,23,42,0.12)'};
-    box-shadow: 0 1px 3px rgba(15,23,42,0.12);
+    font-size: ${font}px; font-weight: 800; letter-spacing: 0.01em;
+    border: 2px solid ${isSelected ? '#00C6FF' : '#1D4ED8'};
+    box-shadow: 0 2px 6px rgba(15,23,42,0.22);
     cursor: pointer;
     white-space: nowrap;
     filter: none;
+    opacity: 1;
+    visibility: visible;
   `;
 }
 
@@ -118,18 +120,20 @@ export function updateListingMarkerEl(
 
 function profileMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
   const large = scale === 'large';
-  const size = isSelected ? (large ? 48 : 32) : (large ? 40 : 28);
-  const border = large ? 2.5 : 2;
+  const size = isSelected ? (large ? 50 : 34) : (large ? 44 : 30);
+  const border = large ? 3 : 2;
   return `
     width: ${size}px; height: ${size}px; border-radius: 50%;
-    border: ${border}px solid ${isSelected ? '#C7D2FE' : '#fff'};
-    outline: ${isSelected ? 2 : 0}px solid ${isSelected ? '#818CF8' : 'transparent'};
-    background: #111;
-    box-shadow: 0 1px 4px rgba(15,23,42,0.28);
+    border: ${border}px solid ${isSelected ? '#C7D2FE' : '#ffffff'};
+    outline: 2px solid ${isSelected ? '#818CF8' : '#4F46E5'};
+    background: #312E81;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.35);
     overflow: visible; cursor: pointer;
     background-size: cover; background-position: center;
     position: relative;
     filter: none;
+    opacity: 1;
+    visibility: visible;
   `;
 }
 
@@ -260,12 +264,14 @@ export function createClusterMarkerEl(
     font-size: ${count >= 100 ? (large ? 13 : 11) : (large ? 15 : 13)}px;
     font-weight: 900;
     letter-spacing: -0.02em;
-    border: 2px solid rgba(255,255,255,0.95);
-    box-shadow: 0 2px 8px rgba(15,23,42,0.28);
+    border: 3px solid #ffffff;
+    box-shadow: 0 3px 10px rgba(15,23,42,0.4);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     filter: none;
+    opacity: 1;
+    visibility: visible;
   `;
   el.textContent = count > 999 ? '999+' : String(count);
   el.setAttribute('role', 'button');

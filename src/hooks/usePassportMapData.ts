@@ -28,11 +28,11 @@ export interface MapProfilePin {
   lng: number;
   imageUrl?: string;
   distanceKm?: number;
-  /** Active on platform in the last 7 days */
+  /** Active on platform in the last 7 days (device GPS stamp) */
   recentlyActive?: boolean;
 }
 
-/** Live presence window — matches SQL filter on location_updated_at. */
+/** Live presence window for the green "active" badge. */
 const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** ~100m grid — stops GPS jitter from invalidating the query key every watch tick. */
@@ -42,17 +42,16 @@ function roundMapCoord(value: number, decimals = 3) {
 }
 
 /**
- * Tiny deterministic offset only when coords are effectively identical.
- * Real separation is handled by Supercluster (zoom out) + this micro-jitter
- * at max zoom so two pins at the exact same lat/lng aren't a single pixel.
+ * Deterministic scatter so pins at the exact same lat/lng fan out enough
+ * to click when fully zoomed in (Supercluster handles zoomed-out grouping).
+ * ~40–90m ring — visible separation without leaving the neighborhood.
  */
-function applySamePointJitter(lat: number, lng: number, id: string) {
+function applyScatter(lat: number, lng: number, id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = Math.imul(31, hash) + id.charCodeAt(i) | 0;
   }
-  // ~8–18m — only visible when fully zoomed in on stacked points
-  const radiusDeg = 0.00008 + (Math.abs(hash % 100) / 100) * 0.00008;
+  const radiusDeg = 0.00035 + (Math.abs(hash % 100) / 100) * 0.00045;
   const angle = ((Math.abs(hash) % 360) * Math.PI) / 180;
   return {
     lat: lat + Math.sin(angle) * radiusDeg,
@@ -78,6 +77,7 @@ export function usePassportMapData(
     refetchInterval: enabled ? 30_000 : false,
     placeholderData: (prev) => prev,
     queryFn: async () => {
+      // Independent fetches — a profiles error must NOT blank listings
       const [listingsRes, profilesRes] = await Promise.all([
         supabase.rpc('get_passport_map_listings', {
           p_user_lat: searchLat!,
@@ -94,44 +94,57 @@ export function usePassportMapData(
         }),
       ]);
 
-      if (listingsRes.error) throw listingsRes.error;
-      if (profilesRes.error) throw profilesRes.error;
+      if (listingsRes.error) {
+        console.warn('[passport-map] listings RPC failed:', listingsRes.error.message);
+      }
+      if (profilesRes.error) {
+        console.warn('[passport-map] profiles RPC failed:', profilesRes.error.message);
+      }
+
+      // Only hard-fail if BOTH failed (map would be empty anyway)
+      if (listingsRes.error && profilesRes.error) {
+        throw listingsRes.error;
+      }
 
       const listingsRaw = listingsRes.data || [];
       const profilesRaw = profilesRes.data || [];
       const now = Date.now();
 
-      const listings: MapListingPin[] = listingsRaw.map((l) => {
-        const imgs = Array.isArray(l.images) ? l.images : [];
-        const first = imgs[0];
-        const scattered = applySamePointJitter(l.latitude, l.longitude, l.id);
-        return {
-          id: l.id,
-          title: l.title || 'Listing',
-          price: l.price != null ? Number(l.price) : undefined,
-          category: l.category ?? undefined,
-          city: l.city ?? undefined,
-          bedrooms: l.bedrooms ?? undefined,
-          bathrooms: l.bathrooms ?? undefined,
-          lat: scattered.lat,
-          lng: scattered.lng,
-          imageUrl: first ? getCardImageUrl(first) : undefined,
-          distanceKm: l.distance_km,
-        };
-      });
+      const listings: MapListingPin[] = listingsRaw
+        .filter((l) => Number.isFinite(l.latitude) && Number.isFinite(l.longitude))
+        .map((l) => {
+          const imgs = Array.isArray(l.images) ? l.images : [];
+          const first = imgs[0];
+          const scattered = applyScatter(l.latitude, l.longitude, l.id);
+          return {
+            id: l.id,
+            title: l.title || 'Listing',
+            price: l.price != null ? Number(l.price) : undefined,
+            category: l.category ?? undefined,
+            city: l.city ?? undefined,
+            bedrooms: l.bedrooms ?? undefined,
+            bathrooms: l.bathrooms ?? undefined,
+            lat: scattered.lat,
+            lng: scattered.lng,
+            imageUrl: first ? getCardImageUrl(first) : undefined,
+            distanceKm: l.distance_km,
+          };
+        });
 
-      // Server filters to device GPS + 7d after migration. Client defense:
-      // require location_updated_at when present; hide legacy city pins otherwise.
+      // Show every profile the RPC returns that has coordinates.
+      // "Recently active" is only a badge — never a hard hide.
+      // (Server may still filter to device GPS; we never blank listings for that.)
       const profiles: MapProfilePin[] = [];
       for (const p of profilesRaw) {
+        if (!Number.isFinite(p.latitude) || !Number.isFinite(p.longitude)) continue;
+
         const locRaw = (p as { location_updated_at?: string | null }).location_updated_at;
         const locAt = locRaw ? new Date(locRaw).getTime() : 0;
-        // Without a device location stamp, treat as stale city/legacy pin — hide
-        if (!(locAt > 0 && now - locAt < ACTIVE_WINDOW_MS)) continue;
+        const recentlyActive = locAt > 0 && now - locAt < ACTIVE_WINDOW_MS;
 
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
-        const scattered = applySamePointJitter(p.latitude, p.longitude, p.user_id);
+        const scattered = applyScatter(p.latitude, p.longitude, p.user_id);
         profiles.push({
           id: p.user_id,
           name: p.name || 'User',
@@ -143,7 +156,7 @@ export function usePassportMapData(
           lng: scattered.lng,
           imageUrl: first ? getCardImageUrl(first) : undefined,
           distanceKm: p.distance_km,
-          recentlyActive: true,
+          recentlyActive,
         });
       }
 
@@ -151,7 +164,7 @@ export function usePassportMapData(
         listings,
         profiles,
         peopleCount: profiles.length,
-        activePeopleCount: profiles.filter(p => p.recentlyActive).length,
+        activePeopleCount: profiles.filter((p) => p.recentlyActive).length,
       };
     },
   });
