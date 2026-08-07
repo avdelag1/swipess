@@ -216,8 +216,7 @@ export function SubscriptionPackages({
       </div>
 
       <div className={cn(
-        'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-12 items-stretch',
-        showAsPage ? 'overflow-visible' : 'overflow-y-auto no-scrollbar'
+        'flex flex-col sm:flex-row gap-4 px-4 sm:px-6 pb-12 items-stretch overflow-visible'
       )}>
         {plans.map((pkg) => {
           const style = accentStyles[pkg.accent];
@@ -348,8 +347,10 @@ export function SubscriptionPackages({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[95vh] p-0 bg-background border-border overflow-hidden rounded-3xl">
-        {body}
+      <DialogContent className="max-w-4xl max-h-[95dvh] flex flex-col p-0 bg-background border-border overflow-hidden rounded-3xl">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar pb-safe-bottom">
+          {body}
+        </div>
       </DialogContent>
     </Dialog>
   );

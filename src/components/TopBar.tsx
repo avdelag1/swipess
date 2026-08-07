@@ -226,10 +226,10 @@ function TopBarComponent({
             {/* Tokens/Premium */}
             <button
               type="button"
-              onClick={() => { haptics.tap(); navigate('/premium'); }}
+              onClick={() => { haptics.tap(); useModalStore.getState().setModal('showTokensModal', true); }}
               className="flex items-center justify-center h-7 w-7 transition-all group outline-none"
               style={{ WebkitTapHighlightColor: 'transparent' }}
-              aria-label="Premium"
+              aria-label="Tokens"
             >
               <HeaderIconSlot
                 badge={

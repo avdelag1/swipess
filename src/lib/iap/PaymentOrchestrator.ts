@@ -58,7 +58,12 @@ export const PaymentOrchestrator = {
     // We NO LONGER store the plan to blind-grant it on PaymentSuccess (Security Fix)
     // The backend must process the PayPal webhook independently.
 
-    await Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' });
+    try {
+      await Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' });
+    } catch (e) {
+      // Fallback if Capacitor Browser plugin fails or is blocked on web
+      window.open(safePaypalUrl, '_blank');
+    }
     
     // Web flow opened, release the lock in the UI
     options.onError?.('CANCELLED');

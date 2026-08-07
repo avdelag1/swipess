@@ -115,6 +115,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       // conversation already has messages (don't stack empty convos).
       if (now - lastActivity > 600000 && messages.length > 0) createConversation();
       localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
+
+      const initialQuery = localStorage.getItem('swipess_ai_initial_query');
+      if (initialQuery) {
+        localStorage.removeItem('swipess_ai_initial_query');
+        // Give it a tiny delay to ensure the chat UI is mounted before sending
+        setTimeout(() => sendMessage(initialQuery), 100);
+      }
     }, 0);
 
     return () => window.clearTimeout(timer);

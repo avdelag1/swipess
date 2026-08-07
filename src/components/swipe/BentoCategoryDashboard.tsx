@@ -107,7 +107,17 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       }}
     >
       <div className="w-full max-w-3xl mx-auto mb-3 flex flex-col gap-3 items-end">
-        <AISearchBar isLight={isLight} />
+        <AISearchBar 
+          isLight={isLight} 
+          onFilterClick={() => useModalStore.getState().setModal('showAIChat', true)}
+          onSearchSubmit={(query) => {
+            if (query.trim()) {
+              // Store initial query so the chat can pick it up when opened
+              localStorage.setItem('swipess_ai_initial_query', query);
+            }
+            useModalStore.getState().setModal('showAIChat', true);
+          }}
+        />
         <DashboardFilters isLight={isLight} />
       </div>
 
