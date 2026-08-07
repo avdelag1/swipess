@@ -18,6 +18,9 @@ WHERE latitude IS NOT NULL
   AND longitude IS NOT NULL
   AND (location_source IS NULL OR location_source = '');
 
+-- Return type adds location_updated_at — must DROP before recreate (PG 42P13).
+DROP FUNCTION IF EXISTS public.get_passport_map_profiles(double precision, double precision, double precision, integer, uuid);
+
 CREATE OR REPLACE FUNCTION public.get_passport_map_profiles(
   p_user_lat double precision,
   p_user_lon double precision,
