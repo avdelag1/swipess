@@ -19,15 +19,28 @@ applyHardwareTierClasses();
 // 🚀 EMERGENCY RECOVERY: Handle Vite preload / missing chunk failures after deploy.
 // STRICT: at most ONE automatic recovery per tab session. Multiple independent
 // reloaders (lazyRetry + this + SW) used to thrash Chrome into a permanent loop.
+let emergencyRecoveryLocked = false;
+let emergencyMaxLogged = false;
+
 const handleEmergencyRecovery = async (reason: string) => {
+  // Coalesce burst of vite:preloadError events from many missing chunks
+  if (emergencyRecoveryLocked) return;
+
   const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
 
   if (reloadCount >= 1) {
-    console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Stopping reload loop.`);
+    // Log once — not once per missing chunk (was flooding Safari console)
+    if (!emergencyMaxLogged && import.meta.env.DEV) {
+      emergencyMaxLogged = true;
+      console.debug(`[Emergency] Already recovered once this session (${reason}).`);
+    }
     return;
   }
 
-  console.warn(`[Emergency] ${reason} detected. One-time recovery…`);
+  emergencyRecoveryLocked = true;
+  if (import.meta.env.DEV) {
+    console.warn(`[Emergency] ${reason} detected. One-time recovery…`);
+  }
   sessionStorage.setItem('Swipess_emergency_reload_count', '1');
   sessionStorage.setItem('swipess_chunk_reload_once', '1'); // align with lazyWithRetry
 
@@ -47,10 +60,13 @@ const handleEmergencyRecovery = async (reason: string) => {
     u.searchParams.set('v', Date.now().toString());
     window.location.replace(u.toString());
   } catch (err) {
-    console.error('[Emergency] Recovery failed:', err);
+    emergencyRecoveryLocked = false;
+    if (import.meta.env.DEV) console.error('[Emergency] Recovery failed:', err);
   }
 };
 
+// Successful boot after cache-buster → allow future recoveries next session only.
+// (Counter stays for this session so we never thrash.)
 window.addEventListener('vite:preloadError', () => {
   handleEmergencyRecovery('Vite preload error');
 });
@@ -65,15 +81,21 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 
 window.addEventListener('unhandledrejection', (event) => {
   const msg = String(event.reason?.message || event.reason || '');
-  console.error('[Global] Unhandled rejection:', msg);
+  // Local storage / private mode noise
   if (msg.includes('storage.getItem') || msg.includes('localStorage')) {
     event.preventDefault();
+    return;
   }
   // Dynamic import failures sometimes only surface as rejections
   if (
-    /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(msg)
+    /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Unable to preload CSS/i.test(msg)
   ) {
+    event.preventDefault();
     handleEmergencyRecovery('Dynamic import rejection');
+    return;
+  }
+  if (import.meta.env.DEV) {
+    console.error('[Global] Unhandled rejection:', msg);
   }
 });
 
@@ -311,7 +333,7 @@ deferredInit(async () => {
                  newWorker.onstatechange = () => {
                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                          // Content available - handled by useAutomaticUpdates.tsx
-                         console.warn('[SW] New content available');
+                         if (import.meta.env.DEV) console.debug('[SW] New content available');
                      }
                  };
              }
@@ -321,7 +343,7 @@ deferredInit(async () => {
 
       // RELOAD CONTROL - when the new SW takes over, let the hook handle it
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.warn('[SW] Controller changed');
+          if (import.meta.env.DEV) console.debug('[SW] Controller changed');
       });
     }
 

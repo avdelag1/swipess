@@ -1,8 +1,8 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-06-15 - Force Update v14 (Scoped precache: build-time manifest
- *   of critical boot chunks only — no HTML crawl of every /assets/* bundle.
- *   Keeps vendor-maps/heic2any/lazy routes out of install precache.)
+ * UPDATED: 2026-08-07 - Force Update v15
+ *   - Do NOT intercept Supabase REST/Auth (Safari CORS / access-control fixes)
+ *   - Scoped precache of critical boot chunks only
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -231,33 +231,26 @@ self.addEventListener('fetch', (event) => {
   // CRITICAL: Never cache OAuth callback routes — must always hit the network
   if (url.pathname.startsWith('/~oauth')) return;
 
-  // CRITICAL: Never intercept cross-origin requests we don't explicitly
-  // manage (Supabase API/storage, images, fonts). Re-issuing them with
-  // fetch() from SW context subjects them to the SW's connect-src CSP —
-  // e.g. a web worker importing browser-image-compression from
-  // cdn.jsdelivr.net is allowed by the page's script-src but was being
-  // blocked here. Let the browser handle them natively.
-  if (url.origin !== self.location.origin) {
-    const isManagedCrossOrigin =
-      url.hostname.includes('supabase') ||
-      request.destination === 'image' ||
-      request.destination === 'font';
-    if (!isManagedCrossOrigin) return;
+  // CRITICAL: Never intercept Supabase REST/Auth/Realtime from the SW.
+  // Re-fetching credentialed API calls in a SW worker causes Safari
+  // "Fetch API cannot load … due to access control checks" / "Load failed"
+  // and breaks ThemeSync / profile loads. Browser handles CORS natively.
+  // Public storage images may still be cached below for offline photos.
+  if (
+    url.hostname.includes('supabase')
+    && !url.pathname.startsWith('/storage/v1/object/public/')
+  ) {
+    return;
   }
 
-  // Network-first for Supabase API calls (always fetch fresh data).
-  // EXCEPTION: public Storage objects (/storage/v1/object/public/...) are
-  // static images — let them fall through to the image SWR handler below
-  // so they are cached for offline / flaky-network use in the PWA.
-  if (url.hostname.includes('supabase') && !url.pathname.startsWith('/storage/v1/object/public/')) {
-    event.respondWith(
-      fetch(request).catch(async () => {
-        const cached = await caches.match(request);
-        // caches.match returns undefined on miss — must return a real Response
-        return cached ?? new Response('', { status: 503, statusText: 'Service Unavailable' });
-      })
-    );
-    return;
+  // CRITICAL: Never intercept other unmanaged cross-origin requests.
+  // Re-issuing them with fetch() from SW subjects them to worker CSP.
+  if (url.origin !== self.location.origin) {
+    const isManagedCrossOrigin =
+      (url.hostname.includes('supabase') && url.pathname.startsWith('/storage/v1/object/public/'))
+      || request.destination === 'image'
+      || request.destination === 'font';
+    if (!isManagedCrossOrigin) return;
   }
 
   // NETWORK-FIRST for HTML navigation requests (index.html)
