@@ -143,25 +143,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         });
         if (insertErr) throw insertErr;
 
-        // Create an admin review case for this verification document
-        const publicUrlData = supabase.storage.from('legal-documents').getPublicUrl(path);
-        await supabase.from('legal_cases').insert({
-          case_number: `VER-${Date.now().toString().slice(-6)}`,
-          title: `Resident Verification: ${docType}`,
-          description: `User uploaded a new document (${file.name}) for resident verification.`,
-          case_type: 'compliance',
-          status: 'open',
-          priority: 'medium',
-          parties_involved: { client_id: user.id },
-          documents: [
-            { name: file.name, url: publicUrlData.data.publicUrl, type: docType }
-          ]
-        });
-
-        // Grant verified badge immediately on document upload
-        await supabase.from('profiles').update({ verified: true }).eq('user_id', user.id);
-
-        appToast.success('Document uploaded — Verified badge granted!');
+        appToast.success('Document uploaded. Verification is pending review.');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
         queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
         queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
