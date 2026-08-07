@@ -39,8 +39,14 @@ export function useUnreadMessageCount() {
 
         const uniqueConversations = new Set(unreadRows?.map(m => m.conversation_id));
         return Math.min(uniqueConversations.size, 99);
-      } catch (error) {
-        logger.error('[UnreadCount] Error:', error);
+      } catch (error: any) {
+        // Network blips ("Load failed" / offline) are common on Safari — don't spam red errors
+        const msg = String(error?.message || error || '');
+        if (/Load failed|Failed to fetch|NetworkError|abort/i.test(msg)) {
+          logger.debug('[UnreadCount] network skip:', msg);
+        } else {
+          logger.warn('[UnreadCount] Error:', error);
+        }
         return 0;
       }
     },

@@ -75,7 +75,6 @@ export const SwipessPrewarmer = () => {
       const domains = [
         'https://supabase.co',
         'https://images.unsplash.com',
-        'https://v5.airtableavatars.com',
         'https://api.dicebear.com',
         'https://api.mapbox.com',
         'https://events.mapbox.com',

@@ -117,6 +117,9 @@ export const PassportMapModal = memo(() => {
   const geocoderRef = useRef<{ onRemove: () => void } | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initStartedRef = useRef(false);
+  /** Cap recovery re-inits — unlimited retries leaked WebGL contexts until Safari crashed. */
+  const mapInitAttemptsRef = useRef(0);
+  const mapFallbackDoneRef = useRef(false);
   const mapOpenSessionRef = useRef(0);
   const framedOpenSessionRef = useRef(0);
   // Map init runs once and must survive isOpen toggles — see init effect below.
@@ -583,13 +586,30 @@ export const PassportMapModal = memo(() => {
 
     let deferHandle: ReturnType<typeof setTimeout> | null = null;
 
+    const destroyMapInstance = (map?: import('mapbox-gl').Map | null) => {
+      try {
+        const m = map ?? mapRef.current;
+        if (m) m.remove();
+      } catch { /* already removed */ }
+      mapRef.current = null;
+      mapboxRef.current = null;
+    };
+
     const beginInit = () => {
       // Never create WebGL while closed — host is visibility:hidden.
       if (!useModalStore.getState().showPassportMapModal) return;
       if (mapUnmountedRef.current || initStartedRef.current || mapRef.current || !mapContainerRef.current) return;
+      // Hard stop after 2 attempts (initial + one legacy fallback) — prevents
+      // "too many active WebGL contexts" death spiral in Safari.
+      if (mapInitAttemptsRef.current >= 2) {
+        setMapError('Map could not start on this device. Close and try again, or use Chrome.');
+        setMapLoading(false);
+        return;
+      }
       // Synchronous lock: a pending defer-timer and the open-kick effect must
       // never both create a Mapbox instance. Reset on any early-out below.
       initStartedRef.current = true;
+      mapInitAttemptsRef.current += 1;
       setMapLoading(true);
       setMapError(null);
 
@@ -620,6 +640,9 @@ export const PassportMapModal = memo(() => {
       const initialZoom = CINEMATIC_OPEN_ALTITUDE_ZOOM;
 
       try {
+        // Always tear down any orphan map before allocating a new WebGL context
+        destroyMapInstance();
+
         const { mapboxgl } = await warmMapboxModules();
         if (mapUnmountedRef.current || !mapContainerRef.current || !useModalStore.getState().showPassportMapModal) {
           initStartedRef.current = false;
@@ -631,7 +654,10 @@ export const PassportMapModal = memo(() => {
         const rect = mapContainerRef.current.getBoundingClientRect();
         if (rect.width < 8 || rect.height < 8) {
           initStartedRef.current = false;
-          deferHandle = setTimeout(beginInit, 80);
+          mapInitAttemptsRef.current = Math.max(0, mapInitAttemptsRef.current - 1);
+          if (mapInitAttemptsRef.current < 2) {
+            deferHandle = setTimeout(beginInit, 120);
+          }
           return;
         }
 
@@ -692,21 +718,23 @@ export const PassportMapModal = memo(() => {
         canvas.setAttribute('data-map-canvas', '');
         canvas.style.touchAction = 'none';
 
-        // Recover once if WebGL context is lost (common on old iOS after memory pressure)
-        let contextLossHandled = false;
+        // Recover at most once → legacy GL. Never loop (context spam).
         canvas.addEventListener('webglcontextlost', (ev) => {
           ev.preventDefault();
-          if (contextLossHandled || mapUnmountedRef.current) return;
-          contextLossHandled = true;
-          console.warn('[PassportMap] WebGL context lost — re-init with legacy GL');
-          try { map.remove(); } catch { /* empty */ }
-          mapRef.current = null;
-          mapboxRef.current = null;
+          if (mapUnmountedRef.current || mapFallbackDoneRef.current) return;
+          mapFallbackDoneRef.current = true;
+          console.warn('[PassportMap] WebGL context lost — one legacy re-init only');
+          destroyMapInstance(map);
           initStartedRef.current = false;
           setMapReady(false);
           forceLegacyMapProfile();
           resetWarmMapboxModules();
-          deferHandle = setTimeout(() => beginInitRef.current?.(), 300);
+          if (mapInitAttemptsRef.current < 2) {
+            deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
+          } else {
+            setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
+            setMapLoading(false);
+          }
         }, { once: true });
 
         map.on('load', () => {
@@ -751,16 +779,24 @@ export const PassportMapModal = memo(() => {
             }
           }
           // UBO / WebGL failures → one automatic downgrade to Mapbox v2 (WebGL1)
-          if (/UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message) && !profile.useLegacyGl) {
-            console.warn('[PassportMap] WebGL error, falling back to legacy GL:', message);
-            try { map.remove(); } catch { /* empty */ }
-            mapRef.current = null;
-            mapboxRef.current = null;
+          if (
+            /UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message)
+            && !profile.useLegacyGl
+            && !mapFallbackDoneRef.current
+          ) {
+            mapFallbackDoneRef.current = true;
+            console.warn('[PassportMap] WebGL error, one legacy fallback:', message);
+            destroyMapInstance(map);
             initStartedRef.current = false;
             setMapReady(false);
             forceLegacyMapProfile();
             resetWarmMapboxModules();
-            deferHandle = setTimeout(() => beginInitRef.current?.(), 200);
+            if (mapInitAttemptsRef.current < 2) {
+              deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
+            } else {
+              setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
+              setMapLoading(false);
+            }
           }
         });
 
@@ -802,7 +838,10 @@ export const PassportMapModal = memo(() => {
         map.scrollZoom.enable();
         map.dragPan.enable();
         map.touchZoomRotate.enable();
-        map.touchPitch.enable();
+        // Do NOT re-enable touchPitch on weak/legacy profiles (was undoing flat mode)
+        if (profile.enablePitchRotate) {
+          try { map.touchPitch.enable(); } catch { /* empty */ }
+        }
 
         map.on('click', () => {
           if (!useModalStore.getState().showPassportMapModal) return;
@@ -850,23 +889,9 @@ export const PassportMapModal = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizeMap]);
 
-  // Open kick: primary path — user opened the map (or component mounted open).
+  // Open kick: single init attempt path (no multi-timer spam).
   useEffect(() => {
     if (!isOpen) return;
-
-    // Retry path if a previous attempt failed mid-flight
-    if (!mapRef.current && !initStartedRef.current) {
-      const t = window.setTimeout(() => beginInitRef.current?.(), 0);
-      // Second chance for slow container layout / token resolve
-      const t2 = window.setTimeout(() => {
-        if (!mapRef.current && !initStartedRef.current) beginInitRef.current?.();
-        else if (mapRef.current) resizeMap();
-      }, 400);
-      return () => {
-        window.clearTimeout(t);
-        window.clearTimeout(t2);
-      };
-    }
 
     if (mapRef.current) {
       const t1 = window.setTimeout(() => resizeMap(), 40);
@@ -875,6 +900,11 @@ export const PassportMapModal = memo(() => {
         window.clearTimeout(t1);
         window.clearTimeout(t2);
       };
+    }
+
+    if (!initStartedRef.current && mapInitAttemptsRef.current < 2) {
+      const t = window.setTimeout(() => beginInitRef.current?.(), 0);
+      return () => window.clearTimeout(t);
     }
     return undefined;
   }, [isOpen, resizeMap]);

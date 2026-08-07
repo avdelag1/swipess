@@ -64,33 +64,42 @@ function probeWebGL(): { hasWebGL2: boolean; maxUniformBlockSize: number; render
   if (typeof document === 'undefined') {
     return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: '' };
   }
+  // Never leave a live context behind — browsers cap ~8–16 WebGL contexts.
+  let gl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
   try {
     const canvas = document.createElement('canvas');
-    const gl2 = canvas.getContext('webgl2', {
+    canvas.width = 1;
+    canvas.height = 1;
+    gl = canvas.getContext('webgl2', {
       failIfMajorPerformanceCaveat: false,
       powerPreference: 'default',
+      antialias: false,
+      depth: false,
+      stencil: false,
     }) as WebGL2RenderingContext | null;
 
-    if (gl2) {
+    if (gl && 'MAX_UNIFORM_BLOCK_SIZE' in gl) {
+      const gl2 = gl as WebGL2RenderingContext;
       const maxUbo = Number(gl2.getParameter(gl2.MAX_UNIFORM_BLOCK_SIZE)) || 0;
       const dbg = gl2.getExtension('WEBGL_debug_renderer_info');
       const renderer = dbg
         ? String(gl2.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '')
         : String(gl2.getParameter(gl2.RENDERER) || '');
-      // Drop context so we don't hold a GPU handle
-      const lose = gl2.getExtension('WEBGL_lose_context');
-      lose?.loseContext();
       return { hasWebGL2: true, maxUniformBlockSize: maxUbo, renderer };
     }
 
-    const gl1 = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (gl1) {
-      const lose = (gl1 as WebGLRenderingContext).getExtension('WEBGL_lose_context');
-      lose?.loseContext();
+    gl = (canvas.getContext('webgl', { antialias: false, depth: false })
+      || canvas.getContext('experimental-webgl', { antialias: false, depth: false })) as WebGLRenderingContext | null;
+    if (gl) {
       return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: 'webgl1' };
     }
   } catch {
     /* empty */
+  } finally {
+    try {
+      const lose = gl?.getExtension?.('WEBGL_lose_context') as { loseContext: () => void } | null;
+      lose?.loseContext();
+    } catch { /* context already lost */ }
   }
   return { hasWebGL2: false, maxUniformBlockSize: 0, renderer: '' };
 }
