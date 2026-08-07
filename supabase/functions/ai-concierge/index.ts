@@ -39,6 +39,80 @@ interface ChatMessage {
   content: string;
 }
 
+// ─── Context hygiene (never feed HTML page source into the model) ───────────
+
+function looksLikeHtmlDocument(s: string): boolean {
+  if (!s) return false;
+  const head = s.slice(0, 2000);
+  return (
+    /<!DOCTYPE\s+html/i.test(head)
+    || /<html[\s>]/i.test(head)
+    || (/<head[\s>]/i.test(head) && /<(script|meta|link|style)[\s>]/i.test(head))
+    || (head.match(/<(div|span|section|body)\b/gi) || []).length > 12
+  );
+}
+
+function stripHtmlToText(s: string): string {
+  return s
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#\d+;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Sanitize RAG / web / memory text before it reaches the system prompt. */
+function sanitizeContextBlock(raw: string, maxLen = 900): string {
+  if (!raw || typeof raw !== "string") return "";
+  let s = raw.trim();
+  if (!s) return "";
+
+  if (looksLikeHtmlDocument(s)) {
+    s = stripHtmlToText(s);
+    // Pure page chrome after strip → drop entirely (this is what caused HTML dumps)
+    if (
+      s.length < 48
+      || /preconnect|font-face|viewport|charset=|application\/ld\+json|googletagmanager|webpack|__NEXT_DATA__/i.test(s)
+    ) {
+      return "";
+    }
+  } else if (/[<>]/.test(s)) {
+    s = stripHtmlToText(s);
+  }
+
+  if (s.length > maxLen) s = s.slice(0, maxLen).trimEnd() + "…";
+  return s;
+}
+
+function sanitizeChatHistory(messages: ChatMessage[]): ChatMessage[] {
+  return messages.map((m) => {
+    if (m.role === "system") return m;
+    const clean = sanitizeContextBlock(m.content, m.role === "user" ? 2000 : 2500);
+    if (!clean) {
+      return {
+        ...m,
+        content: m.role === "assistant"
+          ? "(previous reply omitted — it was technical noise)"
+          : m.content.slice(0, 500),
+      };
+    }
+    // Never re-inject prior assistant HTML dumps into context
+    if (m.role === "assistant" && looksLikeHtmlDocument(m.content)) {
+      return { ...m, content: "(previous reply omitted — invalid HTML dump)" };
+    }
+    return { ...m, content: clean || m.content };
+  });
+}
+
 // ─── Knowledge Search ───────────────────────────────────────────────────────
 
 async function searchKnowledge(query: string): Promise<string> {
@@ -84,15 +158,19 @@ async function searchKnowledge(query: string): Promise<string> {
       return { ...entry, score };
     }).sort((a, b) => b.score - a.score).slice(0, 8);
 
-    return scored.map(e => {
-      let entry = `**${e.title}** (${e.category})`;
+    const blocks = scored.map(e => {
+      const body = sanitizeContextBlock(e.content || "", 700);
+      if (!body && !e.phone && !e.website_url) return "";
+      let entry = `**${sanitizeContextBlock(e.title || "Note", 120)}** (${e.category || "local"})`;
       if (e.language && e.language !== 'en') entry += ` [${e.language}]`;
-      entry += `\n${e.content}`;
-      if (e.website_url) entry += `\nWebsite: ${e.website_url}`;
+      if (body) entry += `\n${body}`;
+      if (e.website_url && !looksLikeHtmlDocument(e.website_url)) entry += `\nWebsite: ${e.website_url}`;
       if (e.google_maps_url) entry += `\nMap: ${e.google_maps_url}`;
       if (e.phone) entry += `\nPhone/WhatsApp: ${e.phone}`;
       return entry;
-    }).join("\n\n---\n\n");
+    }).filter(Boolean);
+
+    return blocks.join("\n\n---\n\n");
   } catch (e) {
     console.error("[AI] Knowledge search error:", e);
     return "";
@@ -313,22 +391,29 @@ async function searchProfiles(query: string): Promise<string> {
 function detectListingIntent(query: string): { isListing: boolean; category?: string; categories?: string[]; maxPrice?: number; bedrooms?: number[]; locations?: string[]; userId?: string } {
   const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // strip accents for fuzzy matching
 
-  // If they explicitly asked for people, workers, buyers, renters, etc... they want PROFILES, not listings.
-  const isExplicitPeople = /\b(people|someone|anyone|who|person|roommate|roomies?|friend|buddy|partner|amig[oa]s?|gente|personas?|alguien|trabajador(?:es|as)?|emplead[oa]s?|profesional|professional|contractor|contratista|buyer|buyers|renter|renters|seeker|seekers|worker|workers)\b/.test(q);
+  // Pure social/people discovery (not hiring a service worker)
+  const isExplicitPeople = /\b(roommate|roomies?|friend|buddy|date|dating|match(?:es)?|who liked|amig[oa]s?|gente para salir|conocer gente)\b/.test(q)
+    && !/\b(driver|chauffeur|cleaner|maid|chef|cook|nanny|plumber|electrician|handyman|worker|chofer|limpieza|jardinero)\b/.test(q);
 
-  // Massive catch-all: detect if the user wants to FIND any type of listing, item, service, or person.
-  // This covers English, Spanish, French, Portuguese, misspellings, and slang.
-  const isListing = !isExplicitPeople && /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|consigo|consigue|necesit|quisiera|me gustaria|alguna|algun|tiene|tienen|listin|listings|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|vendo|vende|compro|compra|oferta|servicio|servicios|trabajador|trabajadores|limpieza|limpiador|mantenimiento|jardinero|cocinero|chofer|niñera|cuidado|ayuda|empleada|empleado|house|apartment|room|studio|villa|condo|penthouse|duplex|loft|townhouse|bungalow|cabin|casa|departamento|cuarto|habitacion|piso|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|ciclista|ciclismo|bici|bicicleta|yacht|yachts|boat|boats|sailboat|catamaran|yate|yates|barco|velero|worker|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|driver|nanny|babysitter|tutor|masseuse|masseur|trainer|instructor|contractor|mechanic|painter|carpenter|welder|technician|repair|fix|instal|instalador|plomero|electricista|jardinero|cocinero|chofer|niñera|profesor|maestro|entrenador|mecanico|pintor|carpintero|soldador|tecnico)\b/.test(q);
+  // Natural language "I need / looking for / find me …"
+  const wantsSomething = /\b(find|search|looking|look for|show|browse|need|want|get me|hire|book|recommend|disponible|quiero|busco|necesito|contratar|dame|encuentra|consig|me gustaria|i'm looking|im looking|looking for a|looking for an)\b/.test(q);
+
+  // Catalog nouns across verticals (property / vehicle / yacht / service)
+  const hasCatalogNoun = /\b(house|home|apartment|flat|room|studio|villa|condo|penthouse|property|casa|depa|departamento|habitacion|chalet|motorcycle|motorbike|moto|scooter|bicycle|bike|bici|yacht|boat|sailboat|catamaran|yate|barco|chauffeur|limo|limousine|private driver|driver|cleaner|maid|plumber|electrician|handyman|gardener|cook|chef|nanny|babysitter|tutor|trainer|contractor|mechanic|worker|service|servicio|chofer|limpieza|plomero|electricista|niñera|trabajador)\b/.test(q);
+
+  const isListing = !isExplicitPeople && (wantsSomething || hasCatalogNoun) && (
+    hasCatalogNoun
+    || /(?:^|\s)(?:find|search|looking|show|browse|pull|give|send|share|preview|open|recommend|available|need|want|quiero|busco|necesito|hay|tienes|mostrar|ver|dame|enseña|recomienda|encuentr|consigu|listings?|listado|property|properties|propiedad|propiedades|renta|rento|alquilo|alquiler|house|apartment|room|studio|villa|condo|motorcycle|motorbike|moto|bicycle|bike|yacht|boat|worker|cleaner|maid|driver|chauffeur|chef|nanny)\b/.test(q)
+  );
 
   // Category detection — values must match listings.category in the DB:
   // 'property' | 'motorcycle' | 'bicycle' | 'yacht' | 'worker'.
-  // Motorcycle is tested BEFORE bicycle so "motorbike" never lands in bicycle.
   const matched: string[] = [];
   if (/(?:^|\s)(?:motorcycles?|motorbikes?|motos?|scooters?|vespas?|motonetas?|motocicletas?)\b/.test(q)) matched.push("motorcycle");
   if (!matched.includes("motorcycle") && /(?:^|\s)(?:bicycles?|bikes?|bicis?|bicicletas?|ciclismo|cycling)\b/.test(q)) matched.push("bicycle");
   if (/(?:^|\s)(?:yachts?|boats?|sailboats?|motorboats?|catamarans?|gulets?|yates?|barcos?|veleros?|lanchas?)\b/.test(q)) matched.push("yacht");
-  if (/(?:^|\s)(?:houses?|apartments?|rooms?|studios?|villas?|condos?|penthouses?|duplex|lofts?|townhouses?|bungalows?|cabins?|casas?|departamentos?|depa|cuartos?|habitacion|habitaciones|pisos?|chalets?|propert(?:y|ies)|propiedad(?:es)?)\b/.test(q)) matched.push("property");
-  if (/(?:^|\s)(?:workers?|cleaners?|maids?|plumbers?|electricians?|handym[ae]n|gardeners?|cooks?|chefs?|drivers?|nann(?:y|ies)|babysitters?|tutors?|trainers?|contractors?|mechanics?|painters?|carpenters?|welders?|technicians?|trabajador(?:es)?|limpieza|limpiador(?:es)?|plomeros?|electricistas?|jardineros?|cocineros?|chofer(?:es)?|niñeras?|mecanicos?|pintores?|carpinteros?|soldadores?|tecnicos?|emplead[oa]s?)\b/.test(q)) matched.push("worker");
+  if (/(?:^|\s)(?:houses?|homes?|apartments?|flats?|rooms?|studios?|villas?|condos?|penthouses?|duplex|lofts?|townhouses?|bungalows?|cabins?|casas?|departamentos?|depa|cuartos?|habitacion|habitaciones|pisos?|chalets?|propert(?:y|ies)|propiedad(?:es)?)\b/.test(q)) matched.push("property");
+  if (/(?:^|\s)(?:workers?|cleaners?|maids?|plumbers?|electricians?|handym[ae]n|gardeners?|cooks?|chefs?|drivers?|chauffeurs?|limos?|limousines?|private drivers?|nann(?:y|ies)|babysitters?|tutors?|trainers?|contractors?|mechanics?|painters?|carpenters?|welders?|technicians?|trabajador(?:es)?|limpieza|limpiador(?:es)?|plomeros?|electricistas?|jardineros?|cocineros?|chofer(?:es)?|niñeras?|mecanicos?|pintores?|carpinteros?|soldadores?|tecnicos?|emplead[oa]s?)\b/.test(q)) matched.push("worker");
 
   // Only lock the search to a category when the request is unambiguous.
   const category = matched.length === 1 ? matched[0] : undefined;
@@ -511,11 +596,21 @@ async function loadUserMemories(userId: string): Promise<string> {
       .select("category, title, content")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
-      .limit(20);
+      .limit(30);
     
     if (error || !data || data.length === 0) return "";
-    
-    return data.map(m => `[${m.category}] ${m.title}: ${m.content}`).join("\n");
+
+    const lines = data
+      .map((m) => {
+        const content = sanitizeContextBlock(String(m.content || ""), 200);
+        const title = sanitizeContextBlock(String(m.title || ""), 80);
+        if (!content || !title) return "";
+        return `- (${m.category || "preference"}) ${title}: ${content}`;
+      })
+      .filter(Boolean);
+
+    if (lines.length === 0) return "";
+    return `Long-term facts about this user (use to personalize; never invent beyond this):\n${lines.join("\n")}`;
   } catch (e) {
     console.error("[AI] Memory load error:", e);
     return "";
@@ -524,17 +619,21 @@ async function loadUserMemories(userId: string): Promise<string> {
 
 async function extractAndSaveMemories(userId: string, userMessage: string, assistantReply: string): Promise<void> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !GEMINI_API_KEY) return;
+  // Never mine HTML dumps for "preferences"
+  if (looksLikeHtmlDocument(assistantReply) || looksLikeHtmlDocument(userMessage)) return;
+  const safeUser = sanitizeContextBlock(userMessage, 800);
+  const safeAssistant = sanitizeContextBlock(assistantReply, 800);
+  if (!safeUser || !safeAssistant) return;
   try {
-    const extractionPrompt = `Extract factual preferences from this conversation. Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference), title (short key), content (the value/fact).
+    const extractionPrompt = `Extract durable user preferences/facts for a marketplace concierge (properties, vehicles, yachts, services). Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference|intent|language), title (short snake_case key), content (the value/fact).
 
-User said: "${userMessage}"
-Assistant replied: "${assistantReply}"
+User said: "${safeUser.replace(/"/g, "'")}"
+Assistant replied: "${safeAssistant.replace(/"/g, "'").slice(0, 400)}"
 
-If no new facts, return []. Examples of facts:
-- {category:"budget", title:"max_rent", content:"$1500 USD/month"}
-- {category:"lifestyle", title:"has_pet", content:"dog"}
-- {category:"location", title:"preferred_area", content:"Aldea Zama"}
-- {category:"timeline", title:"move_date", content:"July 2026"}
+If no new facts, return []. Examples:
+- {"category":"budget","title":"max_rent","content":"$1500 USD/month"}
+- {"category":"intent","title":"seeking","content":"chauffeur / private driver"}
+- {"category":"location","title":"preferred_area","content":"Aldea Zama"}
 
 Return ONLY the JSON array, no markdown:`;
 
@@ -561,17 +660,21 @@ Return ONLY the JSON array, no markdown:`;
     if (!Array.isArray(memories) || memories.length === 0) return;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
-    const validMemories = memories.slice(0, 5).filter((m: any) => m.title && m.content);
+    const validMemories = memories
+      .slice(0, 6)
+      .filter((m: any) => m.title && m.content)
+      .map((m: any) => ({
+        user_id: userId,
+        category: String(m.category || "preference").slice(0, 40),
+        title: sanitizeContextBlock(String(m.title), 80) || "note",
+        content: sanitizeContextBlock(String(m.content), 300),
+        source: "ai_extraction",
+        updated_at: new Date().toISOString(),
+      }))
+      .filter((m: any) => m.content && m.title && !looksLikeHtmlDocument(m.content));
     if (validMemories.length > 0) {
       await supabase.from("user_memories").upsert(
-        validMemories.map((m: any) => ({
-          user_id: userId,
-          category: m.category || "preference",
-          title: m.title,
-          content: m.content,
-          source: "ai_extraction",
-          updated_at: new Date().toISOString(),
-        })),
+        validMemories,
         { onConflict: "user_id,title", ignoreDuplicates: false }
       );
     }
@@ -593,13 +696,23 @@ async function searchWeb(query: string): Promise<string> {
         query: `${query} Tulum Mexico`,
         max_results: 3,
         search_depth: "basic",
+        include_raw_content: false,
       }),
     });
     if (!res.ok) return "";
     const data = await res.json();
     if (!data.results || data.results.length === 0) return "";
-    
-    return data.results.map((r: any) => `**${r.title}**\n${r.content?.slice(0, 200)}\nSource: ${r.url}`).join("\n\n");
+
+    return data.results
+      .map((r: any) => {
+        const title = sanitizeContextBlock(String(r.title || "Source"), 120);
+        const content = sanitizeContextBlock(String(r.content || r.snippet || ""), 280);
+        if (!title || !content) return "";
+        const url = typeof r.url === "string" && /^https?:\/\//i.test(r.url) ? r.url : "";
+        return `**${title}**\n${content}${url ? `\nSource: ${url}` : ""}`;
+      })
+      .filter(Boolean)
+      .join("\n\n");
   } catch {
     return "";
   }
@@ -1082,12 +1195,28 @@ function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string
   } else if (opts.character === "ezriyah") {
     prompt = buildEzriyahPrompt(opts.flowLevel ?? 6);
   } else {
-    prompt = `You are Swipess AI — the ultimate Tulum hero concierge inside the Swipess app. Cool, direct, laid-back surfer-businessman vibe with 15+ years here. You're the trusted local legend who always thinks one step ahead and surprises users with perfect, unexpected solutions. Speak short, chill, actionable sentences. Mix casual English/Spanish naturally. Never lecture, never fluff.
+    prompt = `You are Swipess AI — elite multi-vertical marketplace concierge (properties, vehicles, yachts, services) inside the Swipess app. Cool, direct, local-expert vibe. Short, clear, actionable replies. Match the user's language. Never lecture, never fluff.
 
-CORE HERO STYLE:
-- Read the full conversation history and user's little details to anticipate needs. Propose smart next steps before they ask ("You mentioned wanting a beach villa under $400k with rental income… I already filtered 3 in Aldea Zama that fit — want me to pull the listings?").
-- Make every reply feel like "damn, I didn't expect that" — forward-thinking, personal, and exactly what they need right now.
-- Always tie back to Swipess: open filters, show listings, generate WhatsApp contacts, jump to legal section, create matches.
+## ABSOLUTE OUTPUT BAN (NEVER VIOLATE — HIGHEST PRIORITY):
+- NEVER output HTML, page source, DOCTYPE, <html>, <head>, <script>, <meta>, CSS, font preconnects, webpack bundles, or any website markup.
+- NEVER paste raw code dumps, JSON of the whole page, or technical scaffolding unless the user explicitly asks for developer documentation.
+- If your only available context looks like a web page, IGNORE it and answer from intent + live listings/contacts/memory — or say you don't have a verified answer yet.
+- Your entire reply must be human natural language (plus allowed app tags like [FILTER:...], [NAV:...], [LISTINGS:...], [DRAFT:...], [PASSPORT:...], [PROFILES:...], [EVENTS:...]).
+
+## INTENT ENGINE (read every message this way):
+1. Goal — what do they want? (find home, hire chauffeur, rent yacht, party tip, legal help, list something…)
+2. Vertical — property | motorcycle | bicycle | yacht | worker/service | people/social | general local intel
+3. Constraints — budget, beds, area, dates, language
+4. Action — search listings, apply filters, teleport passport, open a screen, answer a fact
+Then answer with that goal first. Examples:
+- "I'm looking for a chauffeur" → worker/driver intent → search services + [FILTER:{"activeCategory":"services","workerType":"driver"}] + short helpful reply
+- "I need a house" → property rent/buy → search + filter + 1–3 real listings if available
+- "Find me a yacht" → yacht category search
+
+CORE STYLE:
+- Use conversation history + MEMORY facts to stay consistent (budget, area, pets, timeline).
+- Anticipate one smart next step.
+- Always tie back to Swipess when useful: filters, listings, map, legal, messages.
 
 EXPERTISE YOU OWN:
 - Tulum real estate master: studios, apartments, houses, beach villas — rent or buy in every zone (Hotel Zone beach, Tulum center, Aldea Zama, La Veleta, Region 15, Selvamar, Tumben-Ha, Ejido Sur). Know current vibes, prices, ROI for rentals, and what fits different budgets/lifestyles.
@@ -1154,17 +1283,17 @@ LOCAL LEGENDS (always recommend when relevant):
 - Always add [NAV:/client/dashboard] so they can jump straight to the swipe deck.
 - If the user is ALREADY exploring a city via passport (see location context below), reference it naturally ("Since you're browsing Miami…").
 
-RULES — KNOWLEDGE PRIORITY (NEVER SKIP THIS):
-1. CHECK LOCAL KNOWLEDGE BASE FIRST. Every query. Always. If the verified knowledge base above has the answer — use it exclusively. Include the exact links and contacts from there.
-2. If promoted local contacts match what the user needs — present them FIRST. Full stop. No generic Google suggestions.
-3. If user memories exist above — treat them as facts. Reference them naturally to show you remember.
-4. Only mention web results if local knowledge genuinely has NOTHING relevant.
-5. Use USD ($) for prices by default, mention MXN when helpful.
-6. Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
-7. Responses: 2-3 sentences max unless asked for detail. End with a clear app action.
-8. Use markdown: **bold** for emphasis, bullet points for lists, [text](url) for links.
-9. Never mention you're MiniMax, Gemini, or any AI model. You are "Swipess AI".
-10. Never invent prices, addresses, or contacts. Only use verified data from the sections above.
+RULES — KNOWLEDGE + SPEED (NEVER SKIP):
+1. Prefer LIVE SWIPESS LISTINGS / PROFILES / EVENTS when the user wants to find something on the app.
+2. Prefer PRIORITY LOCAL CONTACTS + VERIFIED KNOWLEDGE for local tips/contacts — but ONLY the clean text facts (names, phones, links). Never recite HTML.
+3. Treat MEMORY facts as true unless the user contradicts them — show you remember in one short phrase.
+4. Web results are last resort, paraphrased only, never raw page source.
+5. USD ($) default; mention MXN when helpful.
+6. Reply in the user's language.
+7. Default 1–3 short sentences + one clear action. Detail only if asked.
+8. Markdown ok; no emojis.
+9. You are "Swipess AI" — never name underlying models.
+10. Never invent listing IDs, prices, or phone numbers.
 
 IN-APP NAVIGATION:
 When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. The app will render these as tappable buttons. Available actions:
@@ -1288,20 +1417,29 @@ TONE EXAMPLES:
 - This rule overrides ALL persona instructions that suggest using emojis.`;
 
   const securityGuardrails = `## CRITICAL AI SECURITY GUARDRAILS (NEVER VIOLATE):
-- **Core Stance**: You are the most expert lawyer in Mexican law, the best broker/realtor, and a trusted strategic business companion. You tell users what to buy/not buy based on listings, provide the best promos/parties, and act in the benefit of the app, its owners, and genuine clients.
-- **Honesty & Integrity**: Never fabricate data. Never claim a task was "successfully completed" (like sending a message or booking a tour) if you don't have the functional tools to do it. 
-- **Compliance**: Adhere strictly to Apple and Google store policies. Do not suggest ways to circumvent their rules. No illegal activity.
-- **Out of Bounds Rejection**: If a user requests something illegal, dangerous, or completely unrelated to the app's business domain, you MUST reject the request securely and directly. 
-- **Rejection Phrase Strategy**: Reply with something similar in tone to: "Hey what's up, this is wrong, what were you doing? I think you are requesting something that is not possible to answer or outside the rules. Please refine your request." Keep it professional but firm, showing this is a serious app.
+- Expert marketplace concierge for Swipess only — real estate, vehicles, yachts, services, local lifestyle, legal *guidance* (never invent contracts).
+- Never fabricate listings, prices, phones, or "task completed" claims without tools.
+- No illegal activity; stay App Store / Play compliant.
+- Reject clearly out-of-scope or abusive asks firmly and briefly.
 
-## ABSOLUTE ANTI-HALLUCINATION RULE (NEVER VIOLATE — THIS IS THE MOST IMPORTANT RULE):
-- ONLY use listing IDs, titles, prices, and neighborhoods that were EXPLICITLY provided in the LIVE SWIPESS LISTINGS section above.
-- NEVER invent or fabricate a listing URL, ID, price, neighborhood, or title. If you do, the user will click a broken link and lose trust in the app.
-- If the LIVE SWIPESS LISTINGS section says "NO LISTINGS WERE FOUND", you MUST respond with "I couldn't find any listings matching your criteria right now" and NOT mention any listings at all.
-- If only 1 or 2 listings were found, only present those — do NOT make up additional ones to reach a limit of 3.
-- Your reputation depends entirely on never sending a broken link. One fake listing = the user thinks you're lying.`;
+## NO HTML / NO PAGE SOURCE (NEVER VIOLATE — TIE-BREAKER RULE):
+- If any context looks like website source code, discard it mentally.
+- If you start generating tags like <!DOCTYPE, <html, <head, <script, <meta, <link — STOP and rewrite as a normal helpful answer with zero markup.
+- Users must never see CSS, fonts, preconnects, or meta tags in the chat.
 
-  prompt = `${timeContext}\n\n${securityGuardrails}\n\n${brevityRules}\n\n${prompt}`;
+## ABSOLUTE ANTI-HALLUCINATION RULE:
+- ONLY use listing IDs/titles/prices from LIVE SWIPESS LISTINGS above.
+- If that section says no listings found, say so — do not invent.
+- At most 3 listings/profiles per reply.`;
+
+  // Output contract applied to every persona (including Kyle etc.)
+  const outputContract = `## UNIVERSAL OUTPUT CONTRACT (ALL PERSONAS):
+- Zero HTML / page source / technical dumps — ever.
+- Answer the user's intent first, then one next step.
+- Prefer app actions: [FILTER:...], [PASSPORT:...], [NAV:...], [LISTINGS:...], [PROFILES:...], [EVENTS:...], [DRAFT:...] when relevant.
+- Keep replies tight and useful.`;
+
+  prompt = `${timeContext}\n\n${securityGuardrails}\n\n${outputContract}\n\n${brevityRules}\n\n${prompt}`;
 
   return prompt;
 }
@@ -1581,6 +1719,81 @@ async function fetchGroq(messages: ChatMessage[]): Promise<Response> {
   });
 }
 
+/** If the model starts dumping HTML, cut the stream and replace with a clean reply. */
+function streamWithHtmlGuard(response: Response): Response {
+  if (!response.body) return response;
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let full = "";
+  let tripped = false;
+  let carry = "";
+
+  const safeFallback =
+    "I hit a glitch pulling technical noise instead of a real answer. Tell me again what you need — a home, driver, yacht, or service — and I'll search Swipess for you.";
+
+  const stream = new ReadableStream({
+    async pull(controller) {
+      if (tripped) {
+        controller.close();
+        return;
+      }
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+        return;
+      }
+      const chunk = decoder.decode(value, { stream: true });
+      carry += chunk;
+
+      // Extract plain text deltas for detection
+      for (const line of carry.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (!json || json === "[DONE]") continue;
+        try {
+          const parsed = JSON.parse(json);
+          const delta = parsed?.choices?.[0]?.delta?.content;
+          if (typeof delta === "string") full += delta;
+        } catch { /* partial */ }
+      }
+      // Keep last incomplete line
+      const lastNl = carry.lastIndexOf("\n");
+      if (lastNl >= 0) carry = carry.slice(lastNl + 1);
+
+      if (looksLikeHtmlDocument(full) || /<!DOCTYPE\s+html/i.test(full) || /<html[\s>]/i.test(full)) {
+        tripped = true;
+        try { await reader.cancel(); } catch { /* empty */ }
+        controller.enqueue(encoder.encode(openaiSSE(safeFallback)));
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+        return;
+      }
+
+      controller.enqueue(value);
+    },
+    cancel() {
+      reader.cancel().catch(() => {});
+    },
+  });
+
+  return new Response(stream, {
+    status: response.status,
+    headers: response.headers,
+  });
+}
+
+function scrubAssistantJsonPayload(json: any): any {
+  try {
+    const content = json?.choices?.[0]?.message?.content;
+    if (typeof content === "string" && (looksLikeHtmlDocument(content) || /<!DOCTYPE\s+html/i.test(content))) {
+      json.choices[0].message.content =
+        "I hit a glitch pulling technical noise instead of a real answer. Tell me again what you need — a home, driver, yacht, or service — and I'll search Swipess for you.";
+    }
+  } catch { /* empty */ }
+  return json;
+}
+
 function streamWithForcedSuffix(response: Response, suffix: string): Response {
   if (!suffix || !response.body) return response;
 
@@ -1793,15 +2006,40 @@ Deno.serve(async (req) => {
     ]);
 
     // Phase 2: only web search if local data is insufficient (saves ~500-1000ms)
-    const webResults = (!promotedContacts && !knowledge && !listings && !profileResults && !events) ? await searchWeb(lastUserMessage) : "";
+    // Skip web for clear in-app catalog intents (house / yacht / driver…) — faster + less HTML noise
+    const skipWeb = listingIntent.isListing || isProfileQuery || isEventQuery
+      || !!(promotedContacts || knowledge || listings || profileResults || events);
+    const webResults = skipWeb ? "" : await searchWeb(lastUserMessage);
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, events, webResults, profileResults, requestedCategory: listingIntent.isListing ? listingIntent.category : undefined, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel, locationContext });
+    const systemPrompt = buildSystemPrompt({
+      promotedContacts: sanitizeContextBlock(promotedContacts, 2500),
+      knowledge: sanitizeContextBlock(knowledge, 3500),
+      listings,
+      memories,
+      events,
+      webResults,
+      profileResults,
+      requestedCategory: listingIntent.isListing ? listingIntent.category : undefined,
+      character,
+      egoLevel,
+      charmLevel,
+      wisdomLevel,
+      sassLevel,
+      zenLevel,
+      flowLevel,
+      locationContext,
+    });
+
+    // Short-term memory = sanitized conversation turns (drop prior HTML dumps)
+    const history = sanitizeChatHistory(
+      messages.filter((m) => m.role !== "system").slice(-16),
+    );
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
-      ...messages.filter(m => m.role !== "system"),
+      ...history,
     ];
 
     // Use Groq as primary (try streaming first, fall back to non-streaming),
@@ -1863,31 +2101,30 @@ Deno.serve(async (req) => {
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
 
-    // Append structured tags (LISTINGS / PROFILES / EVENTS) to the response so preview cards render in chat
+    const isStreaming = response.headers.get("content-type")?.includes("text/event-stream");
+
+    // Append structured tags (LISTINGS / PROFILES / EVENTS) so preview cards render
     const listingsTag = listingIntent.isListing ? extractListingsTag(listings) : "";
     const profileTag = isProfileQuery ? extractProfilesTag(profileResults) : "";
     const eventsTag = isEventQuery ? extractEventsTag(events) : "";
     const forcedSuffix = [listingsTag, profileTag, eventsTag].filter(Boolean).join("\n");
 
-    if (forcedSuffix) {
-      const isStreaming = response.headers.get("content-type")?.includes("text/event-stream");
-      if (isStreaming) {
-        response = streamWithForcedSuffix(response, forcedSuffix);
-      } else {
-        // Non-streaming: parse JSON, append tag to content, re-serialize
-        try {
-          const json = await response.json();
-          if (json?.choices?.[0]?.message?.content) {
-            json.choices[0].message.content += `\n${forcedSuffix}`;
-          }
-          response = new Response(JSON.stringify(json), {
-            status: response.status,
-            headers: response.headers,
-          });
-        } catch {
-          // If parsing fails, return original response unmodified
-          console.warn("[AI] Could not append tag to non-streaming response");
+    if (isStreaming) {
+      // Hard stop if the model starts dumping page source mid-stream
+      response = streamWithHtmlGuard(response);
+      if (forcedSuffix) response = streamWithForcedSuffix(response, forcedSuffix);
+    } else {
+      try {
+        const json = scrubAssistantJsonPayload(await response.json());
+        if (forcedSuffix && json?.choices?.[0]?.message?.content) {
+          json.choices[0].message.content += `\n${forcedSuffix}`;
         }
+        response = new Response(JSON.stringify(json), {
+          status: response.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json", "X-AI-Provider": aiProvider },
+        });
+      } catch {
+        console.warn("[AI] Could not scrub/append non-streaming response");
       }
     }
 
