@@ -469,18 +469,17 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  /* Apple liquid glass floating dock — frost + blur + specular rim */
+  /* Dark frosted dock — high contrast for white icons */
   position: relative;
   margin-bottom: max(4px, calc(env(safe-area-inset-bottom, 34px) - 26px));
   padding-bottom: 0;
   border-radius: 999px;
-  -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.06);
-  backdrop-filter: blur(48px) saturate(200%) brightness(1.06);
-  transform: translateZ(0); /* promote layer for smooth blur on iOS */
-  will-change: backdrop-filter;
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  transform: translateZ(0);
 }
 
-/* Specular top highlight — light reflecting off the glass surface */
+/* Subtle top rim only — no bright white wash that kills icon contrast */
 .floating-dock-nav::before {
   content: "";
   position: absolute;
@@ -490,15 +489,12 @@ html[data-theme-transition] ::view-transition-new(root) {
   z-index: 1;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(255, 255, 255, 0.10) 28%,
-    transparent 55%
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 40%
   );
-  mix-blend-mode: soft-light;
-  opacity: 0.9;
+  opacity: 1;
 }
 
-/* Soft outer float glow */
 .floating-dock-nav::after {
   content: "";
   position: absolute;
@@ -506,35 +502,30 @@ html[data-theme-transition] ::view-transition-new(root) {
   border-radius: inherit;
   pointer-events: none;
   z-index: 0;
-  box-shadow:
-    0 0 0 0.5px rgba(255, 255, 255, 0.22),
-    0 16px 48px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 
-body.hw-high .floating-dock-nav {
-  -webkit-backdrop-filter: blur(56px) saturate(220%) brightness(1.08);
-  backdrop-filter: blur(56px) saturate(220%) brightness(1.08);
+/* Kill any leftover circular “bubble” styles on nav icons */
+.floating-dock-nav button,
+.floating-dock-nav button > div,
+.app-bottom-bar button,
+.app-bottom-bar button > div {
+  background: transparent !important;
+  box-shadow: none !important;
+  /* keep badge free — badges use .force-white */
+}
+.app-bottom-bar button .force-white {
+  background: linear-gradient(135deg, #FF4D00, #EB4898) !important;
+  box-shadow: none !important;
 }
 
-body.hw-low .floating-dock-nav {
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
-}
-
-/* Active nav liquid-glass capsule (not a solid dark disc) */
-.nav-liquid-glass-btn {
-  transition:
-    background 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.nav-liquid-glass-btn[data-active="true"] {
-  /* styles applied inline via getGlassBubbleStyle for theme accuracy */
-}
-
-.glass-bubble-hover {
-  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+.glass-bubble-hover,
+.glass-bubble-hover:hover,
+.glass-bubble-hover:active,
+.glass-bubble-active {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .glass-pill[data-active="true"],

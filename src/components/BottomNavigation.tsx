@@ -50,7 +50,7 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import { getBottomNavChrome, getGlassBubbleStyle } from '@/utils/chromeStyles';
+import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 20;
@@ -274,13 +274,13 @@ export const BottomNavigation = memo(({
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* ── Liquid Glass floating dock ───────────────────────────────
-          Frosted glass pill: blur + rim light + soft float shadow.
-          Icons stay sharp; active item gets a soft liquid capsule. */}
+      {/* Dark glass dock + white frameless icons (dashboard always dark).
+          ZERO circular backgrounds behind icons. */}
       <div
         className={cn(
-          'pointer-events-auto floating-dock-nav liquid-glass-dock',
+          'pointer-events-auto floating-dock-nav',
           'max-w-[340px] w-[90vw] mx-auto rounded-[999px]',
+          isDashboard && 'floating-dock-nav--dashboard',
         )}
         style={{
           ...pillStyle,
@@ -306,7 +306,6 @@ export const BottomNavigation = memo(({
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
             const isAddBtn = item.id === 'add';
-            const showGlassCapsule = active || isAddBtn;
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
@@ -333,8 +332,8 @@ export const BottomNavigation = memo(({
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
                 className={cn(
-                  'nav-liquid-glass-btn relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
-                  'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
+                  'relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
+                  'focus-visible:outline-none transform-gpu pointer-events-auto',
                 )}
                 style={{
                   minWidth: isTablet ? '56px' : '44px',
@@ -345,36 +344,23 @@ export const BottomNavigation = memo(({
                   WebkitUserSelect: 'none',
                   WebkitTapHighlightColor: 'transparent',
                   background: 'transparent',
+                  border: 'none',
+                  boxShadow: 'none',
                 }}
               >
+                {/* Icon host — never a filled circle */}
                 <div
-                  className="relative z-10 flex items-center justify-center rounded-full"
+                  className="relative z-10 flex items-center justify-center"
                   style={{
-                    width: showGlassCapsule ? (isTablet ? 44 : 40) : (isTablet ? 40 : 36),
-                    height: showGlassCapsule ? (isTablet ? 44 : 40) : (isTablet ? 40 : 36),
-                    transition: 'width 160ms ease, height 160ms ease, background 160ms ease, box-shadow 160ms ease',
-                    ...(showGlassCapsule
-                      ? isAddBtn
-                        ? {
-                            // Soft rose liquid glass for primary action
-                            background:
-                              'linear-gradient(160deg, rgba(255,80,120,0.95) 0%, rgba(255,51,102,0.78) 100%)',
-                            border: '1px solid rgba(255,255,255,0.45)',
-                            boxShadow: [
-                              '0 4px 16px rgba(255,51,102,0.35)',
-                              'inset 0 1px 0 rgba(255,255,255,0.55)',
-                              'inset 0 -1px 0 rgba(0,0,0,0.12)',
-                            ].join(', '),
-                          }
-                        : getGlassBubbleStyle(isLight, true)
-                      : {
-                          background: 'transparent',
-                          boxShadow: 'none',
-                          border: 'none',
-                        }),
+                    width: isTablet ? 40 : 36,
+                    height: isTablet ? 40 : 36,
+                    background: 'transparent',
+                    boxShadow: 'none',
+                    border: 'none',
+                    borderRadius: 0,
                   }}
                 >
-                  {/* Notification badge */}
+                  {/* Notification badge only */}
                   <AnimatePresence>
                     {item.badge && item.badge > 0 && (
                       <motion.span
@@ -383,7 +369,7 @@ export const BottomNavigation = memo(({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="force-white absolute -top-1 -right-1 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white shadow-sm px-1"
+                        className="force-white absolute -top-0.5 -right-0.5 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white px-1"
                         style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
                       >
                         {item.badge > 99 ? '99+' : item.badge}
@@ -396,16 +382,17 @@ export const BottomNavigation = memo(({
                     const iconEl = (
                       <Icon
                         style={{
-                          width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          // Add = brand pink glyph only (no pink disc). Active = pure white.
                           color: isAddBtn
-                            ? '#FFFFFF'
+                            ? '#FF4D6A'
                             : (active ? baseColor : inactiveIconColor),
                           fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 2.2 : 1.75,
-                          // Sharp icons — no drop-shadow discs
+                          strokeWidth: active || isAddBtn ? 2.35 : 2,
                           filter: 'none',
-                          transition: 'color 140ms ease-out, fill 140ms ease-out, stroke-width 140ms ease-out',
+                          opacity: active || isAddBtn ? 1 : 0.85,
+                          transition: 'color 120ms ease-out, fill 120ms ease-out, opacity 120ms ease-out',
                         }}
                       />
                     );

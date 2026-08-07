@@ -70,70 +70,56 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
 }
 
 /**
- * Bottom dock — Apple-style liquid glass (glassmorphism).
- * Semi-transparent frost + heavy blur so map/UI color bleeds through;
- * luminous rim + soft float shadow. Icons stay sharp (no glyph drop-shadow).
+ * Bottom dock chrome.
+ *
+ * - **Dashboard**: always dark bar + white icons (swipe deck photos need contrast).
+ * - **Elsewhere**: adapts to light/dark theme filter — light gets a *dark* glass
+ *   dock so icons stay readable; dark theme stays charcoal glass + white icons.
+ * Icons are always frameless (no circular discs).
  */
-export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
-  // Frosted glass works over light *and* dark UI — pick icon contrast from theme
-  const useLightIcons = !isLight;
+export function getBottomNavChrome(isLight: boolean, isDashboard = false) {
+  // Dashboard + dark UI → white icons on dark dock.
+  // Light UI off-dashboard → dark icons on a tinted dark dock (high contrast).
+  // We never use a near-white dock: icons become invisible.
+  const forceDarkDock = isDashboard || !isLight;
+  const useLightIcons = forceDarkDock; // white icons on dark dock
 
-  const pillStyle: CSSProperties = isLight
-    ? {
-        // Light: bright liquid glass — readable over photos/maps
-        background:
-          'linear-gradient(165deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 48%, rgba(255,255,255,0.55) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.65)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-        backdropFilter: 'blur(48px) saturate(200%) brightness(1.06)',
-        WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.06)',
-        boxShadow: [
-          '0 10px 36px rgba(15, 23, 42, 0.12)',
-          '0 2px 8px rgba(15, 23, 42, 0.06)',
-          'inset 0 1px 0 rgba(255,255,255,0.95)',
-          'inset 0 -1px 0 rgba(255,255,255,0.25)',
-        ].join(', '),
-        borderRadius: '9999px',
-        pointerEvents: 'auto',
-        color: '#0F172A',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
-        overflow: 'visible',
-        isolation: 'isolate',
-      }
-    : {
-        // Dark: deep liquid glass with white rim catch-light
-        background:
-          'linear-gradient(165deg, rgba(40,42,52,0.55) 0%, rgba(18,18,24,0.48) 50%, rgba(12,12,16,0.58) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.18)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.42)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.35)',
-        backdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-        WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
-        boxShadow: [
-          '0 12px 40px rgba(0, 0, 0, 0.38)',
-          '0 2px 10px rgba(0, 0, 0, 0.22)',
-          'inset 0 1px 0 rgba(255,255,255,0.28)',
-          'inset 0 -1px 1px rgba(0,0,0,0.25)',
-        ].join(', '),
-        borderRadius: '9999px',
-        pointerEvents: 'auto',
-        color: '#ffffff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
-        overflow: 'visible',
-        isolation: 'isolate',
-      };
+  const darkDock: CSSProperties = {
+    background:
+      'linear-gradient(165deg, rgba(22,22,28,0.92) 0%, rgba(10,10,14,0.88) 55%, rgba(8,8,12,0.94) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.14)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.28)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.45)',
+    backdropFilter: 'blur(40px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+    boxShadow: [
+      '0 12px 36px rgba(0, 0, 0, 0.45)',
+      '0 2px 8px rgba(0, 0, 0, 0.25)',
+      'inset 0 1px 0 rgba(255,255,255,0.18)',
+    ].join(', '),
+    borderRadius: '9999px',
+    pointerEvents: 'auto',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
+    overflow: 'visible',
+    isolation: 'isolate',
+  };
 
-  const iconColor = useLightIcons ? '#ffffff' : '#0F172A';
-  const inactiveIconColor = useLightIcons
-    ? 'rgba(255,255,255,0.72)'
-    : 'rgba(15,23,42,0.48)';
+  // Light theme off-dashboard: slightly softer charcoal (not pure white)
+  const lightThemeDock: CSSProperties = {
+    ...darkDock,
+    background:
+      'linear-gradient(165deg, rgba(28,28,34,0.90) 0%, rgba(14,14,18,0.86) 55%, rgba(10,10,14,0.92) 100%)',
+  };
+
+  const pillStyle = forceDarkDock ? darkDock : lightThemeDock;
+
+  // Active = pure white; inactive = soft white (still readable on dark dock)
+  const iconColor = '#FFFFFF';
+  const inactiveIconColor = 'rgba(255,255,255,0.78)';
 
   return {
     useLightIcons,
@@ -144,48 +130,13 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   };
 }
 
-/**
- * Per-button liquid glass highlight (active / add).
- * Soft frost capsule — not a heavy dark disc.
- */
-export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): CSSProperties {
-  if (!active) {
-    return {
-      background: 'transparent',
-      boxShadow: 'none',
-      border: 'none',
-      borderRadius: '9999px',
-    };
-  }
-
-  if (isLight) {
-    return {
-      background:
-        'linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 100%)',
-      border: '1px solid rgba(255, 255, 255, 0.9)',
-      boxShadow: [
-        '0 4px 14px rgba(15, 23, 42, 0.10)',
-        'inset 0 1px 0 rgba(255,255,255,1)',
-        'inset 0 -1px 0 rgba(0,0,0,0.04)',
-      ].join(', '),
-      borderRadius: '9999px',
-      backdropFilter: 'blur(16px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-    };
-  }
-
+/** Always transparent — circular glass discs behind nav icons are forbidden. */
+export function getGlassBubbleStyle(_isLight?: boolean, _active?: boolean): CSSProperties {
   return {
-    background:
-      'linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%)',
-    border: '1px solid rgba(255, 255, 255, 0.28)',
-    boxShadow: [
-      '0 4px 16px rgba(0, 0, 0, 0.25)',
-      'inset 0 1px 0 rgba(255,255,255,0.45)',
-      'inset 0 -1px 0 rgba(0,0,0,0.15)',
-    ].join(', '),
-    borderRadius: '9999px',
-    backdropFilter: 'blur(16px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+    background: 'transparent',
+    boxShadow: 'none',
+    border: 'none',
+    borderRadius: '0',
   };
 }
 
