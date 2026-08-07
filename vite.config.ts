@@ -137,6 +137,7 @@ export default defineConfig(async ({ mode }) => {
     'import.meta.env.VITE_MAPBOX_ACCESS_TOKEN': JSON.stringify(mapboxToken),
   },
   build: {
+    modulePreload: false,
     target: 'esnext',
     minify: 'esbuild',
     cssMinify: true,

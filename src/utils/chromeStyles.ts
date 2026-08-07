@@ -78,24 +78,19 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
  * Icons are always frameless (no circular discs).
  */
 export function getBottomNavChrome(isLight: boolean, isDashboard = false) {
-  // Dashboard + dark UI → white icons on dark dock.
-  // Light UI off-dashboard → dark icons on a tinted dark dock (high contrast).
-  // We never use a near-white dock: icons become invisible.
-  const forceDarkDock = isDashboard || !isLight;
-  const useLightIcons = forceDarkDock; // white icons on dark dock
+  const useLightIcons = true; // Always use white icons for contrast
 
-  const darkDock: CSSProperties = {
-    background:
-      'linear-gradient(165deg, rgba(22,22,28,0.92) 0%, rgba(10,10,14,0.88) 55%, rgba(8,8,12,0.94) 100%)',
-    border: '1px solid rgba(255, 255, 255, 0.14)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.28)',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.45)',
-    backdropFilter: 'blur(40px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+  const dockStyle: CSSProperties = {
+    background: 'linear-gradient(165deg, rgba(16,16,20,0.98) 0%, rgba(10,10,14,0.98) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.25)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(40px) saturate(200%)',
+    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
     boxShadow: [
-      '0 12px 36px rgba(0, 0, 0, 0.45)',
-      '0 2px 8px rgba(0, 0, 0, 0.25)',
-      'inset 0 1px 0 rgba(255,255,255,0.18)',
+      '0 12px 36px rgba(0, 0, 0, 0.65)',
+      '0 2px 8px rgba(0, 0, 0, 0.45)',
+      'inset 0 1px 0 rgba(255,255,255,0.15)',
     ].join(', '),
     borderRadius: '9999px',
     pointerEvents: 'auto',
@@ -108,24 +103,14 @@ export function getBottomNavChrome(isLight: boolean, isDashboard = false) {
     isolation: 'isolate',
   };
 
-  // Light theme off-dashboard: slightly softer charcoal (not pure white)
-  const lightThemeDock: CSSProperties = {
-    ...darkDock,
-    background:
-      'linear-gradient(165deg, rgba(28,28,34,0.90) 0%, rgba(14,14,18,0.86) 55%, rgba(10,10,14,0.92) 100%)',
-  };
-
-  const pillStyle = forceDarkDock ? darkDock : lightThemeDock;
-
-  // Active = pure white; inactive = soft white (still readable on dark dock)
   const iconColor = '#FFFFFF';
-  const inactiveIconColor = 'rgba(255,255,255,0.78)';
+  const inactiveIconColor = 'rgba(255,255,255,0.7)';
 
   return {
     useLightIcons,
     iconColor,
     inactiveIconColor,
-    pillStyle,
+    pillStyle: dockStyle,
     iconShadow: 'none',
   };
 }

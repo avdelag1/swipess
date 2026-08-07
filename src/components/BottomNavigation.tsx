@@ -388,11 +388,11 @@ export const BottomNavigation = memo(({
                           color: isAddBtn
                             ? '#FF4D6A'
                             : (active ? baseColor : inactiveIconColor),
-                          fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 2.35 : 2,
+                          fill: 'none',
+                          strokeWidth: active || isAddBtn ? 2.5 : 2.0,
                           filter: 'none',
                           opacity: active || isAddBtn ? 1 : 0.85,
-                          transition: 'color 120ms ease-out, fill 120ms ease-out, opacity 120ms ease-out',
+                          transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
                         }}
                       />
                     );

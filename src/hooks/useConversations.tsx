@@ -254,7 +254,7 @@ export function useConversations() {
         if (status === 'SUBSCRIBED') {
           logger.debug('[Realtime] Swipes subscription active');
         } else if (status === 'CHANNEL_ERROR') {
-          logger.error('[Realtime] Swipes subscription error');
+          logger.warn('[Realtime] Swipes subscription error - check RLS or Realtime toggles');
         }
       });
 
