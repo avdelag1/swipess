@@ -148,9 +148,16 @@ export const useModalStore = create<ModalState>((set) => ({
   },
 
   openAIChat: (initialQuery) => {
-    if (useGuidedTourActive.getState().isActive) return;
+    // Never silently no-op — guided tour used to block search with zero feedback.
+    if (useGuidedTourActive.getState().isActive) {
+      useGuidedTourActive.getState().setActive(false);
+    }
     prefetchConciergeChatModule();
     const q = typeof initialQuery === 'string' ? initialQuery.trim() : '';
+    // Skip privacy wall when the user already typed a search intent
+    if (q) {
+      try { localStorage.setItem('Swipess_ai_privacy', 'true'); } catch { /* empty */ }
+    }
     set({
       showAIChat: true,
       pendingAIQuery: q || null,

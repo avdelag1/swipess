@@ -802,9 +802,9 @@ export const PassportMapModal = memo(() => {
     // Expose so the open-kick effect can start init when the user opens the map.
     beginInitRef.current = beginInit;
 
-    // Only start WebGL when the modal is open (simple fade host, no genie scale).
+    // Kick init when already open on mount.
     if (useModalStore.getState().showPassportMapModal) {
-      deferHandle = setTimeout(beginInit, isAppleWebKitEnv() ? 50 : 0);
+      deferHandle = setTimeout(beginInit, 0);
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
@@ -815,21 +815,31 @@ export const PassportMapModal = memo(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resizeMap]);
 
-  // Open kick: when the user opens the map, init (or re-init after a failed try).
-  // Guarded by initStartedRef + mapRef so we never double-create Mapbox.
+  // Open kick: primary path — user opened the map (or component mounted open).
   useEffect(() => {
     if (!isOpen) return;
+
+    // Retry path if a previous attempt failed mid-flight
+    if (!mapRef.current && !initStartedRef.current) {
+      const t = window.setTimeout(() => beginInitRef.current?.(), 0);
+      // Second chance for slow container layout / token resolve
+      const t2 = window.setTimeout(() => {
+        if (!mapRef.current && !initStartedRef.current) beginInitRef.current?.();
+        else if (mapRef.current) resizeMap();
+      }, 400);
+      return () => {
+        window.clearTimeout(t);
+        window.clearTimeout(t2);
+      };
+    }
+
     if (mapRef.current) {
       const t1 = window.setTimeout(() => resizeMap(), 40);
-      const t2 = window.setTimeout(() => resizeMap(), 160);
+      const t2 = window.setTimeout(() => resizeMap(), 200);
       return () => {
         window.clearTimeout(t1);
         window.clearTimeout(t2);
       };
-    }
-    if (!initStartedRef.current) {
-      const t = window.setTimeout(() => beginInitRef.current?.(), isAppleWebKitEnv() ? 50 : 0);
-      return () => window.clearTimeout(t);
     }
     return undefined;
   }, [isOpen, resizeMap]);
@@ -1163,25 +1173,25 @@ export const PassportMapModal = memo(() => {
                 ? (canGeolocate() ? t('map.enableLocationHint', { defaultValue: 'Tap GPS or enable location' }) : t('map.scanningArea'))
                 : t('map.scanningArea');
 
-  const mapHostVisible = isOpen;
-
-  // No genie scale transforms here — Mapbox WebGL breaks under non-1 scale on
-  // Safari/WKWebView. Genie is reserved for VAP ID card + AI chat only.
+  // Plain div host — no Framer opacity/visibility animation on the Mapbox
+  // container (Safari/WKWebView often fail WebGL when the host toggles visibility
+  // via transforms/opacity). Genie is reserved for VAP + AI chat only.
   return (
-    <motion.div
+    <div
       className={cn(
-        'force-white fixed inset-0 z-[10025] overflow-hidden',
+        'force-white fixed inset-0 z-[10025] overflow-hidden bg-[#0a0a12]',
         !isOpen && 'pointer-events-none',
       )}
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
-      initial={false}
-      animate={{
+      style={{
+        // Keep layout size always; hide with opacity only (no visibility:hidden)
         opacity: isOpen ? 1 : 0,
-        visibility: mapHostVisible ? 'visible' : 'hidden',
+        // Off-screen when closed so it cannot steal taps, but still has dimensions
+        // for a pre-warmed WebGL context if we already initialized.
+        zIndex: isOpen ? 10025 : -1,
       }}
-      transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
     >
       <div
         data-map-surface
@@ -1192,7 +1202,15 @@ export const PassportMapModal = memo(() => {
           ref={mapContainerRef}
           data-map-surface
           className="absolute inset-0 w-full h-full select-none"
-          style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
+          style={{
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            // Explicit size for Safari WebGL
+            width: '100%',
+            height: '100%',
+            minHeight: '100%',
+            minWidth: '100%',
+          }}
         />
 
         {/* Instant Map Skeleton — Visible while Mapbox GL initializes */}
@@ -1596,7 +1614,7 @@ export const PassportMapModal = memo(() => {
         )}
 
       </div>
-    </motion.div>
+    </div>
   );
 });
 PassportMapModal.displayName = 'PassportMapModal';

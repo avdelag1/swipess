@@ -38,27 +38,55 @@ export function getMapboxAccessToken(): string {
   return '';
 }
 
+/** Last-resort public token so the map never hangs when env/API is missing. */
+function fallbackMapboxToken(): string {
+  try {
+    return atob(
+      'cGsuZXlKMUlqb2ljM2RwY0dWemN5SXNJbUVpT2lKamJUQnlaM3AxY1d3d2MzSnBNbXh2Ym5wcU1tb3dNMlkwaW4wLlg4LXZYLTEtOGFOOEs5UVd3LXEtUlE=',
+    );
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Async token — falls back to /api/mapbox-token so a Vercel env change can work
  * without users being stuck on a stale service-worker bundle.
+ * On Capacitor (no /api), falls back immediately to the embedded public token.
  */
 export async function resolveMapboxAccessToken(): Promise<string> {
   const sync = getMapboxAccessToken();
-  if (sync) return sync;
+  if (sync) {
+    runtimeToken = sync;
+    return sync;
+  }
 
   if (!fetchPromise) {
+    const isNative =
+      typeof window !== 'undefined'
+      && !!(window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+
+    if (isNative) {
+      // Native shell has no Vercel /api route — use bundled/fallback token only.
+      const token = fallbackMapboxToken();
+      if (token) runtimeToken = token;
+      fetchPromise = Promise.resolve(token);
+      return fetchPromise;
+    }
+
     fetchPromise = fetch('/api/mapbox-token', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : { token: '' }))
       .then((data: { token?: string }) => {
         let token = normalizeMapboxToken(data?.token ?? '');
-        if (!token) {
-          // Fallback to a generic public token if backend token is missing so UI doesn't hang
-          token = atob('cGsuZXlKMUlqb2ljM2RwY0dWemN5SXNJbUVpT2lKamJUQnlaM3AxY1d3d2MzSnBNbXh2Ym5wcU1tb3dNMlkwaW4wLlg4LXZYLTEtOGFOOEs5UVd3LXEtUlE=');
-        }
+        if (!token) token = fallbackMapboxToken();
         if (token) runtimeToken = token;
         return token;
       })
-      .catch(() => atob('cGsuZXlKMUlqb2ljM2RwY0dWemN5SXNJbUVpT2lKamJUQnlaM3AxY1d3d2MzSnBNbXh2Ym5wcU1tb3dNMlkwaW4wLlg4LXZYLTEtOGFOOEs5UVd3LXEtUlE='));
+      .catch(() => {
+        const token = fallbackMapboxToken();
+        if (token) runtimeToken = token;
+        return token;
+      });
   }
 
   return fetchPromise;

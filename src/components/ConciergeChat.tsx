@@ -38,7 +38,14 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
   const LAST_ACTIVITY_KEY = 'Swipess_ai_last_activity';
 
   const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(() => {
-    return localStorage.getItem('Swipess_ai_privacy') === 'true';
+    // If a search query is already pending, treat privacy as accepted so the
+    // first message is not stuck behind the privacy wall with "no reply".
+    try {
+      if (localStorage.getItem('Swipess_ai_privacy') === 'true') return true;
+      if (localStorage.getItem('swipess_ai_initial_query')) return true;
+      if (useModalStore.getState().pendingAIQuery) return true;
+    } catch { /* empty */ }
+    return false;
   });
 
   const {
@@ -118,6 +125,15 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       return;
     }
 
+    // Ensure privacy is open when arriving from the search bar with a query
+    const pendingPeek =
+      useModalStore.getState().pendingAIQuery
+      || (() => { try { return localStorage.getItem('swipess_ai_initial_query'); } catch { return null; } })();
+    if (pendingPeek && !hasAcceptedPrivacy) {
+      try { localStorage.setItem('Swipess_ai_privacy', 'true'); } catch { /* empty */ }
+      setHasAcceptedPrivacy(true);
+    }
+
     const timer = window.setTimeout(() => {
       if (!hasPlayedOpenSound.current) {
         uiSounds.playWelcome();
@@ -136,41 +152,25 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
       // Prefer in-memory modal store (reliable); fall back to localStorage key.
       let initialQuery = useModalStore.getState().consumePendingAIQuery?.() ?? null;
       if (!initialQuery) {
-        initialQuery = localStorage.getItem('swipess_ai_initial_query');
-        if (initialQuery) localStorage.removeItem('swipess_ai_initial_query');
+        try {
+          initialQuery = localStorage.getItem('swipess_ai_initial_query');
+          if (initialQuery) localStorage.removeItem('swipess_ai_initial_query');
+        } catch { initialQuery = null; }
       }
 
       if (initialQuery?.trim()) {
-        // Defer past first paint + privacy sheet mount so the message isn't dropped
+        const q = initialQuery.trim();
+        // Wait for spring open + stream handler to be ready
         window.setTimeout(() => {
-          const q = initialQuery!.trim();
-          if (!hasAcceptedPrivacy) {
-            // Surface text in the composer; auto-send once privacy is accepted
-            setInput(q);
-            try { sessionStorage.setItem('swipess_ai_pending_after_privacy', q); } catch { /* empty */ }
-            return;
-          }
           void sendMessageRef.current(q);
-        }, 180);
+        }, 320);
       }
-    }, 0);
+    }, 50);
 
     return () => window.clearTimeout(timer);
-  }, [isOpen, createConversation, messages.length, hasAcceptedPrivacy]);
-
-  // After privacy accept, flush search query that was parked in the composer
-  useEffect(() => {
-    if (!isOpen || !hasAcceptedPrivacy) return;
-    let parked: string | null = null;
-    try {
-      parked = sessionStorage.getItem('swipess_ai_pending_after_privacy');
-      if (parked) sessionStorage.removeItem('swipess_ai_pending_after_privacy');
-    } catch { /* empty */ }
-    if (!parked?.trim()) return;
-    const q = parked.trim();
-    setInput('');
-    window.setTimeout(() => void sendMessageRef.current(q), 80);
-  }, [isOpen, hasAcceptedPrivacy]);
+    // Intentionally NOT depending on hasAcceptedPrivacy — flipping it mid-open
+    // would cancel the send timer and drop the search query.
+  }, [isOpen, createConversation, messages.length]);
 
   useEffect(() => {
     if (messages.length > 0) localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());

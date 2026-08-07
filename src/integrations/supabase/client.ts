@@ -10,7 +10,10 @@ const FALLBACK_SUPABASE_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co';
 const FALLBACK_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FA0BseFSS6zM7Y8K3w8zLQ_d8BXqEuV';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || FALLBACK_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  || import.meta.env.VITE_SUPABASE_ANON_KEY
+  || FALLBACK_SUPABASE_PUBLISHABLE_KEY;
 
 if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
   // Non-fatal: warn but keep running on the public fallback so the app mounts.
@@ -19,6 +22,11 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISH
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
+
+/** Public project URL — always defined (env or prod fallback). Use for edge function URLs. */
+export const SUPABASE_PROJECT_URL = SUPABASE_URL;
+/** Public anon / publishable key — always defined. Use as apikey + Bearer when no user session. */
+export const SUPABASE_ANON_KEY = SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient<Database>(
   SUPABASE_URL,

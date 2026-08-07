@@ -109,9 +109,9 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           isLight={isLight}
           onFilterClick={() => useModalStore.getState().openAIChat()}
           onSearchSubmit={(query) => {
-            // openAIChat stores the query in the modal store (and localStorage fallback)
-            // so ConciergeChat always receives it — no silent localStorage-only race.
-            useModalStore.getState().openAIChat(query);
+            // Always open AI chat with the typed query (wired end-to-end in openAIChat).
+            const q = (query || '').trim();
+            useModalStore.getState().openAIChat(q);
           }}
         />
         <DashboardFilters isLight={isLight} />

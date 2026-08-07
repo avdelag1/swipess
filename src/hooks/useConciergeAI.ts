@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { appToast } from '@/utils/appNotification';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_ANON_KEY, SUPABASE_PROJECT_URL, supabase } from '@/integrations/supabase/client';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useTokens } from '@/hooks/useTokens';
 import { logSupabaseError } from '@/lib/supabaseError';
@@ -238,9 +238,11 @@ function normalizeAssistantReply(text: string): string {
   return detectTruncation(cleaned) ? cleaned.replace(/[….]$/, '').trim() : cleaned;
 }
 
-// AI concierge runs on production edge functions
-// All user data stays on production Supabase — AI only handles chat, no user data
-const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`;
+// AI concierge edge function — MUST use the same URL fallback as the Supabase
+// client. Using only import.meta.env.VITE_SUPABASE_URL produced
+// "undefined/functions/v1/ai-concierge" when the env was missing at build time,
+// so search/chat silently never got a reply.
+const AI_URL = `${SUPABASE_PROJECT_URL}/functions/v1/ai-concierge`;
 
 export function useConciergeAI() {
   // Premium access check
@@ -480,18 +482,22 @@ export function useConciergeAI() {
         else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
       }
 
-      // Use the user's session JWT so the edge function can identify the user
+      // Prefer the user JWT; fall back to the public anon key so verify_jwt edge
+      // functions still accept the call when the session is missing/expired.
       const session = await supabase.auth.getSession();
-      const accessToken = session.data.session?.access_token ?? '';
+      const accessToken = session.data.session?.access_token || SUPABASE_ANON_KEY;
 
       const resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
+          // Supabase gateway expects apikey on edge function requests
+          'apikey': SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({
           messages: apiMessages,
+          stream: true,
           locationContext: (() => {
             const s = useFilterStore.getState();
             return {
