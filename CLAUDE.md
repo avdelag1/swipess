@@ -1,7 +1,10 @@
 # Swipess – Claude Code Guidelines
 
-This file is read automatically by Claude Code at the start of every session.
+This file is read automatically by Claude Code / Grok at the start of every session.
 It documents critical behaviours that MUST NOT be broken by future edits.
+
+**Full project rules (stack, commands, git, security, layout):** see `AGENTS.md`.
+This file is the deep-dive for **map gesture safety** only.
 
 ---
 
