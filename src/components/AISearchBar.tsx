@@ -1,5 +1,5 @@
 import { FormEvent, useRef, useState } from 'react';
-import { Search, Sparkles } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -109,19 +109,14 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               type="submit"
               className="chrome-icon-btn flex items-center justify-center w-8 h-8 rounded-full bg-transparent shrink-0 group"
               style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
-              aria-label="Search with AI"
+              aria-label="Search"
             >
-              <Sparkles
+              <ArrowRight
                 className={cn(
-                  'w-[18px] h-[18px] transition-transform duration-150 group-active:scale-[0.9]',
-                  isLight ? 'text-black/80' : 'text-[#fff0f5]',
+                  'w-[18px] h-[18px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
+                  isLight ? 'text-black/70' : 'text-white/90',
                 )}
-                strokeWidth={2}
-                style={{
-                  filter: isLight
-                    ? 'drop-shadow(0 0 5px rgba(0, 0, 0, 0.2))'
-                    : 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.6))',
-                }}
+                strokeWidth={2.25}
               />
             </button>
           </div>
