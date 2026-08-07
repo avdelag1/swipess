@@ -87,11 +87,7 @@ export function getBottomNavChrome(isLight: boolean, isDashboard = false) {
     borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(40px) saturate(200%)',
     WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-    boxShadow: [
-      '0 12px 36px rgba(0, 0, 0, 0.65)',
-      '0 2px 8px rgba(0, 0, 0, 0.45)',
-      'inset 0 1px 0 rgba(255,255,255,0.15)',
-    ].join(', '),
+    boxShadow: 'none',
     borderRadius: '9999px',
     pointerEvents: 'auto',
     color: '#ffffff',
