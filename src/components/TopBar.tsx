@@ -39,7 +39,7 @@ interface TopBarProps {
   minimal?: boolean;
 }
 
-const HEADER_ICON = 'w-[20px] h-[20px]';
+const HEADER_ICON = 'w-[24px] h-[24px]';
 
 function HeaderIconSlot({
   children,
@@ -49,7 +49,7 @@ function HeaderIconSlot({
   badge?: React.ReactNode;
 }) {
   return (
-    <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
+    <span className="relative flex items-center justify-center w-6 h-6 shrink-0">
       {children}
       {badge}
     </span>
@@ -167,7 +167,7 @@ function TopBarComponent({
                 aria-label="Open profile"
               >
                 <span
-                  className="flex items-center justify-center h-5 w-5 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
+                  className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
                 >
                     {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                       <img
@@ -230,7 +230,7 @@ function TopBarComponent({
                 haptics.tap();
                 useModalStore.getState().setModal('showTokensModal', true);
               }}
-              className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
               style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label="Tokens"
             >
@@ -258,7 +258,7 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="chrome-icon-btn flex items-center justify-center h-7 w-7 rounded-full transition-all group"
+              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
               style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
               aria-label={t('map.liveMap')}
             >
@@ -274,9 +274,9 @@ function TopBarComponent({
               </HeaderIconSlot>
             </button>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="chrome-icon-btn rounded-full h-6 w-6" />
+            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="chrome-icon-btn rounded-full h-8 w-8" />
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="chrome-icon-btn rounded-full h-6 w-6" />
+            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="chrome-icon-btn rounded-full h-8 w-8" />
           </div>
         )}
 
