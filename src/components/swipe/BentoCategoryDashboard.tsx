@@ -23,6 +23,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { AISearchBar } from '@/components/AISearchBar';
+import { AIDisclosure } from '@/components/AIDisclosure';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
@@ -105,7 +106,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      <div className="w-full max-w-3xl mx-auto mb-3 flex flex-col gap-3 items-end">
+      <div className="w-full max-w-3xl mx-auto mb-3 flex flex-col gap-2 items-stretch">
         <AISearchBar
           isLight={isLight}
           onFilterClick={() => useModalStore.getState().openAIChat()}
@@ -115,7 +116,11 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             useModalStore.getState().openAIChat(q);
           }}
         />
-        <DashboardFilters isLight={isLight} />
+        {/* App Store / user transparency: AI entry point disclosure */}
+        <AIDisclosure isLight={isLight} variant="compact" className="px-1" />
+        <div className="flex justify-end">
+          <DashboardFilters isLight={isLight} />
+        </div>
       </div>
 
       <motion.div

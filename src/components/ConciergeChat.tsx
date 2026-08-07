@@ -31,6 +31,7 @@ import {
   GENIE_SPRING_CLOSE,
   GENIE_SPRING_OPEN,
 } from '@/utils/genieMotion';
+import { AIDisclosure } from '@/components/AIDisclosure';
 
 function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { theme, isLight } = useAppTheme();
@@ -484,6 +485,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                 <footer className="p-4 sm:p-6 transition-all duration-500 relative z-20">
                   <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+
+                  <div className="max-w-3xl mx-auto mb-2.5">
+                    <AIDisclosure isLight={isLight && !isSwipess} variant="compact" />
+                  </div>
 
                   <AnimatePresence>
                     {countdown !== null && (
