@@ -44,12 +44,13 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
   const [preferredContact, setPreferredContact] = useState('phone');
 
   const meta = pkg ? categoryMeta(pkg.category) : null;
+  const isDocumentRequest = pkg?.id.startsWith('contract-') ?? false;
 
   // Reset + prefill whenever a new package opens.
   useEffect(() => {
     if (open && pkg) {
       setStep('form');
-      setRequestType('request');
+      setRequestType(isDocumentRequest ? 'custom_quote' : 'request');
       setSituation('');
       setPreferredContact('phone');
       if (user?.id) {
@@ -60,7 +61,7 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
         });
       }
     }
-  }, [open, pkg, user?.id, user?.email]);
+  }, [open, pkg, user?.id, user?.email, isDocumentRequest]);
 
   // Close on Escape.
   useEffect(() => {
@@ -153,8 +154,12 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                 <div className={cn('rounded-2xl p-5 border space-y-4', isLight ? 'bg-black/[0.02] border-black/5' : 'bg-white/[0.03] border-white/5')}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className={cn('text-3xl font-black tracking-tighter', isLight ? 'text-black' : 'text-white')}>{formatPrice(pkg.price)}</span>
-                      <span className={cn('text-[11px] font-bold uppercase tracking-widest opacity-40', isLight ? 'text-black' : 'text-white')}>from</span>
+                      <span className={cn('text-3xl font-black tracking-tighter', isLight ? 'text-black' : 'text-white')}>
+                        {isDocumentRequest ? 'Quote required' : formatPrice(pkg.price)}
+                      </span>
+                      {!isDocumentRequest && (
+                        <span className={cn('text-[11px] font-bold uppercase tracking-widest opacity-40', isLight ? 'text-black' : 'text-white')}>starting price</span>
+                      )}
                     </div>
                     <Badge variant="outline" className={cn('flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest', meta.ring, meta.accent)}>
                       <Clock className="w-3 h-3" /> {formatDuration(pkg.duration_days)}
@@ -177,15 +182,16 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
+                    disabled={isDocumentRequest}
                     onClick={() => { triggerHaptic('light'); setRequestType('request'); }}
-                    className={cn('p-4 rounded-2xl border text-left transition-all',
+                    className={cn('p-4 rounded-2xl border text-left transition-all', isDocumentRequest && 'opacity-40 cursor-not-allowed',
                       requestType === 'request'
                         ? cn(meta.accentBg, 'text-white force-white border-transparent shadow-lg')
                         : isLight ? 'bg-white border-black/10 text-black/70' : 'bg-white/5 border-white/10 text-white/70')}
                   >
                     <Send className="w-4 h-4 mb-2" />
                     <p className="text-[11px] font-black uppercase tracking-wider">Request Package</p>
-                    <p className="text-[10px] opacity-70 mt-0.5">Book this exact package</p>
+                    <p className="text-[10px] opacity-70 mt-0.5">Request the listed scope</p>
                   </button>
                   <button
                     type="button"
@@ -255,12 +261,12 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                   disabled={loading || !situation.trim() || !phone.trim()}
                   className={cn('w-full h-14 rounded-2xl text-white force-white font-black uppercase tracking-[0.15em] text-xs shadow-xl active:scale-[0.98] transition-all', meta.accentBg)}
                 >
-                  {loading ? 'Sending…' : requestType === 'custom_quote' ? 'Request Custom Quote' : 'Send Request to Lawyer'}
+                  {loading ? 'Sending…' : requestType === 'custom_quote' ? 'Request Custom Quote' : 'Send Legal Request'}
                   {!loading && <Send className="w-4 h-4 ml-2" />}
                 </Button>
 
                 <p className={cn('text-[10px] text-center leading-relaxed opacity-40', isLight ? 'text-black' : 'text-white')}>
-                  Your request goes to our legal team. A lawyer reviews it and contacts you to confirm details, pricing and next steps. No payment is taken now.
+                  No payment is taken now. Submission does not hire a lawyer or create an attorney-client relationship. If a suitable independent provider is available, they may contact you to discuss credentials, jurisdiction, scope, timing, and price.
                 </p>
               </form>
             ) : (
@@ -276,8 +282,8 @@ export function LegalPackageRequestModal({ open, pkg, onClose }: LegalPackageReq
                 <div className="space-y-2">
                   <h4 className={cn('text-2xl font-black tracking-tight', isLight ? 'text-black' : 'text-white')}>Request Sent</h4>
                   <p className={cn('text-sm leading-relaxed max-w-[300px] mx-auto opacity-60', isLight ? 'text-black' : 'text-white')}>
-                    Our legal team has received your request for <strong>{pkg.name}</strong>. A lawyer will contact you
-                    {phone ? <> at <strong>{phone}</strong></> : ''} to discuss your situation and confirm everything.
+                    Your request for <strong>{pkg.name}</strong> was recorded. If a suitable independent provider is available, they may contact you
+                    {phone ? <> at <strong>{phone}</strong></> : ''} to discuss whether they can assist. A response is not guaranteed.
                   </p>
                 </div>
                 <Button onClick={onClose} className={cn('w-full h-12 rounded-2xl text-white force-white font-black uppercase tracking-widest text-[11px]', meta.accentBg)}>
