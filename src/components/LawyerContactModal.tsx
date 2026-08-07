@@ -26,18 +26,12 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
 
   const categories = ['Rental Agreement', 'Ownership Dispute', 'Contract Review', 'Other'];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    triggerHaptic('medium');
-
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setStep('success');
-      triggerHaptic('success');
-      appToast.success('Inquiry sent to our legal team');
-    }, 1500);
+    setLoading(false);
+    setStep('form');
+    triggerHaptic('error');
+    appToast.error('This contact form is not connected yet. Use Legal Services to submit a request.');
   };
 
   return (
@@ -147,16 +141,16 @@ export function LawyerContactModal({ isOpen, onClose }: LawyerContactModalProps)
                     <CheckCircle2 className="w-10 h-10 text-violet-500" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-2xl font-black tracking-tight text-white uppercase italic">Inquiry Received</h4>
+                    <h4 className="text-2xl font-black tracking-tight text-white uppercase italic">Request Not Sent</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">
-                      Our legal team has been notified. A personal lawyer will contact you via {formData.phone || 'your registered number'} within 24 hours.
+                      Direct contact is not available through this form. Use the Legal Services request flow to submit information.
                     </p>
                   </div>
                   <Button 
                     onClick={onClose}
                     className="w-full h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] border border-white/10"
                   >
-                    Got it, thanks
+                    Close
                   </Button>
                 </div>
               )}
