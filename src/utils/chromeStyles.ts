@@ -64,9 +64,8 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
     iconColor,
     inactiveIconColor,
     pillStyle,
-    iconShadow: useLightIcons
-      ? 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))'
-      : 'drop-shadow(0 1px 1px rgba(0,0,0,0.1))',
+    // No drop-shadow halos — they read as circular "discs" behind glyphs
+    iconShadow: 'none',
   };
 }
 
@@ -105,31 +104,19 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
     iconColor,
     inactiveIconColor,
     pillStyle,
-    iconShadow: useLightIcons
-      ? 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))'
-      : 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+    iconShadow: 'none',
   };
 }
 
-/** Glass Bubble Style for active icons (Bottom Nav, TopBar hover) */
-export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): CSSProperties {
-  if (!active) {
-    return {
-      background: isLight ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.02)',
-      boxShadow: isLight
-        ? 'inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.02)'
-        : 'inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -1px 2px rgba(0,0,0,0.1)',
-      border: isLight ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
-      borderRadius: '9999px',
-    };
-  }
-  
+/**
+ * Active nav state — frameless (no circular glass disc behind icons).
+ * Kept as a no-op style object so call sites stay stable.
+ */
+export function getGlassBubbleStyle(_isLight: boolean, _active: boolean = false): CSSProperties {
   return {
-    background: isLight ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-    boxShadow: isLight
-      ? 'inset 0 1px 4px rgba(255,255,255,0.8), inset 0 -2px 6px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)'
-      : 'inset 0 1px 4px rgba(255,255,255,0.2), inset 0 -2px 6px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.3)',
-    border: isLight ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
+    background: 'transparent',
+    boxShadow: 'none',
+    border: 'none',
     borderRadius: '9999px',
   };
 }

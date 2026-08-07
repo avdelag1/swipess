@@ -18,7 +18,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { getParentRoute } from '@/utils/sectionNavigation';
 import {
   getTopBarChrome,
-  getHeaderIconFilter,
   isDashboardPath,
 } from '@/utils/chromeStyles';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -80,7 +79,7 @@ function TopBarComponent({
   const isActuallyVisible = isScrollVisible;
 
   const isDashboard = isDashboardPath(location.pathname);
-  const { useLightIcons, iconColor, pillStyle: glassPillStyle, iconShadow } = getTopBarChrome(isLight, isDashboard);
+  const { iconColor } = getTopBarChrome(isLight, isDashboard);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
@@ -147,15 +146,15 @@ function TopBarComponent({
             <button
               type="button"
               onClick={() => { haptics.tap(); onBack(); }}
-              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shadow-sm"
-              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
+              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none', filter: 'none' }}
               aria-label="Back"
             >
               <HeaderIconSlot>
                 <ChevronLeft
                   className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
                   strokeWidth={1.5}
-                  style={{ color: iconColor, filter: iconShadow }}
+                  style={{ color: iconColor, filter: 'none' }}
                 />
               </HeaderIconSlot>
             </button>
@@ -210,7 +209,7 @@ function TopBarComponent({
                   className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'sparkles'),
+                    filter: 'none',
                   }}
                   strokeWidth={1.5}
                 />
@@ -249,7 +248,7 @@ function TopBarComponent({
                   className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'crown'),
+                    filter: 'none',
                   }}
                   strokeWidth={1.5}
                 />
@@ -268,7 +267,7 @@ function TopBarComponent({
                   className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                   style={{
                     color: iconColor,
-                    filter: getHeaderIconFilter(iconShadow, useLightIcons, 'globe'),
+                    filter: 'none',
                   }}
                   strokeWidth={1.5}
                 />

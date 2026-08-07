@@ -170,8 +170,9 @@ export function getMapWebGLProfile(): MapWebGLProfile {
   };
 
   cached = profile;
-  if (typeof console !== 'undefined') {
-    console.warn('[MapWebGL]', profile.reason);
+  // Dev-only diagnostics — avoid noisy console on production Safari/WKWebView
+  if (typeof console !== 'undefined' && import.meta.env.DEV) {
+    console.debug('[MapWebGL]', profile.reason);
   }
   return profile;
 }

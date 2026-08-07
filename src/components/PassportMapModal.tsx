@@ -814,7 +814,9 @@ export const PassportMapModal = memo(() => {
           setMapReady(true);
           setMapLoading(false);
           setMapError(null);
-          console.warn('[PassportMap] WebGL unavailable — using raster (Leaflet) map');
+          if (import.meta.env.DEV) {
+            console.debug('[PassportMap] WebGL unavailable — using raster (Leaflet) map');
+          }
           requestAnimationFrame(() => {
             try { handle.map.invalidateSize({ animate: false }); } catch { /* empty */ }
             refreshMapVisualsRef.current();
@@ -997,7 +999,7 @@ export const PassportMapModal = memo(() => {
             return;
           }
           pageMapFallbackDone = true;
-          console.warn('[PassportMap] WebGL context lost — one legacy re-init only');
+          if (import.meta.env.DEV) console.debug('[PassportMap] WebGL context lost — one legacy re-init only');
           destroyMapInstance(map);
           initStartedRef.current = false;
           setMapReady(false);
@@ -1055,7 +1057,7 @@ export const PassportMapModal = memo(() => {
           if (/UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message)) {
             if (!profile.useLegacyGl && !pageMapFallbackDone) {
               pageMapFallbackDone = true;
-              console.warn('[PassportMap] WebGL error, one legacy fallback:', message);
+              if (import.meta.env.DEV) console.debug('[PassportMap] WebGL error, one legacy fallback:', message);
               destroyMapInstance(map);
               initStartedRef.current = false;
               setMapReady(false);

@@ -50,7 +50,7 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import { getBottomNavChrome, getGlassBubbleStyle } from '@/utils/chromeStyles';
+import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 20;
@@ -251,21 +251,12 @@ export const BottomNavigation = memo(({
 
   const isDashboard = isDashboardPath(location.pathname);
   
-  const { 
-    iconShadow, 
-    pillStyle, 
-    useLightIcons, 
-    iconColor: baseColor, 
-    inactiveIconColor 
+  const {
+    pillStyle,
+    iconColor: baseColor,
+    inactiveIconColor,
   } = getBottomNavChrome(isLight, isDashboard);
-  
-  const getNavIconFilter = (itemId: string, active: boolean) => {
-    return iconShadow;
-  };
 
-  const _getNavLabelShadow = (itemId: string, active: boolean) => {
-    return 'none';
-  };
   return (
     <nav
       role="navigation"
@@ -357,12 +348,15 @@ export const BottomNavigation = memo(({
                 }}
               >
                 <div
-                  className="relative z-10 flex items-center justify-center rounded-full"
+                  className="relative z-10 flex items-center justify-center"
                   style={{
                     width: active ? '40px' : '36px',
                     height: active ? '40px' : '36px',
                     transition: 'width 140ms ease, height 140ms ease',
-                    ...(isAddBtn ? { background: '#FF3366', boxShadow: '0 4px 12px rgba(255,51,102,0.5)' } : { background: 'transparent', boxShadow: 'none', border: 'none' })
+                    // No circular discs — icons float clean on the dock pill
+                    background: 'transparent',
+                    boxShadow: 'none',
+                    border: 'none',
                   }}
                 >
 
@@ -383,32 +377,20 @@ export const BottomNavigation = memo(({
                     )}
                   </AnimatePresence>
 
-                  {/* LIQUID GLASS HIGHLIGHT BUBBLE */}
-                  {active && !isAddBtn && (
-                    <motion.div
-                      layoutId="nav-active-indicator"
-                      className="absolute inset-0 z-0 pointer-events-none"
-                      initial={false}
-                      transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
-                      style={{
-                        ...getGlassBubbleStyle(isLight, true),
-                        transformOrigin: 'center'
-                      }}
-                    />
-                  )}
-
                   {(() => {
                     const motionId = getNavMotionId(item.id);
                     const iconEl = (
                       <Icon
                         style={{
-                          width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          color: isAddBtn ? '#FFFFFF' : (active ? baseColor : inactiveIconColor),
+                          width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          color: isAddBtn
+                            ? '#FF3366'
+                            : (active ? baseColor : inactiveIconColor),
                           fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 2 : 1.75,
-                          filter: getNavIconFilter(item.id, active),
-                          transition: 'color 120ms ease-out, fill 120ms ease-out, filter 120ms ease-out, stroke-width 120ms ease-out',
+                          strokeWidth: active || isAddBtn ? 2.25 : 1.75,
+                          filter: 'none',
+                          transition: 'color 120ms ease-out, fill 120ms ease-out, stroke-width 120ms ease-out',
                         }}
                       />
                     );
