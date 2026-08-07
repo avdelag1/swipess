@@ -27,6 +27,12 @@ import { usePassportMapData } from '@/hooks/usePassportMapData';
 import { isMapboxConfigured, resolveMapboxAccessToken } from '@/utils/mapboxConfig';
 import { resetWarmMapboxModules, warmMapboxModules } from '@/utils/mapWarmPool';
 import { forceLegacyMapProfile, getMapWebGLProfile } from '@/utils/mapWebGLProfile';
+import {
+  addRasterHtmlMarker,
+  createRasterMap,
+  type RasterMapHandle,
+  type RasterMarkerEntry,
+} from '@/utils/mapRasterFallback';
 import { PassportMapPinPreview } from '@/components/passport/PassportMapPinPreview';
 import { PassportMapResultsRail } from '@/components/passport/PassportMapResultsRail';
 import {
@@ -63,6 +69,9 @@ let pageMapInstance: import('mapbox-gl').Map | null = null;
 let pageMapInitCount = 0;
 let pageMapInitLock = false;
 let pageMapFallbackDone = false;
+/** Once WebGL dies, stay on Leaflet raster for the rest of the page session. */
+let pageRasterMode = false;
+let pageRasterHandle: RasterMapHandle | null = null;
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
   coordsNearFix,
@@ -163,6 +172,11 @@ export const PassportMapModal = memo(() => {
   const shouldLoadMapPins = isOpen || mapReady;
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  /** Leaflet (no WebGL) when Mapbox GL context is unavailable — Safari / iPhone 8. */
+  const [rasterMode, setRasterMode] = useState(() => pageRasterMode);
+  const rasterHandleRef = useRef<RasterMapHandle | null>(pageRasterHandle);
+  const rasterMarkersRef = useRef<Map<string, RasterMarkerEntry>>(new Map());
+  const activateRasterRef = useRef<((center?: { lat: number; lng: number }) => Promise<void>) | null>(null);
   const [tokenReady, setTokenReady] = useState(() => isMapboxConfigured());
   const [activeDrawer, setActiveDrawer] = useState<'cities' | 'results' | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -267,9 +281,19 @@ export const PassportMapModal = memo(() => {
   const prevRadiusKmRef = useRef(radiusKm);
 
   const applyRadiusCircleNow = useCallback(() => {
-    const map = mapRef.current;
     const center = radiusCenterRef.current;
-    if (!map || !center) return;
+    if (!center) return;
+
+    const raster = rasterHandleRef.current;
+    if (raster || pageRasterMode) {
+      try {
+        (raster ?? pageRasterHandle)?.setRadius(center.lat, center.lng, radiusKm);
+      } catch { /* empty */ }
+      return;
+    }
+
+    const map = mapRef.current;
+    if (!map) return;
 
     const paint = () => {
       if (!map.isStyleLoaded()) return;
@@ -298,28 +322,46 @@ export const PassportMapModal = memo(() => {
 
   // Frame circle when user changes radius slider — preserve their pan if they moved the map.
   useEffect(() => {
-    if (!isOpen || !mapReady || !mapRef.current) return;
+    if (!isOpen || !mapReady) return;
     if (prevRadiusKmRef.current === radiusKm) return;
     prevRadiusKmRef.current = radiusKm;
+    const z = zoomForRadiusKm(radiusKm);
+
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && (rasterMode || pageRasterMode)) {
+      if (userMapInteractedRef.current) {
+        const c = raster.map.getCenter();
+        raster.flyTo(c.lat, c.lng, z);
+      } else {
+        const center = radiusCenterRef.current;
+        if (center) raster.flyTo(center.lat, center.lng, z);
+      }
+      return;
+    }
+
     const map = mapRef.current;
+    if (!map) return;
     suppressMapInteractionRef.current = true;
     const releaseSuppress = () => { suppressMapInteractionRef.current = false; };
     map.once('moveend', releaseSuppress);
     window.setTimeout(releaseSuppress, 320);
     if (userMapInteractedRef.current) {
       const c = map.getCenter();
-      cinematicEaseTo(map, [c.lng, c.lat], zoomForRadiusKm(radiusKm), { duration: 200 });
+      cinematicEaseTo(map, [c.lng, c.lat], z, { duration: 200 });
       return;
     }
     const center = radiusCenterRef.current;
     if (!center) return;
-    cinematicEaseTo(map, [center.lng, center.lat], zoomForRadiusKm(radiusKm), { duration: 200 });
-  }, [radiusKm, isOpen, mapReady]);
+    cinematicEaseTo(map, [center.lng, center.lat], z, { duration: 200 });
+  }, [radiusKm, isOpen, mapReady, rasterMode]);
 
   const flyTo = useCallback((newLat: number, newLng: number, label?: string, zoom = 11) => {
     setHubSearchOnOpen(false);
     setPassportLocation(newLat, newLng, label);
-    if (mapRef.current) {
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && (pageRasterMode || rasterMode)) {
+      raster.flyTo(newLat, newLng, zoom);
+    } else if (mapRef.current) {
       cinematicEaseTo(
         mapRef.current,
         [newLng, newLat],
@@ -329,7 +371,7 @@ export const PassportMapModal = memo(() => {
     }
     triggerHaptic('heavy');
     if (label) appToast.success(`Exploring ${label}`);
-  }, [setPassportLocation]);
+  }, [setPassportLocation, rasterMode]);
 
   const flyToRef = useRef(flyTo);
   flyToRef.current = flyTo;
@@ -393,14 +435,23 @@ export const PassportMapModal = memo(() => {
           setUserLocation(latitude, longitude);
         }
 
-        if (!fix || !mapRef.current) return;
+        if (!fix) return;
 
-        cinematicEaseTo(
-          mapRef.current,
-          [fix.lng, fix.lat],
-          opts?.zoom ?? zoomForRadiusKm(radiusKm),
-          { duration: 320, pitch: cinematicPitchForViewport() },
-        );
+        const z = opts?.zoom ?? zoomForRadiusKm(radiusKm);
+        const raster = rasterHandleRef.current ?? pageRasterHandle;
+        if (raster && pageRasterMode) {
+          raster.flyTo(fix.lat, fix.lng, z);
+          raster.setGpsDot(fix.lat, fix.lng);
+        } else if (mapRef.current) {
+          cinematicEaseTo(
+            mapRef.current,
+            [fix.lng, fix.lat],
+            z,
+            { duration: 320, pitch: cinematicPitchForViewport() },
+          );
+        } else {
+          return;
+        }
         if (opts?.announce) appToast.success('Centered on your location');
       } catch {
         appToast.error('Could not detect location');
@@ -435,14 +486,20 @@ export const PassportMapModal = memo(() => {
     userMapInteractedRef.current = true;
     initialCenterDoneRef.current = true;
     userEverMovedRef.current = true;
-    const map = mapRef.current;
-    if (map?.isStyleLoaded()) {
-      cinematicEaseTo(
-        map,
-        [lng, lat],
-        zoomForRadiusKm(radiusKm),
-        { duration: OPEN_CENTER_MS, pitch: cinematicPitchForViewport() },
-      );
+    const z = zoomForRadiusKm(radiusKm);
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && pageRasterMode) {
+      raster.flyTo(lat, lng, z);
+    } else {
+      const map = mapRef.current;
+      if (map?.isStyleLoaded()) {
+        cinematicEaseTo(
+          map,
+          [lng, lat],
+          z,
+          { duration: OPEN_CENTER_MS, pitch: cinematicPitchForViewport() },
+        );
+      }
     }
     appToast.success('Search area moved here — hold 1s on empty map');
   }, [clearPassportLocation, radiusKm, setUserLocation]);
@@ -451,7 +508,13 @@ export const PassportMapModal = memo(() => {
   relocateSearchRef.current = relocateSearchTo;
 
   const resizeMap = useCallback(() => {
-    requestAnimationFrame(() => mapRef.current?.resize());
+    requestAnimationFrame(() => {
+      if (pageRasterMode) {
+        try { (rasterHandleRef.current ?? pageRasterHandle)?.map.invalidateSize({ animate: false }); } catch { /* empty */ }
+        return;
+      }
+      mapRef.current?.resize();
+    });
   }, []);
 
   const applyGpsFix = useCallback((fix: GpsFix | { lat: number; lng: number }) => {
@@ -494,11 +557,23 @@ export const PassportMapModal = memo(() => {
   ) => {
     if (session !== mapOpenSessionRef.current) return;
     if (userMapInteractedRef.current || selectedRef.current) return;
+    if (!mapReady) return;
+
+    const zoom = zoomForRadiusKm(radiusKm);
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && pageRasterMode) {
+      if (opts?.fly || (opts?.duration ?? OPEN_CENTER_MS) > 0) {
+        raster.flyTo(target.lat, target.lng, zoom);
+      } else {
+        raster.setView(target.lat, target.lng, zoom);
+      }
+      return;
+    }
+
     const map = mapRef.current;
-    if (!map || !mapReady) return;
+    if (!map) return;
 
     const center: [number, number] = [target.lng, target.lat];
-    const zoom = zoomForRadiusKm(radiusKm);
     const pitch = cinematicPitchForViewport();
 
     const duration = opts?.duration ?? OPEN_CENTER_MS;
@@ -574,11 +649,13 @@ export const PassportMapModal = memo(() => {
     if (!shouldWarmMap) return;
     let cancelled = false;
     // Prefetch token + Mapbox JS/CSS only — create WebGL when the map opens.
-    // warmMapboxModules() picks v3 (full) or v2 (legacy WebGL1) from WebGL probe.
+    // Skip warming Mapbox GL when this page session already chose raster (Safari WebGL dead).
     void resolveMapboxAccessToken().then((token) => {
       if (!cancelled) setTokenReady(token.length > 0);
     });
-    void warmMapboxModules().catch(() => { /* retry on open */ });
+    if (!pageRasterMode) {
+      void warmMapboxModules().catch(() => { /* retry on open */ });
+    }
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
@@ -604,10 +681,121 @@ export const PassportMapModal = memo(() => {
       pageMapInitLock = false;
     };
 
+    /** Non-WebGL Leaflet map — real tiles + pins when Safari kills Mapbox GL. */
+    const activateRasterFallback = async (hintCenter?: { lat: number; lng: number }) => {
+      if (mapUnmountedRef.current || !mapContainerRef.current) return;
+
+      // Reuse page-level raster only if its DOM is still the live container
+      if (pageRasterHandle && pageRasterMode) {
+        const live = mapContainerRef.current;
+        const existing = pageRasterHandle.map.getContainer();
+        if (existing.isConnected && (existing === live || live.contains(existing))) {
+          rasterHandleRef.current = pageRasterHandle;
+          setRasterMode(true);
+          setMapReady(true);
+          setMapLoading(false);
+          setMapError(null);
+          requestAnimationFrame(() => {
+            try { pageRasterHandle?.map.invalidateSize({ animate: false }); } catch { /* empty */ }
+            refreshMapVisualsRef.current();
+          });
+          return;
+        }
+        try { pageRasterHandle.destroy(); } catch { /* empty */ }
+        pageRasterHandle = null;
+        rasterHandleRef.current = null;
+      }
+
+      pageMapFallbackDone = true;
+      pageMapInitCount = 99;
+      pageRasterMode = true;
+      initStartedRef.current = true;
+      pageMapInitLock = true;
+      setMapLoading(true);
+      setMapError(null);
+      setRasterMode(true);
+
+      destroyMapInstance();
+      unbindMapDoubleTapRef.current?.();
+      unbindMapDoubleTapRef.current = null;
+      unbindLongPressRef.current?.();
+      unbindLongPressRef.current = null;
+      unbindInteractionRef.current?.();
+      unbindInteractionRef.current = null;
+      rasterMarkersRef.current.forEach((entry) => {
+        try { entry.cleanup(); entry.marker.remove(); } catch { /* empty */ }
+      });
+      rasterMarkersRef.current.clear();
+
+      try {
+        const token = await resolveMapboxAccessToken();
+        if (mapUnmountedRef.current || !mapContainerRef.current) return;
+        if (!token) {
+          setMapError('Mapbox token missing — set VITE_MAPBOX_ACCESS_TOKEN and redeploy');
+          setMapLoading(false);
+          pageMapInitLock = false;
+          return;
+        }
+
+        const hub = radiusCenterRef.current ?? MAP_SEARCH_HUB;
+        const center = hintCenter ?? hub;
+        const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
+
+        const handle = await createRasterMap(mapContainerRef.current, {
+          token,
+          center: {
+            lat: Number.isFinite(center.lat) ? center.lat : MAP_SEARCH_HUB.lat,
+            lng: Number.isFinite(center.lng) ? center.lng : MAP_SEARCH_HUB.lng,
+          },
+          zoom: Number.isFinite(zoom) ? zoom : 10,
+        });
+
+        if (mapUnmountedRef.current) {
+          handle.destroy();
+          return;
+        }
+
+        pageRasterHandle = handle;
+        rasterHandleRef.current = handle;
+        unbindLongPressRef.current = handle.onLongPress((lng, lat) => {
+          relocateSearchRef.current(lng, lat);
+        });
+        unbindInteractionRef.current = handle.onUserInteract(() => {
+          markUserMapControlRef.current();
+        });
+
+        pageMapInitLock = false;
+        setMapReady(true);
+        setMapLoading(false);
+        setMapError(null);
+        console.warn('[PassportMap] WebGL unavailable — using raster (Leaflet) map');
+        requestAnimationFrame(() => {
+          refreshMapVisualsRef.current();
+        });
+      } catch (err) {
+        console.error('[PassportMap] raster fallback failed', err);
+        pageMapInitLock = false;
+        setMapLoading(false);
+        setMapError(
+          t('map.graphicsUnavailable', {
+            defaultValue: 'Map graphics unavailable on this browser. Try Chrome or update iOS.',
+          }),
+        );
+      }
+    };
+    activateRasterRef.current = activateRasterFallback;
+
     const beginInit = () => {
       // Never create WebGL while closed — host is visibility:hidden.
       if (!useModalStore.getState().showPassportMapModal) return;
       if (mapUnmountedRef.current || !mapContainerRef.current) return;
+
+      // This session already settled on Leaflet
+      if (pageRasterMode) {
+        void activateRasterFallback();
+        return;
+      }
+
       // Live map already exists (maybe from prior mount) — reattach ref only
       if (pageMapInstance || mapRef.current) {
         mapRef.current = pageMapInstance ?? mapRef.current;
@@ -616,10 +804,9 @@ export const PassportMapModal = memo(() => {
         return;
       }
       if (initStartedRef.current || pageMapInitLock) return;
-      // Hard stop after 2 page-level attempts (survives React remount)
+      // After 2 Mapbox attempts, open a real map via Leaflet (not a dead-end error)
       if (pageMapInitCount >= 2) {
-        setMapError('Map could not start on this device. Close and try again, or use Chrome.');
-        setMapLoading(false);
+        void activateRasterFallback();
         return;
       }
 
@@ -741,12 +928,12 @@ export const PassportMapModal = memo(() => {
         canvas.setAttribute('data-map-canvas', '');
         canvas.style.touchAction = 'none';
 
-        // Recover at most once → legacy GL. Never loop (context spam).
+        // Recover at most once → legacy GL, then Leaflet raster. Never loop.
         canvas.addEventListener('webglcontextlost', (ev) => {
           ev.preventDefault();
-          if (mapUnmountedRef.current || pageMapFallbackDone) {
-            setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
-            setMapLoading(false);
+          if (mapUnmountedRef.current) return;
+          if (pageMapFallbackDone || pageMapInitCount >= 2) {
+            void activateRasterFallback();
             return;
           }
           pageMapFallbackDone = true;
@@ -759,8 +946,7 @@ export const PassportMapModal = memo(() => {
           if (pageMapInitCount < 2) {
             deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
           } else {
-            setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
-            setMapLoading(false);
+            void activateRasterFallback();
           }
         }, { once: true });
 
@@ -805,24 +991,23 @@ export const PassportMapModal = memo(() => {
               setMapLoading(false);
             }
           }
-          // UBO / WebGL failures → one automatic downgrade to Mapbox v2 (WebGL1)
-          if (
-            /UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message)
-            && !profile.useLegacyGl
-            && !pageMapFallbackDone
-          ) {
-            pageMapFallbackDone = true;
-            console.warn('[PassportMap] WebGL error, one legacy fallback:', message);
-            destroyMapInstance(map);
-            initStartedRef.current = false;
-            setMapReady(false);
-            forceLegacyMapProfile();
-            resetWarmMapboxModules();
-            if (pageMapInitCount < 2) {
-              deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
-            } else {
-              setMapError('Map graphics unavailable on this browser. Try Chrome or update iOS.');
-              setMapLoading(false);
+          // UBO / WebGL failures → one legacy attempt, then Leaflet raster
+          if (/UBO|uniform block|WebGL|context lost|exceeds device limit/i.test(message)) {
+            if (!profile.useLegacyGl && !pageMapFallbackDone) {
+              pageMapFallbackDone = true;
+              console.warn('[PassportMap] WebGL error, one legacy fallback:', message);
+              destroyMapInstance(map);
+              initStartedRef.current = false;
+              setMapReady(false);
+              forceLegacyMapProfile();
+              resetWarmMapboxModules();
+              if (pageMapInitCount < 2) {
+                deferHandle = setTimeout(() => beginInitRef.current?.(), 400);
+              } else {
+                void activateRasterFallback();
+              }
+            } else if (pageMapFallbackDone || profile.useLegacyGl) {
+              void activateRasterFallback();
             }
           }
         });
@@ -896,13 +1081,26 @@ export const PassportMapModal = memo(() => {
         pageMapInitLock = false;
         if (!mapUnmountedRef.current) {
           console.error('[PassportMap] init failed', err);
-          setMapError('Failed to initialize map — close and try again');
-          setMapLoading(false);
           initStartedRef.current = false;
-          // Don't loop on throw — leave pageMapInitCount as-is
+          // Prefer a working 2D map over a hard error screen
+          void activateRasterFallback();
         }
       }
     })();
+    };
+
+    // Safari/iOS with known-broken UBO: skip Mapbox GL (saves 2 context-loss errors)
+    // and open Leaflet on first open when profile already demands legacy + weak GPU.
+    const preferRasterFirst = () => {
+      try {
+        const p = getMapWebGLProfile();
+        // maxUBO 0 + Apple = Mapbox GL v3 unusable; v2 often still dies on iPhone 8 class.
+        // Go straight to raster after a single failed legacy attempt is still slower —
+        // for apple + maxUBO 0, start on raster immediately for a working map.
+        return p.useLegacyGl && p.maxUniformBlockSize === 0 && /apple/i.test(p.reason);
+      } catch {
+        return false;
+      }
     };
 
     // Expose so the open-kick effect can start init when the user opens the map.
@@ -910,7 +1108,11 @@ export const PassportMapModal = memo(() => {
 
     // Kick init when already open on mount.
     if (useModalStore.getState().showPassportMapModal) {
-      deferHandle = setTimeout(beginInit, 0);
+      if (pageRasterMode || preferRasterFirst()) {
+        deferHandle = setTimeout(() => { void activateRasterFallback(); }, 0);
+      } else {
+        deferHandle = setTimeout(beginInit, 0);
+      }
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
@@ -925,34 +1127,65 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!isOpen) return;
 
-    if (mapRef.current) {
-      const t1 = window.setTimeout(() => resizeMap(), 40);
-      const t2 = window.setTimeout(() => resizeMap(), 200);
-      return () => {
-        window.clearTimeout(t1);
-        window.clearTimeout(t2);
-      };
+    if (mapRef.current || (pageRasterMode && (rasterHandleRef.current || pageRasterHandle))) {
+      if (pageRasterMode && !mapReady && !rasterHandleRef.current && !pageRasterHandle) {
+        // fall through to activate
+      } else {
+        // Reattach page-level raster handle after remount
+        if (pageRasterMode && pageRasterHandle && !rasterHandleRef.current) {
+          rasterHandleRef.current = pageRasterHandle;
+          setRasterMode(true);
+          setMapReady(true);
+          setMapLoading(false);
+        }
+        const t1 = window.setTimeout(() => resizeMap(), 40);
+        const t2 = window.setTimeout(() => resizeMap(), 200);
+        return () => {
+          window.clearTimeout(t1);
+          window.clearTimeout(t2);
+        };
+      }
+    }
+
+    if (pageRasterMode) {
+      if (!mapReady) {
+        const t = window.setTimeout(() => { void activateRasterRef.current?.(); }, 0);
+        return () => window.clearTimeout(t);
+      }
+      return undefined;
     }
 
     if (!initStartedRef.current && !pageMapInitLock && pageMapInitCount < 2 && !pageMapInstance) {
+      // Apple + UBO 0: skip Mapbox GL entirely (iPhone 8 / weak Safari)
+      try {
+        const p = getMapWebGLProfile();
+        if (p.useLegacyGl && p.maxUniformBlockSize === 0 && /apple/i.test(p.reason)) {
+          const t = window.setTimeout(() => { void activateRasterRef.current?.(); }, 0);
+          return () => window.clearTimeout(t);
+        }
+      } catch { /* fall through to Mapbox */ }
       const t = window.setTimeout(() => beginInitRef.current?.(), 0);
       return () => window.clearTimeout(t);
     }
     return undefined;
-  }, [isOpen, resizeMap]);
+  }, [isOpen, resizeMap, mapReady]);
 
-  // Geocoder mounts after map is ready — keeps first paint fast
+  // Geocoder mounts after map is ready — works for Mapbox GL and raster (container-only)
   useEffect(() => {
-    if (!isOpen || !mapReady || !mapRef.current || !mapboxRef.current) return;
+    if (!isOpen || !mapReady) return;
+    if (!mapRef.current && !pageRasterMode) return;
     if (geocoderRef.current) return;
 
     let cancelled = false;
     (async () => {
       const token = await resolveMapboxAccessToken();
-      if (cancelled || !mapRef.current || !mapboxRef.current || !geocoderContainerRef.current) return;
+      if (cancelled || !geocoderContainerRef.current) return;
 
-      const { MapboxGeocoder } = await warmMapboxModules();
-      if (cancelled || !mapRef.current) return;
+      const { mapboxgl, MapboxGeocoder } = await warmMapboxModules();
+      if (cancelled || !geocoderContainerRef.current) return;
+
+      const gl = mapboxRef.current ?? mapboxgl;
+      if (!mapboxRef.current) mapboxRef.current = mapboxgl;
 
       const proximity = deviceGps
         ? [deviceGps.lng, deviceGps.lat] as [number, number]
@@ -962,7 +1195,7 @@ export const PassportMapModal = memo(() => {
 
       const geocoder = new MapboxGeocoder({
         accessToken: token,
-        mapboxgl: mapboxRef.current as any,
+        mapboxgl: gl as any,
         marker: false,
         placeholder: 'Search near you or worldwide…',
         ...(proximity ? { proximity } : {}),
@@ -974,12 +1207,22 @@ export const PassportMapModal = memo(() => {
       });
       geocoderRef.current = geocoder;
       geocoderContainerRef.current.innerHTML = '';
-      geocoderContainerRef.current.appendChild(geocoder.onAdd(mapRef.current));
+      if (mapRef.current) {
+        geocoderContainerRef.current.appendChild(geocoder.onAdd(mapRef.current));
+      } else {
+        // Raster mode — geocoder UI only; flyTo handled in 'result'
+        try {
+          (geocoder as { addTo: (el: HTMLElement) => void }).addTo(geocoderContainerRef.current);
+        } catch {
+          const el = geocoder.onAdd(mapRef.current as any);
+          geocoderContainerRef.current.appendChild(el);
+        }
+      }
     })();
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, mapReady, deviceGps, lat, lng]);
+  }, [isOpen, mapReady, deviceGps, lat, lng, rasterMode]);
 
   // Keep geocoder proximity near user as GPS warms up after mount.
   useEffect(() => {
@@ -1007,21 +1250,24 @@ export const PassportMapModal = memo(() => {
       entry.marker.remove();
     });
     markersRef.current.clear();
+    rasterMarkersRef.current.forEach(entry => {
+      entry.cleanup();
+      entry.marker.remove();
+    });
+    rasterMarkersRef.current.clear();
     try { geocoderRef.current?.onRemove(); } catch { /* empty */ }
     geocoderRef.current = null;
     if (mapRef.current) {
       try { removeUserGpsDotFromMap(mapRef.current); } catch { /* empty */ }
     }
-    try {
-      (pageMapInstance ?? mapRef.current)?.remove();
-    } catch { /* empty */ }
-    pageMapInstance = null;
-    pageMapInitLock = false;
-    // Allow a fresh open later in this session, but never more than 2 tries per open cycle
-    pageMapInitCount = 0;
+    // Keep page-level Mapbox/Leaflet instances across React remounts so Safari
+    // never re-creates WebGL contexts mid-session. Only drop local refs.
     mapRef.current = null;
     mapboxRef.current = null;
     initStartedRef.current = false;
+    pageMapInitLock = false;
+    // Do NOT reset pageMapInitCount / pageRasterMode / pageRasterHandle —
+    // remount must reattach, not allocate more GL contexts.
   }, []);
 
   useEffect(() => {
@@ -1056,8 +1302,14 @@ export const PassportMapModal = memo(() => {
   }, [isOpen, mapReady]);
 
   const applyDeviceGpsToMap = useCallback((fix: { lat: number; lng: number }) => {
+    if (!mapReady) return;
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && pageRasterMode) {
+      try { raster.setGpsDot(fix.lat, fix.lng); } catch { /* empty */ }
+      return;
+    }
     const map = mapRef.current;
-    if (!map || !mapReady || !map.isStyleLoaded()) return;
+    if (!map || !map.isStyleLoaded()) return;
     try {
       syncUserGpsDotOnMap(map, fix.lng, fix.lat);
     } catch {
@@ -1089,8 +1341,93 @@ export const PassportMapModal = memo(() => {
   }, [shouldLoadMapPins, applyRadiusCircleNow, radiusCenter, radiusKm]);
 
   const syncMarkers = useCallback(() => {
+    if (!shouldLoadMapPins) return;
+
+    // ── Leaflet raster path (Safari / no WebGL) ──
+    const raster = rasterHandleRef.current ?? pageRasterHandle;
+    if (raster && pageRasterMode) {
+      const L = raster.L;
+      const map = raster.map;
+      const registry = rasterMarkersRef.current;
+      const nextKeys = new Set<string>();
+      const sel = selectedRef.current;
+
+      const upsertListing = (l: (typeof visibleListings)[number]) => {
+        const key = `listing:${l.id}`;
+        nextKeys.add(key);
+        const isSelected = sel?.type === 'listing' && sel.data.id === l.id;
+        const existing = registry.get(key);
+        if (existing) {
+          existing.marker.setLatLng([l.lat, l.lng]);
+          updateListingMarkerEl(existing.el, l, isSelected);
+          return;
+        }
+        const el = createListingMarkerEl(l, isSelected);
+        const cleanup = bindMarkerGestures(
+          el,
+          () => {
+            triggerHaptic('light');
+            focusPinSheet({ type: 'listing', data: l });
+          },
+          () => {
+            triggerHaptic('medium');
+            focusPinSheet({ type: 'listing', data: l });
+          },
+          () => useModalStore.getState().showPassportMapModal,
+        );
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease-out';
+        const marker = addRasterHtmlMarker(L, map, el, l.lat, l.lng);
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
+      };
+
+      const upsertProfile = (p: (typeof visibleProfiles)[number]) => {
+        const key = `profile:${p.id}`;
+        nextKeys.add(key);
+        const isSelected = sel?.type === 'profile' && sel.data.id === p.id;
+        const existing = registry.get(key);
+        if (existing) {
+          existing.marker.setLatLng([p.lat, p.lng]);
+          updateProfileMarkerEl(existing.el, p, isSelected);
+          return;
+        }
+        const el = createProfileMarkerEl(p, isSelected);
+        const cleanup = bindMarkerGestures(
+          el,
+          () => {
+            triggerHaptic('light');
+            focusPinSheet({ type: 'profile', data: p });
+          },
+          () => {
+            triggerHaptic('medium');
+            focusPinSheet({ type: 'profile', data: p });
+          },
+          () => useModalStore.getState().showPassportMapModal,
+        );
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.25s ease-out';
+        const marker = addRasterHtmlMarker(L, map, el, p.lat, p.lng);
+        requestAnimationFrame(() => { el.style.opacity = '1'; });
+        registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
+      };
+
+      visibleListings.forEach(upsertListing);
+      visibleProfiles.forEach(upsertProfile);
+
+      for (const [key, entry] of registry) {
+        if (!nextKeys.has(key)) {
+          entry.cleanup();
+          entry.marker.remove();
+          registry.delete(key);
+        }
+      }
+      return;
+    }
+
+    // ── Mapbox GL path ──
     const map = mapRef.current;
-    if (!map || !mapboxRef.current || !shouldLoadMapPins) return;
+    if (!map || !mapboxRef.current) return;
     if (!map.isStyleLoaded()) {
       map.once('idle', () => syncMarkersRef.current());
       return;
@@ -1183,6 +1520,13 @@ export const PassportMapModal = memo(() => {
   syncMarkersRef.current = syncMarkers;
 
   const refreshMapVisuals = useCallback(() => {
+    if (pageRasterMode) {
+      if (!rasterHandleRef.current && !pageRasterHandle) return;
+      resizeMap();
+      applyRadiusCircleNow();
+      syncMarkersRef.current();
+      return;
+    }
     const map = mapRef.current;
     if (!map) return;
     resizeMap();
@@ -1217,14 +1561,23 @@ export const PassportMapModal = memo(() => {
     if (framedOpenSessionRef.current === session) return;
     framedOpenSessionRef.current = session;
 
-    const map = mapRef.current;
     const center = radiusCenterRef.current;
-    if (map && center && !userMapInteractedRef.current) {
+    if (center && !userMapInteractedRef.current) {
       const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
-      const pitch = cinematicPitchForViewport();
-      cinematicOpenGlide(map, [center.lng, center.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
-      applyRadiusCircleNow();
-      initialCenterDoneRef.current = true;
+      if (pageRasterMode) {
+        const raster = rasterHandleRef.current ?? pageRasterHandle;
+        raster?.setView(center.lat, center.lng, zoom);
+        applyRadiusCircleNow();
+        initialCenterDoneRef.current = true;
+      } else {
+        const map = mapRef.current;
+        if (map) {
+          const pitch = cinematicPitchForViewport();
+          cinematicOpenGlide(map, [center.lng, center.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
+          applyRadiusCircleNow();
+          initialCenterDoneRef.current = true;
+        }
+      }
     }
     refreshMapVisuals();
     const t1 = window.setTimeout(refreshMapVisuals, 50);
@@ -1238,10 +1591,9 @@ export const PassportMapModal = memo(() => {
   // Selection highlight only — avoids rebuilding every marker on tap
   useEffect(() => {
     if (!mapReady || !isOpen) return;
-    const registry = markersRef.current;
+    const registry = pageRasterMode ? rasterMarkersRef.current : markersRef.current;
     const listingsById = new Map(visibleListings.map(l => [l.id, l]));
     const profilesById = new Map(visibleProfiles.map(p => [p.id, p]));
-
     for (const entry of registry.values()) {
       const isSelected = selected?.type === entry.pinType && selected.data.id === entry.pinId;
       const isHiddenBySelection = selected != null && !isSelected;
@@ -1689,6 +2041,19 @@ export const PassportMapModal = memo(() => {
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-[#1a1a2e]">
             <MapPin className="w-10 h-10 text-red-400 mb-4" />
             <p className="text-white font-bold">{mapError}</p>
+          </div>
+        )}
+
+        {isOpen && rasterMode && mapReady && !mapError && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-[25] pointer-events-none px-3 py-1 rounded-full bg-black/55 backdrop-blur-md border border-white/10"
+            style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 52px)' }}
+          >
+            <p className="text-[10px] font-semibold text-white/70 tracking-wide whitespace-nowrap">
+              {t('map.rasterModeHint', {
+                defaultValue: 'Simplified map (this device has limited graphics)',
+              })}
+            </p>
           </div>
         )}
 

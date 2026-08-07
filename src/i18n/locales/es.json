@@ -550,7 +550,9 @@
     "loadError": "No se pudieron cargar los datos del mapa",
     "doubleTapHint": "Toca dos veces el mapa para acercar",
     "expandControls": "Mostrar controles",
-    "collapseControls": "Ocultar controles"
+    "collapseControls": "Ocultar controles",
+    "graphicsUnavailable": "El mapa no puede usar gráficos en este navegador. Prueba Chrome o actualiza iOS.",
+    "rasterModeHint": "Mapa simplificado (este dispositivo tiene gráficos limitados)"
   },
   "tokens": {
     "outOfTokens": "Sin tokens de mensajes",

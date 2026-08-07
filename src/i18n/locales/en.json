@@ -598,7 +598,9 @@
     "loadError": "Could not load map data",
     "doubleTapHint": "Double-tap map to zoom in",
     "expandControls": "Show map controls",
-    "collapseControls": "Hide map controls"
+    "collapseControls": "Hide map controls",
+    "graphicsUnavailable": "Map graphics unavailable on this browser. Try Chrome or update iOS.",
+    "rasterModeHint": "Simplified map (this device has limited graphics)"
   },
   "tokens": {
     "outOfTokens": "Out of message tokens",

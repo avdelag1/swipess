@@ -195,7 +195,10 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('date-fns')) return 'vendor-dates';
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';
-            // Map / geo
+            // Map / geo — keep GL v3, GL v2 (legacy), and Leaflet in separate
+            // chunks so Safari can load only the fallback without fighting v3.
+            if (id.includes('mapbox-gl-legacy') || id.includes('mapbox-gl@2')) return 'vendor-maps-legacy';
+            if (id.includes('leaflet')) return 'vendor-leaflet';
             if (id.includes('mapbox') || id.includes('maplibre')) return 'vendor-maps';
             // Audio
             if (id.includes('howler') || id.includes('tone') || id.includes('wavesurfer')) return 'vendor-audio';
