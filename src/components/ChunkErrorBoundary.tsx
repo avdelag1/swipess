@@ -1,7 +1,5 @@
 import { Component, ReactNode } from 'react';
 
-const RELOAD_KEY = '__swipess_chunk_reload__';
-
 interface Props {
   children: ReactNode;
 }
@@ -20,22 +18,16 @@ export class ChunkErrorBoundary extends Component<Props, State> {
     if (
       msg.includes('dynamically imported module') ||
       msg.includes('Loading chunk') ||
-      msg.includes('Failed to fetch')
+      msg.includes('Failed to fetch dynamically')
     ) {
-      try {
-        const last = Number(sessionStorage.getItem(RELOAD_KEY) || '0');
-        if (Date.now() - last > 30000) {
-          sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
-          window.location.replace(window.location.pathname + '?v=' + Date.now());
-          return { hasChunkError: true };
-        }
-      } catch { /* sessionStorage unavailable in private browsing — safe to swallow */ }
-      return { hasChunkError: true };
+      // Do NOT auto-reload here — main.tsx / lazyWithRetry already do one-time recovery.
+      // Auto-reload from this boundary caused Chrome reload thrashing with the SW.
+      return { hasChunkError: true, hasGeneralError: false, errorMsg: msg };
     }
     
     // For non-chunk errors, we MUST NOT throw inside getDerivedStateFromError!
     // Instead, update state so we can render a fallback or let componentDidCatch log it.
-    return { hasGeneralError: true, errorMsg: msg };
+    return { hasChunkError: false, hasGeneralError: true, errorMsg: msg };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {

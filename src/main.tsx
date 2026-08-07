@@ -16,46 +16,38 @@ import { applyHardwareTierClasses } from "@/utils/hardwareTier";
 
 applyHardwareTierClasses();
 
-// 🚀 EMERGENCY RECOVERY: Handle Vite preload and script load failures
-// This prevents the infinite reload loop when chunks are missing after a deployment.
+// 🚀 EMERGENCY RECOVERY: Handle Vite preload / missing chunk failures after deploy.
+// STRICT: at most ONE automatic recovery per tab session. Multiple independent
+// reloaders (lazyRetry + this + SW) used to thrash Chrome into a permanent loop.
 const handleEmergencyRecovery = async (reason: string) => {
   const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
 
-  // CRITICAL: cap at 1 to prevent reload loops in dev/preview where the
-  // sandbox re-mints chunk hashes on every save.
   if (reloadCount >= 1) {
-    console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Manual intervention required.`);
+    console.error(`[Emergency] Max recovery attempts reached for: ${reason}. Stopping reload loop.`);
     return;
   }
 
-  console.warn(`[Emergency] ${reason} detected. Initiating recovery...`);
-  sessionStorage.setItem('Swipess_emergency_reload_count', (reloadCount + 1).toString());
+  console.warn(`[Emergency] ${reason} detected. One-time recovery…`);
+  sessionStorage.setItem('Swipess_emergency_reload_count', '1');
+  sessionStorage.setItem('swipess_chunk_reload_once', '1'); // align with lazyWithRetry
 
   try {
-    // 1. Unregister all service workers
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
+      await Promise.all(regs.map((r) => r.unregister()));
     }
-    
-    // 2. Clear all browser caches
     if ('caches' in window) {
       const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
+      await Promise.all(keys.map((k) => caches.delete(k)));
     }
-    
-    // 3. Clear version tracking to force fresh check
     localStorage.removeItem('Swipess_app_version');
-    
-    // 4. Force hard reload from server with cache bust
+    localStorage.removeItem('last-chunk-reload-time');
+
     const u = new URL(window.location.href);
     u.searchParams.set('v', Date.now().toString());
     window.location.replace(u.toString());
   } catch (err) {
     console.error('[Emergency] Recovery failed:', err);
-    const u = new URL(window.location.href);
-    u.searchParams.set('v', Date.now().toString());
-    window.location.replace(u.toString());
   }
 };
 
@@ -63,10 +55,6 @@ window.addEventListener('vite:preloadError', () => {
   handleEmergencyRecovery('Vite preload error');
 });
 
-// The service worker is the most reliable place to detect a stale app shell —
-// it sees the raw 404 on a hashed chunk. When it does, it signals here so we run
-// the same recovery (unregister SW, clear caches, hard reload to the fresh build)
-// even if no preload/script error fired on the page.
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'STALE_SHELL_RELOAD') {
@@ -75,23 +63,29 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   });
 }
 
-// Catch unhandled promise rejections that would otherwise silently disappear
 window.addEventListener('unhandledrejection', (event) => {
-  const msg = event.reason?.message || event.reason || 'Unknown promise rejection';
+  const msg = String(event.reason?.message || event.reason || '');
   console.error('[Global] Unhandled rejection:', msg);
-  // Avoid logging noisy auth/internal errors
   if (msg.includes('storage.getItem') || msg.includes('localStorage')) {
     event.preventDefault();
+  }
+  // Dynamic import failures sometimes only surface as rejections
+  if (
+    /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(msg)
+  ) {
+    handleEmergencyRecovery('Dynamic import rejection');
   }
 });
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('error', (event: any) => {
-    if (event.message?.includes('Failed to fetch dynamically imported module') || 
-        (event.target && event.target.tagName === 'SCRIPT')) {
-      handleEmergencyRecovery('Script load error');
+  // ONLY recover for our own dynamic-import failures — never for every <script>
+  // (extensions / analytics / third-party used to trigger infinite reloads).
+  window.addEventListener('error', (event: ErrorEvent) => {
+    const msg = String(event.message || '');
+    if (/Failed to fetch dynamically imported module|Importing a module script failed/i.test(msg)) {
+      handleEmergencyRecovery('Dynamic import error');
     }
-  }, true);
+  });
 
   requestAnimationFrame(() => {
     import("./styles/PremiumShine.css");

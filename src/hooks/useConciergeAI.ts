@@ -37,17 +37,44 @@ const PROFILE_INTENT_PATTERN = /\b(seekers|workers|buyers|renters|people|users|p
 
 // ─── localStorage helpers (fallback) ───────────────────────────────────────
 
+/** Drop HTML page dumps that used to bloat history and break AI (413 + bad context). */
+function scrubMessageText(text: string): string {
+  if (!text || typeof text !== 'string') return '';
+  const head = text.slice(0, 800);
+  if (
+    /<!DOCTYPE\s+html/i.test(head)
+    || /<html[\s>]/i.test(head)
+    || (/<head[\s>]/i.test(head) && /<script/i.test(head))
+  ) {
+    return '';
+  }
+  // Cap runaway messages
+  return text.length > 4000 ? text.slice(0, 4000) + '…' : text;
+}
+
 function loadConversationsLocal(): Conversation[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return parsed.map((c: any) => ({
+    const cleaned = parsed.map((c: any) => ({
       ...c,
       createdAt: new Date(c.createdAt),
       updatedAt: new Date(c.updatedAt),
-      messages: c.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })),
+      messages: (c.messages || [])
+        .map((m: any) => ({
+          ...m,
+          content: scrubMessageText(m.content || ''),
+          timestamp: new Date(m.timestamp),
+        }))
+        .filter((m: any) => m.content && m.content.trim().length > 0)
+        .slice(-MAX_MESSAGES),
     }));
+    // Persist scrub so the next open is clean
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned.slice(0, MAX_CONVERSATIONS)));
+    } catch { /* empty */ }
+    return cleaned;
   } catch {
     return [];
   }
@@ -57,7 +84,10 @@ function saveConversationsLocal(conversations: Conversation[]) {
   try {
     const trimmed = conversations.slice(0, MAX_CONVERSATIONS).map(c => ({
       ...c,
-      messages: c.messages.slice(-MAX_MESSAGES),
+      messages: c.messages
+        .map((m) => ({ ...m, content: scrubMessageText(m.content) }))
+        .filter((m) => m.content.trim().length > 0)
+        .slice(-MAX_MESSAGES),
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
   } catch { /* quota exceeded */ }
@@ -470,11 +500,19 @@ export function useConciergeAI() {
 
     try {
       const currentConvo = conversations.find(c => c.id === convoId);
-      const allMsgs = [...(currentConvo?.messages ?? []), userMsg];
-      const apiMessages = allMsgs.map(m => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      }));
+      // Short, scrubbed history only — old HTML dumps bloated the body past the
+      // edge 256KB limit and the request failed with no useful UI reply.
+      const prior = (currentConvo?.messages ?? [])
+        .map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: scrubMessageText(m.content),
+        }))
+        .filter((m) => m.content.trim().length > 0)
+        .slice(-12);
+      const apiMessages = [
+        ...prior,
+        { role: 'user' as const, content: scrubMessageText(content.trim()) || content.trim() },
+      ];
 
       // Adjust ego/charm/wisdom/sass/zen based on user message content
       if (activeCharacter !== 'default') {
@@ -487,37 +525,58 @@ export function useConciergeAI() {
       const session = await supabase.auth.getSession();
       const accessToken = session.data.session?.access_token || SUPABASE_ANON_KEY;
 
-      const resp = await fetch(AI_URL, {
+      if (!AI_URL || AI_URL.includes('undefined')) {
+        appToast.error('AI is misconfigured (missing Supabase URL). Please refresh.');
+        setIsLoading(false);
+        return;
+      }
+
+      const payload = {
+        messages: apiMessages,
+        stream: true,
+        locationContext: (() => {
+          const s = useFilterStore.getState();
+          return {
+            passportMode: s.passportMode,
+            passportLabel: s.passportLabel,
+            userLatitude: s.userLatitude,
+            userLongitude: s.userLongitude,
+            radiusKm: s.radiusKm,
+          };
+        })(),
+        ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
+        ...(activeCharacter === 'beaugosse' ? { character: 'beaugosse', charmLevel: egoLevel } : {}),
+        ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),
+        ...(activeCharacter === 'botbetter' ? { character: 'botbetter', sassLevel: egoLevel } : {}),
+        ...(activeCharacter === 'lunashanti' ? { character: 'lunashanti', zenLevel: egoLevel } : {}),
+        ...(activeCharacter === 'ezriyah' ? { character: 'ezriyah', flowLevel: egoLevel } : {}),
+        ...(PROFILE_INTENT_PATTERN.test(content) ? { preferredIntent: 'profiles' } : {}),
+      };
+
+      let resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
-          // Supabase gateway expects apikey on edge function requests
           'apikey': SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({
-          messages: apiMessages,
-          stream: true,
-          locationContext: (() => {
-            const s = useFilterStore.getState();
-            return {
-              passportMode: s.passportMode,
-              passportLabel: s.passportLabel,
-              userLatitude: s.userLatitude,
-              userLongitude: s.userLongitude,
-              radiusKm: s.radiusKm,
-            };
-          })(),
-          ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
-          ...(activeCharacter === 'beaugosse' ? { character: 'beaugosse', charmLevel: egoLevel } : {}),
-          ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),
-          ...(activeCharacter === 'botbetter' ? { character: 'botbetter', sassLevel: egoLevel } : {}),
-          ...(activeCharacter === 'lunashanti' ? { character: 'lunashanti', zenLevel: egoLevel } : {}),
-          ...(activeCharacter === 'ezriyah' ? { character: 'ezriyah', flowLevel: egoLevel } : {}),
-          ...(PROFILE_INTENT_PATTERN.test(content) ? { preferredIntent: 'profiles' } : {}),
-        }),
+        body: JSON.stringify(payload),
         signal: abortController.signal,
       });
+
+      // Retry once without SSE if the stream request failed (not payload-too-large)
+      if (!resp.ok && resp.status !== 413 && resp.status !== 401) {
+        resp = await fetch(AI_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'apikey': SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ ...payload, stream: false }),
+          signal: abortController.signal,
+        });
+      }
 
       if (!resp.ok) {
         let errorMsg = 'AI temporarily unavailable.';
@@ -527,6 +586,9 @@ export function useConciergeAI() {
         } catch { /* empty */ }
         if (resp.status === 429) errorMsg = 'Too many requests. Please wait a moment.';
         if (resp.status === 402) errorMsg = 'AI credits exhausted. Please add funds.';
+        if (resp.status === 413) errorMsg = 'Message too long — start a new chat and try again.';
+        if (resp.status === 401) errorMsg = 'Please sign in again to use AI.';
+        logger.error('[ConciergeAI] HTTP', resp.status, errorMsg);
         appToast.error(errorMsg);
         setIsLoading(false);
         return;

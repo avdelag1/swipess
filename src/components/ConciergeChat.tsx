@@ -160,10 +160,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
       if (initialQuery?.trim()) {
         const q = initialQuery.trim();
-        // Wait for spring open + stream handler to be ready
+        // Put text in the box immediately so the user sees it even if send lags
+        setInput(q);
+        // Wait for panel mount + sendMessage to be ready
         window.setTimeout(() => {
+          setInput('');
           void sendMessageRef.current(q);
-        }, 320);
+        }, 450);
       }
     }, 50);
 

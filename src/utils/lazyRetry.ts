@@ -1,13 +1,15 @@
 import { logger } from '@/utils/prodLogger';
 import { ComponentType, lazy } from 'react';
 
+const RELOAD_KEY = 'swipess_chunk_reload_once';
+
 /**
- * Lazy load with a single network retry (no page reload).
- * If both attempts fail, the error surfaces to the nearest ErrorBoundary.
- */
-/**
- * Lazy load with a single network retry and if that fails, trigger a hard page reload.
- * This effectively handles Vite "chunk load failures" after a production re-deploy.
+ * Lazy load with one network retry. Avoids hard-reload loops in Chrome:
+ * previously every failed chunk after deploy could `location.replace` every
+ * 15s forever (localStorage throttle), fighting the service worker.
+ *
+ * At most ONE full reload per browser session. After that, surface the error
+ * to ChunkErrorBoundary / ErrorBoundary for a manual recovery UI.
  */
 export function lazyWithRetry<T extends ComponentType<any>>(
   componentImport: () => Promise<{ default: T }>
@@ -17,39 +19,34 @@ export function lazyWithRetry<T extends ComponentType<any>>(
       return await componentImport();
     } catch (firstError) {
       logger.warn('[lazyWithRetry] First load failed, retrying…', firstError);
-      
+
+      // Brief pause so a mid-deploy CDN race can settle
+      await new Promise((r) => setTimeout(r, 400));
+
       try {
         return await componentImport();
       } catch (retryError) {
-        // Use a timestamp in localStorage to prevent infinite reload loops
-        // Safari can sometimes lose sessionStorage across window.location.replace, causing loops
-        const lastReloadStr = window.localStorage.getItem('last-chunk-reload-time');
-        const lastReload = lastReloadStr ? parseInt(lastReloadStr, 10) : 0;
-        const now = Date.now();
-        
-        // If we haven't reloaded in the last 15 seconds, trigger a hard reload
-        if (now - lastReload > 15000) {
-          window.localStorage.setItem('last-chunk-reload-time', String(now));
-          console.error('[lazyWithRetry] Critical chunk error. Hard reloading page...', retryError);
-          
-          // Clear SW caches so reload gets fresh chunks
-          if ('caches' in window) {
-            caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))).catch(() => {});
-          }
-          
-          // Preserve existing query params
+        const alreadyReloaded = sessionStorage.getItem(RELOAD_KEY) === '1';
+        if (!alreadyReloaded) {
+          sessionStorage.setItem(RELOAD_KEY, '1');
+          logger.error('[lazyWithRetry] Chunk failed twice — one-time hard reload', retryError);
+
+          try {
+            if ('caches' in window) {
+              const names = await caches.keys();
+              await Promise.all(names.map((n) => caches.delete(n)));
+            }
+          } catch { /* empty */ }
+
           const params = new URLSearchParams(window.location.search);
-          params.set('v', String(now));
+          params.set('v', String(Date.now()));
           window.location.replace(window.location.pathname + '?' + params.toString());
-          
-          return new Promise(() => {}); // Never resolve to prevent further rendering while reloading
+          return new Promise(() => {}); // hang while navigating
         }
-        
-        console.error('[lazyWithRetry] FAILED AFTER RELOAD', retryError);
+
+        logger.error('[lazyWithRetry] FAILED after one-session reload — giving up', retryError);
         throw retryError;
       }
     }
   });
 }
-
-
