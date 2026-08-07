@@ -50,7 +50,7 @@ import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
 import { MotionIcon } from '@/components/ui/MotionIcon';
 import { getNavMotionId } from '@/lib/motion-constants';
-import { getBottomNavChrome } from '@/utils/chromeStyles';
+import { getBottomNavChrome, getGlassBubbleStyle } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 20;
@@ -274,17 +274,17 @@ export const BottomNavigation = memo(({
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* ── Immersive Pill Nav ──────────────────────────────────────
-          Full-width pill shape, hugging the screen edges for maximum
-          immersive screen real estate. */}
+      {/* ── Liquid Glass floating dock ───────────────────────────────
+          Frosted glass pill: blur + rim light + soft float shadow.
+          Icons stay sharp; active item gets a soft liquid capsule. */}
       <div
         className={cn(
-          "pointer-events-auto floating-dock-nav shadow-neumorph",
-          "max-w-[340px] w-[90vw] mx-auto overflow-hidden rounded-[32px]"
+          'pointer-events-auto floating-dock-nav liquid-glass-dock',
+          'max-w-[340px] w-[90vw] mx-auto rounded-[999px]',
         )}
         style={{
           ...pillStyle,
-          padding: '4px 6px',
+          padding: '6px 8px',
         }}
       >
         <div
@@ -292,21 +292,21 @@ export const BottomNavigation = memo(({
           data-no-swipe-nav
           data-scroll-axis="x"
           className={cn(
-            'relative flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-2',
+            'relative z-[2] flex items-center justify-start w-full transform-gpu select-none overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-1.5',
           )}
           style={{
-            zIndex: 2,
             padding: '2px 4px',
             pointerEvents: 'auto',
-            touchAction: 'pan-x', // Critical: Overrides global pan-y to allow horizontal slide
+            touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
-            WebkitOverflowScrolling: 'touch', // Heavy, smooth iOS momentum bounce
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
             const isAddBtn = item.id === 'add';
+            const showGlassCapsule = active || isAddBtn;
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
@@ -314,7 +314,7 @@ export const BottomNavigation = memo(({
               if (item.id === 'ai') prefetchConciergeChatModule();
               if (item.id === 'add') prefetchListingFlowModule();
               if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();
-              
+
               handleNavClick(item, e);
             };
 
@@ -333,12 +333,12 @@ export const BottomNavigation = memo(({
                 aria-current={isActive(item) ? 'page' : undefined}
                 data-active={active ? 'true' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
+                  'nav-liquid-glass-btn relative flex flex-col items-center justify-center gap-1 shrink-0 snap-center',
                   'focus-visible:outline-none transform-gpu rounded-full pointer-events-auto',
                 )}
                 style={{
-                  minWidth: isTablet ? '56px' : '42px',
-                  minHeight: isTablet ? '56px' : '42px',
+                  minWidth: isTablet ? '56px' : '44px',
+                  minHeight: isTablet ? '56px' : '44px',
                   padding: isTablet ? '10px' : '4px 2px',
                   cursor: 'pointer',
                   userSelect: 'none',
@@ -348,18 +348,32 @@ export const BottomNavigation = memo(({
                 }}
               >
                 <div
-                  className="relative z-10 flex items-center justify-center"
+                  className="relative z-10 flex items-center justify-center rounded-full"
                   style={{
-                    width: active ? '40px' : '36px',
-                    height: active ? '40px' : '36px',
-                    transition: 'width 140ms ease, height 140ms ease',
-                    // No circular discs — icons float clean on the dock pill
-                    background: 'transparent',
-                    boxShadow: 'none',
-                    border: 'none',
+                    width: showGlassCapsule ? (isTablet ? 44 : 40) : (isTablet ? 40 : 36),
+                    height: showGlassCapsule ? (isTablet ? 44 : 40) : (isTablet ? 40 : 36),
+                    transition: 'width 160ms ease, height 160ms ease, background 160ms ease, box-shadow 160ms ease',
+                    ...(showGlassCapsule
+                      ? isAddBtn
+                        ? {
+                            // Soft rose liquid glass for primary action
+                            background:
+                              'linear-gradient(160deg, rgba(255,80,120,0.95) 0%, rgba(255,51,102,0.78) 100%)',
+                            border: '1px solid rgba(255,255,255,0.45)',
+                            boxShadow: [
+                              '0 4px 16px rgba(255,51,102,0.35)',
+                              'inset 0 1px 0 rgba(255,255,255,0.55)',
+                              'inset 0 -1px 0 rgba(0,0,0,0.12)',
+                            ].join(', '),
+                          }
+                        : getGlassBubbleStyle(isLight, true)
+                      : {
+                          background: 'transparent',
+                          boxShadow: 'none',
+                          border: 'none',
+                        }),
                   }}
                 >
-
                   {/* Notification badge */}
                   <AnimatePresence>
                     {item.badge && item.badge > 0 && (
@@ -382,15 +396,16 @@ export const BottomNavigation = memo(({
                     const iconEl = (
                       <Icon
                         style={{
-                          width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                          height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                           color: isAddBtn
-                            ? '#FF3366'
+                            ? '#FFFFFF'
                             : (active ? baseColor : inactiveIconColor),
                           fill: active && !isAddBtn ? baseColor : 'none',
-                          strokeWidth: active || isAddBtn ? 2.25 : 1.75,
+                          strokeWidth: active || isAddBtn ? 2.2 : 1.75,
+                          // Sharp icons — no drop-shadow discs
                           filter: 'none',
-                          transition: 'color 120ms ease-out, fill 120ms ease-out, stroke-width 120ms ease-out',
+                          transition: 'color 140ms ease-out, fill 140ms ease-out, stroke-width 140ms ease-out',
                         }}
                       />
                     );
@@ -405,9 +420,7 @@ export const BottomNavigation = memo(({
                       </MotionIcon>
                     );
                   })()}
-
                 </div>
-
               </button>
             );
           })}

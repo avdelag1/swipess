@@ -469,34 +469,72 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .floating-dock-nav {
-  /* iOS 26 Liquid Glass — pill-shaped floating nav bar.
-     Ultra-heavy blur + saturation makes background vivid through the glass. */
+  /* Apple liquid glass floating dock — frost + blur + specular rim */
+  position: relative;
   margin-bottom: max(4px, calc(env(safe-area-inset-bottom, 34px) - 26px));
   padding-bottom: 0;
   border-radius: 999px;
-  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
-  backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.06);
+  backdrop-filter: blur(48px) saturate(200%) brightness(1.06);
+  transform: translateZ(0); /* promote layer for smooth blur on iOS */
+  will-change: backdrop-filter;
+}
+
+/* Specular top highlight — light reflecting off the glass surface */
+.floating-dock-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.10) 28%,
+    transparent 55%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+}
+
+/* Soft outer float glow */
+.floating-dock-nav::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
   box-shadow:
-    0 2px 16px rgba(0, 0, 0, 0.18),
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.5);
+    0 0 0 0.5px rgba(255, 255, 255, 0.22),
+    0 16px 48px rgba(0, 0, 0, 0.18);
 }
 
 body.hw-high .floating-dock-nav {
-  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
-  backdrop-filter: blur(40px) saturate(200%) brightness(1.05);
+  -webkit-backdrop-filter: blur(56px) saturate(220%) brightness(1.08);
+  backdrop-filter: blur(56px) saturate(220%) brightness(1.08);
 }
 
-/* No circular glass discs behind icons — active state is color only */
-.glass-bubble-hover,
-.glass-bubble-hover:hover,
-.glass-bubble-hover:active,
-.glass-bubble-active,
-.dark .glass-bubble-hover:hover,
-.dark .glass-bubble-hover:active,
-.dark .glass-bubble-active {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+body.hw-low .floating-dock-nav {
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+
+/* Active nav liquid-glass capsule (not a solid dark disc) */
+.nav-liquid-glass-btn {
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-liquid-glass-btn[data-active="true"] {
+  /* styles applied inline via getGlassBubbleStyle for theme accuracy */
+}
+
+.glass-bubble-hover {
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .glass-pill[data-active="true"],
@@ -2664,14 +2702,12 @@ html[data-navigation-direction="back"] {
   backdrop-filter: none !important;
 }
 
-/* Nav buttons: never show default browser outline or rectangular focus ring */
+/* Nav buttons: never show default browser outline or rectangular focus ring.
+   Liquid glass capsules live on the INNER icon host, not the button itself. */
 .app-bottom-bar button {
   outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
   border: none !important;
-}
-
-.app-bottom-bar [aria-current="page"] {
   background: transparent !important;
   box-shadow: none !important;
 }

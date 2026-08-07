@@ -69,35 +69,71 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
   };
 }
 
+/**
+ * Bottom dock — Apple-style liquid glass (glassmorphism).
+ * Semi-transparent frost + heavy blur so map/UI color bleeds through;
+ * luminous rim + soft float shadow. Icons stay sharp (no glyph drop-shadow).
+ */
 export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
-  // The bottom nav pill is always a dark glass gradient, so icons MUST always be light
-  const useLightIcons = true;
+  // Frosted glass works over light *and* dark UI — pick icon contrast from theme
+  const useLightIcons = !isLight;
 
-  const pillStyle: CSSProperties = {
-    background: _isDashboard 
-      ? 'linear-gradient(145deg, rgba(10,10,12,0.82) 0%, rgba(10,10,12,0.65) 100%)'
-      : 'linear-gradient(145deg, rgba(15,15,20,0.85) 0%, rgba(15,15,20,0.6) 100%)',
-    border: _isDashboard ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(255, 255, 255, 0.1)',
-    borderTop: _isDashboard ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.2)',
-    borderLeft: _isDashboard ? '1px solid rgba(255, 255, 255, 0.18)' : undefined,
-    borderBottom: _isDashboard ? '1px solid rgba(0, 0, 0, 0.4)' : '1px solid rgba(0, 0, 0, 0.8)',
-    backdropFilter: _isDashboard ? 'blur(40px) saturate(180%) contrast(110%)' : 'blur(40px) saturate(180%) contrast(110%)',
-    WebkitBackdropFilter: _isDashboard ? 'blur(40px) saturate(180%) contrast(110%)' : 'blur(40px) saturate(180%) contrast(110%)',
-    boxShadow: _isDashboard
-      ? '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 6px rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.5)'
-      : '0 12px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.6)',
-    borderRadius: '9999px',
-    pointerEvents: 'auto',
-    color: useLightIcons ? '#ffffff' : '#000000',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
-    overflow: 'visible',
-  };
+  const pillStyle: CSSProperties = isLight
+    ? {
+        // Light: bright liquid glass — readable over photos/maps
+        background:
+          'linear-gradient(165deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 48%, rgba(255,255,255,0.55) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.65)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+        backdropFilter: 'blur(48px) saturate(200%) brightness(1.06)',
+        WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.06)',
+        boxShadow: [
+          '0 10px 36px rgba(15, 23, 42, 0.12)',
+          '0 2px 8px rgba(15, 23, 42, 0.06)',
+          'inset 0 1px 0 rgba(255,255,255,0.95)',
+          'inset 0 -1px 0 rgba(255,255,255,0.25)',
+        ].join(', '),
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#0F172A',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
+        overflow: 'visible',
+        isolation: 'isolate',
+      }
+    : {
+        // Dark: deep liquid glass with white rim catch-light
+        background:
+          'linear-gradient(165deg, rgba(40,42,52,0.55) 0%, rgba(18,18,24,0.48) 50%, rgba(12,12,16,0.58) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.18)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.42)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.35)',
+        backdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
+        WebkitBackdropFilter: 'blur(48px) saturate(200%) brightness(1.08)',
+        boxShadow: [
+          '0 12px 40px rgba(0, 0, 0, 0.38)',
+          '0 2px 10px rgba(0, 0, 0, 0.22)',
+          'inset 0 1px 0 rgba(255,255,255,0.28)',
+          'inset 0 -1px 1px rgba(0,0,0,0.25)',
+        ].join(', '),
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
+        overflow: 'visible',
+        isolation: 'isolate',
+      };
 
-  const iconColor = useLightIcons ? '#ffffff' : '#111111';
-  const inactiveIconColor = useLightIcons ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.45)'; // Enhanced inactive whiteness
+  const iconColor = useLightIcons ? '#ffffff' : '#0F172A';
+  const inactiveIconColor = useLightIcons
+    ? 'rgba(255,255,255,0.72)'
+    : 'rgba(15,23,42,0.48)';
 
   return {
     useLightIcons,
@@ -109,15 +145,47 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
 }
 
 /**
- * Active nav state — frameless (no circular glass disc behind icons).
- * Kept as a no-op style object so call sites stay stable.
+ * Per-button liquid glass highlight (active / add).
+ * Soft frost capsule — not a heavy dark disc.
  */
-export function getGlassBubbleStyle(_isLight: boolean, _active: boolean = false): CSSProperties {
+export function getGlassBubbleStyle(isLight: boolean, active: boolean = false): CSSProperties {
+  if (!active) {
+    return {
+      background: 'transparent',
+      boxShadow: 'none',
+      border: 'none',
+      borderRadius: '9999px',
+    };
+  }
+
+  if (isLight) {
+    return {
+      background:
+        'linear-gradient(160deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.55) 100%)',
+      border: '1px solid rgba(255, 255, 255, 0.9)',
+      boxShadow: [
+        '0 4px 14px rgba(15, 23, 42, 0.10)',
+        'inset 0 1px 0 rgba(255,255,255,1)',
+        'inset 0 -1px 0 rgba(0,0,0,0.04)',
+      ].join(', '),
+      borderRadius: '9999px',
+      backdropFilter: 'blur(16px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+    };
+  }
+
   return {
-    background: 'transparent',
-    boxShadow: 'none',
-    border: 'none',
+    background:
+      'linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.28)',
+    boxShadow: [
+      '0 4px 16px rgba(0, 0, 0, 0.25)',
+      'inset 0 1px 0 rgba(255,255,255,0.45)',
+      'inset 0 -1px 0 rgba(0,0,0,0.15)',
+    ].join(', '),
     borderRadius: '9999px',
+    backdropFilter: 'blur(16px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(16px) saturate(180%)',
   };
 }
 
