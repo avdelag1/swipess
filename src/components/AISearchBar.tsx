@@ -14,22 +14,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (query.trim() || onSearchSubmit) {
-        haptics.success();
-        onSearchSubmit?.(query);
-        inputRef.current?.blur();
-      } else {
-        haptics.tap();
-        onFilterClick?.();
-      }
-    } else if (e.key === 'Escape') {
-      inputRef.current?.blur();
-    }
-  };
-
   // True iOS Liquid Glass styles for Search Bar
   const glassStyle = {
     background: isLight 
@@ -114,7 +98,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               />
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

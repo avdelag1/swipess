@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronRight, X, Sparkles, Building, MapPin, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, Sparkles, Building, MapPin, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 
 /**

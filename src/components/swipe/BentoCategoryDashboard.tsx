@@ -13,13 +13,11 @@ import {
   Anchor,
   Bike,
   Calendar,
-  Crown,
   Home,
   Key,
   Search,
   ShoppingCart,
   UserCheck,
-  Users,
   Star,
   TrendingUp,
   Briefcase

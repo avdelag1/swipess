@@ -83,3 +83,11 @@ create_chromebook_screenshots.cjs
 generate_all_play_store_assets.cjs
 generate_typography_screens.cjs
 .claude/
+
+# Signing / Apple / TLS material — never commit (local copies: ~/.swipess-secrets/)
+AuthKey_*.p8
+*.p8
+swipess.key
+swipess.pem
+swipess.csr
+*.csr

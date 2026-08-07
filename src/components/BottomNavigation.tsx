@@ -55,7 +55,6 @@ import { AIIcon } from '@/components/icons/AIIcon';
 
 const ICON_SIZE = 20;
 const ICON_SIZE_TABLET = 24;
-const ADD_BTN_SIZE = 40;
 const _TOUCH_TARGET = 34;
 const _TOUCH_TARGET_TABLET = 42;
 

@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { MotionIcon } from '@/components/ui/MotionIcon';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
@@ -121,7 +120,6 @@ export function AIListingWizard() {
   const { t } = useTranslation();
 
 
-  const headerBorder = 'border-white/10';
   const textPrimary = 'text-white';
   const textMuted = 'text-white/70';
   const chipIdleCls = 'bg-[#13131a] border-white/5 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] hover:border-white/20 hover:bg-[#1a1a24]';

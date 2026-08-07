@@ -2,7 +2,6 @@ import { memo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Crown, MessageCircle, RefreshCcw, Sparkles, X, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import useAppTheme from '@/hooks/useAppTheme';
 import { useTokens } from '@/hooks/useTokens';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
@@ -55,8 +54,6 @@ interface TokensModalProps {
 }
 
 function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
-  const { theme } = useAppTheme();
-  const isLight = theme === 'light';
   const { tokens } = useTokens();
   const navigate = useNavigate();
 

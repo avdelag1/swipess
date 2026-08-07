@@ -98,6 +98,7 @@ Before inventing a new script, check `execution/` and `scripts/`. If you add a L
 - Prefer small, focused commits with complete sentences in the body when needed.
 - **Never force-push `main`** without explicit user approval.
 - **Never commit:** `.env`, `.env.local`, `*.p8`, `*.key`, `*.pem`, keystores, service-account JSON, or any secret.
+- Signing / Apple keys live in **Supabase Edge secrets** (runtime) or `~/.swipess-secrets/` (local backup only). Not in the project tree.
 
 ### Quality before push
 

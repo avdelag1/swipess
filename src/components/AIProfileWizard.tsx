@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Loader2, Mic, Sparkles, Wand2, X, AlertCircle, ArrowRight, Wallet, Key, Users } from 'lucide-react';
+import { Camera, Loader2, Mic, Sparkles, Wand2, X, Wallet, Key, Users } from 'lucide-react';
 import { PremiumSpinner } from '@/components/ui/PremiumSpinner';
 import { MotionIcon } from '@/components/ui/MotionIcon';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -16,7 +15,6 @@ import { assertImageSafe, uploadPhotoBatch } from '@/utils/photoUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { appToast } from '@/utils/appNotification';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useOnboardingStore } from '@/state/onboardingStore';
 import { logger } from '@/utils/prodLogger';
@@ -39,7 +37,6 @@ export function AIProfileWizard() {
   const { openAIListing } = useModalStore();
   const mode: Mode = (aiProfileMode || 'client');
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>('compose');
   const [narrative, setNarrative] = useState('');

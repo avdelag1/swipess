@@ -91,12 +91,8 @@ export function useNotifications() {
                   });
                 }
 
-                // Fire push notification to reach other devices / closed browser tabs.
-                // We hit BOTH endpoints so recipients receive a push regardless of
-                // whether any other client of theirs is currently online:
-                //   - send-push-notification: immediate fan-out to this user's subs
-                //   - process-push-outbox:    flushes the DB queue populated by the
-                //                             conversation_messages trigger
+                // Immediate fan-out for this user. Global outbox drain is cron/service-only
+                // (process-push-outbox) — clients must not invoke it with a user JWT.
                 supabase.functions.invoke('send-push-notification', {
                   body: {
                     user_id: user.id,
@@ -111,12 +107,6 @@ export function useNotifications() {
                   },
                 }).catch((err) => {
                   if (import.meta.env.DEV) logger.error('[useNotifications] Push failed:', err);
-                });
-
-                supabase.functions.invoke('process-push-outbox', {
-                  body: { limit: 25 },
-                }).catch((err) => {
-                  if (import.meta.env.DEV) logger.error('[useNotifications] Outbox flush failed:', err);
                 });
               }
             }

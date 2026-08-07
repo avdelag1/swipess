@@ -60,7 +60,7 @@ export const PaymentOrchestrator = {
 
     try {
       await Browser.open({ url: safePaypalUrl, presentationStyle: 'popover' });
-    } catch (e) {
+    } catch (_e) {
       // Fallback if Capacitor Browser plugin fails or is blocked on web
       window.open(safePaypalUrl, '_blank');
     }

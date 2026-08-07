@@ -19,7 +19,6 @@ import { getParentRoute } from '@/utils/sectionNavigation';
 import {
   getTopBarChrome,
   getHeaderIconFilter,
-  HEADER_PILL_BASE,
   isDashboardPath,
 } from '@/utils/chromeStyles';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -73,7 +72,6 @@ function TopBarComponent({
   const { user } = useAuth();
   const location = useLocation();
   const { isLight } = useAppTheme();
-  const setModal = useModalStore(s => s.setModal);
   const openPassportMap = useModalStore(s => s.openPassportMap);
   const { tokens } = useTokens();
   const { t } = useTranslation();

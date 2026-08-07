@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { NEXUS_GRADIENTS } from '@/utils/nexusTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface WizardWelcomeScreenProps {

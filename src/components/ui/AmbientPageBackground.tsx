@@ -16,7 +16,7 @@ interface AmbientPageBackgroundProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function AmbientBackdrop({
-  tone,
+  tone: _tone,
   variant = 'default',
   className,
 }: {

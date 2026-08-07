@@ -10,7 +10,6 @@ import { lazy, Suspense } from "react";
 import { AccessCodeGate, isAccessGranted } from "@/components/AccessCodeGate";
 import { Capacitor } from "@capacitor/core";
 const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
-const SwipessLandingPage = lazy(() => import("@/components/SwipessLandingPage"));
 /** Check if the app is running as a standalone PWA (installed on home screen) */
 function isPWA(): boolean {
   if (Capacitor.isNativePlatform()) return true;
@@ -20,8 +19,6 @@ function isPWA(): boolean {
   } catch { /* empty */ }
   return false;
 }
-
-const DEVELOPER_ACCESS_KEY = 'swipess_developer_access';
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();

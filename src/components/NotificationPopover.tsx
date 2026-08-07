@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -288,11 +288,6 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
     haptics.tap();
     dismissNotification(id);
   }, [dismissNotification]);
-
-  const handleViewAll = useCallback(() => {
-    setIsOpen(false);
-    navigate('/notifications');
-  }, [navigate]);
 
   const isDashboard = isDashboardPath(_location.pathname);
   const { iconColor: bellColor, iconShadow } = getTopBarChrome(isLight, isDashboard || isLight);

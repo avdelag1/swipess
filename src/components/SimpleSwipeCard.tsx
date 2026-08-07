@@ -115,6 +115,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   );
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
+  // Must be top-level hooks (not inside isTop JSX) — rules-of-hooks.
+  const likeStampScale = useTransform(likeOpacity, [0, 1], [0.6, 1.2]);
+  const passStampScale = useTransform(passOpacity, [0, 1], [0.6, 1.2]);
   const rotate = useTransform(x, [-800, 800], [-15, 15]); // reduced flat rotation for 3D realism
   const rotateX = useTransform(y, [-800, 800], [20, -20]); // 3D tilt up/down
   const rotateY = useTransform(x, [-800, 800], [-20, 20]); // 3D tilt left/right
@@ -525,14 +528,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               </AnimatePresence>
             </div>
 
-        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: likeOpacity, scale: useTransform(likeOpacity, [0, 1], [0.6, 1.2]) }}>
+        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: likeOpacity, scale: likeStampScale }}>
           <motion.div className="rotate-[-12deg]">
              <span className="font-black text-6xl tracking-tighter whitespace-nowrap px-8 py-3 rounded-3xl border-4 border-[#34d399]"
                style={{ color: '#34d399', textShadow: '0 0 20px rgba(52,211,153,0.7)', boxShadow: '0 0 30px rgba(52,211,153,0.4), inset 0 0 20px rgba(52,211,153,0.4)', background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>LIKE</span>
           </motion.div>
         </motion.div>
 
-        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: passOpacity, scale: useTransform(passOpacity, [0, 1], [0.6, 1.2]) }}>
+        <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: passOpacity, scale: passStampScale }}>
           <motion.div className="rotate-[12deg]">
              <span className="font-black text-6xl tracking-tighter whitespace-nowrap px-10 py-6 rounded-full border-0"
                style={{ color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.8)', background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)', filter: 'drop-shadow(0 0 20px rgba(244,63,94,0.3)) blur(0.5px)' }}>NOPE</span>

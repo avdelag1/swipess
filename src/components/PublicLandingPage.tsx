@@ -93,7 +93,7 @@ export function PublicLandingPage({ onSecretAccess }: PublicLandingPageProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const removeCard = (id: number, action: 'like' | 'nope') => {
+  const removeCard = (id: number, _action: 'like' | 'nope') => {
     setCards((prev) => prev.filter(c => c.id !== id));
     if (cards.length <= 1) {
       setTimeout(() => setCards(swipeCardsData), 500);

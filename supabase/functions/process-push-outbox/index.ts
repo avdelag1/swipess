@@ -5,10 +5,10 @@
  * existing send-push-notification function. This guarantees recipients get a
  * push even when their browser was offline at the moment the message was sent.
  *
- * Invocation:
- *   - Cron (recommended): every 30s via supabase scheduled functions
- *   - On-demand: any authenticated client can call this when it receives a
- *     realtime notification it didn't originate.
+ * Authorization (required):
+ *   - Cron / server only: Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>
+ *     or header x-cron-secret: <PUSH_OUTBOX_CRON_SECRET> matching the edge secret.
+ *   - Regular user JWTs are rejected (they must not drain the global outbox).
  *
  * Body parameters (all optional):
  *   limit   – max rows to process per invocation (default 50)
@@ -21,7 +21,7 @@ const ALLOWED_ORIGIN = '*';
 const corsHeaders = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -39,12 +39,40 @@ interface OutboxRow {
   attempts: number | null;
 }
 
+function extractBearer(authHeader: string | null): string {
+  if (!authHeader) return "";
+  return authHeader.replace(/^Bearer\s+/i, "").trim();
+}
+
+/** Only service-role or configured cron secret may drain the global outbox. */
+function isAuthorizedCaller(req: Request): boolean {
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const cronSecret = Deno.env.get("PUSH_OUTBOX_CRON_SECRET") || "";
+  const bearer = extractBearer(req.headers.get("authorization"));
+  const headerCron = (req.headers.get("x-cron-secret") || "").trim();
+
+  if (serviceKey && bearer && bearer === serviceKey) return true;
+  if (cronSecret && (headerCron === cronSecret || bearer === cronSecret)) return true;
+  return false;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    if (!isAuthorizedCaller(req)) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          reason: "unauthorized",
+          error: "process-push-outbox requires service role or PUSH_OUTBOX_CRON_SECRET",
+        }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, serviceKey);

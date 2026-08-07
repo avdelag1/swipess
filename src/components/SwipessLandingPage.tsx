@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { Lock, Heart, ShieldCheck, Search, Plus, MessageSquare, MapPin, Star, Users, CheckCircle, Smartphone } from 'lucide-react';
+import { Lock, Heart, ShieldCheck, Search, Plus, MessageSquare, MapPin, Star, CheckCircle } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import { AccessCodeGate } from './AccessCodeGate';
 

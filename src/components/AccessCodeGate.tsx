@@ -10,9 +10,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { supabase } from '@/integrations/supabase/client';
 
-const ACCESS_GRANTED_KEY = 'swipess_access_granted';
-const PROMO_UNLOCK_KEY = 'swipess_promo_unlocked';
-
 function persistAccessGrant() {
   // No longer persisting to localStorage to enforce gate on every new session/refresh
 }
