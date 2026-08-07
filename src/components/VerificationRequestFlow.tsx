@@ -63,10 +63,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
       } as any).eq('user_id', user.id);
       if (profileError) throw profileError;
 
-      // Grant verified badge immediately
-      await supabase.from('profiles').update({ verified: true }).eq('user_id', user.id);
-
-      appToast.success('Document uploaded — Verified badge granted!');
+      appToast.success('Document uploaded. Your verification request is pending review.');
       setStep(2);
     } catch (err) {
       logger.error('Upload error:', err);
@@ -84,7 +81,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
             <ShieldCheck className="w-8 h-8 text-amber-500" />
           </div>
           <h3 className="text-lg font-bold text-foreground">You're Verified!</h3>
-          <p className="text-sm text-muted-foreground text-center">Your gold badge is displayed on all your listings, building trust with potential tenants.</p>
+          <p className="text-sm text-muted-foreground text-center">This badge means the submitted document type was reviewed. It is not a guarantee of identity, ownership, licensing, or transaction safety.</p>
         </div>
       );
     }
@@ -96,7 +93,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
             <FileCheck className="w-8 h-8 text-primary" />
           </div>
           <h3 className="text-lg font-bold text-foreground">Under Review</h3>
-          <p className="text-sm text-muted-foreground text-center">Your documents are being reviewed. This typically takes 24-48 hours. You'll be notified once verified.</p>
+          <p className="text-sm text-muted-foreground text-center">Your submission is pending review. Uploading documents does not grant a verified badge automatically.</p>
         </div>
       );
     }
@@ -106,7 +103,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
         <div className="space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground">A verified badge increases your match rate by up to 3x. Tenants trust verified owners more.</p>
+            <p className="text-xs text-muted-foreground">Submit supporting documents for review. Users should still verify listings and counterparties before making decisions or payments.</p>
           </div>
           <div className="space-y-2">
             {DOCUMENT_TYPES.map((doc) => (
@@ -152,7 +149,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
             <ShieldCheck className="w-5 h-5 text-amber-500" />
             Owner Verification
           </DialogTitle>
-          <DialogDescription>Get a verified badge on your listings to build trust.</DialogDescription>
+          <DialogDescription>Submit supporting documents for review. A badge is granted only after approval.</DialogDescription>
         </DialogHeader>
         {renderStep()}
       </DialogContent>
