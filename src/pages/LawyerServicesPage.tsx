@@ -78,7 +78,7 @@ export default function LawyerServicesPage() {
 
       <AtmosphericLayer variant="indigo" opacity={0.18} />
 
-      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 pt-6 pb-48 relative z-10">
+      <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 pt-6 pb-56 relative z-10">
 
         <button
           onClick={() => navigate(-1)}
@@ -114,8 +114,8 @@ export default function LawyerServicesPage() {
             onClick={() => { haptics.tap(); setActiveCategory('all'); }}
             className={cn('px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all border',
               activeCategory === 'all'
-                ? (isLight ? 'bg-white text-black border-black/20 shadow-md' : 'bg-white/10 text-white border-white/20 shadow-md')
-                : (isLight ? 'bg-white/40 text-black/60 border-black/5 hover:border-black/20' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20')
+                ? (isLight ? 'bg-white !text-slate-900 border-black/20 shadow-md' : 'bg-white/10 !text-white border-white/20 shadow-md')
+                : (isLight ? 'bg-white/40 !text-slate-900 border-black/5 hover:border-black/20' : 'bg-white/5 !text-white border-white/10 hover:border-white/20')
             )}
           >
             All Services
@@ -129,8 +129,8 @@ export default function LawyerServicesPage() {
                 onClick={() => { haptics.tap(); setActiveCategory(cat); }}
                 className={cn('flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all border',
                   active
-                    ? (isLight ? 'bg-white text-black border-black/20 shadow-md' : 'bg-white/10 text-white border-white/20 shadow-md')
-                    : (isLight ? 'bg-white/40 text-black/60 border-black/5 hover:border-black/20' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20')
+                    ? (isLight ? 'bg-white !text-slate-900 border-black/20 shadow-md' : 'bg-white/10 !text-white border-white/20 shadow-md')
+                    : (isLight ? 'bg-white/40 !text-slate-900 border-black/5 hover:border-black/20' : 'bg-white/5 !text-white border-white/10 hover:border-white/20')
                 )}
               >
                 <CategoryIcon name={meta.icon} className="w-3.5 h-3.5" />
@@ -165,7 +165,7 @@ export default function LawyerServicesPage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 border',
-                      isLight ? 'bg-white border-black/10 text-black' : 'bg-white/10 border-white/10 text-white'
+                      isLight ? 'bg-white border-black/10 !text-slate-900' : 'bg-white/10 border-white/10 !text-white'
                     )}>
                       <CategoryIcon name={meta.icon} className="w-6 h-6" />
                     </div>

@@ -56,16 +56,10 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
   
   // Advanced Granular Styles
   const gateBgColor = getContentValue(siteContent, 'gate_bg_color', '#000000');
-  const gateFontFamily = getContentValue(siteContent, 'gate_font_family');
-  const gateTitleColor = getContentValue(siteContent, 'gate_title_color', '#ffffff');
-  const gateSubtitleColor = getContentValue(siteContent, 'gate_subtitle_color', 'rgba(255,255,255,0.6)');
-  const btnColor = getContentValue(siteContent, 'gate_btn_color', '#FFFFFF');
   
   const inputWidth = getContentValue(siteContent, 'input_width', '100%');
   const inputHeight = getContentValue(siteContent, 'input_height', 56);
   const inputBgColor = getContentValue(siteContent, 'input_bg_color', 'rgba(255,255,255,0.05)');
-  const inputTextColor = getContentValue(siteContent, 'input_text_color', '#ffffff');
-  const inputPlaceholderColor = getContentValue(siteContent, 'input_placeholder_color', 'rgba(255,255,255,0.45)');
   
   // Shooting Stars globally from landing config
   const shootingStarsEnabled = getContentValue(landingContent, 'shooting_stars_effect', true);
@@ -154,25 +148,14 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm(prev => ({ ...prev, [field]: e.target.value }));
 
-  // Load custom font dynamically if configured
-  if (gateFontFamily) {
-    const linkId = 'gate-custom-font';
-    if (!document.getElementById(linkId)) {
-      const link = document.createElement('link');
-      link.id = linkId;
-      link.href = `https://fonts.googleapis.com/css2?family=${gateFontFamily.replace(/\s+/g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-  }
+  // Removing dynamic font injection to ensure the app stays consistent with the main font (Inter/Outfit)
 
   return (
     <div 
-      className="fixed inset-0 overflow-y-auto overflow-x-hidden"
+      className="fixed inset-0 overflow-y-auto overflow-x-hidden font-sans"
       style={{ 
         backgroundColor: gateBgColor,
-        fontFamily: gateFontFamily ? `"${gateFontFamily}", sans-serif` : undefined,
-        '--input-placeholder-color': inputPlaceholderColor
+        '--input-placeholder-color': 'rgba(255,255,255,0.45)'
       } as React.CSSProperties}
     >
       <style>{`
@@ -201,11 +184,11 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
           >
             {/* Advertising Block */}
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left text-white max-w-md lg:max-w-lg">
-              <SwipessLogo size="3xl" variant="transparent" className="w-[60vw] max-w-[240px] lg:max-w-[280px] mb-8 drop-shadow-xl" />
-              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight tracking-tight text-white drop-shadow-md">
+              <img src="/icons/Swipess-wordmark-outline.png" alt="Swipess" className="w-[60vw] max-w-[240px] lg:max-w-[280px] mb-8 drop-shadow-xl" />
+              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight tracking-tight drop-shadow-md" style={{ color: '#ffffff' }}>
                 The exclusive ecosystem for visionaries.
               </h1>
-              <p className="text-base lg:text-lg text-white/80 font-normal mb-8 leading-relaxed drop-shadow">
+              <p className="text-base lg:text-lg font-normal mb-8 leading-relaxed drop-shadow" style={{ color: 'rgba(255,255,255,0.85)' }}>
                 Discover trusted properties, luxury experiences, and high-end services. All one swipe away. Join the private network today.
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
@@ -234,19 +217,19 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
             >
               <div className="flex flex-col items-center gap-3 w-full">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-1">
-                  <Lock className="w-6 h-6 text-white/90 drop-shadow-sm" />
+                  <Lock className="w-6 h-6 text-white drop-shadow-sm" />
                 </div>
                 {gateTitle ? (
-                  <h2 className="text-2xl font-semibold text-center tracking-tight drop-shadow-sm" style={{ color: gateTitleColor }}>
+                  <h2 className="text-2xl font-semibold text-center tracking-tight drop-shadow-sm" style={{ color: '#ffffff' }}>
                     {gateTitle}
                   </h2>
                 ) : (
-                  <h2 className="text-2xl font-semibold text-white tracking-tight text-center drop-shadow-sm">Enter Access Code</h2>
+                  <h2 className="text-2xl font-semibold text-center tracking-tight drop-shadow-sm" style={{ color: '#ffffff' }}>Enter Access Code</h2>
                 )}
                 {gateSubtitle && (
                   <p 
                     className="text-sm font-medium text-center drop-shadow-sm"
-                    style={{ color: gateSubtitleColor }}
+                    style={{ color: 'rgba(255,255,255,0.65)' }}
                   >
                     {gateSubtitle}
                   </p>
@@ -260,7 +243,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 >
                   <Lock 
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none transition-colors" 
-                    style={{ color: inputPlaceholderColor }} 
+                    style={{ color: 'rgba(255,255,255,0.45)' }} 
                   />
                   <input
                     type="text"
@@ -278,7 +261,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                     className="gate-input w-full h-full pl-12 pr-12 rounded-2xl border border-white/20 text-base font-semibold tracking-widest uppercase focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 transition-all shadow-inner"
                     style={{ 
                       backgroundColor: inputBgColor,
-                      color: inputTextColor,
+                      color: '#ffffff',
                       WebkitTextSecurity: revealed ? 'none' : 'disc' 
                     } as any}
                   />
@@ -311,8 +294,8 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 <button
                   type="submit"
                   disabled={verifying}
-                  style={btnColor ? { background: btnColor, height: `${inputHeight}px`, color: btnColor === '#FFFFFF' ? '#000000' : '#ffffff' } : { height: `${inputHeight}px` }}
-                  className={`w-full rounded-2xl font-semibold text-base shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white text-black'}`}
+                  style={{ background: '#ffffff', height: `${inputHeight}px`, color: '#000000' }}
+                  className="w-full rounded-2xl font-semibold text-base shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:active:scale-100"
                 >
                   <Sparkles className={`w-5 h-5 ${verifying ? 'animate-spin' : ''}`} />
                   {verifying ? 'Verifying...' : btnText}
@@ -326,13 +309,13 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowRequest(v => !v)}
-                  className="w-full flex items-center justify-between py-2 px-1 text-white/80 hover:text-white transition-colors group"
+                  className="w-full flex items-center justify-between py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group mt-2"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                      <MessageSquare className="w-4 h-4" />
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                      <MessageSquare className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium" style={{ color: '#ffffff' }}>
                       {showRequest ? 'Hide request form' : "Don't have a code? Request one"}
                     </span>
                   </div>
@@ -340,7 +323,7 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                     animate={{ rotate: showRequest ? 180 : 0 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                   >
-                    <ChevronDown className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <ChevronDown className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity text-white" />
                   </motion.div>
                 </button>
 

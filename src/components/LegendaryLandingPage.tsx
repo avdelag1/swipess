@@ -129,7 +129,7 @@ const LandingView = memo(({
           style={{
             backgroundColor: '#ffffff',
             color: '#000000',
-            boxShadow: '0 0 0 2px rgba(255,255,255,0.9), 0 8px 40px rgba(255,255,255,0.4)',
+            boxShadow: '0 0 0 2px rgba(255,255,255,0.9)',
           }}
           className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
@@ -142,7 +142,7 @@ const LandingView = memo(({
             background: btnColor || '#FF4D00',
             color: '#ffffff',
             textShadow: '0 1px 3px rgba(0,0,0,0.5)',
-            boxShadow: '0 0 0 2px rgba(255,77,0,0.8), 0 8px 40px rgba(255,77,0,0.5)',
+            boxShadow: '0 0 0 2px rgba(255,77,0,0.8)',
           }}
           className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.97] transition-all flex items-center justify-center gap-2.5"
         >
@@ -484,7 +484,7 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                   background: getContentValue(siteContent, 'auth_primary_btn_color') || '#FF4D00',
                   color: '#ffffff',
                   textShadow: '0 1px 3px rgba(0,0,0,0.5)',
-                  boxShadow: '0 0 0 2px rgba(255,77,0,0.7), 0 8px 32px rgba(255,77,0,0.4)',
+                  boxShadow: '0 0 0 2px rgba(255,77,0,0.7)',
                 }}
                 className="w-full h-14 rounded-full font-black text-[16px] tracking-widest uppercase active:scale-[0.96] transition-all flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:pointer-events-none relative overflow-hidden border border-white/30"
               >

@@ -32,7 +32,7 @@ function SwipessLogoComponent({
   // looked completely different from the real logo and caused visual mismatch
   // between the splash, landing page, and inline badges.
   const isIcon = variant === 'icon';
-  const src = isIcon ? '/icons/Swipess-logo.png' : (variant === 'transparent' ? '/icons/Swipess-wordmark-transparent-v2.png' : '/icons/Swipess-wordmark-white.png');
+  const src = isIcon ? '/icons/Swipess-logo.png' : (variant === 'transparent' ? '/icons/Swipess-brand-logo-transparent.png' : '/icons/Swipess-wordmark-white.png');
   const fallbackSrc = isIcon ? '/icons/Swipess-logo.svg' : '/icons/Swipess-wordmark-white.svg';
 
   return (
