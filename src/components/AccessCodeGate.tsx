@@ -203,23 +203,23 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
           <motion.div
             key="code-entry"
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative z-50 flex flex-col lg:flex-row items-center justify-center min-h-[100dvh] px-6 py-10 gap-12 lg:gap-24 max-w-[1200px] mx-auto w-full"
+            className="relative z-50 flex flex-col lg:flex-row items-center justify-center min-h-[100dvh] px-6 py-12 gap-12 lg:gap-20 max-w-[1200px] mx-auto w-full"
           >
             {/* Advertising Block */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left text-white max-w-md lg:max-w-lg lg:-mt-10">
-              <SwipessLogo size="3xl" variant="transparent" className="w-[70vw] max-w-[280px] lg:max-w-[340px] mb-8 drop-shadow-2xl" />
-              <h1 className="text-3xl lg:text-5xl font-black mb-6 leading-tight tracking-tight text-white drop-shadow-md">
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left text-white max-w-md lg:max-w-lg">
+              <SwipessLogo size="3xl" variant="transparent" className="w-[60vw] max-w-[240px] lg:max-w-[280px] mb-8 drop-shadow-xl" />
+              <h1 className="text-3xl lg:text-5xl font-bold mb-5 leading-tight tracking-tight text-white drop-shadow-md">
                 The exclusive ecosystem for visionaries.
               </h1>
-              <p className="text-lg text-white/80 font-medium mb-10 leading-relaxed drop-shadow">
+              <p className="text-base lg:text-lg text-white/80 font-normal mb-8 leading-relaxed drop-shadow">
                 Discover trusted properties, luxury experiences, and high-end services. All one swipe away. Join the private network today.
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
-                  <img src="/icons/app-store-badge.svg" alt="Download on the App Store" className="h-[45px] lg:h-[50px]" />
+                  <img src="/icons/app-store-badge.svg" alt="Download on the App Store" className="h-[40px] lg:h-[48px]" />
                 </a>
                 <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
-                  <img src="/icons/google-play-badge.svg" alt="Get it on Google Play" className="h-[45px] lg:h-[50px]" />
+                  <img src="/icons/google-play-badge.svg" alt="Get it on Google Play" className="h-[40px] lg:h-[48px]" />
                 </a>
               </div>
             </div>
@@ -232,29 +232,40 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 <X size={24} />
               </button>
             )}
+            
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-6 w-full max-w-sm rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 p-8 shadow-2xl"
+              className="flex flex-col gap-6 w-full max-w-md rounded-[2rem] bg-white/5 backdrop-blur-3xl border border-white/10 p-8 shadow-2xl"
             >
-              <div className="flex flex-col items-center gap-2 mb-2 w-full">
-                <Lock className="w-8 h-8 text-white/80 mb-1 drop-shadow-md" />
+              <div className="flex flex-col items-center gap-3 w-full">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-1">
+                  <Lock className="w-6 h-6 text-white/90 drop-shadow-sm" />
+                </div>
                 {gateTitle ? (
-                  <h1 className="text-2xl font-bold text-center tracking-wide drop-shadow-md" style={{ color: gateTitleColor }}>
+                  <h2 className="text-2xl font-semibold text-center tracking-tight drop-shadow-sm" style={{ color: gateTitleColor }}>
                     {gateTitle}
-                  </h1>
+                  </h2>
                 ) : (
-                  <h2 className="text-xl font-bold text-white tracking-widest uppercase drop-shadow-md text-center">Enter Access Code</h2>
+                  <h2 className="text-2xl font-semibold text-white tracking-tight text-center drop-shadow-sm">Enter Access Code</h2>
+                )}
+                {gateSubtitle && (
+                  <p 
+                    className="text-sm font-medium text-center drop-shadow-sm"
+                    style={{ color: gateSubtitleColor }}
+                  >
+                    {gateSubtitle}
+                  </p>
                 )}
               </div>
 
-              <form onSubmit={handleSubmit} className="w-full flex flex-col items-center space-y-4">
+              <form onSubmit={handleSubmit} className="w-full flex flex-col space-y-4 mt-2">
                 <div 
-                  className="relative flex items-center justify-center transition-all duration-300"
+                  className="relative flex items-center transition-all duration-300"
                   style={{ width: inputWidth, height: `${inputHeight}px` }}
                 >
                   <Lock 
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors" 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none transition-colors" 
                     style={{ color: inputPlaceholderColor }} 
                   />
                   <input
@@ -270,154 +281,154 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                     spellCheck={false}
                     data-1p-ignore
                     data-lpignore="true"
-                    className="gate-input w-full h-full pl-11 pr-12 rounded-full border border-white/20 text-sm font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/10 transition-colors"
+                    className="gate-input w-full h-full pl-12 pr-12 rounded-2xl border border-white/20 text-base font-semibold tracking-widest uppercase focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 transition-all shadow-inner"
                     style={{ 
                       backgroundColor: inputBgColor,
                       color: inputTextColor,
                       WebkitTextSecurity: revealed ? 'none' : 'disc' 
                     } as any}
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
                     <button
                       type="button"
                       onClick={() => setRevealed(v => !v)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl hover:bg-white/10 transition-colors"
                       aria-label={revealed ? 'Hide access code' : 'Show access code'}
                       style={{ color: inputPlaceholderColor }}
                     >
-                      {revealed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {revealed ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
                 
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-[10px] font-bold text-center uppercase tracking-wider"
-                  >
-                    {error}
-                  </motion.p>
-                )}
+                <AnimatePresence>
+                  {error && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-red-400 text-sm font-medium text-center"
+                    >
+                      {error}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
                 
                 <button
                   type="submit"
                   disabled={verifying}
                   style={btnColor ? { background: btnColor, height: `${inputHeight}px`, color: btnColor === '#FFFFFF' ? '#000000' : '#ffffff' } : { height: `${inputHeight}px` }}
-                  className={`w-full rounded-full font-black uppercase tracking-[0.25em] text-[12px] shadow-lg hover:opacity-90 active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white text-black'}`}
+                  className={`w-full rounded-2xl font-semibold text-base shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:active:scale-100 ${btnColor ? '' : 'bg-white text-black'}`}
                 >
-                  <Sparkles className={`w-4 h-4 ${verifying ? 'animate-spin' : ''}`} />
-                  {verifying ? 'Verifying…' : btnText}
+                  <Sparkles className={`w-5 h-5 ${verifying ? 'animate-spin' : ''}`} />
+                  {verifying ? 'Verifying...' : btnText}
                 </button>
               </form>
 
-              {/* Request access — always visible */}
-              <button
-                type="button"
-                onClick={() => setShowRequest(v => !v)}
-                className="w-full min-h-12 py-2.5 px-4 rounded-full border border-white/25 bg-white/8 text-white hover:bg-white/12 active:scale-[0.98] transition-all grid grid-cols-[20px_1fr_20px] items-center gap-2.5"
-              >
-                <MessageSquare className="w-4 h-4 shrink-0 justify-self-center" />
-                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] leading-tight text-center">
-                  {showRequest ? 'Hide request form' : "Don't have a code? Request one"}
-                </span>
-                <motion.span
-                  animate={{ rotate: showRequest ? 180 : 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                  className="shrink-0 justify-self-center"
+              <div className="w-full h-px bg-white/10 my-1" />
+
+              {/* Request access */}
+              <div className="flex flex-col w-full">
+                <button
+                  type="button"
+                  onClick={() => setShowRequest(v => !v)}
+                  className="w-full flex items-center justify-between py-2 px-1 text-white/80 hover:text-white transition-colors group"
                 >
-                  <ChevronDown className="w-4 h-4" />
-                </motion.span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {showRequest && (
-                  <motion.div
-                    key="request-form"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="w-full overflow-hidden"
-                  >
-                    <div className="rounded-2xl border border-white/15 bg-black/40 p-4 space-y-3 mt-2">
-                      <div className="text-center mb-1">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">Request Access</p>
-                        <p className="text-[10px] text-white/65 mt-0.5">We&apos;ll send your code within 24 h</p>
-                      </div>
-
-                      {submitted ? (
-                        <div className="flex flex-col items-center gap-2 py-3 text-center">
-                          <Check className="w-8 h-8 text-emerald-400" strokeWidth={2.5} />
-                          <p className="text-sm font-semibold text-white">Request sent!</p>
-                          <p className="text-xs text-white/50">We&apos;ll reach out to you soon.</p>
-                        </div>
-                      ) : (
-                        <form onSubmit={handleRequestSubmit} className="space-y-3">
-                          <input
-                            type="text"
-                            value={form.name}
-                            onChange={updateForm('name')}
-                            placeholder="Your name *"
-                            required
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
-                          />
-                          <input
-                            type="email"
-                            value={form.email}
-                            onChange={updateForm('email')}
-                            placeholder="your@email.com *"
-                            required
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
-                          />
-                          <input
-                            type="tel"
-                            value={form.whatsapp}
-                            onChange={updateForm('whatsapp')}
-                            placeholder="WhatsApp (optional)"
-                            className="w-full h-11 rounded-xl bg-white/5 border border-white/15 px-3.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors"
-                          />
-                          <textarea
-                            value={form.message}
-                            onChange={updateForm('message')}
-                            placeholder="Tell us more (optional)"
-                            rows={2}
-                            className="w-full rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 text-sm text-white placeholder:text-white/55 outline-none focus:border-white/40 transition-colors resize-none"
-                          />
-                          {submitError && (
-                            <p className="text-xs text-red-400 text-center">{submitError}</p>
-                          )}
-                          <button
-                            type="submit"
-                            disabled={submitting || !form.name.trim() || !form.email.trim()}
-                            style={{ 
-                              backgroundColor: '#ffffff', 
-                              color: '#000000',
-                              opacity: (submitting || !form.name.trim() || !form.email.trim()) ? 0.9 : 1
-                            }}
-                            className="w-full min-h-12 py-3 rounded-xl font-black text-sm flex items-center justify-center gap-3 active:scale-[0.97] transition-all drop-shadow-xl disabled:cursor-not-allowed"
-                          >
-                            {submitting ? (
-                              <div className="col-span-2 mx-auto w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                            ) : (
-                              <>
-                                <Send className="w-4 h-4 shrink-0" strokeWidth={2.5} />
-                                <span className="text-center leading-none text-[15px]">Request Code</span>
-                              </>
-                            )}
-                          </button>
-                        </form>
-                      )}
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                      <MessageSquare className="w-4 h-4" />
                     </div>
+                    <span className="text-sm font-medium">
+                      {showRequest ? 'Hide request form' : "Don't have a code? Request one"}
+                    </span>
+                  </div>
+                  <motion.div
+                    animate={{ rotate: showRequest ? 180 : 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  >
+                    <ChevronDown className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </button>
 
-              <p 
-                className="text-[9px] font-black uppercase tracking-[0.35em] italic text-center drop-shadow-md mt-2"
-                style={{ color: gateSubtitleColor }}
-              >
-                {gateSubtitle}
-              </p>
+                <AnimatePresence initial={false}>
+                  {showRequest && (
+                    <motion.div
+                      key="request-form"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="w-full overflow-hidden"
+                    >
+                      <div className="rounded-2xl bg-black/20 p-5 mt-4 space-y-4 border border-white/5">
+                        <div className="text-center mb-2">
+                          <p className="text-sm font-semibold text-white">Request Access</p>
+                          <p className="text-xs text-white/60 mt-1">We'll review and send your code within 24h</p>
+                        </div>
+
+                        {submitted ? (
+                          <div className="flex flex-col items-center gap-3 py-4 text-center">
+                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-1">
+                              <Check className="w-6 h-6 text-emerald-400" strokeWidth={2.5} />
+                            </div>
+                            <p className="text-base font-semibold text-white">Request sent successfully!</p>
+                            <p className="text-sm text-white/60">We'll reach out to you soon.</p>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleRequestSubmit} className="space-y-3">
+                            <input
+                              type="text"
+                              value={form.name}
+                              onChange={updateForm('name')}
+                              placeholder="Your full name *"
+                              required
+                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                            />
+                            <input
+                              type="email"
+                              value={form.email}
+                              onChange={updateForm('email')}
+                              placeholder="Email address *"
+                              required
+                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                            />
+                            <input
+                              type="tel"
+                              value={form.whatsapp}
+                              onChange={updateForm('whatsapp')}
+                              placeholder="WhatsApp (optional)"
+                              className="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                            />
+                            <textarea
+                              value={form.message}
+                              onChange={updateForm('message')}
+                              placeholder="How did you hear about us? (optional)"
+                              rows={2}
+                              className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:bg-white/10 transition-all resize-none"
+                            />
+                            {submitError && (
+                              <p className="text-sm text-red-400 text-center">{submitError}</p>
+                            )}
+                            <button
+                              type="submit"
+                              disabled={submitting || !form.name.trim() || !form.email.trim()}
+                              className="w-full min-h-[48px] mt-2 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all bg-white text-black disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                            >
+                              {submitting ? (
+                                <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                              ) : (
+                                <>
+                                  <Send className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+                                  <span>Submit Request</span>
+                                </>
+                              )}
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </motion.div>
         ) : (
