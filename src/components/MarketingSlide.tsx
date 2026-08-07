@@ -77,23 +77,23 @@ const slideData: Record<string, {
     },
     'marketing:bicycle:slide3': {
         title: 'Ride Safe',
-        subtitle: 'All sellers are verified. Enjoy peace of mind from browse to buy.',
+        subtitle: 'Review profiles, listings, and available trust signals before deciding to buy.',
         icon: ShieldCheck,
         gradient: 'from-brand-accent/80 to-orange-900/80',
-        badge: 'Verified Sellers'
+        badge: 'Check Before Paying'
     },
 
     // WORKERS / SERVICES
     'marketing:worker:slide1': {
         title: 'Trusted Pros',
-        subtitle: 'Find verified professionals, from electricians to private chefs. Your safety is our priority.',
+        subtitle: 'Compare profiles, experience, and community feedback before choosing who to contact.',
         icon: ShieldCheck,
         gradient: 'from-purple-600/80 to-violet-900/80',
-        badge: 'Safety First'
+        badge: 'Choose Carefully'
     },
     'marketing:worker:slide2': {
         title: 'Real Reviews',
-        subtitle: 'Hire based on genuine community reviews. Know exactly who you are bringing to your home.',
+        subtitle: 'Use community reviews as one signal and verify credentials before inviting anyone into your home.',
         icon: Star,
         gradient: 'from-blue-600/80 to-cyan-900/80',
         badge: 'Community Rated'
@@ -115,18 +115,18 @@ const slideData: Record<string, {
         badge: 'Smart Matching'
     },
     'marketing:client:slide2': {
-        title: 'Verified Profiles',
-        subtitle: 'We verify every user so you can chat and transact with confidence.',
+        title: 'Profile Signals',
+        subtitle: 'Review available profile information and verification badges, where present, before you transact.',
         icon: ShieldCheck,
         gradient: 'from-blue-600/80 to-teal-800/80',
-        badge: 'Secure Connections'
+        badge: 'Informed Connections'
     },
     'marketing:client:slide3': {
         title: 'Direct Chat',
-        subtitle: 'No middlemen. Message clients instantly when you both swipe right.',
+        subtitle: 'Use tokens or an eligible subscription to start a direct conversation when you are ready.',
         icon: MessageCircle,
         gradient: 'from-purple-500/80 to-pink-800/80',
-        badge: 'Instant Comm'
+        badge: 'Direct Messaging'
     },
     'marketing:direct:deal': {
         title: 'Direct Deals',
