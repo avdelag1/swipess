@@ -91,3 +91,4 @@ swipess.key
 swipess.pem
 swipess.csr
 *.csr
+venv-img/

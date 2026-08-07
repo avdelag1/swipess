@@ -79,7 +79,9 @@ function TopBarComponent({
   const isActuallyVisible = isScrollVisible;
 
   const isDashboard = isDashboardPath(location.pathname);
-  const { iconColor } = getTopBarChrome(isLight, isDashboard);
+  // Dashboard always has a light/cream background — force dark icons regardless of theme.
+  // On all other pages, respect the actual isLight flag from the theme.
+  const { iconColor } = getTopBarChrome(isDashboard ? true : isLight, isDashboard);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';

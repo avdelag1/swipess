@@ -25,7 +25,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
 
     const isLight = theme === 'light';
     const location = useLocation();
-    const { iconColor, iconShadow } = getTopBarChrome(isLight, isDashboardPath(location.pathname) || isLight);
+    const isDash = isDashboardPath(location.pathname);
+    // Dashboard always has light background — dark icons always
+    const { iconColor, iconShadow } = getTopBarChrome(isDash ? true : isLight, isDash);
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
