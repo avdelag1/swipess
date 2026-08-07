@@ -117,13 +117,10 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
 
       if (dbError) throw dbError;
 
-      // Grant verified badge immediately on document upload
-      await supabase.from('profiles').update({ verified: true }).eq('user_id', user.user.id);
-
       return data;
     },
     onSuccess: () => {
-      appToast.success("Document uploaded — Verified badge granted!");
+      appToast.success("Document uploaded. Any verification remains pending until reviewed.");
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
