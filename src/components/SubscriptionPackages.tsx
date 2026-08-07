@@ -230,9 +230,11 @@ export function SubscriptionPackages({
               transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
               style={{ WebkitBackdropFilter: 'blur(40px) saturate(200%) brightness(1.05)', transform: 'translateZ(0)', willChange: 'transform' }}
               className={cn(
-                'flex-1 flex flex-col rounded-[32px] border bg-white/10 backdrop-blur-3xl p-6 relative overflow-hidden',
-                style.border,
-                isHighlight ? 'ring-1 ring-amber-500/20 shadow-[0_4px_24px_rgba(245,158,11,0.12)]' : 'shadow-[0_2px_16px_rgba(0,0,0,0.1)]'
+                'flex-1 flex flex-col rounded-[32px] border bg-white/10 backdrop-blur-3xl px-6 pt-6 relative',
+                isHighlight 
+                  ? 'pb-8 sm:pb-10 overflow-visible ring-1 ring-amber-500/20 shadow-[0_4px_24px_rgba(245,158,11,0.12)]' 
+                  : 'pb-6 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.1)]',
+                style.border
               )}
             >
               <div className={cn('absolute inset-0 rounded-[2rem] bg-gradient-to-b pointer-events-none', style.topGradient)} />
