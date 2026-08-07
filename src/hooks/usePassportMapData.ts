@@ -32,6 +32,7 @@ export interface MapProfilePin {
   recentlyActive?: boolean;
 }
 
+/** Live presence window — matches SQL filter on location_updated_at. */
 const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** ~100m grid — stops GPS jitter from invalidating the query key every watch tick. */
@@ -115,12 +116,19 @@ export function usePassportMapData(
         };
       });
 
-      const profiles: MapProfilePin[] = profilesRaw.map((p) => {
+      // Server filters to device GPS + 7d after migration. Client defense:
+      // require location_updated_at when present; hide legacy city pins otherwise.
+      const profiles: MapProfilePin[] = [];
+      for (const p of profilesRaw) {
+        const locRaw = (p as { location_updated_at?: string | null }).location_updated_at;
+        const locAt = locRaw ? new Date(locRaw).getTime() : 0;
+        // Without a device location stamp, treat as stale city/legacy pin — hide
+        if (!(locAt > 0 && now - locAt < ACTIVE_WINDOW_MS)) continue;
+
         const imgs = Array.isArray(p.profile_images) ? p.profile_images : [];
         const first = typeof imgs[0] === 'string' ? imgs[0] : imgs[0]?.url;
-        const updatedAt = p.updated_at ? new Date(p.updated_at).getTime() : 0;
         const scattered = applyScatter(p.latitude, p.longitude, p.user_id);
-        return {
+        profiles.push({
           id: p.user_id,
           name: p.name || 'User',
           city: p.city ?? undefined,
@@ -131,9 +139,9 @@ export function usePassportMapData(
           lng: scattered.lng,
           imageUrl: first ? getCardImageUrl(first) : undefined,
           distanceKm: p.distance_km,
-          recentlyActive: updatedAt > 0 && now - updatedAt < ACTIVE_WINDOW_MS,
-        };
-      });
+          recentlyActive: true,
+        });
+      }
 
       return {
         listings,

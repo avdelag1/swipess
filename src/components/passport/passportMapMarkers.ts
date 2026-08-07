@@ -64,16 +64,22 @@ const injectMarkerStyles = () => {
   document.head.appendChild(style);
 };
 
-function listingMarkerStyle(isSelected: boolean) {
+/** Larger pins on Safari 2D (Leaflet) — top-down map needs bigger targets. */
+export type MarkerVisualScale = 'normal' | 'large';
+
+function listingMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
+  const large = scale === 'large';
+  const h = isSelected ? (large ? 36 : 28) : (large ? 32 : 24);
+  const font = isSelected ? (large ? 13 : 11) : (large ? 12 : 10);
   return `
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    height: ${isSelected ? '28px' : '24px'};
-    padding: 0 10px 0 6px; border-radius: 14px;
+    height: ${h}px;
+    padding: 0 ${large ? 12 : 10}px 0 ${large ? 8 : 6}px; border-radius: ${large ? 18 : 14}px;
     background: ${isSelected ? '#111827' : '#ffffff'};
     color: ${isSelected ? '#ffffff' : '#0F172A'};
-    font-size: ${isSelected ? '11px' : '10px'}; font-weight: 800; letter-spacing: 0.01em;
-    border: 1px solid ${isSelected ? '#374151' : '#E2E8F0'};
-    box-shadow: 0 ${isSelected ? '6' : '3'}px ${isSelected ? '16' : '8'}px rgba(0,0,0,${isSelected ? '0.3' : '0.12'});
+    font-size: ${font}px; font-weight: 800; letter-spacing: 0.01em;
+    border: ${large ? 2 : 1}px solid ${isSelected ? '#374151' : '#E2E8F0'};
+    box-shadow: 0 ${isSelected ? '8' : '4'}px ${isSelected ? '20' : '12'}px rgba(0,0,0,${isSelected ? '0.35' : '0.18'});
     cursor: pointer;
     white-space: nowrap;
   `;
@@ -82,15 +88,19 @@ function listingMarkerStyle(isSelected: boolean) {
 export function createListingMarkerEl(
   listing: MapListingPin,
   isSelected: boolean,
+  scale: MarkerVisualScale = 'normal',
 ): HTMLDivElement {
   injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--listing';
+  el.dataset.markerScale = scale;
   
-  el.style.cssText = listingMarkerStyle(isSelected);
+  el.style.cssText = listingMarkerStyle(isSelected, scale);
   
+  const large = scale === 'large';
+  const dotSize = large ? 10 : 8;
   const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
-  const dotHtml = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 4px ${dotColor}80;"></span>`;
+  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 6px ${dotColor}99; flex-shrink:0;"></span>`;
   
   // Show title up to 15 chars to keep it neat
   const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
@@ -106,22 +116,31 @@ export function updateListingMarkerEl(
   el: HTMLDivElement,
   listing: MapListingPin,
   isSelected: boolean,
+  scale?: MarkerVisualScale,
 ): void {
-  applyMarkerStyle(el, listingMarkerStyle(isSelected));
+  const s = scale ?? (el.dataset.markerScale as MarkerVisualScale) ?? 'normal';
+  el.dataset.markerScale = s;
+  applyMarkerStyle(el, listingMarkerStyle(isSelected, s));
+  const large = s === 'large';
+  const dotSize = large ? 10 : 8;
   const dotColor = isSelected ? '#00E5FF' : '#3B82F6';
-  const dotHtml = `<span style="width: 8px; height: 8px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 4px ${dotColor}80;"></span>`;
+  const dotHtml = `<span style="width: ${dotSize}px; height: ${dotSize}px; border-radius: 50%; background: ${dotColor}; box-shadow: 0 0 6px ${dotColor}99; flex-shrink:0;"></span>`;
   const shortTitle = listing.title.length > 18 ? listing.title.substring(0, 15) + '…' : listing.title;
   el.innerHTML = `${dotHtml} <span>${shortTitle}</span>`;
   el.dataset.selected = isSelected.toString();
 }
 
-function profileMarkerStyle(isSelected: boolean) {
-  const size = isSelected ? 34 : 28;
+function profileMarkerStyle(isSelected: boolean, scale: MarkerVisualScale = 'normal') {
+  const large = scale === 'large';
+  const size = isSelected ? (large ? 52 : 34) : (large ? 44 : 28);
+  const border = large ? 3 : 2;
   return `
     width: ${size}px; height: ${size}px; border-radius: 50%;
-    border: 2px solid ${isSelected ? '#A5B4FC' : '#6366F1'};
+    border: ${border}px solid ${isSelected ? '#A5B4FC' : '#fff'};
+    outline: ${large ? 2 : 0}px solid ${isSelected ? '#818CF8' : '#6366F1'};
     background: #111;
-    box-shadow: 0 ${isSelected ? '10' : '5'}px ${isSelected ? '24' : '14'}px rgba(99,102,241,${isSelected ? '0.55' : '0.4'});
+    box-shadow: 0 ${isSelected ? '12' : '6'}px ${isSelected ? '28' : '16'}px rgba(99,102,241,${isSelected ? '0.65' : '0.5'}),
+      0 0 0 ${large ? 2 : 1}px rgba(255,255,255,0.35);
     overflow: visible; cursor: pointer;
     background-size: cover; background-position: center;
     position: relative;
@@ -131,12 +150,15 @@ function profileMarkerStyle(isSelected: boolean) {
 export function createProfileMarkerEl(
   profile: MapProfilePin,
   isSelected: boolean,
+  scale: MarkerVisualScale = 'normal',
 ): HTMLDivElement {
   injectMarkerStyles();
   const el = document.createElement('div');
   el.className = 'passport-map-marker passport-map-marker--profile';
-  el.style.cssText = profileMarkerStyle(isSelected);
+  el.dataset.markerScale = scale;
+  el.style.cssText = profileMarkerStyle(isSelected, scale);
 
+  const large = scale === 'large';
   if (profile.imageUrl) {
     el.style.backgroundImage = `url(${profile.imageUrl})`;
   } else {
@@ -145,7 +167,7 @@ export function createProfileMarkerEl(
     el.style.alignItems = 'center';
     el.style.justifyContent = 'center';
     el.style.color = '#fff';
-    el.style.fontSize = '14px';
+    el.style.fontSize = large ? '18px' : '14px';
     el.style.fontWeight = '900';
     el.textContent = (profile.name?.[0] ?? '?').toUpperCase();
   }
@@ -153,9 +175,10 @@ export function createProfileMarkerEl(
   if (profile.recentlyActive) {
     const dot = document.createElement('span');
     dot.className = 'passport-map-marker-active-dot';
+    const d = large ? 14 : 12;
     dot.style.cssText = `
       position: absolute; bottom: -1px; right: -1px;
-      width: 12px; height: 12px; border-radius: 50%;
+      width: ${d}px; height: ${d}px; border-radius: 50%;
       background: linear-gradient(135deg, #10B981, #06B6D4);
       border: 2px solid #fff;
       box-shadow: 0 0 8px rgba(16,185,129,0.8);
@@ -173,10 +196,14 @@ export function updateProfileMarkerEl(
   el: HTMLDivElement,
   profile: MapProfilePin,
   isSelected: boolean,
+  scale?: MarkerVisualScale,
 ): void {
-  applyMarkerStyle(el, profileMarkerStyle(isSelected));
+  const s = scale ?? (el.dataset.markerScale as MarkerVisualScale) ?? 'normal';
+  el.dataset.markerScale = s;
+  applyMarkerStyle(el, profileMarkerStyle(isSelected, s));
   el.dataset.selected = isSelected.toString();
 
+  const large = s === 'large';
   if (profile.imageUrl) {
     el.style.backgroundImage = `url(${profile.imageUrl})`;
     el.textContent = '';
@@ -186,7 +213,7 @@ export function updateProfileMarkerEl(
     el.style.alignItems = 'center';
     el.style.justifyContent = 'center';
     el.style.color = '#fff';
-    el.style.fontSize = '14px';
+    el.style.fontSize = large ? '18px' : '14px';
     el.style.fontWeight = '900';
     el.textContent = (profile.name?.[0] ?? '?').toUpperCase();
   }
@@ -195,9 +222,10 @@ export function updateProfileMarkerEl(
   if (profile.recentlyActive && !hasDot) {
     const dot = document.createElement('span');
     dot.className = 'passport-map-marker-active-dot';
+    const d = large ? 14 : 12;
     dot.style.cssText = `
       position: absolute; bottom: -1px; right: -1px;
-      width: 12px; height: 12px; border-radius: 50%;
+      width: ${d}px; height: ${d}px; border-radius: 50%;
       background: linear-gradient(135deg, #10B981, #06B6D4);
       border: 2px solid #fff;
       box-shadow: 0 0 8px rgba(16,185,129,0.8);

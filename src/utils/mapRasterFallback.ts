@@ -48,6 +48,11 @@ export function ensureRasterMapStyles(): void {
       align-items: flex-end;
       justify-content: center;
       pointer-events: auto;
+      overflow: visible;
+    }
+    .swipess-raster-marker .passport-map-marker {
+      /* Keep avatars crisp on top-down tiles */
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45));
     }
   `;
   document.head.appendChild(style);
@@ -283,14 +288,18 @@ export function addRasterHtmlMarker(
   el: HTMLDivElement,
   lat: number,
   lng: number,
+  opts?: { large?: boolean },
 ): Marker {
+  // Oversize hit box so large profile avatars (44–52px) are not clipped
+  const w = opts?.large ? 72 : 48;
+  const h = opts?.large ? 72 : 52;
   const icon = L.divIcon({
     html: '<div class="swipess-raster-marker-host"></div>',
     className: 'swipess-raster-marker',
-    iconSize: [44, 52],
-    iconAnchor: [22, 52],
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h],
   });
-  const marker = L.marker([lat, lng], { icon, keyboard: false }).addTo(map);
+  const marker = L.marker([lat, lng], { icon, keyboard: false, riseOnHover: true }).addTo(map);
   const host = marker.getElement()?.querySelector('.swipess-raster-marker-host');
   if (host) {
     host.appendChild(el);

@@ -9,8 +9,10 @@ let lastWrite: { lat: number; lng: number; at: number; userId: string } | null =
 const backfillAttempted = new Set<string>();
 
 /**
- * Persist device GPS to client_profiles so map "people" pins work in production.
- * Throttled — safe to call on every GPS tick.
+ * Persist device GPS to client_profiles for live map "people" pins.
+ * Always stamps location_source = 'device' + location_updated_at so the
+ * passport map never confuses this with city-centroid backfills.
+ * Throttled — safe to call on every GPS tick / login.
  */
 export async function persistClientProfileGps(
   userId: string,
@@ -31,19 +33,37 @@ export async function persistClientProfileGps(
 
   const { error } = await supabase
     .from('client_profiles')
-    .update({ latitude: lat, longitude: lng })
+    .update({
+      latitude: lat,
+      longitude: lng,
+      location_updated_at: new Date().toISOString(),
+      location_source: 'device',
+    })
     .eq('user_id', userId);
 
   if (error) {
-    logger.warn('[persistProfileGps] update failed:', error.message);
-    return;
+    // Older DBs without the new columns — still write lat/lng so map can show something
+    if (/location_updated_at|location_source|column/i.test(error.message)) {
+      const { error: fallbackErr } = await supabase
+        .from('client_profiles')
+        .update({ latitude: lat, longitude: lng })
+        .eq('user_id', userId);
+      if (fallbackErr) {
+        logger.warn('[persistProfileGps] update failed:', fallbackErr.message);
+        return;
+      }
+    } else {
+      logger.warn('[persistProfileGps] update failed:', error.message);
+      return;
+    }
   }
 
   lastWrite = { lat, lng, at: now, userId };
 }
 
 /**
- * One-time backfill: users with a city but no GPS coords get approximate map pins.
+ * City-only approximate coords for non-map UX (e.g. city label).
+ * NEVER used as live map presence — location_source stays 'city'.
  */
 export async function backfillProfileGpsFromCity(userId: string): Promise<boolean> {
   if (!userId || backfillAttempted.has(userId)) return false;
@@ -51,12 +71,17 @@ export async function backfillProfileGpsFromCity(userId: string): Promise<boolea
 
   const { data: profile, error } = await supabase
     .from('client_profiles')
-    .select('latitude, longitude, city, country, neighborhood')
+    .select('latitude, longitude, city, country, neighborhood, location_source')
     .eq('user_id', userId)
     .maybeSingle();
 
   if (error || !profile) return false;
-  if (isValidListingCoordinates(profile.latitude, profile.longitude)) return false;
+  // Already has real device GPS — leave it alone
+  if ((profile as { location_source?: string }).location_source === 'device') return false;
+  if (isValidListingCoordinates(profile.latitude, profile.longitude)
+    && (profile as { location_source?: string }).location_source === 'device') {
+    return false;
+  }
 
   const coords = resolveListingCoordinatesSync({
     city: profile.city,
@@ -67,7 +92,12 @@ export async function backfillProfileGpsFromCity(userId: string): Promise<boolea
 
   const { error: updateError } = await supabase
     .from('client_profiles')
-    .update({ latitude: coords.latitude, longitude: coords.longitude })
+    .update({
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      location_source: 'city',
+      // Do NOT set location_updated_at — city pins must not appear on live map
+    })
     .eq('user_id', userId);
 
   if (updateError) {
@@ -75,6 +105,5 @@ export async function backfillProfileGpsFromCity(userId: string): Promise<boolea
     return false;
   }
 
-  lastWrite = { lat: coords.latitude, lng: coords.longitude, at: Date.now(), userId };
   return true;
 }

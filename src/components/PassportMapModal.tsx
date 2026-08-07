@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore } from '@/state/filterStore';
+import { useAuth } from '@/hooks/useAuth';
+import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { appToast } from '@/utils/appNotification';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useTranslation } from 'react-i18next';
@@ -101,6 +103,9 @@ const FILTER_TABS: { id: MapLayerFilter; labelKey: string; icon: typeof Building
 export const PassportMapModal = memo(() => {
   const { isLight } = useAppTheme();
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const authUserIdRef = useRef<string | null>(null);
+  authUserIdRef.current = user?.id ?? null;
   const isOpen = useModalStore(s => s.showPassportMapModal);
   const passportMapShowCities = useModalStore(s => s.passportMapShowCities);
   const clearPassportMapFlags = useModalStore(s => s.clearPassportMapFlags);
@@ -525,6 +530,9 @@ export const PassportMapModal = memo(() => {
     deviceGpsRef.current = next;
     setDeviceGps(next);
     if (!passportMode) setUserLocation(next.lat, next.lng);
+    // Live map presence: write phone GPS as location_source=device
+    const uid = authUserIdRef.current;
+    if (uid) void persistClientProfileGps(uid, next.lat, next.lng);
   }, [passportMode, setUserLocation]);
 
   // Seed + subscribe once — never depend on lat/lng (that caused infinite re-render loops).
@@ -1388,6 +1396,8 @@ export const PassportMapModal = memo(() => {
       const registry = rasterMarkersRef.current;
       const nextKeys = new Set<string>();
       const sel = selectedRef.current;
+      // Top-down 2D needs larger pins so photos/names stay readable
+      const pinScale = 'large' as const;
 
       const upsertListing = (l: (typeof visibleListings)[number]) => {
         const key = `listing:${l.id}`;
@@ -1396,10 +1406,10 @@ export const PassportMapModal = memo(() => {
         const existing = registry.get(key);
         if (existing) {
           existing.marker.setLatLng([l.lat, l.lng]);
-          updateListingMarkerEl(existing.el, l, isSelected);
+          updateListingMarkerEl(existing.el, l, isSelected, pinScale);
           return;
         }
-        const el = createListingMarkerEl(l, isSelected);
+        const el = createListingMarkerEl(l, isSelected, pinScale);
         const cleanup = bindMarkerGestures(
           el,
           () => {
@@ -1414,7 +1424,7 @@ export const PassportMapModal = memo(() => {
         );
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.25s ease-out';
-        const marker = addRasterHtmlMarker(L, map, el, l.lat, l.lng);
+        const marker = addRasterHtmlMarker(L, map, el, l.lat, l.lng, { large: true });
         requestAnimationFrame(() => { el.style.opacity = '1'; });
         registry.set(key, { marker, el, cleanup, pinType: 'listing', pinId: l.id });
       };
@@ -1426,10 +1436,10 @@ export const PassportMapModal = memo(() => {
         const existing = registry.get(key);
         if (existing) {
           existing.marker.setLatLng([p.lat, p.lng]);
-          updateProfileMarkerEl(existing.el, p, isSelected);
+          updateProfileMarkerEl(existing.el, p, isSelected, pinScale);
           return;
         }
-        const el = createProfileMarkerEl(p, isSelected);
+        const el = createProfileMarkerEl(p, isSelected, pinScale);
         const cleanup = bindMarkerGestures(
           el,
           () => {
@@ -1444,7 +1454,7 @@ export const PassportMapModal = memo(() => {
         );
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.25s ease-out';
-        const marker = addRasterHtmlMarker(L, map, el, p.lat, p.lng);
+        const marker = addRasterHtmlMarker(L, map, el, p.lat, p.lng, { large: true });
         requestAnimationFrame(() => { el.style.opacity = '1'; });
         registry.set(key, { marker, el, cleanup, pinType: 'profile', pinId: p.id });
       };
