@@ -109,7 +109,7 @@ const LandingView = memo(({
         <SwipessLogo 
           size="5xl" 
           variant="transparent" 
-          className="w-[70vw] max-w-[260px] sm:max-w-[300px] md:max-w-[360px] drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]"
+          className="w-[85vw] max-w-[340px] sm:max-w-[400px] md:max-w-[480px] drop-shadow-[0_15px_35px_rgba(0,0,0,0.5)]"
         />
         {title && (
           <h1 className="mt-6 text-white text-3xl font-black tracking-wide drop-shadow-xl">
