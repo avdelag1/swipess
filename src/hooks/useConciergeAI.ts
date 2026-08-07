@@ -408,6 +408,7 @@ export function useConciergeAI() {
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
       appToast.error('Upgrade to Premium to use Swipess AI');
+      isSendingRef.current = false;
       return;
     }
 

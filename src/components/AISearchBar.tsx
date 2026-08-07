@@ -86,7 +86,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               <Sparkles 
                 className={cn("w-[18px] h-[18px]", isLight ? "text-black/80" : "text-[#fff0f5]")} 
                 strokeWidth={2} 
-                style={{ filter: isLight ? 'drop-shadow(0 0 5px rgba(0, 0, 0, 0.2))' : 'drop-shadow(0 0 5px rgba(255, 180, 200, 0.9))' }}
+                style={{ filter: isLight ? 'drop-shadow(0 0 5px rgba(0, 0, 0, 0.2))' : 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.6))' }}
               />
             </button>
           </div>
