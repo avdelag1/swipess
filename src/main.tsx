@@ -57,6 +57,8 @@ const handleEmergencyRecovery = async (reason: string) => {
     localStorage.removeItem('last-chunk-reload-time');
 
     const u = new URL(window.location.href);
+    u.searchParams.delete('reset');
+    u.searchParams.delete('clear-cache');
     u.searchParams.set('v', Date.now().toString());
     window.location.replace(u.toString());
   } catch (err) {
@@ -216,6 +218,8 @@ async function bootstrap() {
 
     // Force cache bust on replace to completely bypass browser HTTP disk cache!
     const u = new URL(window.location.href);
+    u.searchParams.delete('reset');
+    u.searchParams.delete('clear-cache');
     u.searchParams.set('v', Date.now().toString());
     window.location.replace(u.toString());
     return;
@@ -224,6 +228,8 @@ async function bootstrap() {
   const shouldReload = await resetPreviewRuntimeState();
   if (shouldReload) {
     const u = new URL(window.location.href);
+    u.searchParams.delete('reset');
+    u.searchParams.delete('clear-cache');
     u.searchParams.set('v', Date.now().toString());
     window.location.replace(u.toString());
     return;
