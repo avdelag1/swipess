@@ -16,7 +16,7 @@ export function DatesModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-background/95 backdrop-blur-xl border-border/10 p-6 rounded-[2rem] shadow-2xl">
+      <DialogContent className="max-w-sm bg-white/95 dark:bg-[#121218]/95 backdrop-blur-xl border-border/10 p-6 rounded-[2rem] shadow-2xl">
         <DialogHeader className="mb-4">
           <DialogTitle className="text-xl font-bold tracking-tight">When are you going?</DialogTitle>
         </DialogHeader>
@@ -59,7 +59,7 @@ export function GuestsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm bg-background/95 backdrop-blur-xl border-border/10 p-6 rounded-[2rem] shadow-2xl">
+      <DialogContent className="max-w-sm bg-white/95 dark:bg-[#121218]/95 backdrop-blur-xl border-border/10 p-6 rounded-[2rem] shadow-2xl">
         <DialogHeader className="mb-6">
           <DialogTitle className="text-xl font-bold tracking-tight">Who's coming?</DialogTitle>
         </DialogHeader>

@@ -49,7 +49,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           className="flex-1 flex items-center h-full"
           onSubmit={(e) => {
             e.preventDefault();
-            if (query.trim()) {
+            if (query.trim() || onSearchSubmit) {
               haptics.success();
               onSearchSubmit?.(query);
               inputRef.current?.blur();
