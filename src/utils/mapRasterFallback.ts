@@ -58,6 +58,34 @@ function tileUrl(token: string): string {
   return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${encodeURIComponent(token)}`;
 }
 
+/**
+ * Leaflet stamps `_leaflet_id` on the container. Removing children is not enough —
+ * a second L.map() on the same node throws "Map container is already initialized."
+ */
+export function resetLeafletContainer(container: HTMLElement): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const el = container as any;
+  try {
+    // If Leaflet still has a live map, remove() clears the stamp cleanly
+    if (el._leaflet_id != null) {
+      // Prefer official teardown when we can reach the instance via private map ref
+      // stored on the element after init (not always available).
+      delete el._leaflet_id;
+    }
+  } catch { /* empty */ }
+  try {
+    container.innerHTML = '';
+  } catch {
+    while (container.firstChild) container.removeChild(container.firstChild);
+  }
+  container.classList.remove('swipess-raster-map', 'leaflet-container', 'leaflet-touch', 'leaflet-fade-anim', 'leaflet-grab', 'leaflet-touch-drag', 'leaflet-touch-zoom');
+  // Drop any leftover leaflet-* classes from a prior instance
+  container.className = container.className
+    .split(/\s+/)
+    .filter((c) => c && !c.startsWith('leaflet-'))
+    .join(' ');
+}
+
 export async function createRasterMap(
   container: HTMLElement,
   opts: {
@@ -70,8 +98,8 @@ export async function createRasterMap(
   ensureRasterMapStyles();
   const L = (await import('leaflet')).default;
 
-  // Clear any leftover Mapbox canvas / DOM
-  while (container.firstChild) container.removeChild(container.firstChild);
+  // Wipe Mapbox canvas leftovers + prior Leaflet stamp on this node
+  resetLeafletContainer(container);
   container.classList.add('swipess-raster-map');
 
   const map = L.map(container, {
@@ -220,8 +248,7 @@ export async function createRasterMap(
     try {
       map.remove();
     } catch { /* empty */ }
-    while (container.firstChild) container.removeChild(container.firstChild);
-    container.classList.remove('swipess-raster-map');
+    resetLeafletContainer(container);
   };
 
   return {

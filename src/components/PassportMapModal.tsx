@@ -72,6 +72,8 @@ let pageMapFallbackDone = false;
 /** Once WebGL dies, stay on Leaflet raster for the rest of the page session. */
 let pageRasterMode = false;
 let pageRasterHandle: RasterMapHandle | null = null;
+/** Single-flight: open-kick + beginInit both call activate — only one may run. */
+let pageRasterActivating: Promise<void> | null = null;
 import { prefetchCityPhotosImmediate } from '@/utils/prefetchCityPhotos';
 import {
   coordsNearFix,
@@ -683,105 +685,140 @@ export const PassportMapModal = memo(() => {
 
     /** Non-WebGL Leaflet map — real tiles + pins when Safari kills Mapbox GL. */
     const activateRasterFallback = async (hintCenter?: { lat: number; lng: number }) => {
-      if (mapUnmountedRef.current || !mapContainerRef.current) return;
-
-      // Reuse page-level raster only if its DOM is still the live container
-      if (pageRasterHandle && pageRasterMode) {
-        const live = mapContainerRef.current;
-        const existing = pageRasterHandle.map.getContainer();
-        if (existing.isConnected && (existing === live || live.contains(existing))) {
+      // Coalesce concurrent open-kick + beginInit + contextlost callers
+      if (pageRasterActivating) {
+        await pageRasterActivating;
+        if (pageRasterHandle) {
           rasterHandleRef.current = pageRasterHandle;
           setRasterMode(true);
           setMapReady(true);
           setMapLoading(false);
           setMapError(null);
+        }
+        return;
+      }
+
+      pageRasterActivating = (async () => {
+        if (mapUnmountedRef.current || !mapContainerRef.current) return;
+
+        // Reuse page-level raster only if its DOM is still the live container
+        if (pageRasterHandle && pageRasterMode) {
+          const live = mapContainerRef.current;
+          let existing: HTMLElement | null = null;
+          try {
+            existing = pageRasterHandle.map.getContainer();
+          } catch {
+            existing = null;
+          }
+          if (existing?.isConnected && (existing === live || live.contains(existing))) {
+            rasterHandleRef.current = pageRasterHandle;
+            setRasterMode(true);
+            setMapReady(true);
+            setMapLoading(false);
+            setMapError(null);
+            requestAnimationFrame(() => {
+              try { pageRasterHandle?.map.invalidateSize({ animate: false }); } catch { /* empty */ }
+              refreshMapVisualsRef.current();
+            });
+            return;
+          }
+          try { pageRasterHandle.destroy(); } catch { /* empty */ }
+          pageRasterHandle = null;
+          rasterHandleRef.current = null;
+        }
+
+        pageMapFallbackDone = true;
+        pageMapInitCount = 99;
+        pageRasterMode = true;
+        initStartedRef.current = true;
+        pageMapInitLock = true;
+        setMapLoading(true);
+        setMapError(null);
+        setRasterMode(true);
+
+        destroyMapInstance();
+        unbindMapDoubleTapRef.current?.();
+        unbindMapDoubleTapRef.current = null;
+        unbindLongPressRef.current?.();
+        unbindLongPressRef.current = null;
+        unbindInteractionRef.current?.();
+        unbindInteractionRef.current = null;
+        rasterMarkersRef.current.forEach((entry) => {
+          try { entry.cleanup(); entry.marker.remove(); } catch { /* empty */ }
+        });
+        rasterMarkersRef.current.clear();
+
+        try {
+          const token = await resolveMapboxAccessToken();
+          if (mapUnmountedRef.current || !mapContainerRef.current) return;
+          if (!token) {
+            setMapError('Mapbox token missing — set VITE_MAPBOX_ACCESS_TOKEN and redeploy');
+            setMapLoading(false);
+            pageMapInitLock = false;
+            return;
+          }
+
+          const hub = radiusCenterRef.current ?? MAP_SEARCH_HUB;
+          const center = hintCenter ?? hub;
+          const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
+
+          // Snapshot container once — avoid double L.map on the same node
+          const host = mapContainerRef.current;
+          const handle = await createRasterMap(host, {
+            token,
+            center: {
+              lat: Number.isFinite(center.lat) ? center.lat : MAP_SEARCH_HUB.lat,
+              lng: Number.isFinite(center.lng) ? center.lng : MAP_SEARCH_HUB.lng,
+            },
+            zoom: Number.isFinite(zoom) ? zoom : 10,
+          });
+
+          if (mapUnmountedRef.current) {
+            handle.destroy();
+            return;
+          }
+
+          pageRasterHandle = handle;
+          rasterHandleRef.current = handle;
+          unbindLongPressRef.current = handle.onLongPress((lng, lat) => {
+            relocateSearchRef.current(lng, lat);
+          });
+          unbindInteractionRef.current = handle.onUserInteract(() => {
+            markUserMapControlRef.current();
+          });
+
+          pageMapInitLock = false;
+          setMapReady(true);
+          setMapLoading(false);
+          setMapError(null);
+          console.warn('[PassportMap] WebGL unavailable — using raster (Leaflet) map');
           requestAnimationFrame(() => {
-            try { pageRasterHandle?.map.invalidateSize({ animate: false }); } catch { /* empty */ }
+            try { handle.map.invalidateSize({ animate: false }); } catch { /* empty */ }
             refreshMapVisualsRef.current();
           });
-          return;
-        }
-        try { pageRasterHandle.destroy(); } catch { /* empty */ }
-        pageRasterHandle = null;
-        rasterHandleRef.current = null;
-      }
-
-      pageMapFallbackDone = true;
-      pageMapInitCount = 99;
-      pageRasterMode = true;
-      initStartedRef.current = true;
-      pageMapInitLock = true;
-      setMapLoading(true);
-      setMapError(null);
-      setRasterMode(true);
-
-      destroyMapInstance();
-      unbindMapDoubleTapRef.current?.();
-      unbindMapDoubleTapRef.current = null;
-      unbindLongPressRef.current?.();
-      unbindLongPressRef.current = null;
-      unbindInteractionRef.current?.();
-      unbindInteractionRef.current = null;
-      rasterMarkersRef.current.forEach((entry) => {
-        try { entry.cleanup(); entry.marker.remove(); } catch { /* empty */ }
-      });
-      rasterMarkersRef.current.clear();
-
-      try {
-        const token = await resolveMapboxAccessToken();
-        if (mapUnmountedRef.current || !mapContainerRef.current) return;
-        if (!token) {
-          setMapError('Mapbox token missing — set VITE_MAPBOX_ACCESS_TOKEN and redeploy');
-          setMapLoading(false);
+        } catch (err) {
+          console.error('[PassportMap] raster fallback failed', err);
           pageMapInitLock = false;
-          return;
+          // If a sibling call already produced a map, don't show a hard error
+          if (pageRasterHandle) {
+            rasterHandleRef.current = pageRasterHandle;
+            setMapReady(true);
+            setMapLoading(false);
+            setMapError(null);
+            return;
+          }
+          setMapLoading(false);
+          setMapError(
+            t('map.graphicsUnavailable', {
+              defaultValue: 'Map graphics unavailable on this browser. Try Chrome or update iOS.',
+            }),
+          );
         }
+      })().finally(() => {
+        pageRasterActivating = null;
+      });
 
-        const hub = radiusCenterRef.current ?? MAP_SEARCH_HUB;
-        const center = hintCenter ?? hub;
-        const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
-
-        const handle = await createRasterMap(mapContainerRef.current, {
-          token,
-          center: {
-            lat: Number.isFinite(center.lat) ? center.lat : MAP_SEARCH_HUB.lat,
-            lng: Number.isFinite(center.lng) ? center.lng : MAP_SEARCH_HUB.lng,
-          },
-          zoom: Number.isFinite(zoom) ? zoom : 10,
-        });
-
-        if (mapUnmountedRef.current) {
-          handle.destroy();
-          return;
-        }
-
-        pageRasterHandle = handle;
-        rasterHandleRef.current = handle;
-        unbindLongPressRef.current = handle.onLongPress((lng, lat) => {
-          relocateSearchRef.current(lng, lat);
-        });
-        unbindInteractionRef.current = handle.onUserInteract(() => {
-          markUserMapControlRef.current();
-        });
-
-        pageMapInitLock = false;
-        setMapReady(true);
-        setMapLoading(false);
-        setMapError(null);
-        console.warn('[PassportMap] WebGL unavailable — using raster (Leaflet) map');
-        requestAnimationFrame(() => {
-          refreshMapVisualsRef.current();
-        });
-      } catch (err) {
-        console.error('[PassportMap] raster fallback failed', err);
-        pageMapInitLock = false;
-        setMapLoading(false);
-        setMapError(
-          t('map.graphicsUnavailable', {
-            defaultValue: 'Map graphics unavailable on this browser. Try Chrome or update iOS.',
-          }),
-        );
-      }
+      await pageRasterActivating;
     };
     activateRasterRef.current = activateRasterFallback;
 
