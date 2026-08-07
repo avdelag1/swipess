@@ -649,11 +649,15 @@ export const PassportMapModal = memo(() => {
         mapboxRef.current = mapboxgl;
         mapboxgl.accessToken = token;
 
+        // Mapbox requires an empty container (re-open can leave leftover nodes)
+        const host = mapContainerRef.current;
+        while (host.firstChild) host.removeChild(host.firstChild);
+
         const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         const onWebKit = isAppleWebKitEnv();
         const flyPitch = cinematicPitchForViewport();
         const map = new mapboxgl.Map({
-          container: mapContainerRef.current,
+          container: host,
           style: 'mapbox://styles/mapbox/outdoors-v12',
           center: [initialLng, initialLat],
           zoom: initialZoom,

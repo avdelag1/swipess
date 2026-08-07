@@ -1,3 +1,10 @@
+// Same-origin worker URL (Vite emits this under /assets/…). Cross-origin
+// `new Worker('https://api.mapbox.com/...')` is blocked by browsers with:
+// SecurityError: Script cannot be accessed from origin 'https://www.swipess.com'
+// even when worker-src allows mapbox.com.
+// @ts-expect-error Vite ?url import
+import mapboxCspWorkerUrl from 'mapbox-gl/dist/mapbox-gl-csp-worker.js?url';
+
 type MapboxGL = typeof import('mapbox-gl').default;
 type MapboxGeocoder = typeof import('@mapbox/mapbox-gl-geocoder').default;
 
@@ -7,15 +14,16 @@ let warmPromise: Promise<{
 }> | null = null;
 
 function configureMapboxWorker(mapboxgl: MapboxGL): void {
-  // Vite code-splits mapbox into vendor-maps — blob workers can fail on Safari /
-  // WKWebView (Capacitor) after deploy or under strict CSP. Force the CSP-safe
-  // CDN worker so tiles paint on iOS Safari and the native app, not only Chrome.
-  const cdnWorker = `https://api.mapbox.com/mapbox-gl-js/v${mapboxgl.version}/mapbox-gl-csp-worker.js`;
   try {
-    mapboxgl.workerUrl = cdnWorker;
-  } catch {
-    if (!mapboxgl.workerUrl) mapboxgl.workerUrl = cdnWorker;
-  }
+    // Prefer bundled same-origin CSP worker (works on Chrome + Safari + Capacitor)
+    if (typeof mapboxCspWorkerUrl === 'string' && mapboxCspWorkerUrl.length > 0) {
+      mapboxgl.workerUrl = mapboxCspWorkerUrl;
+      return;
+    }
+  } catch { /* fall through */ }
+
+  // Last resort: leave Mapbox defaults (blob worker). Do NOT point workerUrl at
+  // api.mapbox.com — that throws SecurityError from https://www.swipess.com.
 }
 
 /** Eagerly load Mapbox JS + CSS. Safe to call multiple times. */

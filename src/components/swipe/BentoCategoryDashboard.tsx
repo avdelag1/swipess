@@ -25,6 +25,7 @@ import {
 import { AISearchBar } from '@/components/AISearchBar';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
+import { useModalStore } from '@/state/modalStore';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;

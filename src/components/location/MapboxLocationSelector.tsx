@@ -99,7 +99,8 @@ export function MapboxLocationSelector({
     if (!mapRef.current || !showMap) return;
 
     mapboxgl.accessToken = getMapboxAccessToken();
-    mapboxgl.workerUrl = `https://api.mapbox.com/mapbox-gl-js/v${mapboxgl.version}/mapbox-gl-csp-worker.js`;
+    // Do not set workerUrl to api.mapbox.com — cross-origin Worker is blocked.
+    // Default / bundled worker is configured via mapWarmPool when used there.
     if (!mapboxgl.accessToken) {
       return;
     }
