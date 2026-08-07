@@ -23,6 +23,14 @@ import { WelcomeState } from '@/components/concierge/WelcomeState';
 
 import { ConversationSidebar } from '@/components/concierge/ConversationSidebar';
 import { VirtualizedConciergeMessageList } from '@/components/concierge/VirtualizedConciergeMessageList';
+import {
+  GENIE_ORIGIN_BOTTOM,
+  GENIE_PANEL_EXIT,
+  GENIE_PANEL_OPEN,
+  GENIE_PANEL_VISIBLE,
+  GENIE_SPRING_CLOSE,
+  GENIE_SPRING_OPEN,
+} from '@/utils/genieMotion';
 
 function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { theme, isLight } = useAppTheme();
@@ -330,30 +338,21 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
 
           <motion.div
             layoutId="concierge-panel"
-            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
+            initial={GENIE_PANEL_OPEN}
             animate={{
-              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
-              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
+              ...GENIE_PANEL_VISIBLE,
+              transition: GENIE_SPRING_OPEN,
             }}
-            exit={{ 
-              scale: 0.04,
-              y: 520,
-              opacity: 0,
-              borderRadius: "999px",
-              transition: { 
-                type: "spring", 
-                stiffness: 180, 
-                damping: 22, 
-                mass: 0.6,
-                duration: 0.42 
-              }
+            exit={{
+              ...GENIE_PANEL_EXIT,
+              transition: GENIE_SPRING_CLOSE,
             }}
             className={cn(
                "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)]",
                isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black border-white/10"
              )}
             style={{
-              transformOrigin: 'bottom center',
+              ...GENIE_ORIGIN_BOTTOM,
               paddingTop: 'env(safe-area-inset-top, 0px)',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}

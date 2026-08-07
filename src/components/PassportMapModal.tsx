@@ -48,13 +48,6 @@ import {
 import { PassportMapChunkyButton } from '@/components/passport/PassportMapChunkyButton';
 import { PASSPORT_GRADIENTS } from '@/components/passport/passportMapTheme';
 import { syncRadiusCircleOnMap } from '@/utils/mapRadiusCircle';
-import {
-  GENIE_FULLSCREEN_EXIT,
-  GENIE_FULLSCREEN_OPEN,
-  GENIE_FULLSCREEN_VISIBLE,
-  GENIE_ORIGIN_BOTTOM,
-  GENIE_SPRING_CLOSE,
-} from '@/utils/genieMotion';
 import { DEFAULT_CITY_PHOTO, PASSPORT_QUICK_CITIES } from '@/data/cityPhotos';
 import { LocationRadiusSelector } from '@/components/swipe/LocationRadiusSelector';
 
@@ -585,10 +578,7 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!shouldWarmMap) return;
     let cancelled = false;
-    // Prefetch token + Mapbox JS/CSS only — do NOT create a WebGL map while closed.
-    // Safari/WKWebView fail WebGL when the host is visibility:hidden or scaled by
-    // the genie open animation (scale ~0.05). Chrome is more tolerant, which is
-    // why the map "only works in Chrome / PWA Chrome".
+    // Prefetch token + Mapbox JS/CSS only — create WebGL when the map opens.
     void resolveMapboxAccessToken().then((token) => {
       if (!cancelled) setTokenReady(token.length > 0);
     });
@@ -596,8 +586,7 @@ export const PassportMapModal = memo(() => {
     return () => { cancelled = true; };
   }, [shouldWarmMap]);
 
-  // Create Mapbox ONLY when the modal is open (visible, unscaled). Warm modules
-  // separately. Re-init is allowed if a previous attempt failed.
+  // Create Mapbox when the modal is open (fullscreen, no genie transform).
   useEffect(() => {
     if (!mapContainerRef.current) return undefined;
     // Effect (re)mounted — the map is alive again.
@@ -606,7 +595,7 @@ export const PassportMapModal = memo(() => {
     let deferHandle: ReturnType<typeof setTimeout> | null = null;
 
     const beginInit = () => {
-      // Never create WebGL while closed — container is hidden + genie-scaled.
+      // Never create WebGL while closed — host is visibility:hidden.
       if (!useModalStore.getState().showPassportMapModal) return;
       if (mapUnmountedRef.current || initStartedRef.current || mapRef.current || !mapContainerRef.current) return;
       // Synchronous lock: a pending defer-timer and the open-kick effect must
@@ -649,7 +638,7 @@ export const PassportMapModal = memo(() => {
           return;
         }
 
-        // Ensure container has real layout size (genie scale must be ~1).
+        // Ensure container has real layout size before WebGL bind.
         const rect = mapContainerRef.current.getBoundingClientRect();
         if (rect.width < 8 || rect.height < 8) {
           initStartedRef.current = false;
@@ -813,11 +802,9 @@ export const PassportMapModal = memo(() => {
     // Expose so the open-kick effect can start init when the user opens the map.
     beginInitRef.current = beginInit;
 
-    // Only start WebGL when the modal is open. Defer past the genie tween
-    // (~100ms) so the host is at scale 1 / visible — required on Safari & iOS.
+    // Only start WebGL when the modal is open (simple fade host, no genie scale).
     if (useModalStore.getState().showPassportMapModal) {
-      const delay = isAppleWebKitEnv() ? 160 : 40;
-      deferHandle = setTimeout(beginInit, delay);
+      deferHandle = setTimeout(beginInit, isAppleWebKitEnv() ? 50 : 0);
     }
 
     // Only clears the pending defer timer — never cancels a committed init.
@@ -833,17 +820,15 @@ export const PassportMapModal = memo(() => {
   useEffect(() => {
     if (!isOpen) return;
     if (mapRef.current) {
-      // Already have a live map — force layout after genie expand.
-      const t1 = window.setTimeout(() => resizeMap(), 50);
-      const t2 = window.setTimeout(() => resizeMap(), 200);
+      const t1 = window.setTimeout(() => resizeMap(), 40);
+      const t2 = window.setTimeout(() => resizeMap(), 160);
       return () => {
         window.clearTimeout(t1);
         window.clearTimeout(t2);
       };
     }
     if (!initStartedRef.current) {
-      const delay = isAppleWebKitEnv() ? 160 : 40;
-      const t = window.setTimeout(() => beginInitRef.current?.(), delay);
+      const t = window.setTimeout(() => beginInitRef.current?.(), isAppleWebKitEnv() ? 50 : 0);
       return () => window.clearTimeout(t);
     }
     return undefined;
@@ -1180,6 +1165,8 @@ export const PassportMapModal = memo(() => {
 
   const mapHostVisible = isOpen;
 
+  // No genie scale transforms here — Mapbox WebGL breaks under non-1 scale on
+  // Safari/WKWebView. Genie is reserved for VAP ID card + AI chat only.
   return (
     <motion.div
       className={cn(
@@ -1189,21 +1176,12 @@ export const PassportMapModal = memo(() => {
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
-      initial={GENIE_FULLSCREEN_OPEN}
-      animate={
-        isOpen
-          ? GENIE_FULLSCREEN_VISIBLE
-          : { ...GENIE_FULLSCREEN_EXIT, transition: GENIE_SPRING_CLOSE }
-      }
-      transition={
-        isOpen
-          ? { type: 'tween', duration: 0.1, ease: 'easeOut' }
-          : { type: 'tween', duration: 0.1 }
-      }
-      style={{
-        ...GENIE_ORIGIN_BOTTOM,
+      initial={false}
+      animate={{
+        opacity: isOpen ? 1 : 0,
         visibility: mapHostVisible ? 'visible' : 'hidden',
       }}
+      transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
     >
       <div
         data-map-surface

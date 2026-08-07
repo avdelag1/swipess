@@ -12,6 +12,14 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
 import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
+import {
+  GENIE_ORIGIN_BOTTOM,
+  GENIE_PANEL_EXIT,
+  GENIE_PANEL_OPEN,
+  GENIE_PANEL_VISIBLE,
+  GENIE_SPRING_CLOSE,
+  GENIE_SPRING_OPEN,
+} from '@/utils/genieMotion';
 
 const VapIdEditModal = lazyWithRetry(() => import('./VapIdEditModal').then(m => ({ default: m.VapIdEditModal })));
 
@@ -192,28 +200,17 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
           onClick={triggerGenieClose}
         >
           <motion.div
-            initial={{ scaleX: 0.05, scaleY: 0.05, y: '45vh', opacity: 0, filter: 'blur(15px)' }}
-            animate={{ 
-              scaleX: 1, scaleY: 1, y: 0, opacity: 1, filter: 'blur(0px)',
-              transition: { type: 'spring', damping: 22, stiffness: 250, mass: 0.8 }
+            initial={GENIE_PANEL_OPEN}
+            animate={{
+              ...GENIE_PANEL_VISIBLE,
+              transition: GENIE_SPRING_OPEN,
             }}
-            exit={{ 
-              scale: 0.04,
-              y: 520,
-              x: 0,
-              opacity: 0,
-              filter: "blur(20px)",
-              borderRadius: "999px",
-              transition: { 
-                type: "spring", 
-                stiffness: 180, 
-                damping: 22, 
-                mass: 0.6,
-                duration: 0.42 
-              }
+            exit={{
+              ...GENIE_PANEL_EXIT,
+              transition: GENIE_SPRING_CLOSE,
             }}
             style={{
-              transformOrigin: 'bottom center',
+              ...GENIE_ORIGIN_BOTTOM,
               maxHeight: 'calc(100dvh - env(safe-area-inset-top, 0px) - 80px)',
             }}
             onClick={(e) => e.stopPropagation()}
