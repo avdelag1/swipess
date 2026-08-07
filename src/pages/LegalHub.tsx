@@ -23,7 +23,6 @@ import { AmbientPageBackground } from '@/components/ui/AmbientPageBackground';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Database, Eye, Globe, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
-import { Capacitor } from '@capacitor/core';
 import { logger } from '@/utils/prodLogger';
 import { clientTemplates, ownerTemplates } from '@/data/contractTemplates';
 
@@ -345,7 +344,7 @@ const LegalHub = () => {
                   Service Packages
                 </h1>
                 <p className={cn("text-lg font-bold opacity-50 max-w-2xl", isLight ? "text-black" : "text-white")}>
-                  Browse our legal service packages. Select a package and submit a request — a verified lawyer will contact you.
+                  Browse currently listed service options and submit a request. Availability, provider credentials, jurisdiction, timing, and final price must be confirmed separately.
                 </p>
               </div>
 
@@ -376,16 +375,19 @@ const LegalHub = () => {
                             <h3 className={cn("text-lg font-black uppercase italic tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>
                               {pkg.name}
                             </h3>
-                            <span className={cn("text-xl font-black shrink-0", isOwner ? "text-purple-500" : "text-rose-500")}>
-                              ${pkg.price.toLocaleString()}
-                            </span>
+                            <div className="text-right shrink-0">
+                              <span className={cn("block text-[9px] font-black uppercase tracking-widest opacity-40", isLight ? "text-black" : "text-white")}>Starting at</span>
+                              <span className={cn("text-xl font-black", isOwner ? "text-purple-500" : "text-rose-500")}>
+                                ${pkg.price.toLocaleString()}
+                              </span>
+                            </div>
                           </div>
                           <div className="flex items-center gap-3">
                             <Badge variant="outline" className={cn(
                               "text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full",
                               isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
                             )}>
-                              {pkg.duration} days
+                              Estimated {pkg.duration_days ?? pkg.duration ?? 'flexible'}{(pkg.duration_days ?? pkg.duration) ? ' days' : ''}
                             </Badge>
                           </div>
                           <ul className="space-y-2">
@@ -452,7 +454,7 @@ const LegalHub = () => {
 
               <div className="space-y-6">
                 <h1 className={cn("text-5xl sm:text-7xl font-black uppercase italic tracking-tighter leading-[0.9]", isLight ? "text-black" : "text-white")}>
-                  {currentDoc === 'privacy' && "Privacy Protocol"}
+                  {currentDoc === 'privacy' && "Privacy Summary"}
                   {currentDoc === 'terms' && "Terms of Use"}
                   {currentDoc === 'agl' && "Acceptable Use"}
                 </h1>
@@ -461,10 +463,10 @@ const LegalHub = () => {
                     "px-5 py-2 text-[10px] font-black uppercase tracking-widest italic border-none shadow-xl",
                     isOwner ? "bg-purple-500 text-white shadow-purple-500/20" : "bg-rose-500 text-white shadow-rose-500/20"
                   )}>
-                    Verified Protocol
+                    Policy Summary
                   </Badge>
                   <span className={cn("text-[10px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>
-                    Revision Node: 2024.Q2.7
+                    Updated: August 7, 2026
                   </span>
                 </div>
               </div>
@@ -472,15 +474,15 @@ const LegalHub = () => {
               <Card className={cn("p-12 sm:p-20 rounded-[4rem] border shadow-[0_50px_100px_rgba(0,0,0,0.1)] backdrop-blur-3xl transition-all duration-700", isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.03] border-white/5")}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-16">
                   {currentDoc === 'privacy' && [
-                    { id: '01', icon: Database, title: 'Telemetry Collection', content: 'We collect data you provide directly: Profile identities, search telemetry, secure messaging packets, and property metadata.' },
-                    { id: '02', icon: Eye, title: 'Operational Usage', content: 'Data is utilized to synchronize the discovery experience, bridge property owners with verified clients, and maintain platform integrity.' },
-                    { id: '03', icon: Globe, title: 'Node Distribution', content: 'Public identity data is visible to peers for matching. Critical telemetry is shared only with verified infrastructure nodes (Supabase, Google).' },
-                    { id: '04', icon: CheckCircle2, title: 'Identity Ownership', content: 'You maintain absolute authority over your personal telemetry. Access, correction, and permanent erasure are available via System Settings.' },
-                    { id: '05', icon: Lock, title: 'Security Cipher', content: 'We implement high-grade SSL, OAuth 2.0 encryption, and regular case-audits to ensure the total integrity of your information.' },
+                    { id: '01', icon: Database, title: 'Information Collected', content: 'We collect account, profile, listing, message, verification, location, usage, security, purchase, and optional AI-input information as described in the full Privacy Policy.' },
+                    { id: '02', icon: Eye, title: 'How It Is Used', content: 'Information supports app features, requested services, personalization, safety, support, security, legal compliance, and service improvement.' },
+                    { id: '03', icon: Globe, title: 'Sharing', content: 'Published content is visible to other users. Necessary information may also be processed by service providers, payment providers, independent professionals, or authorities as described in the full policy.' },
+                    { id: '04', icon: CheckCircle2, title: 'Your Choices', content: 'Available rights may include access, correction, deletion, and withdrawal of consent, subject to identity verification and applicable legal exceptions.' },
+                    { id: '05', icon: Lock, title: 'Security', content: 'We use safeguards designed to protect information, but no online service can promise complete security.' },
                   ].map((section) => (
                     <section key={section.id} className="group space-y-6">
                       <div className="flex items-center gap-4">
-                        <span className={cn("text-[10px] font-black font-mono tracking-widest px-4 py-1.5 rounded-full border", isOwner ? "bg-purple-500/5 text-purple-500 border-purple-500/10" : "bg-rose-500/5 text-rose-500 border-rose-500/10")}>PROTOCOL {section.id}</span>
+                        <span className={cn("text-[10px] font-black font-mono tracking-widest px-4 py-1.5 rounded-full border", isOwner ? "bg-purple-500/5 text-purple-500 border-purple-500/10" : "bg-rose-500/5 text-rose-500 border-rose-500/10")}>TOPIC {section.id}</span>
                         <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                       </div>
                       <div className="flex items-start gap-5">
@@ -506,46 +508,46 @@ const LegalHub = () => {
                         Swipess only requests permissions when you actively use a feature that needs them. You can revoke any permission at any time from your device settings.
                       </p>
                       <ul className={cn("space-y-3 text-sm leading-relaxed", isLight ? "text-black/80" : "text-white/80")}>
-                        <li><strong>Camera:</strong> Used only when you choose to take a photo for your profile, a property listing, a vehicle listing, or to scan a QR code. We do not record video or access the camera in the background.</li>
-                        <li><strong>Photos / Media Library:</strong> Used only when you select existing images to upload as profile or listing photos, or when you save a receipt or QR code we generated for you.</li>
-                        <li><strong>Microphone:</strong> Used only when you press the voice-input button to dictate a message to the AI concierge or to record a voice note for a listing. Audio is sent to a speech-to-text provider for transcription and is not stored.</li>
-                        <li><strong>Location (when in use):</strong> Used only when you ask to see nearby listings, parties, or services. We do not track your location in the background.</li>
-                        <li><strong>Push Notifications:</strong> Used to deliver matches, messages, booking updates, and listing approvals. You can disable this in device settings without losing app functionality.</li>
-                        <li><strong>Contacts:</strong> Optional. Only accessed if you explicitly tap "Share with contact" to share a listing with someone in your address book.</li>
+                        <li><strong>Camera:</strong> Used when you activate a feature that takes a profile or listing photo or scans a supported code.</li>
+                        <li><strong>Photos / Media Library:</strong> Used when you select media to upload or save supported app content.</li>
+                        <li><strong>Microphone:</strong> Used when you activate voice input or another audio feature. Audio may be processed by a speech or AI provider as described in the Privacy Policy.</li>
+                        <li><strong>Location:</strong> Used for nearby and map features when permission is granted. Listings may also use a location you enter manually.</li>
+                        <li><strong>Push Notifications:</strong> Used for enabled service alerts such as messages and activity updates. You can disable notifications in device settings.</li>
+                        <li><strong>Contacts:</strong> Optional and requested only if you activate a supported contact-sharing feature.</li>
                       </ul>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Third-Party Services
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        We rely on the following providers to operate Swipess: <strong>Supabase</strong> (authentication, database, file storage), <strong>Apple App Store / Google Play Billing</strong> (in-app purchases){Capacitor.getPlatform() !== 'ios' && <>, <strong>PayPal</strong> (web checkout)</>}, and AI providers (<strong>OpenAI</strong>, <strong>Google Gemini</strong>, <strong>Moonshot Kimi</strong>, <strong>MiniMax</strong>) for the profile/listing builders and concierge assistant. These services process only the minimum data needed to perform their function and are securely transmitted.
+                        Swipess uses service providers for hosting, database, authentication, communications, security, payments, support, AI, and moderation. The provider presented by a feature or checkout may process the information needed to perform that service. See the full Privacy Policy for details.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Account Deletion & Data Removal
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        You can permanently delete your account and all associated data from <strong>Settings → Account → Delete Account</strong> inside the app, or by emailing <strong>admin@swipess.com</strong>. We honor deletion requests within 30 days.
+                        You may request account deletion from available in-app settings or by emailing <strong>support@swipess.com</strong>. Some records may be retained where reasonably necessary for security, transactions, disputes, backups, or legal obligations, as explained in the full Privacy Policy.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Children
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        Swipess is intended for users 18 years and older. We do not knowingly collect data from children under 13.
+                        Swipess is intended for people aged 18 and older. Contact us if you believe a minor has provided personal information.
                       </p>
                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter pt-4", isLight ? "text-black" : "text-white")}>
                         Contact
                       </h2>
                       <p className={cn("text-sm leading-relaxed", isLight ? "text-black/70" : "text-white/70")}>
-                        Privacy questions: <strong>admin@swipess.com</strong>. Last updated: 2026-05-09.
+                        Privacy questions: <strong>support@swipess.com</strong>. Full policy: <strong>/privacy.html</strong>. Last updated: August 7, 2026.
                       </p>
                     </div>
                   )}
 
                   {currentDoc === 'terms' && [
-                    { id: '01', icon: Gavel, title: 'Ecosystem Acceptance', content: 'By accessing the Swipess terminal, you agree to be bound by these Operating Terms. Access is strictly restricted to compliant identities.' },
-                    { id: '02', icon: UserCheck, title: 'Eligibility Node', content: 'You must be at least 18 years of age and possess full legal capacity to enter into binding digital real estate agreements.' },
-                    { id: '03', icon: CheckCircle2, title: 'Cipher Security', content: 'You are exclusively responsible for your account credentials. You must report any unauthorized terminal access immediately.' },
-                    { id: '04', icon: ScaleIcon, title: 'Conduct Protocol', content: 'Users shall not transmit fraudulent telemetry, harass peers, or attempt to bypass security layers. Violations result in permanent lockout.' },
-                    { id: '05', icon: FileText, title: 'Asset Verification', content: 'Owners must provide certified asset details and comply with all local rental legalities and regional regulations.' },
+                    { id: '01', icon: Gavel, title: 'Agreement', content: 'Creating an account or using Swipess means you agree to the full Terms of Use at /terms.html.' },
+                    { id: '02', icon: UserCheck, title: 'Eligibility', content: 'You must be at least 18 and legally able to enter agreements.' },
+                    { id: '03', icon: CheckCircle2, title: 'Account Security', content: 'You are responsible for protecting account credentials and activity under your account.' },
+                    { id: '04', icon: ScaleIcon, title: 'Marketplace Conduct', content: 'Do not use Swipess for fraud, illegal content, harassment, impersonation, fake listings, spam, or attempts to evade security controls.' },
+                    { id: '05', icon: FileText, title: 'User Responsibility', content: 'Users transact independently and must verify identity, ownership, condition, licenses, qualifications, legality, price, and contract terms for themselves.' },
                   ].map((section) => (
                     <section key={section.id} className="group space-y-6">
                       <div className="flex items-center gap-4">
@@ -569,7 +571,7 @@ const LegalHub = () => {
                   {currentDoc === 'agl' && [
                     { id: '01', icon: BookOpen, title: 'Community Standards', content: 'Treat all users with respect and dignity. Communicate honestly and transparently. Honor commitments and agreements made through the platform.' },
                     { id: '02', icon: Home, title: 'Asset Integrity', content: 'Provide accurate and up-to-date listing information. Use genuine photos. Respond to inquiries in a timely manner.' },
-                    { id: '03', icon: Shield, title: 'Safety Protocol', content: 'Verify user identities before physical interaction. Report suspicious telemetry immediately. Protect your account credentials.' },
+                    { id: '03', icon: Shield, title: 'Safety Protocol', content: 'Independently verify people and transaction details before meeting or paying. Report suspicious activity and protect your account credentials.' },
                   ].map((section) => (
                     <section key={section.id} className="group space-y-6">
                       <div className="flex items-center gap-4">
@@ -635,7 +637,7 @@ const LegalHub = () => {
                 <div className="space-y-4">
                   <h3 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Request Logged</h3>
                   <p className={cn("text-[16px] font-bold tracking-tight opacity-50 leading-relaxed max-w-lg mx-auto italic", isLight ? "text-black" : "text-white")}>
-                    Your legal help request has been successfully dispatched to the Swipess Authority nodes. Our specialist protocols are now auditing your submission.
+                    Your legal-help request was recorded. This does not hire a lawyer or create an attorney-client relationship. If a suitable independent provider is available, they may contact you; a response is not guaranteed.
                   </p>
                 </div>
                 <div className="pt-10 w-full max-w-sm mx-auto space-y-4">
@@ -686,9 +688,9 @@ const LegalHub = () => {
                     <Gavel className="w-14 h-14" />
                   </div>
                   <div className="flex-1 text-center lg:text-left space-y-6">
-                    <h2 className={cn("text-5xl sm:text-7xl font-black uppercase italic tracking-tighter leading-[0.85]", isLight ? "text-black" : "text-white")}>Professional Legal Dispatch</h2>
+                    <h2 className={cn("text-5xl sm:text-7xl font-black uppercase italic tracking-tighter leading-[0.85]", isLight ? "text-black" : "text-white")}>Request Independent Legal Help</h2>
                     <p className={cn("text-[18px] font-bold opacity-50 leading-relaxed italic max-w-2xl", isLight ? "text-black" : "text-white")}>
-                      Connect with specialized legal protocols for contract disputes, evictions, or general real estate law. Verified Swipess members receive high-priority triage nodes.
+                      Describe the legal topic you want help with. Provider availability, identity, license, jurisdiction, confidentiality, scope, timing, price, and engagement terms must be confirmed directly.
                     </p>
                   </div>
                 </div>
@@ -699,7 +701,7 @@ const LegalHub = () => {
               {/* 🛸 PROTOCOL NAVIGATOR */}
               <div className="xl:col-span-7 space-y-10">
                 <div className="px-2 flex items-center gap-6">
-                  <span className={cn("text-[12px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Operational Protocols</span>
+                  <span className={cn("text-[12px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Issue Categories</span>
                   <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
                 </div>
 
@@ -798,7 +800,7 @@ const LegalHub = () => {
                       className="space-y-10"
                     >
                       <div className="px-2 flex items-center gap-6">
-                        <span className={cn("text-[12px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Incident Telemetry</span>
+                        <span className={cn("text-[12px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Request Details</span>
                         <div className={cn("h-[1px] flex-1", isLight ? "bg-black/10" : "bg-white/10")} />
                       </div>
 
@@ -811,7 +813,7 @@ const LegalHub = () => {
                             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl", isOwner ? "bg-purple-500/20 text-purple-400" : "bg-rose-500/20 text-rose-400")}>
                                <MessageSquare className="w-6 h-6" />
                             </div>
-                            Audit Intelligence
+                            Describe Your Request
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="p-10 space-y-10">
@@ -821,7 +823,7 @@ const LegalHub = () => {
                                  {currentCategory?.icon}
                                </div>
                                <div>
-                                 <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-30", isLight ? "text-black" : "text-white")}>PROTOCOL TARGET</p>
+                                 <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] opacity-30", isLight ? "text-black" : "text-white")}>SELECTED TOPIC</p>
                                  <h4 className={cn("text-[15px] font-black uppercase italic tracking-tight", isLight ? "text-black" : "text-white")}>{currentSubcategory?.title}</h4>
                                </div>
                             </div>
@@ -829,7 +831,7 @@ const LegalHub = () => {
                             <div className="relative group">
                               <Textarea
                                 id="description"
-                                placeholder="Describe the incident, timestamps, and all relevant case telemetry for our specialist nodes..."
+                                placeholder="Describe what happened and what kind of legal help you are looking for. Avoid unnecessary sensitive information."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={8}
@@ -857,12 +859,12 @@ const LegalHub = () => {
                               {isSubmitting ? (
                                 <div className="flex items-center gap-3">
                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                                   <span>Dispatching Protocol...</span>
+                                   <span>Submitting Request...</span>
                                 </div>
                               ) : (
                                 <>
                                   <Send className="w-5 h-5 mr-4" />
-                                  Initiate Case Audit
+                                  Submit Legal Request
                                 </>
                               )}
                             </Button>

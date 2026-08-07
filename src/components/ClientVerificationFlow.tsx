@@ -17,9 +17,9 @@ interface ClientVerificationFlowProps {
 }
 
 const steps = [
-  { id: 'selfie', title: 'Selfie Check', description: 'Real-time face verification', icon: Camera, color: '#EB4898' },
+  { id: 'selfie', title: 'Selfie Photo', description: 'Photo submitted for reviewer comparison', icon: Camera, color: '#EB4898' },
   { id: 'document', title: 'Identity Verification', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Manual Review', description: 'Securing your identity', icon: ShieldCheck, color: '#EB4898' },
+  { id: 'review', title: 'Manual Review', description: 'Approval is required before any badge', icon: ShieldCheck, color: '#EB4898' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
@@ -28,6 +28,8 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
   const [step, setStep] = useState(0);
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
+  const [selfiePath, setSelfiePath] = useState<string | null>(null);
+  const [documentPath, setDocumentPath] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -57,15 +59,17 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     setUploading(true);
     
     try {
-      await uploadFile(file, type);
+      const uploadedPath = await uploadFile(file, type);
       
       const reader = new FileReader();
       reader.onloadend = () => {
         if (type === 'selfie') {
           setSelfieUrl(reader.result as string);
+          setSelfiePath(uploadedPath);
           setStep(1);
         } else {
           setDocumentUrl(reader.result as string);
+          setDocumentPath(uploadedPath);
           setStep(2);
         }
         triggerHaptic('success');
@@ -80,7 +84,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
   };
 
   const handleSubmit = async () => {
-    if (!user || !selfieUrl || !documentUrl) return;
+    if (!user || !selfieUrl || !documentUrl || !selfiePath || !documentPath) return;
     
     triggerHaptic('heavy');
     uiSounds.playPing();
@@ -93,30 +97,33 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
         .insert({
           user_id: user.id,
           document_type: 'identity_verification',
-          file_name: 'verification_bundle.json',
-          file_path: `verifications/${user.id}/${Date.now()}`,
+          file_name: documentPath.split('/').pop() || 'identity-document.jpg',
+          file_path: documentPath,
           file_size: 0,
-          mime_type: 'application/json',
+          mime_type: 'image/jpeg',
           status: 'pending',
-          verification_notes: JSON.stringify([
-            { type: 'selfie', preview: selfieUrl.substring(0, 100) + '...' },
-            { type: 'id_document', preview: documentUrl.substring(0, 100) + '...' }
-          ])
+          verification_notes: JSON.stringify({
+            selfie_path: selfiePath,
+            id_document_path: documentPath,
+          })
         });
 
       if (requestError) throw requestError;
 
-      // 2. Update client profile + grant verified badge
-      const [{ error: profileError }] = await Promise.all([
+      // 2. Mark the request as pending. Only an authorized reviewer may grant a badge.
+      const submittedAt = new Date().toISOString();
+      const [{ error: profileError }, { error: statusError }] = await Promise.all([
         supabase.from('client_profiles').update({
-          verification_submitted_at: new Date().toISOString(),
-          verified: true,
+          verification_submitted_at: submittedAt,
         }).eq('user_id', user.id),
-        supabase.from('profiles').update({ verified: true }).eq('user_id', user.id),
+        supabase.from('profiles').update({
+          verification_status: 'pending',
+          verification_submitted_at: submittedAt,
+        } as any).eq('user_id', user.id),
       ]);
-      if (profileError) throw profileError;
+      if (profileError || statusError) throw (profileError ?? statusError);
 
-      appToast.success('Identity verified — badge granted!');
+      appToast.success('Documents submitted. Verification is pending review.');
       onComplete?.();
     } catch (err) {
       logger.error('[Verification] Submission error:', err);

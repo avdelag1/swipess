@@ -605,28 +605,30 @@ const AuthView = memo(({ onBack, initialMode = 'login', siteContent }: { onBack:
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Eligibility</h3>
                   <p className="text-sm opacity-80 leading-relaxed">You must be at least 18 years old and have the legal capacity to enter binding agreements to use Swipess.</p>
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Zero Tolerance for Objectionable Content</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">Swipess has ZERO TOLERANCE for objectionable content and abusive behavior. You agree not to post content that is offensive, illegal, hateful, sexually explicit, harassing, or otherwise objectionable, and not to harass or abuse other users. Content is automatically filtered and moderated; violators are removed and permanently banned.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">Swipess prohibits objectionable content and abusive behavior. You agree not to post content that is illegal, hateful, sexually explicit, threatening, harassing, or otherwise prohibited. We may use automated tools and human review, but no moderation system detects every violation.</p>
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Reporting &amp; Blocking</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">You can report any content or user, and block abusive users, at any time from their profile or your chats. Blocking removes them from your experience immediately. We review every report and remove violating content and offending users within 24 hours.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">You can report content or users and block unwanted interactions from profiles or chats. Reports are prioritized by severity and reviewed as resources allow; Swipess does not guarantee a specific response time or outcome.</p>
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">04 — Account Security</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">You are responsible for safeguarding your credentials. Fraudulent profiles, scraping, malicious code, and attempts to bypass platform security are prohibited and result in immediate termination.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">You are responsible for safeguarding your credentials. Fraudulent profiles, scraping, malicious code, and attempts to bypass platform security are prohibited and may result in restrictions or termination.</p>
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">05 — Marketplace &amp; Tokens</h3>
+                  <p className="text-sm opacity-80 leading-relaxed">Swipess provides discovery, listing, and messaging tools; users act independently. Tokens provide access to initiate eligible conversations. Paying for a token does not verify another user or guarantee safety, seriousness, or the outcome of a transaction.</p>
                 </div>
               ) : (
                 <div className="space-y-5">
-                  <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
+                  <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and use technical and organizational safeguards, including encryption in transit. No online service can guarantee absolute security.</p>
                   <div className="h-px bg-white/10 my-6" />
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mb-2">01 — Data Collection</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">We collect email, authentication tokens, and basic interaction data necessary to operate the matching engine.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">We collect account, profile, listing, message, location, device, usage, and purchase-related data as needed to operate the features you choose.</p>
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">02 — Data Sharing</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">Your personal identity is strictly shielded. We do not sell your data to external data brokers.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">Profile and listing information is shared with other users as needed for discovery and messaging. We do not sell personal data to data brokers.</p>
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E01E2A] mt-6 mb-2">03 — Asset Privacy</h3>
-                  <p className="text-sm opacity-80 leading-relaxed">Location and discovery history is kept private and only utilized for matchmaking algorithms.</p>
+                  <p className="text-sm opacity-80 leading-relaxed">Location data may be used for maps and nearby discovery. You can control device location permission and review the full Privacy Policy for details.</p>
                 </div>
               )}
             </div>
             <div className="shrink-0 pt-4 flex flex-col gap-3">
               <button
-                onClick={() => { triggerHaptic('medium'); setAgreed18(true); setAgreedTerms(true); setFieldErrors(p => ({ ...p, agree: '' })); setLegalModal(null); }}
+                onClick={() => { triggerHaptic('medium'); setAgreedTerms(true); setFieldErrors(p => ({ ...p, agree: '' })); setLegalModal(null); }}
                 className="w-full h-14 bg-white text-black font-bold text-[14px] tracking-wide rounded-full shadow-[0_2px_20px_rgba(255,255,255,0.15)] hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-3"
               >
                 <Check className="w-4 h-4" strokeWidth={3} /> I Agree & Continue

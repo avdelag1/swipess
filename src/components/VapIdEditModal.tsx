@@ -143,25 +143,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
         });
         if (insertErr) throw insertErr;
 
-        // Create an admin review case for this verification document
-        const publicUrlData = supabase.storage.from('legal-documents').getPublicUrl(path);
-        await supabase.from('legal_cases').insert({
-          case_number: `VER-${Date.now().toString().slice(-6)}`,
-          title: `Resident Verification: ${docType}`,
-          description: `User uploaded a new document (${file.name}) for resident verification.`,
-          case_type: 'compliance',
-          status: 'open',
-          priority: 'medium',
-          parties_involved: { client_id: user.id },
-          documents: [
-            { name: file.name, url: publicUrlData.data.publicUrl, type: docType }
-          ]
-        });
-
-        // Grant verified badge immediately on document upload
-        await supabase.from('profiles').update({ verified: true }).eq('user_id', user.id);
-
-        appToast.success('Document uploaded — Verified badge granted!');
+        appToast.success('Document uploaded. Verification is pending review.');
         queryClient.invalidateQueries({ queryKey: ['vap-documents', user.id] });
         queryClient.invalidateQueries({ queryKey: ['profiles_public'] });
         queryClient.invalidateQueries({ queryKey: ['topbar-user-profile'] });
@@ -403,7 +385,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
               <div className="mb-4 flex items-start justify-between">
                 <div>
                   <p className={nexusSectionLabel}>Documents</p>
-                  <h3 className="mt-1 text-sm font-black text-foreground">Authorized verification vault</h3>
+                  <h3 className="mt-1 text-sm font-black text-foreground">Verification documents</h3>
                 </div>
                 <div className="rounded-xl border border-[#8B5CF6]/25 bg-[#8B5CF6]/10 px-3 py-1.5 text-right">
                   <p className="text-xs font-black text-[#C4B5FD]">{documentSummary.verified}✓ · {documentSummary.pending} pending</p>
@@ -439,7 +421,7 @@ export function VapIdEditModal({ isOpen, onClose, onSaved, role = 'client' }: Pr
                       >
                         <p className="text-sm font-black text-foreground">{label}</p>
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                          {doc?.file_name ? 'Tap for authorized preview' : 'Not uploaded'}
+                          {doc?.file_name ? 'Tap to preview' : 'Not uploaded'}
                         </p>
                       </button>
                       <button

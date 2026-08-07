@@ -65,7 +65,7 @@ export default function LawyerServicesPage() {
       description: ct.description,
       price: 0,
       duration_days: null,
-      features: [`${ct.fields} fields prepared by a lawyer`, 'Reviewed and ready to sign', 'Delivered digitally'],
+      features: [`${ct.fields} guided information fields`, 'Provider availability and jurisdiction confirmed separately', 'Scope and quote required before engagement'],
     });
   };
 
@@ -73,7 +73,7 @@ export default function LawyerServicesPage() {
     <div className="w-full bg-background relative min-h-screen">
       <Helmet>
         <title>Legal Services | Swipess</title>
-        <meta name="description" content="Browse legal service packages and request a lawyer — property sales, rentals, evictions, divorce, business and more." />
+        <meta name="description" content="Submit a request to connect with an independent legal-service provider, subject to availability and jurisdiction." />
       </Helmet>
 
       <AtmosphericLayer variant="indigo" opacity={0.18} />
@@ -101,10 +101,10 @@ export default function LawyerServicesPage() {
             </Badge>
           </div>
           <h1 className={cn('text-4xl sm:text-6xl font-black uppercase italic tracking-tighter leading-[0.9]', isLight ? 'text-black' : 'text-white')}>
-            Pick a Package.<br />We Handle the Law.
+            Request Legal Help.<br />Confirm the Details.
           </h1>
           <p className={cn('text-base font-bold opacity-60 italic max-w-2xl leading-relaxed', isLight ? 'text-black' : 'text-white')}>
-            Choose the legal service you need and request it in one tap. A lawyer reviews your case, confirms the details and pricing, and takes it from there.
+            Describe what you need. If a suitable independent provider is available, they may contact you to confirm credentials, jurisdiction, scope, timing, and price.
           </p>
         </div>
 
@@ -146,6 +146,10 @@ export default function LawyerServicesPage() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className={cn('h-64 rounded-[2rem] animate-pulse', isLight ? 'bg-black/5' : 'bg-white/5')} />
             ))}
+          </div>
+        ) : visiblePackages.length === 0 ? (
+          <div className={cn('rounded-2xl border p-6 text-sm font-semibold', isLight ? 'bg-white border-black/5 text-black/60' : 'bg-white/[0.03] border-white/5 text-white/60')}>
+            No listed legal-service packages are currently available.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -216,7 +220,7 @@ export default function LawyerServicesPage() {
         <div className="mt-16 space-y-6">
           <div className="flex items-center gap-4">
             <FileText className={cn('w-5 h-5', isLight ? 'text-black/40' : 'text-white/40')} />
-            <h2 className={cn('text-sm font-black uppercase tracking-[0.3em] italic', isLight ? 'text-black/50' : 'text-white/50')}>Contracts We Prepare</h2>
+            <h2 className={cn('text-sm font-black uppercase tracking-[0.3em] italic', isLight ? 'text-black/50' : 'text-white/50')}>Document Request Topics</h2>
             <div className={cn('h-px flex-1', isLight ? 'bg-black/10' : 'bg-white/10')} />
           </div>
 
@@ -267,7 +271,7 @@ export default function LawyerServicesPage() {
 
           <div className={cn('lg:col-span-2 p-6 rounded-2xl border', isLight ? 'bg-black/[0.02] border-black/5' : 'bg-white/[0.02] border-white/5')}>
             <p className={cn('text-[11px] font-bold leading-relaxed opacity-40', isLight ? 'text-black' : 'text-white')}>
-              Requesting a package sends your details to our legal team — it is not a payment. A lawyer will review your case, confirm scope and pricing (packages can be tailored to your situation), and arrange next steps with you directly. Prices shown are starting points in USD.
+              Submitting a request is not a payment, does not hire a lawyer, and does not create an attorney-client relationship. If an independent provider is available, confirm their identity, license, jurisdiction, confidentiality terms, scope, timing, and final price directly. Listed prices are starting points in USD and are not guaranteed.
             </p>
           </div>
         </div>

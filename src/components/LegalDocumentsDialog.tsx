@@ -117,13 +117,10 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
 
       if (dbError) throw dbError;
 
-      // Grant verified badge immediately on document upload
-      await supabase.from('profiles').update({ verified: true }).eq('user_id', user.user.id);
-
       return data;
     },
     onSuccess: () => {
-      appToast.success("Document uploaded — Verified badge granted!");
+      appToast.success("Document uploaded. Any verification remains pending until reviewed.");
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -214,7 +211,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
             Legal Documents
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Upload legal documents to verify your property ownership and build trust with potential tenants.
+            Submit supporting documents for review. Uploading a file does not by itself verify identity, ownership, licensing, or safety.
             Supported formats: PDF, images (JPG, PNG, WebP), Word documents. Maximum size: {formatFileSize(FILE_SIZE_LIMITS.DOCUMENT_MAX_SIZE)} per file.
           </DialogDescription>
         </DialogHeader>
@@ -334,12 +331,12 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                   <span className="text-blue-400 text-sm font-bold">i</span>
                 </div>
                 <div className="text-sm text-blue-200">
-                  <p className="font-medium mb-1">Document Verification Process</p>
+                  <p className="font-medium mb-1">Document Review Process</p>
                   <ul className="space-y-1 text-blue-200/80">
-                    <li>• Documents are reviewed within 24-48 hours</li>
-                    <li>• Verified documents increase tenant trust and booking rates</li>
-                    <li>• Keep documents current - update if they expire</li>
-                    <li>• All documents are stored securely and privately</li>
+                    <li>• Review timing depends on reviewer availability and is not guaranteed</li>
+                    <li>• An approved status covers only the document type reviewed</li>
+                    <li>• Keep documents current and replace them if they expire</li>
+                    <li>• Do not upload unnecessary information; handling is governed by the Privacy Policy</li>
                   </ul>
                 </div>
               </div>
