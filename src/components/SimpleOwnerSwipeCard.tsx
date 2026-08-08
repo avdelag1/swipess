@@ -33,6 +33,8 @@ import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicat
 import { GestureHints } from '@/components/swipe/GestureHints';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { EXIT_SPRING, SNAP_BACK_SPRING } from '@/components/swipe/SwipeConstants';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
 
 export interface SimpleOwnerSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -111,6 +113,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   renderTopRail,
 }, ref) => {
   const { isRailVisible } = useChromeReveal();
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -383,7 +387,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             if (isVideo) {
               return (
                 <div key={`video-${idx}`} className="absolute inset-0 transition-opacity duration-200 ease-in-out" style={{ opacity: isActive ? 1 : 0, pointerEvents: isActive ? 'auto' : 'none', zIndex: isActive ? 2 : 1 }}>
-                  <LoopVideo src={videoUrl!} className="absolute inset-0 w-full h-full object-cover" active={isTop && isActive} />
+                  <LoopVideo
+                    src={videoUrl!}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    active={isTop && isActive}
+                    muted={!soundOn}
+                  />
                 </div>
               );
             }
@@ -430,6 +439,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                     <RotateCcw className="w-5 h-5" strokeWidth={2.5} />
                   </button>
                 ) : <div className="w-10 h-10" />}
+              </div>
+
+              <div
+                className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,72px)+58px)] right-4 z-[100] pointer-events-auto"
+                style={{ opacity: isZoomed ? 0 : 1 }}
+              >
+                <EventVideoMuteButton soundOn={soundOn} onToggle={toggleSound} size="xs" />
               </div>
             </>
           )}

@@ -34,6 +34,8 @@ import { BarChart3, ChevronLeft, Flag, Map, MessageCircle, RotateCcw, Share2 } f
 import { PhotoPositionIndicators } from '@/components/swipe/PhotoPositionIndicators';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
 import { EXIT_SPRING, SNAP_BACK_SPRING } from '@/components/swipe/SwipeConstants';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
 
 export interface SimpleSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -89,6 +91,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   externalY,
 }, ref) => {
   const { isLight } = useAppTheme();
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
    
   const { isRailVisible } = useChromeReveal();
   const isDragging = useRef(false);
@@ -448,6 +452,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                     src={(listing as any).video_url}
                     className="absolute inset-0 w-full h-full object-cover"
                     active={isTop && isActive}
+                    muted={!soundOn}
                   />
                 </div>
               );
@@ -529,6 +534,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                   <div className="w-10 h-10" />
                 )}
               </AnimatePresence>
+            </div>
+
+            {/* Tiny deck mute — phone/PWA sized, shared preference across cards */}
+            <div
+              className="absolute top-[calc(var(--safe-top,0px)+var(--top-bar-height,72px)+58px)] right-4 z-[100] pointer-events-auto"
+              style={{ opacity: isZoomed ? 0 : 1 }}
+            >
+              <EventVideoMuteButton soundOn={soundOn} onToggle={toggleSound} size="xs" />
             </div>
 
         <motion.div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none" style={{ opacity: likeOpacity, scale: likeStampScale }}>

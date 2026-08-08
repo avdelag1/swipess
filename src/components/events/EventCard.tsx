@@ -192,7 +192,7 @@ export const EventCard = memo(({
         <EventVideoMuteButton
           soundOn={soundOn}
           onToggle={toggleSound}
-          size="sm"
+          size="xs"
           className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-3 z-40"
         />
       )}

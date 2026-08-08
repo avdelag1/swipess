@@ -483,9 +483,9 @@ html[data-theme-transition] ::view-transition-new(root) {
 
 /* Events quick-filter mute — soft glass pulse (fade away → return) */
 @keyframes event-qf-mute-breathe {
-  0%, 100% { opacity: 0.92; transform: scale(1); }
-  45% { opacity: 0.22; transform: scale(0.94); }
-  70% { opacity: 0.85; transform: scale(1.02); }
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  45% { opacity: 0.28; transform: scale(0.92); }
+  70% { opacity: 0.82; transform: scale(1.04); }
 }
 
 .event-qf-mute {
@@ -496,13 +496,13 @@ html[data-theme-transition] ::view-transition-new(root) {
 .event-qf-mute:active {
   animation: none;
   opacity: 1 !important;
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .event-qf-mute {
     animation: none;
-    opacity: 0.85;
+    opacity: 0.88;
   }
 }
 

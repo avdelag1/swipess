@@ -10,6 +10,8 @@ import { CATEGORIES } from '@/data/eventsData';
 import type { EventItem } from '@/types/events';
 import CardImage from '@/components/CardImage';
 import { LoopVideo } from '@/components/video/LoopVideo';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
 
 export interface EventSwipeCardRef {
   triggerSwipe: (direction: 'left' | 'right') => void;
@@ -56,6 +58,8 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
   onDragStart,
 }, ref) => {
   const { isRailVisible } = useChromeReveal();
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
   const isDragging = useRef(false);
   const hasExited = useRef(false);
   const isExitingRef = useRef(false);
@@ -184,6 +188,7 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
                 src={event.video_url}
                 className="absolute inset-0 w-full h-full object-cover"
                 active={isTop}
+                muted={!soundOn}
               />
             </div>
           ) : imageUrl ? (
@@ -232,7 +237,9 @@ const EventSwipeCardComponent = forwardRef<EventSwipeCardRef, EventSwipeCardProp
             >
               <ChevronLeft className="w-7 h-7 -ml-0.5" strokeWidth={2.5} />
             </button>
-            <div className="w-12 h-12" />
+            <div className="pointer-events-auto flex items-center justify-center">
+              <EventVideoMuteButton soundOn={soundOn} onToggle={toggleSound} size="xs" />
+            </div>
           </div>
         )}
 

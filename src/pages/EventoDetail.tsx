@@ -426,7 +426,7 @@ export default function EventoDetail() {
               <EventVideoMuteButton
                 soundOn={soundOn}
                 onToggle={() => setSoundOn((v) => !v)}
-                size="sm"
+                size="xs"
               />
             )}
             <motion.button
