@@ -27,12 +27,15 @@ export const EventCard = memo(({
   activeColor = '#f97316',
   imageUrl,
   isActive = false,
+  warm = false,
 }: {
   event: EventItem; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   activeColor?: string;
   imageUrl?: string | null;
   isActive?: boolean;
+  /** Preload media while this card is adjacent to the active one */
+  warm?: boolean;
 }) => {
   const { theme } = useAppTheme();
   const isLight = theme === 'light';
@@ -138,12 +141,25 @@ export const EventCard = memo(({
       data-testid={`event-card-${event.id}`}
     >
       {hasVideo ? (
-        <div className="absolute inset-0 bg-black z-[1]">
+        <div className="absolute inset-0 z-[1]">
+          {/* Poster underlay — never show empty black while video buffers */}
+          {finalImageUrl ? (
+            <img
+              src={finalImageUrl}
+              alt=""
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading={isActive || warm ? 'eager' : 'lazy'}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[#111117]" />
+          )}
           <LoopVideo
             src={event.video_url!}
             poster={finalImageUrl || undefined}
             className="absolute inset-0 w-full h-full object-cover"
             active={isActive}
+            warm={warm || isActive}
             muted={!soundOn}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
@@ -154,7 +170,8 @@ export const EventCard = memo(({
             src={finalImageUrl!}
             alt={event.title}
             className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
+            loading={isActive || warm ? 'eager' : 'lazy'}
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
         </>

@@ -178,6 +178,41 @@ export function prefetchImage(url: string, highPriority: boolean = false) {
   img.src = url;
 }
 
+/** Warm a video URL into the HTTP cache without playing it. */
+export function prefetchVideo(url: string) {
+  if (!url || typeof window === 'undefined') return;
+  const clean = url.split('#')[0];
+  if (!(window as any).__PREFETCHED_VIDEOS__) (window as any).__PREFETCHED_VIDEOS__ = new Set<string>();
+  const cache: Set<string> = (window as any).__PREFETCHED_VIDEOS__;
+  if (cache.has(clean)) return;
+
+  const profile = getNetworkProfile();
+  if (!profile.enableVideoPrefetch && profile.prefetchDepth < 2) return;
+
+  cache.add(clean);
+  try {
+    const v = document.createElement('video');
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = 'auto';
+    v.src = clean;
+    v.load();
+    // Drop the element after it has buffered some data (or times out)
+    const drop = () => {
+      try {
+        v.removeAttribute('src');
+        v.load();
+      } catch {
+        /* ignore */
+      }
+    };
+    v.addEventListener('loadeddata', drop, { once: true });
+    window.setTimeout(drop, 12_000);
+  } catch {
+    cache.delete(clean);
+  }
+}
+
 /**
  * ⚡ INSTANT FEED: Pre-warms the next items in a list
  * Uses IntersectionObserver to predict scrolling intent.

@@ -1,16 +1,17 @@
 import { logger } from '@/utils/prodLogger';
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { getParentRoute } from '@/utils/sectionNavigation';
 // import { } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { predictivePrefetchEvent } from '@/utils/performance';
+import { predictivePrefetchEvent, prefetchImage, prefetchVideo } from '@/utils/performance';
+import { getNetworkProfile } from '@/utils/networkAware';
 import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -43,6 +44,8 @@ function pickEventImage(ev: Partial<EventItem>): string | null {
 
 export default function EventosFeed() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const { setAmbientColor } = useVisualTheme();
@@ -55,6 +58,25 @@ export default function EventosFeed() {
   const [activeCategory, setActiveCategory] = useState(() =>
     typeof window !== 'undefined' && window.location.pathname.endsWith('/likes') ? 'likes' : 'all'
   );
+
+  // Exact event from Quick Filter (or any deep link) — never Insights
+  const targetEventId = useMemo(() => {
+    const fromQuery = searchParams.get('eventId');
+    if (fromQuery) return fromQuery;
+    const fromState = (location.state as { eventId?: string } | null)?.eventId;
+    return fromState || null;
+  }, [searchParams, location.state]);
+  const pendingTargetRef = useRef<string | null>(targetEventId);
+  const skipCategoryResetRef = useRef(!!targetEventId);
+  const [feedReady, setFeedReady] = useState(!targetEventId);
+
+  useEffect(() => {
+    pendingTargetRef.current = targetEventId;
+    if (targetEventId) {
+      skipCategoryResetRef.current = true;
+      setFeedReady(false);
+    }
+  }, [targetEventId]);
 
   useEffect(() => {
     const color = CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316';
@@ -141,7 +163,6 @@ export default function EventosFeed() {
   });
 
   // 3. Fetch Events (Swipess Optimized)
-  const location = useLocation();
   const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: ['eventos', 'v5'],
     queryFn: async (): Promise<EventItem[]> => {
@@ -218,52 +239,110 @@ export default function EventosFeed() {
   }, [allEvents, activeCategory, likedIds]);
 
   useEffect(() => {
+    // Don't yank to top while landing on a deep-linked event
+    if (pendingTargetRef.current) return;
+    if (skipCategoryResetRef.current) {
+      skipCategoryResetRef.current = false;
+      return;
+    }
     resetFeedPosition();
   }, [activeCategory, resetFeedPosition]);
 
   // One extra virtual row at the end: the "Promote My Event" CTA card
   const totalRows = filteredEvents.length + 1;
 
+  const warmRadius = useMemo(() => {
+    const depth = getNetworkProfile().prefetchDepth;
+    return depth >= 3 ? 2 : 1;
+  }, [activeIdx, filteredEvents.length]);
+
+  // Jump straight to the Quick Filter event before paint (no Event A flash)
+  useLayoutEffect(() => {
+    const targetId = pendingTargetRef.current;
+    if (!targetId) {
+      setFeedReady(true);
+      return;
+    }
+    if (!filteredEvents.length || !parentRef.current) return;
+
+    const idx = filteredEvents.findIndex((e) => e.id === targetId);
+    if (idx < 0) {
+      pendingTargetRef.current = null;
+      skipCategoryResetRef.current = false;
+      setFeedReady(true);
+      return;
+    }
+
+    skipCategoryResetRef.current = true;
+    if (activeCategory !== 'all') setActiveCategory('all');
+    setActiveIdx(idx);
+    const height = parentRef.current.clientHeight || window.innerHeight || 1;
+    parentRef.current.scrollTop = idx * height;
+    pendingTargetRef.current = null;
+    setFeedReady(true);
+
+    // Clean URL without remounting / reloading
+    if (searchParams.get('eventId')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('eventId');
+      setSearchParams(next, { replace: true });
+    }
+  }, [filteredEvents, searchParams, setSearchParams, activeCategory]);
+
   useEffect(() => {
     if (activeIdx < totalRows) return;
+    if (pendingTargetRef.current) return;
     resetFeedPosition();
   }, [activeIdx, totalRows, resetFeedPosition]);
 
-  // Scroll & Virtualization
+  // Scroll & Virtualization — rAF coalesce to avoid per-pixel React work
   useEffect(() => {
     const el = parentRef.current;
     if (!el) return;
+    let raf = 0;
 
     const handleScroll = () => {
-      const height = el.clientHeight || window.innerHeight || 1;
-      const newIdx = Math.round(el.scrollTop / height);
-      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < totalRows) {
-        setActiveIdx(newIdx);
-      }
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        const height = el.clientHeight || window.innerHeight || 1;
+        const newIdx = Math.round(el.scrollTop / height);
+        setActiveIdx((prev) => {
+          if (newIdx === prev || newIdx < 0 || newIdx >= totalRows) return prev;
+          return newIdx;
+        });
+      });
     };
 
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       el.removeEventListener('scroll', handleScroll);
+      if (raf) window.cancelAnimationFrame(raf);
     };
-  }, [activeIdx, totalRows]);
+  }, [totalRows]);
 
-
-
+  // Smart preload: current + next + prev (+ one more when network allows)
   useEffect(() => {
-    const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
-    if (nextBatch.length > 0) {
-      import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
-        const urls = nextBatch.map(e => getCardImageUrl(pickEventImage(e) || ''));
-        pwaImagePreloader.batchPreload(urls);
-      });
+    if (!filteredEvents.length) return;
+    const profile = getNetworkProfile();
+    const ahead = Math.max(1, Math.min(profile.prefetchDepth, 3));
+    const indices = new Set<number>();
+    indices.add(activeIdx);
+    for (let i = 1; i <= ahead; i++) {
+      if (activeIdx + i < filteredEvents.length) indices.add(activeIdx + i);
+      if (activeIdx - i >= 0) indices.add(activeIdx - i);
     }
 
-    for (let i = 1; i <= 3; i++) {
-      const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
-      const preId = filteredEvents[preIdx]?.id;
-      if (preId) predictivePrefetchEvent(queryClient, preId);
-    }
+    indices.forEach((i) => {
+      const ev = filteredEvents[i];
+      if (!ev) return;
+      const img = pickEventImage(ev);
+      if (img) prefetchImage(img, i === activeIdx || i === activeIdx + 1);
+      if (ev.video_url && (i === activeIdx + 1 || i === activeIdx - 1 || (profile.enableVideoPrefetch && Math.abs(i - activeIdx) <= 2))) {
+        prefetchVideo(ev.video_url);
+      }
+      if (Math.abs(i - activeIdx) <= 2) predictivePrefetchEvent(queryClient, ev.id);
+    });
   }, [activeIdx, filteredEvents, queryClient]);
 
   const handleOpenChat = useCallback(async (event: EventItem) => {
@@ -423,9 +502,13 @@ export default function EventosFeed() {
             overscrollBehaviorY: 'contain',
             touchAction: 'pan-y',
             scrollSnapStop: 'always',
+            opacity: feedReady ? 1 : 0,
+            transition: feedReady ? 'opacity 80ms linear' : undefined,
           } as React.CSSProperties}
         >
-          {filteredEvents.map((event, index) => (
+          {filteredEvents.map((event, index) => {
+            const isWarm = Math.abs(activeIdx - index) <= warmRadius;
+            return (
             <div
               key={event.id}
               className="w-full shrink-0 snap-start snap-always relative"
@@ -434,6 +517,7 @@ export default function EventosFeed() {
               <EventCard
                 event={event}
                 isActive={activeIdx === index}
+                warm={isWarm}
                 imageUrl={pickEventImage(event)}
                 liked={likedIds.has(event.id)}
                 activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
@@ -443,7 +527,8 @@ export default function EventosFeed() {
                 onMiddleTap={() => handleMiddleTap(event)}
               />
             </div>
-          ))}
+            );
+          })}
           <div
             className="w-full shrink-0 snap-start snap-always relative"
             style={{ height: '100dvh' }}

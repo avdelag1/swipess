@@ -6,7 +6,7 @@ import { LoopVideo } from '@/components/video/LoopVideo';
 import { cn } from '@/lib/utils';
 import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+import { EVENTS_FEED_PATH, eventsFeedPathFor } from '@/constants/eventsRoutes';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 import { useDeckAudioStore } from '@/state/deckAudioStore';
 
@@ -78,7 +78,15 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   }, [videoEvents.length]);
 
   const openFeed = () => {
+    // Capture the visible event id at tap time (carousel may keep rotating)
+    const eventId = currentEvent?.id;
     triggerHaptic('success');
+    if (eventId) {
+      navigate(eventsFeedPathFor(eventId), {
+        state: { eventId, fromQuickFilter: true },
+      });
+      return;
+    }
     navigate(EVENTS_FEED_PATH);
   };
 

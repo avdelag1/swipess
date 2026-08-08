@@ -71,12 +71,12 @@ export function getNetworkProfile(): NetworkProfile {
     };
   }
 
-  // Medium connections (3g) or low memory
+  // Medium connections (3g) or low memory — still warm the *next* video so feed never blacks out
   if (effectiveType === '3g' || memory < 4) {
     return {
       prefetchDepth: 2,
       imageQuality: 'medium',
-      enableVideoPrefetch: false,
+      enableVideoPrefetch: true,
       enablePreDecode: true,
       connectionType: effectiveType,
     };
