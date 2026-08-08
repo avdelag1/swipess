@@ -1,11 +1,5 @@
--- Legal video calls: client (Swipess) ↔ lawyer dashboard (admin-swipess)
--- Mirror of admin-swipess migration for shared Supabase project.
-
 ALTER TABLE public.lawyer_users
   ADD COLUMN IF NOT EXISTS is_available boolean NOT NULL DEFAULT false;
-
-COMMENT ON COLUMN public.lawyer_users.is_available IS
-  'When true, lawyer receives live incoming video-call rings from Swipess Legal Services.';
 
 CREATE TABLE IF NOT EXISTS public.legal_video_calls (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
