@@ -6,6 +6,10 @@ export const CINEMATIC_PITCH = 60;
 export const CINEMATIC_BEARING = 25;
 /** Slightly lower pitch on phones — still feels airborne, fewer GPU spikes */
 export const CINEMATIC_PITCH_MOBILE = 52;
+/** Lite-tier airplane pitch (Safari / mid GPU) — strong 3D without fog/buildings */
+export const CINEMATIC_PITCH_LITE = 55;
+export const CINEMATIC_PITCH_LITE_MOBILE = 48;
+export const CINEMATIC_BEARING_LITE = 18;
 /** Arc + speed for Mapbox flyTo — higher curve = more dramatic flight path */
 export const FLY_CURVE = 1.68;
 export const FLY_SPEED = 1.55;
@@ -13,26 +17,42 @@ export const FLY_DURATION_MS = 2400;
 export const FLY_DURATION_OPEN_MS = 2000;
 /** Altitude the open glide starts from. Zoomed in enough that the whole globe
  *  is never shown — the user opens on a calm regional view, not "the world". */
-export const CINEMATIC_OPEN_ALTITUDE_ZOOM = 5;
+export const CINEMATIC_OPEN_ALTITUDE_ZOOM = 4.6;
+/** Lite open starts closer — shorter dive, still airplane feel */
+export const CINEMATIC_OPEN_ALTITUDE_ZOOM_LITE = 5.4;
 /** Duration of the gentle settle-down onto the user's location on open. */
-export const CINEMATIC_OPEN_GLIDE_MS = 2200;
+export const CINEMATIC_OPEN_GLIDE_MS = 2400;
+export const CINEMATIC_OPEN_GLIDE_LITE_MS = 1600;
 /** Fast snap when map opens — user expects immediate centering, not a 2s flight. */
 export const OPEN_CENTER_MS = 380;
 export const CINEMATIC_MAX_PITCH_MOBILE = 60;
 export const CINEMATIC_MAX_PITCH_DESKTOP = 65;
 
-/** Respect adaptive WebGL profile — weak Safari/iOS stay flat (pitch 0). */
+/** Respect adaptive WebGL profile — legacy stays flat; lite/full get airplane pitch. */
 export function cinematicPitchForViewport(): number {
   const profile = getMapWebGLProfile();
-  if (profile.tier !== 'full') return profile.pitch;
+  if (profile.tier === 'legacy') return 0;
+  if (profile.tier === 'lite') {
+    return typeof window !== 'undefined' && window.innerWidth < 768
+      ? CINEMATIC_PITCH_LITE_MOBILE
+      : CINEMATIC_PITCH_LITE;
+  }
   return typeof window !== 'undefined' && window.innerWidth < 768
     ? CINEMATIC_PITCH_MOBILE
     : CINEMATIC_PITCH;
 }
 
+export function cinematicBearingForViewport(): number {
+  const profile = getMapWebGLProfile();
+  if (profile.tier === 'legacy') return 0;
+  if (profile.tier === 'lite') return CINEMATIC_BEARING_LITE;
+  return CINEMATIC_BEARING;
+}
+
 export function cinematicMaxPitchForViewport(): number {
   const profile = getMapWebGLProfile();
-  if (profile.tier !== 'full') return profile.maxPitch;
+  if (profile.tier === 'legacy') return 0;
+  if (profile.tier === 'lite') return 60;
   return typeof window !== 'undefined' && window.innerWidth < 768
     ? CINEMATIC_MAX_PITCH_MOBILE
     : CINEMATIC_MAX_PITCH_DESKTOP;
@@ -139,15 +159,14 @@ export function cinematicFlyTo(
   zoom: number,
   opts?: { bearing?: number; pitch?: number; speed?: number; curve?: number; duration?: number },
 ): void {
-  const profile = getMapWebGLProfile();
   const options: Parameters<MapboxMap['flyTo']>[0] = {
     center,
     zoom,
     pitch: opts?.pitch ?? cinematicPitchForViewport(),
-    bearing: opts?.bearing ?? (profile.tier === 'full' ? CINEMATIC_BEARING : 0),
+    bearing: opts?.bearing ?? cinematicBearingForViewport(),
     essential: true,
   };
-  
+
   if (opts?.duration) {
     options.duration = opts.duration;
   } else {
@@ -176,9 +195,10 @@ export function cinematicOpenGlide(
 ): void {
   const profile = getMapWebGLProfile();
   const pitch = opts?.pitch ?? cinematicPitchForViewport();
-  const bearing = opts?.bearing ?? (profile.tier === 'full' ? CINEMATIC_BEARING : 0);
-  // Weak devices: skip dramatic altitude dive — just ease to target flat
-  if (profile.tier !== 'full') {
+  const bearing = opts?.bearing ?? cinematicBearingForViewport();
+
+  // Proven-weak / legacy devices: skip dramatic altitude dive — flat snap
+  if (profile.tier === 'legacy') {
     map.easeTo({
       center,
       zoom,
@@ -189,9 +209,17 @@ export function cinematicOpenGlide(
     });
     return;
   }
+
+  const altitude =
+    opts?.altitudeZoom
+    ?? (profile.tier === 'lite' ? CINEMATIC_OPEN_ALTITUDE_ZOOM_LITE : CINEMATIC_OPEN_ALTITUDE_ZOOM);
+  const duration =
+    opts?.duration
+    ?? (profile.tier === 'lite' ? CINEMATIC_OPEN_GLIDE_LITE_MS : CINEMATIC_OPEN_GLIDE_MS);
+
   map.jumpTo({
     center,
-    zoom: opts?.altitudeZoom ?? CINEMATIC_OPEN_ALTITUDE_ZOOM,
+    zoom: altitude,
     pitch,
     bearing,
   });
@@ -200,7 +228,7 @@ export function cinematicOpenGlide(
     zoom,
     pitch,
     bearing,
-    duration: opts?.duration ?? CINEMATIC_OPEN_GLIDE_MS,
+    duration,
     easing: easeInOutCubic,
     essential: true,
   });
@@ -228,7 +256,7 @@ export function fitMapToPins(
     maxZoom: opts?.maxZoom ?? 14.5,
     duration: opts?.duration ?? FLY_DURATION_OPEN_MS,
     pitch: cinematicPitchForViewport(),
-    bearing: CINEMATIC_BEARING,
+    bearing: cinematicBearingForViewport(),
     essential: true,
   });
   return true;

@@ -14,8 +14,8 @@ import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import {
   addCinematic3DBuildings,
   applyCinematicFog,
-  CINEMATIC_BEARING,
   CINEMATIC_OPEN_ALTITUDE_ZOOM,
+  cinematicBearingForViewport,
   cinematicEaseTo,
   cinematicFlyTo,
   cinematicOpenGlide,
@@ -382,7 +382,7 @@ export const PassportMapModal = memo(() => {
         mapRef.current,
         [newLng, newLat],
         zoom,
-        { duration: 300, pitch: cinematicPitchForViewport(), bearing: CINEMATIC_BEARING },
+        { duration: 300, pitch: cinematicPitchForViewport(), bearing: cinematicBearingForViewport() },
       );
     }
     triggerHaptic('heavy');
@@ -939,7 +939,7 @@ export const PassportMapModal = memo(() => {
         const host = mapContainerRef.current;
         while (host.firstChild) host.removeChild(host.firstChild);
 
-        // Adaptive profile: full (Chrome/modern) | lite (Safari) | legacy (UBO=0 / iPhone 8)
+        // Adaptive profile: full (Chrome/modern) | lite (Safari airplane) | legacy (old / recovery)
         const profile = getMapWebGLProfile();
         const safeLng = Number.isFinite(initialLng) ? initialLng : MAP_SEARCH_HUB.lng;
         const safeLat = Number.isFinite(initialLat) ? initialLat : MAP_SEARCH_HUB.lat;
@@ -1151,15 +1151,13 @@ export const PassportMapModal = memo(() => {
     })();
     };
 
-    // Safari/iOS with known-broken UBO: skip Mapbox GL (saves 2 context-loss errors)
-    // and open Leaflet on first open when profile already demands legacy + weak GPU.
+    // Old Apple devices (iPhone 8 class): Mapbox GL often dies — open Leaflet first.
+    // Modern Safari/iOS uses lite Mapbox v3 with airplane pitch; only skip when
+    // the profile already marked a legacy Apple GPU.
     const preferRasterFirst = () => {
       try {
         const p = getMapWebGLProfile();
-        // maxUBO 0 + Apple = Mapbox GL v3 unusable; v2 often still dies on iPhone 8 class.
-        // Go straight to raster after a single failed legacy attempt is still slower —
-        // for apple + maxUBO 0, start on raster immediately for a working map.
-        return p.useLegacyGl && p.maxUniformBlockSize === 0 && /apple/i.test(p.reason);
+        return p.useLegacyGl && /apple/i.test(p.reason) && /legacy-device/i.test(p.reason);
       } catch {
         return false;
       }
@@ -1218,10 +1216,10 @@ export const PassportMapModal = memo(() => {
     }
 
     if (!initStartedRef.current && !pageMapInitLock && pageMapInitCount < 2 && !pageMapInstance) {
-      // Apple + UBO 0: skip Mapbox GL entirely (iPhone 8 / weak Safari)
+      // Old Apple GPUs: skip Mapbox GL entirely (iPhone 8 / weak Safari)
       try {
         const p = getMapWebGLProfile();
-        if (p.useLegacyGl && p.maxUniformBlockSize === 0 && /apple/i.test(p.reason)) {
+        if (p.useLegacyGl && /apple/i.test(p.reason) && /legacy-device/i.test(p.reason)) {
           const t = window.setTimeout(() => { void activateRasterRef.current?.(); }, 0);
           return () => window.clearTimeout(t);
         }
@@ -1744,7 +1742,10 @@ export const PassportMapModal = memo(() => {
         const map = mapRef.current;
         if (map) {
           const pitch = cinematicPitchForViewport();
-          cinematicOpenGlide(map, [center.lng, center.lat], zoom, { pitch, bearing: CINEMATIC_BEARING });
+          cinematicOpenGlide(map, [center.lng, center.lat], zoom, {
+            pitch,
+            bearing: cinematicBearingForViewport(),
+          });
           applyRadiusCircleNow();
           initialCenterDoneRef.current = true;
         }

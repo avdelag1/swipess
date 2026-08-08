@@ -1,8 +1,10 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-08-07 - Force Update v15
+ * UPDATED: 2026-08-08 - Force Update v16
  *   - Do NOT intercept Supabase REST/Auth (Safari CORS / access-control fixes)
+ *   - Do NOT cache Mapbox / map tile traffic (huge + tokenized)
  *   - Scoped precache of critical boot chunks only
+ *   - PNG PWA icons + manifest.webmanifest in shell
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -27,8 +29,11 @@ const SHELL_URLS = [
   '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.ico',
+  '/apple-touch-icon.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/maskable-192.png',
+  '/icons/maskable-512.png',
 ];
 
 // Replaced at build time by vite sw-build-time-plugin (critical boot chunks only)
@@ -230,6 +235,17 @@ self.addEventListener('fetch', (event) => {
 
   // CRITICAL: Never cache OAuth callback routes — must always hit the network
   if (url.pathname.startsWith('/~oauth')) return;
+
+  // CRITICAL: Never cache Mapbox / map tiles — large, tokenized, and change often.
+  // Caching them bloats SW storage and can break Safari / PWA map loads.
+  if (
+    url.hostname.includes('mapbox')
+    || url.hostname.includes('maptiler')
+    || url.hostname.includes('tiles.mapbox')
+    || /\/(tiles|tile|v4|raster|vector)\b/i.test(url.pathname)
+  ) {
+    return;
+  }
 
   // CRITICAL: Never intercept Supabase REST/Auth/Realtime from the SW.
   // Re-fetching credentialed API calls in a SW worker causes Safari

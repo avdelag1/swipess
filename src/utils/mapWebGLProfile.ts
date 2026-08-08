@@ -1,9 +1,9 @@
 /**
  * Adaptive Mapbox rendering profile.
  *
- * Chrome / modern GPUs → full cinematic Mapbox GL JS v3.
- * Safari + weak WebGL (UBO size 0, old iPhones) → lighter options and/or
- * Mapbox GL JS v2 (WebGL1) so the map still paints.
+ * Chrome / modern GPUs → full cinematic Mapbox GL JS v3 (~60° airplane).
+ * Safari / iOS (modern) → lite Mapbox v3 streets + airplane pitch, no fog/buildings.
+ * Old iPhones / live WebGL failure → Mapbox GL JS v2 or Leaflet raster.
  */
 
 export type MapRenderTier = 'full' | 'lite' | 'legacy';
@@ -67,16 +67,21 @@ function probeWebGL(): { hasWebGL2: boolean; maxUniformBlockSize: number; render
   // Prefer UA heuristics over creating WebGL probe contexts on Safari —
   // probing with getContext + loseContext was itself spamming "context lost"
   // and counting toward the browser's WebGL context limit.
+  // Modern Safari/iOS can run Mapbox v3 "lite" (airplane pitch, no fog/buildings).
+  // Only old devices / live context-loss recovery use Mapbox v2 legacy.
   if (typeof navigator !== 'undefined') {
     const ua = navigator.userAgent || '';
     const apple =
       /AppleWebKit/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|FxiOS|OPR|Android/i.test(ua);
     const cap = (window as unknown as { Capacitor?: { getPlatform?: () => string } }).Capacitor;
     const isIos = cap?.getPlatform?.() === 'ios' || /iPhone|iPad|iPod/i.test(ua);
-    // Safari / iOS: treat as broken UBO unless we later prove otherwise — Mapbox v3
-    // was blanking maps with "UBO size 16384 exceeds device limit 0".
     if (apple || isIos) {
-      return { hasWebGL2: true, maxUniformBlockSize: 0, renderer: 'apple-webgl-assume-weak' };
+      return {
+        hasWebGL2: true,
+        // Healthy enough for lite v3; real UBO failures still trip forceLegacyMapProfile().
+        maxUniformBlockSize: 16384,
+        renderer: isLegacyMobileDevice() ? 'apple-webgl-legacy-device' : 'apple-webgl-lite',
+      };
     }
   }
 
@@ -135,12 +140,14 @@ export function getMapWebGLProfile(): MapWebGLProfile {
     uboBroken
     || /SwiftShader|llvmpipe|Software/i.test(renderer)
     || (apple && oldMobile);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   let tier: MapRenderTier;
-  if (forceLegacy || uboBroken || !hasWebGL2) {
-    tier = 'legacy'; // Mapbox v2 / WebGL1 — required when UBO size is 0
+  if (forceLegacy || (uboBroken && !apple) || !hasWebGL2 || (apple && oldMobile)) {
+    // Mapbox v2 / WebGL1 — old devices + proven UBO failures (non-Apple probe / recovery)
+    tier = 'legacy';
   } else if (apple || weakGpu) {
-    // Safari / older iPhones: keep v3 if UBO is healthy, but flat + no fog/3d
+    // Safari / mid GPUs: Mapbox v3 streets + airplane pitch, no fog/3d buildings
     tier = 'lite';
   } else {
     tier = 'full';
@@ -153,17 +160,28 @@ export function getMapWebGLProfile(): MapWebGLProfile {
     style: tier === 'full'
       ? 'mapbox://styles/mapbox/outdoors-v12'
       : 'mapbox://styles/mapbox/streets-v12',
-    pitch: tier === 'full' ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 52 : 60) : 0,
-    maxPitch: tier === 'full' ? (typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 65) : 0,
-    bearing: tier === 'full' ? 25 : 0,
+    // Airplane / ~60° view on capable GPUs; lite keeps a strong pitch without fog/buildings
+    pitch: tier === 'full'
+      ? (isMobile ? 52 : 60)
+      : tier === 'lite'
+        ? (isMobile ? 48 : 55)
+        : 0,
+    maxPitch: tier === 'full'
+      ? (isMobile ? 60 : 65)
+      : tier === 'lite'
+        ? 60
+        : 0,
+    bearing: tier === 'full' ? 25 : tier === 'lite' ? 18 : 0,
     pixelRatio: tier === 'full'
       ? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2)
-      : 1,
+      : tier === 'lite'
+        ? Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5)
+        : 1,
     powerPreference: 'default',
     antialias: false,
     enableFog: tier === 'full',
     enable3dBuildings: tier === 'full' && typeof window !== 'undefined' && window.innerWidth >= 768,
-    enablePitchRotate: tier === 'full',
+    enablePitchRotate: tier === 'full' || tier === 'lite',
     reason: `tier=${tier}; apple=${apple}; webgl2=${hasWebGL2}; maxUBO=${maxUniformBlockSize}; renderer=${renderer.slice(0, 40)}`,
     maxUniformBlockSize,
     hasWebGL2,
