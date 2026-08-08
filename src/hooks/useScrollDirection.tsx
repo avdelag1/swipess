@@ -55,7 +55,7 @@ function getOrCreateShared(key: string): SharedChrome {
       attached: false,
       lastTriggerY: 0,
       ticking: false,
-      threshold: 20,
+      threshold: 28,
       showAtTop: true,
       targetSelector: undefined,
       currentTarget: null,

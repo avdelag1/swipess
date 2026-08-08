@@ -73,7 +73,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
 
   // Same shared scroll chrome as header + bottom nav (ONE listener)
   const { isVisible: contextVisible } = useScrollDirection({
-    threshold: 20,
+    threshold: 28,
     showAtTop: true,
     targetSelector: '.dashboard-scroll-target',
     resetTrigger: location.pathname,
@@ -107,22 +107,38 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* AI search + date/people/location — shared chrome with header/nav */}
+      {/* AI search + date/people/location — soft glass vanish with header/nav */}
       <div
         className={cn(
-          'w-full max-w-3xl mx-auto flex flex-col gap-2 items-stretch will-change-transform',
+          'w-full max-w-3xl mx-auto flex flex-col gap-2 items-stretch',
           !contextVisible && 'pointer-events-none',
         )}
         style={{
           opacity: contextVisible ? 1 : 0,
           transform: contextVisible
             ? 'translate3d(0,0,0) scale(1)'
-            : 'translate3d(0,-10px,0) scale(0.98)',
+            : 'translate3d(0,-8px,0) scale(0.985)',
+          filter: contextVisible ? 'blur(0px)' : 'blur(5px)',
+          // Collapse space after the fade so the vanish feels soft, not snappy
           maxHeight: contextVisible ? 220 : 0,
           marginBottom: contextVisible ? 12 : 0,
           overflow: 'hidden',
-          transition:
-            'opacity 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), max-height 0.18s cubic-bezier(0.25, 0.1, 0.25, 1), margin-bottom 0.18s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          willChange: 'opacity, transform, filter, max-height',
+          transition: contextVisible
+            ? [
+                'opacity 0.36s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'transform 0.38s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'filter 0.32s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'max-height 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) 0.06s',
+                'margin-bottom 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) 0.06s',
+              ].join(', ')
+            : [
+                'opacity 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'transform 0.30s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'filter 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)',
+                'max-height 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) 0.08s',
+                'margin-bottom 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) 0.08s',
+              ].join(', '),
         }}
         aria-hidden={!contextVisible || undefined}
       >

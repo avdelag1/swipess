@@ -18,11 +18,16 @@ interface SwipessHudProps {
   pointerEvents?: 'none' | 'auto';
 }
 
+/** Soft glass vanish — opacity-led, tiny drift, no hard snap off-screen. */
+const SOFT_EASE = [0.22, 0.61, 0.36, 1] as const;
+const HIDE_MS = 0.32;
+const SHOW_MS = 0.38;
+
 export function SwipessHud({
   children,
   scrollTargetSelector,
-  threshold = 20,
-  mode = 'both',
+  threshold = 28,
+  mode: _mode = 'both',
   side = 'top',
   className,
   alwaysVisible = false,
@@ -43,59 +48,36 @@ export function SwipessHud({
   const { isChromeVisible } = useChromeReveal();
   const isVisible = revealMode ? isChromeVisible : (alwaysVisible || isScrollVisible);
 
-  // In revealMode use Framer Motion with the same animation as the action button bar:
-  // opacity + blur + scale + subtle y shift — no full off-screen translate.
-  if (revealMode) {
-    const yHide = side === 'top' ? -20 : 20;
-    return (
-      <motion.div
-        className={cn(pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto', 'relative', className)}
-        animate={{
-          opacity: isVisible ? 1 : 0,
-          y: isVisible ? 0 : yHide,
-        }}
-        transition={{
-          duration: isVisible ? 0.15 : 0.12,
-          ease: [0.25, 0.1, 0.25, 1],
-        }}
-        style={{ pointerEvents: isVisible ? undefined : 'none' }}
-        aria-hidden={!isVisible || undefined}
-        {...(!isVisible ? { inert: '' as any } : {})}
-        onPointerDownCapture={isVisible ? () => revealChrome() : undefined}
-      >
-        <div className="relative">{children}</div>
-      </motion.div>
-    );
-  }
-
-  // Non-reveal mode: existing CSS transition behaviour (scroll-based hide).
-  const isTranslate = mode === 'both' || mode === 'translate';
-  const isFade = mode === 'both' || mode === 'fade';
+  const yHide = side === 'top' ? -12 : 14;
 
   return (
-    <div
+    <motion.div
       className={cn(
         pointerEvents === 'none' ? 'pointer-events-none' : 'pointer-events-auto',
         'relative',
-        !isVisible && isFade && 'opacity-0',
-        !isVisible && isTranslate && side === 'top' && '-translate-y-[120%]',
-        !isVisible && isTranslate && side === 'bottom' && 'translate-y-[120%]',
-        isVisible && 'opacity-100 translate-y-0',
-        !isVisible && 'scale-[0.94]',
-        className
+        className,
       )}
+      initial={false}
+      animate={{
+        opacity: isVisible ? 1 : 0,
+        y: isVisible ? 0 : yHide,
+        filter: isVisible ? 'blur(0px)' : 'blur(6px)',
+      }}
+      transition={{
+        duration: isVisible ? SHOW_MS : HIDE_MS,
+        ease: SOFT_EASE,
+        opacity: { duration: isVisible ? SHOW_MS : HIDE_MS * 0.9 },
+        filter: { duration: isVisible ? SHOW_MS * 0.85 : HIDE_MS },
+      }}
       style={{
-        transitionProperty: 'transform, opacity',
-        transitionDuration: isVisible ? '180ms' : '150ms',
-        transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-        visibility: !isVisible ? 'hidden' : 'visible',
-        pointerEvents: !isVisible ? 'none' : undefined,
+        pointerEvents: isVisible ? undefined : 'none',
+        willChange: 'opacity, transform, filter',
       }}
       aria-hidden={!isVisible || undefined}
       {...(!isVisible ? { inert: '' as any } : {})}
       onPointerDownCapture={isVisible ? () => revealChrome() : undefined}
     >
       <div className="relative">{children}</div>
-    </div>
+    </motion.div>
   );
 }
