@@ -166,7 +166,7 @@ export const DASHBOARD_CHROME_SCROLL_KEY = 'dashboard-chrome';
 
 /**
  * Hook to detect scroll direction for hide/show navigation behavior.
- * Use `sharedKey` so header / nav / AI search / date / people / location stay choreographed.
+ * Use `sharedKey` so header + bottom nav stay choreographed.
  */
 export function useScrollDirection({
   threshold = 10,

@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -25,7 +25,6 @@ import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
 import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
-import { DASHBOARD_CHROME_SCROLL_KEY, useScrollDirection } from '@/hooks/useScrollDirection';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -67,18 +66,8 @@ const itemVariants = {
 
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { theme, isLight: themeIsLight } = useAppTheme();
   const isLight = themeIsLight || theme === 'light';
-
-  // Same shared scroll chrome as header + bottom nav (ONE listener)
-  const { isVisible: contextVisible } = useScrollDirection({
-    threshold: 28,
-    showAtTop: true,
-    targetSelector: '.dashboard-scroll-target',
-    resetTrigger: location.pathname,
-    sharedKey: DASHBOARD_CHROME_SCROLL_KEY,
-  });
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
@@ -107,41 +96,9 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* AI search + date/people/location — soft glass vanish with header/nav */}
-      <div
-        className={cn(
-          'w-full max-w-3xl mx-auto flex flex-col gap-1 items-stretch',
-          !contextVisible && 'pointer-events-none',
-        )}
-        style={{
-          opacity: contextVisible ? 1 : 0,
-          transform: contextVisible
-            ? 'translate3d(0,0,0) scale(1)'
-            : 'translate3d(0,-8px,0) scale(0.985)',
-          filter: contextVisible ? 'blur(0px)' : 'blur(5px)',
-          // Collapse space after the fade so the vanish feels soft, not snappy
-          maxHeight: contextVisible ? 180 : 0,
-          marginBottom: contextVisible ? 6 : 0,
-          overflow: 'hidden',
-          willChange: 'opacity, transform, filter, max-height',
-          transition: contextVisible
-            ? [
-                'opacity 0.36s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'transform 0.38s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'filter 0.32s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'max-height 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) 0.06s',
-                'margin-bottom 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) 0.06s',
-              ].join(', ')
-            : [
-                'opacity 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'transform 0.30s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'filter 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)',
-                'max-height 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) 0.08s',
-                'margin-bottom 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) 0.08s',
-              ].join(', '),
-        }}
-        aria-hidden={!contextVisible || undefined}
-      >
+      {/* Search + filters stay in document flow and scroll away naturally.
+          Collapsing their height on chrome-hide was yanking the card deck upward. */}
+      <div className="w-full max-w-3xl mx-auto mb-1.5">
         <div
           className="rounded-[1.2rem] p-1.5 sm:p-2"
           style={{
@@ -192,7 +149,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                   <motion.div
                     key={item.id}
                     variants={itemVariants}
-                    whileTap={isEventsLive ? undefined : { opacity: 0.88 }}
+                    whileTap={isEventsLive ? undefined : { opacity: 0.9 }}
                     transition={{ duration: 0.08 }}
                     onClick={isEventsLive ? undefined : () => handleSelect(item.id)}
                     onKeyDown={isEventsLive ? undefined : (e) => {
@@ -208,8 +165,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     data-skip-press-engine
                     className={cn(
                       'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
-                      !isEventsLive && 'border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/40 cursor-pointer transition-all duration-500',
-                      !isEventsLive && 'shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] hover:-translate-y-1.5 active:scale-[0.97] hover:z-10',
+                      !isEventsLive && 'border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/40 cursor-pointer',
+                      !isEventsLive && 'shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] active:scale-[0.98]',
                       SIZE_CLASS[item.size],
                     )}
                     style={{
@@ -227,7 +184,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                             src={POKER_CARD_PHOTOS[item.imageId] || ''}
                             alt={item.label}
                             animationDelay={item.delay}
-                            className="object-cover w-full h-full md:group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                            className="object-cover w-full h-full"
                           />
                         </div>
 

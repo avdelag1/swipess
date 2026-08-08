@@ -18,15 +18,18 @@ interface SwipessHudProps {
   pointerEvents?: 'none' | 'auto';
 }
 
-/** Soft glass vanish — opacity-led, tiny drift, no hard snap off-screen. */
-const SOFT_EASE = [0.22, 0.61, 0.36, 1] as const;
-const HIDE_MS = 0.32;
-const SHOW_MS = 0.38;
+/**
+ * Fixed chrome fade — opacity + light translate only.
+ * No blur / layout collapse (those made the dashboard deck feel yanked).
+ */
+const SOFT_EASE = [0.25, 0.1, 0.25, 1] as const;
+const HIDE_MS = 0.22;
+const SHOW_MS = 0.26;
 
 export function SwipessHud({
   children,
   scrollTargetSelector,
-  threshold = 28,
+  threshold = 36,
   mode: _mode = 'both',
   side = 'top',
   className,
@@ -48,7 +51,8 @@ export function SwipessHud({
   const { isChromeVisible } = useChromeReveal();
   const isVisible = revealMode ? isChromeVisible : (alwaysVisible || isScrollVisible);
 
-  const yHide = side === 'top' ? -12 : 14;
+  // Small drift only — fixed chrome must never affect document flow / card positions
+  const yHide = side === 'top' ? -10 : 12;
 
   return (
     <motion.div
@@ -61,17 +65,14 @@ export function SwipessHud({
       animate={{
         opacity: isVisible ? 1 : 0,
         y: isVisible ? 0 : yHide,
-        filter: isVisible ? 'blur(0px)' : 'blur(6px)',
       }}
       transition={{
         duration: isVisible ? SHOW_MS : HIDE_MS,
         ease: SOFT_EASE,
-        opacity: { duration: isVisible ? SHOW_MS : HIDE_MS * 0.9 },
-        filter: { duration: isVisible ? SHOW_MS * 0.85 : HIDE_MS },
       }}
       style={{
         pointerEvents: isVisible ? undefined : 'none',
-        willChange: 'opacity, transform, filter',
+        willChange: 'opacity, transform',
       }}
       aria-hidden={!isVisible || undefined}
       {...(!isVisible ? { inert: '' as any } : {})}
