@@ -122,10 +122,31 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     );
   }
 
-  const slideVariants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 100 : -100, opacity: 0, scale: 0.95 }),
-    center: { zIndex: 1, x: 0, opacity: 1, scale: 1 },
-    exit: (dir: number) => ({ zIndex: 0, x: dir < 0 ? 100 : -100, opacity: 0, scale: 0.95 }),
+  // Vanish beat — exit fully before the next event enters so it never reads as the same clip
+  const vanishVariants = {
+    enter: {
+      opacity: 0,
+      scale: 1.06,
+      filter: 'blur(10px)',
+    },
+    center: {
+      opacity: 1,
+      scale: 1,
+      filter: 'blur(0px)',
+      zIndex: 1,
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.92,
+      filter: 'blur(12px)',
+      zIndex: 0,
+    },
+  };
+
+  const titleVariants = {
+    enter: { opacity: 0, y: 8 },
+    center: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -6 },
   };
 
   return (
@@ -139,15 +160,20 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         openFeed();
       }}
     >
-      <AnimatePresence initial={false} custom={direction}>
+      {/* Solid black underlay — visible during the vanish beat between events */}
+      <div className="absolute inset-0 z-0 bg-black" aria-hidden />
+
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={currentEvent.id}
-          custom={direction}
-          variants={slideVariants}
+          variants={vanishVariants}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } }}
+          transition={{
+            duration: 0.38,
+            ease: [0.22, 0.61, 0.36, 1],
+          }}
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
         >
           <LoopVideo
@@ -219,13 +245,24 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         />
       </div>
 
-      <div className="relative z-30 p-2 sm:p-4 w-full h-full flex flex-col justify-end pointer-events-none">
-        <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight line-clamp-2">
-          {currentEvent.title}
-        </h3>
-        <p className="text-white/80 font-medium text-[9px] sm:text-[10px] leading-snug tracking-wide drop-shadow truncate">
-          {currentEvent.location || 'Local Event'}
-        </p>
+      <div className="relative z-30 p-2 sm:p-4 w-full h-full flex flex-col justify-end pointer-events-none overflow-hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`title-${currentEvent.id}`}
+            variants={titleVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.28, ease: [0.22, 0.61, 0.36, 1] }}
+          >
+            <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight line-clamp-2">
+              {currentEvent.title}
+            </h3>
+            <p className="text-white/80 font-medium text-[9px] sm:text-[10px] leading-snug tracking-wide drop-shadow truncate">
+              {currentEvent.location || 'Local Event'}
+            </p>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
