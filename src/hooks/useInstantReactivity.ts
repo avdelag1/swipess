@@ -31,11 +31,13 @@ export function useInstantReactivity() {
       const interactiveEl = target.closest('button, a, [role="button"], .interactive, .touchable') as HTMLElement;
 
       // Map HUD / WebGL canvas — own press feedback; never scale the full-screen canvas.
-      // chrome-icon-btn: header tokens/map/sparkles — global scale looks like a square frame.
+      // chrome / glass / frameless icon hits — global scale paints a square frame over photos.
       if (
         interactiveEl?.closest('[data-skip-press-engine]')
         || interactiveEl?.classList.contains('chrome-icon-btn')
-        || interactiveEl?.closest('.chrome-icon-btn')
+        || interactiveEl?.classList.contains('glass-icon-btn')
+        || interactiveEl?.classList.contains('frameless-icon-hit')
+        || interactiveEl?.closest('.chrome-icon-btn, .glass-icon-btn, .frameless-icon-hit')
         || target.closest('[data-quick-filter-card]')
         || target.closest('[data-map-surface], [data-map-canvas], .mapboxgl-canvas, .mapboxgl-map')
       ) {

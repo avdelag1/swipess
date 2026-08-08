@@ -102,7 +102,11 @@ export const GlassIconButton = forwardRef<HTMLButtonElement, GlassIconButtonProp
         data-no-cinematic={guardSwipe ? '' : undefined}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
-        className={cn('glass-icon-btn rounded-full', TAP_TARGET[size], className)}
+        className={cn(
+          'glass-icon-btn rounded-full outline-none',
+          TAP_TARGET[size],
+          className,
+        )}
         {...rest}
       >
         <Icon

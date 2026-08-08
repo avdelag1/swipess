@@ -39,14 +39,17 @@ export function EventVideoMuteButton({
         e.stopPropagation();
         triggerHaptic('light');
         onToggle();
+        // Drop sticky focus so mobile never paints a square hit-frame after tap
+        (e.currentTarget as HTMLButtonElement).blur();
       }}
       onPointerDown={(e) => {
         e.stopPropagation();
         e.nativeEvent.stopImmediatePropagation?.();
       }}
       className={cn(
-        'relative z-30 flex items-center justify-center shrink-0',
-        'pointer-events-auto touch-manipulation select-none',
+        // chrome-icon-btn: kills global square scale / focus outline on the hit box
+        'chrome-icon-btn frameless-icon-hit relative z-30 flex items-center justify-center shrink-0 rounded-full',
+        'pointer-events-auto touch-manipulation select-none outline-none',
         'bg-transparent border-0 p-0 shadow-none',
         dims.hit,
         className,

@@ -699,12 +699,20 @@ body.hw-mid .animate-pulse {
     filter: brightness(0.95);
 }
 
-/* Icon-only chrome (header tokens/map/sparkles): never square-scale the hit box */
+/* Icon-only / photo-overlay hits: never square-scale the transparent hit box */
 .instant-active-element.chrome-icon-btn,
-.chrome-icon-btn.instant-active-element {
+.chrome-icon-btn.instant-active-element,
+.instant-active-element.frameless-icon-hit,
+.frameless-icon-hit.instant-active-element {
     transform: none !important;
     filter: none !important;
     background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.instant-active-element.glass-icon-btn,
+.glass-icon-btn.instant-active-element {
+    outline: none !important;
     box-shadow: none !important;
 }
 

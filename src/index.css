@@ -2799,34 +2799,59 @@ a:focus-visible {
   border-radius: inherit;
 }
 
-/* ─── Chrome icon hits (tokens / map / sparkles / profile) ─────────────
+/* ─── Frameless icon hits (chrome / glass / photo overlays / mute) ─────
    Global button:active scale + focus-visible outline draw a SQUARE frame
-   around small square hit targets. These rules force circular, frameless
-   press feedback (icon-only scale via group-active on the SVG). */
+   around transparent hit targets sitting on photos. Kill the frame; glass
+   icons may still use their own circular press scale. */
 .chrome-icon-btn,
 button.chrome-icon-btn,
-[role="button"].chrome-icon-btn {
+[role="button"].chrome-icon-btn,
+.glass-icon-btn,
+button.glass-icon-btn,
+[role="button"].glass-icon-btn,
+.frameless-icon-hit,
+button.frameless-icon-hit,
+[role="button"].frameless-icon-hit {
   border-radius: 9999px !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
   outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
   -webkit-appearance: none;
   appearance: none;
 }
+.chrome-icon-btn,
+button.chrome-icon-btn,
+[role="button"].chrome-icon-btn,
+.frameless-icon-hit,
+button.frameless-icon-hit,
+[role="button"].frameless-icon-hit {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 .chrome-icon-btn:hover,
 .chrome-icon-btn:focus,
 .chrome-icon-btn:focus-visible,
 .chrome-icon-btn:active,
+.frameless-icon-hit:hover,
+.frameless-icon-hit:focus,
+.frameless-icon-hit:focus-visible,
+.frameless-icon-hit:active,
 button.chrome-icon-btn:hover,
 button.chrome-icon-btn:focus,
 button.chrome-icon-btn:focus-visible,
 button.chrome-icon-btn:active,
+button.frameless-icon-hit:hover,
+button.frameless-icon-hit:focus,
+button.frameless-icon-hit:focus-visible,
+button.frameless-icon-hit:active,
 [role="button"].chrome-icon-btn:hover,
 [role="button"].chrome-icon-btn:focus,
 [role="button"].chrome-icon-btn:focus-visible,
-[role="button"].chrome-icon-btn:active {
+[role="button"].chrome-icon-btn:active,
+[role="button"].frameless-icon-hit:hover,
+[role="button"].frameless-icon-hit:focus,
+[role="button"].frameless-icon-hit:focus-visible,
+[role="button"].frameless-icon-hit:active {
   outline: none !important;
   box-shadow: none !important;
   border: none !important;
@@ -2835,17 +2860,74 @@ button.chrome-icon-btn:active,
   transform: none !important;
   filter: none !important;
 }
-/* Soft circular focus for keyboard only */
-button.chrome-icon-btn:focus-visible,
-[role="button"].chrome-icon-btn:focus-visible {
+/* Glass HUD icons: no square outline/filter flash; keep their own circular scale */
+.glass-icon-btn:focus,
+.glass-icon-btn:focus-visible,
+button.glass-icon-btn:focus,
+button.glass-icon-btn:focus-visible,
+[role="button"].glass-icon-btn:focus,
+[role="button"].glass-icon-btn:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 2px hsl(var(--ring, var(--primary)) / 0.45) !important;
 }
-/* Press engine class must not square-frame these either */
+.glass-icon-btn:active,
+button.glass-icon-btn:active,
+[role="button"].glass-icon-btn:active {
+  outline: none !important;
+  /* Do not inherit global brightness filter (square flash over photos) */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18)) brightness(0.85);
+}
+.glass-icon-btn[data-tone="photo"]:active,
+button.glass-icon-btn[data-tone="photo"]:active {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55)) brightness(0.85);
+}
+/* Soft circular focus for keyboard only (fine pointer) */
+@media (hover: hover) and (pointer: fine) {
+  button.chrome-icon-btn:focus-visible,
+  button.frameless-icon-hit:focus-visible,
+  button.glass-icon-btn:focus-visible,
+  [role="button"].chrome-icon-btn:focus-visible,
+  [role="button"].frameless-icon-hit:focus-visible,
+  [role="button"].glass-icon-btn:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring, var(--primary)) / 0.45) !important;
+  }
+}
+/* Press engine class must not square-frame frameless hits */
 .chrome-icon-btn.instant-active-element,
-button.chrome-icon-btn.instant-active-element {
+.frameless-icon-hit.instant-active-element,
+button.chrome-icon-btn.instant-active-element,
+button.frameless-icon-hit.instant-active-element {
   transform: none !important;
   filter: none !important;
+}
+.glass-icon-btn.instant-active-element,
+button.glass-icon-btn.instant-active-element {
+  /* Keep circular press; strip rectangular brightness/box */
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Touch / phone / PWA: never leave a rectangular focus ring after a tap.
+   Keyboard users on desktop still get :focus-visible rings above. */
+@media (hover: none), (pointer: coarse) {
+  button:focus,
+  button:focus-visible,
+  [role="button"]:focus,
+  [role="button"]:focus-visible,
+  a:focus,
+  a:focus-visible,
+  summary:focus,
+  summary:focus-visible {
+    outline: none !important;
+  }
+  /* Form fields keep a visible caret/ring so typing stays clear */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="textbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring, var(--primary)) / 0.4);
+  }
 }
 
 /* Form fields keep a rounded ring that follows their pill shape — no square frame. */
