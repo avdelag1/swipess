@@ -3,25 +3,25 @@
 /*  THE CORE SYSTEM: BLACK & WHITE                                      */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* THEME: BLACK MATTE (Deep dark mode) */
+/* THEME: BLACK MATTE (Deep dark mode — tonal depth, not pitch black) */
 .black-matte {
-    /* Background colors - Pure AMOLED Black */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 100%;
+    /* Background hierarchy: deepest → elevated surfaces */
+    --background: 240 5% 5%;
+    --foreground: 0 0% 98%;
+    --card: 240 4% 8%;
+    --card-foreground: 0 0% 98%;
     --primary: 343 99% 65%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 14%;
-    --muted-foreground: 212 16% 90%;
+    --secondary: 240 4% 11%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3% 14%;
+    --muted-foreground: 220 10% 78%;
     --accent: 343 99% 68%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 90% 64%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 28%;
-    --input: 0 0% 16%;
+    --border: 240 4% 18%;
+    --input: 240 4% 12%;
     --ring: 352 90% 66%;
 
     /* Semantic UI Tokens */
@@ -33,16 +33,27 @@
     --icon-inactive: rgba(255, 255, 255, 0.82);
 
     /* Modern theme variables */
-    --bg-primary: 0 0% 0%;
-    --bg-secondary: 0 0% 5%;
-    --bg-tertiary: 0 0% 10%;
-    --text-primary: 0 0% 100%;
-    --text-secondary: 216 16% 90%;
-    --text-tertiary: 216 12% 68%;
-    --border-primary: 0 0% 28%;
-    --border-secondary: 0 0% 34%;
+    --bg-primary: 240 5% 5%;
+    --bg-secondary: 240 4% 8%;
+    --bg-tertiary: 240 4% 11%;
+    --text-primary: 0 0% 98%;
+    --text-secondary: 220 10% 78%;
+    --text-tertiary: 220 8% 58%;
+    --border-primary: 240 4% 18%;
+    --border-secondary: 240 4% 22%;
     --accent-primary: 352 90% 66%;
     --accent-secondary: 352 90% 75%;
+
+    /* Dashboard depth layers */
+    --dash-bg: #0a0a0d;
+    --dash-well: #101014;
+    --dash-elevated: #16161c;
+    --dash-glass: rgba(18, 18, 24, 0.52);
+    --dash-glass-strong: rgba(22, 22, 30, 0.72);
+    --dash-glass-border: rgba(255, 255, 255, 0.10);
+    --dash-glass-rim: rgba(255, 255, 255, 0.22);
+    --dash-icon: #ffffff;
+    --dash-icon-muted: rgba(255, 255, 255, 0.62);
 
     /* Shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -92,6 +103,17 @@
     --text-tertiary: 0 0% 42%;
     --border-primary: 240 6% 88%;
     --border-secondary: 240 5% 84%;
+
+    /* Dashboard depth layers */
+    --dash-bg: #F2F2F7;
+    --dash-well: #E8E8EE;
+    --dash-elevated: #FFFFFF;
+    --dash-glass: rgba(255, 255, 255, 0.58);
+    --dash-glass-strong: rgba(255, 255, 255, 0.78);
+    --dash-glass-border: rgba(0, 0, 0, 0.08);
+    --dash-glass-rim: rgba(255, 255, 255, 0.95);
+    --dash-icon: #111111;
+    --dash-icon-muted: rgba(0, 0, 0, 0.45);
     --accent-primary: 221 83% 50%;
     --accent-secondary: 221 83% 60%;
 
@@ -101,6 +123,19 @@
     --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.08);
     --shadow-glow: 0 4px 16px rgba(255, 77, 0, 0.12);
     --overlay: rgba(0, 0, 0, 0.45);
+}
+
+/* Alias: ThemeContext also applies .white-matte alongside .light */
+.white-matte {
+    --dash-bg: #F2F2F7;
+    --dash-well: #E8E8EE;
+    --dash-elevated: #FFFFFF;
+    --dash-glass: rgba(255, 255, 255, 0.58);
+    --dash-glass-strong: rgba(255, 255, 255, 0.78);
+    --dash-glass-border: rgba(0, 0, 0, 0.08);
+    --dash-glass-rim: rgba(255, 255, 255, 0.95);
+    --dash-icon: #111111;
+    --dash-icon-muted: rgba(0, 0, 0, 0.45);
 }
 
 /* Strengthen Tailwind's hardcoded shadow utilities so white cards/sections

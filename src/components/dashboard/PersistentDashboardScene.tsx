@@ -42,28 +42,9 @@ export function PersistentDashboardScene() {
         zIndex: 0,
         display: isDashboard ? 'flex' : 'none',
         pointerEvents: isDashboard ? 'auto' : 'none',
+        background: 'var(--dash-bg, hsl(var(--background)))',
       }}
     >
-      {/* Solid White Base for Dashboard */}
-      <div className="absolute inset-0 z-[-1] bg-white" />
-
-      {/* Ambient Sunset Gradient for Dashboard */}
-      <div 
-        className="absolute inset-0 z-[0] pointer-events-none opacity-70"
-        style={{
-          background: 'linear-gradient(135deg, #FFFDD0 0%, #FFDAB9 25%, #FFB6C1 50%, #E6E6FA 75%, #ADD8E6 100%)',
-          backgroundSize: '300% 300%',
-          animation: 'tornasol-move 20s ease-in-out infinite',
-        }}
-      />
-      <style>{`
-        @keyframes tornasol-move {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
-      
       {clientMountedRef.current && (
         <div
           className="absolute inset-0 flex flex-col flex-1 min-h-0 h-full w-full z-[1]"

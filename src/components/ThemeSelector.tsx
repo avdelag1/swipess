@@ -22,48 +22,26 @@ interface ThemeOption {
 const themeOptions: ThemeOption[] = [
   {
     id: 'dark',
-    name: 'Dark Matte',
-    description: 'Deep AMOLED black',
+    name: 'Dark',
+    description: 'Deep layered charcoal',
     icon: '🌙',
     colors: {
-      primary: '#000000',
-      secondary: '#0a0a0a',
+      primary: '#0a0a0d',
+      secondary: '#16161c',
       accent: '#eb1e4b'
     }
   },
   {
     id: 'light',
-    name: 'White Matte',
-    description: 'Clean & minimalist',
+    name: 'Light',
+    description: 'Clean layered surfaces',
     icon: '☀️',
     colors: {
-      primary: '#ffffff',
-      secondary: '#f8f8f8',
+      primary: '#F2F2F7',
+      secondary: '#FFFFFF',
       accent: '#3b82f6'
     }
   },
-  {
-    id: 'cheers',
-    name: 'Cheers',
-    description: 'Animal print & gold',
-    icon: '🐆',
-    colors: {
-      primary: '#180800',
-      secondary: '#362111',
-      accent: '#d4af37'
-    }
-  },
-  {
-    id: 'Swipess-style',
-    name: 'Swipess HUD',
-    description: 'Futuristic glass UI',
-    icon: '🛸',
-    colors: {
-      primary: '#000000',
-      secondary: '#111111',
-      accent: '#00d2ff'
-    }
-  }
 ];
 
 interface ThemeSelectorProps {

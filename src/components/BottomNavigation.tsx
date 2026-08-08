@@ -273,8 +273,7 @@ export const BottomNavigation = memo(({
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* Dark glass dock + white frameless icons (dashboard always dark).
-          ZERO circular backgrounds behind icons. */}
+      {/* Liquid glass dock — theme adaptive via getBottomNavChrome */}
       <div
         className={cn(
           'pointer-events-auto floating-dock-nav',

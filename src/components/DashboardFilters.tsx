@@ -19,17 +19,17 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
 
   // True iOS Liquid Glass styles for Filters
   const glassStyle = {
-    background: isLight 
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%)' 
-      : 'linear-gradient(145deg, rgba(15,15,20,0.6) 0%, rgba(15,15,20,0.3) 100%)',
-    border: isLight ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.8)' : '1px solid rgba(255, 255, 255, 0.2)',
+    background: isLight
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.42) 100%)'
+      : 'linear-gradient(145deg, rgba(28,28,36,0.55) 0%, rgba(16,16,22,0.35) 100%)',
+    border: isLight ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.10)',
+    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.9)' : '1px solid rgba(255, 255, 255, 0.20)',
     boxShadow: isLight
-      ? '0 10px 30px rgba(0, 0, 0, 0.08), inset 0 2px 10px rgba(255,255,255,0.7)'
-      : '0 10px 30px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(40px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-    color: isLight ? '#000' : '#fff',
+      ? '0 6px 18px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.85)'
+      : '0 8px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    color: isLight ? '#111' : '#fff',
   };
 
   return (

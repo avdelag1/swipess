@@ -6,7 +6,7 @@ interface AmbientPageBackgroundProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
-  /** Show subtle brand gradient orbs behind content */
+  /** Subtle tonal depth vs flat canvas */
   variant?: 'default' | 'subtle';
   /**
    * `fill` — stretch inside flex / absolute parents (dashboard, swipe deck).
@@ -15,8 +15,12 @@ interface AmbientPageBackgroundProps extends HTMLAttributes<HTMLDivElement> {
   layout?: 'page' | 'fill';
 }
 
+/**
+ * Tonal depth backdrop — NO sunset / colorful animated orbs.
+ * Creates layered dark/light surfaces for Liquid Glass controls to float on.
+ */
 function AmbientBackdrop({
-  tone: _tone,
+  tone,
   variant = 'default',
   className,
 }: {
@@ -24,21 +28,38 @@ function AmbientBackdrop({
   variant?: 'default' | 'subtle';
   className?: string;
 }) {
+  const isLight = tone === 'light';
   return (
     <div
       aria-hidden
       className={cn(
-        'ambient-page-bg pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-background',
-        variant === 'subtle' && 'opacity-80',
+        'ambient-page-bg pointer-events-none absolute inset-0 -z-10 overflow-hidden',
+        variant === 'subtle' && 'opacity-90',
         className,
       )}
+      style={{
+        background: isLight
+          ? 'var(--dash-bg, #F2F2F7)'
+          : 'var(--dash-bg, #0a0a0d)',
+      }}
     >
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-40 mix-blend-screen blur-[80px] animate-orb-1" 
-           style={{ background: 'radial-gradient(circle, rgba(255,77,0,0.8) 0%, rgba(255,200,0,0) 70%)' }} />
-      <div className="absolute top-[20%] right-[-20%] w-[70%] h-[70%] rounded-full opacity-30 mix-blend-screen blur-[100px] animate-orb-2" 
-           style={{ background: 'radial-gradient(circle, rgba(138,43,226,0.6) 0%, rgba(255,0,128,0) 70%)' }} />
-      <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full opacity-50 mix-blend-screen blur-[90px] animate-orb-3" 
-           style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,165,0,0) 70%)' }} />
+      {/* Soft tonal wells — monochrome only */}
+      <div
+        className="absolute inset-x-0 top-0 h-[42%]"
+        style={{
+          background: isLight
+            ? 'linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0) 100%)',
+        }}
+      />
+      <div
+        className="absolute -bottom-[12%] left-1/2 -translate-x-1/2 w-[120%] h-[55%] rounded-[50%]"
+        style={{
+          background: isLight
+            ? 'radial-gradient(ellipse at center, rgba(0,0,0,0.04) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 68%)',
+        }}
+      />
     </div>
   );
 }

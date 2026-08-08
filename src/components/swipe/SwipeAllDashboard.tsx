@@ -1,4 +1,4 @@
-// cache-bust: 2026-04-18-v14
+// cache-bust: 2026-08-08-depth-v1
 import { memo, Suspense, useCallback, useEffect, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 
@@ -16,6 +16,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useNavigate } from 'react-router-dom';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
+import useAppTheme from '@/hooks/useAppTheme';
 
 const preloadedImages = new Set<string>();
 
@@ -25,9 +26,8 @@ export interface SwipeAllDashboardProps {
 
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const navigate = useNavigate();
+  const { isLight } = useAppTheme();
   const setPokerCardOrder = useFilterStore((s) => s.setPokerCardOrder);
-  // Read persisted card order from localStorage directly (more reliable than
-  // depending on zustand persist hydration timing for component re-mount).
   const [cards, setCards] = useState(() => {
     try {
       const raw = localStorage.getItem('Swipess-filter-storage');
@@ -45,7 +45,6 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   });
   const [showVapModal, setShowVapModal] = useState(false);
 
-  // Persist card order to store (zustand persist writes to localStorage)
   useEffect(() => {
     const ids = cards.map((c) => c.id);
     const stored = useFilterStore.getState().pokerCardOrder;
@@ -55,7 +54,6 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   }, [cards, setPokerCardOrder]);
 
   useEffect(() => {
-    // Preload images safely on mount to prevent TDZ ReferenceErrors
     UNIFIED_CARDS.forEach(card => {
       const src = POKER_CARD_PHOTOS[card.id];
       if (src && !preloadedImages.has(src)) {
@@ -108,30 +106,23 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative h-full min-h-0 overflow-visible flex flex-col items-center justify-start bg-white"
+        className="relative h-full min-h-0 overflow-visible flex flex-col items-center justify-start"
         style={{
+          background: 'var(--dash-bg, hsl(var(--background)))',
           paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px))',
           paddingBottom: 'calc(var(--bottom-nav-height, 80px) + env(safe-area-inset-bottom, 0px))',
           boxSizing: 'border-box',
         }}
       >
-        {/* Lightweight Ambient Tornasol / Sunset Background */}
-        <div 
-          className="absolute inset-0 z-0 pointer-events-none opacity-40"
+        {/* Soft tonal well behind cards — no sunset / animated color wash */}
+        <div
+          aria-hidden
+          className="absolute inset-x-4 top-[18%] bottom-[16%] rounded-[2.5rem] pointer-events-none"
           style={{
-            background: 'linear-gradient(120deg, #fca5a5 0%, #fcd34d 33%, #fb923c 66%, #c084fc 100%)',
-            backgroundSize: '300% 300%',
-            animation: 'tornasol-move 15s ease infinite',
+            background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
+            opacity: 0.9,
           }}
-        >
-          <style>{`
-            @keyframes tornasol-move {
-              0% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-              100% { background-position: 0% 50%; }
-            }
-          `}</style>
-        </div>
+        />
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -143,16 +134,14 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
             maxWidth: '600px',
           }}
         >
-          {/* Left Side: Events Video Carousel (Larger) */}
           <div className="flex-[0.55] h-full relative" style={{ maxHeight: '80dvh' }}>
              <EventsVideoQuickFilter />
           </div>
 
-          {/* Right Side: Poker Stack (Smaller) */}
-          <div 
+          <div
              className="flex-[0.45] relative flex items-center justify-center overflow-visible"
              style={{
-                height: 'calc(100% - 40px)', // Slightly shorter to emphasize Events size
+                height: 'calc(100% - 40px)',
                 maxHeight: '75dvh',
              }}
           >
@@ -188,5 +177,3 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 });
 
 export default SwipeAllDashboard;
-
-

@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { memo } from 'react';
+import { type CSSProperties, memo, type ReactNode } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { ChevronLeft, Crown, Globe, Sparkles, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +41,32 @@ interface TopBarProps {
 
 const HEADER_ICON = 'w-[24px] h-[24px]';
 
+/** Liquid Glass pill wrapper — chrome-icon-btn forces transparent, so glass lives here. */
+function GlassPill({
+  children,
+  style,
+  className,
+  wide,
+}: {
+  children: ReactNode;
+  style: CSSProperties;
+  className?: string;
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        'flex items-center justify-center shrink-0 rounded-full',
+        wide ? 'h-9 px-2.5 gap-1' : 'h-9 w-9',
+        className,
+      )}
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
 function HeaderIconSlot({
   children,
   badge,
@@ -79,9 +105,7 @@ function TopBarComponent({
   const isActuallyVisible = isScrollVisible;
 
   const isDashboard = isDashboardPath(location.pathname);
-  // Dashboard always has a light/cream background — force dark icons regardless of theme.
-  // On all other pages, respect the actual isLight flag from the theme.
-  const { iconColor } = getTopBarChrome(isDashboard ? true : isLight, isDashboard);
+  const { iconColor, pillStyle } = getTopBarChrome(isLight, isDashboard);
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const isSwipeDeck = isDashboard && activeCategory && activeCategory !== 'all';
@@ -123,6 +147,13 @@ function TopBarComponent({
   // Everyone is premium right now, so never surface a "running low" warning.
   const tokensLow = !PREMIUM_FOR_EVERYONE && tokens < 10;
 
+  const clearIcon: CSSProperties = {
+    WebkitTapHighlightColor: 'transparent',
+    background: 'transparent',
+    boxShadow: 'none',
+    border: 'none',
+  };
+
   return (
     <header
       data-skip-press-engine
@@ -142,149 +173,158 @@ function TopBarComponent({
     >
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
-        {/* LEFT: profile/back and AI — Separate elements */}
-        <div className="flex items-center gap-3 pointer-events-auto">
+        {/* LEFT: profile/back and AI */}
+        <div className="flex items-center gap-2 pointer-events-auto">
           {onBack && !isSwipeDeck ? (
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); onBack(); }}
-              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
-              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none', filter: 'none' }}
-              aria-label="Back"
-            >
-              <HeaderIconSlot>
-                <ChevronLeft
-                  className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
-                  strokeWidth={1.5}
-                  style={{ color: iconColor, filter: 'none' }}
-                />
-              </HeaderIconSlot>
-            </button>
-          ) : (
-            user && (
+            <GlassPill style={pillStyle}>
               <button
                 type="button"
-                className="chrome-icon-btn flex items-center gap-1.5 transition-all group rounded-full"
-                onClick={() => { haptics.tap(); navigate('/client/profile'); }}
-                aria-label="Open profile"
+                onClick={() => { haptics.tap(); onBack(); }}
+                className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+                style={clearIcon}
+                aria-label="Back"
               >
-                <span
-                  className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
-                >
-                    {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
-                      <img
-                        src={profile?.avatar_url || user?.user_metadata?.avatar_url}
-                        alt=""
-                        loading="eager"
-                        decoding="async"
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : (
-                      initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
-                        <span className="w-full h-full bg-white/20 flex items-center justify-center rounded-full">
-                          <span className="text-[10px] font-black drop-shadow-sm" style={{ color: iconColor }}>
-                            {initials}
-                          </span>
-                        </span>
-                      )
-                    )}
-                </span>
-                <span className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
-                  <span className="text-[12px] font-bold leading-none tracking-tight">
-                    {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || ''}
-                  </span>
-                </span>
+                <HeaderIconSlot>
+                  <ChevronLeft
+                    className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
+                    strokeWidth={1.5}
+                    style={{ color: iconColor, filter: 'none' }}
+                  />
+                </HeaderIconSlot>
               </button>
+            </GlassPill>
+          ) : (
+            user && (
+              <GlassPill style={pillStyle} wide>
+                <button
+                  type="button"
+                  className="chrome-icon-btn flex items-center gap-1.5 transition-all group rounded-full"
+                  onClick={() => { haptics.tap(); navigate('/client/profile'); }}
+                  aria-label="Open profile"
+                  style={clearIcon}
+                >
+                  <span
+                    className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
+                  >
+                      {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
+                        <img
+                          src={profile?.avatar_url || user?.user_metadata?.avatar_url}
+                          alt=""
+                          loading="eager"
+                          decoding="async"
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
+                          <span className="w-full h-full bg-white/20 flex items-center justify-center rounded-full">
+                            <span className="text-[10px] font-black drop-shadow-sm" style={{ color: iconColor }}>
+                              {initials}
+                            </span>
+                          </span>
+                        )
+                      )}
+                  </span>
+                  <span className="flex items-center gap-1 select-none" style={{ color: iconColor }}>
+                    <span className="text-[12px] font-bold leading-none tracking-tight">
+                      {profile?.first_name || profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || ''}
+                    </span>
+                  </span>
+                </button>
+              </GlassPill>
             )
           )}
 
           {!minimal && (
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
-              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shrink-0"
-              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
-              aria-label="AI Listing"
-            >
-              <HeaderIconSlot>
-                <Sparkles
-                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
-                  style={{
-                    color: iconColor,
-                    filter: 'none',
-                  }}
-                  strokeWidth={1.5}
-                />
-              </HeaderIconSlot>
-            </button>
+            <GlassPill style={pillStyle}>
+              <button
+                type="button"
+                onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
+                className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group shrink-0"
+                style={clearIcon}
+                aria-label="AI Listing"
+              >
+                <HeaderIconSlot>
+                  <Sparkles
+                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    style={{
+                      color: iconColor,
+                      filter: 'none',
+                    }}
+                    strokeWidth={1.5}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </GlassPill>
           )}
         </div>
 
         <div className="flex-grow flex-1" />
 
-        {/* RIGHT: Notifications, map, tokens, theme toggles */}
+        {/* RIGHT: Tokens, map, theme, notifications */}
         {!minimal && (
-          <div className="flex items-center gap-0.5 pointer-events-auto shrink-0 z-50">
-            {/* Tokens/Premium */}
-            <button
-              type="button"
-              onClick={() => {
-                haptics.tap();
-                useModalStore.getState().setModal('showTokensModal', true);
-              }}
-              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
-              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
-              aria-label="Tokens"
-            >
-              <HeaderIconSlot
-                badge={
-                  tokensLow && (
-                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 border border-black/20"></span>
-                    </span>
-                  )
-                }
+          <div className="flex items-center gap-2 pointer-events-auto shrink-0 z-50">
+            <GlassPill style={pillStyle}>
+              <button
+                type="button"
+                onClick={() => {
+                  haptics.tap();
+                  useModalStore.getState().setModal('showTokensModal', true);
+                }}
+                className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+                style={clearIcon}
+                aria-label="Tokens"
               >
-                <Crown
-                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
-                  style={{
-                    color: iconColor,
-                    filter: 'none',
-                  }}
-                  strokeWidth={1.5}
-                />
-              </HeaderIconSlot>
-            </button>
+                <HeaderIconSlot
+                  badge={
+                    tokensLow && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 border border-black/20"></span>
+                      </span>
+                    )
+                  }
+                >
+                  <Crown
+                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    style={{
+                      color: iconColor,
+                      filter: 'none',
+                    }}
+                    strokeWidth={1.5}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </GlassPill>
 
-            <button
-              type="button"
-              onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
-              className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
-              style={{ WebkitTapHighlightColor: 'transparent', background: 'transparent', boxShadow: 'none', border: 'none' }}
-              aria-label={t('map.liveMap')}
-            >
-              <HeaderIconSlot>
-                <Globe
-                  className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
-                  style={{
-                    color: iconColor,
-                    filter: 'none',
-                  }}
-                  strokeWidth={1.5}
-                />
-              </HeaderIconSlot>
-            </button>
+            <GlassPill style={pillStyle}>
+              <button
+                type="button"
+                onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
+                className="chrome-icon-btn flex items-center justify-center h-8 w-8 rounded-full transition-all group"
+                style={clearIcon}
+                aria-label={t('map.liveMap')}
+              >
+                <HeaderIconSlot>
+                  <Globe
+                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    style={{
+                      color: iconColor,
+                      filter: 'none',
+                    }}
+                    strokeWidth={1.5}
+                  />
+                </HeaderIconSlot>
+              </button>
+            </GlassPill>
 
-            <ThemeToggle glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} className="chrome-icon-btn rounded-full h-8 w-8" />
+            <GlassPill style={pillStyle}>
+              <ThemeToggle glassPillStyle={clearIcon} className="chrome-icon-btn rounded-full h-8 w-8" />
+            </GlassPill>
 
-            <NotificationPopover glassPillStyle={{ background: 'transparent', border: 'none', boxShadow: 'none' }} pillClassName="chrome-icon-btn rounded-full h-8 w-8" />
+            <GlassPill style={pillStyle}>
+              <NotificationPopover glassPillStyle={clearIcon} pillClassName="chrome-icon-btn rounded-full h-8 w-8" />
+            </GlassPill>
           </div>
         )}
-
-        {/* Center logo tap zone removed — its absolute 64×64 hit area overlapped the
-            Tokens pill on narrow devices and intercepted the click, so the Tokens
-            modal silently failed to open. Users still reach the dashboard via the
-            bottom-nav Dashboard tile. */}
       </div>
 
       <svg width="0" height="0" className="absolute" aria-hidden="true">

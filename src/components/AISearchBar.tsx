@@ -38,16 +38,16 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
   // True iOS Liquid Glass styles for Search Bar
   const glassStyle = {
     background: isLight
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)'
-      : 'linear-gradient(145deg, rgba(15,15,20,0.6) 0%, rgba(15,15,20,0.3) 100%)',
-    border: isLight ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
-    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.9)' : '1px solid rgba(255, 255, 255, 0.2)',
+      ? 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.48) 100%)'
+      : 'linear-gradient(145deg, rgba(28,28,36,0.58) 0%, rgba(16,16,22,0.38) 100%)',
+    border: isLight ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.10)',
+    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.95)' : '1px solid rgba(255, 255, 255, 0.22)',
     boxShadow: isLight
-      ? '0 10px 40px rgba(0, 0, 0, 0.05), inset 0 2px 10px rgba(255,255,255,0.8)'
-      : '0 10px 40px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(40px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-    color: isLight ? '#000' : '#fff',
+      ? '0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.9)'
+      : '0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    color: isLight ? '#111' : '#fff',
   };
 
   return (

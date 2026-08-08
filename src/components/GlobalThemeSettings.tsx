@@ -7,28 +7,16 @@ import { triggerHaptic } from "@/utils/haptics";
 
 const THEMES: { id: Theme; name: string; description: string; colors: string[] }[] = [
   { 
-    id: 'light', 
-    name: 'Daylight', 
-    description: 'Clean and bright professional look',
-    colors: ['#FFFFFF', '#3b82f6'] 
-  },
-  { 
     id: 'dark', 
-    name: 'Midnight', 
-    description: 'Deep matte black for focus',
-    colors: ['#000000', '#f97316'] 
+    name: 'Dark', 
+    description: 'Layered charcoal with Liquid Glass',
+    colors: ['#0a0a0d', '#16161c', '#ffffff'] 
   },
   { 
-    id: 'cheers', 
-    name: 'Cheers', 
-    description: 'Warm golden safari energy',
-    colors: ['#180800', '#C8A96B'] 
-  },
-  { 
-    id: 'Swipess-style', 
-    name: 'Swipess Liquid', 
-    description: 'AI-Native high efficiency interface',
-    colors: ['#000000', '#00E5FF', '#121212'] 
+    id: 'light', 
+    name: 'Light', 
+    description: 'Clean layered surfaces with Liquid Glass',
+    colors: ['#F2F2F7', '#FFFFFF', '#111111'] 
   },
 ];
 
@@ -46,10 +34,10 @@ export function GlobalThemeSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Paintbrush className="w-5 h-5 text-primary" />
-          App Visual Style
+          Appearance
         </CardTitle>
         <CardDescription>
-          Personalize your entire experience with a curated theme
+          Dark or Light — layered depth, not flat color
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -78,19 +66,15 @@ export function GlobalThemeSettings() {
                 <div className="text-left">
                   <div className="font-bold text-foreground text-sm flex items-center gap-2">
                     {theme.name}
+                    {currentTheme === theme.id && (
+                      <Check className="w-3.5 h-3.5 text-primary" />
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground">{theme.description}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {theme.description}
+                  </div>
                 </div>
               </div>
-
-              {currentTheme === theme.id && (
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center relative z-10">
-                  <Check className="w-4 h-4 text-primary-foreground" />
-                </div>
-              )}
-              
-              {/* Background preview subtle effect */}
-
             </button>
           ))}
         </div>
@@ -98,5 +82,3 @@ export function GlobalThemeSettings() {
     </Card>
   );
 }
-
-

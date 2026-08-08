@@ -18,94 +18,108 @@ export function getHeaderIconFilter(
   return iconShadow;
 }
 
-/** Shared TopBar / nav pill + icon colors — dashboard swipe deck always uses light icons.
- *
- * iOS 26 LIQUID GLASS — key properties:
- *   • Ultra-heavy blur (40px) + high saturation (200%) — content behind the
- *     glass looks vivid and "enhanced", like seeing through a water lens
- *   • Very transparent fill — the glass is barely tinted so background colors
- *     bleed through
- *   • Thin luminous rim — a subtle white/cyan edge highlight that refracts
- *     light like actual glass
- *   • Delicate inner catch-light at top edge — no heavy neumorphic shadows
+/**
+ * Liquid Glass header pills — theme adaptive.
+ * Dark: white icons on dark translucent glass.
+ * Light: black icons on light translucent glass.
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
-  // Theme-aware: dark on light backgrounds, white on dark backgrounds
-  const useLightIcons = !isLight; 
+  const useLightIcons = !isLight;
 
-  const pillStyle: CSSProperties = {
-    background: isLight 
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%)'
-      : 'linear-gradient(145deg, rgba(15,15,20,0.7) 0%, rgba(15,15,20,0.4) 100%)',
-    border: isLight ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.15)',
-    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.9)' : '1px solid rgba(255, 255, 255, 0.3)',
-    borderLeft: isLight ? '1px solid rgba(255, 255, 255, 0.7)' : undefined,
-    borderBottom: isLight ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(180%) contrast(110%)',
-    boxShadow: isLight 
-      ? '0 8px 32px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255,255,255,0.8)'
-      : '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255,255,255,0.15)',
-    borderRadius: '9999px',
-    pointerEvents: 'auto',
-    color: useLightIcons ? '#ffffff' : '#000000',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
-    overflow: 'visible',
-  };
-
-  const iconColor = useLightIcons ? '#ffffff' : '#111111';
-  const inactiveIconColor = useLightIcons ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.45)';
+  const pillStyle: CSSProperties = isLight
+    ? {
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.48) 100%)',
+        border: '1px solid rgba(0, 0, 0, 0.08)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
+        borderLeft: '1px solid rgba(255, 255, 255, 0.7)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.04)',
+        backdropFilter: 'blur(28px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)',
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#111111',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
+        overflow: 'visible',
+      }
+    : {
+        background: 'linear-gradient(145deg, rgba(28,28,36,0.62) 0%, rgba(16,16,22,0.42) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.10)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.24)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.45)',
+        backdropFilter: 'blur(28px) saturate(170%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(170%)',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12)',
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.12s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s ease-out',
+        overflow: 'visible',
+      };
 
   return {
     useLightIcons,
-    iconColor,
-    inactiveIconColor,
+    iconColor: useLightIcons ? '#ffffff' : '#111111',
+    inactiveIconColor: useLightIcons ? 'rgba(255,255,255,0.62)' : 'rgba(0,0,0,0.42)',
     pillStyle,
-    // No drop-shadow halos — they read as circular "discs" behind glyphs
     iconShadow: 'none',
   };
 }
 
 /**
- * Bottom dock chrome.
- *
- * - **Dashboard**: always dark bar + white icons (swipe deck photos need contrast).
- * - **Elsewhere**: adapts to light/dark theme filter — light gets a *dark* glass
- *   dock so icons stay readable; dark theme stays charcoal glass + white icons.
- * Icons are always frameless (no circular discs).
+ * Bottom dock — Liquid Glass floating layer, theme adaptive.
  */
-export function getBottomNavChrome(_isLight: boolean, _isDashboard = false) {
-  const useLightIcons = true; // Always use white icons for contrast
+export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
+  const useLightIcons = !isLight;
 
-  const dockStyle: CSSProperties = {
-    background: 'linear-gradient(165deg, rgba(16,16,20,0.98) 0%, rgba(10,10,14,0.98) 100%)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    borderTop: '1px solid rgba(255, 255, 255, 0.25)',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(40px) saturate(200%)',
-    WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-    boxShadow: 'none',
-    borderRadius: '9999px',
-    pointerEvents: 'auto',
-    color: '#ffffff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
-    overflow: 'visible',
-    isolation: 'isolate',
-  };
-
-  const iconColor = '#FFFFFF';
-  const inactiveIconColor = 'rgba(255,255,255,0.7)';
+  const dockStyle: CSSProperties = isLight
+    ? {
+        background: 'linear-gradient(165deg, rgba(255,255,255,0.82) 0%, rgba(246,246,250,0.72) 100%)',
+        border: '1px solid rgba(0, 0, 0, 0.08)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+        backdropFilter: 'blur(36px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(36px) saturate(180%)',
+        boxShadow: '0 10px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#111111',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
+        overflow: 'visible',
+        isolation: 'isolate',
+      }
+    : {
+        background: 'linear-gradient(165deg, rgba(26,26,32,0.88) 0%, rgba(14,14,18,0.82) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.10)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
+        backdropFilter: 'blur(36px) saturate(170%)',
+        WebkitBackdropFilter: 'blur(36px) saturate(170%)',
+        boxShadow: '0 12px 36px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10)',
+        borderRadius: '9999px',
+        pointerEvents: 'auto',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease',
+        overflow: 'visible',
+        isolation: 'isolate',
+      };
 
   return {
     useLightIcons,
-    iconColor,
-    inactiveIconColor,
+    iconColor: useLightIcons ? '#FFFFFF' : '#111111',
+    inactiveIconColor: useLightIcons ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.42)',
     pillStyle: dockStyle,
     iconShadow: 'none',
   };

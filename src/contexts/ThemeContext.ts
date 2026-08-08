@@ -36,13 +36,22 @@ const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 function normalizeTheme(raw: string | null | undefined): Theme {
+  // App surface themes: only light + dark. Legacy values map into dark.
   if (raw === 'light' || raw === 'white-matte') return 'light';
-  if (raw === 'cheers') return 'cheers';
-  if (raw === 'red-matte' || raw === 'red') return 'red-matte';
-  if (raw === 'amber-matte' || raw === 'amber') return 'amber-matte';
-  if (raw === 'pure-black') return 'pure-black';
-  if (raw === 'Swipess-style' || raw === 'cyber' || raw === 'Swipess') return 'Swipess-style';
-  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte') return 'dark';
+  if (
+    raw === 'dark' ||
+    raw === 'black-matte' ||
+    raw === 'grey-matte' ||
+    raw === 'cheers' ||
+    raw === 'red-matte' ||
+    raw === 'red' ||
+    raw === 'amber-matte' ||
+    raw === 'amber' ||
+    raw === 'pure-black' ||
+    raw === 'Swipess-style' ||
+    raw === 'cyber' ||
+    raw === 'Swipess'
+  ) return 'dark';
   return 'dark';
 }
 
@@ -71,11 +80,8 @@ function applyThemeToDOM(theme: Theme) {
     document.head.appendChild(meta);
   }
   let targetColor: string;
-  if (theme === 'dark' || theme === 'pure-black' || theme === 'Swipess-style') targetColor = '#000000';
-  else if (theme === 'cheers') targetColor = '#180800';
-  else if (theme === 'red-matte') targetColor = '#2d0a0a';
-  else if (theme === 'amber-matte') targetColor = '#1a1200';
-  else targetColor = '#F2F2F7';
+  if (theme === 'light') targetColor = '#F2F2F7';
+  else targetColor = '#0a0a0d';
   meta.setAttribute('content', targetColor);
 
   // Native: match the status bar to the active theme — dark text on the light
@@ -103,6 +109,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const setTheme = React.useCallback((newTheme: Theme, coords?: ThemeToggleCoords) => {
+    // Only Dark + Light are active surface themes; legacy ids coerce in.
+    const next = normalizeTheme(newTheme);
     const root = window.document.documentElement;
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
@@ -112,17 +120,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       html.setAttribute('data-theme-transition', '');
       const transition = doc.startViewTransition(() => {
         flushSync(() => {
-          applyThemeToDOM(newTheme);
-          setThemeState(newTheme);
-          localStorage.setItem(STORAGE_KEY, newTheme);
+          applyThemeToDOM(next);
+          setThemeState(next);
+          localStorage.setItem(STORAGE_KEY, next);
         });
       });
       transition.finished.finally(() => html.removeAttribute('data-theme-transition'));
     } else {
       flushSync(() => {
-        applyThemeToDOM(newTheme);
-        setThemeState(newTheme);
-        localStorage.setItem(STORAGE_KEY, newTheme);
+        applyThemeToDOM(next);
+        setThemeState(next);
+        localStorage.setItem(STORAGE_KEY, next);
       });
     }
   }, []);

@@ -1,7 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import LandingBackgroundEffects from '@/components/LandingBackgroundEffects';
-
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -170,8 +168,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
 
 
-  // In-app audio fully disabled — sounds are reserved for the public
-  // landing-page cosmos background only (LandingBackgroundEffects.tsx).
+  // In-app audio fully disabled — sounds are reserved for the public landing page only.
 
   // Filters removed from here since they are unused
 
@@ -196,22 +193,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     useModalStore.getState().closeAll();
   }, [location.pathname]);
 
-  // Force dark theme ONLY on the dashboard page for the premium "black filter" experience
+  // Keep document theme classes in sync with Dark / Light only
   useLayoutEffect(() => {
     document.body.classList.toggle('swipe-deck-active', swipeDeckActive);
-    // Apply user's actual theme across the entire app
     if (theme === 'light' || theme === 'white-matte') {
       document.documentElement.classList.add('light', 'white-matte');
-      document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style');
+      document.documentElement.classList.remove('dark', 'black-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style', 'cheers', 'pure-black');
       document.documentElement.style.colorScheme = 'light';
     } else {
-      document.documentElement.classList.add('dark');
-      if (theme === 'dark' || theme === 'black-matte') {
-        document.documentElement.classList.add('black-matte');
-      } else if (theme) {
-        document.documentElement.classList.add(theme);
-      }
-      document.documentElement.classList.remove('light', 'white-matte');
+      document.documentElement.classList.add('dark', 'black-matte');
+      document.documentElement.classList.remove('light', 'white-matte', 'grey-matte', 'red-matte', 'amber-matte', 'Swipess-style', 'cheers', 'pure-black');
       document.documentElement.style.colorScheme = 'dark';
     }
     
@@ -315,13 +306,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className={cn(
       "w-full h-[100dvh] flex flex-col relative selection:bg-brand-primary/30 overflow-hidden", 
       "bg-background",
-      theme === 'Swipess-style' && "Swipess-style"
     )}>
-      {(theme === 'sunset' || theme === 'stars') && (
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <LandingBackgroundEffects mode={theme} disableSounds />
-        </div>
-      )}
       <SkipToMainContent />
 
       
