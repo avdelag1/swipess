@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, Briefcase, Building2, Check, ChevronRight, Clock, FileLock2,
   FileText, Gavel, HeartCrack, Home, Landmark, type LucideIcon, MessageCircle,
-  Phone, Scale, ShieldCheck, Video,
+  Scale, ShieldCheck, Video,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -18,8 +18,10 @@ import {
   formatPrice, LegalPackage,
 } from '@/data/legalPackages';
 import { LegalPackageRequestModal } from '@/components/legal/LegalPackageRequestModal';
+import { LegalVideoCallModal } from '@/components/legal/LegalVideoCallModal';
 import { appToast } from '@/utils/appNotification';
 import { triggerHaptic } from '@/utils/haptics';
+import { useAuth } from '@/hooks/useAuth';
 
 const ICONS: Record<string, LucideIcon> = {
   Building2, Home, Gavel, HeartCrack, FileLock2, Briefcase, Scale, Landmark,
@@ -32,12 +34,14 @@ function CategoryIcon({ name, className }: { name: string; className?: string })
 
 export default function LawyerServicesPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { isLight } = useAppTheme();
   const { data: packages = [], isLoading } = useLegalPackages();
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedPackage, setSelectedPackage] = useState<LegalPackage | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [videoCallOpen, setVideoCallOpen] = useState(false);
 
   // Categories that actually have packages, in canonical order.
   const categories = useMemo(() => {
@@ -71,14 +75,19 @@ export default function LawyerServicesPage() {
     });
   };
 
-  const showConnectSoon = (channel: 'video' | 'call' | 'whatsapp') => {
+  const startVideoCall = () => {
+    triggerHaptic('medium');
+    if (!user?.id) {
+      appToast.info('Sign in required', 'Sign in to start a live video call with a lawyer.');
+      navigate('/auth');
+      return;
+    }
+    setVideoCallOpen(true);
+  };
+
+  const showWhatsAppSoon = () => {
     triggerHaptic('light');
-    const labels = {
-      video: 'Video call',
-      call: 'Direct call',
-      whatsapp: 'WhatsApp',
-    } as const;
-    appToast.info('Coming soon', `${labels[channel]} with a lawyer is not available yet. Use a service request below for now.`);
+    appToast.info('Coming soon', 'WhatsApp lawyer chat is not available yet. Use Video call for a live consultation.');
   };
 
   return (
@@ -120,23 +129,17 @@ export default function LawyerServicesPage() {
           </p>
         </div>
 
-        {/* Instant connect — video / call / WhatsApp (coming soon) */}
+        {/* Instant connect — Video Call live, WhatsApp soon */}
         <section className="mb-10 space-y-3" aria-label="Connect with a lawyer">
           <div className="flex items-center justify-between gap-3">
             <p className={cn('text-[10px] font-black uppercase tracking-[0.28em]', isLight ? 'text-black/45' : 'text-white/45')}>
               Connect now
             </p>
-            <span className={cn(
-              'text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border',
-              isLight ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-amber-400/10 text-amber-300 border-amber-400/20',
-            )}>
-              Soon
-            </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => showConnectSoon('video')}
+              onClick={startVideoCall}
               className={cn(
                 'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
                 isLight
@@ -152,43 +155,22 @@ export default function LawyerServicesPage() {
                   Video call
                 </p>
                 <p className={cn('text-[11px] font-semibold opacity-50', isLight ? 'text-black' : 'text-white')}>
-                  Direct lawyer video
+                  Live consult with an available lawyer
                 </p>
               </div>
-              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
-                Soon
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => showConnectSoon('call')}
-              className={cn(
-                'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+              <span className={cn(
+                'text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full border shrink-0',
                 isLight
-                  ? 'bg-white border-black/8 shadow-sm hover:border-emerald-300/60'
-                  : 'bg-white/[0.04] border-white/10 hover:border-emerald-400/40',
-              )}
-            >
-              <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/25 shrink-0">
-                <Phone className="w-5 h-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className={cn('text-sm font-black uppercase italic tracking-tight', isLight ? 'text-black' : 'text-white')}>
-                  Direct call
-                </p>
-                <p className={cn('text-[11px] font-semibold opacity-50', isLight ? 'text-black' : 'text-white')}>
-                  Phone with a lawyer
-                </p>
-              </div>
-              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
-                Soon
+                  ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/25'
+                  : 'bg-emerald-400/10 text-emerald-300 border-emerald-400/25',
+              )}>
+                Live
               </span>
             </button>
 
             <button
               type="button"
-              onClick={() => showConnectSoon('whatsapp')}
+              onClick={showWhatsAppSoon}
               className={cn(
                 'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
                 isLight
@@ -207,7 +189,12 @@ export default function LawyerServicesPage() {
                   Message a lawyer
                 </p>
               </div>
-              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
+              <span className={cn(
+                'text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full border shrink-0',
+                isLight
+                  ? 'bg-amber-500/10 text-amber-700 border-amber-500/20'
+                  : 'bg-amber-400/10 text-amber-300 border-amber-400/20',
+              )}>
                 Soon
               </span>
             </button>
@@ -387,6 +374,10 @@ export default function LawyerServicesPage() {
         open={modalOpen}
         pkg={selectedPackage}
         onClose={() => setModalOpen(false)}
+      />
+      <LegalVideoCallModal
+        open={videoCallOpen}
+        onClose={() => setVideoCallOpen(false)}
       />
     </div>
   );
