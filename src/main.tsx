@@ -37,7 +37,7 @@ const handleEmergencyRecovery = async (reason: string) => {
     // Log once — not once per missing chunk (was flooding Safari console)
     if (!emergencyMaxLogged && import.meta.env.DEV) {
       emergencyMaxLogged = true;
-      console.debug(`[Emergency] Already recovered once this session (${reason}).`);
+      console.warn(`[Emergency] Already recovered once this session (${reason}).`);
     }
     return;
   }
@@ -344,7 +344,7 @@ deferredInit(async () => {
                  newWorker.onstatechange = () => {
                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                          // Content available - handled by useAutomaticUpdates.tsx
-                         if (import.meta.env.DEV) console.debug('[SW] New content available');
+                         if (import.meta.env.DEV) console.warn('[SW] New content available');
                      }
                  };
              }
@@ -354,7 +354,7 @@ deferredInit(async () => {
 
       // RELOAD CONTROL - when the new SW takes over, let the hook handle it
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (import.meta.env.DEV) console.debug('[SW] Controller changed');
+          if (import.meta.env.DEV) console.warn('[SW] Controller changed');
       });
     }
 

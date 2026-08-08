@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown, Eye, EyeOff, Lock, MessageSquare, Send, Sparkles, X } from 'lucide-react';
-import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
 import { triggerHaptic } from '@/utils/haptics';
@@ -59,7 +58,6 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
   
   const inputWidth = getContentValue(siteContent, 'input_width', '100%');
   const inputHeight = getContentValue(siteContent, 'input_height', 56);
-  const inputBgColor = getContentValue(siteContent, 'input_bg_color', 'rgba(255,255,255,0.05)');
   
   // Shooting Stars globally from landing config
   const shootingStarsEnabled = getContentValue(landingContent, 'shooting_stars_effect', true);

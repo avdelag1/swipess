@@ -12,8 +12,8 @@ export type HeaderIconAccent = 'crown' | 'globe' | 'sparkles';
 /** Depth shadow + optional accent glow for header HUD icons. */
 export function getHeaderIconFilter(
   iconShadow: string,
-  useLightIcons: boolean,
-  accent?: HeaderIconAccent,
+  _useLightIcons: boolean,
+  _accent?: HeaderIconAccent,
 ): string {
   return iconShadow;
 }
@@ -77,7 +77,7 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
  *   dock so icons stay readable; dark theme stays charcoal glass + white icons.
  * Icons are always frameless (no circular discs).
  */
-export function getBottomNavChrome(isLight: boolean, isDashboard = false) {
+export function getBottomNavChrome(_isLight: boolean, _isDashboard = false) {
   const useLightIcons = true; // Always use white icons for contrast
 
   const dockStyle: CSSProperties = {

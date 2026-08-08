@@ -17,7 +17,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import {
   Flame,
   MessageCircle,
