@@ -33,8 +33,8 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
   };
 
   return (
-    <div className="w-full mb-3">
-      <div className="grid grid-cols-3 gap-2 w-full">
+    <div className="w-full">
+      <div className="grid grid-cols-3 gap-1.5 w-full">
         {filters.map((filter, index) => {
           const Icon = filter.icon;
           return (
@@ -54,7 +54,7 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
                   setModal('showGuestsModal', true);
                 }
               }}
-              className="flex items-center justify-center gap-1 h-[36px] rounded-full shadow-sm"
+              className="flex items-center justify-center gap-1 h-[34px] rounded-full shadow-sm"
               style={glassStyle}
             >
               <Icon className="w-[13px] h-[13px]" strokeWidth={1.5} />

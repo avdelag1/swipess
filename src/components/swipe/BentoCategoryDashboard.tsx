@@ -97,11 +97,11 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
   return (
     <div
       id="dashboard-scroll-container"
-      className="dashboard-scroll-target absolute inset-0 w-full h-full px-4 overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
+      className="dashboard-scroll-target absolute inset-0 w-full h-full px-3 sm:px-4 overflow-y-auto scrollbar-none overscroll-contain scroll-area-momentum"
       style={{
         background: 'var(--dash-bg, hsl(var(--background)))',
-        paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 8px)',
-        paddingBottom: 'calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom) + 24px)',
+        paddingTop: 'calc(var(--top-bar-height, 56px) + var(--safe-top, 0px) + 4px)',
+        paddingBottom: 'calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom) + 16px)',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
         touchAction: 'pan-y',
@@ -110,7 +110,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       {/* AI search + date/people/location — soft glass vanish with header/nav */}
       <div
         className={cn(
-          'w-full max-w-3xl mx-auto flex flex-col gap-2 items-stretch',
+          'w-full max-w-3xl mx-auto flex flex-col gap-1 items-stretch',
           !contextVisible && 'pointer-events-none',
         )}
         style={{
@@ -120,8 +120,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             : 'translate3d(0,-8px,0) scale(0.985)',
           filter: contextVisible ? 'blur(0px)' : 'blur(5px)',
           // Collapse space after the fade so the vanish feels soft, not snappy
-          maxHeight: contextVisible ? 220 : 0,
-          marginBottom: contextVisible ? 12 : 0,
+          maxHeight: contextVisible ? 180 : 0,
+          marginBottom: contextVisible ? 6 : 0,
           overflow: 'hidden',
           willChange: 'opacity, transform, filter, max-height',
           transition: contextVisible
@@ -143,7 +143,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         aria-hidden={!contextVisible || undefined}
       >
         <div
-          className="rounded-[1.35rem] p-2.5 sm:p-3"
+          className="rounded-[1.2rem] p-1.5 sm:p-2"
           style={{
             background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
           }}
@@ -156,8 +156,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
               useModalStore.getState().openAIChat(q);
             }}
           />
-          <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1.5" />
-          <div className="mt-2">
+          <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1" />
+          <div className="mt-1">
             <DashboardFilters isLight={isLight} />
           </div>
         </div>
@@ -165,7 +165,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
 
       {/* Quick filter well — subtle tonal lift under cards */}
       <div
-        className="w-full max-w-3xl mx-auto rounded-[1.75rem] p-2 sm:p-3"
+        className="w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2"
         style={{
           background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
         }}
@@ -174,7 +174,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="w-full flex items-start gap-3 sm:gap-4 pb-1"
+          className="w-full flex items-start gap-2 sm:gap-2.5 pb-0.5"
         >
           {[
             BENTO_ITEMS.filter((_, i) => i % 2 === 0),
@@ -183,7 +183,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             <motion.div
               key={colIndex}
               variants={columnVariants}
-              className="flex-1 flex flex-col gap-2 sm:gap-4"
+              className="flex-1 flex flex-col gap-1.5 sm:gap-2.5"
             >
               {column.map((item) => {
                 const isEventsLive = item.id === 'events';
