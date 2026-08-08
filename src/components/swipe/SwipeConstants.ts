@@ -100,9 +100,9 @@ export const PK_SPRING = { type: 'spring' as const, stiffness: 450, damping: 30,
 
 // 🎯 Unified elastic spring language — consistent feel across all card types.
 // Snap-back: instantaneous native iOS App Switcher feel
-export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 700, damping: 40, mass: 0.3 };
+export const SNAP_BACK_SPRING = { type: 'spring' as const, stiffness: 1200, damping: 50, mass: 0.8 };
 // Horizontal exit: fast snap off-screen
-export const EXIT_SPRING = { type: 'spring' as const, stiffness: 600, damping: 35, mass: 0.3 };
+export const EXIT_SPRING = { type: 'spring' as const, stiffness: 800, damping: 45, mass: 0.8 };
 // Vertical skip exit: fast vertical flick
 export const VERTICAL_EXIT_SPRING = { type: 'spring' as const, stiffness: 500, damping: 32, mass: 0.3 };
 

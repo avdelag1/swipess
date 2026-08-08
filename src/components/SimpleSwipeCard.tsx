@@ -118,18 +118,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Must be top-level hooks (not inside isTop JSX) — rules-of-hooks.
   const likeStampScale = useTransform(likeOpacity, [0, 1], [0.6, 1.2]);
   const passStampScale = useTransform(passOpacity, [0, 1], [0.6, 1.2]);
-  const rotate = useTransform(x, [-800, 800], [-15, 15]); // reduced flat rotation for 3D realism
-  const rotateX = useTransform(y, [-800, 800], [20, -20]); // 3D tilt up/down
-  const rotateY = useTransform(x, [-800, 800], [-20, 20]); // 3D tilt left/right
-  const scale = useTransform(x, [-800, 0, 800], [0.95, 1, 0.95]);
+  // Tinder-style 3D Physics:
+  // Rotation reaches max intensity over a shorter drag distance (400px vs 800px)
+  const rotate = useTransform(x, [-400, 400], [-18, 18]); 
+  const rotateX = useTransform(y, [-400, 400], [15, -15]); 
+  const rotateY = useTransform(x, [-400, 400], [-25, 25]); 
+  const scale = useTransform(x, [-400, 0, 400], [0.93, 1, 0.93]); 
 
   const dynamicBoxShadow = useTransform(
     x,
-    [-SWIPE_THRESHOLD, 0, SWIPE_THRESHOLD],
+    [-SWIPE_THRESHOLD * 1.5, 0, SWIPE_THRESHOLD * 1.5],
     [
-      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(239,68,68,0.35), inset 0 1px 0 rgba(255,255,255,0.1)',
+      // Shadow pulls in the opposite direction of the drag to simulate real lighting
+      '-25px 40px 60px -15px rgba(0,0,0,0.5), 0 0 100px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
       '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 0px rgba(0,0,0,0), inset 0 1px 0 rgba(255,255,255,0.1)',
-      '0 25px 50px -12px rgba(0,0,0,0.45), 0 0 80px rgba(16,185,129,0.35), inset 0 1px 0 rgba(255,255,255,0.1)'
+      '25px 40px 60px -15px rgba(0,0,0,0.5), 0 0 100px rgba(16,185,129,0.25), inset 0 1px 0 rgba(255,255,255,0.2)'
     ]
   );
 
@@ -396,7 +399,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const preventContextMenuClick = useCallback((e: React.MouseEvent) => e.preventDefault(), []);
 
   return (
-    <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")}>
+    <div className={cn("absolute inset-0 flex flex-col", isTop ? "pointer-events-auto" : "pointer-events-none")} style={{ perspective: '1200px' }}>
       <motion.div
         drag={disableDrag ? false : (isTop ? 'x' : false)}
         dragMomentum={false}
@@ -419,7 +422,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           willChange: 'transform, opacity, box-shadow',
           transform: 'translate3d(0,0,0)',
           transformStyle: 'preserve-3d',
-          transformOrigin: 'center center', // Better for 3D tilt
+          transformOrigin: 'center 150%', // Pivots heavily from the bottom like Tinder
           backfaceVisibility: 'hidden',
           borderRadius: fullScreen ? 0 : 48,
           boxShadow: isTop 

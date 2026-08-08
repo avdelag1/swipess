@@ -25,6 +25,11 @@ let emergencyMaxLogged = false;
 const handleEmergencyRecovery = async (reason: string) => {
   // Coalesce burst of vite:preloadError events from many missing chunks
   if (emergencyRecoveryLocked) return;
+  // NEVER execute web-centric reload recoveries on Native iOS/Android (Capacitor)
+  // Native code doesn't load chunks from the web, so "missing chunk" errors
+  // are false positives (usually native plugin network rejections) that cause
+  // devastating reload loops.
+  if (typeof window !== 'undefined' && !!(window as any).Capacitor?.isNativePlatform?.()) return;
 
   const reloadCount = parseInt(sessionStorage.getItem('Swipess_emergency_reload_count') || '0', 10);
 
