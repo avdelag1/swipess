@@ -331,7 +331,6 @@ export default function EventoDetail() {
     });
   }
   const hasVideo = !!(event.video_url && event.video_url.trim());
-  const canUnmute = !!(event.video_audio_enabled || event.background_music_url);
 
   return (
     <div className="full-bleed-top min-h-screen bg-slate-50 dark:bg-black pb-safe-bottom" style={{ contain: 'paint layout' }}>
@@ -343,7 +342,7 @@ export default function EventoDetail() {
             poster={imageGallery[0]}
             className="absolute inset-0 w-full h-full object-cover"
             active
-            muted={!soundOn || !event.video_audio_enabled}
+            muted={!soundOn}
           />
         ) : (
           <AnimatePresence mode="popLayout">
@@ -403,19 +402,13 @@ export default function EventoDetail() {
             <ArrowLeft className="w-6 h-6" />
           </motion.button>
           
-          <div className="flex gap-2">
-            {canUnmute && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  triggerHaptic('light');
-                  setSoundOn((v) => !v);
-                }}
-                aria-label={soundOn ? 'Mute' : 'Unmute'}
-                className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white shadow-lg"
-              >
-                {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-              </motion.button>
+          <div className="flex gap-2 items-center">
+            {hasVideo && (
+              <EventVideoMuteButton
+                soundOn={soundOn}
+                onToggle={() => setSoundOn((v) => !v)}
+                size="md"
+              />
             )}
             <motion.button
               whileTap={{ scale: 0.9 }}
