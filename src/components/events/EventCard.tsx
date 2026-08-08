@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2, Volume2, VolumeX } from 'lucide-react';
+import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -9,6 +9,7 @@ import { CATEGORIES } from '@/data/eventsData';
 import { hideChrome, revealChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { LoopVideo } from '@/components/video/LoopVideo';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -84,7 +85,6 @@ export const EventCard = memo(({
   const hasVideo = !!(event.video_url && event.video_url.trim());
   const hasImage = !!finalImageUrl;
   const hasMedia = hasVideo || hasImage;
-  const canUnmute = !!(event.video_audio_enabled || event.background_music_url);
   const [soundOn, setSoundOn] = useState(false);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
@@ -130,7 +130,7 @@ export const EventCard = memo(({
             poster={finalImageUrl || undefined}
             className="absolute inset-0 w-full h-full object-cover"
             active={isActive}
-            muted={!soundOn || !event.video_audio_enabled}
+            muted={!soundOn}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
         </div>
@@ -174,19 +174,13 @@ export const EventCard = memo(({
         />
       )}
 
-      {isActive && canUnmute && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            triggerHaptic('light');
-            setSoundOn((v) => !v);
-          }}
-          className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-40 w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/25 flex items-center justify-center text-white shadow-lg"
-          aria-label={soundOn ? 'Mute' : 'Unmute'}
-        >
-          {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-        </button>
+      {isActive && hasVideo && (
+        <EventVideoMuteButton
+          soundOn={soundOn}
+          onToggle={() => setSoundOn((v) => !v)}
+          size="md"
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-40"
+        />
       )}
 
       <AnimatePresence>

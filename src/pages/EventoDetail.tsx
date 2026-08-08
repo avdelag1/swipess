@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Volume2, VolumeX, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
 import { addEventToDeviceCalendar, isCalendarAvailable } from '@/utils/calendar';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { appToast } from '@/utils/appNotification';
 import { Button } from '@/components/ui/button';
 import { LoopVideo } from '@/components/video/LoopVideo';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 
 interface EventDetail {
   id: string;

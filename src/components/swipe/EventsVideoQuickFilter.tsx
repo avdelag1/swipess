@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 
 const ROTATE_MS = 5000;
 
@@ -18,7 +19,9 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [soundOn, setSoundOn] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -40,6 +43,34 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   useEffect(() => {
     if (currentIndex >= videoEvents.length) setCurrentIndex(0);
   }, [videoEvents.length, currentIndex]);
+
+  const currentEvent = videoEvents[currentIndex] || videoEvents[0];
+
+  // Optional admin background bed + video unmute while sound is on
+  useEffect(() => {
+    const url = currentEvent?.background_music_url?.trim();
+    if (!url || !soundOn) {
+      bgMusicRef.current?.pause();
+      return;
+    }
+    let audio = bgMusicRef.current;
+    if (!audio || audio.src !== url) {
+      audio?.pause();
+      audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.5;
+      bgMusicRef.current = audio;
+    }
+    audio.play().catch(() => {});
+    return () => {
+      audio?.pause();
+    };
+  }, [currentEvent?.background_music_url, currentEvent?.id, soundOn]);
+
+  // Mute when card rotates to next event
+  useEffect(() => {
+    setSoundOn(false);
+  }, [currentEvent?.id]);
 
   const handleNext = (e?: SyntheticEvent) => {
     e?.stopPropagation();
@@ -84,8 +115,6 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     );
   }
 
-  const currentEvent = videoEvents[currentIndex] || videoEvents[0];
-
   const slideVariants = {
     enter: (dir: number) => ({ x: dir > 0 ? 100 : -100, opacity: 0, scale: 0.95 }),
     center: { zIndex: 1, x: 0, opacity: 1, scale: 1 },
@@ -123,7 +152,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
             poster={currentEvent.image_url || undefined}
             className="w-full h-full object-cover scale-[1.02]"
             active
-            muted
+            muted={!soundOn}
           />
         </motion.div>
       </AnimatePresence>
@@ -144,11 +173,16 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         onClick={handleNext}
       />
 
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
-        <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-          <PartyPopper className="w-4 h-4 text-pink-400" />
-          <span className="text-white text-xs font-semibold tracking-wide uppercase">Events</span>
+      <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-30 pointer-events-none">
+        <div className="flex items-center space-x-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20">
+          <PartyPopper className="w-3.5 h-3.5 text-pink-400" />
+          <span className="text-white text-[10px] font-semibold tracking-wide uppercase">Live</span>
         </div>
+        <EventVideoMuteButton
+          soundOn={soundOn}
+          onToggle={() => setSoundOn((v) => !v)}
+          size="sm"
+        />
       </div>
 
       <div className="absolute bottom-6 left-4 right-4 z-10 pointer-events-none">
