@@ -25,7 +25,7 @@ import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
 import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { DASHBOARD_CHROME_SCROLL_KEY, useScrollDirection } from '@/hooks/useScrollDirection';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -68,15 +68,16 @@ const itemVariants = {
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme } = useAppTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight: themeIsLight } = useAppTheme();
+  const isLight = themeIsLight || theme === 'light';
 
-  // Same scroll hide system as TopBar / BottomNav / SwipessHud
+  // Same shared scroll chrome as header + bottom nav (ONE listener)
   const { isVisible: contextVisible } = useScrollDirection({
-    threshold: 24,
+    threshold: 20,
     showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
+    targetSelector: '.dashboard-scroll-target',
     resetTrigger: location.pathname,
+    sharedKey: DASHBOARD_CHROME_SCROLL_KEY,
   });
 
   const handleSelect = useCallback((id: string) => {
@@ -106,26 +107,22 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* AI search + date/people/location — same scroll chrome as TopBar/BottomNav */}
-      <motion.div
-        initial={false}
-        animate={{
-          opacity: contextVisible ? 1 : 0,
-          y: contextVisible ? 0 : -12,
-          scale: contextVisible ? 1 : 0.98,
-          marginBottom: contextVisible ? 12 : 0,
-        }}
-        transition={{
-          duration: contextVisible ? 0.2 : 0.16,
-          ease: [0.25, 0.1, 0.25, 1],
-        }}
+      {/* AI search + date/people/location — shared chrome with header/nav */}
+      <div
         className={cn(
-          'w-full max-w-3xl mx-auto flex flex-col gap-2 items-stretch overflow-hidden',
+          'w-full max-w-3xl mx-auto flex flex-col gap-2 items-stretch will-change-transform',
           !contextVisible && 'pointer-events-none',
         )}
         style={{
+          opacity: contextVisible ? 1 : 0,
+          transform: contextVisible
+            ? 'translate3d(0,0,0) scale(1)'
+            : 'translate3d(0,-10px,0) scale(0.98)',
           maxHeight: contextVisible ? 220 : 0,
-          transition: 'max-height 0.2s cubic-bezier(0.25, 0.1, 0.25, 1)',
+          marginBottom: contextVisible ? 12 : 0,
+          overflow: 'hidden',
+          transition:
+            'opacity 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.16s cubic-bezier(0.25, 0.1, 0.25, 1), max-height 0.18s cubic-bezier(0.25, 0.1, 0.25, 1), margin-bottom 0.18s cubic-bezier(0.25, 0.1, 0.25, 1)',
         }}
         aria-hidden={!contextVisible || undefined}
       >
@@ -148,7 +145,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             <DashboardFilters isLight={isLight} />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick filter well — subtle tonal lift under cards */}
       <div

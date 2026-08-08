@@ -1,7 +1,7 @@
 import React, { } from 'react';
 import { motion } from 'framer-motion';
 import { useFocusMode } from '@/hooks/useFocusMode';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { DASHBOARD_CHROME_SCROLL_KEY, useScrollDirection } from '@/hooks/useScrollDirection';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { revealChrome, useChromeReveal } from '@/hooks/useChromeReveal';
@@ -35,8 +35,9 @@ export function SwipessHud({
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold,
     showAtTop: true,
-    targetSelector: scrollTargetSelector,
-    resetTrigger: location.pathname
+    targetSelector: scrollTargetSelector || '.dashboard-scroll-target',
+    resetTrigger: location.pathname,
+    sharedKey: DASHBOARD_CHROME_SCROLL_KEY,
   });
 
   const { isChromeVisible } = useChromeReveal();

@@ -34,7 +34,6 @@ import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchListingFlowModule } from '@/utils/prefetchListingFlow';
 import { prefetchCommonModalsModule } from '@/utils/prefetchCommonModals';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 import useAppTheme from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
@@ -103,8 +102,7 @@ export const BottomNavigation = memo(({
   const closeAll = useModalStore((s) => s.closeAll);
   const { isLight } = useAppTheme();
 
-  // Always visible on every page — no chrome-reveal hiding
-  const isActuallyVisible = true;
+  // Always visible here — SwipessHud owns scroll hide/show for the dock.
   const { t } = useTranslation();
 
   const openAIChat = useCallback(() => {
@@ -142,8 +140,6 @@ export const BottomNavigation = memo(({
     }
     navigate('/owner/properties?add=1');
   }, [userRole, onAddListingClick, navigate]);
-
-  const { isVisible: isScrollVisible } = useScrollDirection({ threshold: 20 });
 
   const navItems: NavItem[] = useMemo(() => [
     { id: 'dashboard', icon: Zap, label: t('nav.dashboard'), path: '/client/dashboard' },
@@ -262,8 +258,7 @@ export const BottomNavigation = memo(({
       aria-label="Main navigation"
       data-skip-press-engine
       className={cn(
-        'app-bottom-bar transition-all duration-300 ease-out w-full flex justify-center',
-        (isActuallyVisible && isScrollVisible) ? 'translate-y-0 opacity-100' : 'opacity-0 translate-y-full',
+        'app-bottom-bar w-full flex justify-center',
         className
       )}
       style={{

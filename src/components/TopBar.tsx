@@ -20,7 +20,6 @@ import {
   getTopBarChrome,
   isDashboardPath,
 } from '@/utils/chromeStyles';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -101,9 +100,6 @@ function TopBarComponent({
   const { tokens } = useTokens();
   const { t } = useTranslation();
 
-  const { isVisible: isScrollVisible } = useScrollDirection({ threshold: 20 });
-  const isActuallyVisible = isScrollVisible;
-
   const isDashboard = isDashboardPath(location.pathname);
   const { iconColor, pillStyle } = getTopBarChrome(isLight, isDashboard);
 
@@ -158,12 +154,10 @@ function TopBarComponent({
     <header
       data-skip-press-engine
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-[transform,opacity] duration-200 pointer-events-none",
-        !isActuallyVisible && "opacity-0 -translate-y-full",
+        "fixed top-0 left-0 right-0 z-[100] pointer-events-none",
         className
       )}
       style={{
-        transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)',
         paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)',
         height: 'calc(var(--top-bar-height) + env(safe-area-inset-top, 0px) - 6px)',
         background: 'transparent',

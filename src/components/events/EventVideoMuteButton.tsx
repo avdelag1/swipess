@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
- * Tiny mute/unmute control that slowly fades out, then reappears,
- * so users notice they can toggle event video audio.
+ * Compact mute control.
+ * Shows once with a short discoverability fade, then stays quietly visible
+ * (no infinite pulse / show-hide loop).
  */
 export function EventVideoMuteButton({
   soundOn,
@@ -18,19 +19,25 @@ export function EventVideoMuteButton({
   className?: string;
   size?: 'sm' | 'md';
 }) {
-  const [pulseKey, setPulseKey] = useState(0);
+  const [hintDone, setHintDone] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Restart the fade cycle after user taps so the hint stays discoverable
   useEffect(() => {
-    setPulseKey((k) => k + 1);
-  }, [soundOn]);
+    setHintDone(false);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setHintDone(true), 2200);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
-  const box = size === 'sm' ? 'w-8 h-8' : 'w-10 h-10';
-  const icon = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+  // Visual size compact; touch target stays ≥36px via padding on wrapper
+  const box = size === 'sm' ? 'w-6 h-6' : 'w-7 h-7';
+  const hit = size === 'sm' ? 'min-w-9 min-h-9 p-1.5' : 'min-w-10 min-h-10 p-1.5';
+  const icon = size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5';
 
   return (
     <button
-      key={pulseKey}
       type="button"
       onClick={(e) => {
         e.preventDefault();
@@ -40,24 +47,18 @@ export function EventVideoMuteButton({
       }}
       onPointerDown={(e) => e.stopPropagation()}
       className={cn(
-        'rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white shadow-md flex items-center justify-center pointer-events-auto',
-        'animate-event-mute-hint',
-        box,
+        'rounded-full flex items-center justify-center pointer-events-auto touch-manipulation',
+        'bg-black/40 backdrop-blur-md border border-white/20 text-white shadow-sm',
+        'transition-opacity duration-500 ease-out',
+        hintDone ? 'opacity-70' : 'opacity-100',
+        hit,
         className,
       )}
       aria-label={soundOn ? 'Mute video audio' : 'Unmute video audio'}
     >
-      {soundOn ? <Volume2 className={icon} /> : <VolumeX className={icon} />}
-      <style>{`
-        @keyframes event-mute-hint {
-          0%, 12% { opacity: 1; transform: scale(1); }
-          45%, 55% { opacity: 0.18; transform: scale(0.96); }
-          88%, 100% { opacity: 1; transform: scale(1); }
-        }
-        .animate-event-mute-hint {
-          animation: event-mute-hint 4.8s ease-in-out infinite;
-        }
-      `}</style>
+      <span className={cn('rounded-full flex items-center justify-center', box)}>
+        {soundOn ? <Volume2 className={icon} /> : <VolumeX className={icon} />}
+      </span>
     </button>
   );
 }

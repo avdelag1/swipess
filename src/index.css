@@ -3392,8 +3392,23 @@ body.hw-high .glass-pill {
   50% { transform: translateY(-4px); }
 }
 
-/* Force bottom nav icons to be perfectly white in light mode */
+/* Light theme: dark icons on glass dock — never force white-on-white */
+.light .app-bottom-bar svg,
 .white-matte .app-bottom-bar svg {
-  color: #ffffff !important;
-  fill: currentColor;
+  color: inherit !important;
+  fill: none !important;
+  stroke: currentColor !important;
+}
+
+.light .app-bottom-bar [data-active="true"] svg,
+.white-matte .app-bottom-bar [data-active="true"] svg {
+  color: #111111 !important;
+  opacity: 1 !important;
+}
+
+.light .app-bottom-bar [data-active="false"] svg,
+.light .app-bottom-bar button:not([data-active="true"]) svg,
+.white-matte .app-bottom-bar [data-active="false"] svg,
+.white-matte .app-bottom-bar button:not([data-active="true"]) svg {
+  color: rgba(0, 0, 0, 0.48) !important;
 }

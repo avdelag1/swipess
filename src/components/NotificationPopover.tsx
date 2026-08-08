@@ -291,7 +291,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
 
   const isDashboard = isDashboardPath(_location.pathname);
   // Dashboard always has light background — always use dark icons there
-  const { iconColor: bellColor, iconShadow } = getTopBarChrome(isDashboard ? true : isLight, isDashboard);
+  const { iconColor: bellColor, iconShadow } = getTopBarChrome(isLight, isDashboard);
   const triggerButton = children || (
     <Button
       variant="ghost"
