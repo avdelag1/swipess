@@ -28,6 +28,8 @@ function formatEventRow(ev: Record<string, unknown>): EventItem {
     image_url: pickEventImage(ev as Partial<EventItem>),
     image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
     video_url: (ev.video_url as string) || null,
+    video_audio_enabled: !!(ev as any).video_audio_enabled,
+    background_music_url: ((ev as any).background_music_url as string) || null,
     event_date: (ev.event_date as string) || null,
     location: (ev.location as string) || null,
     location_detail: (ev.location_detail as string) || null,
@@ -40,18 +42,32 @@ function formatEventRow(ev: Record<string, unknown>): EventItem {
   };
 }
 
+const EVENT_SELECT_WITH_AUDIO =
+  'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
+const EVENT_SELECT_BASE =
+  'id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
+
 /** Events for the main swipe deck — DB rows plus demo cards for onboarding. */
 export function useEventsDeck(enabled: boolean) {
   return useQuery({
-    queryKey: ['eventos', 'swipe-deck', 'v1'],
+    queryKey: ['eventos', 'swipe-deck', 'v2'],
     enabled,
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<EventItem[]> => {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true })
+        .select(EVENT_SELECT_WITH_AUDIO)
+        .order('created_at', { ascending: false })
         .limit(100);
+
+      // Audio columns may not exist until the migration is applied
+      if (error && /video_audio_enabled|background_music_url|42703/i.test(error.message || '')) {
+        ({ data, error } = await supabase
+          .from('events')
+          .select(EVENT_SELECT_BASE)
+          .order('created_at', { ascending: false })
+          .limit(100));
+      }
 
       if (error) {
         logger.warn('[useEventsDeck] fetch error:', error);

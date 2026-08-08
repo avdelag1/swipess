@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
+import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -8,6 +8,7 @@ import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
 import { hideChrome, revealChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
+import { LoopVideo } from '@/components/video/LoopVideo';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -80,7 +81,38 @@ export const EventCard = memo(({
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
   const finalImageUrl = imageUrl || event.image_url;
+  const hasVideo = !!(event.video_url && event.video_url.trim());
   const hasImage = !!finalImageUrl;
+  const hasMedia = hasVideo || hasImage;
+  const canUnmute = !!(event.video_audio_enabled || event.background_music_url);
+  const [soundOn, setSoundOn] = useState(false);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
+  // Background music bed (admin-uploaded mp3/wav) — only while this card is active + unmuted
+  useEffect(() => {
+    const url = event.background_music_url?.trim();
+    if (!url) return;
+    if (!isActive || !soundOn) {
+      bgMusicRef.current?.pause();
+      return;
+    }
+    let audio = bgMusicRef.current;
+    if (!audio || audio.src !== url) {
+      audio?.pause();
+      audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.55;
+      bgMusicRef.current = audio;
+    }
+    audio.play().catch(() => {});
+    return () => {
+      audio?.pause();
+    };
+  }, [isActive, soundOn, event.background_music_url, event.id]);
+
+  useEffect(() => {
+    if (!isActive) setSoundOn(false);
+  }, [isActive, event.id]);
 
   return (
     <div
@@ -91,7 +123,18 @@ export const EventCard = memo(({
       )}
       data-testid={`event-card-${event.id}`}
     >
-      {hasImage ? (
+      {hasVideo ? (
+        <div className="absolute inset-0 bg-black z-[1]">
+          <LoopVideo
+            src={event.video_url!}
+            poster={finalImageUrl || undefined}
+            className="absolute inset-0 w-full h-full object-cover"
+            active={isActive}
+            muted={!soundOn || !event.video_audio_enabled}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+        </div>
+      ) : hasImage ? (
         <>
           <img
             src={finalImageUrl!}
@@ -113,9 +156,9 @@ export const EventCard = memo(({
       )}
 
       <div className={cn(
-        'absolute inset-0 pointer-events-none transition-opacity duration-200',
+        'absolute inset-0 pointer-events-none transition-opacity duration-200 z-[2]',
         showActions ? 'opacity-100' : 'opacity-0',
-        hasImage
+        hasMedia
           ? 'bg-gradient-to-t from-black/95 via-transparent to-transparent'
           : isLight
             ? 'bg-gradient-to-t from-white/80 via-white/10 to-white/20'
@@ -129,6 +172,21 @@ export const EventCard = memo(({
           className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
           aria-label="Tap to reveal actions"
         />
+      )}
+
+      {isActive && canUnmute && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            triggerHaptic('light');
+            setSoundOn((v) => !v);
+          }}
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-40 w-11 h-11 rounded-full bg-black/40 backdrop-blur-xl border border-white/25 flex items-center justify-center text-white shadow-lg"
+          aria-label={soundOn ? 'Mute' : 'Unmute'}
+        >
+          {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+        </button>
       )}
 
       <AnimatePresence>

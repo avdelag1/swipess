@@ -15,6 +15,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore } from '@/state/filterStore';
 import { useNavigate } from 'react-router-dom';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
 
 const preloadedImages = new Set<string>();
 
@@ -136,32 +137,45 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.12, ease: 'easeOut' }}
-          className="relative z-10 flex-none flex items-center justify-center overflow-hidden rounded-[2.5rem]"
+          className="relative z-10 flex-none flex flex-row items-center justify-center w-full px-3 gap-3 overflow-visible"
           style={{
             height: 'calc(100% - 24px)',
-            width: 'calc((100dvh - var(--top-bar-height, 72px) - var(--bottom-nav-height, 80px) - 24px) * 0.66667)',
-            maxWidth: '100%',
-            aspectRatio: '520 / 780',
-            flex: 'none'
+            maxWidth: '600px',
           }}
         >
-          {[...cards].reverse().map((card, reversedIdx) => {
-            const index = cards.length - 1 - reversedIdx;
-            const isTop = index === 0;
-            return (
-              <PokerCategoryCard
-                key={card.id}
-                card={card}
-                index={index}
-                total={cards.length}
-                isTop={isTop}
-                isCollapsed={false}
-                onCycle={handleCycle}
-                onSelect={handleSelect}
-                onBringToFront={handleBringToFront}
-              />
-            );
-          })}
+          {/* Left Side: Events Video Carousel (Larger) */}
+          <div className="flex-[0.55] h-full relative" style={{ maxHeight: '80dvh' }}>
+             <EventsVideoQuickFilter />
+          </div>
+
+          {/* Right Side: Poker Stack (Smaller) */}
+          <div 
+             className="flex-[0.45] relative flex items-center justify-center overflow-visible"
+             style={{
+                height: 'calc(100% - 40px)', // Slightly shorter to emphasize Events size
+                maxHeight: '75dvh',
+             }}
+          >
+            <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden" style={{ aspectRatio: '520 / 780' }}>
+              {[...cards].reverse().map((card, reversedIdx) => {
+                const index = cards.length - 1 - reversedIdx;
+                const isTop = index === 0;
+                return (
+                  <PokerCategoryCard
+                    key={card.id}
+                    card={card}
+                    index={index}
+                    total={cards.length}
+                    isTop={isTop}
+                    isCollapsed={false}
+                    onCycle={handleCycle}
+                    onSelect={handleSelect}
+                    onBringToFront={handleBringToFront}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </motion.div>
 
         <Suspense fallback={null}><VapIdCardModal

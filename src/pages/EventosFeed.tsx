@@ -143,13 +143,26 @@ export default function EventosFeed() {
   // 3. Fetch Events (Swipess Optimized)
   const location = useLocation();
   const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
-    queryKey: ['eventos', 'v4'],
+    queryKey: ['eventos', 'v5'],
     queryFn: async (): Promise<EventItem[]> => {
-      const { data, error } = await supabase
+      const withAudio =
+        'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
+      const base =
+        'id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
+
+      let { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true })
+        .select(withAudio)
+        .order('created_at', { ascending: false })
         .limit(100);
+
+      if (error && /video_audio_enabled|background_music_url|42703/i.test(error.message || '')) {
+        ({ data, error } = await supabase
+          .from('events')
+          .select(base)
+          .order('created_at', { ascending: false })
+          .limit(100));
+      }
       
       if (error) {
         logger.warn('Supabase events fetch error:', error);
@@ -164,6 +177,8 @@ export default function EventosFeed() {
         image_url: pickEventImage(ev),
         image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
         video_url: ev.video_url || null,
+        video_audio_enabled: !!ev.video_audio_enabled,
+        background_music_url: ev.background_music_url || null,
         event_date: ev.event_date || null,
         location: ev.location || null,
         location_detail: ev.location_detail || null,

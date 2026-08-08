@@ -8,7 +8,6 @@ import {
   Key, 
   Megaphone, 
   Moon, 
-  PartyPopper,
   Radio,
   Scale,
   ShoppingBag,
@@ -113,8 +112,6 @@ export const UNIFIED_CARDS: PokerCardData[] = [
   { id: 'motorcycle', label: 'Motorcycles', description: 'Motorcycles for rent and sale', accent: '#f59e0b', accentRgb: '245,158,11', icon: Flame, dataType: 'listing' },
   // Bicycles
   { id: 'bicycle', label: 'Bicycles', description: 'Bicycles for rent and sale', accent: '#8b5cf6', accentRgb: '139,92,246', icon: Zap, dataType: 'listing' },
-  // Events
-  { id: 'events', label: 'Events', description: 'Discover local events', accent: '#ec4899', accentRgb: '236,72,153', icon: PartyPopper, dataType: 'events' },
   // Buyers
   { id: 'buyers', label: 'Buyers', description: 'Purchase Ready', accent: '#3b82f6', accentRgb: '59,130,246', icon: ShoppingBag, dataType: 'people' },
   // Renters

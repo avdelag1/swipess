@@ -5,6 +5,10 @@ export interface EventItem {
   category: string;
   image_url: string | null;
   video_url?: string | null;
+  /** When true, event video may play with its own audio track (user can unmute). */
+  video_audio_enabled?: boolean | null;
+  /** Optional MP3/WAV/M4A bed that loops under the video when unmuted. */
+  background_music_url?: string | null;
   image_urls?: any[];
   event_date: string | null;
   event_end_date?: string | null;

@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Volume2, VolumeX, Zap } from 'lucide-react';
 import { addEventToDeviceCalendar, isCalendarAvailable } from '@/utils/calendar';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { canNativeShare, generateShareUrl, shareViaNavigator } from '@/hooks/use
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { appToast } from '@/utils/appNotification';
 import { Button } from '@/components/ui/button';
+import { LoopVideo } from '@/components/video/LoopVideo';
 
 interface EventDetail {
   id: string;
@@ -22,6 +23,9 @@ interface EventDetail {
   category: string;
   image_url: string | null;
   image_urls: any[];
+  video_url?: string | null;
+  video_audio_enabled?: boolean | null;
+  background_music_url?: string | null;
   event_date: string | null;
   event_end_date: string | null;
   location: string | null;
@@ -112,6 +116,7 @@ export default function EventoDetail() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
   const [calendarAvailable, setCalendarAvailable] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -145,6 +150,19 @@ export default function EventoDetail() {
     initialData: stateEventData,
     staleTime: 1000 * 60 * 5,
   });
+
+  // Optional background music bed on detail page
+  useEffect(() => {
+    const url = event?.background_music_url?.trim();
+    if (!url || !soundOn) return;
+    const audio = new Audio(url);
+    audio.loop = true;
+    audio.volume = 0.55;
+    audio.play().catch(() => {});
+    return () => {
+      audio.pause();
+    };
+  }, [event?.background_music_url, event?.id, soundOn]);
 
   // Auto-scroll photos every 4 seconds
   useEffect(() => {
@@ -311,32 +329,44 @@ export default function EventoDetail() {
       if (url && url !== event.image_url) imageGallery.push(url);
     });
   }
+  const hasVideo = !!(event.video_url && event.video_url.trim());
+  const canUnmute = !!(event.video_audio_enabled || event.background_music_url);
 
   return (
     <div className="full-bleed-top min-h-screen bg-slate-50 dark:bg-black pb-safe-bottom" style={{ contain: 'paint layout' }}>
-      {/* ── HERO GALLERY ── */}
+      {/* ── HERO GALLERY / VIDEO ── */}
       <div className="relative h-[75vh] min-h-[500px] overflow-hidden rounded-b-[3rem] shadow-2xl z-10 bg-black">
-        <AnimatePresence mode="popLayout">
-          {imageGallery.length > 0 ? (
-            <motion.img
-              key={activeImageIndex}
-              src={imageGallery[activeImageIndex]}
-              alt={event.title}
-              className="absolute inset-0 w-full h-full object-cover"
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-              <Sparkles className="w-16 h-16 text-slate-300 dark:text-white/10" />
-            </div>
-          )}
-        </AnimatePresence>
+        {hasVideo ? (
+          <LoopVideo
+            src={event.video_url!}
+            poster={imageGallery[0]}
+            className="absolute inset-0 w-full h-full object-cover"
+            active
+            muted={!soundOn || !event.video_audio_enabled}
+          />
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {imageGallery.length > 0 ? (
+              <motion.img
+                key={activeImageIndex}
+                src={imageGallery[activeImageIndex]}
+                alt={event.title}
+                className="absolute inset-0 w-full h-full object-cover"
+                initial={{ scale: 1.05, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+                <Sparkles className="w-16 h-16 text-slate-300 dark:text-white/10" />
+              </div>
+            )}
+          </AnimatePresence>
+        )}
 
         {/* Story-style tap zones: tap left half → previous image, tap right half → next image */}
-        {imageGallery.length > 1 && (
+        {!hasVideo && imageGallery.length > 1 && (
           <>
             <button
               aria-label="Previous image"
@@ -373,6 +403,19 @@ export default function EventoDetail() {
           </motion.button>
           
           <div className="flex gap-2">
+            {canUnmute && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setSoundOn((v) => !v);
+                }}
+                aria-label={soundOn ? 'Mute' : 'Unmute'}
+                className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white shadow-lg"
+              >
+                {soundOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </motion.button>
+            )}
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={toggleFavorite}
@@ -393,7 +436,7 @@ export default function EventoDetail() {
         </div>
 
         {/* Gallery Indicator */}
-        {imageGallery.length > 1 && (
+        {!hasVideo && imageGallery.length > 1 && (
           <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-1.5 z-20">
             {imageGallery.map((_, i) => (
               <button

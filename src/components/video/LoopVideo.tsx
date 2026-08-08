@@ -1,27 +1,25 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type VideoHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * LoopVideo — a silent, auto-playing, boomerang-style looping video.
- *
- * Plays the clip forward, then "ping-pongs" backward by reversing playbackRate
- * for the same duration, giving a true boomerang feel without audio.
- * Pauses automatically when off-screen to save battery and bandwidth.
+ * LoopVideo — auto-playing looping video for swipe cards / event reels.
+ * Muted by default so iOS/Android allow autoplay; pass muted={false} after a user gesture.
  */
 export function LoopVideo({
   src,
   poster,
   className,
   active = true,
+  muted = true,
 }: {
   src: string;
   poster?: string;
   className?: string;
   active?: boolean;
+  muted?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement | null>(null);
 
-  // Pause when off-screen to save battery
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -30,34 +28,42 @@ export function LoopVideo({
         if (!entry.isIntersecting) el.pause();
         else if (active) el.play().catch(() => {});
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [active]);
+  }, [active, src]);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (active) el.play().catch(() => {});
-    else el.pause();
-  }, [active]);
+    el.muted = muted;
+    if (active) {
+      const play = () => el.play().catch(() => {});
+      if (el.readyState >= 2) play();
+      else el.addEventListener('loadeddata', play, { once: true });
+    } else {
+      el.pause();
+    }
+  }, [active, muted, src]);
 
-  // Strip media fragments for standard looping if present
   const cleanSrc = src.split('#')[0];
 
   return (
     <video
       ref={ref}
+      key={cleanSrc}
       src={cleanSrc}
       poster={poster}
-      muted
-      autoPlay
+      muted={muted}
+      autoPlay={active}
       loop
       playsInline
-      preload="metadata"
+      {...({ 'webkit-playsinline': 'true' } as VideoHTMLAttributes<HTMLVideoElement>)}
+      preload="auto"
       disablePictureInPicture
-      className={cn('w-full h-full object-cover', className)}
+      controls={false}
+      className={cn('w-full h-full object-cover bg-black', className)}
     />
   );
 }
