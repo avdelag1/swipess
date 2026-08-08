@@ -2,7 +2,7 @@ import { useEffect, useRef, type VideoHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * LoopVideo — auto-playing looping video for swipe cards / event reels.
+ * LoopVideo — auto-playing video for swipe cards / event reels.
  * Muted by default so iOS/Android allow autoplay.
  *
  * Performance rules:
@@ -16,15 +16,22 @@ export function LoopVideo({
   className,
   active = true,
   muted = true,
+  loop = true,
+  onEnded,
 }: {
   src: string;
   poster?: string;
   className?: string;
   active?: boolean;
   muted?: boolean;
+  /** When false, plays once then fires onEnded (carousel advances). */
+  loop?: boolean;
+  onEnded?: () => void;
 }) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const cleanSrc = src.split('#')[0];
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
 
   useEffect(() => {
     const el = ref.current;
@@ -45,6 +52,7 @@ export function LoopVideo({
     const el = ref.current;
     if (!el) return;
     el.muted = muted;
+    el.loop = loop;
 
     if (!active) {
       el.pause();
@@ -58,7 +66,15 @@ export function LoopVideo({
     return () => {
       el.pause();
     };
-  }, [active, muted, cleanSrc]);
+  }, [active, muted, loop, cleanSrc]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || loop) return;
+    const handleEnded = () => onEndedRef.current?.();
+    el.addEventListener('ended', handleEnded);
+    return () => el.removeEventListener('ended', handleEnded);
+  }, [loop, cleanSrc, active]);
 
   return (
     <video
@@ -68,7 +84,7 @@ export function LoopVideo({
       poster={poster}
       muted={muted}
       autoPlay={active}
-      loop
+      loop={loop}
       playsInline
       {...({ 'webkit-playsinline': 'true' } as VideoHTMLAttributes<HTMLVideoElement>)}
       preload={active ? 'metadata' : 'none'}

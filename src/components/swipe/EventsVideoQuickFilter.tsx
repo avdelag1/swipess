@@ -9,13 +9,15 @@ import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 
-const ROTATE_MS = 5000;
 /** Same swipe threshold as QuickFilterImage carousel */
 const SWIPE_THRESHOLD = 20;
+/** Fast vanish between clips */
+const VANISH_MS = 0.2;
+const TITLE_MS = 0.16;
 
 /**
- * Events quick-filter — same left/right carousel gesture as other bento cards.
- * Tap → main Events feed. Corner mute toggles sound only.
+ * Events quick-filter — L/R carousel like other bento cards.
+ * Each video plays fully, then advances. Tap → Events feed.
  */
 export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const navigate = useNavigate();
@@ -26,32 +28,15 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [soundOn, setSoundOn] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isDragging = useRef(false);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
-
-  const startTimer = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (videoEvents.length <= 1) return;
-
-    intervalRef.current = setInterval(() => {
-      setDirection(1);
-      setCurrentIndex((prev) => (prev + 1) % videoEvents.length);
-    }, ROTATE_MS);
-  }, [videoEvents.length]);
-
-  useEffect(() => {
-    startTimer();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [startTimer]);
 
   useEffect(() => {
     if (currentIndex >= videoEvents.length) setCurrentIndex(0);
   }, [videoEvents.length, currentIndex]);
 
   const currentEvent = videoEvents[currentIndex] || videoEvents[0];
+  const multi = videoEvents.length > 1;
 
   useEffect(() => {
     setSoundOn(false);
@@ -77,21 +62,19 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     };
   }, [currentEvent?.background_music_url, currentEvent?.id, soundOn]);
 
-  const goNext = useCallback(() => {
+  const goNext = useCallback((haptic = true) => {
     if (videoEvents.length <= 1) return;
-    triggerHaptic('light');
+    if (haptic) triggerHaptic('light');
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % videoEvents.length);
-    startTimer();
-  }, [videoEvents.length, startTimer]);
+  }, [videoEvents.length]);
 
   const goPrev = useCallback(() => {
     if (videoEvents.length <= 1) return;
     triggerHaptic('light');
     setDirection(-1);
     setCurrentIndex((prev) => (prev === 0 ? videoEvents.length - 1 : prev - 1));
-    startTimer();
-  }, [videoEvents.length, startTimer]);
+  }, [videoEvents.length]);
 
   const openFeed = () => {
     triggerHaptic('success');
@@ -122,12 +105,11 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     );
   }
 
-  // Vanish beat — exit fully before the next event enters so it never reads as the same clip
   const vanishVariants = {
     enter: {
       opacity: 0,
-      scale: 1.06,
-      filter: 'blur(10px)',
+      scale: 1.04,
+      filter: 'blur(8px)',
     },
     center: {
       opacity: 1,
@@ -137,16 +119,16 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     },
     exit: {
       opacity: 0,
-      scale: 0.92,
-      filter: 'blur(12px)',
+      scale: 0.94,
+      filter: 'blur(10px)',
       zIndex: 0,
     },
   };
 
   const titleVariants = {
-    enter: { opacity: 0, y: 8 },
+    enter: { opacity: 0, y: 6 },
     center: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -6 },
+    exit: { opacity: 0, y: -4 },
   };
 
   return (
@@ -160,7 +142,6 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         openFeed();
       }}
     >
-      {/* Solid black underlay — visible during the vanish beat between events */}
       <div className="absolute inset-0 z-0 bg-black" aria-hidden />
 
       <AnimatePresence mode="wait" initial={false}>
@@ -171,7 +152,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
           animate="center"
           exit="exit"
           transition={{
-            duration: 0.38,
+            duration: VANISH_MS,
             ease: [0.22, 0.61, 0.36, 1],
           }}
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
@@ -182,14 +163,16 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
             className="w-full h-full object-cover scale-[1.02]"
             active
             muted={!soundOn}
+            // Multi: play full clip once then advance. Solo: keep looping.
+            loop={!multi}
+            onEnded={multi ? () => goNext(false) : undefined}
           />
         </motion.div>
       </AnimatePresence>
 
       <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black/90 via-black/40 to-black/10 pointer-events-none" />
 
-      {/* Same pattern as QuickFilterImage: invisible drag layer for L/R carousel */}
-      {videoEvents.length > 1 && (
+      {multi && (
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -219,8 +202,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         />
       )}
 
-      {/* Pagination dots — same affordance as other quick-filter carousels */}
-      {videoEvents.length > 1 && (
+      {multi && (
         <div className="absolute top-2.5 left-2.5 flex items-center gap-[4px] z-30 pointer-events-none drop-shadow-md">
           {videoEvents.map((_, i) => (
             <div
@@ -236,7 +218,6 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         </div>
       )}
 
-      {/* Tiny glass mute — top-right (above drag layer) */}
       <div className="absolute top-2 right-2 z-40 pointer-events-auto">
         <EventVideoMuteButton
           soundOn={soundOn}
@@ -253,7 +234,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.28, ease: [0.22, 0.61, 0.36, 1] }}
+            transition={{ duration: TITLE_MS, ease: [0.22, 0.61, 0.36, 1] }}
           >
             <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight line-clamp-2">
               {currentEvent.title}
