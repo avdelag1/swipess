@@ -171,7 +171,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     )}
                     style={{
                       contain: 'paint',
-                      touchAction: isEventsLive ? 'none' : 'pan-y',
+                      // Match other cards: allow vertical page scroll; horizontal swipe is handled inside EventsVideoQuickFilter
+                      touchAction: 'pan-y',
                       background: isLight ? 'var(--dash-elevated, #fff)' : 'var(--dash-elevated, #16161c)',
                     }}
                   >
