@@ -217,7 +217,12 @@ export default function EventosLikes() {
                     "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-all duration-200 shadow-sm press-snappy",
                     isLight ? "bg-zinc-100 border-slate-200" : "bg-zinc-900 border-white/[0.04]"
                   )}
-                  onClick={() => navigate(`/explore/events/${ev.id}`, { state: { eventData: ev } })}
+                  onClick={() => navigate(`/explore/events/${ev.id}`, {
+                    state: {
+                      eventData: ev,
+                      eventIds: filtered.map((e) => e.id),
+                    },
+                  })}
                 >
                   {/* Image */}
                   <CardImage 

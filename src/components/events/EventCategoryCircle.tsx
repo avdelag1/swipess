@@ -14,6 +14,7 @@ export interface EventCategoryCircleProps {
   priority?: boolean;
 }
 
+/** Compact topic chip — refined, not visually dominant. */
 export const EventCategoryCircle = memo(({
   label,
   img,
@@ -48,30 +49,30 @@ export const EventCategoryCircle = memo(({
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
       onPointerCancel={() => setPressed(false)}
-      className="flex flex-col items-center gap-1.5 shrink-0 press-snappy group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
+      className="flex flex-col items-center gap-1 shrink-0 press-snappy group focus:outline-none focus-visible:outline-none outline-none tap-highlight-transparent"
       aria-label={label}
       aria-pressed={active}
     >
       <div
         className={cn(
-          'w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300',
+          'w-9 h-9 sm:w-10 sm:h-10 rounded-full p-[1.5px] transition-all duration-300',
           active
-            ? 'bg-gradient-to-tr from-[#FF4D00] to-[#EB4898] shadow-lg shadow-[#EB4898]/30'
-            : (isLight ? 'bg-black/10' : 'bg-white/20'),
+            ? 'bg-gradient-to-tr from-[#FF4D00] to-[#EB4898] shadow-md shadow-[#EB4898]/20'
+            : (isLight ? 'bg-black/8' : 'bg-white/15'),
         )}
       >
         <div
           className={cn(
-            'w-full h-full rounded-full border-[2.5px] overflow-hidden relative shadow-inner',
-            isLight ? 'border-white bg-slate-100' : 'border-[#0a0a0b] bg-[#1a1a1b]',
+            'w-full h-full rounded-full border-[1.5px] overflow-hidden relative',
+            isLight ? 'border-white/90 bg-slate-100' : 'border-[#0a0a0b] bg-[#1a1a1b]',
           )}
         >
           {!failed && (
             <img
               src={img}
               alt={label}
-              width={56}
-              height={56}
+              width={36}
+              height={36}
               decoding="async"
               loading={priority ? 'eager' : 'lazy'}
               fetchPriority={priority ? 'high' : 'auto'}
@@ -98,7 +99,7 @@ export const EventCategoryCircle = memo(({
               }}
             >
               <MotionIcon id="eventos" active={pressed || active} loop={active}>
-                <Icon className={cn('w-5 h-5', isLight ? 'text-slate-500' : 'text-white/70')} />
+                <Icon className={cn('w-3.5 h-3.5', isLight ? 'text-slate-500' : 'text-white/70')} />
               </MotionIcon>
             </div>
           )}
@@ -107,7 +108,7 @@ export const EventCategoryCircle = memo(({
             <div
               className={cn(
                 'absolute inset-0 transition-colors pointer-events-none',
-                isLight ? 'bg-white/40' : 'bg-black/50',
+                isLight ? 'bg-white/35' : 'bg-black/45',
               )}
             />
           )}
@@ -115,10 +116,9 @@ export const EventCategoryCircle = memo(({
       </div>
       <span
         className={cn(
-          'text-[10px] font-bold tracking-wide w-[64px] text-center truncate',
-          active ? (isLight ? 'text-black' : 'text-white') : (isLight ? 'text-black/60 font-semibold' : 'text-white/60 font-semibold'),
+          'text-[9px] font-semibold tracking-wide w-[52px] text-center truncate leading-tight',
+          active ? (isLight ? 'text-black' : 'text-white') : (isLight ? 'text-black/55' : 'text-white/55'),
         )}
-        style={{ textShadow: active && !isLight ? '0 2px 8px rgba(0,0,0,0.8)' : undefined }}
       >
         {label}
       </span>

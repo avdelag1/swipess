@@ -129,7 +129,12 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
       )}
       onClick={() => {
         triggerHaptic('success');
-        navigate(`/explore/events/${currentEvent.id}`, { state: { eventData: currentEvent } });
+        navigate(`/explore/events/${currentEvent.id}`, {
+          state: {
+            eventData: currentEvent,
+            eventIds: events.map((e) => e.id),
+          },
+        });
       }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}

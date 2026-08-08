@@ -4,7 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowUpRight, Calendar, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Calendar, ChevronLeft, ChevronRight, Heart, Info, MapPin, MessageCircle, Share2, ShieldCheck, Sparkles, User, Users, Zap } from 'lucide-react';
 import { addEventToDeviceCalendar, isCalendarAvailable } from '@/utils/calendar';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +109,7 @@ export default function EventoDetail() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const stateEventData = (location.state as any)?.eventData as EventDetail | undefined;
+  const eventIdsFromState = (location.state as any)?.eventIds as string[] | undefined;
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -219,7 +220,7 @@ export default function EventoDetail() {
         : await supabase.from('likes').insert({ user_id: user.id, target_id: id!, target_type: 'event' });
       if (error) throw error;
     },
-    onError: (err, vars, context) => {
+    onError: (_err, _vars, context) => {
       queryClient.setQueryData(['event-is-favorited', id, user?.id], context?.previousStatus);
       appToast.error(t('eventos.error'));
     },
@@ -331,6 +332,24 @@ export default function EventoDetail() {
     });
   }
   const hasVideo = !!(event.video_url && event.video_url.trim());
+
+  const siblingIds = eventIdsFromState && eventIdsFromState.length > 0
+    ? eventIdsFromState
+    : [event.id];
+  const siblingIndex = Math.max(0, siblingIds.findIndex((sid) => sid === event.id));
+  const prevEventId = siblingIndex > 0 ? siblingIds[siblingIndex - 1] : null;
+  const nextEventId = siblingIndex >= 0 && siblingIndex < siblingIds.length - 1
+    ? siblingIds[siblingIndex + 1]
+    : null;
+
+  const goToSibling = (targetId: string | null) => {
+    if (!targetId) return;
+    triggerHaptic('light');
+    navigate(`/explore/events/${targetId}`, {
+      state: { eventIds: siblingIds },
+      replace: false,
+    });
+  };
 
   return (
     <div className="full-bleed-top min-h-screen bg-slate-50 dark:bg-black pb-safe-bottom" style={{ contain: 'paint layout' }}>
@@ -446,14 +465,58 @@ export default function EventoDetail() {
           </div>
         )}
 
-        {/* Category Badge */}
+        {/* Category Badge — compact chip, not dominant */}
         <div className="absolute bottom-10 left-6 z-20">
-           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/20 backdrop-blur-xl border border-primary/30">
-              <Zap className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{event.category}</span>
+           <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/35 backdrop-blur-xl border border-white/15">
+              <Zap className="w-2.5 h-2.5 text-primary" />
+              <span className="text-[9px] font-bold text-white/90 uppercase tracking-[0.14em]">{event.category}</span>
            </div>
         </div>
       </div>
+
+      {/* Continue browsing events */}
+      {(prevEventId || nextEventId) && (
+        <div className="px-6 pt-4 relative z-30 flex items-center justify-between gap-3 max-w-xl mx-auto w-full">
+          <button
+            type="button"
+            disabled={!prevEventId}
+            onClick={() => goToSibling(prevEventId)}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider border transition-opacity',
+              prevEventId
+                ? 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-800 dark:text-white'
+                : 'opacity-30 pointer-events-none border-transparent',
+            )}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Prev
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light');
+              navigate('/explore/events');
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider bg-primary/10 border border-primary/25 text-primary"
+          >
+            More events
+          </button>
+          <button
+            type="button"
+            disabled={!nextEventId}
+            onClick={() => goToSibling(nextEventId)}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider border transition-opacity',
+              nextEventId
+                ? 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-white/10 text-slate-800 dark:text-white'
+                : 'opacity-30 pointer-events-none border-transparent',
+            )}
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* ── CONTENT AREA ── */}
       <div className="px-6 -mt-4 relative z-30 space-y-10">

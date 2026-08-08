@@ -1,12 +1,12 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calendar, Eye, Flag, Heart, MapPin, MessageCircle, Share2 } from 'lucide-react';
+import { Calendar, Flag, Heart, Info, MapPin, MessageCircle, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
-import { hideChrome, revealChrome } from '@/hooks/useChromeReveal';
+import { hideChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
@@ -41,12 +41,17 @@ export const EventCard = memo(({
   const showActions = isActive;
   const [likeAnim, setLikeAnim] = useState(false);
   const lastTapRef = useRef(0);
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Immersive photo first — hide action chrome whenever this card becomes active.
   useEffect(() => {
     if (!isActive) return;
     hideChrome();
   }, [isActive, event.id]);
+
+  useEffect(() => () => {
+    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+  }, []);
 
   const handleLike = useCallback(() => {
     onLike();
@@ -61,8 +66,8 @@ export const EventCard = memo(({
     (window as any).dispatchEvent(new CustomEvent('open-report', { detail: { reportedListingId: event.id, reportedListingTitle: event.title, category: 'listing' } }));
   }, [event.id, event.title]);
 
-  const handleInsights = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleOpenEvent = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
     triggerHaptic('medium');
     onMiddleTap();
   }, [onMiddleTap]);
@@ -70,15 +75,25 @@ export const EventCard = memo(({
   const handlePhotoTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const now = Date.now();
+    // Double-tap → like
     if (now - lastTapRef.current < 320) {
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
+      }
       handleLike();
       lastTapRef.current = 0;
       return;
     }
     lastTapRef.current = now;
-    triggerHaptic('light');
-    revealChrome();
-  }, [handleLike]);
+    // Single tap → open event detail (not Insights)
+    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    singleTapTimerRef.current = setTimeout(() => {
+      singleTapTimerRef.current = null;
+      triggerHaptic('light');
+      onMiddleTap();
+    }, 300);
+  }, [handleLike, onMiddleTap]);
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
   const finalImageUrl = imageUrl || event.image_url;
@@ -170,7 +185,7 @@ export const EventCard = memo(({
           type="button"
           onClick={handlePhotoTap}
           className="absolute inset-0 z-[5] w-full h-full cursor-pointer tap-highlight-transparent outline-none focus:outline-none"
-          aria-label="Tap to reveal actions"
+          aria-label="Open event"
         />
       )}
 
@@ -223,7 +238,7 @@ export const EventCard = memo(({
 
             <div className="flex flex-col gap-2 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
               {[
-                { icon: Eye, onClick: handleInsights, label: 'Insights' },
+                { icon: Info, onClick: handleOpenEvent, label: 'Event' },
                 { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },
                 { icon: Share2, onClick: onShare, label: 'Share' },
                 { icon: Flag, onClick: handleReport, label: 'Report' },
@@ -257,11 +272,11 @@ export const EventCard = memo(({
         {categoryMeta && (
           <div className="flex items-center gap-2 mb-3">
             <div
-              className="px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md border border-white/10"
+              className="px-2 py-0.5 rounded-full flex items-center gap-1 backdrop-blur-md border border-white/10"
               style={{ background: `${activeColor}30` }}
             >
-              {categoryMeta.icon && <categoryMeta.icon className="w-3 h-3" style={{ color: activeColor }} />}
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white">{categoryMeta.label}</span>
+              {categoryMeta.icon && <categoryMeta.icon className="w-2.5 h-2.5" style={{ color: activeColor }} />}
+              <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-white">{categoryMeta.label}</span>
             </div>
 
             {event.is_free && (

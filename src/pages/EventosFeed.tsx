@@ -285,8 +285,11 @@ export default function EventosFeed() {
 
   const handleMiddleTap = useCallback((event: EventItem) => {
     triggerHaptic('light');
-    navigate(`/explore/events/${event.id}`, { state: { eventData: event } });
-  }, [navigate]);
+    const ids = filteredEvents.map((e) => e.id);
+    navigate(`/explore/events/${event.id}`, {
+      state: { eventData: event, eventIds: ids },
+    });
+  }, [navigate, filteredEvents]);
 
   return (
     <div
@@ -322,7 +325,7 @@ export default function EventosFeed() {
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          <div className="flex-1 flex gap-4 overflow-x-auto no-scrollbar scroll-smooth py-1 pb-2 -ml-2 pl-2">
+          <div className="flex-1 flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth py-1 pb-1.5 -ml-1 pl-1">
             {CATEGORIES.map((cat, index) => (
               <EventCategoryCircle
                 key={cat.key}
