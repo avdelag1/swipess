@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   ArrowLeft, Briefcase, Building2, Check, ChevronRight, Clock, FileLock2,
-  FileText, Gavel, HeartCrack, Home, Landmark, type LucideIcon, Scale,
-  ShieldCheck,
+  FileText, Gavel, HeartCrack, Home, Landmark, type LucideIcon, MessageCircle,
+  Phone, Scale, ShieldCheck, Video,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ import {
   formatPrice, LegalPackage,
 } from '@/data/legalPackages';
 import { LegalPackageRequestModal } from '@/components/legal/LegalPackageRequestModal';
+import { appToast } from '@/utils/appNotification';
+import { triggerHaptic } from '@/utils/haptics';
 
 const ICONS: Record<string, LucideIcon> = {
   Building2, Home, Gavel, HeartCrack, FileLock2, Briefcase, Scale, Landmark,
@@ -69,6 +71,16 @@ export default function LawyerServicesPage() {
     });
   };
 
+  const showConnectSoon = (channel: 'video' | 'call' | 'whatsapp') => {
+    triggerHaptic('light');
+    const labels = {
+      video: 'Video call',
+      call: 'Direct call',
+      whatsapp: 'WhatsApp',
+    } as const;
+    appToast.info('Coming soon', `${labels[channel]} with a lawyer is not available yet. Use a service request below for now.`);
+  };
+
   return (
     <div className="w-full bg-background relative min-h-screen">
       <Helmet>
@@ -107,6 +119,100 @@ export default function LawyerServicesPage() {
             Describe what you need. If a suitable independent provider is available, they may contact you to confirm credentials, jurisdiction, scope, timing, and price.
           </p>
         </div>
+
+        {/* Instant connect — video / call / WhatsApp (coming soon) */}
+        <section className="mb-10 space-y-3" aria-label="Connect with a lawyer">
+          <div className="flex items-center justify-between gap-3">
+            <p className={cn('text-[10px] font-black uppercase tracking-[0.28em]', isLight ? 'text-black/45' : 'text-white/45')}>
+              Connect now
+            </p>
+            <span className={cn(
+              'text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border',
+              isLight ? 'bg-amber-500/10 text-amber-700 border-amber-500/20' : 'bg-amber-400/10 text-amber-300 border-amber-400/20',
+            )}>
+              Soon
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={() => showConnectSoon('video')}
+              className={cn(
+                'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+                isLight
+                  ? 'bg-white border-black/8 shadow-sm hover:border-indigo-300/60'
+                  : 'bg-white/[0.04] border-white/10 hover:border-indigo-400/40',
+              )}
+            >
+              <div className="w-11 h-11 rounded-xl bg-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/25 shrink-0">
+                <Video className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={cn('text-sm font-black uppercase italic tracking-tight', isLight ? 'text-black' : 'text-white')}>
+                  Video call
+                </p>
+                <p className={cn('text-[11px] font-semibold opacity-50', isLight ? 'text-black' : 'text-white')}>
+                  Direct lawyer video
+                </p>
+              </div>
+              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
+                Soon
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => showConnectSoon('call')}
+              className={cn(
+                'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+                isLight
+                  ? 'bg-white border-black/8 shadow-sm hover:border-emerald-300/60'
+                  : 'bg-white/[0.04] border-white/10 hover:border-emerald-400/40',
+              )}
+            >
+              <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/25 shrink-0">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={cn('text-sm font-black uppercase italic tracking-tight', isLight ? 'text-black' : 'text-white')}>
+                  Direct call
+                </p>
+                <p className={cn('text-[11px] font-semibold opacity-50', isLight ? 'text-black' : 'text-white')}>
+                  Phone with a lawyer
+                </p>
+              </div>
+              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
+                Soon
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => showConnectSoon('whatsapp')}
+              className={cn(
+                'group flex items-center gap-3 p-4 rounded-2xl border text-left transition-all active:scale-[0.98]',
+                isLight
+                  ? 'bg-white border-black/8 shadow-sm hover:border-green-300/60'
+                  : 'bg-white/[0.04] border-white/10 hover:border-green-400/40',
+              )}
+            >
+              <div className="w-11 h-11 rounded-xl bg-[#25D366] flex items-center justify-center text-white shadow-md shadow-green-500/25 shrink-0">
+                <MessageCircle className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={cn('text-sm font-black uppercase italic tracking-tight', isLight ? 'text-black' : 'text-white')}>
+                  WhatsApp
+                </p>
+                <p className={cn('text-[11px] font-semibold opacity-50', isLight ? 'text-black' : 'text-white')}>
+                  Message a lawyer
+                </p>
+              </div>
+              <span className={cn('text-[9px] font-black uppercase tracking-widest opacity-40 shrink-0', isLight ? 'text-black' : 'text-white')}>
+                Soon
+              </span>
+            </button>
+          </div>
+        </section>
 
         {/* Category filter chips */}
         <div className="flex flex-wrap gap-2 mb-8">
