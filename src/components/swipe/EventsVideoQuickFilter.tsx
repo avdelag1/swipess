@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEventsDeck } from '@/hooks/useEventsDeck';
 import { LoopVideo } from '@/components/video/LoopVideo';
@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+
+const ROTATE_MS = 5000;
 
 export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     intervalRef.current = setInterval(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % videoEvents.length);
-    }, 5000);
+    }, ROTATE_MS);
   }, [videoEvents.length]);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     if (currentIndex >= videoEvents.length) setCurrentIndex(0);
   }, [videoEvents.length, currentIndex]);
 
-  const handleNext = (e?: React.SyntheticEvent) => {
+  const handleNext = (e?: SyntheticEvent) => {
     e?.stopPropagation();
     if (videoEvents.length <= 1) return;
     triggerHaptic('light');
@@ -48,7 +50,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     startTimer();
   };
 
-  const handlePrev = (e?: React.SyntheticEvent) => {
+  const handlePrev = (e?: SyntheticEvent) => {
     e?.stopPropagation();
     if (videoEvents.length <= 1) return;
     triggerHaptic('light');

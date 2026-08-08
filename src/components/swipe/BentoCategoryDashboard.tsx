@@ -12,36 +12,34 @@ import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCateg
 import {
   Anchor,
   Bike,
-  Calendar,
+  Briefcase,
   Home,
   Search,
-  UserCheck,
   Star,
   TrendingUp,
-  Briefcase
+  UserCheck,
 } from 'lucide-react';
 import { AISearchBar } from '@/components/AISearchBar';
 import { AIDisclosure } from '@/components/AIDisclosure';
 import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
+import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
 }
 
 // Intentionally NON-uniform sizes for a staggered "bento" / masonry look.
-// Items alternate into two columns (even indices → left, odd → right). The
-// big/normal heights are offset between the columns so the layout feels varied
-// and not predictable, while both columns still end at the same height so the
-// grid stays balanced (no ragged gap at the bottom).
+// Items alternate into two columns (even indices → left, odd → right).
+// Events LIVE sits where Yacht used to be (2nd card, right column, tall).
 const BENTO_ITEMS = [
   { id: 'property',    label: 'PROPERTIES',          description: 'Find properties to buy or rent', size: 'normal', imageId: 'property',   icon: Home,         delay: '0s' },
-  { id: 'yacht',       label: 'YACHTS',              description: 'Yachts & boats to charter or buy', size: 'big',  imageId: 'yacht',      icon: Anchor,       delay: '4s' },
+  { id: 'events',      label: 'EVENTS LIVE',         description: 'Swipe event videos · tap to open', size: 'big',  imageId: 'events',     icon: Star,         delay: '4s' },
   { id: 'recommended', label: 'RECOMMENDED FOR YOU', description: 'Curated listings',               size: 'normal', imageId: 'events',     icon: Star,         delay: '8s' },
   { id: 'services',    label: 'WORKERS',             description: 'Find people offering services',  size: 'big',    imageId: 'services',   icon: UserCheck,    delay: '12s' },
   { id: 'popular',     label: 'POPULAR',             description: 'Trending now',                   size: 'normal', imageId: 'property',   icon: TrendingUp,   delay: '16s' },
-  { id: 'events',      label: 'EVENTS',              description: 'Discover local events',          size: 'big',    imageId: 'events',     icon: Calendar,     delay: '20s' },
+  { id: 'yacht',       label: 'YACHTS',              description: 'Yachts & boats to charter or buy', size: 'big',  imageId: 'yacht',      icon: Anchor,       delay: '20s' },
   { id: 'motorcycle',  label: 'MOTORCYCLES',         description: 'Motorcycles for sale or rent',   size: 'big',    imageId: 'motorcycle', icon: Bike,         delay: '24s' },
   { id: 'bicycle',     label: 'BICYCLES',            description: 'Bicycles for sale or rent',      size: 'normal', imageId: 'bicycle',    icon: Bike,         delay: '28s' },
   { id: 'seekers',     label: 'SEEKERS',             description: 'People looking for workers',     size: 'normal', imageId: 'seekers',    icon: Search,       delay: '32s' },
@@ -49,8 +47,6 @@ const BENTO_ITEMS = [
   { id: 'premium',     label: 'PREMIUM',             description: 'Buy a package & get benefits',   size: 'normal', imageId: 'property',   icon: Star,         delay: '40s' },
 ] as const;
 
-// Two height tiers. "big" is noticeably taller than "normal" so the staggered
-// columns produce the deliberate size mismatch.
 const SIZE_CLASS: Record<'big' | 'normal', string> = {
   big: 'h-[340px] sm:h-[390px]',
   normal: 'h-[260px] sm:h-[290px]',
@@ -79,14 +75,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
-    
+
     if (id === 'premium') navigate('/subscription/packages');
     else if (id === 'events') {
       prefetchEventCategoryPhotosImmediate();
       navigate(EVENTS_FEED_PATH);
     }
-    // Temporary fallbacks for new discovery categories
-    else if (id === 'recommended' || id === 'popular') setCategories('property'); 
+    else if (id === 'recommended' || id === 'popular') setCategories('property');
     else if (id === 'pros') setCategories('services');
     else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
@@ -108,12 +103,10 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           isLight={isLight}
           onFilterClick={() => useModalStore.getState().openAIChat()}
           onSearchSubmit={(query) => {
-            // Always open AI chat with the typed query (wired end-to-end in openAIChat).
             const q = (query || '').trim();
             useModalStore.getState().openAIChat(q);
           }}
         />
-        {/* App Store / user transparency: AI entry point disclosure */}
         <AIDisclosure isLight={isLight} variant="compact" className="px-1" />
         <div className="flex justify-end">
           <DashboardFilters isLight={isLight} />
@@ -135,57 +128,74 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
             variants={columnVariants}
             className="flex-1 flex flex-col gap-2 sm:gap-4"
           >
-            {column.map((item) => (
-              <motion.div
-                key={item.id}
-                variants={itemVariants}
-                whileTap={{ opacity: 0.88 }}
-                transition={{ duration: 0.08 }}
-                onClick={() => handleSelect(item.id)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(item.id); } }}
-                role="button"
-                tabIndex={0}
-                aria-label={item.label}
-                data-quick-filter-card
-                data-skip-press-engine
-                className={cn(
-                  "force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/50 group cursor-pointer transition-all duration-500",
-                  "shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,1),0_0_40px_rgba(255,255,255,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-2 active:scale-[0.97] active:-translate-y-0 active:shadow-md hover:z-10",
-                  SIZE_CLASS[item.size]
-                )}
-                style={{ contain: 'paint', touchAction: 'pan-y' }}
-              >
-                {/* Background Image */}
-                <div className="absolute inset-0">
-                  <QuickFilterImage
-                    src={POKER_CARD_PHOTOS[item.imageId] || ''}
-                    alt={item.label}
-                    animationDelay={item.delay}
-                    className="object-cover w-full h-full md:group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-                  />
-                </div>
+            {column.map((item) => {
+              const isEventsLive = item.id === 'events';
 
-                {/* Shades / Soft gradient from bottom for text readability without obscuring photo */}
-                <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+              return (
+                <motion.div
+                  key={item.id}
+                  variants={itemVariants}
+                  whileTap={isEventsLive ? undefined : { opacity: 0.88 }}
+                  transition={{ duration: 0.08 }}
+                  onClick={isEventsLive ? undefined : () => handleSelect(item.id)}
+                  onKeyDown={isEventsLive ? undefined : (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelect(item.id);
+                    }
+                  }}
+                  role={isEventsLive ? undefined : 'button'}
+                  tabIndex={isEventsLive ? undefined : 0}
+                  aria-label={item.label}
+                  data-quick-filter-card
+                  data-skip-press-engine
+                  className={cn(
+                    'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
+                    !isEventsLive && 'border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/50 cursor-pointer transition-all duration-500',
+                    !isEventsLive && 'shadow-[0_15px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,1),0_0_40px_rgba(255,255,255,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-2 active:scale-[0.97] active:-translate-y-0 active:shadow-md hover:z-10',
+                    SIZE_CLASS[item.size],
+                  )}
+                  style={{ contain: 'paint', touchAction: isEventsLive ? 'none' : 'pan-y' }}
+                >
+                  {isEventsLive ? (
+                    <EventsVideoQuickFilter className="rounded-[2rem] shadow-[0_15px_40px_-10px_rgba(236,72,153,0.45)]" />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0">
+                        <QuickFilterImage
+                          src={POKER_CARD_PHOTOS[item.imageId] || ''}
+                          alt={item.label}
+                          animationDelay={item.delay}
+                          className="object-cover w-full h-full md:group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                        />
+                      </div>
 
-                {/* Abstract decorative elements (dots & circles like the mockup) */}
-                <div className="absolute inset-0 z-0 opacity-20 pointer-events-none"
-                     style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                      <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
-                <div className="absolute -top-12 -right-12 z-0 w-32 h-32 border-[1px] border-white/20 rounded-full opacity-30 pointer-events-none" />
-                <div className="absolute -bottom-8 -left-8 z-0 w-24 h-24 border-[1px] border-white/20 rounded-full opacity-20 pointer-events-none" />
+                      <div
+                        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+                        style={{
+                          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                          backgroundSize: '24px 24px',
+                        }}
+                      />
 
-                {/* Content Text */}
-                <div className="relative z-20 p-2 sm:p-4 w-full">
-                  <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight">
-                    {item.label}
-                  </h3>
-                  <p className="text-white/80 font-medium text-[9px] sm:text-[10px] leading-snug tracking-wide drop-shadow">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+                      <div className="absolute -top-12 -right-12 z-0 w-32 h-32 border-[1px] border-white/20 rounded-full opacity-30 pointer-events-none" />
+                      <div className="absolute -bottom-8 -left-8 z-0 w-24 h-24 border-[1px] border-white/20 rounded-full opacity-20 pointer-events-none" />
+
+                      <div className="relative z-20 p-2 sm:p-4 w-full">
+                        <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight">
+                          {item.label}
+                        </h3>
+                        <p className="text-white/80 font-medium text-[9px] sm:text-[10px] leading-snug tracking-wide drop-shadow">
+                          {item.description}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              );
+            })}
           </motion.div>
         ))}
       </motion.div>
