@@ -145,12 +145,8 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
           return;
         }
         triggerHaptic('success');
-        navigate(`/explore/events/${currentEvent.id}`, {
-          state: {
-            eventData: currentEvent,
-            eventIds: events.map((e) => e.id),
-          },
-        });
+        // Quick-filter card → main Events feed (not event detail / insights)
+        navigate(EVENTS_FEED_PATH);
       }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
