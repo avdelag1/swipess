@@ -159,9 +159,7 @@ function detachSharedIfEmpty(key: string) {
   sharedMap.delete(key);
 }
 
-/**
- * Shared dashboard chrome key — TopBar/BottomNav (via SwipessHud) + AI search cluster.
- */
+/** Shared dashboard chrome key — TopBar + BottomNav via SwipessHud. */
 export const DASHBOARD_CHROME_SCROLL_KEY = 'dashboard-chrome';
 
 /**
