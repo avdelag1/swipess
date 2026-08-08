@@ -1,4 +1,14 @@
 (function() {
+  // Canonical live web/PWA host. swipess.app currently has broken DNS /
+  // Vercel DEPLOYMENT_NOT_FOUND — phones that bookmarked it get a blank fail.
+  try {
+    var h = location.hostname || '';
+    if (h === 'swipess.app' || h === 'www.swipess.app') {
+      location.replace('https://www.swipess.com' + location.pathname + location.search + location.hash);
+      return;
+    }
+  } catch (e) {}
+
   try {
     var lastRole = localStorage.getItem('swipess_user_role') || 'client';
     window.__PREDICTED_ROLE = lastRole;

@@ -204,14 +204,14 @@ const Index = () => {
   }, [user, initialized]);
 
   if (!initialized || loading) {
-    return <div className="flex-1 min-h-[60vh]" />;
+    return <SuspenseFallback />;
   }
 
   // User exists but still loading role/redirection
   if (user && (isLoadingRole || (isNewUser && !userRole) || !hasNavigated.current)) {
     return (
       <>
-        <div className="flex-1 min-h-[60vh]" />
+        <SuspenseFallback />
         
         {showEscapeHatch && (
           <div 
@@ -235,9 +235,15 @@ const Index = () => {
   }
 
   if (!user) {
-    const showAppEntrance = runningAsPWA || developerAccess || isAccessGranted();
+    // PWA, prior access code, or ?pwa=true / developer session → enter app shell
+    const allowEntrance =
+      runningAsPWA
+      || developerAccess
+      || isAccessGranted()
+      || searchParams.get('pwa') === 'true'
+      || searchParams.get('access') === '1';
 
-    if (showAppEntrance) {
+    if (allowEntrance) {
       return (
         <div className="fixed inset-0 bg-black overflow-hidden">
           <Suspense fallback={<SuspenseFallback />}>
@@ -259,9 +265,8 @@ const Index = () => {
   }
 
   // Final fallback while navigating
-  return <div className="flex-1 min-h-[60vh]" />;
+  return <SuspenseFallback />;
 };
-
 export default Index;
 
 

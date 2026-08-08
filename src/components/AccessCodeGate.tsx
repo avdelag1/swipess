@@ -8,15 +8,36 @@ import LandingBackgroundEffects from './LandingBackgroundEffects';
 import { triggerHaptic } from '@/utils/haptics';
 import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { supabase } from '@/integrations/supabase/client';
+import { STORAGE } from '@/constants/app';
+
+const ACCESS_GRANT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 function persistAccessGrant() {
-  // No longer persisting to localStorage to enforce gate on every new session/refresh
+  try {
+    localStorage.setItem(
+      STORAGE.ACCESS_GRANT_KEY,
+      JSON.stringify({ grantedAt: Date.now(), v: 1 }),
+    );
+  } catch {
+    /* private mode */
+  }
 }
 
 export function isAccessGranted(): boolean {
   if (Capacitor.isNativePlatform()) return true;
-  // Removed localStorage checks to ensure gate is always shown when unauthenticated
-  return false;
+  try {
+    const raw = localStorage.getItem(STORAGE.ACCESS_GRANT_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { grantedAt?: number };
+    if (!parsed?.grantedAt || !Number.isFinite(parsed.grantedAt)) return false;
+    if (Date.now() - parsed.grantedAt > ACCESS_GRANT_TTL_MS) {
+      localStorage.removeItem(STORAGE.ACCESS_GRANT_KEY);
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 interface RequestForm {

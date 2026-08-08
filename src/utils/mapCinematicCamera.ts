@@ -59,12 +59,16 @@ export function cinematicMaxPitchForViewport(): number {
 }
 
 export function zoomForRadiusKm(km: number): number {
-  // Mapbox zoom ≈ log2(circumference / radius_px). At equator,
-  // zoom 14 ≈ 1km across screen. This tuned formula keeps the circle
-  // visible but NOT covering the entire viewport.
-  // 5km → ~13.3, 20km → ~11.3, 40km → ~10.3, 80km → ~9.3
-  const z = 14.6 - Math.log2(Math.max(km, 0.5));
-  return Math.min(16, Math.max(8.5, z));
+  // Regional frame: show the search area AND surrounding context
+  // (neighborhood, nearby listings/users) — not a tight street zoom.
+  // 5km → ~10.1, 20km → ~8.1, 50km → ~7.2, 80km → ~7.2
+  const z = 12.4 - Math.log2(Math.max(km, 1));
+  return Math.min(13.2, Math.max(7.2, z));
+}
+
+/** Extra-wide open framing so the first view reads "where am I + what's around". */
+export function openMapContextZoom(km: number): number {
+  return Math.max(7.0, zoomForRadiusKm(km) - 0.9);
 }
 
 export function applyCinematicFog(map: MapboxMap, _isLight: boolean): void {

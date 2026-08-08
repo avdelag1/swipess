@@ -73,6 +73,8 @@ export const STORAGE = {
   PENDING_ACTIVATION_KEY: 'pendingActivationPurchase',
   // Referral system
   REFERRAL_CODE_KEY: 'referral_code',
+  // Access code gate (web / PWA) — persists across refreshes on phone browsers
+  ACCESS_GRANT_KEY: 'swipess_access_grant_v1',
   // Payment return location
   PAYMENT_RETURN_PATH_KEY: 'payment_return_path',
 

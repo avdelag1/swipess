@@ -1,6 +1,7 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-08-08 - Force Update v16
+ * UPDATED: 2026-08-08 - Force Update v17
+ *   - Canonical host is www.swipess.com (swipess.app DNS broken)
  *   - Do NOT intercept Supabase REST/Auth (Safari CORS / access-control fixes)
  *   - Do NOT cache Mapbox / map tile traffic (huge + tokenized)
  *   - Scoped precache of critical boot chunks only

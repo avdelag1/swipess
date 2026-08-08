@@ -21,6 +21,7 @@ import {
   cinematicOpenGlide,
   cinematicPitchForViewport,
   FLY_DURATION_OPEN_MS,
+  openMapContextZoom,
   OPEN_CENTER_MS,
   zoomForRadiusKm,
 } from '@/utils/mapCinematicCamera';
@@ -1732,7 +1733,8 @@ export const PassportMapModal = memo(() => {
 
     const center = radiusCenterRef.current;
     if (center && !userMapInteractedRef.current) {
-      const zoom = zoomForRadiusKm(useFilterStore.getState().radiusKm);
+      // Open wide enough to see the place + surrounding listings/users
+      const zoom = openMapContextZoom(useFilterStore.getState().radiusKm);
       if (pageRasterMode) {
         const raster = rasterHandleRef.current ?? pageRasterHandle;
         raster?.setView(center.lat, center.lng, zoom);
