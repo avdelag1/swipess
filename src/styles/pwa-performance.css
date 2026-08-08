@@ -444,7 +444,19 @@ body.hw-low [data-radix-dialog-overlay] {
 body.hw-low .animate-pulse,
 body.hw-low .animate-bounce,
 body.hw-low .animate-ping,
-body.hw-low .marketing-breathing {
+body.hw-low .marketing-breathing,
+body.hw-low .animate-gesture-breathe,
+body.hw-low .motion-icon--loop > *,
+body.hw-low .motion-icon--active > * {
+    animation: none !important;
+    filter: none !important;
+}
+
+/* Never keep perpetual icon bounce/breathe on the bottom nav — any tier */
+.app-bottom-bar .motion-icon > *,
+.floating-dock-nav .motion-icon > *,
+.app-bottom-bar svg,
+.floating-dock-nav svg {
     animation: none !important;
 }
 

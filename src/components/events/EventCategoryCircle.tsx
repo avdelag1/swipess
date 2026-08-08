@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MotionIcon } from '@/components/ui/MotionIcon';
 
 export interface EventCategoryCircleProps {
   label: string;
@@ -98,9 +97,7 @@ export const EventCategoryCircle = memo(({
                   : 'rgba(255,255,255,0.06)',
               }}
             >
-              <MotionIcon id="eventos" active={pressed || active} loop={active}>
-                <Icon className={cn('w-3.5 h-3.5', isLight ? 'text-slate-500' : 'text-white/70')} />
-              </MotionIcon>
+              <Icon className={cn('w-3.5 h-3.5', isLight ? 'text-slate-500' : 'text-white/70')} />
             </div>
           )}
 

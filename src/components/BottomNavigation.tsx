@@ -1,17 +1,9 @@
 /**
- * BOTTOM NAVIGATION — 2026 Liquid Glass Design
+ * BOTTOM NAVIGATION — Liquid Glass Design (performance-tuned)
  *
  * Full-width ergonomic bottom navigation with Liquid Glass treatment.
- *
- * UPGRADES FROM PREVIOUS VERSION:
- *   - The entire navigation bar is now a Liquid Glass surface with heavy
- *     backdrop blur (32px) and a bright top rim catch-light
- *   - Active item gets a floating glass pill (also Liquid Glass) with
- *     an animated liquid highlight — the pill "shines" to indicate focus
- *   - The active indicator dot was replaced by the pill glow
- *   - Entry animation: the bar slides up from below with spring physics
- *   - Tab press: individual button spring compression + ripple
- *   - The glass bar clearly shows blurred content behind it (no opaque bg)
+ * Active tab = color/weight only — no bouncing or breathing icon loops
+ * (those kept the compositor busy on every page).
  */
 
 /* eslint-disable react-refresh/only-export-components */
@@ -46,8 +38,6 @@ import { useModalStore } from '@/state/modalStore';
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
-import { MotionIcon } from '@/components/ui/MotionIcon';
-import { getNavMotionId } from '@/lib/motion-constants';
 import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
@@ -364,36 +354,21 @@ export const BottomNavigation = memo(({
                     </span>
                   )}
 
-                  {(() => {
-                    const motionId = getNavMotionId(item.id);
-                    const iconEl = (
-                      <Icon
-                        style={{
-                          width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                          // Add = brand pink glyph only (no pink disc). Active = pure white.
-                          color: isAddBtn
-                            ? '#FF4D6A'
-                            : (active ? baseColor : inactiveIconColor),
-                          fill: 'none',
-                          strokeWidth: active || isAddBtn ? 2.5 : 2.0,
-                          filter: 'none',
-                          opacity: active || isAddBtn ? 1 : 0.85,
-                          transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
-                        }}
-                      />
-                    );
-                    if (!motionId) return iconEl;
-                    return (
-                      <MotionIcon
-                        id={motionId}
-                        active={false}
-                        loop={active}
-                      >
-                        {iconEl}
-                      </MotionIcon>
-                    );
-                  })()}
+                  <Icon
+                    style={{
+                      width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                      height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                      // Add = brand pink glyph only (no pink disc). Active = pure white.
+                      color: isAddBtn
+                        ? '#FF4D6A'
+                        : (active ? baseColor : inactiveIconColor),
+                      fill: 'none',
+                      strokeWidth: active || isAddBtn ? 2.5 : 2.0,
+                      filter: 'none',
+                      opacity: active || isAddBtn ? 1 : 0.85,
+                      transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
+                    }}
+                  />
                 </div>
               </button>
             );

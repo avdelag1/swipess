@@ -474,9 +474,11 @@ html[data-theme-transition] ::view-transition-new(root) {
   margin-bottom: max(4px, calc(env(safe-area-inset-bottom, 34px) - 26px));
   padding-bottom: 0;
   border-radius: 999px;
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  backdrop-filter: blur(40px) saturate(180%);
+  /* Lighter blur than 40px — big win on mid/low phones while still reading as glass */
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
   transform: translateZ(0);
+  contain: layout style;
 }
 
 /* Subtle top rim only — no bright white wash that kills icon contrast */
