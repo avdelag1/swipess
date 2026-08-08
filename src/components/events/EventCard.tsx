@@ -10,6 +10,7 @@ import { hideChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
 import { LoopVideo } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -100,10 +101,12 @@ export const EventCard = memo(({
   const hasVideo = !!(event.video_url && event.video_url.trim());
   const hasImage = !!finalImageUrl;
   const hasMedia = hasVideo || hasImage;
-  const [soundOn, setSoundOn] = useState(false);
+  // Shared deck preference — unmute once and keep listening while browsing the feed
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
-  // Background music bed (admin-uploaded mp3/wav) — only while this card is active + unmuted
+  // Background music bed — only while this card is active + deck sound is on
   useEffect(() => {
     const url = event.background_music_url?.trim();
     if (!url) return;
@@ -124,10 +127,6 @@ export const EventCard = memo(({
       audio?.pause();
     };
   }, [isActive, soundOn, event.background_music_url, event.id]);
-
-  useEffect(() => {
-    if (!isActive) setSoundOn(false);
-  }, [isActive, event.id]);
 
   return (
     <div
@@ -192,7 +191,7 @@ export const EventCard = memo(({
       {isActive && hasVideo && (
         <EventVideoMuteButton
           soundOn={soundOn}
-          onToggle={() => setSoundOn((v) => !v)}
+          onToggle={toggleSound}
           size="sm"
           className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-3 z-40"
         />

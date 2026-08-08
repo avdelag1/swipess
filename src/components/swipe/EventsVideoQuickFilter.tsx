@@ -8,6 +8,7 @@ import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
 
 /** Same swipe threshold as QuickFilterImage carousel */
 const SWIPE_THRESHOLD = 20;
@@ -27,7 +28,9 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [soundOn, setSoundOn] = useState(false);
+  // Persists across event carousel changes — unmute once = listen while browsing this deck
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
   const isDragging = useRef(false);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
@@ -38,9 +41,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const currentEvent = videoEvents[currentIndex] || videoEvents[0];
   const multi = videoEvents.length > 1;
 
-  useEffect(() => {
-    setSoundOn(false);
-  }, [currentEvent?.id]);
+  // Do NOT auto-mute on event change — user left sound on for the whole section
 
   useEffect(() => {
     const url = currentEvent?.background_music_url?.trim();
@@ -221,7 +222,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
       <div className="absolute top-2 right-2 z-40 pointer-events-auto">
         <EventVideoMuteButton
           soundOn={soundOn}
-          onToggle={() => setSoundOn((v) => !v)}
+          onToggle={toggleSound}
           size="xs"
         />
       </div>
