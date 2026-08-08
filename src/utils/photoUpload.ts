@@ -42,6 +42,14 @@ export interface PhotoUploadResult {
   path: string;
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getUploadFailureMessage = (error: unknown) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string') return error;
+  return 'unknown error';
+};
+
 export const uploadPhoto = async ({
   userId,
   blob,
@@ -50,7 +58,9 @@ export const uploadPhoto = async ({
   skipCompression,
 }: PhotoUploadOptions): Promise<PhotoUploadResult> => {
   const timestamp = Date.now();
-  const unique = Math.random().toString(36).slice(2, 9);
+  const unique = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2, 11) + Math.random().toString(36).slice(2, 11);
   const rawFile = blob instanceof File
     ? blob
     : new File([blob], `${timestamp}-${unique}.jpg`, { type: blob.type || 'image/jpeg' });
@@ -89,10 +99,14 @@ export const uploadPhoto = async ({
       message.includes('payload too large') ||
       message.includes('not allowed') ||
       message.includes('row-level security') ||
-      message.includes('invalid');
+      message.includes('invalid') ||
+      message.includes('unauthorized');
     if (isFatal || attempt === MAX_ATTEMPTS - 1) {
       break;
     }
+
+    // Small backoff helps unstable mobile networks recover instead of retrying instantly.
+    await sleep(350 * (attempt + 1));
   }
 
   if (onProgress) {
@@ -192,7 +206,18 @@ export const uploadPhotoBatch = async (
 ): Promise<string[]> => {
   if (blobs.length === 0) return [];
 
-  // Upload all photos in parallel
+  const perFileProgress = blobs.map(() => 0);
+  let lastOverallProgress = 0;
+  const emitProgress = (next: number) => {
+    if (!onProgress) return;
+    const safeNext = Math.min(99, Math.max(lastOverallProgress, Math.floor(next)));
+    if (safeNext > lastOverallProgress) {
+      lastOverallProgress = safeNext;
+      onProgress(safeNext);
+    }
+  };
+
+  // Upload all photos in parallel, but keep progress monotonic so the UI never jumps backward.
   const uploadPromises = blobs.map((blob, index) =>
     uploadPhoto({
       userId,
@@ -200,31 +225,59 @@ export const uploadPhotoBatch = async (
       bucket,
       skipCompression,
       onProgress: (progress) => {
-        if (onProgress) {
-          // Calculate overall progress across all uploads
-          const overallProgress = ((index + (progress / 100)) / blobs.length) * 100;
-          onProgress(Math.min(99, Math.floor(overallProgress)));
-        }
+        perFileProgress[index] = Math.max(perFileProgress[index], progress);
+        const totalProgress = perFileProgress.reduce((sum, current) => sum + current, 0) / blobs.length;
+        emitProgress(totalProgress);
       },
     })
   );
 
   // Hard timeout so a stalled upload can never freeze the UI silently.
-  // Scales with batch size — single photo gets 30s, full 10-photo batch gets ~90s.
+  // Scales with batch size — single photo gets ~24s, full listing batches get up to 2 minutes.
   const TIMEOUT_MS = Math.min(15000 + blobs.length * 9000, 120000);
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(
       () => reject(new Error(`Upload timed out after ${Math.round(TIMEOUT_MS / 1000)}s. Please try again with a stronger connection or smaller photos.`)),
       TIMEOUT_MS
-    )
-  );
-  const results = await Promise.race([Promise.all(uploadPromises), timeout]) as Awaited<ReturnType<typeof uploadPhoto>>[];
+    );
+  });
 
-  if (onProgress) {
-    onProgress(100);
+  try {
+    const results = await Promise.race([
+      Promise.allSettled(uploadPromises),
+      timeout,
+    ]) as PromiseSettledResult<PhotoUploadResult>[];
+
+    const successfulUploads = results
+      .filter((result): result is PromiseFulfilledResult<PhotoUploadResult> => result.status === 'fulfilled')
+      .map((result) => result.value);
+    const failedUploads = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
+
+    if (failedUploads.length > 0) {
+      // Keep storage tidy and avoid publishing a listing with a missing/reordered photo set.
+      const uploadedPaths = successfulUploads.map((result) => result.path).filter(Boolean);
+      if (uploadedPaths.length > 0) {
+        const { error: cleanupError } = await supabase.storage.from(bucket).remove(uploadedPaths);
+        if (cleanupError) {
+          logger.warn('[PhotoUpload] Failed to clean up partial batch upload:', cleanupError);
+        }
+      }
+
+      const firstFailure = failedUploads[0]?.reason;
+      throw new Error(
+        `${failedUploads.length} of ${blobs.length} photo upload${blobs.length === 1 ? '' : 's'} failed. ${getUploadFailureMessage(firstFailure)}`
+      );
+    }
+
+    if (onProgress) {
+      lastOverallProgress = 100;
+      onProgress(100);
+    }
+
+    return successfulUploads.map(result => result.publicUrl);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
-
-  return results.map(result => result.publicUrl);
 };
-
 

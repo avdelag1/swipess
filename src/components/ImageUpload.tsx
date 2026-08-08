@@ -64,7 +64,6 @@ export function ImageUpload({
     } catch (error: unknown) {
       const err = error as Error;
       logger.error('Image upload error:', err);
-      appToast.info('Upload failed');
       return null;
     }
   }, [bucket, folder]);
@@ -78,7 +77,12 @@ export function ImageUpload({
       return;
     }
 
-    const filesToUpload = Array.from(files).slice(0, remaining);
+    const allFiles = Array.from(files);
+    const filesToUpload = allFiles.slice(0, remaining);
+    if (allFiles.length > remaining) {
+      appToast.info('Photo limit reached', `Only ${remaining} more image${remaining === 1 ? '' : 's'} can be added.`);
+    }
+
     setUploading(true);
 
     try {
@@ -89,10 +93,20 @@ export function ImageUpload({
         .filter((result): result is PromiseFulfilledResult<string | null> => result.status === 'fulfilled')
         .map(result => result.value)
         .filter((url): url is string => url !== null);
+      const failedCount = filesToUpload.length - successfulUploads.length;
 
       if (successfulUploads.length > 0) {
         onImagesChange([...images, ...successfulUploads]);
-        appToast.info('Success!', `Uploaded ${successfulUploads.length} image(s)`);
+        appToast.success('Photos uploaded', `Added ${successfulUploads.length} image${successfulUploads.length === 1 ? '' : 's'}.`);
+      }
+
+      if (failedCount > 0) {
+        appToast.error(
+          'Some photos failed',
+          successfulUploads.length > 0
+            ? `${failedCount} image${failedCount === 1 ? '' : 's'} could not be uploaded. Try again with a stronger connection or smaller files.`
+            : 'No photos were uploaded. Try again with a stronger connection or smaller files.'
+        );
       }
     } finally {
       setUploading(false);
@@ -149,9 +163,13 @@ export function ImageUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           className="hidden"
-          onChange={(e) => handleFiles(e.target.files)}
+          onChange={(e) => {
+            const selectedFiles = e.currentTarget.files;
+            void handleFiles(selectedFiles);
+            e.currentTarget.value = '';
+          }}
           disabled={uploading || images.length >= maxImages}
         />
 
@@ -170,7 +188,7 @@ export function ImageUpload({
                 Drop images here or click to upload
               </p>
               <p className="text-xs text-muted-foreground">
-                PNG, JPG, WebP, GIF up to {formatFileSize(FILE_SIZE_LIMITS.IMAGE_MAX_SIZE)} ({images.length}/{maxImages} images)
+                PNG, JPG, WebP, GIF, HEIC up to {formatFileSize(FILE_SIZE_LIMITS.IMAGE_MAX_SIZE)} ({images.length}/{maxImages} images)
               </p>
             </div>
             <Button
@@ -235,7 +253,7 @@ export function ImageUpload({
 
                   {/* Drag Handle */}
                   {images.length > 1 && (
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <div className="bg-black/50 backdrop-blur-sm rounded p-1 cursor-move">
                         <MoveVertical className="w-4 h-4 text-white" />
                       </div>
@@ -246,7 +264,8 @@ export function ImageUpload({
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                    className="absolute bottom-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                    aria-label={`Remove image ${index + 1}`}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -262,5 +281,4 @@ export function ImageUpload({
     </div>
   );
 }
-
 
