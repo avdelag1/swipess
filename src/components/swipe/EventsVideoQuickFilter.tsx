@@ -7,12 +7,13 @@ import { cn } from '@/lib/utils';
 import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
+import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 
 const ROTATE_MS = 5000;
 
 /**
- * Events quick-filter tile — video-only surface matching other bento cards:
- * media + title/subtitle. No mute controls, dots, badges, or hit-zone chrome.
+ * Events quick-filter tile — video + title like other bento cards,
+ * with a tiny glassmorphic mute control in the corner.
  */
 export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const navigate = useNavigate();
@@ -22,8 +23,10 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [soundOn, setSoundOn] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const dragMovedRef = useRef(false);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -47,6 +50,32 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   }, [videoEvents.length, currentIndex]);
 
   const currentEvent = videoEvents[currentIndex] || videoEvents[0];
+
+  // Mute when card rotates to next event
+  useEffect(() => {
+    setSoundOn(false);
+  }, [currentEvent?.id]);
+
+  // Optional admin background bed + video unmute while sound is on
+  useEffect(() => {
+    const url = currentEvent?.background_music_url?.trim();
+    if (!url || !soundOn) {
+      bgMusicRef.current?.pause();
+      return;
+    }
+    let audio = bgMusicRef.current;
+    if (!audio || audio.src !== url) {
+      audio?.pause();
+      audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.5;
+      bgMusicRef.current = audio;
+    }
+    audio.play().catch(() => {});
+    return () => {
+      audio?.pause();
+    };
+  }, [currentEvent?.background_music_url, currentEvent?.id, soundOn]);
 
   const handleNext = () => {
     if (videoEvents.length <= 1) return;
@@ -147,12 +176,21 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
             poster={currentEvent.image_url || undefined}
             className="w-full h-full object-cover scale-[1.02]"
             active
-            muted
+            muted={!soundOn}
           />
         </motion.div>
       </AnimatePresence>
 
       <div className="absolute inset-0 z-[11] bg-gradient-to-t from-black/90 via-black/40 to-black/10 pointer-events-none" />
+
+      {/* Tiny glass mute — top-right, soft pulse fade */}
+      <div className="absolute top-2.5 right-2.5 z-30 pointer-events-auto">
+        <EventVideoMuteButton
+          soundOn={soundOn}
+          onToggle={() => setSoundOn((v) => !v)}
+          size="xs"
+        />
+      </div>
 
       <div className="relative z-20 p-2 sm:p-4 w-full h-full flex flex-col justify-end pointer-events-none">
         <h3 className="text-white font-black italic uppercase tracking-wider text-sm sm:text-base mb-0.5 drop-shadow-md leading-tight line-clamp-2">

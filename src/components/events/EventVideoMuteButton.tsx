@@ -1,40 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
- * Compact mute control.
- * Shows once with a short discoverability fade, then stays quietly visible
- * (no infinite pulse / show-hide loop).
+ * Tiny glassmorphic mute control for the Events quick-filter card.
+ * Soft pulse (fade out → fade in) so it stays discoverable without feeling heavy.
  */
 export function EventVideoMuteButton({
   soundOn,
   onToggle,
   className,
-  size = 'sm',
+  size = 'xs',
 }: {
   soundOn: boolean;
   onToggle: () => void;
   className?: string;
-  size?: 'sm' | 'md';
+  /** xs = phone quick-filter; sm/md slightly larger for detail screens */
+  size?: 'xs' | 'sm' | 'md';
 }) {
-  const [hintDone, setHintDone] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setHintDone(false);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setHintDone(true), 2200);
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  // Visual size compact; touch target stays ≥36px via padding on wrapper
-  const box = size === 'sm' ? 'w-6 h-6' : 'w-7 h-7';
-  const hit = size === 'sm' ? 'min-w-9 min-h-9 p-1.5' : 'min-w-10 min-h-10 p-1.5';
-  const icon = size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5';
+  const dims =
+    size === 'xs'
+      ? { hit: 'h-7 w-7', icon: 'w-2.5 h-2.5' }
+      : size === 'sm'
+        ? { hit: 'h-8 w-8', icon: 'w-3 h-3' }
+        : { hit: 'h-9 w-9', icon: 'w-3.5 h-3.5' };
 
   return (
     <button
@@ -45,20 +34,34 @@ export function EventVideoMuteButton({
         triggerHaptic('light');
         onToggle();
       }}
-      onPointerDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation?.();
+      }}
       className={cn(
-        'rounded-full flex items-center justify-center pointer-events-auto touch-manipulation',
-        'bg-black/40 backdrop-blur-md border border-white/20 text-white shadow-sm',
-        'transition-opacity duration-500 ease-out',
-        hintDone ? 'opacity-70' : 'opacity-100',
-        hit,
+        'relative z-30 flex items-center justify-center rounded-full',
+        'pointer-events-auto touch-manipulation select-none',
+        'text-white',
+        size === 'xs' && 'event-qf-mute',
+        dims.hit,
         className,
       )}
-      aria-label={soundOn ? 'Mute video audio' : 'Unmute video audio'}
+      style={{
+        background:
+          'linear-gradient(145deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 100%)',
+        border: '1px solid rgba(255,255,255,0.35)',
+        boxShadow:
+          '0 4px 14px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.45)',
+        backdropFilter: 'blur(14px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+      }}
+      aria-label={soundOn ? 'Mute event sound' : 'Unmute event sound'}
     >
-      <span className={cn('rounded-full flex items-center justify-center', box)}>
-        {soundOn ? <Volume2 className={icon} /> : <VolumeX className={icon} />}
-      </span>
+      {soundOn ? (
+        <Volume2 className={dims.icon} strokeWidth={2.4} />
+      ) : (
+        <VolumeX className={dims.icon} strokeWidth={2.4} />
+      )}
     </button>
   );
 }
