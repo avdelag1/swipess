@@ -11,9 +11,10 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", ...props }, ref) => (
     <div
       ref={ref}
+      data-swipess-card
       className={cn(
-        "rounded-[var(--radius-lg)] bg-white/60 dark:bg-black/40 backdrop-blur-2xl border border-black/5 dark:border-white/5 text-card-foreground shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-200 ease-out touch-manipulation",
-        variant === "interactive" && "hover:shadow-[0_12px_40px_rgb(0,0,0,0.2)] hover:-translate-y-1",
+        "neo-naive-card rounded-[var(--radius-lg)] text-card-foreground transition-all duration-200 ease-out touch-manipulation",
+        variant === "interactive" && "hover:-translate-y-0.5",
         className
       )}
       {...props}

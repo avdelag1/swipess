@@ -78,7 +78,7 @@ export function AmbientPageBackground({
   return (
     <div
       className={cn(
-        'relative w-full',
+        'ambient-page-shell relative w-full neo-naive-page',
         isFill && 'flex flex-col flex-1 min-h-0 h-full',
         className,
       )}

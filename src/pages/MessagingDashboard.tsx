@@ -510,10 +510,7 @@ export function MessagingDashboard() {
           ) : isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
-            <div className={cn(
-              "rounded-[32px] overflow-hidden border backdrop-blur-3xl shadow-2xl relative",
-              isLight ? "bg-white/70 border-black/5" : "bg-black/40 border-white/10"
-            )}>
+            <div className="neo-naive-group relative">
             <AnimatePresence initial={false}>
             {filteredConversations.map((conversation, convIdx) => {
               const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
@@ -641,8 +638,8 @@ export function MessagingDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className={cn(
-                "flex flex-col items-center justify-center rounded-[3.5rem] border shadow-sm overflow-hidden",
-                isLight ? "surface-section" : "bg-white/[0.02] border-white/[0.05]"
+                "flex flex-col items-center justify-center overflow-hidden p-4",
+                isLight ? "neo-naive-panel" : "neo-naive-panel--dark"
               )}
             >
               {searchQuery ? (

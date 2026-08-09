@@ -135,7 +135,7 @@ const OwnerSettings = () => {
         <div className="max-w-3xl mx-auto relative z-10">
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6 pt-10">
-            <div className="rounded-[2.5rem] overflow-hidden bg-background border border-border shadow-2xl">
+            <div className="neo-naive-group overflow-hidden">
               <CardContent className="p-8">
                 <AccountSecurity userRole="owner" />
               </CardContent>
@@ -211,10 +211,7 @@ const OwnerSettings = () => {
                 {group.label}
               </div>
 
-              <div className={cn(
-                "rounded-[24px] overflow-hidden border transition-all duration-300",
-                isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-              )}>
+              <div className="neo-naive-group">
                 {group.items.map((item, idx) => (
                   <div key={item.label} className={cn(
                     "relative",

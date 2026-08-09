@@ -336,7 +336,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0 flex flex-col min-h-0",
+          "app-main-scroll w-full flex-1 relative z-0 flex flex-col min-h-0",
           (swipeDeckActive || isFullScreen || isInsideDashboard) ? "overflow-hidden" : "overflow-y-auto scroll-area-momentum"
         )}
         style={(!isInsideDashboard && !isFullScreen && !isProfile && !isListing && !location.pathname.startsWith('/messages')) ? {

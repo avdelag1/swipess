@@ -30,6 +30,8 @@ const OwnerProfile = () => {
   const { tokenBalance } = useMessagingQuota();
   const { setModal } = useModalStore();
   const navigate = useNavigate();
+  const panel = isLight ? 'neo-naive-panel' : 'neo-naive-panel--dark';
+  const tile = isLight ? 'neo-naive-tile' : 'neo-naive-tile--dark';
 
   // Only block render on the profile query itself. Stats can stream in
   // background â€” gating on stats too means the page hangs in the skeleton
@@ -49,11 +51,11 @@ const OwnerProfile = () => {
 
   return (
     <AmbientPageBackground className={cn("w-full min-h-screen text-foreground")}>
-      <div className="w-full px-6 layout-padding-top pb-32 space-y-10">
+      <div className={cn("w-full px-6 layout-padding-top pb-32 space-y-10 neo-naive", !isLight && "neo-naive--dark")}>
 
         {/* SWIPESS OPERATOR BADGE */}
         <div className="flex items-center justify-center">
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#FF4D00]/20 bg-[#FF4D00]/5">
+          <div className={cn("flex items-center gap-2 px-4 py-1.5", isLight ? "neo-naive-pill" : "neo-naive-pill--dark")}>
             <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00] animate-pulse" />
             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#FF4D00]">Swipes Operator</span>
           </div>
@@ -62,23 +64,21 @@ const OwnerProfile = () => {
 
 
         {/* SWIPESS METRIC GRID */}
-        <div className={cn("grid grid-cols-3 gap-3", isLight && "surface-section !p-4")}>
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#FF4D00]', border: 'border-[#FF4D00]/15', glow: 'rgba(255,77,0,0.15)', path: '/owner/liked-clients' },
-            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]', border: 'border-[#EB4898]/15', glow: 'rgba(235,72,152,0.15)', path: '/owner/interested-clients' },
-            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-orange-400', border: 'border-orange-500/15', glow: 'rgba(251,146,60,0.15)', path: '/owner/properties' },
+            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#FF4D00]', wash: 'neo-naive-wash--coral', path: '/owner/liked-clients' },
+            { label: 'Followers', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-[#EB4898]', wash: 'neo-naive-wash--mint', path: '/owner/interested-clients' },
+            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-orange-400', wash: 'neo-naive-wash--lemon', path: '/owner/properties' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn(
-                "flex flex-col items-center justify-center text-center p-5 rounded-3xl cursor-pointer transition-all",
-                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
-              )}
-              style={isLight ? undefined : { borderColor: `rgba(255,255,255,0.06)`, boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              className={cn("flex flex-col items-center justify-center text-center p-5 cursor-pointer transition-all", panel)}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
-              <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
+              <span className={cn('neo-naive-wash mb-2', stat.wash)}>
+                <stat.icon className={cn("w-5 h-5", stat.color)} strokeWidth={2.2} />
+              </span>
               <div className={cn("text-4xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>
                 {stat.value}
               </div>
@@ -91,17 +91,13 @@ const OwnerProfile = () => {
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          className={cn(
-            "flex items-center justify-between p-6 rounded-3xl cursor-pointer transition-all",
-            isLight ? "surface-3" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
-          )}
-          style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.06)' }}
+          className={cn("flex items-center justify-between p-6 cursor-pointer transition-all", panel)}
           onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
           <div className="flex items-center gap-5">
-            <div className="w-12 h-12 rounded-2xl bg-[#FF4D00]/10 flex items-center justify-center border border-[#FF4D00]/20">
-              <Coins className="w-6 h-6 text-[#FF4D00]" />
-            </div>
+            <span className="neo-naive-wash neo-naive-wash--coral">
+              <Coins className="w-6 h-6 text-[#FF4D00]" strokeWidth={2.2} />
+            </span>
             <div>
               <h3 className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-slate-900" : "text-white")}>Protocol Credits</h3>
               <p className={cn("text-[9px] font-bold uppercase tracking-[0.15em] mt-1", isLight ? "text-slate-500" : "text-white/25")}>Swipes Messaging Reserve</p>
@@ -118,7 +114,7 @@ const OwnerProfile = () => {
         </div>
 
         {/* PRIMARY ACTIONS */}
-        <div className={cn("space-y-3", isLight && "surface-section")}>
+        <div className="space-y-3">
           <Button
             onClick={() => { triggerHaptic('heavy'); useModalStore.getState().openAIProfile('owner'); }}
             className="force-white w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95 border-none shadow-neumorph active:shadow-neumorph-inset bg-gradient-to-br from-cyan-500 to-indigo-600 hover:brightness-110"
@@ -148,7 +144,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); setModal('showOwnerProfile', true); }}
-            className={cn("w-full h-14 rounded-3xl relative overflow-hidden transition-all active:scale-95", isLight ? "surface-3 hover:shadow-[var(--elev-4)]" : "border-2 border-white/10 bg-black/40 hover:border-white/20 shadow-sm")}
+            className={cn("w-full h-14 relative overflow-hidden transition-all active:scale-95", panel)}
           >
             <div className="relative z-10 flex items-center justify-center gap-3">
               <UserCircle className={cn("w-5 h-5", isLight ? "text-slate-700" : "text-white/80")} />
@@ -158,7 +154,7 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className={cn("w-full h-12 rounded-2xl transition-all active:scale-95", isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/10 bg-white/5 hover:border-white/20")}
+            className={cn("w-full h-12 transition-all active:scale-95", tile)}
           >
             <Megaphone className="w-6 h-6 text-[#FF4D00] mr-3" />
             <span className="bg-gradient-to-r from-[#FF4D00] to-[#EB4898] bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[14px]">
@@ -170,22 +166,18 @@ const OwnerProfile = () => {
         {/* ACTION NAV GRID */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-[#FF4D00]', path: '/owner/liked-clients', glow: 'rgba(255,77,0,0.08)' },
-            { label: 'Inbound', sub: 'Active Fans', icon: ThumbsUp, color: 'text-[#EB4898]', path: '/owner/interested-clients', glow: 'rgba(235,72,152,0.08)' },
+            { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-[#FF4D00]', path: '/owner/liked-clients', wash: 'neo-naive-wash--coral' },
+            { label: 'Inbound', sub: 'Active Fans', icon: ThumbsUp, color: 'text-[#EB4898]', path: '/owner/interested-clients', wash: 'neo-naive-wash--mint' },
           ].map((nav, i) => (
             <motion.button
               key={i}
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
-              className={cn(
-                "rounded-3xl p-7 flex flex-col gap-5 text-left transition-all",
-                isLight ? "surface-2 hover:shadow-[var(--elev-3)]" : "border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] backdrop-blur-xl"
-              )}
-              style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${nav.glow}` }}
+              className={cn("p-7 flex flex-col gap-5 text-left transition-all", panel)}
             >
-              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border", isLight ? "surface-inset" : "border-white/[0.08] bg-white/[0.04]")}>
-                <nav.icon className={cn("w-6 h-6", nav.color)} />
-              </div>
+              <span className={cn('neo-naive-wash', nav.wash)}>
+                <nav.icon className={cn("w-6 h-6", nav.color)} strokeWidth={2.2} />
+              </span>
               <div>
                 <div className={cn("text-[13px] font-black uppercase tracking-[0.1em] italic leading-tight", isLight ? "text-slate-900" : "text-white")}>{nav.label}</div>
                 <div className={cn("text-[10px] font-bold mt-1 uppercase tracking-widest", isLight ? "text-slate-500" : "text-white/25")}>{nav.sub}</div>
@@ -195,7 +187,7 @@ const OwnerProfile = () => {
         </div>
 
         {/* ACTIVITY FEED */}
-        <div className={cn("space-y-6", isLight && "surface-section")}>
+        <div className="space-y-6">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00] animate-pulse" />
@@ -216,10 +208,7 @@ const OwnerProfile = () => {
         </div>
 
         {/* FEEDBACK & CONTACT ADMINS */}
-        <div className={cn(
-          "rounded-[2.5rem] overflow-hidden border shadow-2xl p-6",
-          isLight ? "bg-white border-black/5" : "bg-card/40 border-white/5 backdrop-blur-xl"
-        )}>
+        <div className={cn("overflow-hidden p-6", panel)}>
            <FeedbackSection />
         </div>
 
@@ -232,7 +221,7 @@ const OwnerProfile = () => {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => { triggerHaptic('success'); navigate('/owner/dashboard'); }}
-            className="w-full h-12 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
+            className="force-white w-full h-12 rounded-2xl flex items-center justify-center gap-4 active:scale-[0.97] transition-all text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-2xl"
             style={{
               background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
             }}
@@ -257,12 +246,12 @@ const OwnerProfile = () => {
                   else navigate(btn.path);
                 }}
                 className={cn(
-                  "w-full h-11 rounded-2xl flex items-center px-8 gap-5 active:scale-[0.97] transition-all border backdrop-blur-xl",
+                  "w-full h-11 flex items-center px-8 gap-5 active:scale-[0.97] transition-all",
                   (btn as any).urgent
-                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                    ? cn(tile, "bg-red-500/10 text-red-400")
                     : (btn as any).premium
-                      ? "bg-gradient-to-r from-amber-500/15 to-orange-500/15 border-amber-500/40 text-foreground"
-                      : "bg-card border-border text-foreground hover:bg-secondary"
+                      ? cn(tile, "bg-gradient-to-r from-amber-500/15 to-orange-500/15 text-foreground")
+                      : panel
                 )}
               >
                 <btn.icon className={cn("w-5 h-5", (btn as any).urgent ? "text-red-400" : (btn as any).premium ? "text-amber-500" : "text-foreground/80")} />

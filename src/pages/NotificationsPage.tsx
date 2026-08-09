@@ -142,10 +142,7 @@ const NotificationsPage = () => {
               <p className="text-xs font-medium opacity-30 mt-2">{getText('empty_state_subtitle', 'Check back later for system updates')}</p>
             </motion.div>
           ) : (
-            <div className={cn(
-              "rounded-[24px] overflow-hidden border transition-all duration-300",
-              isLight ? "bg-white/70 backdrop-blur-xl border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.04)]" : "bg-black/40 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-            )}>
+            <div className="neo-naive-group">
             {notifications.map((notif, idx) => (
               <motion.div
                 key={notif.id}

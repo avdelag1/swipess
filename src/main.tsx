@@ -9,6 +9,7 @@ import "./styles/tokens.css";
 import "./styles/matte-themes.css";
 import "./styles/elevation-system.css";
 import "./index.css";
+import "./styles/neo-naive-app.css";
 import "./styles/pwa-performance.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";

@@ -22,7 +22,7 @@ const UnifiedLikes = () => {
       style={{ paddingTop: 'calc(var(--top-bar-height, 72px) + var(--safe-top, 0px) + 8px)', paddingBottom: 'calc(var(--bottom-nav-height, 64px) + var(--safe-bottom, 0px) + 24px)' }}
     >
       <div className="px-4 sm:px-8 max-w-7xl mx-auto w-full mt-4 sm:mt-8 mb-2 z-10 relative">
-        <div className={cn("flex p-1.5 rounded-[2rem] border shadow-sm backdrop-blur-xl", isLight ? "bg-white/80 border-slate-200" : "bg-black/80 border-white/10")}>
+        <div className={cn("flex p-1.5", isLight ? "neo-naive-panel" : "neo-naive-panel--dark")}>
           <button
             onClick={() => selectTab("listings")}
             className={cn(

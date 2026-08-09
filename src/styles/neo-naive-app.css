@@ -1,0 +1,318 @@
+/**
+ * Neo-Naïve ink frames — app-wide light + dark chrome.
+ * Light: black paint/stamp frames. Dark: white paint/stamp frames.
+ * Excludes swipe decks, map shells, video chrome, QF cards, search, filter pills, nav discs.
+ */
+
+:root {
+  --neo-ink-light: #141414;
+  --neo-ink-dark: rgba(255, 255, 255, 0.92);
+  --neo-stamp-light: 1.5px 1.5px 0 #141414;
+  --neo-stamp-dark: 1.5px 1.5px 0 rgba(255, 255, 255, 0.4);
+  --neo-radius-panel: 1.55rem 1.75rem 1.45rem 1.7rem / 1.65rem 1.4rem 1.75rem 1.5rem;
+  --neo-radius-tile: 1.35rem 1.55rem 1.25rem 1.5rem / 1.45rem 1.25rem 1.55rem 1.35rem;
+}
+
+/* Shared exclusion list for auto-framed chrome */
+.neo-naive-exclude,
+.force-white,
+[data-quick-filter-card],
+.floating-dock-nav,
+.swipe-live-card,
+.neo-naive-search,
+.neo-naive-search--dark,
+.neo-naive-pill,
+.neo-naive-pill--dark,
+.neo-naive-nav-icon,
+.mapboxgl-map,
+.map-shell,
+.video-chrome,
+[data-swipe-deck] {
+  /* marker — used in :not() below via explicit lists */
+}
+
+/* ── Light surfaces (elevation system) ─────────────────────────────── */
+.light .surface-1,
+.white-matte .surface-1,
+.light .surface-2,
+.white-matte .surface-2,
+.light .surface-3,
+.white-matte .surface-3,
+.light .surface-4,
+.white-matte .surface-4,
+.light .surface-5,
+.white-matte .surface-5,
+.light .surface-section,
+.white-matte .surface-section,
+.light .surface-stat,
+.white-matte .surface-stat,
+.light .surface-row,
+.white-matte .surface-row {
+  border: 2.25px solid var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 6px 18px rgba(20, 20, 20, 0.06) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.light .surface-stat:active,
+.white-matte .surface-stat:active {
+  box-shadow: var(--neo-stamp-light) !important;
+}
+
+/* ── Dark surfaces ─────────────────────────────────────────────────── */
+.dark .surface-1,
+.black-matte .surface-1,
+.dark .surface-2,
+.black-matte .surface-2,
+.dark .surface-3,
+.black-matte .surface-3,
+.dark .surface-4,
+.black-matte .surface-4,
+.dark .surface-5,
+.black-matte .surface-5,
+.dark .surface-section,
+.black-matte .surface-section,
+.dark .surface-stat,
+.black-matte .surface-stat,
+.dark .surface-row,
+.black-matte .surface-row {
+  border: 2.25px solid var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 8px 22px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ── Shared Card ───────────────────────────────────────────────────── */
+.light .neo-naive-card,
+.white-matte .neo-naive-card,
+.light [data-neo-naive-card],
+.white-matte [data-neo-naive-card],
+.light [data-swipess-card],
+.white-matte [data-swipess-card] {
+  border: 2.25px solid var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 8px 22px rgba(20, 20, 20, 0.07) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .neo-naive-card,
+.black-matte .neo-naive-card,
+.dark [data-neo-naive-card],
+.black-matte [data-neo-naive-card],
+.dark [data-swipess-card],
+.black-matte [data-swipess-card] {
+  border: 2.25px solid var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 8px 22px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: rgba(14, 14, 20, 0.96) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Dialogs / sheets / drawers / popovers / alerts */
+.light [data-swipess-dialog],
+.white-matte [data-swipess-dialog],
+.light [data-swipess-sheet],
+.white-matte [data-swipess-sheet],
+.light [data-swipess-popover],
+.white-matte [data-swipess-popover],
+.light [data-swipess-alert],
+.white-matte [data-swipess-alert],
+.light [data-swipess-drawer],
+.white-matte [data-swipess-drawer] {
+  border: 2.5px solid var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 24px 60px rgba(20, 20, 20, 0.18) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: #fff !important;
+}
+
+.dark [data-swipess-dialog],
+.black-matte [data-swipess-dialog],
+.dark [data-swipess-sheet],
+.black-matte [data-swipess-sheet],
+.dark [data-swipess-popover],
+.black-matte [data-swipess-popover],
+.dark [data-swipess-alert],
+.black-matte [data-swipess-alert],
+.dark [data-swipess-drawer],
+.black-matte [data-swipess-drawer] {
+  border: 2.5px solid var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 24px 60px rgba(0, 0, 0, 0.5) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: #121218 !important;
+}
+
+/* Ambient + main scroll — stamp common rounded bordered panels */
+.ambient-page-shell :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[3rem\],
+  .rounded-\[3\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[32px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-search--dark):not(.neo-naive-pill):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full),
+.app-main-scroll :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[3rem\],
+  .rounded-\[3\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[32px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-search--dark):not(.neo-naive-pill):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full) {
+  border-width: 2.25px !important;
+  border-style: solid !important;
+}
+
+.light .ambient-page-shell :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-pill):not(.neo-naive-nav-icon):not(.rounded-full),
+.white-matte .ambient-page-shell :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-pill):not(.neo-naive-nav-icon):not(.rounded-full),
+.light .app-main-scroll :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-pill):not(.neo-naive-nav-icon):not(.rounded-full),
+.white-matte .app-main-scroll :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search):not(.neo-naive-pill):not(.neo-naive-nav-icon):not(.rounded-full) {
+  border-color: var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 6px 18px rgba(20, 20, 20, 0.06) !important;
+}
+
+.dark .ambient-page-shell :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search--dark):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full),
+.black-matte .ambient-page-shell :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search--dark):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full),
+.dark .app-main-scroll :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search--dark):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full),
+.black-matte .app-main-scroll :is(
+  .rounded-3xl,
+  .rounded-2xl,
+  .rounded-\[2rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[24px\],
+  .rounded-\[1\.6rem\],
+  .rounded-\[1\.5rem\]
+).border:not(.force-white):not([data-quick-filter-card]):not(.floating-dock-nav):not(.swipe-live-card):not(.neo-naive-search--dark):not(.neo-naive-pill--dark):not(.neo-naive-nav-icon):not(.rounded-full) {
+  border-color: var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 6px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Glass surfaces → ink panels */
+.light .glass-surface,
+.white-matte .glass-surface {
+  border: 2.25px solid var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 8px 22px rgba(20, 20, 20, 0.07) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.dark .glass-surface,
+.black-matte .glass-surface {
+  border: 2.25px solid var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 8px 22px rgba(0, 0, 0, 0.35) !important;
+  background: rgba(14, 14, 20, 0.94) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.light .glass-surface::before,
+.white-matte .glass-surface::before,
+.dark .glass-surface::before,
+.black-matte .glass-surface::before {
+  display: none !important;
+}
+
+/* Settings / list group shells */
+.light .neo-naive-group,
+.white-matte .neo-naive-group {
+  border: 2.25px solid var(--neo-ink-light) !important;
+  box-shadow: var(--neo-stamp-light), 0 6px 18px rgba(20, 20, 20, 0.06) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden;
+}
+
+.dark .neo-naive-group,
+.black-matte .neo-naive-group {
+  border: 2.25px solid var(--neo-ink-dark) !important;
+  box-shadow: var(--neo-stamp-dark), 0 8px 22px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--neo-radius-panel) !important;
+  background: rgba(14, 14, 20, 0.94) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: hidden;
+}
+
+/* Page chrome helper */
+.neo-naive-page {
+  --neo-page-gap: 1.25rem;
+}
+
+/* Keep photoreal media unframed */
+.ambient-page-shell img.object-cover,
+.app-main-scroll img.object-cover,
+.ambient-page-shell video,
+.app-main-scroll video {
+  box-shadow: none !important;
+}
