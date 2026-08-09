@@ -35,20 +35,20 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     runSearch();
   };
 
-  // True iOS Liquid Glass styles for Search Bar
-  const glassStyle = {
-    background: isLight
-      ? 'linear-gradient(145deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.48) 100%)'
-      : 'linear-gradient(145deg, rgba(28,28,36,0.58) 0%, rgba(16,16,22,0.38) 100%)',
-    border: isLight ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.10)',
-    borderTop: isLight ? '1px solid rgba(255, 255, 255, 0.95)' : '1px solid rgba(255, 255, 255, 0.22)',
-    boxShadow: isLight
-      ? '0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.9)'
-      : '0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
-    backdropFilter: 'blur(28px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-    color: isLight ? '#111' : '#fff',
-  };
+  // Light = neo-naïve ink frame; dark keeps liquid glass
+  const glassStyle = isLight
+    ? {
+        color: '#111',
+      }
+    : {
+        background: 'linear-gradient(145deg, rgba(28,28,36,0.58) 0%, rgba(16,16,22,0.38) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.10)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(28px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+        color: '#fff',
+      };
 
   return (
     <form
@@ -59,7 +59,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       autoComplete="off"
     >
       <div
-        className="absolute right-0 flex items-center rounded-full overflow-hidden w-full"
+        className={cn(
+          'absolute right-0 flex items-center rounded-full overflow-hidden w-full',
+          isLight && 'neo-naive neo-naive-search',
+        )}
         style={{ height: '38px', ...glassStyle }}
       >
         <div className="shrink-0 flex items-center justify-center w-[38px] h-[38px]" aria-hidden>

@@ -131,10 +131,15 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         aria-hidden={!searchVisible || undefined}
       >
         <div
-          className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5"
-          style={{
-            background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
-          }}
+          className={cn(
+            'rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5',
+            isLight && 'neo-naive neo-naive-paper',
+          )}
+          style={
+            isLight
+              ? undefined
+              : { background: 'var(--dash-well, #101014)' }
+          }
         >
           <AISearchBar
             isLight={isLight}
@@ -151,15 +156,19 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         </div>
       </motion.div>
 
-      {/* Quick filter well — tiny soft white glow only (no floating orbs) */}
+      {/* Quick filter well — neo-naïve ink frame in light; soft glow in dark */}
       <div
         className={cn(
-          'relative z-10 w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2 overflow-hidden',
-          isLight ? 'qf-well-glow--light' : 'qf-well-glow--dark',
+          'relative z-10 w-full max-w-3xl mx-auto p-1.5 sm:p-2',
+          isLight
+            ? 'neo-naive neo-naive-well'
+            : 'qf-well-glow--dark rounded-[1.5rem] overflow-hidden',
         )}
-        style={{
-          background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
-        }}
+        style={
+          isLight
+            ? undefined
+            : { background: 'var(--dash-well, #101014)' }
+        }
       >
         <motion.div
           variants={containerVariants}
@@ -199,12 +208,12 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     data-skip-press-engine
                     className={cn(
                       'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
-                      // Clean outline: white on dark theme, black on light
                       isLight
-                        ? 'border border-black/30'
+                        ? 'neo-naive neo-naive-ink-frame'
                         : 'border border-white/45',
-                      !isEventsLive && 'cursor-pointer shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] active:scale-[0.98]',
-                      isEventsLive && 'shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]',
+                      !isEventsLive && 'cursor-pointer active:scale-[0.98]',
+                      !isEventsLive && !isLight && 'shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]',
+                      isEventsLive && !isLight && 'shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]',
                       SIZE_CLASS[item.size],
                     )}
                     style={{
