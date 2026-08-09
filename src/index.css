@@ -723,11 +723,17 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 .neo-naive--dark .neo-naive-nav-icon,
 .neo-naive-nav-icon--dark {
-  border: 2px solid rgba(255, 255, 255, 0.92) !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
   background: rgba(16, 16, 22, 0.94) !important;
   box-shadow:
-    1px 1px 0 rgba(255, 255, 255, 0.4),
-    0 0 12px rgba(255, 255, 255, 0.16) !important;
+    1px 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 14px rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Dark dock: keep watercolor washes soft so white ink stays dominant */
+.neo-naive--dark .neo-naive-nav-icon::before,
+.neo-naive-nav-icon--dark::before {
+  opacity: 0.55;
 }
 .neo-naive-nav-icon::before {
   content: '';

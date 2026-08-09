@@ -112,7 +112,7 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   return {
     useLightIcons,
     iconColor: useLightIcons ? '#FFFFFF' : '#0a0a0a',
-    inactiveIconColor: useLightIcons ? 'rgba(255,255,255,0.62)' : 'rgba(0,0,0,0.45)',
+    inactiveIconColor: useLightIcons ? 'rgba(255,255,255,0.92)' : 'rgba(0,0,0,0.45)',
     pillStyle: dockStyle,
     iconShadow: 'none',
   };

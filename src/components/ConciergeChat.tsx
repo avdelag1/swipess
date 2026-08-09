@@ -352,8 +352,10 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               transition: GENIE_SPRING_CLOSE,
             }}
             className={cn(
-               "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border shadow-[0_40px_150px_rgba(0,0,0,0.9)]",
-               isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black border-white/10"
+               "relative w-full max-w-4xl h-full sm:h-[88vh] flex flex-col overflow-hidden neo-naive",
+               isLight && !isSwipess
+                 ? "neo-naive-panel bg-white"
+                 : "neo-naive--dark neo-naive-panel--dark bg-black",
              )}
             style={{
               ...GENIE_ORIGIN_BOTTOM,
@@ -384,11 +386,11 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
                   "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
-                  isLight && !isSwipess ? "border-slate-200 bg-white/80 backdrop-blur-xl chrome-solid" : "border-white/5 bg-black/50 backdrop-blur-3xl chrome-solid"
+                  isLight && !isSwipess ? "border-black/10 bg-white/90" : "border-white/15 bg-black/60"
                 )}>
                   <div className="flex items-center gap-4">
-                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all border group", isLight && !isSwipess ? "bg-slate-100 border-slate-200 hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/20")}>
-                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-600" : "text-white/60")} />
+                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center transition-all group", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")}>
+                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-700" : "text-white")} />
                     </button>
                     <div className="flex flex-col relative">
                        <span className={cn("text-[11px] font-black uppercase tracking-[0.5em] italic", isSwipess ? "text-[#FF3D00] brand-glow" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL CORE</span>
@@ -402,7 +404,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   <div className="flex items-center gap-2">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
                        <PopoverTrigger asChild>
-                         <button className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10")}>
+                         <button className={cn("flex items-center gap-2.5 px-3 py-1.5 transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")}>
                             <div className="text-right hidden sm:block">
                                <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
                                <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
@@ -420,7 +422,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             })()}
                          </button>
                        </PopoverTrigger>
-                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 rounded-3xl border shadow-2xl z-[70] chrome-solid", isLight && !isSwipess ? "bg-white border-slate-200" : "bg-black/95 border-white/10")}>
+                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 z-[70] chrome-solid", isLight && !isSwipess ? "neo-naive-panel" : "neo-naive-panel--dark")}>
                         <div className="p-3 mb-2">
                           <h4 className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight && !isSwipess ? "text-foreground/50" : "text-white/40")}>Select Logic Profile</h4>
                         </div>
@@ -445,8 +447,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={triggerGenieClose} className={cn("w-9 h-9 flex items-center justify-center rounded-full transition-all border group active:scale-90", isLight && !isSwipess ? "bg-muted border-border hover:bg-slate-200" : "bg-white/5 border-white/10 hover:bg-white/15")} aria-label="Close">
-                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-600" : "text-white/80")} strokeWidth={2.2} />
+                    <button onClick={triggerGenieClose} className={cn("w-9 h-9 flex items-center justify-center transition-all group active:scale-90", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")} aria-label="Close">
+                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-700" : "text-white")} strokeWidth={2.2} />
                     </button>
                   </div>
                 </header>
@@ -509,11 +511,14 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   </AnimatePresence>
 
                   <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
-                    <div className="flex-1 min-w-0 relative flex items-center rounded-2xl transition-all duration-300 border border-border/50 bg-secondary/40 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus-within:bg-background/80 focus-within:border-foreground/15 group overflow-hidden">
+                    <div className={cn(
+                      "flex-1 min-w-0 relative flex items-center transition-all duration-300 group overflow-hidden",
+                      isLight && !isSwipess ? "neo-naive-panel" : "neo-naive-panel--dark",
+                    )}>
                        <div className="pl-2 flex items-center gap-0.5 self-center">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className={cn("p-2 rounded-xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white")} aria-label="Auto-send timer">
+                          <button className={cn("p-2 rounded-xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white hover:text-white")} aria-label="Auto-send timer">
                                     <Timer className="w-5 h-5" strokeWidth={2.5} />
                                </button>
                              </PopoverTrigger>

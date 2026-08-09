@@ -30,8 +30,8 @@ export const ConversationSidebar = memo(({
       exit={{ x: -300, opacity: 0 }}
       transition={{ type: 'spring', damping: 28, stiffness: 350 }}
       className={cn(
-        "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all border-r pointer-events-auto",
-        isSwipess ? "bg-black border-white/5" : "bg-background border-border"
+        "absolute inset-y-0 left-0 w-72 z-50 flex flex-col transition-all pointer-events-auto",
+        isSwipess ? "neo-naive-panel--dark border-r border-white/15" : "neo-naive-panel border-r border-black/10"
       )}
     >
     <div className={cn("flex items-center justify-between px-6 py-5 border-b", isSwipess ? "border-white/[0.06]" : "border-border")}>

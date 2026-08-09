@@ -339,19 +339,13 @@ export const BottomNavigation = memo(({
                 <div
                   className={cn(
                     'relative z-10 flex items-center justify-center',
-                    isLight && `neo-naive-nav-icon neo-naive-nav-icon--${wash}`,
+                    isLight
+                      ? `neo-naive-nav-icon neo-naive-nav-icon--${wash}`
+                      : `neo-naive-nav-icon neo-naive-nav-icon--dark neo-naive-nav-icon--${wash}`,
                   )}
                   style={{
                     width: isTablet ? 40 : 36,
                     height: isTablet ? 40 : 36,
-                    ...(isLight
-                      ? {}
-                      : {
-                          background: 'transparent',
-                          boxShadow: 'none',
-                          border: 'none',
-                          borderRadius: 0,
-                        }),
                   }}
                 >
                   {item.badge && item.badge > 0 && (
@@ -374,7 +368,7 @@ export const BottomNavigation = memo(({
                       fill: 'none',
                       strokeWidth: active || isAddBtn ? 2.6 : 2.2,
                       filter: 'none',
-                      opacity: active || isAddBtn ? 1 : 0.88,
+                      opacity: active || isAddBtn ? 1 : (isLight ? 0.88 : 0.96),
                       transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
                     }}
                   />

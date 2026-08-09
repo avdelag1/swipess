@@ -33,11 +33,8 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
                 key={opt.label}
                 onClick={() => onPick(opt.prompt, activeCategory.category)}
                 className={cn(
-                  "relative overflow-hidden rounded-2xl px-5 py-4 text-left transition-all duration-300 group active:scale-[0.96]",
-                  "border shadow-sm hover:shadow-lg",
-                  isLight && !isSwipess
-                    ? "bg-white border-slate-200 text-slate-800 hover:border-slate-300"
-                    : "bg-white/[0.03] border-white/10 text-white hover:bg-white/[0.06] hover:border-white/20 backdrop-blur-xl"
+                  "relative overflow-hidden px-5 py-4 text-left transition-all duration-300 group active:scale-[0.96]",
+                  isLight && !isSwipess ? "neo-naive-tile text-slate-800" : "neo-naive-tile--dark text-white"
                 )}
               >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `linear-gradient(to right, transparent, ${activeCategory.glowColor})` }} />
@@ -53,10 +50,8 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
               key={cat.label}
               onClick={() => setActiveCategory(cat)}
               className={cn(
-                "relative overflow-hidden rounded-[2rem] p-6 text-center transition-all duration-300 group active:scale-[0.96]",
-                isLight && !isSwipess
-                  ? "bg-white border-2 border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
-                  : "bg-white/[0.02] border-2 border-white/10 backdrop-blur-xl shadow-2xl hover:bg-white/[0.05] hover:border-white/20"
+                "relative overflow-hidden p-6 text-center transition-all duration-300 group active:scale-[0.96]",
+                isLight && !isSwipess ? "neo-naive-panel text-slate-800" : "neo-naive-panel--dark text-white"
               )}
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${cat.glowColor}, transparent 80%)` }} />

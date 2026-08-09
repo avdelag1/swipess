@@ -87,12 +87,12 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
       onClick={() => { triggerHaptic('light'); setShowActions(!showActions); }}
     >
       <div className={cn(
-        "px-4 py-3 rounded-3xl",
+        "relative px-4 py-3",
         isUser
-          ? 'bg-primary text-primary-foreground rounded-br-md shadow-[0_8px_24px_hsl(var(--primary)/0.35)]'
-          : (isSwipess
-              ? 'bg-white/[0.05] backdrop-blur-2xl border border-white/10 text-white rounded-bl-md'
-              : 'bg-card border border-border/60 text-foreground rounded-bl-md shadow-sm')
+          ? 'force-white bg-primary text-primary-foreground rounded-[1.35rem_1.55rem_0.85rem_1.5rem] shadow-[1.5px_1.5px_0_rgba(0,0,0,0.25),0_8px_24px_hsl(var(--primary)/0.35)]'
+          : (isSwipess || !isLight
+              ? 'neo-naive-tile--dark text-white'
+              : 'neo-naive-tile text-foreground bg-white')
       )}>
         {isUser ? (
           <span className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</span>

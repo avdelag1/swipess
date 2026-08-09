@@ -12,6 +12,8 @@ import { CARD_THEMES } from './vap-id/cardThemes';
 import { useVapIdCard } from '@/hooks/useVapIdCard';
 import { disablePrivacyScreen, enablePrivacyScreen } from '@/utils/privacyScreen';
 import { ensureAbsoluteSupabaseUrl } from '@/utils/imageOptimization';
+import useAppTheme from '@/hooks/useAppTheme';
+import { cn } from '@/lib/utils';
 import {
   GENIE_ORIGIN_BOTTOM,
   GENIE_PANEL_EXIT,
@@ -33,7 +35,9 @@ const THEME_STORAGE_KEY = 'vap-card-theme-index';
 
 export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps) {
   const { user } = useAuth();
+  const { isLight } = useAppTheme();
   const queryClient = useQueryClient();
+  const tile = isLight ? 'neo-naive-tile' : 'neo-naive-tile--dark';
   const [themeIndex, setThemeIndex] = useState(() => {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
@@ -220,24 +224,24 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               <button
                 onClick={cycleTheme}
                 aria-label="Change card color"
-                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+                className={cn("h-11 w-11 flex items-center justify-center active:scale-95 transition", tile, isLight ? "text-slate-900" : "text-white")}
               >
                 <Droplets className="h-5 w-5" strokeWidth={2.6} />
               </button>
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] flex-1 text-center truncate text-white/90">
+              <span className={cn("text-[11px] font-bold uppercase tracking-[0.2em] flex-1 text-center truncate", isLight ? "text-slate-900/90" : "text-white/95")}>
                 {theme.name}
               </span>
               <button
                 onClick={() => setEditOpen(true)}
                 aria-label="Edit identity"
-                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+                className={cn("h-11 w-11 flex items-center justify-center active:scale-95 transition", tile, isLight ? "text-slate-900" : "text-white")}
               >
                 <Pencil className="h-5 w-5" strokeWidth={2.6} />
               </button>
               <button
                 onClick={triggerGenieClose}
                 aria-label="Close card"
-                className="h-11 w-11 flex items-center justify-center rounded-full border shadow-lg active:scale-95 transition bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+                className={cn("h-11 w-11 flex items-center justify-center active:scale-95 transition", tile, isLight ? "text-slate-900" : "text-white")}
               >
                 <X className="h-5 w-5" strokeWidth={2.8} />
               </button>
@@ -247,7 +251,10 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               key={themeIndex}
               initial={{ opacity: 0.7 }}
               animate={{ opacity: 1 }}
-              className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex-1 flex flex-col min-h-0"
+              className={cn(
+                "relative overflow-hidden flex-1 flex flex-col min-h-0 neo-naive",
+                isLight ? "neo-naive-ink-frame" : "neo-naive--dark neo-naive-ink-frame--dark",
+              )}
               style={{ background: theme.background }}
             >
               <div
@@ -256,7 +263,13 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
               >
                 <div className="flex gap-6 mb-8">
                   <div className="relative shrink-0">
-                    <div className="w-[160px] h-[200px] rounded-[2rem] overflow-hidden shadow-2xl border-2 border-white/10">
+                    <div
+                      className={cn(
+                        "w-[160px] h-[200px] overflow-hidden",
+                        isLight ? "neo-naive-tile" : "neo-naive-tile--dark",
+                      )}
+                      style={{ borderRadius: '1.55rem 1.75rem 1.45rem 1.7rem / 1.65rem 1.4rem 1.75rem 1.5rem' }}
+                    >
                       {avatarUrl ? <img src={ensureAbsoluteSupabaseUrl(avatarUrl)} alt={name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-black" style={{ color: theme.accentColor, background: theme.tagBg }}>{name.charAt(0)}</div>}
                     </div>
                   </div>
@@ -279,7 +292,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                   </div>
                 </div>
 
-                {bio && <div className="rounded-[1.5rem] p-6 mb-8 border" style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
+                {bio && <div className={cn("p-6 mb-8", isLight ? "neo-naive-ink-frame" : "neo-naive-ink-frame--dark")} style={{ background: `${theme.tagBg}44` }}><p className="text-[14px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>{bio}</p></div>}
 
                 <div className="space-y-6 flex-1 flex flex-col">
                   {spokenLanguages.length > 0 && (
@@ -293,14 +306,14 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
 
                   {allTags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {allTags.map(tag => <span key={tag} className="rounded-full px-5 py-2 text-[11px] font-black uppercase italic tracking-widest border" style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}>{tag}</span>)}
+                      {allTags.map(tag => <span key={tag} className={cn("px-5 py-2 text-[11px] font-black uppercase italic tracking-widest", isLight ? "neo-naive-pill" : "neo-naive-pill--dark")} style={{ background: theme.tagBg, color: theme.tagText }}>{tag}</span>)}
                     </div>
                   )}
 
                   {/* Authorized documents vault */}
                   <div
-                    className="mt-6 rounded-[1.75rem] border p-4 space-y-3"
-                    style={{ borderColor: theme.tagBorder, background: `${theme.tagBg}66` }}
+                    className={cn("mt-6 p-4 space-y-3", isLight ? "neo-naive-ink-frame" : "neo-naive-ink-frame--dark")}
+                    style={{ background: `${theme.tagBg}66` }}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div>
@@ -311,7 +324,7 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                           Verification documents
                         </p>
                       </div>
-                      <span className="text-[10px] font-black px-2.5 py-1 rounded-full border" style={{ borderColor: theme.tagBorder, color: theme.tagText }}>
+                      <span className={cn("text-[10px] font-black px-2.5 py-1", isLight ? "neo-naive-pill" : "neo-naive-pill--dark")} style={{ color: theme.tagText }}>
                         {documents.filter(d => d.status === 'verified').length}✓
                       </span>
                     </div>
@@ -325,8 +338,8 @@ export function VapIdCardModal({ isOpen, onClose, role = 'client' }: VapIdProps)
                             type="button"
                             disabled={!hasFile}
                             onClick={() => doc && setPreviewDoc(doc)}
-                            className="w-full flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-left active:scale-[0.99] transition-transform disabled:opacity-40"
-                            style={{ borderColor: theme.tagBorder, background: theme.tagBg }}
+                            className={cn("w-full flex items-center gap-3 px-3 py-2.5 text-left active:scale-[0.99] transition-transform disabled:opacity-40", isLight ? "neo-naive-tile" : "neo-naive-tile--dark")}
+                            style={{ background: theme.tagBg }}
                           >
                             <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border" style={{ borderColor: theme.tagBorder }}>
                               {doc?.status === 'verified' ? <CheckCircle2 className="w-4 h-4" style={{ color: theme.accentColor }} />
