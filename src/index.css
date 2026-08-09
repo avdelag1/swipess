@@ -506,30 +506,6 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
-.dash-search-slot {
-  display: grid;
-  grid-template-rows: 1fr;
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition:
-    grid-template-rows 0.32s cubic-bezier(0.25, 0.1, 0.25, 1),
-    opacity 0.26s cubic-bezier(0.25, 0.1, 0.25, 1),
-    transform 0.32s cubic-bezier(0.25, 0.1, 0.25, 1);
-  will-change: grid-template-rows, opacity, transform;
-}
-
-.dash-search-slot--hidden {
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transform: translate3d(0, -10px, 0);
-  pointer-events: none;
-}
-
-.dash-search-slot-inner {
-  overflow: hidden;
-  min-height: 0;
-}
-
 /* Tiny soft white wash behind quick-filter cards — slow pulse only, no orbs */
 .qf-well-glow--dark,
 .qf-well-glow--light {
@@ -571,10 +547,6 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dash-search-slot,
-  .dash-search-slot--hidden {
-    transition: none;
-  }
   .qf-well-glow--dark::before,
   .qf-well-glow--light::before {
     animation: none;

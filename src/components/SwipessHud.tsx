@@ -19,12 +19,12 @@ interface SwipessHudProps {
 }
 
 /**
- * Fixed chrome fade — opacity + light translate only.
+ * Fixed chrome fade — soft Casper ghost: opacity + light translate only.
  * No blur / layout collapse (those made the dashboard deck feel yanked).
  */
 const SOFT_EASE = [0.25, 0.1, 0.25, 1] as const;
-const HIDE_MS = 0.22;
-const SHOW_MS = 0.26;
+const HIDE_MS = 0.34;
+const SHOW_MS = 0.36;
 
 export function SwipessHud({
   children,
@@ -51,8 +51,8 @@ export function SwipessHud({
   const { isChromeVisible } = useChromeReveal();
   const isVisible = revealMode ? isChromeVisible : (alwaysVisible || isScrollVisible);
 
-  // Small drift only — fixed chrome must never affect document flow / card positions
-  const yHide = side === 'top' ? -10 : 12;
+  // Soft drift only — fixed chrome must never affect document flow / card positions
+  const yHide = side === 'top' ? -8 : 10;
 
   return (
     <motion.div

@@ -65,6 +65,11 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.12, ease: 'easeOut' } },
 };
 
+/** Same Casper fade as SwipessHud — opacity + light drift only, no layout snap. */
+const CHROME_SOFT_EASE = [0.25, 0.1, 0.25, 1] as const;
+const CHROME_HIDE_MS = 0.34;
+const CHROME_SHOW_MS = 0.36;
+
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,35 +112,44 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* Soft collapse on scroll down (synced with chrome) */}
-      <div
-        className={cn(
-          'relative z-20 w-full max-w-3xl mx-auto dash-search-slot',
-          !searchVisible && 'dash-search-slot--hidden',
-        )}
+      {/* Ghost fade on scroll — matches header chrome (opacity + soft drift, no snap) */}
+      <motion.div
+        className="relative z-20 w-full max-w-3xl mx-auto"
+        initial={false}
+        animate={{
+          opacity: searchVisible ? 1 : 0,
+          y: searchVisible ? 0 : -8,
+        }}
+        transition={{
+          duration: searchVisible ? CHROME_SHOW_MS : CHROME_HIDE_MS,
+          ease: CHROME_SOFT_EASE,
+        }}
+        style={{
+          pointerEvents: searchVisible ? undefined : 'none',
+          willChange: 'opacity, transform',
+        }}
+        aria-hidden={!searchVisible || undefined}
       >
-        <div className="dash-search-slot-inner">
-          <div
-            className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5"
-            style={{
-              background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
+        <div
+          className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5"
+          style={{
+            background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
+          }}
+        >
+          <AISearchBar
+            isLight={isLight}
+            onFilterClick={() => useModalStore.getState().openAIChat()}
+            onSearchSubmit={(query) => {
+              const q = (query || '').trim();
+              useModalStore.getState().openAIChat(q);
             }}
-          >
-            <AISearchBar
-              isLight={isLight}
-              onFilterClick={() => useModalStore.getState().openAIChat()}
-              onSearchSubmit={(query) => {
-                const q = (query || '').trim();
-                useModalStore.getState().openAIChat(q);
-              }}
-            />
-            <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1" />
-            <div className="mt-1">
-              <DashboardFilters isLight={isLight} />
-            </div>
+          />
+          <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1" />
+          <div className="mt-1">
+            <DashboardFilters isLight={isLight} />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick filter well — tiny soft white glow only (no floating orbs) */}
       <div
