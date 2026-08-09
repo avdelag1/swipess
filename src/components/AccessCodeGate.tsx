@@ -9,6 +9,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { getContentValue, useSiteContent } from '@/hooks/useSiteContent';
 import { supabase } from '@/integrations/supabase/client';
 import { STORAGE } from '@/constants/app';
+import { APP_STORE_URL, PLAY_STORE_URL } from '@/constants/storeLinks';
 
 const ACCESS_GRANT_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
@@ -211,12 +212,26 @@ export function AccessCodeGate({ onGranted, onClose }: Props) {
                 Discover trusted properties, luxury experiences, and high-end services. All one swipe away. Join the private network today.
               </p>
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
+                <a
+                  href={APP_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl"
+                  aria-label="Download Swipess on the App Store"
+                >
                   <img src="/icons/app-store-badge.svg" alt="Download on the App Store" className="h-[40px] lg:h-[48px]" />
                 </a>
-                <a href="#" className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl">
-                  <img src="/icons/google-play-badge.svg" alt="Get it on Google Play" className="h-[40px] lg:h-[48px]" />
-                </a>
+                {PLAY_STORE_URL ? (
+                  <a
+                    href={PLAY_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="opacity-90 hover:opacity-100 transition-opacity hover:scale-105 active:scale-95 transform-gpu drop-shadow-xl"
+                    aria-label="Get Swipess on Google Play"
+                  >
+                    <img src="/icons/google-play-badge.svg" alt="Get it on Google Play" className="h-[40px] lg:h-[48px]" />
+                  </a>
+                ) : null}
               </div>
             </div>
 

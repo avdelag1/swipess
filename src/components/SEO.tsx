@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { APP_STORE_ID } from '@/constants/storeLinks';
 
 interface SEOProps {
   title?: string;
@@ -44,8 +45,8 @@ export function SEO({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
 
-      {/* App Specifics — update app-id once App Store Connect assigns a numeric ID */}
-      {/* <meta name="apple-itunes-app" content="app-id=XXXXXXXXXX" /> */}
+      {/* Smart App Banner — Safari on iOS */}
+      <meta name="apple-itunes-app" content={`app-id=${APP_STORE_ID}`} />
     </Helmet>
   );
 }
