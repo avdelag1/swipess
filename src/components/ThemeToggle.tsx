@@ -41,7 +41,9 @@ function ThemeToggleComponent({ className, glassPillStyle }: ThemeToggleProps) {
               <Sun strokeWidth={2} className="h-[18px] w-[18px]" style={{ color: iconColor, filter: iconShadow }} />
             </span>
         ) : (
-            <Moon strokeWidth={1.5} className="h-[18px] w-[18px]" style={{ color: iconColor, filter: iconShadow }} />
+            <span className="neo-naive neo-naive--dark neo-naive-header-icon neo-naive-header-icon--sky">
+              <Moon strokeWidth={2} className="h-[18px] w-[18px]" style={{ color: iconColor, filter: iconShadow }} />
+            </span>
         );
 
 

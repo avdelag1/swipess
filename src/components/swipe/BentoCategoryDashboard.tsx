@@ -132,14 +132,9 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
       >
         <div
           className={cn(
-            'rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5',
-            isLight && 'neo-naive neo-naive-paper',
+            'rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5 neo-naive',
+            isLight ? 'neo-naive-paper' : 'neo-naive--dark neo-naive-paper',
           )}
-          style={
-            isLight
-              ? undefined
-              : { background: 'var(--dash-well, #101014)' }
-          }
         >
           <AISearchBar
             isLight={isLight}
@@ -156,19 +151,12 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         </div>
       </motion.div>
 
-      {/* Quick filter well — neo-naïve ink frame in light; soft glow in dark */}
+      {/* Quick filter well — neo-naïve frames both themes */}
       <div
         className={cn(
-          'relative z-10 w-full max-w-3xl mx-auto p-1.5 sm:p-2',
-          isLight
-            ? 'neo-naive neo-naive-well'
-            : 'qf-well-glow--dark rounded-[1.5rem] overflow-hidden',
+          'relative z-10 w-full max-w-3xl mx-auto p-1.5 sm:p-2 neo-naive',
+          isLight ? 'neo-naive-well' : 'neo-naive--dark neo-naive-well',
         )}
-        style={
-          isLight
-            ? undefined
-            : { background: 'var(--dash-well, #101014)' }
-        }
       >
         <motion.div
           variants={containerVariants}
@@ -210,15 +198,13 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                       'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
                       isLight
                         ? 'neo-naive neo-naive-ink-frame'
-                        : 'border border-white/45',
+                        : 'neo-naive neo-naive--dark neo-naive-ink-frame--dark neo-naive-card-shine',
                       !isEventsLive && 'cursor-pointer active:scale-[0.98]',
-                      !isEventsLive && !isLight && 'shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]',
-                      isEventsLive && !isLight && 'shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]',
                       SIZE_CLASS[item.size],
                     )}
                     style={{
-                      contain: 'paint',
-                      // Match other cards: allow vertical page scroll; horizontal swipe is handled inside EventsVideoQuickFilter
+                      // Allow outer white glow; shine overlays use ::before/::after
+                      contain: isLight ? 'paint' : undefined,
                       touchAction: 'pan-y',
                       background: isLight ? 'var(--dash-elevated, #fff)' : 'var(--dash-elevated, #16161c)',
                     }}

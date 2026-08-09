@@ -35,20 +35,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     runSearch();
   };
 
-  // Light = neo-naïve ink frame; dark keeps liquid glass
-  const glassStyle = isLight
-    ? {
-        color: '#111',
-      }
-    : {
-        background: 'linear-gradient(145deg, rgba(28,28,36,0.58) 0%, rgba(16,16,22,0.38) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.10)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
-        backdropFilter: 'blur(28px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-        color: '#fff',
-      };
+  // Neo-naïve frames both themes (CSS classes carry the look)
+  const glassStyle = { color: isLight ? '#111' : '#fff' };
 
   return (
     <form
@@ -60,8 +48,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     >
       <div
         className={cn(
-          'absolute right-0 flex items-center rounded-full overflow-hidden w-full',
-          isLight && 'neo-naive neo-naive-search',
+          'absolute right-0 flex items-center rounded-full overflow-hidden w-full neo-naive',
+          isLight ? 'neo-naive-search' : 'neo-naive--dark neo-naive-search--dark',
         )}
         style={{ height: '38px', ...glassStyle }}
       >

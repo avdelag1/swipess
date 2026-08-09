@@ -264,7 +264,8 @@ export const BottomNavigation = memo(({
           'pointer-events-auto floating-dock-nav',
           'max-w-[340px] w-[90vw] mx-auto rounded-[999px]',
           isDashboard && 'floating-dock-nav--dashboard',
-          isLight && 'neo-naive neo-naive-dock',
+          'neo-naive neo-naive-dock',
+          !isLight && 'neo-naive--dark',
         )}
         style={{
           ...pillStyle,
@@ -359,14 +360,11 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                       height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                      // Add = brand pink glyph only (no pink disc). Active = pure white / ink black.
                       color: isAddBtn
                         ? '#FF4D6A'
                         : (active ? baseColor : inactiveIconColor),
                       fill: 'none',
-                      strokeWidth: isLight
-                        ? (active || isAddBtn ? 2.6 : 2.15)
-                        : (active || isAddBtn ? 2.5 : 2.0),
+                      strokeWidth: active || isAddBtn ? 2.6 : 2.15,
                       filter: 'none',
                       opacity: active || isAddBtn ? 1 : 0.85,
                       transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',

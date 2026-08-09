@@ -19,9 +19,8 @@ export function getHeaderIconFilter(
 }
 
 /**
- * Liquid Glass header pills — theme adaptive.
- * Dark: white icons on dark translucent glass.
- * Light: Contemporary Neo-Naïve — black ink frames on paper white.
+ * Header pills — neo-naïve both themes.
+ * Light: black ink. Dark: bright white ink frames.
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
@@ -43,14 +42,13 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
         overflow: 'visible',
       }
     : {
-        background: 'linear-gradient(145deg, rgba(36,36,44,0.72) 0%, rgba(18,18,24,0.55) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.26)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.45)',
-        backdropFilter: 'blur(24px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(160%)',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.12)',
+        background: 'rgba(16, 16, 22, 0.94)',
+        border: '2px solid rgba(255, 255, 255, 0.9)',
+        boxShadow:
+          '1.25px 1.25px 0 rgba(255,255,255,0.35), 0 0 16px rgba(255,255,255,0.14), 0 6px 18px rgba(0,0,0,0.35)',
         borderRadius: '9999px',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         pointerEvents: 'auto',
         color: '#ffffff',
         display: 'flex',
@@ -70,8 +68,8 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
 }
 
 /**
- * Bottom dock — theme adaptive.
- * Light: neo-naïve ink pill. Dark: liquid glass.
+ * Bottom dock — neo-naïve both themes.
+ * Light: black ink pill. Dark: bright white ink pill.
  */
 export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
@@ -94,14 +92,13 @@ export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
         isolation: 'isolate',
       }
     : {
-        background: 'linear-gradient(165deg, rgba(28,28,34,0.90) 0%, rgba(14,14,18,0.86) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(28px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-        boxShadow: '0 10px 32px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.10)',
+        background: 'rgba(16, 16, 22, 0.96)',
+        border: '2.25px solid rgba(255, 255, 255, 0.9)',
+        boxShadow:
+          '1.5px 1.5px 0 rgba(255,255,255,0.35), 0 0 22px rgba(255,255,255,0.14), 0 10px 28px rgba(0,0,0,0.4)',
         borderRadius: '9999px',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         pointerEvents: 'auto',
         color: '#ffffff',
         display: 'flex',
