@@ -610,6 +610,8 @@ html[data-theme-transition] ::view-transition-new(root) {
 
 .neo-naive-search {
   --neo-search-frame: #3B82F6;
+  height: 58px !important;
+  min-height: 58px !important;
   border: 2.75px solid var(--neo-search-frame) !important;
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.96) !important;
@@ -623,6 +625,8 @@ html[data-theme-transition] ::view-transition-new(root) {
 
 .neo-naive-search--dark {
   --neo-search-frame: #60A5FA;
+  height: 58px !important;
+  min-height: 58px !important;
   border: 2.75px solid var(--neo-search-frame) !important;
   border-radius: 999px !important;
   background: rgba(16, 16, 24, 0.96) !important;
