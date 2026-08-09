@@ -24,8 +24,19 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
   const setModal = useModalStore(state => state.setModal);
   const openPassportMap = useModalStore(state => state.openPassportMap);
 
+  // Dark: soft glass. Light: ink frames only.
+  const darkGlass = {
+    background: 'linear-gradient(145deg, rgba(28,28,36,0.55) 0%, rgba(16,16,22,0.35) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.10)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.20)',
+    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
+    backdropFilter: 'blur(28px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+    color: '#fff',
+  };
+
   return (
-    <div className={cn('w-full neo-naive', !isLight && 'neo-naive--dark')}>
+    <div className={cn('w-full', isLight && 'neo-naive')}>
       <div className="grid grid-cols-3 gap-2 w-full">
         {filters.map((filter, index) => {
           const Icon = filter.icon;
@@ -48,27 +59,30 @@ export function DashboardFilters({ isLight }: DashboardFiltersProps) {
                 }
               }}
               className={cn(
-                'flex items-center justify-center gap-1.5 h-[40px] rounded-full px-1',
-                isLight ? 'neo-naive-pill' : 'neo-naive-pill--dark',
+                'flex items-center justify-center gap-1.5 rounded-full px-1',
+                isLight ? 'neo-naive-pill h-[40px]' : 'shadow-sm h-[34px]',
               )}
-              style={{
-                color: isLight ? '#111' : '#fff',
-                // Inline belt-and-suspenders so theme remaps can’t wash out the ink frame
-                border: isLight
-                  ? '2.5px solid #141414'
-                  : '2.5px solid rgba(255,255,255,0.95)',
-                background: isLight
-                  ? 'rgba(255,255,255,0.98)'
-                  : 'rgba(14,14,20,0.96)',
-                boxShadow: isLight
-                  ? '1.5px 1.5px 0 #141414, 0 4px 12px rgba(20,20,20,0.07)'
-                  : '1.5px 1.5px 0 rgba(255,255,255,0.45), 0 0 16px rgba(255,255,255,0.14)',
-              }}
+              style={
+                isLight
+                  ? {
+                      color: '#111',
+                      border: '2.5px solid #141414',
+                      background: 'rgba(255,255,255,0.98)',
+                      boxShadow: '1.5px 1.5px 0 #141414, 0 4px 12px rgba(20,20,20,0.07)',
+                    }
+                  : darkGlass
+              }
             >
-              <span className={cn('neo-naive-wash', WASH_BY_ID[filter.id])}>
-                <Icon className="w-[14px] h-[14px]" strokeWidth={2.35} />
+              {isLight ? (
+                <span className={cn('neo-naive-wash', WASH_BY_ID[filter.id])}>
+                  <Icon className="w-[14px] h-[14px]" strokeWidth={2.35} />
+                </span>
+              ) : (
+                <Icon className="w-[13px] h-[13px]" strokeWidth={1.5} />
+              )}
+              <span className={cn('tracking-tight whitespace-nowrap', isLight ? 'text-[12px] font-bold' : 'text-[12px] font-semibold')}>
+                {filter.label}
               </span>
-              <span className="text-[12px] font-bold tracking-tight whitespace-nowrap">{filter.label}</span>
             </motion.button>
           );
         })}

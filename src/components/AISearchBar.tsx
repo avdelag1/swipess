@@ -35,9 +35,19 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     runSearch();
   };
 
-  // Blue search bar — thicker, less violet
-  const barH = 52;
-  const glassStyle = { color: isLight ? '#111' : '#fff' };
+  // Light = blue ink frame (thicker). Dark = soft glass, no heavy frame.
+  const barH = isLight ? 52 : 38;
+  const glassStyle = isLight
+    ? { color: '#111' }
+    : {
+        background: 'linear-gradient(145deg, rgba(28,28,36,0.58) 0%, rgba(16,16,22,0.38) 100%)',
+        border: '1px solid rgba(255, 255, 255, 0.10)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(28px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+        color: '#fff',
+      };
 
   return (
     <form
@@ -50,13 +60,24 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     >
       <div
         className={cn(
-          'absolute right-0 flex items-center rounded-full overflow-hidden w-full neo-naive',
-          isLight ? 'neo-naive-search' : 'neo-naive--dark neo-naive-search--dark',
+          'absolute right-0 flex items-center rounded-full overflow-hidden w-full',
+          isLight && 'neo-naive neo-naive-search',
         )}
         style={{ height: barH, ...glassStyle }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[52px] h-[52px]" aria-hidden>
-          <Search className={cn('w-[17px] h-[17px]', isLight ? 'text-[#3B82F6]/85' : 'text-[#60A5FA]')} strokeWidth={2.25} />
+        <div
+          className={cn(
+            'shrink-0 flex items-center justify-center',
+            isLight ? 'w-[52px] h-[52px]' : 'w-[38px] h-[38px]',
+          )}
+          aria-hidden
+        >
+          <Search
+            className={cn(
+              isLight ? 'w-[17px] h-[17px] text-[#3B82F6]/85' : 'w-[15px] h-[15px] text-white/90',
+            )}
+            strokeWidth={2.25}
+          />
         </div>
 
         <div className="flex-1 flex items-center h-full min-w-0">
@@ -107,7 +128,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               <ArrowRight
                 className={cn(
                   'w-[19px] h-[19px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
-                  isLight ? 'text-[#3B82F6]' : 'text-[#60A5FA]',
+                  isLight ? 'text-[#3B82F6]' : 'text-white/90',
                 )}
                 strokeWidth={2.4}
               />
