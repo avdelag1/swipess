@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -25,6 +25,7 @@ import { DashboardFilters } from '@/components/DashboardFilters';
 import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
 import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
+import { DASHBOARD_CHROME_SCROLL_KEY, useScrollDirection } from '@/hooks/useScrollDirection';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -66,8 +67,18 @@ const itemVariants = {
 
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme, isLight: themeIsLight } = useAppTheme();
   const isLight = themeIsLight || theme === 'light';
+
+  // Same shared scroll chrome as TopBar / bottom dock — hide together on scroll down
+  const { isVisible: searchVisible } = useScrollDirection({
+    threshold: 36,
+    showAtTop: true,
+    targetSelector: '#dashboard-scroll-container',
+    resetTrigger: location.pathname,
+    sharedKey: DASHBOARD_CHROME_SCROLL_KEY,
+  });
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
@@ -96,43 +107,58 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* Search + filters stay in document flow and scroll away naturally.
-          Collapsing their height on chrome-hide was yanking the card deck upward. */}
-      <div className="w-full max-w-3xl mx-auto mb-1.5">
-        <div
-          className="rounded-[1.2rem] p-1.5 sm:p-2"
-          style={{
-            background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
-          }}
-        >
-          <AISearchBar
-            isLight={isLight}
-            onFilterClick={() => useModalStore.getState().openAIChat()}
-            onSearchSubmit={(query) => {
-              const q = (query || '').trim();
-              useModalStore.getState().openAIChat(q);
-            }}
+      {/* Soft pearls across the whole dashboard canvas (visible in gaps around cards) */}
+      <div className="qf-pearl-field qf-pearl-field--page pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+          <span
+            key={i}
+            className={cn('qf-pearl', isLight ? 'qf-pearl--light' : 'qf-pearl--dark')}
           />
-          <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1" />
-          <div className="mt-1">
-            <DashboardFilters isLight={isLight} />
+        ))}
+      </div>
+
+      {/* AI search + 3 filter pills — soft collapse on scroll down (synced with chrome) */}
+      <div
+        className={cn(
+          'relative z-20 w-full max-w-3xl mx-auto dash-search-slot',
+          !searchVisible && 'dash-search-slot--hidden',
+        )}
+      >
+        <div className="dash-search-slot-inner">
+          <div
+            className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5"
+            style={{
+              background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
+            }}
+          >
+            <AISearchBar
+              isLight={isLight}
+              onFilterClick={() => useModalStore.getState().openAIChat()}
+              onSearchSubmit={(query) => {
+                const q = (query || '').trim();
+                useModalStore.getState().openAIChat(q);
+              }}
+            />
+            <AIDisclosure isLight={isLight} variant="compact" className="px-1 mt-1" />
+            <div className="mt-1">
+              <DashboardFilters isLight={isLight} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Quick filter well — soft pearl drift behind cards */}
+      {/* Quick filter well */}
       <div
-        className="relative w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2 overflow-hidden"
+        className="relative z-10 w-full max-w-3xl mx-auto rounded-[1.5rem] p-2 sm:p-2.5 overflow-hidden"
         style={{
           background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
         }}
       >
         <div className="qf-pearl-field pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.5rem]" aria-hidden>
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
             <span
               key={i}
               className={cn('qf-pearl', isLight ? 'qf-pearl--light' : 'qf-pearl--dark')}
-              style={{ ['--qf-i' as string]: i }}
             />
           ))}
         </div>
@@ -141,7 +167,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="relative z-10 w-full flex items-start gap-2 sm:gap-2.5 pb-0.5"
+          className="relative z-10 w-full flex items-start gap-2.5 sm:gap-3 pb-0.5"
         >
           {[
             BENTO_ITEMS.filter((_, i) => i % 2 === 0),
