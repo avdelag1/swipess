@@ -35,12 +35,14 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     runSearch();
   };
 
-  // Neo-naïve frames both themes (CSS classes carry the look)
+  // Neo-naïve violet-blue search — thicker bar
+  const barH = 46;
   const glassStyle = { color: isLight ? '#111' : '#fff' };
 
   return (
     <form
-      className={cn('relative flex items-center justify-end h-[38px] w-full', className)}
+      className={cn('relative flex items-center justify-end w-full', className)}
+      style={{ height: barH }}
       onSubmit={handleSubmit}
       action="#"
       role="search"
@@ -51,10 +53,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           'absolute right-0 flex items-center rounded-full overflow-hidden w-full neo-naive',
           isLight ? 'neo-naive-search' : 'neo-naive--dark neo-naive-search--dark',
         )}
-        style={{ height: '38px', ...glassStyle }}
+        style={{ height: barH, ...glassStyle }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[38px] h-[38px]" aria-hidden>
-          <Search className={cn('w-[15px] h-[15px]', isLight ? 'text-black/60' : 'text-white/90')} strokeWidth={2} />
+        <div className="shrink-0 flex items-center justify-center w-[46px] h-[46px]" aria-hidden>
+          <Search className={cn('w-[16px] h-[16px]', isLight ? 'text-[#6b5cef]/80' : 'text-[#a78bfa]')} strokeWidth={2.25} />
         </div>
 
         <div className="flex-1 flex items-center h-full min-w-0">
@@ -105,9 +107,9 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               <ArrowRight
                 className={cn(
                   'w-[18px] h-[18px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
-                  isLight ? 'text-black/70' : 'text-white/90',
+                  isLight ? 'text-[#6b5cef]' : 'text-[#a78bfa]',
                 )}
-                strokeWidth={2.25}
+                strokeWidth={2.4}
               />
             </button>
           </div>

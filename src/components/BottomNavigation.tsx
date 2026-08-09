@@ -41,10 +41,12 @@ import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCateg
 import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
-const ICON_SIZE = 20;
-const ICON_SIZE_TABLET = 24;
+const ICON_SIZE = 18;
+const ICON_SIZE_TABLET = 22;
 const _TOUCH_TARGET = 34;
 const _TOUCH_TARGET_TABLET = 42;
+
+const NAV_WASHES = ['coral', 'sky', 'lemon', 'mint', 'violet'] as const;
 
 interface BottomNavigationProps {
   onFilterClick?: () => void;
@@ -287,10 +289,11 @@ export const BottomNavigation = memo(({
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
             const isAddBtn = item.id === 'add';
+            const wash = NAV_WASHES[index % NAV_WASHES.length];
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
@@ -333,23 +336,21 @@ export const BottomNavigation = memo(({
                   boxShadow: 'none',
                 }}
               >
-                {/* Icon host — never a filled circle */}
                 <div
-                  className="relative z-10 flex items-center justify-center"
+                  className={cn(
+                    'neo-naive-nav-icon relative z-10',
+                    `neo-naive-nav-icon--${wash}`,
+                    !isLight && 'neo-naive-nav-icon--dark',
+                  )}
                   style={{
                     width: isTablet ? 40 : 36,
                     height: isTablet ? 40 : 36,
-                    background: 'transparent',
-                    boxShadow: 'none',
-                    border: 'none',
-                    borderRadius: 0,
                   }}
                 >
-                  {/* Notification badge only */}
                   {item.badge && item.badge > 0 && (
                     <span
                       key={`${item.id}-badge`}
-                      className="force-white absolute -top-0.5 -right-0.5 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white px-1"
+                      className="force-white absolute -top-1 -right-1 rounded-full min-w-[18px] max-w-[28px] h-[18px] overflow-hidden z-20 flex items-center justify-center text-[11px] font-bold text-white px-1"
                       style={{ background: 'linear-gradient(135deg,#FF4D00,#EB4898)' }}
                     >
                       {item.badge > 99 ? '99+' : item.badge}
@@ -358,15 +359,15 @@ export const BottomNavigation = memo(({
 
                   <Icon
                     style={{
-                      width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                      height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                      width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE)),
+                      height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE)),
                       color: isAddBtn
                         ? '#FF4D6A'
                         : (active ? baseColor : inactiveIconColor),
                       fill: 'none',
-                      strokeWidth: active || isAddBtn ? 2.6 : 2.15,
+                      strokeWidth: active || isAddBtn ? 2.6 : 2.2,
                       filter: 'none',
-                      opacity: active || isAddBtn ? 1 : 0.85,
+                      opacity: active || isAddBtn ? 1 : 0.88,
                       transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
                     }}
                   />
