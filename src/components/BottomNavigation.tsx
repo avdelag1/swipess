@@ -46,6 +46,8 @@ const ICON_SIZE_TABLET = 22;
 const _TOUCH_TARGET = 34;
 const _TOUCH_TARGET_TABLET = 42;
 
+const NAV_WASHES = ['coral', 'sky', 'lemon', 'mint', 'violet'] as const;
+
 interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
@@ -287,10 +289,11 @@ export const BottomNavigation = memo(({
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const Icon = item.icon;
             const active = isActive(item) || isModalActive(item);
             const isAddBtn = item.id === 'add';
+            const wash = NAV_WASHES[index % NAV_WASHES.length];
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
@@ -334,14 +337,21 @@ export const BottomNavigation = memo(({
                 }}
               >
                 <div
-                  className="relative z-10 flex items-center justify-center"
+                  className={cn(
+                    'relative z-10 flex items-center justify-center',
+                    isLight && `neo-naive-nav-icon neo-naive-nav-icon--${wash}`,
+                  )}
                   style={{
                     width: isTablet ? 40 : 36,
                     height: isTablet ? 40 : 36,
-                    background: 'transparent',
-                    boxShadow: 'none',
-                    border: 'none',
-                    borderRadius: 0,
+                    ...(isLight
+                      ? {}
+                      : {
+                          background: 'transparent',
+                          boxShadow: 'none',
+                          border: 'none',
+                          borderRadius: 0,
+                        }),
                   }}
                 >
                   {item.badge && item.badge > 0 && (

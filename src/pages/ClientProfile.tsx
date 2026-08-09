@@ -76,6 +76,8 @@ const ClientProfile = () => {
   };
 
   const completionPercent = calculateCompletion();
+  const panel = isLight ? 'neo-naive-panel' : 'neo-naive-panel--dark';
+  const tile = isLight ? 'neo-naive-tile' : 'neo-naive-tile--dark';
 
   if (isLoading && !profile) {
     return <ProfileSkeleton />;
@@ -92,7 +94,7 @@ const ClientProfile = () => {
 
   return (
     <AmbientPageBackground className={cn("w-full min-h-screen text-foreground")}>
-      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10">
+      <div className={cn("w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-10 neo-naive", !isLight && "neo-naive--dark")}>
 
         {/* IDENTITY CORE */}
         <div className="flex flex-col items-center text-center gap-6">
@@ -100,7 +102,7 @@ const ClientProfile = () => {
             <motion.div
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="w-36 h-36 p-[3px] rounded-full shadow-neumorph"
+              className="w-36 h-36 p-[3px] rounded-full"
               style={{
                 background: 'linear-gradient(135deg, #FF4D00, #EB4898)',
               }}
@@ -121,7 +123,10 @@ const ClientProfile = () => {
             <button
               onClick={() => { triggerHaptic('light'); setShowEditDialog(true); }}
               aria-label="Edit profile photo"
-              className="absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center shadow-neumorph transition-all active:shadow-neumorph-inset active:scale-90 z-20 rounded-[1.5rem] border border-white/10"
+              className={cn(
+                "absolute -bottom-3 -right-3 w-12 h-12 flex items-center justify-center transition-all active:scale-90 z-20 rounded-[1.5rem]",
+                tile,
+              )}
               style={{ background: 'linear-gradient(135deg, #FF4D00, #FF6B00)' }}
             >
               <Camera className="w-5 h-5 text-white" />
@@ -139,23 +144,21 @@ const ClientProfile = () => {
         </div>
 
         {/* HUD STATS GRID */}
-        <div className={cn("grid grid-cols-3 gap-3", isLight && "surface-section !p-4")}>
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', glow: 'rgba(255,77,0,0.1)', path: '/client/who-liked-you' },
-            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', glow: 'rgba(235,72,152,0.1)', path: '/client/liked-properties' },
-            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', glow: 'rgba(251,146,60,0.1)', path: '/messages' },
+            { label: t('nav.likes'), value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#FF4D00]', wash: 'neo-naive-wash--coral', path: '/client/who-liked-you' },
+            { label: t('dashboard.totalMatches'), value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-[#EB4898]', wash: 'neo-naive-wash--mint', path: '/client/liked-properties' },
+            { label: t('nav.messages'), value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-orange-400', wash: 'neo-naive-wash--lemon', path: '/messages' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className={cn(
-                "flex flex-col items-center justify-center p-5 text-center rounded-3xl cursor-pointer transition-all",
-                isLight ? "surface-stat" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
-              )}
-              style={isLight ? undefined : { boxShadow: `inset 0 0 30px ${stat.glow}` }}
+              className={cn("flex flex-col items-center justify-center p-5 text-center cursor-pointer transition-all", panel)}
               onClick={() => { triggerHaptic('light'); navigate(stat.path); }}
             >
-              <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
+              <span className={cn('neo-naive-wash mb-2', stat.wash)}>
+                <stat.icon className={cn("w-5 h-5", stat.color)} strokeWidth={2.2} />
+              </span>
               <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-900" : "text-white")}>
                 {stat.value}
               </div>
@@ -164,142 +167,103 @@ const ClientProfile = () => {
           ))}
         </div>
 
-        {/* DAILY QUESTS GAMIFICATION */}
-        <div className="w-full">
+        {/* DAILY QUESTS */}
+        <div className={cn("w-full p-3", panel)}>
           <DailyQuestBoard />
         </div>
 
         {/* FEATURE HUB */}
-        <div className={cn("space-y-3", isLight && "surface-section")}>
-          {/* AI Profile — full-width hero button */}
+        <div className="space-y-3">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => { triggerHaptic('medium'); useModalStore.getState().openAIProfile('client'); }}
-            className="w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] shadow-neumorph active:shadow-neumorph-inset border-none relative overflow-hidden transition-shadow"
-            style={{ background: 'linear-gradient(135deg, #06B6D4, #6366F1)' }}
+            className={cn(
+              "w-full h-16 flex items-center justify-center gap-3 text-white font-black uppercase italic tracking-[0.2em] text-[15px] border-none relative overflow-hidden",
+              tile,
+            )}
+            style={{ background: 'linear-gradient(135deg, #06B6D4, #3B82F6)' }}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_60%)] pointer-events-none" />
             <Sparkles className="w-5 h-5 relative z-10" />
             <span className="relative z-10">Magic AI Profile</span>
           </motion.button>
 
-          {/* Grid of Feature Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            {/* Edit Profile */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #FF4D00, #EB4898)' }}
-            >
-              <User className="w-7 h-7 text-white" />
-              <span>{t('profile.editProfile')}</span>
-            </motion.button>
+            {[
+              { label: t('profile.editProfile'), icon: User, onClick: () => setShowEditDialog(true), bg: 'linear-gradient(135deg, #FF4D00, #EB4898)' },
+              { label: t('nav.promote'), icon: Megaphone, onClick: () => navigate('/client/advertise'), bg: 'linear-gradient(135deg, #FF4D00, #FF8C00)' },
+              { label: 'Seekers', icon: Users, onClick: () => navigate('/explore/seekers'), bg: 'linear-gradient(135deg, #3B82F6, #6366F1)' },
+              { label: 'Tokens', icon: Coins, onClick: () => useModalStore.getState().setModal('showTokensModal', true), bg: 'linear-gradient(135deg, #10B981, #06B6D4)' },
+              { label: t('nav.settings'), icon: Settings, onClick: () => navigate('/client/settings'), bg: 'linear-gradient(135deg, #64748B, #334155)' },
+              { label: t('actions.signOut'), icon: LogOut, onClick: () => signOut(), bg: 'linear-gradient(135deg, #EF4444, #991B1B)' },
+            ].map((btn) => (
+              <motion.button
+                key={btn.label}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => { triggerHaptic('medium'); btn.onClick(); }}
+                className={cn(
+                  "w-full h-24 flex flex-col items-center justify-center gap-2 transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]",
+                  tile,
+                )}
+                style={{ background: btn.bg }}
+              >
+                <btn.icon className="w-7 h-7 text-white" strokeWidth={2.1} />
+                <span>{btn.label}</span>
+              </motion.button>
+            ))}
 
-            {/* Promote */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #FF4D00, #FF8C00)' }}
-            >
-              <Megaphone className="w-7 h-7 text-white" />
-              <span>{t('nav.promote')}</span>
-            </motion.button>
-
-
-            {/* Seekers */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/explore/seekers'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)' }}
-            >
-              <Users className="w-7 h-7 text-white" />
-              <span>Seekers</span>
-            </motion.button>
-
-            {/* Tokens */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); useModalStore.getState().setModal('showTokensModal', true); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #10B981, #06B6D4)' }}
-            >
-              <Coins className="w-7 h-7 text-white" />
-              <span>Tokens</span>
-            </motion.button>
-
-            {/* Settings */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); navigate('/client/settings'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #64748B, #334155)' }}
-            >
-              <Settings className="w-7 h-7 text-white" />
-              <span>{t('nav.settings')}</span>
-            </motion.button>
-
-            {/* Sign Out */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => { triggerHaptic('medium'); signOut(); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
-              style={{ background: 'linear-gradient(135deg, #EF4444, #991B1B)' }}
-            >
-              <LogOut className="w-7 h-7 text-white" />
-              <span>{t('actions.signOut')}</span>
-            </motion.button>
-
-            {/* Premium */}
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { triggerHaptic('medium'); navigate('/subscription/packages'); }}
-              className={cn("w-full h-24 rounded-3xl flex flex-col items-center justify-center gap-2 border shadow-neumorph active:shadow-neumorph-inset transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px] col-span-2", isLight ? "bg-slate-900 border-white/20" : "bg-white/[0.08] border-white/10")}
+              className={cn(
+                "w-full h-24 col-span-2 flex flex-col items-center justify-center gap-2 transition-all text-white font-black uppercase italic tracking-[0.2em] text-[12px] md:text-[14px]",
+                tile,
+              )}
               style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }}
             >
-              <Crown className="w-7 h-7 text-white" />
+              <Crown className="w-7 h-7 text-white" strokeWidth={2.1} />
               <span>Premium</span>
             </motion.button>
           </div>
         </div>
 
         {/* SHARE AND EARN */}
-        <div className="p-[1.5px] rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(255,77,0,0.2), rgba(235,72,152,0.2))' }}>
-          <div className={cn("rounded-3xl", isLight ? "surface-2" : "bg-[#020202]")}>
-            <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
-          </div>
+        <div className={panel}>
+          <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Identity'} isClient={true} />
         </div>
 
-        {/* PROMO CODES */}
         <div className="mt-6 mb-6">
            {/* PromoCodeSection removed to comply with App Store Guideline 3.1.1 */}
         </div>
 
-        {/* FEEDBACK & CONTACT ADMINS */}
-        <div className={cn(
-          "rounded-[2.5rem] overflow-hidden border shadow-2xl p-6",
-          isLight ? "bg-white border-black/5" : "bg-card/40 border-white/5 backdrop-blur-xl"
-        )}>
+        {/* FEEDBACK */}
+        <div className={cn("overflow-hidden p-6", panel)}>
            <FeedbackSection />
         </div>
 
         {/* HOLOGRAPHIC IDENTITY VAULT */}
-        <div className="relative cursor-pointer" role="button" aria-label="Open identity vault" tabIndex={0} onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { triggerHaptic('light'); setIsVapModalOpen(true); } }}>
+        <div
+          className={cn("relative cursor-pointer p-2", panel)}
+          role="button"
+          aria-label="Open identity vault"
+          tabIndex={0}
+          onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { triggerHaptic('light'); setIsVapModalOpen(true); } }}
+        >
           <HolographicIDCard profile={profile} />
-          
-          {/* External hint for edit */}
           <div className="absolute top-4 right-4 z-20">
-            <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md border", isLight ? "bg-white/60 border-slate-200" : "bg-white/5 border-white/10")}>
-              <span className={cn("text-[8px] font-black uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Sync Protocol</span>
-              <ChevronRight className={cn("w-3 h-3", isLight ? "text-black/20" : "text-white/20")} />
+            <div className={cn(
+              "flex items-center gap-1.5 px-3 py-1 rounded-full",
+              isLight ? "neo-naive-pill" : "neo-naive-pill--dark",
+            )}>
+              <span className={cn("text-[8px] font-black uppercase tracking-widest", isLight ? "text-black/50" : "text-white/50")}>Sync Protocol</span>
+              <ChevronRight className={cn("w-3 h-3", isLight ? "text-black/30" : "text-white/30")} />
             </div>
           </div>
         </div>
 
-        {/* SEEKER AD SECTION (Tasker / Requests) */}
-        <div className="mt-2 mb-2">
+        {/* SEEKER AD */}
+        <div className={cn("mt-2 mb-2 p-3", panel)}>
           <SeekerAdSection />
         </div>
 
@@ -310,21 +274,19 @@ const ClientProfile = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className={cn(
-                "rounded-3xl p-7 space-y-5",
-                isLight ? "surface-2" : "border border-white/[0.06] bg-white/[0.02] backdrop-blur-xl"
-              )}
-              style={isLight ? undefined : { boxShadow: 'inset 0 0 40px rgba(255,77,0,0.03)' }}
+              className={cn("p-7 space-y-5", panel)}
             >
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-4 h-4 text-[#EB4898]" />
+                  <span className="neo-naive-wash neo-naive-wash--coral">
+                    <Sparkles className="w-4 h-4 text-[#EB4898]" strokeWidth={2.2} />
+                  </span>
                   <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-slate-500" : "text-white/35")}>{t('profile.completeness')}</span>
                 </div>
                 <span className={cn("text-2xl font-black italic tracking-tighter", isLight ? "text-slate-900" : "text-white")}>{completionPercent}%</span>
               </div>
 
-              <div className={cn("h-3 w-full rounded-full overflow-hidden border", isLight ? "surface-inset" : "bg-white/[0.04] border-white/[0.06]")}>
+              <div className={cn("h-3 w-full rounded-full overflow-hidden border", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.04] border-white/[0.06]")}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${completionPercent}%` }}
@@ -340,7 +302,7 @@ const ClientProfile = () => {
         </AnimatePresence>
 
         {/* GLOBAL PULSE FEED */}
-        <div className={cn("space-y-5", isLight && "surface-section")}>
+        <div className={cn("space-y-5 p-4", panel)}>
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
