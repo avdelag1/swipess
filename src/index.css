@@ -506,16 +506,6 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
-/* Soft pearl orbs behind quick-filter cards — gentle random-feeling drift */
-.qf-pearl-field {
-  isolation: isolate;
-}
-
-.qf-pearl-field--page {
-  /* Sit behind dashboard content but above page bg */
-  z-index: 0;
-}
-
 .dash-search-slot {
   display: grid;
   grid-template-rows: 1fr;
@@ -540,69 +530,55 @@ html[data-theme-transition] ::view-transition-new(root) {
   min-height: 0;
 }
 
-.qf-pearl {
+/* Tiny soft white wash behind quick-filter cards — slow pulse only, no orbs */
+.qf-well-glow--dark,
+.qf-well-glow--light {
+  position: relative;
+}
+
+.qf-well-glow--dark::before,
+.qf-well-glow--light::before {
+  content: '';
   position: absolute;
-  border-radius: 9999px;
+  inset: 10% 8%;
+  border-radius: 40%;
   pointer-events: none;
-  will-change: transform, opacity;
-  animation-name: qf-pearl-drift;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  filter: blur(0.5px);
+  z-index: 0;
+  animation: qf-well-soft-glow 7s ease-in-out infinite;
 }
 
-.qf-pearl--dark {
+.qf-well-glow--dark::before {
   background: radial-gradient(
-    circle at 32% 28%,
-    rgba(255, 255, 255, 0.85) 0%,
-    rgba(255, 255, 255, 0.35) 42%,
-    rgba(255, 255, 255, 0.06) 100%
+    ellipse at center,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 45%,
+    transparent 72%
   );
-  box-shadow:
-    0 0 24px rgba(255, 255, 255, 0.28),
-    0 0 48px rgba(255, 255, 255, 0.1);
 }
 
-.qf-pearl--light {
+.qf-well-glow--light::before {
   background: radial-gradient(
-    circle at 32% 28%,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.7) 40%,
-    rgba(255, 255, 255, 0.15) 100%
+    ellipse at center,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    transparent 72%
   );
-  box-shadow:
-    0 0 20px rgba(255, 255, 255, 0.55),
-    0 0 40px rgba(255, 255, 255, 0.2);
 }
 
-/* Staggered sizes / positions / speeds so motion feels organic */
-.qf-pearl:nth-child(1)  { width: 72px; height: 72px; left: 6%;  top: 10%; animation-duration: 9.5s;  animation-delay: -1.2s; opacity: 0.55; }
-.qf-pearl:nth-child(2)  { width: 42px; height: 42px; left: 70%; top: 6%;  animation-duration: 11s;   animation-delay: -3.4s; opacity: 0.48; }
-.qf-pearl:nth-child(3)  { width: 96px; height: 96px; left: 38%; top: 22%; animation-duration: 13.5s; animation-delay: -0.6s; opacity: 0.4; }
-.qf-pearl:nth-child(4)  { width: 36px; height: 36px; left: 14%; top: 48%; animation-duration: 8.2s;  animation-delay: -4.8s; opacity: 0.52; }
-.qf-pearl:nth-child(5)  { width: 64px; height: 64px; left: 78%; top: 42%; animation-duration: 12.2s; animation-delay: -2.1s; opacity: 0.45; }
-.qf-pearl:nth-child(6)  { width: 28px; height: 28px; left: 52%; top: 68%; animation-duration: 7.4s;  animation-delay: -5.5s; opacity: 0.5; }
-.qf-pearl:nth-child(7)  { width: 80px; height: 80px; left: 24%; top: 74%; animation-duration: 14s;   animation-delay: -1.8s; opacity: 0.38; }
-.qf-pearl:nth-child(8)  { width: 50px; height: 50px; left: 88%; top: 78%; animation-duration: 10.4s; animation-delay: -6.2s; opacity: 0.42; }
-.qf-pearl:nth-child(9)  { width: 30px; height: 30px; left: 4%;  top: 88%; animation-duration: 9s;    animation-delay: -2.7s; opacity: 0.46; }
-.qf-pearl:nth-child(10) { width: 58px; height: 58px; left: 60%; top: 90%; animation-duration: 12.8s; animation-delay: -4.1s; opacity: 0.36; }
-
-@keyframes qf-pearl-drift {
-  0%   { transform: translate3d(0, 0, 0); }
-  25%  { transform: translate3d(8px, -22px, 0); }
-  50%  { transform: translate3d(-6px, -40px, 0); }
-  75%  { transform: translate3d(10px, -18px, 0); }
-  100% { transform: translate3d(0, 0, 0); }
+@keyframes qf-well-soft-glow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.04); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .qf-pearl {
-    animation: none;
-    opacity: 0.22;
-  }
   .dash-search-slot,
   .dash-search-slot--hidden {
     transition: none;
+  }
+  .qf-well-glow--dark::before,
+  .qf-well-glow--light::before {
+    animation: none;
+    opacity: 0.5;
   }
 }
 

@@ -107,17 +107,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         touchAction: 'pan-y',
       }}
     >
-      {/* Soft pearls across the whole dashboard canvas (visible in gaps around cards) */}
-      <div className="qf-pearl-field qf-pearl-field--page pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-          <span
-            key={i}
-            className={cn('qf-pearl', isLight ? 'qf-pearl--light' : 'qf-pearl--dark')}
-          />
-        ))}
-      </div>
-
-      {/* AI search + 3 filter pills — soft collapse on scroll down (synced with chrome) */}
+      {/* Soft collapse on scroll down (synced with chrome) */}
       <div
         className={cn(
           'relative z-20 w-full max-w-3xl mx-auto dash-search-slot',
@@ -147,27 +137,21 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         </div>
       </div>
 
-      {/* Quick filter well */}
+      {/* Quick filter well — tiny soft white glow only (no floating orbs) */}
       <div
-        className="relative z-10 w-full max-w-3xl mx-auto rounded-[1.5rem] p-2 sm:p-2.5 overflow-hidden"
+        className={cn(
+          'relative z-10 w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2 overflow-hidden',
+          isLight ? 'qf-well-glow--light' : 'qf-well-glow--dark',
+        )}
         style={{
           background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
         }}
       >
-        <div className="qf-pearl-field pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.5rem]" aria-hidden>
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <span
-              key={i}
-              className={cn('qf-pearl', isLight ? 'qf-pearl--light' : 'qf-pearl--dark')}
-            />
-          ))}
-        </div>
-
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="relative z-10 w-full flex items-start gap-2.5 sm:gap-3 pb-0.5"
+          className="relative z-10 w-full flex items-start gap-2 sm:gap-2.5 pb-0.5"
         >
           {[
             BENTO_ITEMS.filter((_, i) => i % 2 === 0),
