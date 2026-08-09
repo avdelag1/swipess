@@ -506,6 +506,66 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
+/* Soft pearl orbs behind quick-filter cards — gentle random-feeling drift */
+.qf-pearl-field {
+  isolation: isolate;
+}
+
+.qf-pearl {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation-name: qf-pearl-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  filter: blur(0.2px);
+}
+
+.qf-pearl--dark {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.12);
+}
+
+.qf-pearl--light {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.45) 40%,
+    rgba(0, 0, 0, 0.06) 100%
+  );
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+}
+
+/* Staggered sizes / positions / speeds so motion feels organic */
+.qf-pearl:nth-child(1) { width: 56px; height: 56px; left: 8%;  top: 12%; animation-duration: 9.5s;  animation-delay: -1.2s; opacity: 0.35; }
+.qf-pearl:nth-child(2) { width: 34px; height: 34px; left: 72%; top: 8%;  animation-duration: 11s;   animation-delay: -3.4s; opacity: 0.28; }
+.qf-pearl:nth-child(3) { width: 72px; height: 72px; left: 42%; top: 28%; animation-duration: 13.5s; animation-delay: -0.6s; opacity: 0.22; }
+.qf-pearl:nth-child(4) { width: 28px; height: 28px; left: 18%; top: 55%; animation-duration: 8.2s;  animation-delay: -4.8s; opacity: 0.32; }
+.qf-pearl:nth-child(5) { width: 48px; height: 48px; left: 78%; top: 48%; animation-duration: 12.2s; animation-delay: -2.1s; opacity: 0.26; }
+.qf-pearl:nth-child(6) { width: 22px; height: 22px; left: 55%; top: 72%; animation-duration: 7.4s;  animation-delay: -5.5s; opacity: 0.3; }
+.qf-pearl:nth-child(7) { width: 64px; height: 64px; left: 28%; top: 78%; animation-duration: 14s;   animation-delay: -1.8s; opacity: 0.2; }
+
+@keyframes qf-pearl-drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  25%  { transform: translate3d(6px, -14px, 0); }
+  50%  { transform: translate3d(-4px, -28px, 0); }
+  75%  { transform: translate3d(8px, -12px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qf-pearl {
+    animation: none;
+    opacity: 0.18;
+  }
+}
+
 /* Subtle top rim only — no bright white wash that kills icon contrast */
 .floating-dock-nav::before {
   content: "";

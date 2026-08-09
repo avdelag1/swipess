@@ -120,18 +120,28 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         </div>
       </div>
 
-      {/* Quick filter well — subtle tonal lift under cards */}
+      {/* Quick filter well — soft pearl drift behind cards */}
       <div
-        className="w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2"
+        className="relative w-full max-w-3xl mx-auto rounded-[1.5rem] p-1.5 sm:p-2 overflow-hidden"
         style={{
           background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
         }}
       >
+        <div className="qf-pearl-field pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[1.5rem]" aria-hidden>
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <span
+              key={i}
+              className={cn('qf-pearl', isLight ? 'qf-pearl--light' : 'qf-pearl--dark')}
+              style={{ ['--qf-i' as string]: i }}
+            />
+          ))}
+        </div>
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="w-full flex items-start gap-2 sm:gap-2.5 pb-0.5"
+          className="relative z-10 w-full flex items-start gap-2 sm:gap-2.5 pb-0.5"
         >
           {[
             BENTO_ITEMS.filter((_, i) => i % 2 === 0),
