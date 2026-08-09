@@ -2,6 +2,8 @@
   var splash = document.getElementById('static-splash');
   var appReady = false;
   var windowLoaded = false;
+  var SPLASH_RELOAD_KEY = 'swipess_splash_sw_reload_once';
+
   function fadeOut() {
     if (splash && !splash.classList.contains('fade-out')) {
       splash.classList.add('fade-out');
@@ -18,21 +20,15 @@
     setTimeout(tryFade, 250);
   });
 
-  // When a new SW activates (sends SW_UPDATED), the page is stale.
-  // If React never mounted (appReady===false), auto-reload so the new
-  // SW can serve fresh index.html + matching chunks from Vercel.
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', function(event) {
-      if (event.data && event.data.type === 'SW_UPDATED' && !appReady) {
-        setTimeout(function() { window.location.reload(); }, 600);
-      }
-    });
-    // Also reload on controllerchange (covers skipWaiting path)
-    navigator.serviceWorker.addEventListener('controllerchange', function() {
-      if (!appReady) {
-        setTimeout(function() { window.location.reload(); }, 600);
-      }
-    });
+  // IMPORTANT: never auto-reload on SW activate / controllerchange during boot.
+  // skipWaiting + clients.claim fires these on every deploy and caused a permanent
+  // refresh loop while appReady was still false. One-shot recovery only if the
+  // splash is still stuck after a long wait (see timeout below).
+  function alreadyReloadedOnce() {
+    try { return sessionStorage.getItem(SPLASH_RELOAD_KEY) === '1'; } catch (e) { return false; }
+  }
+  function markReloaded() {
+    try { sessionStorage.setItem(SPLASH_RELOAD_KEY, '1'); } catch (e) { /* private mode */ }
   }
 
   setTimeout(function() {
@@ -49,8 +45,17 @@
       var btn = document.getElementById('swipess-recovery-btn');
       if (btn) {
         btn.addEventListener('click', function() {
+          markReloaded();
           window.location.href = '/?reset=1&t=' + Date.now();
         });
+      }
+
+      // Soft one-shot auto-recovery if splash is still stuck (never loops)
+      if (!alreadyReloadedOnce()) {
+        markReloaded();
+        setTimeout(function() {
+          if (!appReady) window.location.href = '/?reset=1&t=' + Date.now();
+        }, 2500);
       }
     }
   }, 6000);

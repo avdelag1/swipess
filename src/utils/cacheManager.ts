@@ -95,7 +95,9 @@ export function checkForUpdates(): void {
 }
 
 /**
- * Set up automatic update checking with configurable interval
+ * Set up automatic update checking with configurable interval.
+ * Never auto-reloads — only notifies. Auto-reload caused refresh loops
+ * when SW activated mid-boot after rapid deploys.
  */
 export function setupUpdateChecker(intervalMs = 60000): () => void {
   if ('serviceWorker' in navigator) {
@@ -113,16 +115,13 @@ export function setupUpdateChecker(intervalMs = 60000): () => void {
     };
     window.addEventListener('online', handleOnline);
 
-    // Listen for SW update notifications
+    // Surface updates — do NOT hard-reload here (banner / user tap only)
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'SW_UPDATED') {
-        logger.info('[CacheManager] New version available:', event.data.version);
-        // Auto-reload to get the new version
-        window.location.replace(window.location.pathname + '?v=' + Date.now());
-      }
-      if (event.data?.type === 'FORCE_REFRESH') {
-        logger.info('[CacheManager] Force refresh requested');
-        window.location.replace(window.location.pathname + '?v=' + Date.now());
+      if (event.data?.type === 'SW_UPDATED' || event.data?.type === 'FORCE_REFRESH') {
+        logger.info('[CacheManager] New version signal:', event.data.type, event.data.version);
+        try {
+          window.dispatchEvent(new CustomEvent('swipess-update-available', { detail: event.data }));
+        } catch { /* ignore */ }
       }
     };
     navigator.serviceWorker.addEventListener('message', handleMessage);

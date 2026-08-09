@@ -14,7 +14,7 @@ interface State {
 
 const RELOAD_KEY = 'swipess_global_reload_count';
 const RELOAD_TS_KEY = 'swipess_global_reload_ts';
-const MAX_RELOADS_PER_MINUTE = 3;
+const _MAX_RELOADS_PER_MINUTE = 1;
 
 class GlobalErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -33,43 +33,49 @@ class GlobalErrorBoundary extends Component<Props, State> {
     // below) instead of the splash's 6s "Something went wrong" watchdog.
     markAppRendered();
 
-    // If it's a chunk load error (Vercel deploy happened), we MUST unregister the SW
-    // Otherwise the SW just serves the old index.html again, causing an infinite loop.
-    const isChunkError = error?.message?.includes('dynamically imported module') || error?.message?.includes('Failed to fetch');
+    // Chunk/deploy errors only — NEVER auto-reload on general React errors
+    // (that created refresh loops when a persistent render bug remained).
+    const isChunkError =
+      error?.message?.includes('dynamically imported module') ||
+      error?.message?.includes('Loading chunk') ||
+      error?.message?.includes('Failed to fetch');
+
+    if (!isChunkError) {
+      this.setState({ errorInfo });
+      return;
+    }
 
     try {
-      if (isChunkError && 'serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           for (const registration of registrations) {
             registration.unregister();
           }
         });
-        // Clear caches
-        if ('caches' in window) {
-          caches.keys().then((names) => {
-            for (const name of names) {
-              caches.delete(name);
-            }
-          });
-        }
+      }
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          for (const name of names) {
+            caches.delete(name);
+          }
+        });
       }
 
       const now = Date.now();
       const lastTs = parseInt(localStorage.getItem(RELOAD_TS_KEY) || '0', 10);
       let count = parseInt(localStorage.getItem(RELOAD_KEY) || '0', 10);
       if (now - lastTs > 60_000) count = 0;
-      
-      if (count < MAX_RELOADS_PER_MINUTE) {
+
+      // Hard cap: one auto-reload for chunk errors per minute
+      if (count < 1) {
         localStorage.setItem(RELOAD_KEY, String(count + 1));
         localStorage.setItem(RELOAD_TS_KEY, String(now));
-        // Add timestamp to bypass standard browser cache
         setTimeout(() => {
           window.location.href = window.location.pathname + '?v=' + Date.now();
         }, 800);
         return;
       }
-      
-      // Reload limit hit — clear potentially corrupted stores
+
       localStorage.removeItem('swipe-deck-store');
       localStorage.removeItem('swipe-deck-version');
     } catch { /* ignore */ }

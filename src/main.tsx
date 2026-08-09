@@ -330,20 +330,17 @@ deferredInit(async () => {
           // Check for updates once per hour + whenever the user comes back to the tab
           setInterval(() => reg.update(), 60 * 60 * 1000);
           document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) reg.update();
+            if (!document.hidden) reg.update().catch(() => {});
           });
-          
-          // If a new worker was waiting, skip waiting immediately
-          if (reg.waiting) {
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          
+
+          // Do NOT auto skipWaiting here — activating mid-boot triggered
+          // splash/controllerchange reload loops. Waiting SW is claimed via
+          // the in-app UpdateNotification / user tap.
           reg.onupdatefound = () => {
              const newWorker = reg.installing;
              if (newWorker) {
                  newWorker.onstatechange = () => {
                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                         // Content available - handled by useAutomaticUpdates.tsx
                          if (import.meta.env.DEV) console.warn('[SW] New content available');
                      }
                  };
@@ -352,7 +349,7 @@ deferredInit(async () => {
         })
         .catch(() => {});
 
-      // RELOAD CONTROL - when the new SW takes over, let the hook handle it
+      // Log only — never reload on controllerchange (that caused boot loops)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (import.meta.env.DEV) console.warn('[SW] Controller changed');
       });
