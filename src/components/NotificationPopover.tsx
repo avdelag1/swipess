@@ -309,9 +309,14 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
       }}
       aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
     >
-      <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
+      <span
+        className={cn(
+          'relative flex items-center justify-center w-5 h-5 shrink-0',
+          isLight && 'neo-naive neo-naive-header-icon neo-naive-header-icon--coral',
+        )}
+      >
         <Bell
-          strokeWidth={1.5}
+          strokeWidth={isLight ? 2 : 1.5}
           className={cn(
             "h-[18px] w-[18px] transition-colors duration-150",
             "opacity-90 group-hover:opacity-100"
@@ -320,7 +325,7 @@ export function NotificationPopover({ className, children, glassPillStyle, pillC
         />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm"
+            className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-background/80 shadow-sm z-[2]"
           />
         )}
       </span>

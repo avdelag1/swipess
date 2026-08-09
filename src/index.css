@@ -596,6 +596,9 @@ html[data-theme-transition] ::view-transition-new(root) {
 .neo-naive-wash--lemon::before {
   background: radial-gradient(ellipse at 50% 45%, var(--neo-wash-lemon) 0%, transparent 72%);
 }
+.neo-naive-wash--mint::before {
+  background: radial-gradient(ellipse at 48% 42%, var(--neo-wash-mint) 0%, transparent 72%);
+}
 
 .neo-naive-well {
   background: var(--neo-paper) !important;
@@ -604,6 +607,56 @@ html[data-theme-transition] ::view-transition-new(root) {
   box-shadow:
     1.5px 1.5px 0 var(--neo-ink),
     0 8px 22px rgba(20, 20, 20, 0.05);
+}
+
+/* Header chrome pills + profile avatar (light) */
+.neo-naive-avatar {
+  border: 2px solid var(--neo-ink, #141414) !important;
+  box-shadow: 1px 1px 0 var(--neo-ink, #141414) !important;
+  border-radius: 999px !important;
+}
+
+/* Bottom dock — kill glass rim overlays when neo-naïve */
+.floating-dock-nav.neo-naive-dock {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.floating-dock-nav.neo-naive-dock::before,
+.floating-dock-nav.neo-naive-dock::after {
+  display: none !important;
+}
+
+/* Soft watercolor dabs behind header icons */
+.neo-naive-header-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.neo-naive-header-icon::before {
+  content: '';
+  position: absolute;
+  inset: -4px -5px -5px -4px;
+  border-radius: 55% 45% 58% 42% / 48% 55% 45% 52%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.neo-naive-header-icon > * {
+  position: relative;
+  z-index: 1;
+}
+.neo-naive-header-icon--coral::before {
+  background: radial-gradient(ellipse at 40% 40%, var(--neo-wash-coral, rgba(255, 140, 120, 0.42)) 0%, transparent 72%);
+}
+.neo-naive-header-icon--sky::before {
+  background: radial-gradient(ellipse at 45% 35%, var(--neo-wash-sky, rgba(120, 175, 235, 0.4)) 0%, transparent 72%);
+}
+.neo-naive-header-icon--lemon::before {
+  background: radial-gradient(ellipse at 50% 45%, var(--neo-wash-lemon, rgba(245, 210, 90, 0.45)) 0%, transparent 72%);
+}
+.neo-naive-header-icon--mint::before {
+  background: radial-gradient(ellipse at 48% 42%, var(--neo-wash-mint, rgba(130, 210, 175, 0.38)) 0%, transparent 72%);
 }
 
 @media (prefers-reduced-motion: reduce) {

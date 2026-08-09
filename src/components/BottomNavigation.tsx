@@ -258,12 +258,13 @@ export const BottomNavigation = memo(({
         viewTransitionName: 'swipess-bottom-nav',
       }}
     >
-      {/* Liquid glass dock — theme adaptive via getBottomNavChrome */}
+      {/* Neo-naïve ink dock (light) / liquid glass (dark) */}
       <div
         className={cn(
           'pointer-events-auto floating-dock-nav',
           'max-w-[340px] w-[90vw] mx-auto rounded-[999px]',
           isDashboard && 'floating-dock-nav--dashboard',
+          isLight && 'neo-naive neo-naive-dock',
         )}
         style={{
           ...pillStyle,
@@ -358,12 +359,14 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                       height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
-                      // Add = brand pink glyph only (no pink disc). Active = pure white.
+                      // Add = brand pink glyph only (no pink disc). Active = pure white / ink black.
                       color: isAddBtn
                         ? '#FF4D6A'
                         : (active ? baseColor : inactiveIconColor),
                       fill: 'none',
-                      strokeWidth: active || isAddBtn ? 2.5 : 2.0,
+                      strokeWidth: isLight
+                        ? (active || isAddBtn ? 2.6 : 2.15)
+                        : (active || isAddBtn ? 2.5 : 2.0),
                       filter: 'none',
                       opacity: active || isAddBtn ? 1 : 0.85,
                       transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',

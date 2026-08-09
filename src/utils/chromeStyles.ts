@@ -21,22 +21,19 @@ export function getHeaderIconFilter(
 /**
  * Liquid Glass header pills — theme adaptive.
  * Dark: white icons on dark translucent glass.
- * Light: black icons on light translucent glass.
+ * Light: Contemporary Neo-Naïve — black ink frames on paper white.
  */
 export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
 
   const pillStyle: CSSProperties = isLight
     ? {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.88) 0%, rgba(245,245,248,0.72) 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.10)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
-        borderLeft: '1px solid rgba(255, 255, 255, 0.75)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-        backdropFilter: 'blur(24px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(24px) saturate(160%)',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.95)',
+        background: 'rgba(255, 255, 255, 0.96)',
+        border: '2px solid #141414',
+        boxShadow: '1.25px 1.25px 0 #141414, 0 4px 12px rgba(20, 20, 20, 0.06)',
         borderRadius: '9999px',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         pointerEvents: 'auto',
         color: '#0a0a0a',
         display: 'flex',
@@ -73,21 +70,20 @@ export function getTopBarChrome(isLight: boolean, _isDashboard = false) {
 }
 
 /**
- * Bottom dock — Liquid Glass floating layer, theme adaptive.
+ * Bottom dock — theme adaptive.
+ * Light: neo-naïve ink pill. Dark: liquid glass.
  */
 export function getBottomNavChrome(isLight: boolean, _isDashboard = false) {
   const useLightIcons = !isLight;
 
   const dockStyle: CSSProperties = isLight
     ? {
-        background: 'linear-gradient(165deg, rgba(255,255,255,0.90) 0%, rgba(244,244,248,0.82) 100%)',
-        border: '1px solid rgba(0, 0, 0, 0.10)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.95)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-        backdropFilter: 'blur(28px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
-        boxShadow: '0 8px 28px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.95)',
+        background: 'rgba(255, 255, 255, 0.96)',
+        border: '2.25px solid #141414',
+        boxShadow: '1.5px 1.5px 0 #141414, 0 8px 24px rgba(20, 20, 20, 0.08)',
         borderRadius: '9999px',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         pointerEvents: 'auto',
         color: '#0a0a0a',
         display: 'flex',

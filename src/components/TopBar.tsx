@@ -40,23 +40,26 @@ interface TopBarProps {
 
 const HEADER_ICON = 'w-[24px] h-[24px]';
 
-/** Liquid Glass pill wrapper — chrome-icon-btn forces transparent, so glass lives here. */
+/** Liquid Glass / Neo-Naïve pill wrapper — chrome-icon-btn forces transparent, so chrome lives here. */
 function GlassPill({
   children,
   style,
   className,
   wide,
+  neoNaive,
 }: {
   children: ReactNode;
   style: CSSProperties;
   className?: string;
   wide?: boolean;
+  neoNaive?: boolean;
 }) {
   return (
     <div
       className={cn(
         'flex items-center justify-center shrink-0 rounded-full',
         wide ? 'h-9 px-2.5 gap-1' : 'h-9 w-9',
+        neoNaive && 'neo-naive',
         className,
       )}
       style={style}
@@ -69,12 +72,19 @@ function GlassPill({
 function HeaderIconSlot({
   children,
   badge,
+  wash,
 }: {
   children: React.ReactNode;
   badge?: React.ReactNode;
+  wash?: 'coral' | 'sky' | 'lemon' | 'mint';
 }) {
   return (
-    <span className="relative flex items-center justify-center w-6 h-6 shrink-0">
+    <span
+      className={cn(
+        'relative flex items-center justify-center w-6 h-6 shrink-0',
+        wash && `neo-naive-header-icon neo-naive-header-icon--${wash}`,
+      )}
+    >
       {children}
       {badge}
     </span>
@@ -168,9 +178,9 @@ function TopBarComponent({
       <div className="h-full w-full px-3 flex items-center justify-between relative">
 
         {/* LEFT: profile/back and AI */}
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className={cn('flex items-center gap-2 pointer-events-auto', isLight && 'neo-naive')}>
           {onBack && !isSwipeDeck ? (
-            <GlassPill style={pillStyle}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <button
                 type="button"
                 onClick={() => { haptics.tap(); onBack(); }}
@@ -178,10 +188,10 @@ function TopBarComponent({
                 style={clearIcon}
                 aria-label="Back"
               >
-                <HeaderIconSlot>
+                <HeaderIconSlot wash={isLight ? 'sky' : undefined}>
                   <ChevronLeft
                     className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
-                    strokeWidth={1.5}
+                    strokeWidth={isLight ? 2 : 1.5}
                     style={{ color: iconColor, filter: 'none' }}
                   />
                 </HeaderIconSlot>
@@ -189,7 +199,7 @@ function TopBarComponent({
             </GlassPill>
           ) : (
             user && (
-              <GlassPill style={pillStyle} wide>
+              <GlassPill style={pillStyle} wide neoNaive={isLight}>
                 <button
                   type="button"
                   className="chrome-icon-btn flex items-center gap-1.5 transition-all group rounded-full"
@@ -198,7 +208,10 @@ function TopBarComponent({
                   style={clearIcon}
                 >
                   <span
-                    className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
+                    className={cn(
+                      'flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0',
+                      isLight ? 'neo-naive-avatar' : 'shadow-sm shadow-black/10',
+                    )}
                   >
                       {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                         <img
@@ -229,7 +242,7 @@ function TopBarComponent({
           )}
 
           {!minimal && (
-            <GlassPill style={pillStyle}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <button
                 type="button"
                 onClick={() => { haptics.tap(); useModalStore.getState().openAddListing(); }}
@@ -237,14 +250,14 @@ function TopBarComponent({
                 style={clearIcon}
                 aria-label="AI Listing"
               >
-                <HeaderIconSlot>
+                <HeaderIconSlot wash={isLight ? 'mint' : undefined}>
                   <Sparkles
                     className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                     style={{
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={1.5}
+                    strokeWidth={isLight ? 2 : 1.5}
                   />
                 </HeaderIconSlot>
               </button>
@@ -256,8 +269,8 @@ function TopBarComponent({
 
         {/* RIGHT: Tokens, map, theme, notifications */}
         {!minimal && (
-          <div className="flex items-center gap-2 pointer-events-auto shrink-0 z-50">
-            <GlassPill style={pillStyle}>
+          <div className={cn('flex items-center gap-2 pointer-events-auto shrink-0 z-50', isLight && 'neo-naive')}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <button
                 type="button"
                 onClick={() => {
@@ -269,6 +282,7 @@ function TopBarComponent({
                 aria-label="Tokens"
               >
                 <HeaderIconSlot
+                  wash={isLight ? 'lemon' : undefined}
                   badge={
                     tokensLow && (
                       <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
@@ -283,13 +297,13 @@ function TopBarComponent({
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={1.5}
+                    strokeWidth={isLight ? 2 : 1.5}
                   />
                 </HeaderIconSlot>
               </button>
             </GlassPill>
 
-            <GlassPill style={pillStyle}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <button
                 type="button"
                 onClick={() => { haptics.tap(); openPassportMap({ showCities: true }); }}
@@ -297,24 +311,24 @@ function TopBarComponent({
                 style={clearIcon}
                 aria-label={t('map.liveMap')}
               >
-                <HeaderIconSlot>
+                <HeaderIconSlot wash={isLight ? 'sky' : undefined}>
                   <Globe
                     className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
                     style={{
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={1.5}
+                    strokeWidth={isLight ? 2 : 1.5}
                   />
                 </HeaderIconSlot>
               </button>
             </GlassPill>
 
-            <GlassPill style={pillStyle}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <ThemeToggle glassPillStyle={clearIcon} className="chrome-icon-btn rounded-full h-8 w-8" />
             </GlassPill>
 
-            <GlassPill style={pillStyle}>
+            <GlassPill style={pillStyle} neoNaive={isLight}>
               <NotificationPopover glassPillStyle={clearIcon} pillClassName="chrome-icon-btn rounded-full h-8 w-8" />
             </GlassPill>
           </div>
