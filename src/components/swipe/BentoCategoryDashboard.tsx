@@ -165,8 +165,12 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     data-skip-press-engine
                     className={cn(
                       'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
-                      !isEventsLive && 'border-t border-white/20 border-l border-white/10 border-r border-white/5 border-b border-black/40 cursor-pointer',
-                      !isEventsLive && 'shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] active:scale-[0.98]',
+                      // Clean outline: white on dark theme, black on light
+                      isLight
+                        ? 'border border-black/30'
+                        : 'border border-white/45',
+                      !isEventsLive && 'cursor-pointer shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] active:scale-[0.98]',
+                      isEventsLive && 'shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]',
                       SIZE_CLASS[item.size],
                     )}
                     style={{
@@ -177,7 +181,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     }}
                   >
                     {isEventsLive ? (
-                      <EventsVideoQuickFilter className="rounded-[2rem] shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]" />
+                      <EventsVideoQuickFilter className="rounded-[2rem]" />
                     ) : (
                       <>
                         <div className="absolute inset-0">
