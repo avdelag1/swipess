@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -9,6 +10,11 @@ import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { POKER_CARD_PHOTOS } from './SwipeConstants';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
+import {
+  prefetchQuickFilterDeck,
+  resolveQuickFilterDeckTarget,
+} from '@/utils/prefetchQuickFilterDeck';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Anchor,
   Bike,
@@ -26,6 +32,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useModalStore } from '@/state/modalStore';
 import { EventsVideoQuickFilter } from './EventsVideoQuickFilter';
 import { DASHBOARD_CHROME_SCROLL_KEY, useScrollDirection } from '@/hooks/useScrollDirection';
+import { getLegalServicesPath } from '@/utils/legalRoutes';
+import { prefetchRoute } from '@/utils/routePrefetcher';
 
 export interface BentoCategoryDashboardProps {
   setCategories: (category: QuickFilterCategory | string) => void;
@@ -73,6 +81,8 @@ const CHROME_SHOW_MS = 0.36;
 export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDashboardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { theme, isLight: themeIsLight } = useAppTheme();
   const isLight = themeIsLight || theme === 'light';
 
@@ -85,19 +95,45 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
     sharedKey: DASHBOARD_CHROME_SCROLL_KEY,
   });
 
+  const warmDeckForCard = useCallback((id: string) => {
+    if (id === 'events') {
+      prefetchEventCategoryPhotosImmediate();
+      return;
+    }
+    if (id === 'seekers') {
+      prefetchRoute('/explore/seekers');
+      return;
+    }
+    if (id === 'legal') {
+      prefetchRoute(getLegalServicesPath('client'));
+      return;
+    }
+    if (id === 'premium') {
+      prefetchRoute('/subscription/packages');
+      return;
+    }
+    const target = resolveQuickFilterDeckTarget(id);
+    if (!target || !user?.id) return;
+    void prefetchQuickFilterDeck(queryClient, user.id, target.category, target.listingType, {
+      imageCount: 10,
+    });
+  }, [queryClient, user?.id]);
+
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
+    warmDeckForCard(id);
 
     if (id === 'premium') navigate('/subscription/packages');
     else if (id === 'events') {
-      prefetchEventCategoryPhotosImmediate();
       navigate(EVENTS_FEED_PATH);
     }
+    else if (id === 'seekers') navigate('/explore/seekers');
+    else if (id === 'legal') navigate(getLegalServicesPath('client'));
     else if (id === 'recommended' || id === 'popular') setCategories('property');
     else if (id === 'pros') setCategories('services');
     else setCategories(id as QuickFilterCategory);
-  }, [setCategories, navigate]);
+  }, [setCategories, navigate, warmDeckForCard]);
 
   return (
     <div
@@ -186,6 +222,8 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     whileTap={isEventsLive ? undefined : { opacity: 0.9 }}
                     transition={{ duration: 0.08 }}
                     onClick={isEventsLive ? undefined : () => handleSelect(item.id)}
+                    onPointerEnter={isEventsLive ? undefined : () => warmDeckForCard(item.id)}
+                    onTouchStart={isEventsLive ? undefined : () => warmDeckForCard(item.id)}
                     onKeyDown={isEventsLive ? undefined : (e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -198,12 +236,9 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
                     data-quick-filter-card
                     data-skip-press-engine
                     className={cn(
-                      'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group',
-                      isLight
-                        ? 'border border-black/20'
-                        : 'border border-white/20',
-                      !isEventsLive && 'cursor-pointer shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] active:scale-[0.98]',
-                      isEventsLive && 'shadow-[0_15px_40px_-10px_rgba(236,72,153,0.35)]',
+                      'force-white relative flex flex-col justify-end text-left overflow-hidden rounded-[2rem] group qf-neo-frame',
+                      isLight ? 'qf-neo-frame--light' : 'qf-neo-frame--dark',
+                      !isEventsLive && 'cursor-pointer active:scale-[0.98]',
                       SIZE_CLASS[item.size],
                     )}
                     style={{

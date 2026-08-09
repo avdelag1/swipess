@@ -421,6 +421,15 @@ export function useSmartListingMatching(
 
                           const withDemos = appendDemos(results);
 
+                          // Immediate hero warm — first open must not wait for idle
+                          const heroUrls = withDemos
+                            .slice(0, 8)
+                            .flatMap((l) => (Array.isArray(l.images) ? l.images.slice(0, 1) : []))
+                            .filter(Boolean);
+                          if (heroUrls.length > 0) {
+                            pwaImagePreloader.batchPreload(heroUrls.map((url) => getCardImageUrl(url)));
+                          }
+
                           runIdleTask(() => {
                             const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
                             const imagesToPrewarm = withDemos.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
@@ -553,7 +562,16 @@ export function useSmartListingMatching(
                 // Always append demos AFTER real listings (never obscure real data, never disappear after swipe)
                 const finalResults = appendDemos(pagedRealResults);
 
-                // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
+                // Immediate hero warm — first open must not wait for idle
+                const heroUrls = finalResults
+                  .slice(0, 8)
+                  .flatMap((l) => (Array.isArray(l.images) ? l.images.slice(0, 1) : []))
+                  .filter(Boolean);
+                if (heroUrls.length > 0) {
+                  pwaImagePreloader.batchPreload(heroUrls.map((url) => getCardImageUrl(url)));
+                }
+
+                // 🔥 SPEED OF LIGHT: PRE-WARM EXTRA IMAGES (Hardware-Aware)
                 runIdleTask(() => {
                   const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
                   const imagesToPrewarm = finalResults.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);

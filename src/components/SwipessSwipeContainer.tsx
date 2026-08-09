@@ -7,6 +7,7 @@ import { getCardImageUrl } from '@/utils/imageOptimization';
 import { canGeolocate, getCurrentPosition } from '@/utils/geolocation';
 import { persistClientProfileGps } from '@/utils/persistProfileGps';
 import { prefetchPassportMapImmediate } from '@/utils/prefetchMapModule';
+import { prefetchQuickFilterDeck } from '@/utils/prefetchQuickFilterDeck';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
@@ -960,10 +961,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               return;
             }
             if (cat === 'rentals') {
+              void prefetchQuickFilterDeck(queryClient, user?.id, 'property', 'rent', { imageCount: 10 });
               selectDeckCategory('property', 'rent');
               return;
             }
             if (cat === 'property') {
+              void prefetchQuickFilterDeck(queryClient, user?.id, 'property', 'sale', { imageCount: 10 });
               selectDeckCategory('property', 'sale');
               return;
             }
@@ -971,6 +974,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               navigate(EVENTS_FEED_PATH);
               return;
             }
+            void prefetchQuickFilterDeck(
+              queryClient,
+              user?.id,
+              String(cat),
+              'both',
+              { imageCount: 10 },
+            );
             selectDeckCategory(cat as Parameters<typeof selectDeckCategory>[0], 'both');
           }} />
         </div>

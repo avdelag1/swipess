@@ -925,6 +925,28 @@ html[data-theme-transition] ::view-transition-new(root) {
   }
 }
 
+/* Subtle neo-naïve ink frame on quick-filter cards — light stamp, not heavy */
+.qf-neo-frame {
+  border-style: solid !important;
+  border-width: 1.75px !important;
+  border-radius: 1.85rem 2.05rem 1.75rem 2rem / 2rem 1.8rem 2.05rem 1.9rem !important;
+}
+
+.qf-neo-frame--light {
+  border-color: rgba(20, 20, 20, 0.52) !important;
+  box-shadow:
+    1px 1px 0 rgba(20, 20, 20, 0.28),
+    0 12px 32px -12px rgba(0, 0, 0, 0.42) !important;
+}
+
+.qf-neo-frame--dark {
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  box-shadow:
+    1px 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 14px rgba(255, 255, 255, 0.06),
+    0 14px 36px -12px rgba(0, 0, 0, 0.55) !important;
+}
+
 /* Subtle top rim only — no bright white wash that kills icon contrast */
 .floating-dock-nav::before {
   content: "";

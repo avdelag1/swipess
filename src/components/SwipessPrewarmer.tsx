@@ -10,6 +10,7 @@ import { prefetchEventCategoryPhotos } from '@/utils/prefetchEventCategoryPhotos
 import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 import { warmDiscoveryCache } from '@/utils/performance';
+import { warmTopQuickFilterDecks } from '@/utils/prefetchQuickFilterDeck';
 
 /**
  * 🚀 SwipessPrewarmer: Predictive data & asset pre-fetching
@@ -65,6 +66,8 @@ export const SwipessPrewarmer = () => {
       // We use the exact key structure from useSmartListingMatching for 'Default' filter state
       if (role === 'client') {
         await warmDiscoveryCache(queryClient, user.id, 'client');
+        // Warm top quick-filter decks (first 5–10 photos each) so first open is smooth
+        warmTopQuickFilterDecks(queryClient, user.id);
       }
 
       // 2. Pre-warm Persistent Shared Data
