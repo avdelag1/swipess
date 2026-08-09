@@ -35,8 +35,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
     runSearch();
   };
 
-  // Neo-naïve violet-blue search — thicker bar
-  const barH = 46;
+  // Blue search bar — thicker, less violet
+  const barH = 52;
   const glassStyle = { color: isLight ? '#111' : '#fff' };
 
   return (
@@ -55,8 +55,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
         )}
         style={{ height: barH, ...glassStyle }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[46px] h-[46px]" aria-hidden>
-          <Search className={cn('w-[16px] h-[16px]', isLight ? 'text-[#6b5cef]/80' : 'text-[#a78bfa]')} strokeWidth={2.25} />
+        <div className="shrink-0 flex items-center justify-center w-[52px] h-[52px]" aria-hidden>
+          <Search className={cn('w-[17px] h-[17px]', isLight ? 'text-[#3B82F6]/85' : 'text-[#60A5FA]')} strokeWidth={2.25} />
         </div>
 
         <div className="flex-1 flex items-center h-full min-w-0">
@@ -106,8 +106,8 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
             >
               <ArrowRight
                 className={cn(
-                  'w-[18px] h-[18px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
-                  isLight ? 'text-[#6b5cef]' : 'text-[#a78bfa]',
+                  'w-[19px] h-[19px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
+                  isLight ? 'text-[#3B82F6]' : 'text-[#60A5FA]',
                 )}
                 strokeWidth={2.4}
               />

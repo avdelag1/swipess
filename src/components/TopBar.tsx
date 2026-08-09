@@ -208,10 +208,7 @@ function TopBarComponent({
                   style={clearIcon}
                 >
                   <span
-                    className={cn(
-                      'flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0',
-                      isLight ? 'neo-naive-avatar' : 'neo-naive-avatar--dark',
-                    )}
+                    className="flex items-center justify-center h-7 w-7 rounded-full overflow-hidden shrink-0 shadow-sm shadow-black/10"
                   >
                       {profile?.avatar_url || user?.user_metadata?.avatar_url ? (
                         <img
