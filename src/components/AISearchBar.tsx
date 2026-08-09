@@ -59,7 +59,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           <Search
             className={cn(
               'w-[18px] h-[18px]',
-              isLight ? 'text-[#3B82F6]/85' : 'text-[#60A5FA]',
+              isLight ? 'text-[#2563EB]/90' : 'text-[#60A5FA]',
             )}
             strokeWidth={2.35}
           />
@@ -113,7 +113,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
               <ArrowRight
                 className={cn(
                   'w-[19px] h-[19px] transition-transform duration-150 group-active:scale-[0.9] group-hover:translate-x-0.5',
-                  isLight ? 'text-[#3B82F6]' : 'text-[#60A5FA]',
+                  isLight ? 'text-[#2563EB]' : 'text-[#60A5FA]',
                 )}
                 strokeWidth={2.4}
               />
