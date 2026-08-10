@@ -9,13 +9,13 @@ export const WelcomeState = memo(({ isSwipess, isLight, onPick }: { isSwipess: b
   const txtClr = isLight && !isSwipess ? 'text-foreground' : 'text-white';
 
   return (
-    <div className="h-full flex flex-col max-w-2xl mx-auto w-full">
-      <div className={cn("pb-6", txtClr)}>
-        <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-2">
+    <div className="h-full flex flex-col max-w-2xl mx-auto w-full px-4 sm:px-6 pt-5 pb-4">
+      <div className={cn("pb-5", txtClr)}>
+        <h2 className="text-2xl sm:text-3xl font-black italic tracking-tighter uppercase mb-1.5">
           {activeCategory ? activeCategory.label : 'Intel Core'}
         </h2>
-        <p className="text-xs font-bold uppercase tracking-widest opacity-50">
-          {activeCategory ? 'Select target trajectory' : 'Initialize search parameters'}
+        <p className="text-[11px] font-bold uppercase tracking-widest opacity-50">
+          {activeCategory ? 'Pick a prompt' : 'Choose a category'}
         </p>
       </div>
 

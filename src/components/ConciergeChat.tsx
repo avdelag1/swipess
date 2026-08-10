@@ -123,6 +123,8 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
     if (!isOpen) {
       hasPlayedOpenSound.current = false;
       didConsumeInitialQueryRef.current = false;
+      setSidebarOpen(false);
+      setCharacterPanelOpen(false);
       return;
     }
 
@@ -370,7 +372,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
               </div>
             )}
 
-            <AnimatePresence>
+            <AnimatePresence mode="sync">
               {sidebarOpen && (
                 <ConversationSidebar conversations={conversations} activeId={activeConversationId} onSelect={switchConversation} onDelete={deleteConversation} onNew={() => { createConversation(); setSidebarOpen(false); }} onClose={() => setSidebarOpen(false)} isSwipess={isSwipess} />
               )}
@@ -385,70 +387,95 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
             ) : (
               <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 <header className={cn(
-                  "h-16 shrink-0 flex items-center justify-between px-6 border-b transition-all duration-500 relative z-30",
-                  isLight && !isSwipess ? "border-black/10 bg-white/90" : "border-white/15 bg-black/60"
-                )}>
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }} className={cn("w-10 h-10 flex items-center justify-center transition-all group", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")}>
-                      <Menu className={cn("w-4 h-4 transition-transform group-hover:scale-110", isLight && !isSwipess ? "text-slate-700" : "text-white")} />
+                  "h-13 shrink-0 flex items-center justify-between gap-2 px-3 sm:px-4 border-b relative z-30",
+                  isLight && !isSwipess ? "border-black/10 bg-white/90" : "border-white/12 bg-black/55"
+                )} style={{ height: 52 }}>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => { triggerHaptic('light'); setSidebarOpen(true); }}
+                      className={cn(
+                        "w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-xl transition-colors",
+                        isLight && !isSwipess ? "neo-naive-tile hover:bg-black/[0.04]" : "neo-naive-tile--dark hover:bg-white/[0.06]"
+                      )}
+                      aria-label="Open chat history"
+                    >
+                      <Menu className={cn("w-3.5 h-3.5", isLight && !isSwipess ? "text-slate-700" : "text-white")} strokeWidth={2.25} />
                     </button>
-                    <div className="flex flex-col relative">
-                       <span className={cn("text-[11px] font-black uppercase tracking-[0.5em] italic", isSwipess ? "text-[#FF3D00] brand-glow" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL CORE</span>
-                       <div className="flex items-center gap-1.5">
-                          <div className={cn("w-1 h-1 rounded-full animate-pulse", isSwipess ? "bg-[#FF3D00]" : "bg-primary")} />
-                          <span className={cn("text-[8px] font-black tracking-widest uppercase opacity-40", isLight && !isSwipess ? "text-slate-900" : "text-white")}>System: Operational</span>
-                       </div>
+                    <div className="flex flex-col min-w-0">
+                       <span className={cn("text-[10px] font-black uppercase tracking-[0.28em] italic leading-none", isSwipess ? "text-[#FF3D00]" : isLight ? "text-primary" : "text-[#FF3D00]")}>INTEL CORE</span>
+                       <span className={cn("text-[8px] font-bold tracking-widest uppercase opacity-40 mt-1 leading-none", isLight && !isSwipess ? "text-slate-900" : "text-white")}>Online</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <Popover open={characterPanelOpen} onOpenChange={setCharacterPanelOpen}>
                        <PopoverTrigger asChild>
-                         <button className={cn("flex items-center gap-2.5 px-3 py-1.5 transition-all hover:scale-[1.02] active:scale-95", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")}>
-                            <div className="text-right hidden sm:block">
-                               <p className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
-                               <p className="text-[7px] font-bold opacity-40 uppercase tracking-tighter -mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
+                         <button
+                           type="button"
+                           className={cn(
+                             "h-8 inline-flex items-center gap-2 px-2 rounded-xl transition-colors active:scale-[0.98]",
+                             isLight && !isSwipess ? "neo-naive-tile hover:bg-black/[0.04]" : "neo-naive-tile--dark hover:bg-white/[0.06]"
+                           )}
+                         >
+                            <div className="text-right hidden sm:block leading-none">
+                               <p className={cn("text-[9px] font-black uppercase tracking-wider", isLight && !isSwipess ? "text-slate-900" : "text-white")}>{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.label}</p>
+                               <p className="text-[7px] font-bold opacity-40 uppercase tracking-tight mt-0.5">{CHARACTER_OPTIONS.find(c => c.key === activeCharacter)?.subtitle}</p>
                             </div>
                             {(() => {
                               const c = CHARACTER_OPTIONS.find(c => c.key === activeCharacter);
                               const Icon = c?.icon || Sparkles;
                               return (
-                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", c?.bgColor || "bg-primary/15")}>
-                                  <MotionIcon id="ai-sparkle" loop={isLoading}>
-                                    <Icon className={cn("w-5 h-5", c?.color || "text-primary")} />
+                                <span className={cn("w-7 h-7 rounded-lg inline-flex items-center justify-center", c?.bgColor || "bg-primary/15")}>
+                                  <MotionIcon id="ai-sparkle" loop={isLoading} className="inline-flex items-center justify-center">
+                                    <Icon className={cn("w-3.5 h-3.5", c?.color || "text-primary")} strokeWidth={2.25} />
                                   </MotionIcon>
-                                </div>
+                                </span>
                               );
                             })()}
                          </button>
                        </PopoverTrigger>
-                      <PopoverContent side="bottom" align="end" className={cn("w-72 p-2 z-[70] chrome-solid", isLight && !isSwipess ? "neo-naive-panel" : "neo-naive-panel--dark")}>
-                        <div className="p-3 mb-2">
-                          <h4 className={cn("text-[10px] font-black uppercase tracking-widest italic", isLight && !isSwipess ? "text-foreground/50" : "text-white/40")}>Select Logic Profile</h4>
+                      <PopoverContent side="bottom" align="end" sideOffset={8} className={cn("w-64 p-1.5 z-[70] chrome-solid rounded-2xl", isLight && !isSwipess ? "neo-naive-panel" : "neo-naive-panel--dark")}>
+                        <div className="px-2.5 py-2 mb-0.5">
+                          <h4 className={cn("text-[9px] font-black uppercase tracking-widest", isLight && !isSwipess ? "text-foreground/45" : "text-white/40")}>Persona</h4>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-0.5 max-h-[50vh] overflow-y-auto">
                           {CHARACTER_OPTIONS.map((c) => (
                             <button
                               key={c.key}
+                              type="button"
                               onClick={() => { setActiveCharacter(c.key); setCharacterPanelOpen(false); triggerHaptic('light'); }}
-                              className={cn("w-full flex items-center gap-3 p-3 rounded-2xl transition-all group", activeCharacter === c.key ? "bg-primary/10 border border-primary/20" : (isLight && !isSwipess ? "hover:bg-foreground/5 border border-transparent" : "hover:bg-white/5 border border-transparent"))}
+                              className={cn(
+                                "w-full flex items-center gap-2.5 px-2 py-2 rounded-xl transition-colors",
+                                activeCharacter === c.key
+                                  ? "bg-primary/10 border border-primary/20"
+                                  : (isLight && !isSwipess ? "hover:bg-foreground/5 border border-transparent" : "hover:bg-white/5 border border-transparent")
+                              )}
                             >
-                              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", c.bgColor)}>
-                                <c.icon className={cn("w-5 h-5", c.color)} />
-                              </div>
+                              <span className={cn("w-7 h-7 rounded-lg inline-flex items-center justify-center shrink-0", c.bgColor)}>
+                                <c.icon className={cn("w-3.5 h-3.5", c.color)} strokeWidth={2.25} />
+                              </span>
                               <div className="text-left flex-1 min-w-0">
-                                <p className={cn("text-[11px] font-black uppercase tracking-widest", activeCharacter === c.key ? "text-primary" : (isLight && !isSwipess ? "text-foreground" : "text-white"))}>{c.label} <span className="opacity-50 font-bold">— {c.tagline}</span></p>
-                                <p className={cn("text-[8px] font-bold opacity-60 uppercase tracking-tighter", isLight && !isSwipess ? "text-foreground/70" : "text-white/70")}>{c.subtitle}</p>
+                                <p className={cn("text-[11px] font-black uppercase tracking-wide truncate", activeCharacter === c.key ? "text-primary" : (isLight && !isSwipess ? "text-foreground" : "text-white"))}>{c.label}</p>
+                                <p className={cn("text-[8px] font-bold uppercase tracking-tight truncate opacity-55", isLight && !isSwipess ? "text-foreground" : "text-white")}>{c.subtitle}</p>
                               </div>
-                              {activeCharacter === c.key && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+                              {activeCharacter === c.key && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
                             </button>
                           ))}
                         </div>
                       </PopoverContent>
                     </Popover>
 
-                    <button onClick={triggerGenieClose} className={cn("w-9 h-9 flex items-center justify-center transition-all group active:scale-90", isLight && !isSwipess ? "neo-naive-tile" : "neo-naive-tile--dark")} aria-label="Close">
-                      <X className={cn("w-[18px] h-[18px]", isLight && !isSwipess ? "text-slate-700" : "text-white")} strokeWidth={2.2} />
+                    <button
+                      type="button"
+                      onClick={triggerGenieClose}
+                      className={cn(
+                        "w-8 h-8 shrink-0 inline-flex items-center justify-center rounded-xl transition-colors active:scale-95",
+                        isLight && !isSwipess ? "neo-naive-tile hover:bg-black/[0.04]" : "neo-naive-tile--dark hover:bg-white/[0.06]"
+                      )}
+                      aria-label="Close"
+                    >
+                      <X className={cn("w-3.5 h-3.5", isLight && !isSwipess ? "text-slate-700" : "text-white")} strokeWidth={2.25} />
                     </button>
                   </div>
                 </header>
@@ -485,69 +512,68 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                   )}
                 </div>
 
-                <footer className="p-4 sm:p-6 transition-all duration-500 relative z-20">
-                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+                <footer className="p-3 sm:p-4 transition-all duration-500 relative z-20">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
 
-                  <div className="max-w-3xl mx-auto mb-2.5">
+                  <div className="max-w-3xl mx-auto mb-2">
                     <AIDisclosure isLight={isLight && !isSwipess} variant="compact" />
                   </div>
 
                   <AnimatePresence>
                     {countdown !== null && (
                       <motion.div
-                        initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.97 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.94 }}
-                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.1)]"
+                        exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                        className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-2.5 px-3 py-2 rounded-xl border border-border/50 bg-background chrome-solid shadow-lg"
                       >
-                         <Timer className="w-4 h-4 text-[#FF3D00]" />
-                         <span className={cn("text-[11px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
-                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF3D00] text-white text-sm font-black shadow-lg shadow-[#FF3D00]/30">{countdown}</span>
-                         <button onClick={cancelCountdown} className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all shadow-inner" aria-label="Cancel auto-send">
-                            <X className="w-4 h-4" />
+                         <Timer className="w-3.5 h-3.5 text-[#FF3D00] shrink-0" strokeWidth={2.25} />
+                         <span className={cn("text-[10px] font-black uppercase tracking-widest whitespace-nowrap", isLight ? "text-slate-900" : "text-white")}>Send in</span>
+                         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#FF3D00] text-white text-xs font-black">{countdown}</span>
+                         <button type="button" onClick={cancelCountdown} className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors" aria-label="Cancel auto-send">
+                            <X className="w-3.5 h-3.5" strokeWidth={2.25} />
                          </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <div className="max-w-3xl mx-auto flex items-end gap-3 relative">
+                  <div className="max-w-3xl mx-auto flex items-end gap-2 relative">
                     <div className={cn(
-                      "flex-1 min-w-0 relative flex items-center transition-all duration-300 group overflow-hidden",
+                      "flex-1 min-w-0 relative flex items-center transition-all duration-300 overflow-hidden rounded-2xl",
                       isLight && !isSwipess ? "neo-naive-panel" : "neo-naive-panel--dark",
                     )}>
-                       <div className="pl-2 flex items-center gap-0.5 self-center">
+                       <div className="pl-1.5 pr-0.5 flex items-center gap-0.5 self-center shrink-0">
                            <Popover>
                              <PopoverTrigger asChild>
-                          <button className={cn("p-2 rounded-xl transition-all hover:bg-secondary/80", isLight ? "text-slate-600 hover:text-slate-900" : "text-white hover:text-white")} aria-label="Auto-send timer">
-                                    <Timer className="w-5 h-5" strokeWidth={2.5} />
+                          <button type="button" className={cn("w-8 h-8 inline-flex items-center justify-center rounded-lg transition-colors", isLight ? "text-slate-600 hover:bg-black/[0.05] hover:text-slate-900" : "text-white/75 hover:bg-white/[0.08] hover:text-white")} aria-label="Auto-send timer">
+                                    <Timer className="w-3.5 h-3.5" strokeWidth={2.25} />
                                </button>
                              </PopoverTrigger>
-                             <PopoverContent side="top" className="w-64 p-2 rounded-2xl border border-border/50 bg-background chrome-solid shadow-[0_20px_40px_hsl(var(--foreground)/0.15)]">
-                               <button onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-4 p-4 rounded-3xl hover:bg-secondary transition-all" aria-pressed={autoSendEnabled}>
-                                  <span className={cn("flex items-center gap-3 text-[11px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
-                                    <Timer className="w-4 h-4 text-[#FF3D00]" />
+                             <PopoverContent side="top" sideOffset={8} className="w-56 p-1.5 rounded-2xl border border-border/50 bg-background chrome-solid shadow-xl">
+                               <button type="button" onClick={() => { setAutoSendEnabled(!autoSendEnabled); triggerHaptic('light'); }} className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary transition-colors" aria-pressed={autoSendEnabled}>
+                                  <span className={cn("inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest", isLight ? "text-slate-900" : "text-white")}>
+                                    <Timer className="w-3.5 h-3.5 text-[#FF3D00]" strokeWidth={2.25} />
                                     Auto-Send
                                   </span>
-                                  <div className={cn("w-12 h-7 rounded-full relative transition-all ring-1 shadow-inner", autoSendEnabled ? "bg-[#FF3D00] ring-[#FF3D00]/30" : "bg-secondary ring-border")}>
-                                     <div className={cn("absolute top-1 h-5 w-5 rounded-full shadow-md transition-all", autoSendEnabled ? "right-1 bg-white" : "left-1 bg-background")} />
+                                  <div className={cn("w-10 h-6 rounded-full relative transition-all", autoSendEnabled ? "bg-[#FF3D00]" : "bg-secondary")}>
+                                     <div className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", autoSendEnabled ? "right-0.5" : "left-0.5")} />
                                  </div>
                               </button>
                            </PopoverContent>
                          </Popover>
 
                           <button
+                            type="button"
                             onClick={isListening ? stopListening : startListening}
                             className={cn(
-                              "p-2 rounded-xl transition-all relative group overflow-hidden hover:bg-secondary/80",
+                              "w-8 h-8 inline-flex items-center justify-center rounded-lg transition-all relative",
                               isListening
-                                ? "bg-[#FF3D00] text-white shadow-[0_0_24px_rgba(255,61,0,0.4)] scale-110"
-                                : isLight ? "text-slate-600 hover:text-slate-900" : "text-white/80 hover:text-white"
+                                ? "bg-[#FF3D00] text-white shadow-[0_0_16px_rgba(255,61,0,0.35)]"
+                                : isLight ? "text-slate-600 hover:bg-black/[0.05] hover:text-slate-900" : "text-white/75 hover:bg-white/[0.08] hover:text-white"
                             )}
+                            aria-label={isListening ? "Stop listening" : "Voice input"}
                           >
-                             {isListening ? <Mic className="w-5 h-5 animate-pulse relative z-10" strokeWidth={2.5} /> : <Mic className="w-5 h-5 relative z-10" strokeWidth={2.5} />}
-                            {isListening && (
-                               <motion.div className="absolute inset-0 bg-white/20 rounded-2xl" animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }} transition={{ duration: 1.5, repeat: Infinity }} />
-                            )}
+                             <Mic className={cn("w-3.5 h-3.5 relative z-10", isListening && "animate-pulse")} strokeWidth={2.25} />
                          </button>
                        </div>
 
@@ -560,13 +586,13 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                             const el = textareaRef.current;
                             if (el) {
                               el.style.height = 'auto';
-                              el.style.height = `${Math.min(el.scrollHeight, 192)}px`;
+                              el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
                             }
                           }}
-                          placeholder={isListening ? "Listening…" : "Inquire for discovery"}
+                          placeholder={isListening ? "Listening…" : "Ask anything…"}
                           rows={1}
                           className={cn(
-                            "flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 py-4 pl-1 pr-3 text-[16px] resize-none custom-scrollbar min-h-[56px] max-h-48 leading-snug self-center font-medium",
+                            "flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 py-3 pl-1 pr-3 text-[15px] resize-none custom-scrollbar min-h-[44px] max-h-40 leading-snug self-center font-medium",
                             isListening ? "text-[#FF3D00] placeholder:text-[#FF3D00]/50" : isLight ? "text-slate-900 placeholder:text-slate-400" : "text-white placeholder:text-white/40"
                           )}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
@@ -574,6 +600,7 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                     </div>
 
                     <button
+                      type="button"
                       onClick={handleSend}
                       onPointerDown={() => setSendPressed(true)}
                       onPointerUp={() => setSendPressed(false)}
@@ -581,24 +608,20 @@ function ConciergeChatComponent({ isOpen, onClose }: { isOpen: boolean; onClose:
                       onPointerCancel={() => setSendPressed(false)}
                       disabled={!input.trim() || isLoading}
                       className={cn(
-                        "h-14 w-14 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-300 relative group overflow-hidden active:scale-90",
+                        "h-11 w-11 shrink-0 rounded-full inline-flex items-center justify-center transition-all duration-200 relative overflow-hidden active:scale-95",
                         (!input.trim() || isLoading)
                           ? "bg-secondary border border-border/50 text-foreground/40 cursor-not-allowed"
-                          : "bg-[#FF3D00] text-white shadow-[0_8px_24px_rgba(255,61,0,0.35)] hover:shadow-[0_12px_32px_rgba(255,61,0,0.5)] hover:bg-[#FF3D00]/90 border border-white/10 hover:scale-105"
+                          : "bg-[#FF3D00] text-white shadow-[0_6px_18px_rgba(255,61,0,0.32)] hover:bg-[#FF3D00]/90 border border-white/10"
                       )}
                       aria-label="Send message"
                     >
-                      {input.trim() && !isLoading && (
-                        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
-                      )}
-
                       {isLoading ? (
-                        <MotionIcon id="ai-sparkle" loop>
-                          <RefreshCw className="h-6 w-6 animate-spin relative z-10" strokeWidth={3} />
+                        <MotionIcon id="ai-sparkle" loop className="inline-flex items-center justify-center">
+                          <RefreshCw className="h-4 w-4 animate-spin" strokeWidth={2.5} />
                         </MotionIcon>
                       ) : (
-                        <MotionIcon id="send" active={sendPressed}>
-                          <ArrowUp className="h-6 w-6 relative z-10" strokeWidth={3} />
+                        <MotionIcon id="send" active={sendPressed} className="inline-flex items-center justify-center">
+                          <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
                         </MotionIcon>
                       )}
                     </button>

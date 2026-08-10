@@ -207,21 +207,21 @@ export const MessageBubble = memo(({ message, isUser, isSwipess, isLight, onCopy
             exit={{ opacity: 0, y: -5 }}
             className={cn("flex items-center gap-1.5 mt-1 px-1", isUser ? "flex-row-reverse" : "flex-row")}
           >
-            <button onClick={handleCopy} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
-              {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <button onClick={handleCopy} className={cn("w-7 h-7 inline-flex items-center justify-center rounded-lg transition-colors", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
+              {copied ? <Check className="w-3 h-3 text-green-400" strokeWidth={2.25} /> : <Copy className="w-3 h-3" strokeWidth={2.25} />}
             </button>
             {!isUser && onTranslate && (
-              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
-                <Languages className="w-3.5 h-3.5" />
+              <button onClick={(e) => { e.stopPropagation(); onTranslate('Spanish'); }} className={cn("w-7 h-7 inline-flex items-center justify-center rounded-lg transition-colors", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
+                <Languages className="w-3 h-3" strokeWidth={2.25} />
               </button>
             )}
             {isUser && onResend && (
-              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
-                <RefreshCw className="w-3.5 h-3.5" />
+              <button onClick={(e) => { e.stopPropagation(); onResend(); }} className={cn("w-7 h-7 inline-flex items-center justify-center rounded-lg transition-colors", isLight && !isSwipess ? "bg-slate-100 text-slate-900" : "bg-white/15 text-white")}>
+                <RefreshCw className="w-3 h-3" strokeWidth={2.25} />
               </button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={cn("p-2 rounded-xl transition-all", isLight && !isSwipess ? "bg-red-50 text-red-600" : "bg-red-500/20 text-red-400")}>
-              <Trash2 className="w-3.5 h-3.5" />
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className={cn("w-7 h-7 inline-flex items-center justify-center rounded-lg transition-colors", isLight && !isSwipess ? "bg-red-50 text-red-600" : "bg-red-500/20 text-red-400")}>
+              <Trash2 className="w-3 h-3" strokeWidth={2.25} />
             </button>
           </motion.div>
         )}
