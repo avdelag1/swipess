@@ -1,18 +1,19 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Award, ChevronRight, History, QrCode, Sparkles, Store, Zap } from 'lucide-react';
+import { Award, ChevronRight, History, Inbox, QrCode, Sparkles, Store, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessList } from './BusinessList';
 import { DiscountHistory } from './DiscountHistory';
+import { PromoInbox } from './PromoInbox';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import useAppTheme from '@/hooks/useAppTheme';
 
 const ResidentQRModal = lazyWithRetry(() => import('@/components/perks/ResidentQRModal').then(m => ({ default: m.ResidentQRModal })));
 
-type Tab = 'home' | 'businesses' | 'history';
+type Tab = 'home' | 'businesses' | 'inbox' | 'history';
 
 export function PerksDashboard() {
   const { user } = useAuth();
@@ -66,6 +67,7 @@ export function PerksDashboard() {
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'home', label: 'Perks', icon: Zap },
+    { id: 'inbox', label: 'Inbox', icon: Inbox },
     { id: 'businesses', label: 'Partners', icon: Store },
     { id: 'history', label: 'History', icon: History },
   ];
@@ -200,6 +202,14 @@ export function PerksDashboard() {
                   ))
                 )}
               </div>
+
+              <PromoInbox />
+            </motion.div>
+          )}
+
+          {tab === 'inbox' && (
+            <motion.div key="inbox" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+              <PromoInbox className="mt-4" />
             </motion.div>
           )}
 
