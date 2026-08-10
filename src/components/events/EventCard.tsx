@@ -8,9 +8,10 @@ import { EventItem } from '@/types/events';
 import { CATEGORIES } from '@/data/eventsData';
 import { hideChrome } from '@/hooks/useChromeReveal';
 import { GlassIconButton } from '@/components/ui/GlassIconButton';
-import { LoopVideo } from '@/components/video/LoopVideo';
+import { LoopVideo, type LoopVideoHandle } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 import { useDeckAudioStore } from '@/state/deckAudioStore';
+import { playMediaFromGesture } from '@/utils/mediaUnlock';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -106,8 +107,21 @@ export const EventCard = memo(({
   const hasMedia = hasVideo || hasImage;
   // Shared deck preference — unmute once and keep listening while browsing the feed
   const soundOn = useDeckAudioStore((s) => s.soundOn);
-  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
+  const setSoundOn = useDeckAudioStore((s) => s.setSoundOn);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<LoopVideoHandle | null>(null);
+
+  const handleToggleSound = useCallback(() => {
+    const next = !useDeckAudioStore.getState().soundOn;
+    videoRef.current?.applySoundFromGesture(next);
+    if (next) {
+      const music = bgMusicRef.current;
+      if (music) playMediaFromGesture(music);
+    } else {
+      bgMusicRef.current?.pause();
+    }
+    setSoundOn(next);
+  }, [setSoundOn]);
 
   // Background music bed — only while this card is active + deck sound is on
   useEffect(() => {
@@ -125,6 +139,7 @@ export const EventCard = memo(({
       audio.volume = 0.55;
       bgMusicRef.current = audio;
     }
+    // Prefer gesture-started playback; retry quietly if already unlocked
     audio.play().catch(() => {});
     return () => {
       audio?.pause();
@@ -155,6 +170,7 @@ export const EventCard = memo(({
             <div className="absolute inset-0 bg-[#111117]" />
           )}
           <LoopVideo
+            ref={videoRef}
             src={event.video_url!}
             poster={finalImageUrl || undefined}
             className="absolute inset-0 w-full h-full object-cover"
@@ -208,9 +224,9 @@ export const EventCard = memo(({
       {isActive && hasVideo && (
         <EventVideoMuteButton
           soundOn={soundOn}
-          onToggle={toggleSound}
+          onToggle={handleToggleSound}
           size="xs"
-          className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-3 z-40"
+          className="absolute top-[calc(env(safe-area-inset-top,0px)+68px)] right-2 z-40"
         />
       )}
 
@@ -236,7 +252,7 @@ export const EventCard = memo(({
             initial={{ opacity: 0, x: 18, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 12, scale: 0.94 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="absolute right-3 z-50 pointer-events-auto flex flex-col gap-2.5 items-center"
             style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 28px)' }}
           >
@@ -252,7 +268,7 @@ export const EventCard = memo(({
               className={cn('w-[52px] h-[52px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]', liked && 'border-rose-500/50')}
             />
 
-            <div className="flex flex-col gap-2 p-2 rounded-3xl bg-black/30 backdrop-blur-3xl border border-white/30 shadow-[0_16px_48px_rgba(0,0,0,0.5)]">
+            <div className="flex flex-col gap-2 p-2 rounded-3xl bg-black/55 border border-white/25 shadow-[0_12px_28px_rgba(0,0,0,0.45)]">
               {[
                 { icon: Info, onClick: handleOpenEvent, label: 'Event' },
                 { icon: MessageCircle, onClick: onChat, label: 'WhatsApp' },
@@ -288,7 +304,7 @@ export const EventCard = memo(({
         {categoryMeta && (
           <div className="flex items-center gap-2 mb-3">
             <div
-              className="px-2 py-0.5 rounded-full flex items-center gap-1 backdrop-blur-md border border-white/10"
+              className="px-2 py-0.5 rounded-full flex items-center gap-1 bg-black/40 border border-white/10"
               style={{ background: `${activeColor}30` }}
             >
               {categoryMeta.icon && <categoryMeta.icon className="w-2.5 h-2.5" style={{ color: activeColor }} />}
@@ -296,13 +312,13 @@ export const EventCard = memo(({
             </div>
 
             {event.is_free && (
-              <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-md">
+              <div className="px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-500/30">
                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400">Free</span>
               </div>
             )}
 
             {event.discount_tag && (
-              <div className="px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-md">
+              <div className="px-3 py-1 rounded-full bg-yellow-500/25 border border-yellow-500/30">
                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-yellow-400">{event.discount_tag}</span>
               </div>
             )}
@@ -327,19 +343,19 @@ export const EventCard = memo(({
 
         <div className="flex flex-wrap items-center gap-2 mt-3">
           {event.event_date && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/45 border border-white/10">
               <Calendar className="w-3.5 h-3.5 text-orange-400" />
               <span className="text-[11px] font-bold text-white/90">{formatDate(event.event_date)}</span>
             </div>
           )}
           {event.location && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/45 border border-white/10">
               <MapPin className="w-3.5 h-3.5 text-orange-400" />
               <span className="text-[11px] font-bold text-white/90 truncate max-w-[140px]">{event.location}</span>
             </div>
           )}
           {event.price_text && !event.is_free && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/45 border border-white/10">
               <span className="text-[11px] font-bold text-white/90">{event.price_text}</span>
             </div>
           )}

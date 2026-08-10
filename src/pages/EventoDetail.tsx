@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,8 +14,10 @@ import { canNativeShare, generateShareUrl, shareViaNavigator } from '@/hooks/use
 import { ConnectingOverlay } from '@/components/ConnectingOverlay';
 import { appToast } from '@/utils/appNotification';
 import { Button } from '@/components/ui/button';
-import { LoopVideo } from '@/components/video/LoopVideo';
+import { LoopVideo, type LoopVideoHandle } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
+import { useDeckAudioStore } from '@/state/deckAudioStore';
+import { playMediaFromGesture } from '@/utils/mediaUnlock';
 
 interface EventDetail {
   id: string;
@@ -118,7 +120,10 @@ export default function EventoDetail() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
   const [calendarAvailable, setCalendarAvailable] = useState(false);
-  const [soundOn, setSoundOn] = useState(false);
+  const soundOn = useDeckAudioStore((s) => s.soundOn);
+  const setSoundOn = useDeckAudioStore((s) => s.setSoundOn);
+  const videoRef = useRef<LoopVideoHandle | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -129,7 +134,7 @@ export default function EventoDetail() {
   }, []);
 
 
-  // 🚀 SPEED OF LIGHT: Unified Event Data Query
+  // Seed from feed navigation, then always refetch full row so video + copy show
   const { data: event, isLoading, isError, refetch } = useQuery({
     queryKey: ['evento', id],
     queryFn: async () => {
@@ -143,26 +148,48 @@ export default function EventoDetail() {
         .eq('id', id!)
         .single();
       if (error || !data) {
-        if (stateEventData) return stateEventData;
+        if (stateEventData && stateEventData.id === id) return stateEventData;
         throw error ?? new Error('Event not found');
       }
       return data as EventDetail;
     },
     enabled: !!id,
-    initialData: stateEventData,
-    staleTime: 1000 * 60 * 5,
+    // placeholder keeps UI instant; does NOT block a fresh fetch (unlike initialData + staleTime)
+    placeholderData: stateEventData?.id === id ? stateEventData : undefined,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  const handleToggleSound = () => {
+    const next = !useDeckAudioStore.getState().soundOn;
+    videoRef.current?.applySoundFromGesture(next);
+    if (next) {
+      const music = bgMusicRef.current;
+      if (music) playMediaFromGesture(music);
+    } else {
+      bgMusicRef.current?.pause();
+    }
+    setSoundOn(next);
+  };
 
   // Optional background music bed on detail page
   useEffect(() => {
     const url = event?.background_music_url?.trim();
-    if (!url || !soundOn) return;
-    const audio = new Audio(url);
-    audio.loop = true;
-    audio.volume = 0.55;
+    if (!url || !soundOn) {
+      bgMusicRef.current?.pause();
+      return;
+    }
+    let audio = bgMusicRef.current;
+    if (!audio || audio.src !== url) {
+      audio?.pause();
+      audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.55;
+      bgMusicRef.current = audio;
+    }
     audio.play().catch(() => {});
     return () => {
-      audio.pause();
+      audio?.pause();
     };
   }, [event?.background_music_url, event?.id, soundOn]);
 
@@ -345,8 +372,12 @@ export default function EventoDetail() {
   const goToSibling = (targetId: string | null) => {
     if (!targetId) return;
     triggerHaptic('light');
+    const cached = queryClient.getQueryData<EventDetail>(['evento', targetId]);
     navigate(`/explore/events/${targetId}`, {
-      state: { eventIds: siblingIds },
+      state: {
+        eventIds: siblingIds,
+        eventData: cached || undefined,
+      },
       replace: false,
     });
   };
@@ -357,6 +388,7 @@ export default function EventoDetail() {
       <div className="relative h-[75vh] min-h-[500px] overflow-hidden rounded-b-[3rem] shadow-2xl z-10 bg-black">
         {hasVideo ? (
           <LoopVideo
+            ref={videoRef}
             src={event.video_url!}
             poster={imageGallery[0]}
             className="absolute inset-0 w-full h-full object-cover"
@@ -425,8 +457,8 @@ export default function EventoDetail() {
             {hasVideo && (
               <EventVideoMuteButton
                 soundOn={soundOn}
-                onToggle={() => setSoundOn((v) => !v)}
-                size="xs"
+                onToggle={handleToggleSound}
+                size="sm"
               />
             )}
             <motion.button

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LoopVideo } from '@/components/video/LoopVideo';
+import { LoopVideo, type LoopVideoHandle } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 import { useDeckAudioStore } from '@/state/deckAudioStore';
 
@@ -35,7 +35,14 @@ export function QuickFilterImage({
   const [activeIndex, setActiveIndex] = useState(0);
   const isDragging = React.useRef(false);
   const soundOn = useDeckAudioStore((s) => s.soundOn);
-  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
+  const setSoundOn = useDeckAudioStore((s) => s.setSoundOn);
+  const videoRef = useRef<LoopVideoHandle | null>(null);
+
+  const handleToggleSound = useCallback(() => {
+    const next = !useDeckAudioStore.getState().soundOn;
+    videoRef.current?.applySoundFromGesture(next);
+    setSoundOn(next);
+  }, [setSoundOn]);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -60,8 +67,8 @@ export function QuickFilterImage({
   const currentIsVideo = isVideoUrl(current);
 
   const muteControl = showMute ? (
-    <div className="absolute top-2 right-2 z-40 pointer-events-auto">
-      <EventVideoMuteButton soundOn={soundOn} onToggle={toggleSound} size="xs" />
+    <div className="absolute top-1.5 right-1.5 z-40 pointer-events-auto">
+      <EventVideoMuteButton soundOn={soundOn} onToggle={handleToggleSound} size="xs" />
     </div>
   ) : null;
 
@@ -70,6 +77,7 @@ export function QuickFilterImage({
       <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-900/50">
         {currentIsVideo ? (
           <LoopVideo
+            ref={videoRef}
             src={current}
             className={cn('absolute inset-0 w-full h-full object-cover', className)}
             active
@@ -130,11 +138,12 @@ export function QuickFilterImage({
           initial={{ opacity: 0, scale: 1.02 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
         >
           {currentIsVideo ? (
             <LoopVideo
+              ref={videoRef}
               src={current}
               className={cn('absolute inset-0 w-full h-full object-cover', className)}
               active
@@ -151,7 +160,6 @@ export function QuickFilterImage({
         </motion.div>
       </AnimatePresence>
 
-      {/* Dots left — mute sits top-right */}
       <div className="absolute top-2.5 left-2.5 flex items-center gap-[4px] z-30 pointer-events-none drop-shadow-md">
         {images.map((_, i) => (
           <div

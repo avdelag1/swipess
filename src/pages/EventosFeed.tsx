@@ -365,10 +365,12 @@ export default function EventosFeed() {
   const handleMiddleTap = useCallback((event: EventItem) => {
     triggerHaptic('light');
     const ids = filteredEvents.map((e) => e.id);
+    // Seed detail cache so Insights opens with video + copy immediately
+    queryClient.setQueryData(['evento', event.id], event);
     navigate(`/explore/events/${event.id}`, {
       state: { eventData: event, eventIds: ids },
     });
-  }, [navigate, filteredEvents]);
+  }, [navigate, filteredEvents, queryClient]);
 
   return (
     <div
@@ -507,25 +509,43 @@ export default function EventosFeed() {
           } as React.CSSProperties}
         >
           {filteredEvents.map((event, index) => {
-            const isWarm = Math.abs(activeIdx - index) <= warmRadius;
+            const dist = Math.abs(activeIdx - index);
+            const isWarm = dist <= warmRadius;
+            // Window mount: keep scroll height, only hydrate nearby cards (huge iOS win)
+            const shouldMount = dist <= warmRadius + 1;
+            const poster = pickEventImage(event);
             return (
             <div
               key={event.id}
               className="w-full shrink-0 snap-start snap-always relative"
-              style={{ height: '100dvh' }}
+              style={{ height: '100dvh', contentVisibility: 'auto', containIntrinsicSize: '100vw 100dvh' } as React.CSSProperties}
             >
-              <EventCard
-                event={event}
-                isActive={activeIdx === index}
-                warm={isWarm}
-                imageUrl={pickEventImage(event)}
-                liked={likedIds.has(event.id)}
-                activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                onChat={() => handleOpenChat(event)}
-                onShare={() => handleShare(event)}
-                onMiddleTap={() => handleMiddleTap(event)}
-              />
+              {shouldMount ? (
+                <EventCard
+                  event={event}
+                  isActive={activeIdx === index}
+                  warm={isWarm}
+                  imageUrl={poster}
+                  liked={likedIds.has(event.id)}
+                  activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                  onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                  onChat={() => handleOpenChat(event)}
+                  onShare={() => handleShare(event)}
+                  onMiddleTap={() => handleMiddleTap(event)}
+                />
+              ) : (
+                <div className="absolute inset-0 bg-[#0a0a0b]" aria-hidden>
+                  {poster ? (
+                    <img
+                      src={poster}
+                      alt=""
+                      decoding="async"
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover opacity-80"
+                    />
+                  ) : null}
+                </div>
+              )}
             </div>
             );
           })}

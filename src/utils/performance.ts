@@ -58,12 +58,12 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
   // 2. Prefetch Events — skip on slow connections
   if (netProfile.prefetchDepth >= 2) {
     queryClient.prefetchQuery({
-      queryKey: ['eventos', 'v4'],
+      queryKey: ['eventos', 'v5'],
       queryFn: async () => {
         const { data, error } = await supabase
           .from('events')
-          .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-          .order('event_date', { ascending: true })
+          .select('id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
+          .order('created_at', { ascending: false })
           .limit(30);
         if (error) throw error;
 

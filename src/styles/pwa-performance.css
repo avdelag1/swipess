@@ -789,3 +789,35 @@ body.is-dragging * {
     transform: translateZ(0);
     will-change: transform;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  NATIVE CAPACITOR — cut GPU blur cost (biggest iOS lag source)     */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+html.native-app .backdrop-blur-3xl,
+html.native-app .backdrop-blur-2xl,
+html.native-app .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+    backdrop-filter: blur(8px) saturate(120%) !important;
+}
+
+html.native-app .backdrop-blur-md,
+html.native-app .backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(4px) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+html.native-app.hw-low .backdrop-blur-3xl,
+html.native-app.hw-low .backdrop-blur-2xl,
+html.native-app.hw-low .backdrop-blur-xl,
+html.native-app.hw-low .backdrop-blur-md,
+html.native-app.hw-low .backdrop-blur-sm {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+html.native-app button,
+html.native-app [role="button"],
+html.native-app a {
+    touch-action: manipulation;
+}
+

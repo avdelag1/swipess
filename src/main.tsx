@@ -17,6 +17,18 @@ import { applyHardwareTierClasses } from "@/utils/hardwareTier";
 
 applyHardwareTierClasses();
 
+// Native Capacitor: mark HTML so CSS can drop expensive backdrop blurs
+try {
+  if ((window as any).Capacitor?.isNativePlatform?.()) {
+    document.documentElement.classList.add('native-app', 'pwa-mode');
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.documentElement.classList.add('pwa-ios');
+    }
+  }
+} catch {
+  /* ignore */
+}
+
 // 🚀 EMERGENCY RECOVERY: Handle Vite preload / missing chunk failures after deploy.
 // STRICT: at most ONE automatic recovery per tab session. Multiple independent
 // reloaders (lazyRetry + this + SW) used to thrash Chrome into a permanent loop.

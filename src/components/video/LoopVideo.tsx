@@ -1,5 +1,20 @@
-import { useEffect, useRef, useState, type VideoHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type VideoHTMLAttributes,
+} from 'react';
 import { cn } from '@/lib/utils';
+import { playMediaFromGesture, unlockMediaPlayback } from '@/utils/mediaUnlock';
+
+export type LoopVideoHandle = {
+  /** Apply mute + play inside the same user gesture (required on iOS). */
+  applySoundFromGesture: (soundOn: boolean) => void;
+  playFromGesture: () => void;
+  getElement: () => HTMLVideoElement | null;
+};
 
 /**
  * LoopVideo — auto-playing video for swipe cards / event reels.
@@ -7,103 +22,142 @@ import { cn } from '@/lib/utils';
  * Rules:
  * - Poster stays visible until a decoded frame is ready (no black gap)
  * - `active` plays; `warm` preloads adjacent cards without playing
- * - Only active video plays; warm stays paused
- * - No remount on active toggle (stable key) so transitions stay instant
+ * - Mute changes must NOT pause — iOS rejects unmuted play() outside a gesture
+ * - Use applySoundFromGesture() from mute-button onClick for sound
  */
-export function LoopVideo({
-  src,
-  poster,
-  className,
-  active = true,
-  warm = false,
-  muted = true,
-  loop = true,
-  onEnded,
-}: {
-  src: string;
-  poster?: string;
-  className?: string;
-  active?: boolean;
-  /** Preload this video while inactive (next/prev card). */
-  warm?: boolean;
-  muted?: boolean;
-  /** When false, plays once then fires onEnded (carousel advances). */
-  loop?: boolean;
-  onEnded?: () => void;
-}) {
-  const ref = useRef<HTMLVideoElement | null>(null);
+export const LoopVideo = forwardRef<
+  LoopVideoHandle,
+  {
+    src: string;
+    poster?: string;
+    className?: string;
+    active?: boolean;
+    /** Preload this video while inactive (next/prev card). */
+    warm?: boolean;
+    muted?: boolean;
+    /** When false, plays once then fires onEnded (carousel advances). */
+    loop?: boolean;
+    onEnded?: () => void;
+  }
+>(function LoopVideo(
+  {
+    src,
+    poster,
+    className,
+    active = true,
+    warm = false,
+    muted = true,
+    loop = true,
+    onEnded,
+  },
+  ref,
+) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const cleanSrc = src.split('#')[0];
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
   const shouldAttach = active || warm;
   const [hasFrame, setHasFrame] = useState(false);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      applySoundFromGesture(soundOn: boolean) {
+        const el = videoRef.current;
+        if (!el) {
+          unlockMediaPlayback();
+          return;
+        }
+        el.muted = !soundOn;
+        if (active) playMediaFromGesture(el);
+        else unlockMediaPlayback();
+      },
+      playFromGesture() {
+        playMediaFromGesture(videoRef.current);
+      },
+      getElement() {
+        return videoRef.current;
+      },
+    }),
+    [active],
+  );
+
   useEffect(() => {
-    // New source → wait for a real frame again (poster covers meanwhile)
     setHasFrame(false);
   }, [cleanSrc]);
 
+  // Mute only — never pause/replay here (that breaks iOS after unmute)
   useEffect(() => {
-    const el = ref.current;
+    const el = videoRef.current;
     if (!el) return;
+    el.muted = muted;
+  }, [muted, shouldAttach, cleanSrc]);
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) {
-          el.pause();
-          return;
-        }
-        if (active) el.play().catch(() => {});
-      },
-      { threshold: 0.35 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [active, cleanSrc, shouldAttach]);
-
+  // Loop flag
   useEffect(() => {
-    const el = ref.current;
+    const el = videoRef.current;
+    if (!el) return;
+    el.loop = loop;
+  }, [loop, shouldAttach, cleanSrc]);
+
+  // Play / pause / warm based on visibility + active
+  useEffect(() => {
+    const el = videoRef.current;
     if (!el || !shouldAttach) return;
 
-    el.muted = muted;
-    el.loop = loop;
-
-    if (!active) {
-      el.pause();
-      // Warm: ensure bytes are buffering without playback
-      try {
-        if (el.readyState < 2) el.load();
-      } catch {
-        /* ignore */
-      }
-      return;
-    }
-
     const markFrame = () => setHasFrame(true);
-    const play = () => {
+
+    const tryPlay = () => {
+      if (!active) return;
       el.play()
         .then(() => markFrame())
         .catch(() => {});
     };
 
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          if (active) el.pause();
+          return;
+        }
+        tryPlay();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(el);
+
+    if (!active) {
+      el.pause();
+      try {
+        if (el.readyState < 2) el.load();
+      } catch {
+        /* ignore */
+      }
+      return () => io.disconnect();
+    }
+
     if (el.readyState >= 2) {
       markFrame();
-      play();
+      tryPlay();
     } else {
-      el.addEventListener('loadeddata', () => {
+      const onReady = () => {
         markFrame();
-        play();
-      }, { once: true });
+        tryPlay();
+      };
+      el.addEventListener('loadeddata', onReady, { once: true });
       el.addEventListener('playing', markFrame, { once: true });
+      tryPlay();
     }
 
     return () => {
+      io.disconnect();
+      // Only pause when leaving active/warm — not on mute toggles
       el.pause();
     };
-  }, [active, warm, muted, loop, cleanSrc, shouldAttach]);
+  }, [active, warm, cleanSrc, shouldAttach]);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = videoRef.current;
     if (!el || loop || !active) return;
     const handleEnded = () => onEndedRef.current?.();
     el.addEventListener('ended', handleEnded);
@@ -118,7 +172,6 @@ export function LoopVideo({
 
   return (
     <div className={cn('absolute inset-0 overflow-hidden bg-transparent', className)}>
-      {/* Always-on poster — covers until video has a painted frame */}
       {poster ? (
         <img
           src={poster}
@@ -134,7 +187,7 @@ export function LoopVideo({
 
       {shouldAttach ? (
         <video
-          ref={ref}
+          ref={videoRef}
           src={cleanSrc}
           poster={poster}
           muted={muted}
@@ -149,7 +202,6 @@ export function LoopVideo({
           onPlaying={() => setHasFrame(true)}
           className={cn(
             'absolute inset-0 w-full h-full object-cover',
-            // Transparent until first frame so poster shows through (never flash black)
             hasFrame ? 'opacity-100' : 'opacity-0',
             'transition-opacity duration-100',
           )}
@@ -157,4 +209,4 @@ export function LoopVideo({
       ) : null}
     </div>
   );
-}
+});

@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, startTransition } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEventsDeck } from '@/hooks/useEventsDeck';
-import { LoopVideo } from '@/components/video/LoopVideo';
+import { LoopVideo, type LoopVideoHandle } from '@/components/video/LoopVideo';
 import { cn } from '@/lib/utils';
 import { PartyPopper } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { EVENTS_FEED_PATH, eventsFeedPathFor } from '@/constants/eventsRoutes';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 import { useDeckAudioStore } from '@/state/deckAudioStore';
+import { playMediaFromGesture } from '@/utils/mediaUnlock';
 
 /** Same swipe threshold as QuickFilterImage carousel */
 const SWIPE_THRESHOLD = 20;
@@ -30,9 +31,23 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
   const [direction, setDirection] = useState(1);
   // Persists across event carousel changes — unmute once = listen while browsing this deck
   const soundOn = useDeckAudioStore((s) => s.soundOn);
-  const toggleSound = useDeckAudioStore((s) => s.toggleSound);
+  const setSoundOn = useDeckAudioStore((s) => s.setSoundOn);
   const isDragging = useRef(false);
   const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<LoopVideoHandle | null>(null);
+
+  const handleToggleSound = useCallback(() => {
+    const next = !useDeckAudioStore.getState().soundOn;
+    // iOS: unmute + play must happen in this click gesture
+    videoRef.current?.applySoundFromGesture(next);
+    if (next) {
+      const music = bgMusicRef.current;
+      if (music) playMediaFromGesture(music);
+    } else {
+      bgMusicRef.current?.pause();
+    }
+    setSoundOn(next);
+  }, [setSoundOn]);
 
   useEffect(() => {
     if (currentIndex >= videoEvents.length) setCurrentIndex(0);
@@ -81,13 +96,15 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
     // Capture the visible event id at tap time (carousel may keep rotating)
     const eventId = currentEvent?.id;
     triggerHaptic('success');
-    if (eventId) {
-      navigate(eventsFeedPathFor(eventId), {
-        state: { eventId, fromQuickFilter: true },
-      });
-      return;
-    }
-    navigate(EVENTS_FEED_PATH);
+    startTransition(() => {
+      if (eventId) {
+        navigate(eventsFeedPathFor(eventId), {
+          state: { eventId, fromQuickFilter: true },
+        });
+        return;
+      }
+      navigate(EVENTS_FEED_PATH);
+    });
   };
 
   if (isLoading || videoEvents.length === 0) {
@@ -167,6 +184,7 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
         >
           <LoopVideo
+            ref={videoRef}
             src={currentEvent.video_url!}
             poster={currentEvent.image_url || undefined}
             className="w-full h-full object-cover scale-[1.02]"
@@ -227,10 +245,10 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         </div>
       )}
 
-      <div className="absolute top-2 right-2 z-40 pointer-events-auto">
+      <div className="absolute top-1.5 right-1.5 z-40 pointer-events-auto">
         <EventVideoMuteButton
           soundOn={soundOn}
-          onToggle={toggleSound}
+          onToggle={handleToggleSound}
           size="xs"
         />
       </div>
