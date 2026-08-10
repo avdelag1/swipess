@@ -1,6 +1,29 @@
 -- Ops hardening: lawyer request RLS, commission payment notifications,
 -- published site_content for bank instructions, owner scan profile access
 
+-- 0) Ensure property_reports exists (missing on some live DBs)
+CREATE TABLE IF NOT EXISTS public.property_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reporter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  reported_listing_id UUID NOT NULL REFERENCES public.listings(id) ON DELETE CASCADE,
+  report_reason TEXT NOT NULL,
+  report_details TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.property_reports ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can view all property reports" ON public.property_reports;
+CREATE POLICY "Admins can view all property reports" ON public.property_reports
+FOR SELECT TO authenticated
+USING (public.is_admin_user(auth.uid()));
+
+CREATE INDEX IF NOT EXISTS idx_property_reports_reporter ON public.property_reports(reporter_id);
+CREATE INDEX IF NOT EXISTS idx_property_reports_listing ON public.property_reports(reported_listing_id);
+CREATE INDEX IF NOT EXISTS idx_property_reports_status ON public.property_reports(status);
+
 -- 1) Fix lawyer RLS helpers (is_lawyer_user has no args in live schema)
 DROP POLICY IF EXISTS "Lawyers can view all disputes" ON public.dispute_reports;
 CREATE POLICY "Lawyers can view all disputes"
