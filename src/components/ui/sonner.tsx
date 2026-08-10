@@ -14,14 +14,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
       position="top-center"
-      style={{ top: 'var(--safe-top, 20px)', zIndex: 9999999 }}
+      style={{ top: 'var(--safe-top, 20px)', zIndex: 2147483000 }}
       visibleToasts={2}
       closeButton={false}
       toastOptions={{
         duration: 5000,
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border/50 group-[.toaster]:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] group-[.toaster]:rounded-3xl group-[.toaster]:px-5 group-[.toaster]:py-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all",
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border/50 group-[.toaster]:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] group-[.toaster]:rounded-3xl group-[.toaster]:px-5 group-[.toaster]:py-4 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all !z-[2147483000]",
           description: "group-[.toast]:text-muted-foreground group-[.toast]:text-xs group-[.toast]:font-medium group-[.toast]:mt-1",
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 group-[.toast]:text-xs group-[.toast]:font-bold hover:group-[.toast]:opacity-90 transition-opacity shadow-lg shadow-primary/25",

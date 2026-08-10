@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NotificationBar } from './NotificationBar';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import type { AppNotification } from '@/state/notificationStore';
+import { showOsNotification } from '@/utils/osNotifications';
 
 /**
  * GLOBAL NOTIFICATION SYSTEM
@@ -18,6 +19,7 @@ export function NotificationSystem() {
 
     const [bannerSeen, setBannerSeen] = useState<Set<string>>(new Set());
     const mountTimeRef = useRef<number>(Date.now());
+    const osNotifiedRef = useRef<Set<string>>(new Set());
 
     // Auto-suppress historical notifications so the banner doesn't get stuck
     useEffect(() => {
@@ -33,6 +35,24 @@ export function NotificationSystem() {
                 return next;
             });
         }
+    }, [notifications, bannerSeen]);
+
+    // When app/tab is in background, also fire OS phone notifications
+    useEffect(() => {
+        const fresh = notifications.filter(n => {
+            if (n.read || bannerSeen.has(n.id) || osNotifiedRef.current.has(n.id)) return false;
+            const ts = n.timestamp instanceof Date ? n.timestamp.getTime() : new Date(n.timestamp as any).getTime();
+            return ts >= mountTimeRef.current - 15_000;
+        });
+        fresh.forEach((n) => {
+            osNotifiedRef.current.add(n.id);
+            void showOsNotification({
+                title: n.title || 'Swipess',
+                body: n.message || '',
+                url: n.actionUrl || '/notifications',
+                tag: `inapp-${n.id}`,
+            });
+        });
     }, [notifications, bannerSeen]);
 
     const visibleForBanner = useMemo(

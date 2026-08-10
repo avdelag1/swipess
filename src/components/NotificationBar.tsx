@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import { X } from 'lucide-react';
 import useAppTheme from '@/hooks/useAppTheme';
@@ -6,6 +7,9 @@ import { triggerHaptic } from '@/utils/haptics';
 
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import type { AppNotification } from '@/state/notificationStore';
+
+/** Must sit above every modal/sheet/map (some use z > 100000). */
+export const NOTIFICATION_Z_INDEX = 2147483000;
 
 interface NotificationBarProps {
   notifications: AppNotification[];
@@ -132,8 +136,12 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
   const Icon   = config.icon;
   const unreadCount = unread.length;
 
-  return (
-    <div className="fixed z-[10060] px-4 flex justify-center pointer-events-none left-0 right-0" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
+  const banner = (
+    <div
+      className="fixed px-4 flex justify-center pointer-events-none left-0 right-0"
+      style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)', zIndex: NOTIFICATION_Z_INDEX }}
+      data-notification-layer="banner"
+    >
       <AnimatePresence mode="sync" onExitComplete={handleExitComplete}>
         {visible && (
           <motion.div
@@ -229,6 +237,9 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
       </AnimatePresence>
     </div>
   );
+
+  if (typeof document === 'undefined') return banner;
+  return createPortal(banner, document.body);
 });
 
 

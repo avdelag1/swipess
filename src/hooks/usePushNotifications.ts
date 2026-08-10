@@ -91,6 +91,23 @@ export function usePushNotifications() {
           }
         }, 30);
       });
+
+      // When app is open/foreground, still surface a system banner on phones
+      await PushNotifications.addListener('pushNotificationReceived', async (notification) => {
+        try {
+          const { LocalNotifications } = await import('@capacitor/local-notifications');
+          await LocalNotifications.schedule({
+            notifications: [{
+              id: Math.floor(Date.now() % 100000000),
+              title: notification.title || 'Swipess',
+              body: notification.body || '',
+              extra: { url: notification.data?.url || '/notifications' },
+            }],
+          });
+        } catch (err) {
+          logger.warn('[PushNative] Foreground local notify failed:', err);
+        }
+      });
     };
 
     addListeners().catch((err) => {
