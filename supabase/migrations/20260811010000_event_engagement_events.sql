@@ -62,7 +62,6 @@ CREATE POLICY "Admins read event engagement"
   TO authenticated
   USING (
     auth.uid() = user_id
-    OR public.has_role(auth.uid(), 'admin')
     OR EXISTS (
       SELECT 1 FROM public.user_roles ur
       WHERE ur.user_id = auth.uid()
