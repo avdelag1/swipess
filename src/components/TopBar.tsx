@@ -38,7 +38,8 @@ interface TopBarProps {
   minimal?: boolean;
 }
 
-const HEADER_ICON = 'w-[24px] h-[24px]';
+/* 18px glyph inside 36px pill — leaves clear gap from the neo-naive ring */
+const HEADER_ICON = 'w-[18px] h-[18px]';
 
 /** Liquid Glass / Neo-Naïve pill wrapper — chrome-icon-btn forces transparent, so chrome lives here. */
 function GlassPill({
@@ -81,7 +82,7 @@ function HeaderIconSlot({
   return (
     <span
       className={cn(
-        'relative flex items-center justify-center w-6 h-6 shrink-0',
+        'relative flex items-center justify-center w-5 h-5 shrink-0',
         wash && `neo-naive-header-icon neo-naive-header-icon--${wash}`,
       )}
     >
