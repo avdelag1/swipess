@@ -83,6 +83,7 @@ export default function AdminEventos() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [activeTab, setActiveTab] = useState<'events' | 'submissions'>('events');
   const [submissions, setSubmissions] = useState<PromoSubmission[]>([]);
   const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
@@ -447,33 +448,73 @@ export default function AdminEventos() {
 
             <Input placeholder="Location (e.g. Tulum Beach)" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
             <Input placeholder="Location detail (address)" value={form.location_detail} onChange={e => setForm(f => ({ ...f, location_detail: e.target.value }))} />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl border border-sky-500/30 bg-sky-500/5 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold text-foreground">Venue pin (who sees this event)</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  disabled={geocoding}
+                  onClick={async () => {
+                    const query = [form.location_detail, form.location].filter(Boolean).join(', ').trim();
+                    if (!query) { appToast.info('Enter a location first'); return; }
+                    const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string | undefined;
+                    if (!token) { appToast.error('Mapbox token missing'); return; }
+                    setGeocoding(true);
+                    try {
+                      const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1`);
+                      const json = await res.json();
+                      const center = json?.features?.[0]?.center;
+                      if (!Array.isArray(center) || center.length < 2) {
+                        appToast.error('No pin found — try a clearer address');
+                        return;
+                      }
+                      setForm(f => ({
+                        ...f,
+                        longitude: String(Number(center[0].toFixed(6))),
+                        latitude: String(Number(center[1].toFixed(6))),
+                      }));
+                      appToast.success('Venue pin set');
+                    } catch {
+                      appToast.error('Geocode failed');
+                    } finally {
+                      setGeocoding(false);
+                    }
+                  }}
+                >
+                  {geocoding ? 'Finding…' : 'Find pin'}
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="Latitude (e.g. 20.2114)"
+                  value={form.latitude}
+                  onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))}
+                />
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="Longitude (e.g. -87.4654)"
+                  value={form.longitude}
+                  onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))}
+                />
+              </div>
               <Input
                 type="number"
                 step="any"
-                placeholder="Latitude (e.g. 20.2114)"
-                value={form.latitude}
-                onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))}
+                min="1"
+                placeholder="Max visibility radius km (optional)"
+                value={form.visibility_radius_km}
+                onChange={e => setForm(f => ({ ...f, visibility_radius_km: e.target.value }))}
               />
-              <Input
-                type="number"
-                step="any"
-                placeholder="Longitude (e.g. -87.4654)"
-                value={form.longitude}
-                onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))}
-              />
+              <p className="text-[11px] text-muted-foreground">
+                This pin decides where the event appears. Users only see it if they are within their km radius of this venue.
+              </p>
             </div>
-            <Input
-              type="number"
-              step="any"
-              min="1"
-              placeholder="Max visibility radius km (optional)"
-              value={form.visibility_radius_km}
-              onChange={e => setForm(f => ({ ...f, visibility_radius_km: e.target.value }))}
-            />
-            <p className="text-[11px] text-muted-foreground -mt-1">
-              Lat/lng required for nearby-only discovery. Without them, users with GPS/Passport won&apos;t see this event.
-            </p>
             <Input placeholder="Organizer name" value={form.organizer_name} onChange={e => setForm(f => ({ ...f, organizer_name: e.target.value }))} />
             <Input placeholder="Organizer WhatsApp (e.g. 529841234567)" value={form.organizer_whatsapp} onChange={e => setForm(f => ({ ...f, organizer_whatsapp: e.target.value }))} />
             <Input placeholder="Promo text (e.g. Free drink with entry)" value={form.promo_text} onChange={e => setForm(f => ({ ...f, promo_text: e.target.value }))} />
