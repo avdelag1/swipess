@@ -636,38 +636,38 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
-/* AI search — bright blue light follows the pill FRAME LINE (~every 10s) */
+/* AI search — thin blue line zips along the pill frame every ~13s */
 .neo-search-frame-chase__trail,
 .neo-search-frame-chase__head {
   opacity: 0;
-  animation: neo-search-frame-chase 10s cubic-bezier(0.42, 0.05, 0.2, 1) infinite;
+  animation: neo-search-frame-chase 13s linear infinite;
 }
 
 .neo-search-frame-chase__trail {
-  stroke-dasharray: 22 78;
+  stroke-dasharray: 14 86;
   stroke-dashoffset: 0;
 }
 
 .neo-search-frame-chase__head {
-  stroke-dasharray: 10 90;
+  stroke-dasharray: 5 95;
   stroke-dashoffset: 0;
-  animation-delay: 0.02s;
 }
 
 @keyframes neo-search-frame-chase {
+  /* Rest most of the cycle, then a sudden bright zip (~0.7s) */
   0%,
-  8% {
+  4% {
     opacity: 0;
     stroke-dashoffset: 0;
   }
-  12% {
+  4.5% {
     opacity: 1;
   }
-  52% {
+  9.5% {
     opacity: 1;
     stroke-dashoffset: -100;
   }
-  58%,
+  10.5%,
   100% {
     opacity: 0;
     stroke-dashoffset: -100;

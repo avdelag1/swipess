@@ -166,30 +166,30 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       >
         <defs>
           <filter id="neo-search-frame-glow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="1.6" result="blur" />
+            <feGaussianBlur stdDeviation="0.9" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
-        {/* Soft trail */}
+        {/* Soft thin trail */}
         <path
           d={framePath}
           fill="none"
           stroke={glowColor}
-          strokeWidth={5}
+          strokeWidth={2.25}
           strokeLinecap="round"
           pathLength={100}
           className="neo-search-frame-chase__trail"
           filter="url(#neo-search-frame-glow)"
         />
-        {/* Bright head on the border line */}
+        {/* Sudden bright head on the border line */}
         <path
           d={framePath}
           fill="none"
           stroke={frameColor}
-          strokeWidth={3}
+          strokeWidth={1.5}
           strokeLinecap="round"
           pathLength={100}
           className="neo-search-frame-chase__head"
