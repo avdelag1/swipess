@@ -12,6 +12,7 @@ import { LoopVideo, type LoopVideoHandle } from '@/components/video/LoopVideo';
 import { EventVideoMuteButton } from '@/components/events/EventVideoMuteButton';
 import { useDeckAudioStore } from '@/state/deckAudioStore';
 import { playMediaFromGesture } from '@/utils/mediaUnlock';
+import { getCardImageUrl } from '@/utils/imageOptimization';
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -101,7 +102,8 @@ export const EventCard = memo(({
   }, [handleLike, onMiddleTap]);
 
   const categoryMeta = CATEGORIES.find(c => c.key === event.category);
-  const finalImageUrl = imageUrl || event.image_url;
+  const rawImage = imageUrl || event.image_url;
+  const finalImageUrl = rawImage ? getCardImageUrl(rawImage) : null;
   const hasVideo = !!(event.video_url && event.video_url.trim());
   const hasImage = !!finalImageUrl;
   const hasMedia = hasVideo || hasImage;
@@ -163,6 +165,8 @@ export const EventCard = memo(({
               src={finalImageUrl}
               alt=""
               decoding="async"
+              sizes="100vw"
+              fetchPriority={isActive ? 'high' : 'low'}
               className="absolute inset-0 w-full h-full object-cover"
               loading={isActive || warm ? 'eager' : 'lazy'}
             />
@@ -188,6 +192,8 @@ export const EventCard = memo(({
             className="absolute inset-0 w-full h-full object-cover"
             loading={isActive || warm ? 'eager' : 'lazy'}
             decoding="async"
+            sizes="100vw"
+            fetchPriority={isActive ? 'high' : 'low'}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
         </>

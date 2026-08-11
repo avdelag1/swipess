@@ -9,6 +9,7 @@ import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 
 // Scene + subscriptions stay lazy — they are heavy and not needed for tab switches.
 const PersistentDashboardScene = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardScene').then(m => ({ default: m.PersistentDashboardScene })));
+const PersistentEventsScene = lazyWithRetry(() => import('@/components/dashboard/PersistentEventsScene').then(m => ({ default: m.PersistentEventsScene })));
 
 // Global match celebration and realtime subscriptions
 const PersistentDashboardSubscriptions = lazyWithRetry(() => import('@/components/dashboard/PersistentDashboardSubscriptions').then(m => ({ default: m.PersistentDashboardSubscriptions })));
@@ -68,6 +69,9 @@ export function PersistentDashboardLayout() {
     location.pathname.startsWith('/client/dashboard/') ||
     location.pathname.startsWith('/owner/dashboard/');
 
+  const isEventsFeedRoute =
+    location.pathname === '/explore/events' || location.pathname === '/explore/events/';
+
   return (
     <ChunkErrorBoundary>
       <DashboardLayout userRole={userRole}>
@@ -75,7 +79,7 @@ export function PersistentDashboardLayout() {
             id="swipess-dashboard-root"
             className={cn(
               "w-full flex flex-col flex-grow relative",
-              isDashboardRoute && "min-h-full self-stretch"
+              (isDashboardRoute || isEventsFeedRoute) && "min-h-full self-stretch"
             )}
           >
             {/* Persistent dashboard layer — mounted once, hidden via CSS on
@@ -83,11 +87,15 @@ export function PersistentDashboardLayout() {
             <Suspense fallback={null}>
               <PersistentDashboardScene />
             </Suspense>
+            {/* Persistent Events feed — survives tab switches */}
+            <Suspense fallback={null}>
+              <PersistentEventsScene />
+            </Suspense>
             {/* Outlet renders other routes ON TOP of the persistent dashboard (z-10). */}
             <div
               className={cn(
                 "relative w-full flex flex-col flex-grow",
-                isDashboardRoute && "flex-1 min-h-0 pointer-events-none-force"
+                (isDashboardRoute || isEventsFeedRoute) && "flex-1 min-h-0 pointer-events-none-force"
               )}
               style={{
                 zIndex: 10,

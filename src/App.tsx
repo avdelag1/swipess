@@ -79,9 +79,9 @@ const MessagingDashboard = lazyWithRetry(() => import("./pages/MessagingDashboar
 const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazyWithRetry(() => import("./pages/SubscriptionPackagesPage"));
 
-const EventosFeed = lazyWithRetry(() => import("./pages/EventosFeed"));
 const EventoDetail = lazyWithRetry(() => import("./pages/EventoDetail"));
 const EventosLikes = lazyWithRetry(() => import("./pages/EventosLikes"));
+const EventsFeedOutletPlaceholder = () => null;
 const AdminEventos = lazyWithRetry(() => import("./pages/AdminEventos"));
 
 const AdminPhotos = lazyWithRetry(() => import("./pages/AdminPhotos"));
@@ -208,7 +208,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
 
               {/* Explore/Events */}
-              <Route path="/explore/events" element={<EventosFeed />} />
+              <Route path="/explore/events" element={<EventsFeedOutletPlaceholder />} />
               <Route path="/explore/events/likes" element={<EventosLikes />} />
               <Route path="/explore/events/:id" element={<EventoDetail />} />
               <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />

@@ -104,6 +104,9 @@ export function EventsVideoQuickFilter({ className }: { className?: string }) {
         return;
       }
       navigate(EVENTS_FEED_PATH);
+      void import('@/utils/trackEventEngagement').then(({ trackEventEngagement }) => {
+        trackEventEngagement({ action: 'tap_events_entry', source: 'dashboard_teaser' });
+      });
     });
   };
 

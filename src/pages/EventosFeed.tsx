@@ -18,6 +18,8 @@ import useAppTheme from '@/hooks/useAppTheme';
 import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import { useTranslation } from 'react-i18next';
 import { hideChrome } from '@/hooks/useChromeReveal';
+import { trackEventEngagement, inferContactIntent } from '@/utils/trackEventEngagement';
+import { EVENTOS_QUERY_KEY } from '@/utils/prefetchEventosFeed';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
@@ -83,9 +85,12 @@ export default function EventosFeed() {
     setAmbientColor(color);
   }, [activeCategory, setAmbientColor]);
 
+  const isFeedVisible =
+    location.pathname === '/explore/events' || location.pathname === '/explore/events/';
+
   useEffect(() => {
     hideChrome();
-  }, [activeIdx]);
+  }, [activeIdx, isFeedVisible]);
 
   useEffect(() => {
     hideChrome();
@@ -151,6 +156,16 @@ export default function EventosFeed() {
         if (isLiked) next.delete(id); else next.add(id);
         return next;
       });
+      if (!isLiked) {
+        const ev = queryClient.getQueryData<EventItem[]>(EVENTOS_QUERY_KEY)?.find((e) => e.id === id);
+        trackEventEngagement({
+          action: 'tap_like',
+          source: 'feed',
+          eventId: id,
+          organizerName: ev?.organizer_name,
+          organizerWhatsapp: ev?.organizer_whatsapp,
+        });
+      }
       return { previous };
     },
     onError: (_err, _variables, context) => {
@@ -164,7 +179,7 @@ export default function EventosFeed() {
 
   // 3. Fetch Events (Swipess Optimized)
   const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
-    queryKey: ['eventos', 'v5'],
+    queryKey: EVENTOS_QUERY_KEY,
     queryFn: async (): Promise<EventItem[]> => {
       const withAudio =
         'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
@@ -345,6 +360,21 @@ export default function EventosFeed() {
     });
   }, [activeIdx, filteredEvents, queryClient]);
 
+  // Impression when a card becomes active (only while feed is visible)
+  useEffect(() => {
+    if (!isFeedVisible) return;
+    const ev = filteredEvents[activeIdx];
+    if (!ev?.id) return;
+    trackEventEngagement({
+      action: 'impression',
+      source: 'feed',
+      eventId: ev.id,
+      organizerName: ev.organizer_name,
+      organizerWhatsapp: ev.organizer_whatsapp,
+      metadata: { index: activeIdx },
+    });
+  }, [activeIdx, filteredEvents, isFeedVisible]);
+
   const handleOpenChat = useCallback(async (event: EventItem) => {
     triggerHaptic('heavy');
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
@@ -352,18 +382,58 @@ export default function EventosFeed() {
       appToast.error('No WhatsApp number for this event');
       return;
     }
+    const intent = inferContactIntent(event);
+    trackEventEngagement({
+      action: 'tap_whatsapp',
+      source: 'feed',
+      eventId: event.id,
+      organizerName: event.organizer_name,
+      organizerWhatsapp: event.organizer_whatsapp,
+      metadata: { intent },
+    });
+    if (intent !== 'tap_contact') {
+      trackEventEngagement({
+        action: intent,
+        source: 'feed',
+        eventId: event.id,
+        organizerName: event.organizer_name,
+        organizerWhatsapp: event.organizer_whatsapp,
+      });
+    } else {
+      trackEventEngagement({
+        action: 'tap_contact',
+        source: 'feed',
+        eventId: event.id,
+        organizerName: event.organizer_name,
+        organizerWhatsapp: event.organizer_whatsapp,
+      });
+    }
     const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Swipess 🎉`);
     window.open(`https://wa.me/${clean}?text=${msg}`, '_system');
   }, []);
 
   const handleShare = useCallback((event: EventItem) => {
     triggerHaptic('light');
+    trackEventEngagement({
+      action: 'tap_share',
+      source: 'feed',
+      eventId: event.id,
+      organizerName: event.organizer_name,
+      organizerWhatsapp: event.organizer_whatsapp,
+    });
     setShareEventData(event);
     setShowShareModal(true);
   }, []);
 
   const handleMiddleTap = useCallback((event: EventItem) => {
     triggerHaptic('light');
+    trackEventEngagement({
+      action: 'tap_detail',
+      source: 'feed',
+      eventId: event.id,
+      organizerName: event.organizer_name,
+      organizerWhatsapp: event.organizer_whatsapp,
+    });
     const ids = filteredEvents.map((e) => e.id);
     // Seed detail cache so Insights opens with video + copy immediately
     queryClient.setQueryData(['evento', event.id], event);
@@ -524,7 +594,7 @@ export default function EventosFeed() {
               {shouldMount ? (
                 <EventCard
                   event={event}
-                  isActive={activeIdx === index}
+                  isActive={isFeedVisible && activeIdx === index}
                   warm={isWarm}
                   imageUrl={poster}
                   liked={likedIds.has(event.id)}
@@ -554,7 +624,10 @@ export default function EventosFeed() {
             className="w-full shrink-0 snap-start snap-always relative"
             style={{ height: '100dvh' }}
           >
-            <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
+            <PromoteCTACard onPromote={() => {
+              trackEventEngagement({ action: 'tap_promote_cta', source: 'promote_card' });
+              navigate('/client/advertise');
+            }} />
           </div>
         </div>
       )}

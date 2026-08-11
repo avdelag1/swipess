@@ -298,6 +298,24 @@ export default function EventoDetail() {
   const handleWhatsApp = async () => {
     triggerHaptic('heavy');
     if (!event?.organizer_whatsapp) return;
+
+    const { trackEventEngagement, inferContactIntent } = await import('@/utils/trackEventEngagement');
+    const intent = inferContactIntent(event);
+    trackEventEngagement({
+      action: 'tap_whatsapp',
+      source: 'detail',
+      eventId: event.id,
+      organizerName: event.organizer_name,
+      organizerWhatsapp: event.organizer_whatsapp,
+      metadata: { intent },
+    });
+    trackEventEngagement({
+      action: intent === 'tap_contact' ? 'tap_contact' : intent,
+      source: 'detail',
+      eventId: event.id,
+      organizerName: event.organizer_name,
+      organizerWhatsapp: event.organizer_whatsapp,
+    });
     
     setIsConnecting(true);
     // Premium cinematic pause

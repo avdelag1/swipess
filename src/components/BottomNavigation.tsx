@@ -38,8 +38,11 @@ import { useModalStore } from '@/state/modalStore';
 import { broadcastSectionReset } from '@/utils/sectionNavigation';
 import { EVENTS_FEED_PATH } from '@/constants/eventsRoutes';
 import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCategoryPhotos';
+import { prefetchEventosFeed } from '@/utils/prefetchEventosFeed';
+import { trackEventEngagement } from '@/utils/trackEventEngagement';
 import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ICON_SIZE = 20;
 const ICON_SIZE_TABLET = 24;
@@ -83,6 +86,7 @@ export const BottomNavigation = memo(({
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const setCategories = useFilterStore((s) => s.setCategories);
   const setModal = useModalStore((s) => s.setModal);
   const showAIListing = useModalStore((s) => s.showAIListing);
@@ -297,7 +301,11 @@ export const BottomNavigation = memo(({
 
             const triggerItem = (e: React.MouseEvent | React.PointerEvent) => {
               if (item.path) prefetchRoute(item.path);
-              if (item.id === 'events') prefetchEventCategoryPhotosImmediate();
+              if (item.id === 'events') {
+                prefetchEventCategoryPhotosImmediate();
+                void prefetchEventosFeed(queryClient).catch(() => {});
+                trackEventEngagement({ action: 'tap_events_entry', source: 'nav' });
+              }
               if (item.id === 'ai') prefetchConciergeChatModule();
               if (item.id === 'add') prefetchListingFlowModule();
               if (item.id === 'search' || item.id === 'filters') prefetchCommonModalsModule();

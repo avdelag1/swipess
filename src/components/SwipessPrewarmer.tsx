@@ -11,6 +11,7 @@ import { prefetchConciergeChatModule } from '@/utils/prefetchConciergeChat';
 import { prefetchAIWizardsModule } from '@/utils/prefetchAIWizards';
 import { warmDiscoveryCache } from '@/utils/performance';
 import { warmTopQuickFilterDecks } from '@/utils/prefetchQuickFilterDeck';
+import { prefetchEventosFeed } from '@/utils/prefetchEventosFeed';
 
 /**
  * 🚀 SwipessPrewarmer: Predictive data & asset pre-fetching
@@ -42,6 +43,8 @@ export const SwipessPrewarmer = () => {
       prefetchRoute('/client/filters');
       prefetchRoute('/explore/events');
       prefetchRoute('/notifications');
+      // Warm events feed query + first posters (instant Events tab)
+      void prefetchEventosFeed(queryClient).catch(() => {});
       prefetchPassportMapModule();
       prefetchCityPhotos();
       prefetchEventCategoryPhotos();

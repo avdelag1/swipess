@@ -579,6 +579,18 @@ export default function AdvertisePage() {
         ({ error } = await supabase.from("business_promo_submissions" as any).insert(payload));
       }
       if (error) throw error;
+      const { trackEventEngagement } = await import('@/utils/trackEventEngagement');
+      trackEventEngagement({
+        action: 'promote_submit',
+        source: 'advertise',
+        organizerName: form.contactName,
+        organizerWhatsapp: form.contactPhone,
+        metadata: {
+          title: form.title,
+          event_type: form.eventType,
+          has_video: !!videoUrl,
+        },
+      });
       setDone(true);
     } catch {
       appToast.error("Could not submit. Please try again.");
