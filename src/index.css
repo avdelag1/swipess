@@ -636,65 +636,47 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
-/* AI search — blue light runs AROUND the frame border (luxury car strip), every ~10s */
-.neo-search-light-travel {
-  --neo-search-frame: #2563EB;
-  inset: -2px;
-  border-radius: 999px;
-  padding: 2.5px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 220deg,
-    color-mix(in srgb, var(--neo-search-frame) 0%, transparent) 255deg,
-    color-mix(in srgb, var(--neo-search-frame) 40%, transparent) 290deg,
-    color-mix(in srgb, var(--neo-search-frame) 90%, transparent) 325deg,
-    var(--neo-search-frame) 340deg,
-    #3B82F6 348deg,
-    color-mix(in srgb, var(--neo-search-frame) 55%, transparent) 355deg,
-    transparent 360deg
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+/* AI search — bright blue light follows the pill FRAME LINE (~every 10s) */
+.neo-search-frame-chase__trail,
+.neo-search-frame-chase__head {
   opacity: 0;
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neo-search-frame) 70%, transparent));
-  will-change: transform, opacity;
-  animation: neo-search-blue-orbit 10s cubic-bezier(0.4, 0.05, 0.2, 1) infinite;
+  animation: neo-search-frame-chase 10s cubic-bezier(0.42, 0.05, 0.2, 1) infinite;
 }
 
-.neo-search-light-travel--dark {
-  --neo-search-frame: #60A5FA;
-  filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.75));
+.neo-search-frame-chase__trail {
+  stroke-dasharray: 22 78;
+  stroke-dashoffset: 0;
 }
 
-@keyframes neo-search-blue-orbit {
+.neo-search-frame-chase__head {
+  stroke-dasharray: 10 90;
+  stroke-dashoffset: 0;
+  animation-delay: 0.02s;
+}
+
+@keyframes neo-search-frame-chase {
   0%,
   8% {
     opacity: 0;
-    transform: rotate(0deg);
+    stroke-dashoffset: 0;
   }
-  14% {
-    opacity: 0.95;
+  12% {
+    opacity: 1;
   }
   52% {
     opacity: 1;
-    transform: rotate(360deg);
+    stroke-dashoffset: -100;
   }
   58%,
   100% {
     opacity: 0;
-    transform: rotate(360deg);
+    stroke-dashoffset: -100;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .neo-search-light-travel {
+  .neo-search-frame-chase__trail,
+  .neo-search-frame-chase__head {
     animation: none !important;
     opacity: 0 !important;
   }
