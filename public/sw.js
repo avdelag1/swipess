@@ -1,11 +1,12 @@
 /**
  * Ultra-Fast Service Worker - Optimized for lightning-speed loading
- * UPDATED: 2026-08-09 - Force Update v18 (break splash refresh loop)
+ * UPDATED: 2026-08-10 - Force Update v19 (PWA push popups + icon path fix)
  *   - Canonical host is www.swipess.com (swipess.app DNS broken)
  *   - Do NOT intercept Supabase REST/Auth (Safari CORS / access-control fixes)
  *   - Do NOT cache Mapbox / map tile traffic (huge + tokenized)
  *   - Scoped precache of critical boot chunks only
  *   - PNG PWA icons + manifest.webmanifest in shell
+ *   - Push posts PUSH_RECEIVED to open clients; notification icons use icon-192.png
  *
  * PWA UPDATE FIX: Aggressive updates to ensure users always get latest version
  * - skipWaiting() called immediately on install for instant activation
@@ -163,6 +164,7 @@ self.addEventListener('periodicsync', (event) => {
 /**
  * Handles incoming push messages from the server (VAPID web push).
  * Works when the app is closed, in background, or in another tab.
+ * Also posts to open clients so the in-app NotificationBar can pop on iOS PWA.
  */
 self.addEventListener('push', (event) => {
   let data = {};
@@ -175,8 +177,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Swipess';
   const options = {
     body: data.body || '',
-    icon: data.icon || '/icons/swipess-logo.png',
-    badge: data.badge || '/icons/swipess-logo.png',
+    icon: data.icon || '/icons/icon-192.png',
+    badge: data.badge || '/icons/icon-192.png',
     vibrate: [100, 50, 100, 50, 100],
     tag: `swipess-${(data.data && data.data.type) || 'general'}-${Date.now()}`,
     requireInteraction: false,
@@ -184,7 +186,22 @@ self.addEventListener('push', (event) => {
     data: Object.assign({ url: data.url || '/notifications' }, data.data || {}),
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil((async () => {
+    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clientList) {
+      try {
+        client.postMessage({
+          type: 'PUSH_RECEIVED',
+          title,
+          body: options.body,
+          url: options.data.url,
+          data: options.data,
+        });
+      } catch (_e) { /* ignore */ }
+    }
+    // Always show OS/system banner — required for iOS Home Screen PWAs
+    await self.registration.showNotification(title, options);
+  })());
 });
 
 /**

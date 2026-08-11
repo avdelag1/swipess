@@ -1,20 +1,24 @@
 /**
- * Show an OS-level notification when the app is backgrounded / phone locked.
- * No-ops when permission is missing or the page is visibly focused (in-app banner handles that).
+ * Show an OS-level notification (phone lock screen / banner).
+ * iOS installed PWAs only support ServiceWorkerRegistration.showNotification —
+ * `new Notification()` is unreliable or blocked there.
  */
+const DEFAULT_ICON = '/icons/icon-192.png';
+
 export async function showOsNotification(opts: {
   title: string;
   body?: string;
   url?: string;
   tag?: string;
+  /** When true, show even if the page is focused (useful as a fallback). */
+  force?: boolean;
 }): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (typeof Notification === 'undefined') return false;
   if (Notification.permission !== 'granted') return false;
 
-  // Prefer OS banner when tab/app is not visible
   const hidden = document.visibilityState === 'hidden' || !document.hasFocus();
-  if (!hidden) return false;
+  if (!opts.force && !hidden) return false;
 
   const title = opts.title || 'Swipess';
   const body = opts.body || '';
@@ -26,23 +30,28 @@ export async function showOsNotification(opts: {
       const reg = await navigator.serviceWorker.ready;
       await reg.showNotification(title, {
         body,
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        icon: DEFAULT_ICON,
+        badge: DEFAULT_ICON,
         tag,
         data,
-        vibrate: [100, 50, 100],
-      } as NotificationOptions);
+        ...( { vibrate: [100, 50, 100] } as NotificationOptions ),
+      });
       return true;
     }
   } catch {
-    /* fall through to Notification constructor */
+    /* fall through */
   }
 
   try {
-    const n = new Notification(title, { body, icon: '/icons/icon-192.png', tag, data } as NotificationOptions);
+    const n = new Notification(title, {
+      body,
+      icon: DEFAULT_ICON,
+      tag,
+      data,
+    } as NotificationOptions);
     n.onclick = () => {
       window.focus();
-      const url = (data as any).url;
+      const url = (data as { url?: string }).url;
       if (url) window.location.assign(url);
       n.close();
     };

@@ -2,13 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NotificationBar } from './NotificationBar';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import type { AppNotification } from '@/state/notificationStore';
+import { useNotificationStore } from '@/state/notificationStore';
 import { showOsNotification } from '@/utils/osNotifications';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 /**
  * GLOBAL NOTIFICATION SYSTEM
  * Renders the top NotificationBar. Only NEW notifications (arrived after mount,
  * or within the last 15s before mount) appear as banners — historical ones
  * stay quietly in the Notifications page.
+ *
+ * Also bridges Service Worker push → in-app banner + tap navigation so
+ * installed PWA / iOS Home Screen apps actually pop alerts.
  */
 export function NotificationSystem() {
     const {
@@ -16,6 +21,9 @@ export function NotificationSystem() {
         markAllAsRead,
         handleNotificationClick
     } = useNotificationSystem();
+
+    const { navigate } = useAppNavigate();
+    const addNotification = useNotificationStore((s) => s.addNotification);
 
     const [bannerSeen, setBannerSeen] = useState<Set<string>>(new Set());
     const mountTimeRef = useRef<number>(Date.now());
@@ -54,6 +62,46 @@ export function NotificationSystem() {
             });
         });
     }, [notifications, bannerSeen]);
+
+    // Service worker → in-app popup + tap-to-open (critical for iOS PWA)
+    useEffect(() => {
+        if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+
+        const onMessage = (event: MessageEvent) => {
+            const msg = event.data;
+            if (!msg || typeof msg !== 'object') return;
+
+            if (msg.type === 'PUSH_RECEIVED') {
+                const id = `push-${msg.data?.notification_id || msg.tag || Date.now()}`;
+                if (osNotifiedRef.current.has(id)) return;
+                osNotifiedRef.current.add(id);
+
+                addNotification({
+                    id,
+                    type: (msg.data?.type as AppNotification['type']) || 'info',
+                    title: msg.title || 'Swipess',
+                    message: msg.body || '',
+                    timestamp: new Date(),
+                    read: false,
+                    actionUrl: msg.url || msg.data?.url || '/notifications',
+                    metadata: msg.data || {},
+                });
+            }
+
+            if (msg.type === 'NOTIFICATION_CLICK') {
+                const target = typeof msg.url === 'string' && msg.url.startsWith('/')
+                    ? msg.url
+                    : '/notifications';
+                try {
+                    localStorage.setItem('swipess_pending_notif_url', target);
+                } catch { /* ignore */ }
+                navigate(target);
+            }
+        };
+
+        navigator.serviceWorker.addEventListener('message', onMessage);
+        return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+    }, [addNotification, navigate]);
 
     const visibleForBanner = useMemo(
         () => notifications.filter(n => !bannerSeen.has(n.id) && !n.read),

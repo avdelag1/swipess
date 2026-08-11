@@ -96,6 +96,10 @@ export function usePushNotifications() {
       await PushNotifications.addListener('pushNotificationReceived', async (notification) => {
         try {
           const { LocalNotifications } = await import('@capacitor/local-notifications');
+          const perm = await LocalNotifications.checkPermissions();
+          if (perm.display !== 'granted') {
+            await LocalNotifications.requestPermissions();
+          }
           await LocalNotifications.schedule({
             notifications: [{
               id: Math.floor(Date.now() % 100000000),
@@ -106,6 +110,23 @@ export function usePushNotifications() {
           });
         } catch (err) {
           logger.warn('[PushNative] Foreground local notify failed:', err);
+        }
+
+        // Also feed the in-app banner so iOS/Android see a popup inside the app
+        try {
+          const { useNotificationStore } = await import('@/state/notificationStore');
+          useNotificationStore.getState().addNotification({
+            id: `native-push-${Date.now()}`,
+            type: 'info',
+            title: notification.title || 'Swipess',
+            message: notification.body || '',
+            timestamp: new Date(),
+            read: false,
+            actionUrl: notification.data?.url || '/notifications',
+            metadata: notification.data || {},
+          });
+        } catch (err) {
+          logger.warn('[PushNative] In-app banner feed failed:', err);
         }
       });
     };

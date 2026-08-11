@@ -215,36 +215,18 @@ export function useNotificationSystem() {
           // ─── Browser & Push notifications for ALL types ───
           const notifTitle = notification.title || 'Notification';
           const notifBody = dbNotification.message?.slice(0, 100) || '';
-          const notifIcon = dbNotification.metadata?.sender_avatar
-            || dbNotification.metadata?.liker_avatar
-            || dbNotification.metadata?.owner_avatar
-            || '/placeholder.svg';
 
-          // 1. Browser Notification (if app is in background)
-          if (
-            typeof window !== 'undefined' &&
-            'Notification' in window &&
-            Notification.permission === 'granted' &&
-            document.visibilityState !== 'visible'
-          ) {
-            const browserNotif = new Notification(notifTitle, {
-              body: notifBody,
-              icon: notifIcon,
-              tag: `notif-${dbNotification.id}`,
-              requireInteraction: false,
-            });
-
-            browserNotif.onclick = () => {
-              window.focus();
-              if (dbNotification.link_url) {
-                navigate(dbNotification.link_url);
-              } else if (dbNotification.metadata?.conversation_id) {
-                navigate(`/messages?conversationId=${dbNotification.metadata.conversation_id}`);
-              } else {
-                navigate('/client/dashboard');
-              }
-              browserNotif.close();
-            };
+          // 1. OS banner when app is backgrounded (SW path — required for iOS PWA)
+          if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+            void import('@/utils/osNotifications').then(({ showOsNotification }) =>
+              showOsNotification({
+                title: notifTitle,
+                body: notifBody,
+                url: dbNotification.link_url || '/notifications',
+                tag: `notif-${dbNotification.id}`,
+                force: true,
+              })
+            );
           }
 
           // 2. Edge Function Push (to reach mobile / closed tabs)

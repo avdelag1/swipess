@@ -636,7 +636,68 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
-/* AI search — thin blue line zips along the pill frame every ~13s */
+/*
+ * AI search — traveling light on the pill frame.
+ * CSS conic-gradient + rotate (not SVG stroke-dashoffset) so it runs on
+ * iOS Safari / installed PWA / Capacitor WKWebView where SVG dash anims stall.
+ */
+.neo-search-frame-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+  padding: 2.5px;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.neo-search-frame-glow__spin {
+  position: absolute;
+  inset: -60%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 300deg,
+    rgba(96, 165, 250, 0.2) 325deg,
+    var(--neo-search-glow, #60A5FA) 348deg,
+    #ffffff 354deg,
+    var(--neo-search-glow, #60A5FA) 358deg,
+    transparent 360deg
+  );
+  animation: neo-search-glow-spin 3.6s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.neo-naive-search,
+.neo-naive-search--dark {
+  --neo-search-glow: var(--neo-search-frame, #60A5FA);
+}
+
+/* Force the chase on PWA / native — performance CSS must not kill it */
+html.pwa-mode .neo-search-frame-glow__spin,
+html.pwa-ios .neo-search-frame-glow__spin,
+html.native-app .neo-search-frame-glow__spin {
+  animation: neo-search-glow-spin 3.6s linear infinite !important;
+  animation-iteration-count: infinite !important;
+  opacity: 1 !important;
+}
+
+@keyframes neo-search-glow-spin {
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+/* Legacy SVG chase kept as soft fallback if present in markup */
 .neo-search-frame-chase__trail,
 .neo-search-frame-chase__head {
   opacity: 0;
@@ -654,7 +715,6 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 @keyframes neo-search-frame-chase {
-  /* Rest most of the cycle, then a sudden bright zip (~0.7s) */
   0%,
   4% {
     opacity: 0;
@@ -675,6 +735,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .neo-search-frame-glow__spin,
   .neo-search-frame-chase__trail,
   .neo-search-frame-chase__head {
     animation: none !important;
@@ -884,7 +945,7 @@ html[data-theme-transition] ::view-transition-new(root) {
   display: none !important;
 }
 
-/* Soft watercolor dabs behind header icons */
+/* Soft wash behind header icons — centered so glyphs sit in the frame on every theme */
 .neo-naive-header-icon {
   position: relative;
   display: inline-flex;
@@ -894,27 +955,36 @@ html[data-theme-transition] ::view-transition-new(root) {
 .neo-naive-header-icon::before {
   content: '';
   position: absolute;
-  inset: -4px -5px -5px -4px;
-  border-radius: 55% 45% 58% 42% / 48% 55% 45% 52%;
+  inset: -5px;
+  border-radius: 50%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.88;
 }
 .neo-naive-header-icon > * {
   position: relative;
   z-index: 1;
+  display: block;
+  margin: 0 auto;
 }
 .neo-naive-header-icon--coral::before {
-  background: radial-gradient(ellipse at 40% 40%, var(--neo-wash-coral, rgba(255, 140, 120, 0.42)) 0%, transparent 72%);
+  background: radial-gradient(circle at 50% 50%, var(--neo-wash-coral, rgba(255, 140, 120, 0.42)) 0%, transparent 72%);
 }
 .neo-naive-header-icon--sky::before {
-  background: radial-gradient(ellipse at 45% 35%, var(--neo-wash-sky, rgba(120, 175, 235, 0.4)) 0%, transparent 72%);
+  background: radial-gradient(circle at 50% 50%, var(--neo-wash-sky, rgba(120, 175, 235, 0.4)) 0%, transparent 72%);
 }
 .neo-naive-header-icon--lemon::before {
-  background: radial-gradient(ellipse at 50% 45%, var(--neo-wash-lemon, rgba(245, 210, 90, 0.45)) 0%, transparent 72%);
+  background: radial-gradient(circle at 50% 50%, var(--neo-wash-lemon, rgba(245, 210, 90, 0.45)) 0%, transparent 72%);
 }
 .neo-naive-header-icon--mint::before {
-  background: radial-gradient(ellipse at 48% 42%, var(--neo-wash-mint, rgba(130, 210, 175, 0.38)) 0%, transparent 72%);
+  background: radial-gradient(circle at 50% 50%, var(--neo-wash-mint, rgba(130, 210, 175, 0.38)) 0%, transparent 72%);
+}
+/* Black theme: keep wash soft/centered — no left-shifted blob */
+.black-matte .neo-naive-header-icon::before,
+html.dark .neo-naive-header-icon::before {
+  opacity: 0.75;
+  inset: -5px;
+  border-radius: 50%;
 }
 
 @media (prefers-reduced-motion: reduce) {
