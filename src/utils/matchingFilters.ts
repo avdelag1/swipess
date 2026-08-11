@@ -75,6 +75,40 @@ export function applyListingLocationFilter<T extends GeoItem>(
   return [...inRadius, ...withoutCoords, ...outRadius];
 }
 
+export type EventGeoItem = GeoItem & {
+  visibility_radius_km?: number | null;
+};
+
+/**
+ * Events: hard nearby-only when the viewer has a location.
+ * - Uses min(viewer radiusKm, event.visibility_radius_km) when the event sets a cap.
+ * - If nothing in the feed has lat/lng yet (pre-migration / not backfilled), keep the
+ *   list intact so we don't blank the UI.
+ * - Once any events are geocoded, rows without coords are hidden (no worldwide leak).
+ */
+export function applyEventLocationFilter<T extends EventGeoItem>(
+  items: T[],
+  filters?: LocationFilterInput | null,
+): T[] {
+  if (!hasActiveLocationFilter(filters)) return items;
+
+  const userLat = filters!.userLatitude!;
+  const userLon = filters!.userLongitude!;
+  const viewerRadius = filters?.radiusKm ?? 50;
+
+  const withCoords = items.filter((item) => item.latitude != null && item.longitude != null);
+  if (withCoords.length === 0) return items;
+
+  return withCoords.filter((item) => {
+    const eventCap =
+      item.visibility_radius_km != null && Number.isFinite(item.visibility_radius_km)
+        ? Number(item.visibility_radius_km)
+        : null;
+    const maxKm = eventCap != null ? Math.min(viewerRadius, eventCap) : viewerRadius;
+    return haversineKm(userLat, userLon, item.latitude!, item.longitude!) <= maxKm;
+  });
+}
+
 export function hasActiveAdvancedListingFilters(filters?: ListingFilters | null): boolean {
   if (!filters) return false;
   return !!(

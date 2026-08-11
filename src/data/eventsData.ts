@@ -145,4 +145,9 @@ export const MOCK_EVENTS: EventItem[] = [
     event_date: '2026-04-19T12:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle Villa',
     organizer_name: 'Tulum Stays', organizer_whatsapp: '+529847770099', promo_text: 'Members-only rate', discount_tag: '15% OFF', is_free: false, price_text: 'From $2,800 MXN/night',
   },
-];
+].map((e, i) => ({
+  ...e,
+  // Seed geo so demo cards respect discovery radius (Tulum hub ± small offsets)
+  latitude: 20.2114 + ((i % 7) - 3) * 0.012,
+  longitude: -87.4654 + ((i % 5) - 2) * 0.015,
+}));

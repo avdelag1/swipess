@@ -60,6 +60,9 @@ const emptyForm = {
   event_end_date: '',
   location: '',
   location_detail: '',
+  latitude: '',
+  longitude: '',
+  visibility_radius_km: '',
   organizer_name: '',
   organizer_whatsapp: '',
   promo_text: '',
@@ -241,6 +244,18 @@ export default function AdminEventos() {
       return;
     }
 
+    const lat = form.latitude.trim() === '' ? null : Number(form.latitude);
+    const lng = form.longitude.trim() === '' ? null : Number(form.longitude);
+    const visRadius = form.visibility_radius_km.trim() === '' ? null : Number(form.visibility_radius_km);
+    if ((form.latitude || form.longitude) && (!Number.isFinite(lat) || !Number.isFinite(lng))) {
+      appToast.info('Latitude and longitude must be valid numbers');
+      return;
+    }
+    if (visRadius != null && (!Number.isFinite(visRadius) || visRadius <= 0)) {
+      appToast.info('Visibility radius must be a positive number of km');
+      return;
+    }
+
     const payload: any = {
       title: form.title,
       description: form.description || null,
@@ -250,6 +265,9 @@ export default function AdminEventos() {
       event_end_date: form.event_end_date || null,
       location: form.location || null,
       location_detail: form.location_detail || null,
+      latitude: lat,
+      longitude: lng,
+      visibility_radius_km: visRadius,
       organizer_name: form.organizer_name || null,
       organizer_whatsapp: form.organizer_whatsapp || null,
       promo_text: form.promo_text || null,
@@ -290,6 +308,9 @@ export default function AdminEventos() {
       event_end_date: d.event_end_date ? new Date(d.event_end_date).toISOString().slice(0, 16) : '',
       location: d.location || '',
       location_detail: d.location_detail || '',
+      latitude: d.latitude != null ? String(d.latitude) : '',
+      longitude: d.longitude != null ? String(d.longitude) : '',
+      visibility_radius_km: d.visibility_radius_km != null ? String(d.visibility_radius_km) : '',
       organizer_name: d.organizer_name || '',
       organizer_whatsapp: d.organizer_whatsapp || '',
       promo_text: d.promo_text || '',
@@ -426,6 +447,33 @@ export default function AdminEventos() {
 
             <Input placeholder="Location (e.g. Tulum Beach)" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
             <Input placeholder="Location detail (address)" value={form.location_detail} onChange={e => setForm(f => ({ ...f, location_detail: e.target.value }))} />
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="number"
+                step="any"
+                placeholder="Latitude (e.g. 20.2114)"
+                value={form.latitude}
+                onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))}
+              />
+              <Input
+                type="number"
+                step="any"
+                placeholder="Longitude (e.g. -87.4654)"
+                value={form.longitude}
+                onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))}
+              />
+            </div>
+            <Input
+              type="number"
+              step="any"
+              min="1"
+              placeholder="Max visibility radius km (optional)"
+              value={form.visibility_radius_km}
+              onChange={e => setForm(f => ({ ...f, visibility_radius_km: e.target.value }))}
+            />
+            <p className="text-[11px] text-muted-foreground -mt-1">
+              Lat/lng required for nearby-only discovery. Without them, users with GPS/Passport won&apos;t see this event.
+            </p>
             <Input placeholder="Organizer name" value={form.organizer_name} onChange={e => setForm(f => ({ ...f, organizer_name: e.target.value }))} />
             <Input placeholder="Organizer WhatsApp (e.g. 529841234567)" value={form.organizer_whatsapp} onChange={e => setForm(f => ({ ...f, organizer_whatsapp: e.target.value }))} />
             <Input placeholder="Promo text (e.g. Free drink with entry)" value={form.promo_text} onChange={e => setForm(f => ({ ...f, promo_text: e.target.value }))} />

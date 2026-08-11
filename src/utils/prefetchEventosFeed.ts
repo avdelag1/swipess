@@ -1,58 +1,60 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { QueryClient } from '@tanstack/react-query';
 import { getCardImageUrl, pwaImagePreloader } from '@/utils/imageOptimization';
+import {
+  EVENT_SELECT_BASE,
+  EVENT_SELECT_BASE_NO_GEO,
+  EVENT_SELECT_WITH_AUDIO,
+  EVENT_SELECT_WITH_AUDIO_NO_GEO,
+  formatEventRow,
+  isMissingAudioColumnError,
+  isMissingGeoColumnError,
+  pickEventImage,
+} from '@/utils/eventsGeo';
 
-const EVENTOS_QUERY_KEY = ['eventos', 'v5'] as const;
-
-function pickEventImage(ev: any): string | null {
-  if (typeof ev?.image_url === 'string' && ev.image_url.trim()) return ev.image_url;
-  const gallery = Array.isArray(ev?.image_urls) ? ev.image_urls : [];
-  for (const item of gallery) {
-    if (typeof item === 'string' && item.trim()) return item;
-    if (item && typeof item === 'object') {
-      const url = item.url || item.image_url || item.src;
-      if (typeof url === 'string' && url.trim()) return url;
-    }
-  }
-  return null;
-}
+/** Raw events cache — location radius is applied in the feed UI. */
+const EVENTOS_QUERY_KEY = ['eventos', 'v6'] as const;
 
 export async function prefetchEventosFeed(queryClient: QueryClient): Promise<void> {
   await queryClient.prefetchQuery({
     queryKey: EVENTOS_QUERY_KEY,
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const withAudio =
-        'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
-      const base =
-        'id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
-
       let { data, error } = await supabase
         .from('events')
-        .select(withAudio)
+        .select(EVENT_SELECT_WITH_AUDIO)
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error && /video_audio_enabled|background_music_url|42703/i.test(error.message || '')) {
+      if (error && isMissingGeoColumnError(error.message)) {
         ({ data, error } = await supabase
           .from('events')
-          .select(base)
+          .select(EVENT_SELECT_WITH_AUDIO_NO_GEO)
           .order('created_at', { ascending: false })
           .limit(100));
       }
+
+      if (error && isMissingAudioColumnError(error.message)) {
+        ({ data, error } = await supabase
+          .from('events')
+          .select(EVENT_SELECT_BASE)
+          .order('created_at', { ascending: false })
+          .limit(100));
+        if (error && isMissingGeoColumnError(error.message)) {
+          ({ data, error } = await supabase
+            .from('events')
+            .select(EVENT_SELECT_BASE_NO_GEO)
+            .order('created_at', { ascending: false })
+            .limit(100));
+        }
+      }
       if (error) throw error;
 
-      const formatted = (data || []).map((ev: any) => ({
-        ...ev,
-        title: ev.title || 'Untitled Event',
-        category: ev.category || 'all',
-        image_url: pickEventImage(ev),
-        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
-      }));
+      const formatted = (data || []).map((ev) => formatEventRow(ev as Record<string, unknown>));
 
       const posters = formatted
         .slice(0, 5)
-        .map((e: any) => getCardImageUrl(e.image_url || ''))
+        .map((e) => getCardImageUrl(pickEventImage(e) || ''))
         .filter(Boolean);
       if (posters.length) pwaImagePreloader.batchPreload(posters);
 

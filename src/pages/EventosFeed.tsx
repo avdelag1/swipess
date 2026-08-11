@@ -20,6 +20,18 @@ import { useTranslation } from 'react-i18next';
 import { hideChrome } from '@/hooks/useChromeReveal';
 import { trackEventEngagement, inferContactIntent } from '@/utils/trackEventEngagement';
 import { EVENTOS_QUERY_KEY } from '@/utils/prefetchEventosFeed';
+import { useFilterStore } from '@/state/filterStore';
+import { applyEventLocationFilter } from '@/utils/matchingFilters';
+import {
+  EVENT_SELECT_BASE,
+  EVENT_SELECT_BASE_NO_GEO,
+  EVENT_SELECT_WITH_AUDIO,
+  EVENT_SELECT_WITH_AUDIO_NO_GEO,
+  formatEventRow,
+  isMissingAudioColumnError,
+  isMissingGeoColumnError,
+  pickEventImage,
+} from '@/utils/eventsGeo';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
@@ -31,18 +43,6 @@ import { EventItem } from '@/types/events';
 
 const ShareModal = lazyWithRetry(() => import('@/components/events/ShareModal').then(m => ({ default: m.ShareModal })));
 
-function pickEventImage(ev: Partial<EventItem>): string | null {
-  if (typeof ev.image_url === 'string' && ev.image_url.trim()) return ev.image_url;
-  const gallery = Array.isArray(ev.image_urls) ? ev.image_urls : [];
-  for (const item of gallery) {
-    if (typeof item === 'string' && item.trim()) return item;
-    if (item && typeof item === 'object') {
-      const url = (item as any).url || (item as any).image_url || (item as any).src;
-      if (typeof url === 'string' && url.trim()) return url;
-    }
-  }
-  return null;
-}
 
 export default function EventosFeed() {
   const navigate = useNavigate();
@@ -178,26 +178,40 @@ export default function EventosFeed() {
   });
 
   // 3. Fetch Events (Swipess Optimized)
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
+  const radiusKm = useFilterStore((s) => s.radiusKm);
+
   const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: EVENTOS_QUERY_KEY,
     queryFn: async (): Promise<EventItem[]> => {
-      const withAudio =
-        'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
-      const base =
-        'id, title, description, category, image_url, image_urls, video_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
-
       let { data, error } = await supabase
         .from('events')
-        .select(withAudio)
+        .select(EVENT_SELECT_WITH_AUDIO)
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (error && /video_audio_enabled|background_music_url|42703/i.test(error.message || '')) {
+      if (error && isMissingGeoColumnError(error.message)) {
         ({ data, error } = await supabase
           .from('events')
-          .select(base)
+          .select(EVENT_SELECT_WITH_AUDIO_NO_GEO)
           .order('created_at', { ascending: false })
           .limit(100));
+      }
+
+      if (error && isMissingAudioColumnError(error.message)) {
+        ({ data, error } = await supabase
+          .from('events')
+          .select(EVENT_SELECT_BASE)
+          .order('created_at', { ascending: false })
+          .limit(100));
+        if (error && isMissingGeoColumnError(error.message)) {
+          ({ data, error } = await supabase
+            .from('events')
+            .select(EVENT_SELECT_BASE_NO_GEO)
+            .order('created_at', { ascending: false })
+            .limit(100));
+        }
       }
       
       if (error) {
@@ -205,28 +219,7 @@ export default function EventosFeed() {
         throw error;
       }
       
-      const formatted: EventItem[] = (data || []).map((ev: any) => ({
-        id: ev.id,
-        title: ev.title || 'Untitled Event',
-        description: ev.description || null,
-        category: ev.category || 'all',
-        image_url: pickEventImage(ev),
-        image_urls: Array.isArray(ev.image_urls) ? ev.image_urls : [],
-        video_url: ev.video_url || null,
-        video_audio_enabled: !!ev.video_audio_enabled,
-        background_music_url: ev.background_music_url || null,
-        event_date: ev.event_date || null,
-        location: ev.location || null,
-        location_detail: ev.location_detail || null,
-        organizer_name: ev.organizer_name || null,
-        organizer_whatsapp: ev.organizer_whatsapp || null,
-        promo_text: ev.promo_text || null,
-        discount_tag: ev.discount_tag || null,
-        is_free: !!ev.is_free,
-        price_text: ev.price_text || null,
-      }));
-
-      return formatted;
+      return (data || []).map((ev) => formatEventRow(ev as Record<string, unknown>));
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -236,7 +229,11 @@ export default function EventosFeed() {
     const seen = new Set(dbEvents.map(e => e.id));
     const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
     
-    const combined = [...dbEvents, ...validMocks];
+    const combined = applyEventLocationFilter([...dbEvents, ...validMocks], {
+      userLatitude,
+      userLongitude,
+      radiusKm,
+    });
     
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
@@ -245,7 +242,7 @@ export default function EventosFeed() {
       });
     }
     return combined;
-  }, [rawEvents]);
+  }, [rawEvents, userLatitude, userLongitude, radiusKm]);
 
   const filteredEvents = useMemo(() => {
     if (activeCategory === 'all') return allEvents;

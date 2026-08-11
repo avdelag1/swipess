@@ -14,6 +14,12 @@ export interface EventItem {
   event_end_date?: string | null;
   location: string | null;
   location_detail: string | null;
+  /** Venue latitude — required for nearby-only discovery when set. */
+  latitude?: number | null;
+  /** Venue longitude — required for nearby-only discovery when set. */
+  longitude?: number | null;
+  /** Optional per-event visibility cap (km). Null uses the viewer's discovery radius. */
+  visibility_radius_km?: number | null;
   organizer_name: string | null;
   organizer_photo_url?: string | null;
   organizer_whatsapp: string | null;
