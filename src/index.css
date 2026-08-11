@@ -636,6 +636,136 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
+/* AI search — luxury DRL / sequential light travel (~every 6s) */
+.neo-search-light-travel {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Soft beam that sweeps across the pill face */
+.neo-search-light-travel::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: 0;
+  width: 34%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 18%, transparent) 28%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, white) 48%,
+    rgba(255, 255, 255, 0.92) 50%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, white) 52%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 18%, transparent) 72%,
+    transparent 100%
+  );
+  filter: blur(0.6px);
+  opacity: 0;
+  transform: translate3d(-140%, 0, 0) skewX(-14deg);
+  will-change: transform, opacity;
+  animation: neo-search-drl-travel 6s cubic-bezier(0.45, 0.05, 0.25, 1) infinite;
+}
+
+/* Hot rim spark that runs the blue frame like a car light strip */
+.neo-search-light-travel::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2.5px;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 0%, transparent) 44%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 85%, white) 49%,
+    rgba(255, 255, 255, 1) 50.5%,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 90%, white) 52%,
+    transparent 58%,
+    transparent 100%
+  );
+  background-size: 260% 100%;
+  background-position: 120% 0;
+  opacity: 0;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  will-change: background-position, opacity;
+  animation: neo-search-drl-rim 6s cubic-bezier(0.45, 0.05, 0.25, 1) infinite;
+}
+
+.neo-naive-search--dark .neo-search-light-travel::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(96, 165, 250, 0.12) 28%,
+    rgba(191, 219, 254, 0.55) 46%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(191, 219, 254, 0.55) 54%,
+    rgba(96, 165, 250, 0.12) 72%,
+    transparent 100%
+  );
+}
+
+@keyframes neo-search-drl-travel {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translate3d(-140%, 0, 0) skewX(-14deg);
+  }
+  14% {
+    opacity: 0.95;
+  }
+  36% {
+    opacity: 1;
+    transform: translate3d(340%, 0, 0) skewX(-14deg);
+  }
+  40%,
+  100% {
+    opacity: 0;
+    transform: translate3d(340%, 0, 0) skewX(-14deg);
+  }
+}
+
+@keyframes neo-search-drl-rim {
+  0%,
+  10% {
+    opacity: 0;
+    background-position: 120% 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 1;
+    background-position: -40% 0;
+  }
+  40%,
+  100% {
+    opacity: 0;
+    background-position: -40% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neo-search-light-travel::before,
+  .neo-search-light-travel::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+
 .neo-naive-pill {
   border: 2.5px solid var(--neo-ink, #141414) !important;
   border-radius: 999px !important;

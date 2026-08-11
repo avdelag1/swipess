@@ -55,7 +55,10 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
         )}
         style={{ height: barH, minHeight: barH, ...glassStyle }}
       >
-        <div className="shrink-0 flex items-center justify-center w-[58px] h-[58px]" aria-hidden>
+        {/* Luxury-car DRL: bright light travels the strip ~every 6s */}
+        <span className="neo-search-light-travel" aria-hidden />
+
+        <div className="relative z-[2] shrink-0 flex items-center justify-center w-[58px] h-[58px]" aria-hidden>
           <Search
             className={cn(
               'w-[18px] h-[18px]',
@@ -65,7 +68,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
           />
         </div>
 
-        <div className="flex-1 flex items-center h-full min-w-0">
+        <div className="relative z-[2] flex-1 flex items-center h-full min-w-0">
           <input
             ref={inputRef}
             type="search"
