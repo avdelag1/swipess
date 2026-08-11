@@ -644,12 +644,12 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 .neo-search-frame-chase__trail {
-  stroke-dasharray: 14 86;
+  stroke-dasharray: 16 84;
   stroke-dashoffset: 0;
 }
 
 .neo-search-frame-chase__head {
-  stroke-dasharray: 5 95;
+  stroke-dasharray: 7 93;
   stroke-dashoffset: 0;
 }
 
