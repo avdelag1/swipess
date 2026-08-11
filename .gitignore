@@ -92,3 +92,6 @@ swipess.pem
 swipess.csr
 *.csr
 venv-img/
+
+# Local Xcode Cloud API dumps
+.xccloud-build-*/
