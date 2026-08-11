@@ -636,63 +636,34 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
-/* AI search — luxury DRL / sequential light travel (~every 6s) */
+/* AI search — gentle blue rim light that orbits the frame (~every 10s) */
 .neo-search-light-travel {
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
   z-index: 1;
-  overflow: hidden;
+  overflow: visible;
 }
 
-/* Soft beam that sweeps across the pill face */
-.neo-search-light-travel::before {
-  content: '';
-  position: absolute;
-  top: -30%;
-  bottom: -30%;
-  left: 0;
-  width: 34%;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 18%, transparent) 28%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, white) 48%,
-    rgba(255, 255, 255, 0.92) 50%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, white) 52%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 18%, transparent) 72%,
-    transparent 100%
-  );
-  filter: blur(0.6px);
-  opacity: 0;
-  transform: translate3d(-140%, 0, 0) skewX(-14deg);
-  will-change: transform, opacity;
-  animation: neo-search-drl-travel 6s cubic-bezier(0.45, 0.05, 0.25, 1) infinite;
-}
-
-/* Hot rim spark that runs the blue frame like a car light strip */
+/* Soft blue halo that traces the pill border — alive, slow, no white flash */
 .neo-search-light-travel::after {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: -3px;
   border-radius: inherit;
-  padding: 2.5px;
-  background: linear-gradient(
-    105deg,
-    transparent 0%,
-    transparent 40%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 0%, transparent) 44%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 85%, white) 49%,
-    rgba(255, 255, 255, 1) 50.5%,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 90%, white) 52%,
-    transparent 58%,
-    transparent 100%
+  padding: 3px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 250deg,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 0%, transparent) 280deg,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 45%, transparent) 310deg,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 85%, transparent) 335deg,
+    var(--neo-search-frame, #2563EB) 348deg,
+    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, transparent) 355deg,
+    transparent 360deg
   );
-  background-size: 260% 100%;
-  background-position: 120% 0;
-  opacity: 0;
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -701,65 +672,47 @@ html[data-theme-transition] ::view-transition-new(root) {
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  will-change: background-position, opacity;
-  animation: neo-search-drl-rim 6s cubic-bezier(0.45, 0.05, 0.25, 1) infinite;
+  opacity: 0;
+  filter: blur(0.35px);
+  will-change: transform, opacity;
+  animation: neo-search-blue-orbit 10s cubic-bezier(0.45, 0.05, 0.2, 1) infinite;
 }
 
-.neo-naive-search--dark .neo-search-light-travel::before {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(96, 165, 250, 0.12) 28%,
-    rgba(191, 219, 254, 0.55) 46%,
-    rgba(255, 255, 255, 0.95) 50%,
-    rgba(191, 219, 254, 0.55) 54%,
-    rgba(96, 165, 250, 0.12) 72%,
-    transparent 100%
+.neo-naive-search--dark .neo-search-light-travel::after {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 250deg,
+    rgba(96, 165, 250, 0) 280deg,
+    rgba(96, 165, 250, 0.35) 310deg,
+    rgba(96, 165, 250, 0.75) 335deg,
+    #60A5FA 348deg,
+    rgba(96, 165, 250, 0.45) 355deg,
+    transparent 360deg
   );
 }
 
-@keyframes neo-search-drl-travel {
+@keyframes neo-search-blue-orbit {
   0%,
-  10% {
+  6% {
     opacity: 0;
-    transform: translate3d(-140%, 0, 0) skewX(-14deg);
+    transform: rotate(0deg);
   }
-  14% {
-    opacity: 0.95;
+  12% {
+    opacity: 0.72;
   }
-  36% {
-    opacity: 1;
-    transform: translate3d(340%, 0, 0) skewX(-14deg);
+  48% {
+    opacity: 0.9;
+    transform: rotate(360deg);
   }
-  40%,
+  54%,
   100% {
     opacity: 0;
-    transform: translate3d(340%, 0, 0) skewX(-14deg);
-  }
-}
-
-@keyframes neo-search-drl-rim {
-  0%,
-  10% {
-    opacity: 0;
-    background-position: 120% 0;
-  }
-  14% {
-    opacity: 1;
-  }
-  36% {
-    opacity: 1;
-    background-position: -40% 0;
-  }
-  40%,
-  100% {
-    opacity: 0;
-    background-position: -40% 0;
+    transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .neo-search-light-travel::before,
   .neo-search-light-travel::after {
     animation: none !important;
     opacity: 0 !important;

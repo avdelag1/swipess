@@ -55,7 +55,7 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
         )}
         style={{ height: barH, minHeight: barH, ...glassStyle }}
       >
-        {/* Luxury-car DRL: bright light travels the strip ~every 6s */}
+        {/* Soft blue rim light — orbits the frame gently ~every 10s */}
         <span className="neo-search-light-travel" aria-hidden />
 
         <div className="relative z-[2] shrink-0 flex items-center justify-center w-[58px] h-[58px]" aria-hidden>
