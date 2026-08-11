@@ -636,32 +636,22 @@ html[data-theme-transition] ::view-transition-new(root) {
   color: #fff !important;
 }
 
-/* AI search — gentle blue rim light that orbits the frame (~every 10s) */
+/* AI search — blue light runs AROUND the frame border (luxury car strip), every ~10s */
 .neo-search-light-travel {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 1;
-  overflow: visible;
-}
-
-/* Soft blue halo that traces the pill border — alive, slow, no white flash */
-.neo-search-light-travel::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  padding: 3px;
+  --neo-search-frame: #2563EB;
+  inset: -2px;
+  border-radius: 999px;
+  padding: 2.5px;
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent 250deg,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 0%, transparent) 280deg,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 45%, transparent) 310deg,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 85%, transparent) 335deg,
-    var(--neo-search-frame, #2563EB) 348deg,
-    color-mix(in srgb, var(--neo-search-frame, #2563EB) 55%, transparent) 355deg,
+    transparent 220deg,
+    color-mix(in srgb, var(--neo-search-frame) 0%, transparent) 255deg,
+    color-mix(in srgb, var(--neo-search-frame) 40%, transparent) 290deg,
+    color-mix(in srgb, var(--neo-search-frame) 90%, transparent) 325deg,
+    var(--neo-search-frame) 340deg,
+    #3B82F6 348deg,
+    color-mix(in srgb, var(--neo-search-frame) 55%, transparent) 355deg,
     transparent 360deg
   );
   -webkit-mask:
@@ -673,39 +663,30 @@ html[data-theme-transition] ::view-transition-new(root) {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
-  filter: blur(0.35px);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--neo-search-frame) 70%, transparent));
   will-change: transform, opacity;
-  animation: neo-search-blue-orbit 10s cubic-bezier(0.45, 0.05, 0.2, 1) infinite;
+  animation: neo-search-blue-orbit 10s cubic-bezier(0.4, 0.05, 0.2, 1) infinite;
 }
 
-.neo-naive-search--dark .neo-search-light-travel::after {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 250deg,
-    rgba(96, 165, 250, 0) 280deg,
-    rgba(96, 165, 250, 0.35) 310deg,
-    rgba(96, 165, 250, 0.75) 335deg,
-    #60A5FA 348deg,
-    rgba(96, 165, 250, 0.45) 355deg,
-    transparent 360deg
-  );
+.neo-search-light-travel--dark {
+  --neo-search-frame: #60A5FA;
+  filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.75));
 }
 
 @keyframes neo-search-blue-orbit {
   0%,
-  6% {
+  8% {
     opacity: 0;
     transform: rotate(0deg);
   }
-  12% {
-    opacity: 0.72;
+  14% {
+    opacity: 0.95;
   }
-  48% {
-    opacity: 0.9;
+  52% {
+    opacity: 1;
     transform: rotate(360deg);
   }
-  54%,
+  58%,
   100% {
     opacity: 0;
     transform: rotate(360deg);
@@ -713,7 +694,7 @@ html[data-theme-transition] ::view-transition-new(root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .neo-search-light-travel::after {
+  .neo-search-light-travel {
     animation: none !important;
     opacity: 0 !important;
   }

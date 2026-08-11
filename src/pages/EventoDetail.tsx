@@ -144,12 +144,17 @@ export default function EventoDetail() {
 
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select('id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, event_end_date, location, location_detail, latitude, longitude, visibility_radius_km, organizer_name, organizer_photo_url, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at')
         .eq('id', id!)
         .single();
       if (error || !data) {
-        if (stateEventData && stateEventData.id === id) return stateEventData;
-        throw error ?? new Error('Event not found');
+        // Retry without newer columns so insights/video still load on older schemas
+        const retry = await supabase.from('events').select('*').eq('id', id!).single();
+        if (retry.error || !retry.data) {
+          if (stateEventData && stateEventData.id === id) return stateEventData;
+          throw error ?? retry.error ?? new Error('Event not found');
+        }
+        return retry.data as EventDetail;
       }
       return data as EventDetail;
     },

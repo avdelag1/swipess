@@ -22,42 +22,45 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
       inputRef.current?.blur();
       return;
     }
-    // Empty submit → open AI / filters entry point
     haptics.tap();
     if (onSearchSubmit) onSearchSubmit('');
     else onFilterClick?.();
   };
 
   const handleSubmit = (e: FormEvent) => {
-    // Critical for Safari/Chrome: prevent native form navigation / full reload
     e.preventDefault();
     e.stopPropagation();
     runSearch();
   };
 
-  // Thick blue search — locked height so theme CSS can’t shrink it
   const barH = 58;
   const glassStyle = { color: isLight ? '#111' : '#fff', minHeight: barH };
 
   return (
     <form
-      className={cn('relative flex items-center justify-end w-full', className)}
+      className={cn('relative flex items-center justify-end w-full overflow-visible', className)}
       style={{ height: barH, minHeight: barH }}
       onSubmit={handleSubmit}
       action="#"
       role="search"
       autoComplete="off"
     >
+      {/* Blue rim light lives OUTSIDE overflow:hidden so it can hug the frame */}
+      <span
+        className={cn(
+          'neo-search-light-travel pointer-events-none absolute z-[3]',
+          !isLight && 'neo-search-light-travel--dark',
+        )}
+        aria-hidden
+      />
+
       <div
         className={cn(
-          'absolute right-0 flex items-center rounded-full overflow-hidden w-full neo-naive',
+          'absolute inset-0 z-[2] flex items-center rounded-full overflow-hidden w-full neo-naive',
           isLight ? 'neo-naive-search' : 'neo-naive--dark neo-naive-search--dark',
         )}
         style={{ height: barH, minHeight: barH, ...glassStyle }}
       >
-        {/* Soft blue rim light — orbits the frame gently ~every 10s */}
-        <span className="neo-search-light-travel" aria-hidden />
-
         <div className="relative z-[2] shrink-0 flex items-center justify-center w-[58px] h-[58px]" aria-hidden>
           <Search
             className={cn(
@@ -76,7 +79,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
-              // Safari sometimes prefers keydown Enter over form submit for type=search
               if (e.key === 'Enter') {
                 e.preventDefault();
                 e.stopPropagation();
@@ -91,7 +93,6 @@ export function AISearchBar({ className, isLight, onFilterClick, onSearchSubmit 
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            // Override global -webkit-user-select:none so Safari actually accepts typing
             className={cn(
               'w-full h-full min-w-0 bg-transparent outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none border-none text-[15px] font-medium',
               isLight ? 'placeholder:text-black/40 text-black' : 'placeholder:text-white/80 text-white',

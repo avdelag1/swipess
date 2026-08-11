@@ -80,33 +80,45 @@ export type EventGeoItem = GeoItem & {
 };
 
 /**
- * Events: hard nearby-only when the viewer has a location.
- * - Uses min(viewer radiusKm, event.visibility_radius_km) when the event sets a cap.
- * - If nothing in the feed has lat/lng yet (pre-migration / not backfilled), keep the
- *   list intact so we don't blank the UI.
- * - Once any events are geocoded, rows without coords are hidden (no worldwide leak).
+ * Events nearby filter (soft until venue pins are fully rolled out):
+ * - Pinned events outside the viewer radius are hidden.
+ * - Unpinned events (no lat/lng yet) stay visible so videos/photos don't vanish.
+ * - Nearby pinned events float to the front.
+ * - Never return an empty list if we still have events — fall back to the full set.
  */
 export function applyEventLocationFilter<T extends EventGeoItem>(
   items: T[],
   filters?: LocationFilterInput | null,
 ): T[] {
-  if (!hasActiveLocationFilter(filters)) return items;
+  if (!hasActiveLocationFilter(filters) || items.length === 0) return items;
 
   const userLat = filters!.userLatitude!;
   const userLon = filters!.userLongitude!;
   const viewerRadius = filters?.radiusKm ?? 50;
 
-  const withCoords = items.filter((item) => item.latitude != null && item.longitude != null);
-  if (withCoords.length === 0) return items;
+  const nearby: T[] = [];
+  const unpinned: T[] = [];
 
-  return withCoords.filter((item) => {
+  for (const item of items) {
+    const lat = item.latitude;
+    const lng = item.longitude;
+    if (lat == null || lng == null) {
+      unpinned.push(item);
+      continue;
+    }
     const eventCap =
       item.visibility_radius_km != null && Number.isFinite(item.visibility_radius_km)
         ? Number(item.visibility_radius_km)
         : null;
     const maxKm = eventCap != null ? Math.min(viewerRadius, eventCap) : viewerRadius;
-    return haversineKm(userLat, userLon, item.latitude!, item.longitude!) <= maxKm;
-  });
+    if (haversineKm(userLat, userLon, lat, lng) <= maxKm) {
+      nearby.push(item);
+    }
+  }
+
+  const ranked = [...nearby, ...unpinned];
+  // Safety: never blank the events/videos feed because of geo
+  return ranked.length > 0 ? ranked : items;
 }
 
 export function hasActiveAdvancedListingFilters(filters?: ListingFilters | null): boolean {

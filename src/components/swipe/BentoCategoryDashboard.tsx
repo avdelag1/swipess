@@ -167,7 +167,7 @@ export const BentoCategoryDashboard = memo(({ setCategories }: BentoCategoryDash
         aria-hidden={!searchVisible || undefined}
       >
         <div
-          className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5"
+          className="rounded-[1.2rem] p-1.5 sm:p-2 mb-1.5 overflow-visible"
           style={{
             background: isLight ? 'var(--dash-well, #E8E8EE)' : 'var(--dash-well, #101014)',
           }}
