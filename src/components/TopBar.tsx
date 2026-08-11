@@ -191,7 +191,7 @@ function TopBarComponent({
                 <HeaderIconSlot wash="sky">
                   <ChevronLeft
                     className={cn(HEADER_ICON, "group-active:stroke-[2px] transition-all duration-150")}
-                    strokeWidth={2}
+                    strokeWidth={2.25}
                     style={{ color: iconColor, filter: 'none' }}
                   />
                 </HeaderIconSlot>
@@ -219,7 +219,7 @@ function TopBarComponent({
                           className="w-full h-full object-cover rounded-full"
                         />
                       ) : (
-                        initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={1.5} /> : (
+                        initials === '?' ? <UserRound className="h-4 w-4 text-primary-foreground" strokeWidth={2.25} /> : (
                           <span className="w-full h-full bg-white/20 flex items-center justify-center rounded-full">
                             <span className="text-[10px] font-black drop-shadow-sm" style={{ color: iconColor }}>
                               {initials}
@@ -249,12 +249,12 @@ function TopBarComponent({
               >
                 <HeaderIconSlot wash="mint">
                   <Sparkles
-                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    className={cn(HEADER_ICON, "group-active:fill-current transition-all duration-150")}
                     style={{
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={2}
+                    strokeWidth={2.25}
                   />
                 </HeaderIconSlot>
               </button>
@@ -289,12 +289,12 @@ function TopBarComponent({
                   }
                 >
                   <Crown
-                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    className={cn(HEADER_ICON, "group-active:fill-current transition-all duration-150")}
                     style={{
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={2}
+                    strokeWidth={2.25}
                   />
                 </HeaderIconSlot>
               </button>
@@ -310,12 +310,12 @@ function TopBarComponent({
               >
                 <HeaderIconSlot wash="sky">
                   <Globe
-                    className={cn(HEADER_ICON, "group-active:fill-current group-active:scale-[0.92] transition-all duration-150")}
+                    className={cn(HEADER_ICON, "group-active:fill-current transition-all duration-150")}
                     style={{
                       color: iconColor,
                       filter: 'none',
                     }}
-                    strokeWidth={2}
+                    strokeWidth={2.25}
                   />
                 </HeaderIconSlot>
               </button>

@@ -12,6 +12,7 @@ import "./index.css";
 import "./styles/neo-naive-app.css";
 import "./styles/pwa-performance.css";
 import "./styles/native-capacitor.css";
+import "./styles/crisp-render.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";
 import { applyHardwareTierClasses } from "@/utils/hardwareTier";

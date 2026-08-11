@@ -156,7 +156,7 @@ const MaintenanceRequests = () => {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <CatIcon className="w-4.5 h-4.5 text-primary" />
+                              <CatIcon className="w-[18px] h-[18px] text-primary" />
                             </div>
                             <div className="min-w-0">
                               <h4 className="text-sm font-bold text-foreground truncate">{req.title}</h4>

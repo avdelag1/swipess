@@ -333,7 +333,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               onClick={() => handleOpenChange(false)}
               className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/50 hover:text-foreground transition-all active:scale-90 hover:bg-foreground/8"
             >
-              <X className="w-4.5 h-4.5" />
+              <X className="w-[18px] h-[18px]" />
             </button>
           </div>
 

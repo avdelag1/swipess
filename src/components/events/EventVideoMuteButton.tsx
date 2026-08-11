@@ -27,7 +27,7 @@ export function EventVideoMuteButton({
   // Chip = visible glass; hit = Apple-friendly tap target (≥44pt on xs+)
   const dims =
     size === 'xs'
-      ? { hit: 'h-11 w-11', chip: 'h-7 w-7', icon: 'w-3.5 h-3.5' }
+      ? { hit: 'h-11 w-11', chip: 'h-7 w-7', icon: 'w-4 h-4' }
       : size === 'sm'
         ? { hit: 'h-11 w-11', chip: 'h-8 w-8', icon: 'w-4 h-4' }
         : { hit: 'h-12 w-12', chip: 'h-9 w-9', icon: 'w-[18px] h-[18px]' };

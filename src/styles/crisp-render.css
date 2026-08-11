@@ -1,0 +1,186 @@
+/**
+ * HQ crisp fonts + icons — all themes, especially native Capacitor.
+ * Integer pixel targets, stronger dark-mode weights, clean SVG strokes.
+ */
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  Typography                                                        */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis-weight: none;
+  font-synthesis-style: none;
+}
+
+/* Light UI: subpixel can look sharper on non-Retina; Retina stays antialiased */
+html.light body,
+html.white-matte body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display / titles — geometric precision, no mushy thin weights on dark */
+h1, h2, h3, h4,
+.font-black, .font-extrabold, .font-bold,
+[class*="tracking-tighter"],
+[class*="tracking-tight"] {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dark surfaces: thin type looks soft — bump to readable weights */
+html:not(.light):not(.white-matte) .font-thin,
+html:not(.light):not(.white-matte) .font-extralight,
+.dark .font-thin,
+.dark .font-extralight {
+  font-weight: 400 !important;
+}
+
+html:not(.light):not(.white-matte) .font-light,
+.dark .font-light {
+  font-weight: 500 !important;
+}
+
+/* Prefer solid opacities for type on glass / photos — see nav rules below */
+
+/* Native: SF stack already in native-capacitor.css — reinforce metrics */
+html.native-app body,
+html.native-app button,
+html.native-app input,
+html.native-app textarea {
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-kerning: normal;
+}
+
+html.native-app h1,
+html.native-app h2,
+html.native-app h3,
+html.native-app .font-black,
+html.native-app .font-extrabold {
+  letter-spacing: -0.02em;
+}
+
+/* Don’t put text on its own GPU layer (WKWebView softens glyphs) */
+html.native-app p,
+html.native-app span,
+html.native-app label,
+html.native-app li,
+html.native-app h1,
+html.native-app h2,
+html.native-app h3,
+html.native-app h4 {
+  will-change: auto;
+  backface-visibility: visible;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  Icons (Lucide / SVG) — pixel-aligned, crisp strokes               */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+svg.lucide,
+svg[class*="lucide"],
+.neo-naive-nav-icon > svg,
+.app-bottom-bar svg,
+.header-chrome-pill svg,
+.chrome-icon-btn svg,
+.frameless-icon-hit svg {
+  shape-rendering: geometricPrecision;
+  flex-shrink: 0;
+}
+
+/* Default Lucide stroke 2 → slightly stronger on Retina (attr presentational) */
+svg.lucide[stroke-width="2"],
+svg[class*="lucide"][stroke-width="2"] {
+  stroke-width: 2.25;
+}
+
+svg.lucide[stroke-width="1.5"],
+svg[class*="lucide"][stroke-width="1.5"] {
+  stroke-width: 2;
+}
+svg.lucide[class*="w-3.5"],
+svg.lucide[class*="h-3.5"],
+svg[class*="lucide"][class*="w-3.5"],
+svg[class*="lucide"][class*="h-3.5"] {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+svg.lucide[class*="w-4.5"],
+svg.lucide[class*="h-4.5"],
+svg[class*="lucide"][class*="w-4.5"],
+svg[class*="lucide"][class*="h-4.5"] {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* Hairline icons on dark chrome — slightly heavier stroke when left at default */
+html:not(.light):not(.white-matte) .app-bottom-bar svg,
+html:not(.light):not(.white-matte) .header-chrome-pill svg,
+html:not(.light):not(.white-matte) .floating-dock-nav svg {
+  /* stroke-width is presentational on Lucide; opacity floor for inactive */
+  opacity: 1;
+}
+
+/* Kill soft CSS filters on icons (drop-shadow blurs edges) */
+.app-bottom-bar svg,
+.header-chrome-pill svg,
+.floating-dock-nav svg,
+.chrome-icon-btn svg,
+.neo-naive-nav-icon svg,
+button > svg.lucide,
+[role="button"] > svg.lucide {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Icon buttons in header chrome — integer 16px glyphs */
+.header-chrome-pill svg,
+.chrome-icon-btn svg,
+.frameless-icon-hit svg {
+  display: block;
+}
+
+/* Active / primary icons — full ink */
+html:not(.light):not(.white-matte) .app-bottom-bar [data-active="true"] svg,
+html:not(.light):not(.white-matte) .floating-dock-nav [data-active="true"] svg {
+  opacity: 1 !important;
+  color: #ffffff !important;
+}
+
+html.light .app-bottom-bar [data-active="true"] svg,
+html.white-matte .app-bottom-bar [data-active="true"] svg,
+.light .app-bottom-bar [data-active="true"] svg,
+.white-matte .app-bottom-bar [data-active="true"] svg {
+  opacity: 1 !important;
+}
+
+/* Inactive icons: still high contrast (was muddy on glass) */
+html:not(.light):not(.white-matte) .app-bottom-bar [data-active="false"] svg,
+html:not(.light):not(.white-matte) .floating-dock-nav button:not([data-active="true"]) svg {
+  opacity: 0.92 !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  Bitmaps — prefer crisp scaling when images must be used           */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+img.icon-bitmap,
+img[data-crisp],
+.crisp-img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* UI chrome avatars stay smooth */
+img.avatar,
+img.rounded-full:not([data-crisp]) {
+  image-rendering: auto;
+}

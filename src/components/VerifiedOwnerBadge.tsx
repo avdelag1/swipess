@@ -19,7 +19,7 @@ export const VerifiedOwnerBadge = memo(({
 }: VerifiedOwnerBadgeProps) => {
   const sizeClasses = {
     sm: 'w-3.5 h-3.5',
-    md: 'w-4.5 h-4.5',
+    md: 'w-[18px] h-[18px]',
     lg: 'w-5.5 h-5.5',
   };
 

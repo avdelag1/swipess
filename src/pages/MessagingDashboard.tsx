@@ -370,7 +370,7 @@ export function MessagingDashboard() {
 
         <div className="space-y-5">
           <div className="relative group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 opacity-40 z-10 text-[#EB4898]" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] opacity-40 z-10 text-[#EB4898]" />
             <input 
               placeholder={getText('search_placeholder', 'Search conversations...')} 
               className={cn(

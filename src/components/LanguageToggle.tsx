@@ -37,7 +37,7 @@ export function LanguageToggle() {
     <div className="rounded-2xl border border-border bg-background p-4">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Globe className="w-4.5 h-4.5 text-primary" />
+          <Globe className="w-[18px] h-[18px] text-primary" />
         </div>
         <div>
           <h4 className="text-sm font-bold text-foreground">{t('settings.language')}</h4>

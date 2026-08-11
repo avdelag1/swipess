@@ -114,7 +114,7 @@ export const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) =>
               )}
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-orange-500/25 to-sky-500/20 border border-white/10">
-                <f.icon className="w-4.5 h-4.5 text-orange-400" />
+                <f.icon className="w-4 h-4 text-orange-400" />
               </div>
               <div className="min-w-0 pt-0.5">
                 <div className={cn('text-sm font-black tracking-tight', isLight ? 'text-black' : 'text-white')}>

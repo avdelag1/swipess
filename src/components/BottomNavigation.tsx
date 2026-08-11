@@ -41,8 +41,8 @@ import { prefetchEventCategoryPhotosImmediate } from '@/utils/prefetchEventCateg
 import { getBottomNavChrome } from '@/utils/chromeStyles';
 import { AIIcon } from '@/components/icons/AIIcon';
 
-const ICON_SIZE = 18;
-const ICON_SIZE_TABLET = 22;
+const ICON_SIZE = 20;
+const ICON_SIZE_TABLET = 24;
 const _TOUCH_TARGET = 34;
 const _TOUCH_TARGET_TABLET = 42;
 
@@ -360,16 +360,16 @@ export const BottomNavigation = memo(({
 
                   <Icon
                     style={{
-                      width: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE)),
-                      height: isAddBtn ? 22 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 16 : ICON_SIZE)),
+                      width: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
+                      height: isAddBtn ? 24 : (isTablet ? ICON_SIZE_TABLET : (isNarrow ? 18 : ICON_SIZE)),
                       color: isAddBtn
                         ? '#FF4D6A'
                         : (active ? baseColor : inactiveIconColor),
                       fill: 'none',
-                      strokeWidth: active || isAddBtn ? 2.6 : 2.2,
+                      strokeWidth: active || isAddBtn ? 2.5 : 2.25,
                       filter: 'none',
-                      opacity: active || isAddBtn ? 1 : (isLight ? 0.88 : 0.96),
-                      transition: 'color 120ms ease-out, stroke-width 120ms ease-out, opacity 120ms ease-out',
+                      opacity: 1,
+                      transition: 'color 120ms ease-out, stroke-width 120ms ease-out',
                     }}
                   />
                 </div>

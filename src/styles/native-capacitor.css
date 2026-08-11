@@ -32,9 +32,10 @@ html.native-app #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* Match SF Pro feel when system fonts resolve */
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
     "Plus Jakarta Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-kerning: normal;
 }
 
 html.native-app * {

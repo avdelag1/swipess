@@ -200,7 +200,7 @@ export function EmptyState({
               : 'bg-white/[0.04] border-white/[0.08]'
           )}
         >
-          <Icon className={cn('w-7 h-7 opacity-70', accentClass)} strokeWidth={1.5} />
+          <Icon className={cn('w-7 h-7 opacity-90', accentClass)} strokeWidth={2} />
         </div>
         {/* Pulse ring */}
         <motion.div
