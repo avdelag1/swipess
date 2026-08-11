@@ -46,10 +46,8 @@ select,
 }
 
 /* iOS notch / status-bar strip — keep it BLACK even in light theme.
-   With Capacitor ios.contentInset:'always', the <html> background paints
-   behind the native status bar. The global StatusBar style is light icons
-   (Style.Dark), so the strip must stay dark or the white icons vanish on a
-   white notch. body/#root keep the themed background for actual content. */
+   Capacitor ios.contentInset:'never' + StatusBar overlay:true → <html>
+   paints behind the notch. Style.Dark = light icons, so the strip stays black. */
 html { background-color: #000; }
 
 /* Force disable tap highlights everywhere to avoid grey flashes */

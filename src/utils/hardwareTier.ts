@@ -24,9 +24,13 @@ export function detectHardwareTier(): HardwareTier {
 
 export function applyHardwareTierClasses(): HardwareTier {
   const tier = detectHardwareTier();
-  const body = document.body;
-  body.classList.remove('hw-low', 'hw-mid', 'hw-high');
-  body.classList.add(tier === 'low' ? 'hw-low' : tier === 'mid' ? 'hw-mid' : 'hw-high');
-  if (tier !== 'low') body.classList.add('perf-ultra');
+  const apply = (el: Element | null) => {
+    if (!el) return;
+    el.classList.remove('hw-low', 'hw-mid', 'hw-high');
+    el.classList.add(tier === 'low' ? 'hw-low' : tier === 'mid' ? 'hw-mid' : 'hw-high');
+    if (tier !== 'low') el.classList.add('perf-ultra');
+  };
+  apply(document.documentElement);
+  apply(document.body);
   return tier;
 }

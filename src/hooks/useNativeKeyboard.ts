@@ -24,7 +24,7 @@ export function useNativeKeyboard(): void {
       root.classList.add('keyboard-open');
       const el = document.activeElement as HTMLElement | null;
       if (el && typeof el.scrollIntoView === 'function') {
-        setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+        setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'auto' }), 40);
       }
     };
     const onHide = () => {

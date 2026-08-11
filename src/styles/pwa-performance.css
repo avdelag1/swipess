@@ -431,11 +431,12 @@ label:active,
 /*  Ensures 120fps on flagships AND 60fps on low-end devices           */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* TIER 1: Low-End Hardware Guard (RAM < 4GB or Cores < 4) */
-body.hw-low .backdrop-blur,
-body.hw-low [class*="backdrop-blur"],
-body.hw-low .modal-overlay,
-body.hw-low [data-radix-dialog-overlay] {
+/* TIER 1: Low-End Hardware Guard (RAM < 4GB or Cores < 4)
+   Native Capacitor keeps glass/blur — see native-capacitor.css */
+html:not(.native-app) body.hw-low .backdrop-blur,
+html:not(.native-app) body.hw-low [class*="backdrop-blur"],
+html:not(.native-app) body.hw-low .modal-overlay,
+html:not(.native-app) body.hw-low [data-radix-dialog-overlay] {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     background-color: rgba(0, 0, 0, 0.92) !important;
@@ -470,18 +471,19 @@ body.hw-low .swipe-card {
     box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
 }
 
-/* TIER 2: Mid-Range Hardware Balanced Mode (RAM < 8GB) */
-body.hw-mid .backdrop-blur-xl,
-body.hw-mid .backdrop-blur-2xl,
-body.hw-mid .backdrop-blur-3xl,
-body.hw-mid .backdrop-blur-md {
+/* TIER 2: Mid-Range Hardware Balanced Mode (RAM < 8GB)
+   Web/PWA only — native keeps full glass */
+html:not(.native-app) body.hw-mid .backdrop-blur-xl,
+html:not(.native-app) body.hw-mid .backdrop-blur-2xl,
+html:not(.native-app) body.hw-mid .backdrop-blur-3xl,
+html:not(.native-app) body.hw-mid .backdrop-blur-md {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
 }
 
-body.hw-mid .glass-pill,
-body.hw-mid .glass-surface,
-body.hw-mid .floating-dock-nav {
+html:not(.native-app) body.hw-mid .glass-pill,
+html:not(.native-app) body.hw-mid .glass-surface,
+html:not(.native-app) body.hw-mid .floating-dock-nav {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
 }
@@ -790,31 +792,8 @@ body.is-dragging * {
     will-change: transform;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  NATIVE CAPACITOR — cut GPU blur cost (biggest iOS lag source)     */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-html.native-app .backdrop-blur-3xl,
-html.native-app .backdrop-blur-2xl,
-html.native-app .backdrop-blur-xl {
-    -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
-    backdrop-filter: blur(8px) saturate(120%) !important;
-}
-
-html.native-app .backdrop-blur-md,
-html.native-app .backdrop-blur-sm {
-    -webkit-backdrop-filter: blur(4px) !important;
-    backdrop-filter: blur(4px) !important;
-}
-
-html.native-app.hw-low .backdrop-blur-3xl,
-html.native-app.hw-low .backdrop-blur-2xl,
-html.native-app.hw-low .backdrop-blur-xl,
-html.native-app.hw-low .backdrop-blur-md,
-html.native-app.hw-low .backdrop-blur-sm {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-}
-
+/* Native Capacitor glass + shell live in styles/native-capacitor.css
+   (keeps full blur / liquid glass — do not strip here). */
 html.native-app button,
 html.native-app [role="button"],
 html.native-app a {

@@ -11,16 +11,17 @@ import "./styles/elevation-system.css";
 import "./index.css";
 import "./styles/neo-naive-app.css";
 import "./styles/pwa-performance.css";
+import "./styles/native-capacitor.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint
 import "./styles/responsive.css";
 import { applyHardwareTierClasses } from "@/utils/hardwareTier";
 
 applyHardwareTierClasses();
 
-// Native Capacitor: mark HTML so CSS can drop expensive backdrop blurs
+// Native Capacitor: mark HTML so CSS can apply iOS shell + keep glass blur
 try {
   if ((window as any).Capacitor?.isNativePlatform?.()) {
-    document.documentElement.classList.add('native-app', 'pwa-mode');
+    document.documentElement.classList.add('native-app', 'pwa-mode', 'native-glass');
     if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       document.documentElement.classList.add('pwa-ios');
     }
@@ -159,11 +160,14 @@ const initHaptics = () => {
     if (target && !target.hasAttribute('data-haptics-fired')) {
       target.setAttribute('data-haptics-fired', 'true');
       setTimeout(() => target.removeAttribute('data-haptics-fired'), 200);
-      if ('vibrate' in navigator) {
-        if (!('userActivation' in navigator) || (navigator as any).userActivation?.hasBeenActive) {
-          try { navigator.vibrate(10); } catch { /* vibrate not supported */ }
-        }
-      }
+      // Prefer Capacitor Haptics on native; vibrate is a weak fallback on Android web
+      void import('@/utils/haptics')
+        .then(({ triggerHaptic }) => triggerHaptic('light'))
+        .catch(() => {
+          if ('vibrate' in navigator) {
+            try { navigator.vibrate(10); } catch { /* ignore */ }
+          }
+        });
     }
   }, { capture: true, passive: true });
 };
@@ -330,9 +334,16 @@ const deferredInit = (callback: () => void, timeout = 5000) => {
 };
 
 // Secondary Tools: Pushed to idle to avoid main-thread noise during boot
+// Haptics on native: arm ASAP so first taps feel real
+if ((window as any).Capacitor?.isNativePlatform?.()) {
+  setTimeout(() => { try { initHaptics(); } catch { /* ignore */ } }, 0);
+}
+
 deferredInit(async () => {
   try {
-    initHaptics();
+    if (!(window as any).Capacitor?.isNativePlatform?.()) {
+      initHaptics();
+    }
 
     // Register service worker with AGGRESSIVE update detection.
     // Never on native: Capacitor serves assets from local disk, so a SW only
@@ -382,22 +393,34 @@ deferredInit(async () => {
   } catch { /* intentional */ }
 }, 5000);
 
-// Native Plugins — immediate after first render
+// Native Plugins — immediate after first paint (status bar, splash, keyboard chrome)
 setTimeout(async () => {
   try {
     const { Capacitor } = await import("@capacitor/core");
-    if (Capacitor.isNativePlatform()) {
-      const { StatusBar, Style } = await import("@capacitor/status-bar");
-      // overlay:true lets the web view extend under the status bar so the
-      // app's own (black) background fills the notch strip. With overlay:false
-      // the strip is a native bar that iOS paints with the window background
-      // (it showed white). setBackgroundColor is Android-only, so overlay:true
-      // + the black html background is the reliable iOS fix.
-      await StatusBar.setOverlaysWebView({ overlay: true });
-      await StatusBar.setStyle({ style: Style.Dark });
+    if (!Capacitor.isNativePlatform()) return;
+
+    const [{ StatusBar, Style }, { SplashScreen }, { Keyboard }] = await Promise.all([
+      import("@capacitor/status-bar"),
+      import("@capacitor/splash-screen"),
+      import("@capacitor/keyboard"),
+    ]);
+
+    // Edge-to-edge under notch; app paints black strip via html background
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setStyle({ style: Style.Dark });
+    try {
       await StatusBar.setBackgroundColor({ color: "#000000" });
-    }
+    } catch { /* iOS may ignore */ }
+
+    try {
+      await SplashScreen.hide({ fadeOutDuration: 200 });
+    } catch { /* already hidden */ }
+
+    try {
+      // iOS: hide "done" accessory bar for cleaner chat-like fields when supported
+      await Keyboard.setAccessoryBarVisible({ isVisible: false });
+    } catch { /* optional */ }
   } catch { /* intentional */ }
-}, 500);
+}, 0);
 
 

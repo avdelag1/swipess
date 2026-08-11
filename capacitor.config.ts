@@ -16,7 +16,8 @@ const config: CapacitorConfig = {
     ],
   },
   ios: {
-    contentInset: 'always',
+    // Edge-to-edge: web CSS owns safe-area insets (StatusBar overlays WebView).
+    contentInset: 'never',
     backgroundColor: '#000000',
     scrollEnabled: false,
     allowsLinkPreviews: false,
@@ -53,6 +54,7 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
+      launchAutoHide: true,
       backgroundColor: "#000000",
       showSpinner: false,
       androidScaleType: "CENTER_CROP",
@@ -64,7 +66,9 @@ const config: CapacitorConfig = {
       backgroundColor: "#000000",
     },
     Keyboard: {
-      resize: "body",
+      // App lifts UI via --keyboard-height; avoid body resize jank in WKWebView
+      resize: "none",
+      resizeOnFullScreen: true,
       scrollAssist: false,
     },
     PushNotifications: {

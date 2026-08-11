@@ -497,7 +497,8 @@ export default function EventosFeed() {
         </div>
       ) : (
         <div 
-          ref={parentRef} 
+          ref={parentRef}
+          data-native-scroll
           className="w-full h-[100dvh] overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col"
           style={{
             WebkitOverflowScrolling: 'touch',
