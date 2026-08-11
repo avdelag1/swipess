@@ -4,9 +4,9 @@ import { AnimatePresence, motion, PanInfo, useMotionValue, useTransform } from "
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, ArrowUpRight, Camera, Check, CheckCircle2, ClipboardList, Clock,
-  Crown, Dumbbell, Eye, Globe, Info, Instagram, Megaphone,
+  Crown, Dumbbell, Eye, Film, Globe, Info, Instagram, Megaphone,
   MessageCircle, Music, Palette, Phone, Shield, ShoppingBag,
-  Star, TrendingUp, Users, Utensils, Zap
+  Star, TrendingUp, Upload, Users, Utensils, Video, Zap
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,7 +17,7 @@ import { appToast } from '@/utils/appNotification';
 import { NativeBridge } from "@/utils/nativeBridge";
 import { RefreshCcw } from "lucide-react";
 import { getSafePaymentUrl } from '@/config/iapProducts';
-// import { } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 // ── Pricing packages ──────────────────────────────────────────────────────────
 const PACKAGES = [
@@ -34,7 +34,7 @@ const PACKAGES = [
     image: "/starter_promo_card_1777061850096.png",
     perks: [
       "Your event shown to property owners, renters & digital nomads",
-      "1 photo with your listing card",
+      "Photo + video commercial (up to 1 minute)",
       "Standard feed placement across all categories",
       "Direct WhatsApp connection — leads contact you instantly",
     ],
@@ -54,6 +54,7 @@ const PACKAGES = [
     image: "/growth_promo_card_1777061867792.png",
     perks: [
       "Top featured placement for 90 days",
+      "Photo + video commercial (up to 1 minute)",
       "3 Broadcast push notifications to matches",
       "Enhanced business profile with 'Verified' badge",
     ],
@@ -74,6 +75,7 @@ const PACKAGES = [
     image: "/premium_promo_card_1777061887805.png",
     perks: [
       "Top featured placement for 180 days",
+      "Photo + video commercial (up to 1 minute)",
       "Monthly broadcast push notifications",
       "Dedicated account manager & VIP support",
     ],
@@ -113,6 +115,7 @@ interface FormData {
   website: string;
   packageId: string;
   photoUrl: string;
+  videoUrl: string;
 }
 
 const INITIAL: FormData = {
@@ -126,7 +129,26 @@ const INITIAL: FormData = {
   website: "",
   packageId: "growth",
   photoUrl: "",
+  videoUrl: "",
 };
+
+const MAX_VIDEO_SECS = 60;
+
+function getVideoDuration(file: File): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(video.src);
+      reject(new Error("Invalid video"));
+    };
+    video.src = URL.createObjectURL(file);
+  });
+}
 
 // ── Swipe card for package ────────────────────────────────────────────────────
 function PromoSwipeCard({ 
@@ -326,7 +348,9 @@ export default function AdvertisePage() {
   const [approvedSubmission, setApprovedSubmission] = useState<any>(null);
   const [pendingSubmission, setPendingSubmission] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [visiblePackages, setVisiblePackages] = useState([...PACKAGES]);
+  const [videoUploading, setVideoUploading] = useState(false);
 
   const steps: Step[] = ["type", "details", "confirm"];
   const stepIdx = steps.indexOf(step);
@@ -456,13 +480,49 @@ export default function AdvertisePage() {
     reader.readAsDataURL(file);
   };
 
+  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      appToast.error("Please choose a video file (MP4 / MOV)");
+      return;
+    }
+    try {
+      const duration = await getVideoDuration(file);
+      if (duration > MAX_VIDEO_SECS + 0.5) {
+        appToast.error(`Video is ${Math.ceil(duration)}s — max commercial length is 1 minute`);
+        return;
+      }
+      if (file.size > 200 * 1024 * 1024) {
+        appToast.error("Video must be under 200MB");
+        return;
+      }
+      setVideoUploading(true);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        set("videoUrl", ev.target?.result as string);
+        setVideoUploading(false);
+        appToast.success("Video ready — up to 1 min commercial");
+      };
+      reader.onerror = () => {
+        setVideoUploading(false);
+        appToast.error("Could not read video");
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      appToast.error("Could not read that video");
+      setVideoUploading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (submitting) return;
     haptics.success();
     setSubmitting(true);
     try {
-      // Upload the promo photo so the admin review and the published event get the image
       let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
+
       if (form.photoUrl?.startsWith("data:")) {
         try {
           const blob = await (await fetch(form.photoUrl)).blob();
@@ -475,11 +535,27 @@ export default function AdvertisePage() {
             imageUrl = supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
           }
         } catch {
-          // Photo is optional — the submission still goes through without it
+          /* optional */
         }
       }
 
-      const { error } = await supabase.from("business_promo_submissions" as any).insert({
+      if (form.videoUrl?.startsWith("data:")) {
+        try {
+          const blob = await (await fetch(form.videoUrl)).blob();
+          const ext = blob.type.includes("webm") ? "webm" : blob.type.includes("quicktime") ? "mov" : "mp4";
+          const path = `promo-submissions/videos/${user?.id || "anon"}-${Date.now()}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("event-images")
+            .upload(path, blob, { contentType: blob.type || "video/mp4" });
+          if (!upErr) {
+            videoUrl = supabase.storage.from("event-images").getPublicUrl(path).data.publicUrl;
+          }
+        } catch {
+          /* optional */
+        }
+      }
+
+      const payload: Record<string, unknown> = {
         user_id: user?.id,
         event_type: form.eventType,
         title: form.title,
@@ -490,8 +566,18 @@ export default function AdvertisePage() {
         contact_phone: form.contactPhone,
         website: form.website || null,
         image_url: imageUrl,
+        video_url: videoUrl,
         status: "pending",
-      });
+      };
+
+      let { error } = await supabase.from("business_promo_submissions" as any).insert(payload);
+      if (error && /video_url|42703/i.test(error.message || "")) {
+        delete payload.video_url;
+        if (videoUrl) {
+          payload.description = `${form.description}\n\n[Video commercial]: ${videoUrl}`;
+        }
+        ({ error } = await supabase.from("business_promo_submissions" as any).insert(payload));
+      }
       if (error) throw error;
       setDone(true);
     } catch {
@@ -555,32 +641,32 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full mb-4"
-            style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.35)" }}
+            style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)" }}
           >
-            <Megaphone className="w-4 h-4 text-indigo-400" />
-            <span className="text-xs font-black text-indigo-400 uppercase tracking-[0.2em]">#1 Discovery App</span>
+            <Film className="w-4 h-4 text-orange-400" />
+            <span className="text-xs font-black text-orange-400 uppercase tracking-[0.2em]">Photo + Video · Max 1 min</span>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="text-5xl sm:text-6xl font-black leading-[1.1] tracking-tighter mb-6 text-foreground text-center"
+            className="text-5xl sm:text-6xl font-black leading-[1.05] tracking-tighter mb-4 text-foreground text-center"
           >
-            Promote{" "}
-            <span className="bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent uppercase italic">
-              Your Brand
-            </span>{" "}
-            on Swipess
+            Get your event{" "}
+            <span className="bg-gradient-to-r from-orange-500 to-sky-400 bg-clip-text text-transparent italic">
+              on Swipess
+            </span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-lg max-w-sm mx-auto leading-relaxed font-bold text-muted-foreground/80 mb-4"
+            className="text-base max-w-sm mx-auto leading-relaxed font-bold text-muted-foreground/80 mb-3"
           >
-            Reach <span className="text-foreground font-black">15k+ high-value seekers</span>, property owners & travelers
+            Reach <span className="text-foreground font-black">15k+ seekers</span> with full-screen cards — including{" "}
+            <span className="text-foreground font-black">video commercials up to 1 minute</span>.
           </motion.p>
 
           <motion.button
@@ -591,6 +677,61 @@ export default function AdvertisePage() {
             Restore Purchases
           </motion.button>
         </div>
+
+        {/* ── ONBOARDING STEPS ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="px-5 mb-6 space-y-3 max-w-lg mx-auto"
+        >
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-center" style={{ color: th.textFaint }}>
+            How promotion works
+          </p>
+          <div className="grid gap-2.5">
+            {[
+              { n: "01", icon: ClipboardList, title: "Tell us about your night", desc: "Category, venue, WhatsApp — add a cover photo" },
+              { n: "02", icon: Video, title: "Upload a video commercial", desc: "Optional MP4/MOV up to 60 seconds — same reel feed users swipe" },
+              { n: "03", icon: Shield, title: "We review in under 24h", desc: "No charge until approved — then pick a plan and launch" },
+            ].map((s) => (
+              <div
+                key={s.n}
+                className="flex items-start gap-3 rounded-2xl px-3.5 py-3"
+                style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.25),rgba(14,165,233,0.2))" }}
+                >
+                  <s.icon className="w-4 h-4 text-orange-400" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black tabular-nums text-orange-400/80">{s.n}</span>
+                    <span className="text-sm font-black" style={{ color: th.text }}>{s.title}</span>
+                  </div>
+                  <p className="text-xs mt-0.5 leading-snug" style={{ color: th.textMuted }}>{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="rounded-2xl p-4 flex items-start gap-3"
+            style={{
+              background: isLight ? "rgba(14,165,233,0.08)" : "rgba(14,165,233,0.1)",
+              border: "1px solid rgba(14,165,233,0.25)",
+            }}
+          >
+            <Film className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="text-sm font-black" style={{ color: th.text }}>Video commercials welcome</div>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: th.textMuted }}>
+                Vertical clips look best. Max <span style={{ color: th.text, fontWeight: 800 }}>1 minute</span>. After approval our team places your card in the Events feed with optional unmute.
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* ── SWIPE PACKAGE CARDS ── */}
         <div className="px-5 py-8">
@@ -655,12 +796,12 @@ export default function AdvertisePage() {
             whileTap={{ scale: 0.97 }}
             onClick={() => { haptics.tap(); setView("form"); }}
             className="w-full py-4 rounded-[2rem] font-black text-white flex items-center justify-center gap-2 relative overflow-hidden"
-            style={{ background: "linear-gradient(135deg,#14b8a6,#6366f1)", boxShadow: "0 16px 40px rgba(99,102,241,0.3)" }}
+            style={{ background: "linear-gradient(135deg,#FF4D00,#0ea5e9)", boxShadow: "0 16px 40px rgba(255,77,0,0.28)" }}
           >
             <Megaphone className="w-4 h-4" />
-            Start Promoting — From $4.99 USD
+            Request promotion — free to apply
           </motion.button>
-          <p className="text-[10px] text-center mt-3 font-bold" style={{ color: th.textFaint }}>No upfront payment · You pay securely in-app after approval</p>
+          <p className="text-[10px] text-center mt-3 font-bold" style={{ color: th.textFaint }}>Photo + video (max 1 min) · Pay only after approval · From $4.99 USD</p>
           <button 
             onClick={() => handleLaunchPayment(PACKAGES[0], true)}
             className="text-[9px] text-transparent hover:text-white/20 uppercase tracking-widest w-full text-center mt-4 transition-colors"
@@ -807,9 +948,9 @@ export default function AdvertisePage() {
                   </div>
                   <div className="space-y-3">
                     {[
-                      { icon: ClipboardList, color: "#f97316", colorRgb: "249,115,22", title: "Submit your event", desc: "Fill out this form with your event or business details" },
-                      { icon: Shield,        color: "#3b82f6", colorRgb: "59,130,246",  title: "We review it",      desc: "Our team verifies submissions are appropriate & legal within 24 h" },
-                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? You'll be notified to complete your payment and launch!" },
+                      { icon: ClipboardList, color: "#f97316", colorRgb: "249,115,22", title: "Submit your event", desc: "Details + cover photo + optional video commercial (max 1 min)" },
+                      { icon: Shield,        color: "#0ea5e9", colorRgb: "14,165,233",  title: "We review it",      desc: "Our team verifies submissions are appropriate & legal within 24 h" },
+                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? You'll be notified to complete payment and launch!" },
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -903,32 +1044,78 @@ export default function AdvertisePage() {
                   <p className="text-sm" style={{ color: th.textMuted }}>Fill in as much as you can — more info = better results</p>
                 </div>
 
-                {/* Photo upload */}
-                <div>
-                  <label className="text-xs font-bold mb-2 block uppercase tracking-widest" style={{ color: th.textDim }}>Event Photo</label>
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                  {form.photoUrl ? (
-                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
-                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="Event photo preview" />
+                {/* Photo + video upload */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold mb-2 block uppercase tracking-widest" style={{ color: th.textDim }}>Cover photo</label>
+                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                    {form.photoUrl ? (
+                      <div className="relative w-full aspect-[4/5] max-h-56 rounded-2xl overflow-hidden">
+                        <img src={form.photoUrl} className="w-full h-full object-cover" alt="Event photo preview" />
+                        <button
+                          type="button"
+                          onClick={() => set("photoUrl", "")}
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ background: "rgba(0,0,0,0.6)" }}
+                        >
+                          <ArrowLeft className="w-4 h-4 text-white rotate-45" />
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        onClick={() => set("photoUrl", "")}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
-                        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full aspect-[4/5] max-h-44 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-98"
+                        style={{ background: th.card, border: `2px dashed ${th.inputBorder}` }}
                       >
-                        <ArrowLeft className="w-4 h-4 text-white rotate-45" />
+                        <Camera className="w-7 h-7" style={{ color: th.textDim }} />
+                        <span className="text-sm font-bold" style={{ color: th.textDim }}>Add cover photo</span>
+                        <span className="text-[11px]" style={{ color: th.textFaint }}>JPG / PNG · vertical looks best</span>
                       </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full aspect-video rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-98"
-                      style={{ background: th.card, border: `2px dashed ${th.inputBorder}` }}
-                    >
-                      <Camera className="w-8 h-8" style={{ color: th.textDim }} />
-                      <span className="text-sm font-bold" style={{ color: th.textDim }}>Tap to add a photo</span>
-                      <span className="text-[11px]" style={{ color: th.textFaint }}>JPG, PNG · Recommended 1:1</span>
-                    </button>
-                  )}
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold mb-2 flex items-center gap-2 uppercase tracking-widest" style={{ color: th.textDim }}>
+                      <Film className="w-3.5 h-3.5 text-sky-400" />
+                      Video commercial <span className="normal-case tracking-normal font-medium">(optional · max 1 min)</span>
+                    </label>
+                    <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
+                    {form.videoUrl ? (
+                      <div className="relative w-full aspect-[9/16] max-h-64 rounded-2xl overflow-hidden bg-black">
+                        <video src={form.videoUrl} className="w-full h-full object-cover" controls playsInline muted />
+                        <button
+                          type="button"
+                          onClick={() => set("videoUrl", "")}
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                          style={{ background: "rgba(0,0,0,0.6)" }}
+                        >
+                          <ArrowLeft className="w-4 h-4 text-white rotate-45" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={videoUploading}
+                        onClick={() => videoInputRef.current?.click()}
+                        className="w-full rounded-2xl flex flex-col items-center justify-center gap-2 py-8 transition-all active:scale-98 disabled:opacity-50"
+                        style={{
+                          background: isLight ? "rgba(14,165,233,0.06)" : "rgba(14,165,233,0.08)",
+                          border: "2px dashed rgba(14,165,233,0.35)",
+                        }}
+                      >
+                        {videoUploading ? (
+                          <Upload className="w-7 h-7 text-sky-400 animate-pulse" />
+                        ) : (
+                          <Video className="w-7 h-7 text-sky-400" />
+                        )}
+                        <span className="text-sm font-bold" style={{ color: th.text }}>Upload video commercial</span>
+                        <span className="text-[11px] px-6 text-center" style={{ color: th.textMuted }}>
+                          MP4 / MOV · up to 60 seconds · plays in the Events feed
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {[
@@ -1002,8 +1189,16 @@ export default function AdvertisePage() {
                 <div className="rounded-2xl p-4 space-y-3"
                   style={{ background: th.card, border: `1px solid ${th.divider}` }}>
                   {form.photoUrl && (
-                    <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
+                    <div className="w-full aspect-[4/5] max-h-40 rounded-xl overflow-hidden mb-2">
                       <img src={form.photoUrl} className="w-full h-full object-cover" alt="Submitted event photo" />
+                    </div>
+                  )}
+                  {form.videoUrl && (
+                    <div className="w-full aspect-[9/16] max-h-48 rounded-xl overflow-hidden mb-3 bg-black relative">
+                      <video src={form.videoUrl} className="w-full h-full object-cover" muted playsInline />
+                      <div className="absolute bottom-2 left-2 rounded-full px-2 py-0.5 bg-black/60 text-[10px] font-black uppercase tracking-wider text-sky-300 flex items-center gap-1">
+                        <Film className="w-3 h-3" /> Video commercial
+                      </div>
                     </div>
                   )}
                   {[
@@ -1013,6 +1208,7 @@ export default function AdvertisePage() {
                     { label: "Contact", value: `${form.contactName} · ${form.contactPhone}` },
                     form.date ? { label: "Date", value: form.date } : null,
                     form.website ? { label: "Website / IG", value: form.website } : null,
+                    form.videoUrl ? { label: "Video", value: "Attached (≤1 min)" } : null,
                   ].filter(Boolean).map((row: any) => (
                     <div key={row.label} className="flex justify-between text-sm gap-4">
                       <span style={{ color: th.textDim }}>{row.label}</span>

@@ -317,6 +317,12 @@ export const EventCard = memo(({
               </div>
             )}
 
+            {hasVideo && (
+              <div className="px-3 py-1 rounded-full bg-sky-500/25 border border-sky-400/35 flex items-center gap-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-sky-300">Video</span>
+              </div>
+            )}
+
             {event.discount_tag && (
               <div className="px-3 py-1 rounded-full bg-yellow-500/25 border border-yellow-500/30">
                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-yellow-400">{event.discount_tag}</span>
