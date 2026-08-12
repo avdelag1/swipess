@@ -1,19 +1,13 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { MOCK_EVENTS } from '@/data/eventsData';
 import type { EventItem } from '@/types/events';
 import { useFilterStore } from '@/state/filterStore';
 import { applyEventLocationFilter } from '@/utils/matchingFilters';
 import {
-  EVENT_SELECT_BASE,
-  EVENT_SELECT_BASE_NO_GEO,
-  EVENT_SELECT_WITH_AUDIO,
-  EVENT_SELECT_WITH_AUDIO_NO_GEO,
-  formatEventRow,
-  isMissingAudioColumnError,
-  isMissingGeoColumnError,
+  fetchEventsFromDb,
+  prioritizeEventsWithVideo,
 } from '@/utils/eventsGeo';
 
 export { pickEventImage } from '@/utils/eventsGeo';
@@ -25,58 +19,31 @@ export function useEventsDeck(enabled: boolean) {
   const radiusKm = useFilterStore((s) => s.radiusKm);
 
   const query = useQuery({
-    queryKey: ['eventos', 'swipe-deck', 'v3'],
+    queryKey: ['eventos', 'swipe-deck', 'v4'],
     enabled,
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<EventItem[]> => {
-      let { data, error } = await supabase
-        .from('events')
-        .select(EVENT_SELECT_WITH_AUDIO)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error && isMissingGeoColumnError(error.message)) {
-        ({ data, error } = await supabase
-          .from('events')
-          .select(EVENT_SELECT_WITH_AUDIO_NO_GEO)
-          .order('created_at', { ascending: false })
-          .limit(100));
-      }
-
-      if (error && isMissingAudioColumnError(error.message)) {
-        ({ data, error } = await supabase
-          .from('events')
-          .select(EVENT_SELECT_BASE)
-          .order('created_at', { ascending: false })
-          .limit(100));
-        if (error && isMissingGeoColumnError(error.message)) {
-          ({ data, error } = await supabase
-            .from('events')
-            .select(EVENT_SELECT_BASE_NO_GEO)
-            .order('created_at', { ascending: false })
-            .limit(100));
-        }
-      }
-
-      if (error) {
+      try {
+        const dbEvents = await fetchEventsFromDb(100);
+        const seen = new Set(dbEvents.map((e) => e.id));
+        const demos = (MOCK_EVENTS || []).filter((m) => !seen.has(m.id));
+        return prioritizeEventsWithVideo([...dbEvents, ...demos]);
+      } catch (error) {
         logger.warn('[useEventsDeck] fetch error:', error);
         throw error;
       }
-
-      const dbEvents = (data || []).map((row) => formatEventRow(row as Record<string, unknown>));
-      const seen = new Set(dbEvents.map((e) => e.id));
-      const demos = (MOCK_EVENTS || []).filter((m) => !seen.has(m.id));
-      return [...dbEvents, ...demos];
     },
   });
 
   const data = useMemo(() => {
     if (!query.data) return query.data;
-    return applyEventLocationFilter(query.data, {
-      userLatitude,
-      userLongitude,
-      radiusKm,
-    });
+    return prioritizeEventsWithVideo(
+      applyEventLocationFilter(query.data, {
+        userLatitude,
+        userLongitude,
+        radiusKm,
+      }),
+    );
   }, [query.data, userLatitude, userLongitude, radiusKm]);
 
   return { ...query, data };
@@ -87,6 +54,7 @@ export function useEventLikes(userId: string | undefined) {
     queryKey: ['event-likes', userId],
     queryFn: async () => {
       if (!userId) return new Set<string>();
+      const { supabase } = await import('@/integrations/supabase/client');
       const { data } = await supabase
         .from('likes')
         .select('target_id')

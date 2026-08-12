@@ -1,6 +1,7 @@
 import type { EventItem } from '@/types/events';
 import { applyEventLocationFilter } from '@/utils/matchingFilters';
 import { useFilterStore } from '@/state/filterStore';
+import { supabase } from '@/integrations/supabase/client';
 
 export const EVENT_SELECT_WITH_AUDIO =
   'id, title, description, category, image_url, image_urls, video_url, video_audio_enabled, background_music_url, event_date, location, location_detail, latitude, longitude, visibility_radius_km, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text, created_at';
@@ -86,4 +87,51 @@ export function filterEventsForViewerLocation<T extends EventItem>(
     userLongitude,
     radiusKm,
   });
+}
+
+/** Video events first so the feed / quick-filter never open on photo-only mocks. */
+export function prioritizeEventsWithVideo<T extends { video_url?: string | null }>(events: T[]): T[] {
+  if (events.length < 2) return events;
+  const withVideo: T[] = [];
+  const without: T[] = [];
+  for (const ev of events) {
+    if (ev.video_url && String(ev.video_url).trim()) withVideo.push(ev);
+    else without.push(ev);
+  }
+  return withVideo.length ? [...withVideo, ...without] : events;
+}
+
+/**
+ * Fetch published events with progressive column fallbacks.
+ * Prod may not have geo columns yet — try working selects before failing.
+ */
+export async function fetchEventsFromDb(limit = 100): Promise<EventItem[]> {
+  // Prefer no-geo first: production still lacks latitude/longitude columns.
+  const selects = [
+    EVENT_SELECT_WITH_AUDIO_NO_GEO,
+    EVENT_SELECT_BASE_NO_GEO,
+    EVENT_SELECT_WITH_AUDIO,
+    EVENT_SELECT_BASE,
+  ];
+
+  let lastError: { message?: string } | null = null;
+  for (const select of selects) {
+    const { data, error } = await supabase
+      .from('events')
+      .select(select)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (!error) {
+      return (data || []).map((ev) => formatEventRow(ev as Record<string, unknown>));
+    }
+    lastError = error;
+    const msg = error.message || '';
+    // Only continue on missing-column schema drift
+    if (!isMissingGeoColumnError(msg) && !isMissingAudioColumnError(msg)) {
+      throw error;
+    }
+  }
+
+  throw lastError || new Error('Failed to fetch events');
 }

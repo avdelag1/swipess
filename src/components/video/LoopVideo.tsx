@@ -109,9 +109,17 @@ export const LoopVideo = forwardRef<
 
     const tryPlay = () => {
       if (!active) return;
-      el.play()
-        .then(() => markFrame())
-        .catch(() => {});
+      // Always muted autoplay path — iOS allows this without a gesture
+      el.muted = muted;
+      const p = el.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => markFrame()).catch(() => {
+          // Retry once after a tick (common after display:none → flex remount)
+          window.setTimeout(() => {
+            el.play().then(() => markFrame()).catch(() => {});
+          }, 120);
+        });
+      }
     };
 
     const io = new IntersectionObserver(
@@ -122,7 +130,7 @@ export const LoopVideo = forwardRef<
         }
         tryPlay();
       },
-      { threshold: 0.2 },
+      { threshold: 0.15 },
     );
     io.observe(el);
 
@@ -145,16 +153,28 @@ export const LoopVideo = forwardRef<
         tryPlay();
       };
       el.addEventListener('loadeddata', onReady, { once: true });
-      el.addEventListener('playing', markFrame, { once: true });
+      el.addEventListener('canplay', onReady, { once: true });
+      el.addEventListener('playing', markFrame);
+      try {
+        el.load();
+      } catch {
+        /* ignore */
+      }
       tryPlay();
     }
 
+    // Visibility / page-show — PersistentEventsScene toggles display
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && active) tryPlay();
+    };
+    document.addEventListener('visibilitychange', onVis);
+
     return () => {
       io.disconnect();
-      // Only pause when leaving active/warm — not on mute toggles
+      document.removeEventListener('visibilitychange', onVis);
       el.pause();
     };
-  }, [active, warm, cleanSrc, shouldAttach]);
+  }, [active, warm, cleanSrc, shouldAttach, muted]);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -188,6 +208,7 @@ export const LoopVideo = forwardRef<
       {shouldAttach ? (
         <video
           ref={videoRef}
+          key={cleanSrc}
           src={cleanSrc}
           poster={poster}
           muted={muted}
@@ -199,10 +220,12 @@ export const LoopVideo = forwardRef<
           disablePictureInPicture
           controls={false}
           onLoadedData={() => setHasFrame(true)}
+          onCanPlay={() => setHasFrame(true)}
           onPlaying={() => setHasFrame(true)}
           className={cn(
             'absolute inset-0 w-full h-full object-cover',
-            hasFrame ? 'opacity-100' : 'opacity-0',
+            // Keep video visible while active even before first frame paints
+            active || hasFrame ? 'opacity-100' : 'opacity-0',
             'transition-opacity duration-100',
           )}
         />

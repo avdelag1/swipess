@@ -23,13 +23,8 @@ import { EVENTOS_QUERY_KEY } from '@/utils/prefetchEventosFeed';
 import { useFilterStore } from '@/state/filterStore';
 import { applyEventLocationFilter } from '@/utils/matchingFilters';
 import {
-  EVENT_SELECT_BASE,
-  EVENT_SELECT_BASE_NO_GEO,
-  EVENT_SELECT_WITH_AUDIO,
-  EVENT_SELECT_WITH_AUDIO_NO_GEO,
-  formatEventRow,
-  isMissingAudioColumnError,
-  isMissingGeoColumnError,
+  fetchEventsFromDb,
+  prioritizeEventsWithVideo,
   pickEventImage,
 } from '@/utils/eventsGeo';
 
@@ -184,43 +179,7 @@ export default function EventosFeed() {
 
   const { data: rawEvents, isLoading: eventsLoading, isPending: eventsPending, isError: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: EVENTOS_QUERY_KEY,
-    queryFn: async (): Promise<EventItem[]> => {
-      let { data, error } = await supabase
-        .from('events')
-        .select(EVENT_SELECT_WITH_AUDIO)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error && isMissingGeoColumnError(error.message)) {
-        ({ data, error } = await supabase
-          .from('events')
-          .select(EVENT_SELECT_WITH_AUDIO_NO_GEO)
-          .order('created_at', { ascending: false })
-          .limit(100));
-      }
-
-      if (error && isMissingAudioColumnError(error.message)) {
-        ({ data, error } = await supabase
-          .from('events')
-          .select(EVENT_SELECT_BASE)
-          .order('created_at', { ascending: false })
-          .limit(100));
-        if (error && isMissingGeoColumnError(error.message)) {
-          ({ data, error } = await supabase
-            .from('events')
-            .select(EVENT_SELECT_BASE_NO_GEO)
-            .order('created_at', { ascending: false })
-            .limit(100));
-        }
-      }
-      
-      if (error) {
-        logger.warn('Supabase events fetch error:', error);
-        throw error;
-      }
-      
-      return (data || []).map((ev) => formatEventRow(ev as Record<string, unknown>));
-    },
+    queryFn: async (): Promise<EventItem[]> => fetchEventsFromDb(100),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -237,20 +196,24 @@ export default function EventosFeed() {
       userLongitude,
       radiusKm,
     });
-    
-    if (combined.length > 0 && typeof window !== 'undefined') {
+
+    // Videos first — mock photos must not bury real event commercials
+    const ranked = prioritizeEventsWithVideo(combined);
+
+    if (ranked.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
-        const first3 = combined.slice(0, 3).map(e => getCardImageUrl(pickEventImage(e) || ''));
+        const first3 = ranked.slice(0, 3).map(e => getCardImageUrl(pickEventImage(e) || ''));
         pwaImagePreloader.batchPreload(first3);
       });
     }
-    return combined;
+    return ranked;
   }, [rawEvents, eventsError, userLatitude, userLongitude, radiusKm]);
 
   const filteredEvents = useMemo(() => {
     if (activeCategory === 'all') return allEvents;
     if (activeCategory === 'likes') return allEvents.filter(e => likedIds.has(e.id));
-    return allEvents.filter(e => e.category === activeCategory);
+    // DB rows often use category "all" as a catch-all — keep them visible in every ring
+    return allEvents.filter(e => e.category === activeCategory || e.category === 'all' || !e.category);
   }, [allEvents, activeCategory, likedIds]);
 
   useEffect(() => {
@@ -578,7 +541,14 @@ export default function EventosFeed() {
             <div
               key={event.id}
               className="w-full shrink-0 snap-start snap-always relative"
-              style={{ height: '100dvh', contentVisibility: 'auto', containIntrinsicSize: '100vw 100dvh' } as React.CSSProperties}
+              style={{
+                height: '100dvh',
+                // Never use content-visibility on the active/warm row — it
+                // skips decoding and freezes event videos as static posters.
+                ...(dist > warmRadius + 1
+                  ? { contentVisibility: 'auto', containIntrinsicSize: '100vw 100dvh' }
+                  : null),
+              } as React.CSSProperties}
             >
               {shouldMount ? (
                 <EventCard
