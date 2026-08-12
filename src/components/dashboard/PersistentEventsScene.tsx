@@ -14,6 +14,8 @@ function isEventsFeedRoute(pathname: string): boolean {
 export function PersistentEventsScene() {
   const location = useLocation();
   const isFeed = isEventsFeedRoute(location.pathname);
+  // Always keep the feed mounted after first visit so media/state survive
+  // tab switches — and mount immediately when landing on /explore/events.
   const mountedRef = useRef(isFeed);
   if (isFeed) mountedRef.current = true;
 
@@ -26,11 +28,14 @@ export function PersistentEventsScene() {
   return (
     <div
       aria-hidden={!isFeed}
+      data-events-scene={isFeed ? 'active' : 'idle'}
       className="absolute inset-0 flex flex-col"
       style={{
-        zIndex: 1,
+        // Sit above the empty outlet shell when active so the feed is never covered.
+        zIndex: isFeed ? 20 : 1,
         display: isFeed ? 'flex' : 'none',
         pointerEvents: isFeed ? 'auto' : 'none',
+        background: isFeed ? '#0a0a0b' : 'transparent',
       }}
     >
       <Suspense fallback={null}>

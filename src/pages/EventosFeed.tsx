@@ -225,11 +225,14 @@ export default function EventosFeed() {
   });
 
   const allEvents = useMemo(() => {
-    const dbEvents = rawEvents || [];
-    const seen = new Set(dbEvents.map(e => e.id));
+    // Prefer live DB rows; always keep curated mocks as filler. On fetch failure
+    // still show mocks so the Events tab is never a blank/error-only screen.
+    const primary = (!eventsError && rawEvents) ? rawEvents : [];
+    const seen = new Set(primary.map(e => e.id));
     const validMocks = (MOCK_EVENTS || []).filter((m: any) => !seen.has(m.id));
-    
-    const combined = applyEventLocationFilter([...dbEvents, ...validMocks], {
+    const source = primary.length > 0 ? [...primary, ...validMocks] : validMocks;
+
+    const combined = applyEventLocationFilter(source, {
       userLatitude,
       userLongitude,
       radiusKm,
@@ -242,7 +245,7 @@ export default function EventosFeed() {
       });
     }
     return combined;
-  }, [rawEvents, userLatitude, userLongitude, radiusKm]);
+  }, [rawEvents, eventsError, userLatitude, userLongitude, radiusKm]);
 
   const filteredEvents = useMemo(() => {
     if (activeCategory === 'all') return allEvents;
@@ -300,6 +303,13 @@ export default function EventosFeed() {
       setSearchParams(next, { replace: true });
     }
   }, [filteredEvents, searchParams, setSearchParams, activeCategory]);
+
+  // Never leave the feed invisible if a deep-link target stalls
+  useEffect(() => {
+    if (feedReady) return;
+    const t = window.setTimeout(() => setFeedReady(true), 600);
+    return () => window.clearTimeout(t);
+  }, [feedReady]);
 
   useEffect(() => {
     if (activeIdx < totalRows) return;
@@ -501,32 +511,8 @@ export default function EventosFeed() {
 
       </div>
 
-      {/* Main Feed */}
-      {eventsError ? (
-        <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
-          <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
-            <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}>
-              Could not load events
-            </p>
-            <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
-              Check your connection and try again.
-            </p>
-            <button
-              onClick={() => { triggerHaptic('medium'); refetchEvents(); }}
-              className={cn(
-                "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
-                isLight ? "text-black" : "text-white"
-              )}
-              style={{
-                ...hudGlassStyle,
-                background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
-              }}
-            >
-              Try again
-            </button>
-          </div>
-        </div>
-      ) : (eventsLoading || eventsPending) && !rawEvents ? (
+      {/* Main Feed — prefer content (DB + mocks) over a hard error screen */}
+      {(eventsLoading || eventsPending) && !rawEvents && allEvents.length === 0 ? (
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm space-y-4">
             {[1, 2, 3].map((n) => (
@@ -542,13 +528,19 @@ export default function EventosFeed() {
         <div className="absolute inset-0 flex items-center justify-center px-6 pt-32">
           <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
             <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 
-              {activeCategory === 'likes' ? t('events.noLikedEvents') : t('events.noEvents')}
+              {eventsError
+                ? 'Could not load events'
+                : activeCategory === 'likes' ? t('events.noLikedEvents') : t('events.noEvents')}
             </p>
             <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
-              {t('events.noEventsDesc')}
+              {eventsError ? 'Check your connection and try again.' : t('events.noEventsDesc')}
             </p>
             <button
-              onClick={() => setActiveCategory('all')}
+              onClick={() => {
+                triggerHaptic('medium');
+                if (eventsError) refetchEvents();
+                else setActiveCategory('all');
+              }}
               className={cn(
                 "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
                 isLight ? "text-black" : "text-white"
@@ -558,7 +550,7 @@ export default function EventosFeed() {
                 background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
               }}
             >
-              {t('events.allEvents')}
+              {eventsError ? 'Try again' : t('events.allEvents')}
             </button>
           </div>
         </div>

@@ -127,6 +127,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return false;
   }, [location.pathname, isCameraRoute, isRadioRoute]);
 
+  // Events feed must keep vertical pan — touch-none on <main> blocks iOS scroll.
+  const isEventsFeedRoute = useMemo(() => {
+    const path = location.pathname.replace(/\/$/, '');
+    return path === '/explore/events';
+  }, [location.pathname]);
+
+  const lockShellTouch = isSwipeDeck || (isFullScreenRoute && !isEventsFeedRoute);
+
   // HOOKS THAT DEPEND ON MEMOS
   // Pull-to-refresh listens on `scrollContainerRef` (#dashboard-scroll-
   // container), but on non-dashboard pages the real scroll happens
@@ -256,14 +264,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className={cn(
           "flex-1 flex flex-col relative w-full min-h-0",
-          (isSwipeDeck || isFullScreenRoute) ? "overflow-hidden touch-none" : isBentoDashboard ? "overflow-hidden" : "overflow-y-auto dashboard-scroll-target",
+          lockShellTouch ? "overflow-hidden touch-none" : isFullScreenRoute ? "overflow-hidden" : isBentoDashboard ? "overflow-hidden" : "overflow-y-auto dashboard-scroll-target",
 
           isSwipeDeck && "bg-swipe-frame"
         )}
         style={{
-          WebkitOverflowScrolling: (isSwipeDeck || isFullScreenRoute) ? 'auto' : 'touch',
+          WebkitOverflowScrolling: lockShellTouch ? 'auto' : 'touch',
           overscrollBehavior: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
-          touchAction: (isSwipeDeck || isFullScreenRoute) ? 'none' : undefined,
+          touchAction: lockShellTouch ? 'none' : undefined,
         }}
       >
         <div className={cn(
